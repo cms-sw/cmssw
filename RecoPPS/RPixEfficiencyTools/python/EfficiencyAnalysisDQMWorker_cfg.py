@@ -234,7 +234,7 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     fiducialXLow=cms.untracked.vdouble(fiducialXLow),
     fiducialYLow=cms.untracked.vdouble(fiducialYLow),
     fiducialYHigh=cms.untracked.vdouble(fiducialYHigh),
-    producerTag=cms.untracked.string(""),
+    producerTag=cms.untracked.string("CTPPSTestProtonReconstruction"),
     detectorTiltAngle=cms.untracked.double(18.4),
     detectorRotationAngle=cms.untracked.double(-8),
 
