@@ -319,9 +319,15 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
 
-      const auto tit = Form("%s%i: Map of missing hits", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
+      const auto& tit =
+          Form("%s%i: Map of missing hits", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
 
-      auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
+      // histogram name must not contain ":" otherwise it fails upload to the GUI
+      // see https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+      std::string name{tit};
+      ::replaceInString(name, ":", "");
+
+      auto ihhotcold = booker.book2D(name, tit, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("#phi [deg]", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
@@ -332,14 +338,24 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     } else {
       const bool isTID = layer <= bounds::k_LayersAtTIDEnd;
       const auto partitions =
-          (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
+          (isTID ? std::vector<std::string>{"TIDplus", "TIDminus"} : std::vector<std::string>{"TECplus", "TECminus"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        const auto tit = Form("%s%i: Map of missing hits",
-                              part.c_str(),
-                              (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+        // create the title by replacing the minus/plus symbols
+        std::string forTitle{part};
+        ::replaceInString(forTitle, "minus", "-");
+        ::replaceInString(forTitle, "plus", "+");
 
-        auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
+        // histogram name must not contain ":" otherwise it fails upload to the GUI
+        // see https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+        const auto& name = Form("%s %i Map of Missing Hits",
+                                part.c_str(),
+                                (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+        const auto& tit = Form("%s%i: Map of Missing Hits",
+                               forTitle.c_str(),
+                               (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+
+        auto ihhotcold = booker.book2D(name, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
         ihhotcold->setBinLabel(1, "+Y", 1);
         ihhotcold->setBinLabel(50, "0", 1);
