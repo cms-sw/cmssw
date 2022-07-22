@@ -3,6 +3,7 @@ from .MatrixUtil import *
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
+from Configuration.Skimming.autoSkim import autoSkim
 from .upgradeWorkflowComponents import step3_trackingOnly
 
 # step1 gensim: for run1
@@ -470,13 +471,27 @@ steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/
 steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
 
 
-#### run3 2022B ####
-Run2022A={353706: [[1, 40]]}
+#### run3 ####
+Run2022A={353053: [[0, 100]]}
 steps['RunSingleMuon2022A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
-Run2022B={355130: [[1, 40]]}
-steps['RunSingleMuon2022B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunZeroBias2022B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-
+steps['RunEGamma2022A']={'INPUT':InputInfo(dataSet='/EGamma/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunMinimumBias2022A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunZeroBias2022A']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDisplacedJet2022A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunCommissioning2022A']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDoubleMuon2022A']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunJetHT2022A']={'INPUT':InputInfo(dataSet='/JetHT/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunHcalNZS2022A']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022A-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022A)}
+steps['RunHLTPhysics2022A']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022A-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022A)}
+steps['RunMET2022A']={'INPUT':InputInfo(dataSet='/MET/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+Run2022B={355442: [[1, 100]]}
+steps['RunBTagMu2022B']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunMET2022B']={'INPUT':InputInfo(dataSet='/MET/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunTau2022B']={'INPUT':InputInfo(dataSet='/Tau/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunNoBPTX2022B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunCosmics2022B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -514,10 +529,6 @@ steps['RunHLTPhy2021']={'INPUT':InputInfo(dataSet='/HLTPhysics/Commissioning2021
 steps['RunNoBPTX2021']={'INPUT':InputInfo(dataSet='/NoBPTX/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
 steps['AlCaPhiSym2021']={'INPUT':InputInfo(dataSet='/AlCaPhiSym/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],location='STD')}
 steps['AlCaLumiPixels2021']={'INPUT':InputInfo(dataSet='/AlCaLumiPixelsCountsExpress/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],events=100000,location='STD')}
-
-Run2022={353053: [[0, 100]]}
-steps['RunMinimumBias2022']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022A-v1/RAW',label='2022',events=100000,location='STD', ls=Run2022)}
-steps['RunZeroBias2022']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022A-v1/RAW',label='2022',events=100000,location='STD', ls=Run2022)}
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
@@ -2353,6 +2364,12 @@ steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
                                        '-n':'-1',
                                        '-s':'RECO:bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask',
                                        '--customise':'Calibration/EcalCalibAlgos/EcalPhiSymRecoSequence_cff'},dataReco])
+                                       
+# Run3 skims
+for s in autoSkim.keys():
+    steps['SKIM'+s.upper()+'RUN3']={'-s':'SKIM:%s'%(autoSkim[s]),
+                                    '--data':'',
+                                    '--conditions':'auto:run3_data_relval'}
 
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
