@@ -3687,6 +3687,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
+    upgradeStepDict['Gen'][k]= {'-s' : 'GEN',
+                                '-n' : 10,
+                                '--conditions' : gt,
+                                '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                '--datatier' : 'GEN',
+                                '--eventcontent': 'FEVTDEBUG',
+                                '--geometry' : geom
+                                }
+    if beamspot is not None: upgradeStepDict['Gen'][k]['--beamspot']=beamspot
+
     upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -3849,24 +3859,24 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['FastSimRun3'][k]={'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS+@miniAODDQM',
+    upgradeStepDict['FastSimRun3'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation,DQM:@standardDQMFS+@miniAODDQM+@nanoAODDQM',
                                        '--fast':'',
                                        '--era':'Run3_FastSim',
                                        '--beamspot':beamspot,
                                        '--conditions':gt,
                                        '--geometry':geom,
-                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                                       '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
+                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
+                                       '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
                                        '--relval':'27000,3000'}
     
-    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODDQM',
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODDQM+@nanoAODDQM',
                                            '--conditions':gt,
                                            '--mc':'',
                                            '--fast':'',
                                            '--geometry':geom,
                                            '--scenario':'pp',
                                            '--filetype':'DQM',
-                                           '--filein':'file:step1_inDQM.root'}
+                                           '--filein':'file:step2_inDQM.root'}
     
     upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
@@ -3905,7 +3915,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
-   if 'Sim' in step or 'Premix' in step:
+    if ('Sim' in step and 'Fast' not in step) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
         for frag,info in upgradeFragments.items():
             howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
@@ -3931,7 +3941,7 @@ for step in upgradeStepDict.keys():
                         if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
                            (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
                             steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
-   else:
+    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:

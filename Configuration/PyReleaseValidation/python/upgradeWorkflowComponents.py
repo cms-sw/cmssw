@@ -148,6 +148,8 @@ class UpgradeWorkflow(object):
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName:
             stepDict[stepName][k] = None
+        if "Gen" in stepName:
+            stepDict[stepName][k] = None
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
@@ -163,6 +165,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -1826,6 +1829,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         return '2021FS' in key
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
+        'Gen',
         'FastSimRun3',
         'HARVESTFastRun3'
     ],
@@ -1839,7 +1843,7 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
 
 class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'FastSimRun3' in step:
+        if 'Gen' in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
@@ -1852,6 +1856,7 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         return '2021FS' in key and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
+        'Gen',
         'FastSimRun3',
         'HARVESTFastRun3'
     ],
@@ -2069,7 +2074,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_FastSim',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['FastSimRun3','HARVESTFastRun3'],
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
 }
 
@@ -2081,7 +2086,7 @@ for key in list(upgradeProperties[2017].keys()):
                                                          (['RecoNanoPU','HARVESTNanoPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
                                                          (['Nano'] if 'Nano' in upgradeProperties[2017][key]['ScenToRun'] else [])
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['FastSimRun3PU','HARVESTFastRun3PU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties[2026] = {
     '2026D49' : {
