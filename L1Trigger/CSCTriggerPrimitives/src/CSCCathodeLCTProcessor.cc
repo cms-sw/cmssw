@@ -325,7 +325,7 @@ void CSCCathodeLCTProcessor::run(
   // This version of the run() function can either be called in a standalone
   // test, being passed the halfstrip times, or called by the
   // run() function above.  It uses the findLCTs() method to find vectors
-  // of LCT candidates. These candidates are sorted and the best two per bx
+  // of LCT candidates. These candidates are already sorted and the best two per bx
   // are returned.
 
   // initialize the pulse array.
@@ -333,10 +333,6 @@ void CSCCathodeLCTProcessor::run(
   pulse_.initialize(numHalfStrips_ + 1);
 
   std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip);
-
-  // LCT sorting.
-  if (CLCTlist.size() > 1)
-    sort(CLCTlist.begin(), CLCTlist.end(), std::greater<CSCCLCTDigi>());
 
   for (const auto& p : CLCTlist) {
     const int bx = p.getBX();
@@ -647,6 +643,45 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
           }
         }
+
+        // Sort bestCLCT and secondALCT by quality
+        // if qualities are the same, sort by run-2 or run-3 pattern
+        // if qualities and patterns are the same, sort by half strip number
+        bool changeOrder = false;
+
+        unsigned qualityBest = 0, qualitySecond = 0;
+        unsigned patternBest = 0, patternSecond = 0;
+        unsigned halfStripBest = 0, halfStripSecond = 0;
+
+        if (tempBestCLCT.isValid() and tempSecondCLCT.isValid()) {
+          qualityBest = tempBestCLCT.getQuality();
+          qualitySecond = tempSecondCLCT.getQuality();
+          if (!runCCLUT_) {
+            patternBest = tempBestCLCT.getPattern();
+            patternSecond = tempSecondCLCT.getPattern();
+          } else {
+            patternBest = tempBestCLCT.getRun3Pattern();
+            patternSecond = tempSecondCLCT.getRun3Pattern();
+          }
+          halfStripBest = tempBestCLCT.getKeyStrip();
+          halfStripSecond = tempSecondCLCT.getKeyStrip();
+
+          if (qualitySecond > qualityBest)
+            changeOrder = true;
+          else if ((qualitySecond == qualityBest) and (int(patternSecond / 2) > int(patternBest / 2)))
+            changeOrder = true;
+          else if ((qualitySecond == qualityBest) and (int(patternSecond / 2) == int(patternBest / 2)) and
+                   (halfStripSecond < halfStripBest))
+            changeOrder = true;
+        }
+
+        CSCCLCTDigi tempCLCT;
+        if (changeOrder) {
+          tempCLCT = tempBestCLCT;
+          tempBestCLCT = tempSecondCLCT;
+          tempSecondCLCT = tempCLCT;
+        }
+
         // add the CLCTs to the collection
         if (tempBestCLCT.isValid()) {
           lctList.push_back(tempBestCLCT);
