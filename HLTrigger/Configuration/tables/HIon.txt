@@ -441,8 +441,8 @@ HLT_HIUPC_DoubleEG5_BptxAND_MaxPixelTrack_v*
 
 HLT_HIOnlineMonitorGroup_v* # CMSHLT-2245
 
-DQM_EcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343
-DQM_HcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343
+DQM_HIEcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIHcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 
 HLTriggerFinalPath
 
