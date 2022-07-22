@@ -39,33 +39,6 @@ cms::cuda::host::unique_ptr<uint32_t[]> TrackingRecHit2DGPUT<TrackerTraits>::hit
   return ret;
 }
 
-//NB these specialization below from the base class seems to be needed since they are used by the constructor (that is in the base class)
-//and if not explicilty defined the linker doesn't see them. FIXME: is there a cleaner way to do this that would still allow "partial specialization"?
-//With alpaka or the unique memory pool I expect this issues to be gone
-
-template <typename Traits, typename TrackerTraits>
-cms::cuda::host::unique_ptr<float[]> TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::localCoordToHostAsync(
-    cudaStream_t stream) const {
-  if constexpr (std::is_same_v<Traits, cms::cudacompat::GPUTraits>) {
-    auto ret = cms::cuda::make_host_unique<float[]>(5 * this->nHits(), stream);
-    cms::cuda::copyAsync(ret, this->m_store32, 5 * this->nHits(), stream);
-    return ret;
-  } else {
-    static_assert(true, "Intended to be used only with GPU traits.\n");
-    return nullptr;
-  }
-}
-
-template <typename Traits, typename TrackerTraits>
-void TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::copyFromGPU(
-    TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input, cudaStream_t stream) {
-  assert(input);
-  if constexpr (std::is_same_v<Traits, cms::cudacompat::HostTraits>)
-    this->m_store32 = input->localCoordToHostAsync(stream);
-  else
-    static_assert(true, "Intended to be used only with Host traits.\n");
-}
-
 template class TrackingRecHit2DGPUT<pixelTopology::Phase1>;
 template class TrackingRecHit2DGPUT<pixelTopology::Phase2>;
 

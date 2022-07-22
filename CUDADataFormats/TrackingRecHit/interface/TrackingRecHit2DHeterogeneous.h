@@ -7,9 +7,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
-template <typename Traits, typename TrackerTraits>
-class TrackingRecHit2DHeterogeneousT {
-public:
+namespace {
   enum class Storage32 {
     kXLocal = 0,
     kYLocal = 1,
@@ -30,6 +28,13 @@ public:
     kXSize = 2,
     kYSize = 3,
   };
+}  // namespace
+
+template <typename Traits, typename TrackerTraits>
+class TrackingRecHit2DHeterogeneousT {
+public:
+  template <typename>
+  friend class TrackingRecHit2DHostT;
 
   template <typename T>
   using unique_ptr = typename Traits::template unique_ptr<T>;
@@ -40,13 +45,11 @@ public:
 
   TrackingRecHit2DHeterogeneousT() = default;
 
-  explicit TrackingRecHit2DHeterogeneousT(
-      uint32_t nHits,
-      int32_t offsetBPIX2,
-      pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
-      uint32_t const* hitsModuleStart,
-      cudaStream_t stream,
-      TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input = nullptr);
+  explicit TrackingRecHit2DHeterogeneousT(uint32_t nHits,
+                                          int32_t offsetBPIX2,
+                                          pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+                                          uint32_t const* hitsModuleStart,
+                                          cudaStream_t stream = nullptr);
 
   explicit TrackingRecHit2DHeterogeneousT(
       float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr);
@@ -76,10 +79,6 @@ public:
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<float[]> store32ToHostAsync(cudaStream_t stream) const;
 
-  // needs specialization for Host
-  void copyFromGPU(TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input,
-                   cudaStream_t stream);
-
 protected:
   static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
   static constexpr uint32_t n32 = 10;                // number of elements in m_store32
@@ -105,36 +104,20 @@ protected:
   int16_t* m_iphi;
 };
 
-// TrackingRecHit2DGPU/CPU/Host derived classes workaround to have partial specialization.
-// This is neeeded since one could not partially specialize a single method without specializing the whole class.
-// So simply having an alias such as
-//
-// template <typename TrackerTraits>
-// using TrackingRecHit2DGPUT = TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>;
-//
-// wouldn't work (giving some "invalid use of incomplete type" error). The alternative would be to have the whole class specialized. But this would mean we need
-// to rewrite every method (specialzed don't see primary methods). This is overcome with inheritance.
-// Thus with this workaround, i.e. using inheritance+specialization, we keep under control code duplication.
-// Another solution would be to have an extra accessor struct in the class to partially specialize only that
-// (as described here https://stackoverflow.com/questions/165101/invalid-use-of-incomplete-type-error-with-partial-template-specialization)
-// but it seems to me more messy than this.
-// The same reasoning applies to CAHitNtupletGeneratorKernels.
-
-// template <typename Traits, typename TrackerTraits>
-// class TrackingRecHit2DGPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {};
-//
-// template <typename Traits, typename TrackerTraits>
-// class TrackingRecHit2DCPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {};
-//
-// template <typename Traits, typename TrackerTraits>
-// class TrackingRecHit2DHostBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {};
-
 //Inherit and overload only what we need to overload, remember to use this->
 //GPU
 template <typename TrackerTraits>
 class TrackingRecHit2DGPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
+
+  // explicit TrackingRecHit2DGPUT( uint32_t nHits, int32_t offsetBPIX2, pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+  //   uint32_t const* hitsModuleStart, cudaStream_t stream = nullptr) :
+  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>(nHits,offsetBPIX2,cpeParams,hitsModuleStart,stream) {}
+  //
+  // explicit TrackingRecHit2DGPUT(float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr) :
+  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>(store32,store16,modules,nHits,stream) {}
+
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
@@ -146,6 +129,13 @@ template <typename TrackerTraits>
 class TrackingRecHit2DCPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
+  // explicit TrackingRecHit2DCPUT( uint32_t nHits, int32_t offsetBPIX2, pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+  //   uint32_t const* hitsModuleStart, cudaStream_t stream = nullptr) :
+  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>(nHits,offsetBPIX2,cpeParams,hitsModuleStart,stream) {}
+  //
+  // explicit TrackingRecHit2DCPUT(float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr) :
+  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>(store32,store16,modules,nHits,stream) {}
+
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<float[]> store32ToHostAsync(cudaStream_t stream) const;
@@ -155,19 +145,29 @@ public:
 template <typename TrackerTraits>
 class TrackingRecHit2DHostT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {
 public:
-  using TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
-  void copyFromGPU(TrackingRecHit2DGPUT<TrackerTraits> const* input, cudaStream_t stream);
+  ~TrackingRecHit2DHostT() = default;
+  TrackingRecHit2DHostT() = default;
+
+  explicit TrackingRecHit2DHostT(uint32_t nHits,
+                                 int32_t offsetBPIX2,
+                                 pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+                                 uint32_t const* hitsModuleStart,
+                                 cudaStream_t stream = nullptr)
+      : TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>(
+            nHits, offsetBPIX2, cpeParams, hitsModuleStart, stream) {}
+
+  explicit TrackingRecHit2DHostT(
+      float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr)
+      : TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>(
+            store32, store16, modules, nHits, stream) {}
+
+  explicit TrackingRecHit2DHostT(uint32_t nHits,
+                                 int32_t offsetBPIX2,
+                                 pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+                                 uint32_t const* hitsModuleStart,
+                                 cudaStream_t stream,
+                                 TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input);
 };
-
-// Aliases to avoid bringing Host/CPU/GPU traits around
-// template <typename TrackerTraits>
-// using TrackingRecHit2DGPUT = TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits>;
-
-// template <typename TrackerTraits>
-// using TrackingRecHit2DCPUT = TrackingRecHit2DCPUBaseT<cms::cudacompat::CPUTraits, TrackerTraits>;
-//
-// template <typename TrackerTraits>
-// using TrackingRecHit2DHostT = TrackingRecHit2DHostBaseT<cms::cudacompat::HostTraits, TrackerTraits>;
 
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
@@ -178,8 +178,7 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
     int32_t offsetBPIX2,
     pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
     uint32_t const* hitsModuleStart,
-    cudaStream_t stream,
-    TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input)
+    cudaStream_t stream)
     : m_nHits(nHits), m_offsetBPIX2(offsetBPIX2), m_hitsModuleStart(hitsModuleStart) {
   using TrackingRecHit2DSOAView = TrackingRecHit2DSOAViewT<TrackerTraits>;
 
@@ -208,18 +207,9 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   // this will break 1to1 correspondence with cluster and module locality
   // so unless proven VERY inefficient we keep it ordered as generated
 
-  // host copy is "reduced"  (to be reviewed at some point)
-  if constexpr (std::is_same_v<Traits, cms::cudacompat::HostTraits>) {
-    // it has to compile for ALL cases
-    copyFromGPU(input, stream);
-
-  } else {
-    assert(input == nullptr);
-
-    m_store16 = Traits::template make_unique<uint16_t[]>(nHits * n16, stream);
-    m_store32 = Traits::template make_unique<float[]>(nHits * n32 + TrackerTraits::numberOfLayers + 1, stream);
-    m_PhiBinnerStore = Traits::template make_unique<typename TrackingRecHit2DSOAView::PhiBinner>(stream);
-  }
+  m_store16 = Traits::template make_unique<uint16_t[]>(nHits * n16, stream);
+  m_store32 = Traits::template make_unique<float[]>(nHits * n32 + TrackerTraits::numberOfLayers + 1, stream);
+  m_PhiBinnerStore = Traits::template make_unique<typename TrackingRecHit2DSOAView::PhiBinner>(stream);
 
   static_assert(sizeof(typename TrackingRecHit2DSOAView::hindex_type) == sizeof(float));
   static_assert(sizeof(typename TrackingRecHit2DSOAView::hindex_type) ==
@@ -230,7 +220,6 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   // copy all the pointers
   m_phiBinner = view->m_phiBinner = m_PhiBinnerStore.get();
   m_phiBinnerStorage = view->m_phiBinnerStorage =
-
       reinterpret_cast<typename TrackingRecHit2DSOAView::PhiBinner::index_type*>(get32(Storage32::kPhiStorage));
 
   view->m_xl = get32(Storage32::kXLocal);
@@ -239,23 +228,20 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   view->m_yerr = get32(Storage32::kYerror);
   view->m_chargeAndStatus = reinterpret_cast<uint32_t*>(get32(Storage32::kCharge));
 
-  if constexpr (!std::is_same_v<Traits, cms::cudacompat::HostTraits>) {
-    assert(input == nullptr);
-    view->m_xg = get32(Storage32::kXGlobal);
-    view->m_yg = get32(Storage32::kYGlobal);
-    view->m_zg = get32(Storage32::kZGlobal);
-    view->m_rg = get32(Storage32::kRGlobal);
+  view->m_xg = get32(Storage32::kXGlobal);
+  view->m_yg = get32(Storage32::kYGlobal);
+  view->m_zg = get32(Storage32::kZGlobal);
+  view->m_rg = get32(Storage32::kRGlobal);
 
-    auto get16 = [&](Storage16 i) { return m_store16.get() + static_cast<int>(i) * nHits; };
-    m_iphi = view->m_iphi = reinterpret_cast<int16_t*>(get16(Storage16::kPhi));
+  auto get16 = [&](Storage16 i) { return m_store16.get() + static_cast<int>(i) * nHits; };
+  m_iphi = view->m_iphi = reinterpret_cast<int16_t*>(get16(Storage16::kPhi));
 
-    view->m_xsize = reinterpret_cast<int16_t*>(get16(Storage16::kXSize));
-    view->m_ysize = reinterpret_cast<int16_t*>(get16(Storage16::kYSize));
-    view->m_detInd = get16(Storage16::kDetId);
+  view->m_xsize = reinterpret_cast<int16_t*>(get16(Storage16::kXSize));
+  view->m_ysize = reinterpret_cast<int16_t*>(get16(Storage16::kYSize));
+  view->m_detInd = get16(Storage16::kDetId);
 
-    m_phiBinner = view->m_phiBinner = m_PhiBinnerStore.get();
-    m_hitsLayerStart = view->m_hitsLayerStart = reinterpret_cast<uint32_t*>(get32(Storage32::kLayers));
-  }
+  m_phiBinner = view->m_phiBinner = m_PhiBinnerStore.get();
+  m_hitsLayerStart = view->m_hitsLayerStart = reinterpret_cast<uint32_t*>(get32(Storage32::kLayers));
 
   // transfer view
   if constexpr (std::is_same_v<Traits, cms::cudacompat::GPUTraits>) {
@@ -263,6 +249,59 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   } else {
     m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
   }
+}
+
+template <typename TrackerTraits>
+TrackingRecHit2DHostT<TrackerTraits>::TrackingRecHit2DHostT(
+    uint32_t nHits,
+    int32_t offsetBPIX2,
+    pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
+    uint32_t const* hitsModuleStart,
+    cudaStream_t stream,
+    TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input) {
+  using TrackingRecHit2DSOAView = TrackingRecHit2DSOAViewT<TrackerTraits>;
+
+  this->m_nHits = nHits;
+  this->m_offsetBPIX2 = offsetBPIX2;
+  this->m_hitsModuleStart = hitsModuleStart;
+
+  auto view = cms::cuda::make_host_unique<TrackingRecHit2DSOAView>(stream);
+
+  view->m_nHits = nHits;
+  this->m_view =
+      cms::cuda::make_host_unique<TrackingRecHit2DSOAView>(stream);  // leave it on host and pass it by value?
+  this->m_AverageGeometryStore = cms::cuda::make_host_unique<typename TrackingRecHit2DSOAView::AverageGeometry>(stream);
+  view->m_averageGeometry = this->m_AverageGeometryStore.get();
+  view->m_cpeParams = cpeParams;
+  view->m_hitsModuleStart = hitsModuleStart;
+
+  // if empy do not bother
+  if (0 == nHits) {
+    this->m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
+    return;
+  }
+
+  this->m_store32 = cms::cuda::make_host_unique<float[]>(5 * input->nHits(), stream);
+  cms::cuda::copyAsync(this->m_store32, input->m_store32, 5 * input->nHits(), stream);
+
+  static_assert(sizeof(typename TrackingRecHit2DSOAView::hindex_type) == sizeof(float));
+  static_assert(sizeof(typename TrackingRecHit2DSOAView::hindex_type) ==
+                sizeof(typename TrackingRecHit2DSOAView::PhiBinner::index_type));
+
+  auto get32 = [&](Storage32 i) { return this->m_store32.get() + static_cast<int>(i) * nHits; };
+
+  // copy all the pointers
+  this->m_phiBinner = view->m_phiBinner = this->m_PhiBinnerStore.get();
+  this->m_phiBinnerStorage = view->m_phiBinnerStorage =
+      reinterpret_cast<typename TrackingRecHit2DSOAView::PhiBinner::index_type*>(get32(Storage32::kPhiStorage));
+
+  view->m_xl = get32(Storage32::kXLocal);
+  view->m_yl = get32(Storage32::kYLocal);
+  view->m_xerr = get32(Storage32::kXerror);
+  view->m_yerr = get32(Storage32::kYerror);
+  view->m_chargeAndStatus = reinterpret_cast<uint32_t*>(get32(Storage32::kCharge));
+
+  this->m_view = std::move(view);
 }
 
 //this is intended to be used only for CPU SoA but doesn't hurt to have it for all cases
