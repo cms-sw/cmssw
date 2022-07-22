@@ -738,7 +738,7 @@ namespace dqm::implementation {
 
   DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
-    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
+    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", false);
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
