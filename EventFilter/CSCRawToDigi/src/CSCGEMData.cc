@@ -1,11 +1,13 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCGEMData.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 #include <string>
 #include <cstdio>
 #include <strings.h>  // for bzero
 #include <cstring>
+#include <iostream>
 
 #ifdef LOCAL_UNPACK
 bool CSCGEMData::debug = false;
@@ -143,7 +145,7 @@ std::vector<GEMPadDigiCluster> CSCGEMData::digis(int gem_chamber) const {
 /// Unpack GEMPadDigiCluster digi trigger objects per eta/roll
 /// gem_chamber - GEM GE11 layer gemA/B [0,1]
 /// eta_roll - GEM eta/roll 8 rolls per GEM layer [0-7]
-std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_roll) const {
+std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_roll, int alctMatchTime) const {
   /// GEM data format v2
   std::vector<GEMPadDigiCluster> result;
   result.clear();
@@ -168,11 +170,12 @@ std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_rol
                   << "GEMlayer" << gem_layer << " cl_word" << dataAddr << ": 0x" << std::hex << cl_word << std::dec
                   << " tbin: " << i << " fiber#: " << (fiber + 1) << " cluster#: " << (cluster + 1)
                   << " padInPart: " << padInPart << " pad: " << pad << " eta: " << eta
-                  << " cluster_size: " << cluster_size << std::endl;
+                  << " cluster_size: " << cluster_size << " alctMatchTime: " << alctMatchTime << std::endl;
             std::vector<short unsigned int> pads;
             for (int iP = 0; iP <= cluster_size; ++iP)
               pads.push_back(padInPart + iP);
             GEMPadDigiCluster pad_cluster(pads, i);
+            pad_cluster.setAlctMatchTime(alctMatchTime);
             result.push_back(pad_cluster);
           }
         }
