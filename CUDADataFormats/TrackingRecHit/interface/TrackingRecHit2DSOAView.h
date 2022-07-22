@@ -32,11 +32,12 @@ public:
 
   template <typename, typename>
   friend class TrackingRecHit2DHeterogeneousT;
+  template <typename>
+  friend class TrackingRecHit2DHostT;
   // template <typename>
   // friend class TrackingRecHit2DReducedT;
 
   __device__ __forceinline__ uint32_t nHits() const { return m_nHits; }
-  __device__ __forceinline__ uint32_t nMaxModules() const { return m_nMaxModules; }
 
   __device__ __forceinline__ float& xLocal(int i) { return m_xl[i]; }
   __device__ __forceinline__ float xLocal(int i) const { return __ldg(m_xl + i); }
@@ -125,7 +126,6 @@ private:
   typename PhiBinner::index_type* m_phiBinnerStorage;
 
   uint32_t m_nHits;
-  uint32_t m_nMaxModules;
 };
 
 template <>

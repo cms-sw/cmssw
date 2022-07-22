@@ -29,13 +29,11 @@ int main() {
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
-    assert(tkhitH.view()->nMaxModules() == pixelTopology::Phase1::numberOfModules);
 
     TrackingRecHit2DHostT<pixelTopology::Phase2> tkhitHPhase2(nHits, 0, nullptr, nullptr, stream, &tkhitPhase2);
     cudaStreamSynchronize(stream);
     assert(tkhitHPhase2.view());
     assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
-    assert(tkhitHPhase2.view()->nMaxModules() == pixelTopology::Phase2::numberOfModules);
   }
 
   cudaCheck(cudaStreamDestroy(stream));
