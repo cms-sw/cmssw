@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 class config: pass
 config.dqmAtRunEnd = True
 if config.dqmAtRunEnd: config.fileMode = 'FULLMERGE'
 else: config.fileMode = 'NOMERGE'
 
-process = cms.Process("HARVESTING")
+process = cms.Process("HARVESTING",eras.Run3)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",eras.Run3)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('*')

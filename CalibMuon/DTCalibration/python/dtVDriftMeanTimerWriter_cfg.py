@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DTVDriftWriter")
+process = cms.Process("DTVDriftWriter",eras.Run3)
 
 process.load("CalibMuon.DTCalibration.messageLoggerDebug_cff")
 process.MessageLogger.debugModules = cms.untracked.vstring('dtVDriftMeanTimerWriter')

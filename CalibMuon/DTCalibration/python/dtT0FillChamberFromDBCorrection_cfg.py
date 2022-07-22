@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DTT0Correction")
+process = cms.Process("DTT0Correction",eras.Run3)
 
 process.load("CalibMuon.DTCalibration.messageLoggerDebug_cff")
 process.MessageLogger.debugModules = cms.untracked.vstring('dtT0FillChamberFromDBCorrection')
