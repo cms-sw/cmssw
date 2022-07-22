@@ -4,7 +4,7 @@ from DQM.Physics.HeavyFlavorDQMAnalyzer_cfi import *
 from DQM.Physics.vertexSelectForHeavyFlavorDQM_cfi import recoSelectForHeavyFlavorDQM
 
 bphWriteSpecificDecayForDQM = cms.EDProducer('BPHWriteSpecificDecay',
-    pVertexLabel = cms.string('offlineSlimmedPrimaryVertices'),
+    pVertexLabel = cms.string('offlinePrimaryVertices'),
     pfCandsLabel = cms.string('particleFlow'),
     patMuonLabel = cms.string('selectedPatMuons'),
     k0CandsLabel = cms.string('generalV0Candidates:Kshort'),
@@ -28,7 +28,8 @@ bphWriteSpecificDecayForDQM = cms.EDProducer('BPHWriteSpecificDecay',
 )
 
 heavyFlavorDQM = HeavyFlavorDQMAnalyzer.clone(
-    pvCollection = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    pvCollection = cms.InputTag('offlinePrimaryVertices'),
+    beamSpot = cms.InputTag('offlineBeamSpot'),
     OniaToMuMuCands            = cms.InputTag('bphWriteSpecificDecayForDQM:OniaToMuMuCands'),
     Kx0ToKPiCands              = cms.InputTag('bphWriteSpecificDecayForDQM:Kx0ToKPiCands'),
     PhiToKKCands               = cms.InputTag('bphWriteSpecificDecayForDQM:PhiToKKCands'),
