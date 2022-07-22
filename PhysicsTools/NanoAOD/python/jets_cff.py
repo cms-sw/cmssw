@@ -765,8 +765,10 @@ jetLepSequence = cms.Sequence(lepInJetVars)
 
 
 #after cross linkining
-#jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
-jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+#jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+saJetTable+saTable)
+run2_nanoAOD_106X2015.toReplaceWith(jetTables, jetTables.copyAndExclude([subJetTable]))
+
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+fatJetMCTable+genSubJetAK8Table+subjetMCTable)
@@ -774,6 +776,7 @@ _jetMC_pre94X = jetMC.copy()
 _jetMC_pre94X.insert(_jetMC_pre94X.index(genJetFlavourTable),genJetFlavourAssociation)
 _jetMC_pre94X.remove(genSubJetAK8Table)
 run2_miniAOD_80XLegacy.toReplaceWith(jetMC, _jetMC_pre94X)
+
 
 _jetMC_2015 = jetMC.copy()
 _jetMC_2015.insert(_jetMC_2015.index(genJetFlavourTable), genJetFlavourAssociation)
