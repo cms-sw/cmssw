@@ -3859,7 +3859,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
                                        '--relval':'27000,3000'}
     
-    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@standardDQMFS+@miniAODDQM',
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM',
                                            '--conditions':gt,
                                            '--mc':'',
                                            '--fast':'',
