@@ -484,17 +484,17 @@ steps['RunHLTPhysics2022B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022B-v1/
 steps['RunCommissioning2022B']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 Run2022B={355383: [[267, 269]]}
 steps['RunJetHT2022B']={'INPUT':InputInfo(dataSet='/JetHT/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355727: [[55, 108]]}
-steps['RunCosmics2022B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#Run2022B={355727: [[55, 108]]}
+#steps['RunCosmics2022B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
-Run2022B={355680: [[21, 24]]}
-steps['RunDisplacedJet2022B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunMET2022B']={'INPUT':InputInfo(dataSet='/MET/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunEGamma2022B']={'INPUT':InputInfo(dataSet='/EGamma/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunTau2022B']={'INPUT':InputInfo(dataSet='/Tau/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#Run2022B={355680: [[21, 24]]}
+#steps['RunDisplacedJet2022B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunMET2022B']={'INPUT':InputInfo(dataSet='/MET/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunEGamma2022B']={'INPUT':InputInfo(dataSet='/EGamma/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunTau2022B']={'INPUT':InputInfo(dataSet='/Tau/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+#steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -2656,7 +2656,7 @@ steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:
 steps['RECODR3_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_2021']])
 
 steps['RECONANORUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@miniAODDQM+@nanoAODDQM'},steps['RECODR3']])
-steps['RECOCOSMRUN3']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3']])
+#steps['RECOCOSMRUN3']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3']])
 steps['RECONANORUN3']['--customise'] += ',PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
