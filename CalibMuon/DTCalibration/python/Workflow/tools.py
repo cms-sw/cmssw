@@ -40,7 +40,7 @@ def listFilesLocal(paths, extension = '.root'):
 
 def haddLocal(localdir,result_file,extension = 'root'):
     if not os.path.exists( localdir ):
-        raise ValueError("localdir for hadd operation does not exist" )
+        raise ValueError(f"localdir {localdir} for hadd operation does not exist")
 
     files = listFilesLocal([localdir],extension)
     process = subprocess.Popen( ['hadd','-f', result_file] + files,

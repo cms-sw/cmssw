@@ -16,7 +16,7 @@ import logging
 import datetime
 import uuid
 import time
-from  httplib import HTTPException
+from http.client import HTTPException
 from multiprocessing import Process, Queue
 
 from CRABAPI.RawCommand import crabCommand
@@ -353,10 +353,10 @@ class CertInfo:
             self.voGroup = ""
             self.voRole = ""
         else:
-            lines = stdout.split("\n")
-            splitline = lines[0].split("/")
+            lines = stdout.split(b"\n")
+            splitline = lines[0].split(b"/")
             if len(splitline) < 4:
-                splitline = lines[1].split("/")
+                splitline = lines[1].split(b"/")
             self.vo = splitline[1]
             self.voGroup = splitline[2]
             try:
@@ -404,7 +404,7 @@ class CrabTask:
         #~ self.lock = multiprocessing.Lock()
         #setup logging
         self.log = logging.getLogger( 'crabTask' )
-        self.log.setLevel(logging._levelNames[ debuglevel ])
+        self.log.setLevel(logging.getLevelName(debuglevel))
         self.jobs = {}
         self.localDir = localDir
         self.outlfn = outlfn

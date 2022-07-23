@@ -6,6 +6,7 @@ from .tools import loadCmsProcess
 from .DTWorkflow import DTWorkflow
 from .DTTtrigWorkflow import DTttrigWorkflow
 from .DTVdriftWorkflow import DTvdriftWorkflow
+from .DTT0WireWorkflow import DTT0WireWorkflow
 import logging
 # setup logging
 log = logging.getLogger(__name__)
@@ -40,12 +41,12 @@ class DTCalibrationWorker(object):
         # following
         #http://.com/questions/3503719/emulating-bash-source-in-python
         command = ['bash', '-c', 'unset module;source /cvmfs/cms.cern.ch/crab3/crab.sh && env']
-        proc = subprocess.Popen(command, stdout = subprocess.PIPE)
+        proc = subprocess.Popen(command, executable = '/bin/bash', stdout = subprocess.PIPE)
 
         print('setting up crab')
         for line in proc.stdout:
-          (key, _, value) = line.partition("=")
-          os.environ[key] = value.replace("\n","")
+          (key, _, value) = line.partition(b"=")
+          os.environ[key.decode()] = value.decode().replace("\n","")
         for path in os.environ['PYTHONPATH'].split(':'):
             sys.path.append(path)
         proc.communicate()
@@ -59,7 +60,7 @@ class DTCalibrationWorker(object):
                 workflow_class = eval( class_name )
                 workflow_class.add_parser_options(workflow_parser)
             except:
-                log.error("No class with name: %s exists bot workflow exists in %s" %
+                log.error("No class with name: %s exists but workflow exists in %s" %
                             (class_name, DTCalibrationWorker)
                          )
 
