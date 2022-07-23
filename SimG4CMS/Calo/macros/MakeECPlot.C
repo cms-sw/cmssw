@@ -1,3 +1,33 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Usage:
+// .L MakeECPlots.C+g
+//
+//   To make plot from a file created using EcalSimHitStudy
+//     makeECPlots(fname, text, prefix, save);
+//
+//   where
+//     fname   std::string   Name of the ROOT file ("runWithGun_Fix.root")
+//     text    std::string   Text written in the Canvas 
+//                           ("Fixed Depth Calculation")
+//     prefix  std::string   Text added to the name of the Canvas ("Fix")
+//     save    bool          Flag to save the canvas as a gif file (false)
+//
+//   To compare plots from 2 different runs with EcalSimHitStudy with
+//   "old" and "new" settings
+//      comparePlots(dirname, tex, mom, ratio, fname, save=false)
+//
+//   where
+//     dirname std::string   Name of the directory ("EcalSimHitStudy")
+//     text    std::string   Postfix to the histogram name ("All")
+//     mom     int           Momentum of the single particle used which
+//                           is also a part of the file name (10)
+//     ratio   bool          Shows both distributions or plot the ratio (false)
+//     fname   std:string    Prefix of the file name ("elec")
+//     save    bool          Flag to save the canvas as a gif file (false)
+//
+//////////////////////////////////////////////////////////////////////////////
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -18,9 +48,9 @@
 #include <iostream>
 #include <fstream>
 
-void makePlots(std::string fname="runWithGun_Fix.root", 
-	       std::string text="Fixed Depth Calculation",
-	       std::string prefix="Fix", bool save=false) {
+void makeECPlots(std::string fname="runWithGun_Fix.root", 
+	         std::string text="Fixed Depth Calculation",
+	         std::string prefix="Fix", bool save=false) {
   std::string name[4] = {"ECLL_EB", "ECLL_EBref", "ECLL_EE", "ECLL_EERef"};
   double xrnglo[4] = {1200.0,1200.0,3100.0,3100.0};
   double xrnghi[4] = {1600.0,1600.0,3600.0,3600.0};
@@ -49,7 +79,7 @@ void makePlots(std::string fname="runWithGun_Fix.root",
 	}
       }
       if (hist != 0) {
-	sprintf (namep,"%s%s",name[k].c_str(),prefix.c_str());
+	sprintf (namep, "%s%s", name[k].c_str(), prefix.c_str());
 	TCanvas *pad = new TCanvas(namep,namep,500,500);
 	pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
 	hist->GetYaxis()->SetTitle(ytitl[k].c_str());
