@@ -33,6 +33,9 @@ _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
 _validationHarvesting_fastsim.remove(hltpostvalidation)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealData)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealElectronsData)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealMuonsData)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
 

@@ -3859,7 +3859,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['FastSimRun3'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation,DQM:@standardDQMFS+@miniAODDQM+@nanoAODDQM',
+    upgradeStepDict['FastSimRun3'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQMFS+@miniAODDQM+@nanoAODDQM',
                                        '--fast':'',
                                        '--era':'Run3_FastSim',
                                        '--beamspot':beamspot,
@@ -3867,9 +3867,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry':geom,
                                        '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
-                                       '--relval':'27000,3000'}
+                                       }
     
-    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODDQM+@nanoAODDQM',
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
                                            '--conditions':gt,
                                            '--mc':'',
                                            '--fast':'',
@@ -3940,7 +3940,10 @@ for step in upgradeStepDict.keys():
                         istep = step+preventReuseKeyword
                         if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
                            (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
-                            steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                            if 'FS' not in key: #For FullSim
+                                steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                            #else: #For FastSim to recycle GEN (to enable when datasets are available)
+                            #    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
     else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
