@@ -4,7 +4,7 @@
 #
 
 MASTER="/dev/CMSSW_12_4_0/HLT"                 # no version, take the latest one
-TARGET="/online/collisions/2022/2e34/v1.2/HLT" # where to store the online-compliant menu
+TARGET="/online/collisions/2022/2e34/v1.3/HLT" # where to store the online-compliant menu
 TABLES="online_grun"
 
 source subtables.sh
