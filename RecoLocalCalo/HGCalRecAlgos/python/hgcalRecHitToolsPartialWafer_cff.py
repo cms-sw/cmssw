@@ -3,17 +3,17 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HGCalRecAlgos.hgcalCheckToolDigiEE_cfi import *
 
 hgcalCheckToolDigiHE = hgcalCheckToolDigiEE.clone(
-    source = cms.InputTag('simHGCalUnsuppressedDigis', 'HEfront'),
-    nameSense  = "HGCalHESiliconSensitive",
+    source = ('simHGCalUnsuppressedDigis', 'HEfront'),
+    nameSense  = 'HGCalHESiliconSensitive',
 )
 
 hgcalCheckToolRecHitEE = hgcalCheckToolDigiEE.clone(
-    source = cms.InputTag('HGCalRecHit', 'HGCEERecHits'),
+    source = ('HGCalRecHit', 'HGCEERecHits'),
     checkDigi = False,
 )
 
 hgcalCheckToolRecHitHE = hgcalCheckToolDigiEE.clone(
-    source = cms.InputTag('HGCalRecHit', 'HGCHEFRecHits'),
-    nameSense  = "HGCalHESiliconSensitive",
+    source = ('HGCalRecHit',  'HGCHEFRecHits'),
+    nameSense  = 'HGCalHESiliconSensitive',
     checkDigi = False,
 )
