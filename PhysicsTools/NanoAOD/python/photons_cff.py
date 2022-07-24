@@ -45,6 +45,7 @@ def make_bitmapVID_docstring(id_modules_working_points_pset):
 
 bitmapVIDForPho = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedPhotons"),
+    srcForID = cms.InputTag("reducedEgamma","reducedGedPhotons"),
     WorkingPoints = photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints,
 )
 
@@ -116,6 +117,7 @@ run2_miniAOD_80XLegacy.toModify(calibratedPatPhotonsNano,
 
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
+    parentSrcs = cms.VInputTag("reducedEgamma:reducedGedPhotons"),
     userFloats = cms.PSet(
         mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
@@ -340,22 +342,6 @@ photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 
 
-## TEMPORARY as no ID for Run3 yet
-(run3_nanoAOD_devel).toReplaceWith(photonTask, photonTask.copyAndExclude([bitmapVIDForPho]))
-(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData, userIntFromBools = cms.PSet())
-(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userInts,
-                              VIDNestedWPBitmap = None,)
-(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userFloats,
-                              mvaID = None)
-(run3_nanoAOD_devel).toModify(photonTable.variables,
-                              cutBased = None,
-                              cutBased_Fall17V1Bitmap = None,
-                              vidNestedWPBitmap = None,
-                              mvaID = None,
-                              mvaID_WP90 = None,
-                              mvaID_WP80 = None,
-)
-#### end TEMPORARY Run3
 
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
