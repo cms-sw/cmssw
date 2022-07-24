@@ -101,26 +101,26 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
                             0x007FFC, 0x07FFC0, 0x7FFC00, 0xFF8003, 0xF8003F, 0x8003FF, 0x003FF8, 0x03FF80, 0x3FF800,
                             0xFF0001, 0xF0001F, 0x0001FF, 0x001FF0, 0x01FF00, 0x1FF000, 0xFFFFFF};
     const std::vector<int> partTypeNew = {HGCalTypes::WaferLDBottom,
-					  HGCalTypes::WaferLDLeft,
-					  HGCalTypes::WaferLDRight,
-					  HGCalTypes::WaferLDFive,
-					  HGCalTypes::WaferLDThree,
-					  HGCalTypes::WaferHDTop,
-					  HGCalTypes::WaferHDBottom,
-					  HGCalTypes::WaferHDLeft,
-					  HGCalTypes::WaferHDRight,
-					  HGCalTypes::WaferHDFive};
+                                          HGCalTypes::WaferLDLeft,
+                                          HGCalTypes::WaferLDRight,
+                                          HGCalTypes::WaferLDFive,
+                                          HGCalTypes::WaferLDThree,
+                                          HGCalTypes::WaferHDTop,
+                                          HGCalTypes::WaferHDBottom,
+                                          HGCalTypes::WaferHDLeft,
+                                          HGCalTypes::WaferHDRight,
+                                          HGCalTypes::WaferHDFive};
     const std::vector<int> partTypeOld = {HGCalTypes::WaferHalf,
-					  HGCalTypes::WaferHalf,
-					  HGCalTypes::WaferSemi,
-					  HGCalTypes::WaferSemi,
-					  HGCalTypes::WaferFive,
-					  HGCalTypes::WaferThree,
-					  HGCalTypes::WaferHalf2,
-					  HGCalTypes::WaferChopTwoM,
-					  HGCalTypes::WaferSemi2,
-					  HGCalTypes::WaferSemi2,
-					  HGCalTypes::WaferFive2};
+                                          HGCalTypes::WaferHalf,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferFive,
+                                          HGCalTypes::WaferThree,
+                                          HGCalTypes::WaferHalf2,
+                                          HGCalTypes::WaferChopTwoM,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferFive2};
     const std::vector<DetId>& ids = geom->getValidGeomDetIds();
     int all(0), total(0), good(0), bad(0);
     for (auto id : ids) {
@@ -131,11 +131,11 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
       // Not a full wafer
       int part = type.first;
       if (part > 10) {
-	auto itr = std::find(partTypeNew.begin(), partTypeNew.end(), part);
-	if (itr != partTypeNew.end()) {
-	  unsigned int indx = static_cast<unsigned int>(itr - partTypeNew.begin());
-	  part = partTypeOld[indx];
-	}
+        auto itr = std::find(partTypeNew.begin(), partTypeNew.end(), part);
+        if (itr != partTypeNew.end()) {
+          unsigned int indx = static_cast<unsigned int>(itr - partTypeNew.begin());
+          part = partTypeOld[indx];
+        }
       }
       if (part > 0 && part < 10 && hid.zside() > 0) {
         ++total;
@@ -182,7 +182,10 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
           }
         }
         std::string cherr = (!match) ? " ***** ERROR *****" : "";
-        edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", " << hid.waferV() << "]  with type: rotation " << type.first << "(" << part << "):" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat << std::dec << cherr;
+        edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", "
+                                       << hid.waferV() << "]  with type: rotation " << type.first << "(" << part
+                                       << "):" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat
+                                       << std::dec << cherr;
         if (!match) {
           ++bad;
           // Need debug information here
