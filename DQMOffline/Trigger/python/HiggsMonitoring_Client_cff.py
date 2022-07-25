@@ -7,7 +7,6 @@ from DQMOffline.Trigger.VBFTauMonitor_Client_cff import *
 from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_Client_cfi import *
 from DQMOffline.Trigger.MssmHbbMonitoring_Client_cfi import *
 from DQMOffline.Trigger.PhotonMonitor_cff import *
-from DQMOffline.Trigger.ParticleNetJetTag_Client_cfi import *
 
 metbtagEfficiency_met = DQMEDHarvester("DQMGenericClient",
 #    subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
@@ -572,6 +571,4 @@ higgsClient = cms.Sequence(
   + mssmHbbBtagTriggerEfficiency 
   + mssmHbbHLTEfficiency 
   + hmesongammaEfficiency
-  + particleNetAK4BTagEfficiency
-  + particleNetAK8HbbTagEfficiency
 )
