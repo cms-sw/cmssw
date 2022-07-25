@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 # AlCaReco output for track based muon alignment using muons from collisions
 OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
@@ -25,6 +26,14 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep DcsStatuss_scalersRawToDigi_*_*',
     )
 )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+
+run3_GEM.toModify( OutALCARECOMuAlCalIsolatedMu_noDrop, 
+    outputCommands = OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands + [
+	'keep *_gemRecHits_*_*', 
+	'keep *_gemSegments_*_*'])
+
 
 import copy
 OutALCARECOMuAlCalIsolatedMu = copy.deepcopy(OutALCARECOMuAlCalIsolatedMu_noDrop)
