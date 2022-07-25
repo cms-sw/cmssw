@@ -23,12 +23,10 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHGenericPtr.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidatePtr.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
-namespace edm {
-  class EventSetup;
-}
+class BPHEventSetupWrapper;
 
 namespace reco {
   class Candidate;
@@ -45,13 +43,16 @@ namespace reco {
 
 class BPHRecoCandidate : public virtual BPHKinematicFit {
 public:
+  typedef BPHRecoCandidatePtr pointer;
+  typedef BPHRecoConstCandPtr const_pointer;
+
   /** Constructor
    */
   /// create an "empty" object to add daughters later
   /// (see BPHDecayMomentum)
-  BPHRecoCandidate(const edm::EventSetup* es);
-  // create an object with daughters as specified in the ComponentSet
-  BPHRecoCandidate(const edm::EventSetup* es, const BPHRecoBuilder::ComponentSet& compSet);
+  BPHRecoCandidate(const BPHEventSetupWrapper* es, int daugNum = 2, int compNum = 2);
+  /// create an object with daughters as specified in the ComponentSet
+  BPHRecoCandidate(const BPHEventSetupWrapper* es, const BPHRecoBuilder::ComponentSet& compSet);
 
   // deleted copy constructor and assignment operator
   BPHRecoCandidate(const BPHRecoCandidate& x) = delete;
@@ -59,7 +60,7 @@ public:
 
   /** Destructor
    */
-  ~BPHRecoCandidate() override;
+  ~BPHRecoCandidate() override = default;
 
   /** Operations
    */
@@ -85,11 +86,20 @@ public:
 
   /// look for candidates starting from particle collections as
   /// specified in the BPHRecoBuilder
+  struct BuilderParameters {
+    double constrMass;
+    double constrSigma;
+  };
+  static std::vector<BPHRecoConstCandPtr> build(const BPHRecoBuilder& builder, const BuilderParameters& par) {
+    return build(builder, par.constrMass, par.constrSigma);
+  }
   static std::vector<BPHRecoConstCandPtr> build(const BPHRecoBuilder& builder, double mass = -1, double msig = -1);
 
   /// clone object, cloning daughters as well up to required depth
   /// level = -1 to clone all levels
   virtual BPHRecoCandidate* clone(int level = -1) const;
+
+  enum esType { transientTrackBuilder };
 
 protected:
   // function doing the job to clone reconstructed decays:

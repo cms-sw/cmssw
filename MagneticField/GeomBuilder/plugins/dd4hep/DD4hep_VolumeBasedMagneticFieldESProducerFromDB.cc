@@ -50,6 +50,7 @@ namespace magneticfield {
   class DD4hep_VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
   public:
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
+    ~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() override;
     // forbid copy ctor and assignment op.
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
     const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(
@@ -73,6 +74,8 @@ namespace magneticfield {
     edm::ESGetToken<MagFieldConfig, IdealMagneticFieldRecord> chosenConfigToken_;
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
+    cms::DDDetector* detector_{nullptr};
+
     const bool debug_;
     const bool useMergeFileIfAvailable_;
   };
@@ -128,6 +131,10 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
       },
       edm::ESProductTag<MagFieldConfig, IdealMagneticFieldRecord>(myConfigTag));
   chosenConfigToken_ = cc.consumes(myConfigTag);  //Use same tag as the choice
+}
+
+DD4hep_VolumeBasedMagneticFieldESProducerFromDB::~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() {
+  delete detector_;
 }
 
 std::shared_ptr<MagFieldConfig const> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(
@@ -187,9 +194,10 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
       "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
       "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  auto ddet = make_unique<cms::DDDetector>("cmsMagneticField:MAGF", sblob, true);
+  if (nullptr == detector_)
+    detector_ = new cms::DDDetector("cmsMagneticField:MAGF", sblob, true);
 
-  builder.build(ddet.get());
+  builder.build(detector_);
 
   // Build the VB map. Ownership of the parametrization is transferred to it
   return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,

@@ -17,12 +17,15 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -38,10 +41,11 @@ class BPHK0sToPiPiBuilder : public BPHDecayToV0SameMassBuilder {
 public:
   /** Constructor
    */
-  BPHK0sToPiPiBuilder(const edm::EventSetup& es,
+  BPHK0sToPiPiBuilder(const BPHEventSetupWrapper& es,
                       const BPHRecoBuilder::BPHGenericCollection* posCollection,
                       const BPHRecoBuilder::BPHGenericCollection* negCollection)
-      : BPHDecayToV0SameMassBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToV0SameMassBuilder(es,
                                     "PionPos",
                                     "PionNeg",
                                     BPHParticleMasses::pionMass,
@@ -52,29 +56,18 @@ public:
     setEtaMax(10.0);
     setMassRange(0.40, 0.60);
   }
-  BPHK0sToPiPiBuilder(const edm::EventSetup& es,
-                      const std::vector<reco::VertexCompositeCandidate>* v0Collection,
+
+  template <class V0VertexType>
+  BPHK0sToPiPiBuilder(const BPHEventSetupWrapper& es,
+                      const std::vector<V0VertexType>* v0Collection,
                       const std::string& searchList = "cfp")
-      : BPHDecayToV0SameMassBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToV0SameMassBuilder(es,
                                     "PionPos",
                                     "PionNeg",
                                     BPHParticleMasses::pionMass,
                                     BPHParticleMasses::pionMSigma,
                                     v0Collection,
-                                    searchList) {
-    setPtMin(0.0);
-    setEtaMax(10.0);
-    setMassRange(0.00, 2.00);
-  }
-  BPHK0sToPiPiBuilder(const edm::EventSetup& es,
-                      const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
-                      const std::string& searchList = "cfp")
-      : BPHDecayToV0SameMassBuilder(es,
-                                    "PionPos",
-                                    "PionNeg",
-                                    BPHParticleMasses::pionMass,
-                                    BPHParticleMasses::pionMSigma,
-                                    vpCollection,
                                     searchList) {
     setPtMin(0.0);
     setEtaMax(10.0);
@@ -87,7 +80,7 @@ public:
 
   /** Destructor
    */
-  ~BPHK0sToPiPiBuilder() override {}
+  ~BPHK0sToPiPiBuilder() override = default;
 };
 
 #endif

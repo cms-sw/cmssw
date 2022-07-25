@@ -20,7 +20,11 @@ namespace clangcms {
         for (unsigned J = 0, F = I->getTemplateArgs().size(); J != F; ++J) {
           llvm::SmallString<100> buf;
           llvm::raw_svector_ostream os(buf);
+#if LLVM_VERSION_MAJOR >= 13
+          I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os, false);
+#else
           I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os);
+#endif
           std::string rname = os.str().str();
           std::string fname("plugins.txt.unsorted");
           std::string ostring = rname + "\n";
