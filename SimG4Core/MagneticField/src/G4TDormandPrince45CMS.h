@@ -56,11 +56,8 @@ public:
   inline void StepWithError(
       const G4double yInput[], const G4double dydx[], G4double hstep, G4double yOutput[], G4double yError[]);
 
-  virtual void Stepper(const G4double yInput[],
-                       const G4double dydx[],
-                       G4double hstep,
-                       G4double yOutput[],
-                       G4double yError[]) override final;
+  void Stepper(
+      const G4double yInput[], const G4double dydx[], G4double hstep, G4double yOutput[], G4double yError[]) final;
 
   inline void StepWithFinalDerivate(const G4double yInput[],
                                     const G4double dydx[],
@@ -74,9 +71,9 @@ public:
   void Interpolate(G4double tau, G4double yOut[]) const { Interpolate4thOrder(yOut, tau); }
   // For calculating the output at the tau fraction of Step
 
-  virtual G4double DistChord() const override final;
+  G4double DistChord() const final;
 
-  virtual G4int IntegratorOrder() const override { return 4; }
+  G4int IntegratorOrder() const override { return 4; }
 
   const field_utils::ShortState<N>& GetYOut() const { return fyOut; }
 

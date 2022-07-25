@@ -50,7 +50,7 @@ public:
     itsField = f;
   }
 
-  virtual ~G4TMagFieldEquationCMS() { ; }
+  ~G4TMagFieldEquationCMS() override { ; }
 
   inline void GetFieldValueCMS(const G4double Point[], G4double Field[]) const {
     itsField->GetFieldValue(Point, Field);
