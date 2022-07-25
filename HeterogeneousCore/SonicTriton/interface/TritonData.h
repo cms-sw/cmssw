@@ -159,7 +159,8 @@ private:
     return std::any_of(vec.begin(), vec.end(), [](int64_t i) { return i < 0; });
   }
   int64_t dimProduct(const ShapeView& vec) const {
-    return std::accumulate(vec.begin(), vec.end(), 1, std::multiplies<int64_t>());
+    //lambda treats negative dimensions as 0 to avoid overflows
+    return std::accumulate(vec.begin(), vec.end(), 1, [](int64_t dim1, int64_t dim2){ return dim1*std::max(0l,dim2); });
   }
   //generates a unique id number for each instance of the class
   unsigned uid() const {

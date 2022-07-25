@@ -38,9 +38,10 @@ template <>
 void TritonOutputHeapResource::copyOutput() {
   size_t contentByteSize = 0;
   for (auto& entry : data_->entries_) {
-    size_t contentByteSizeEntry;
-    TRITON_THROW_IF_ERROR(entry.result_->RawData(data_->name_, &entry.output_, &contentByteSizeEntry),
-                          data_->name_ + " fromServer(): unable to get raw");
+    size_t contentByteSizeEntry(0);
+    if (entry.totalByteSize_>0)
+      TRITON_THROW_IF_ERROR(entry.result_->RawData(data_->name_, &entry.output_, &contentByteSizeEntry),
+                            data_->name_ + " fromServer(): unable to get raw");
     contentByteSize += contentByteSizeEntry;
   }
   if (contentByteSize != data_->totalByteSize_) {
