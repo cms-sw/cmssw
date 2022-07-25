@@ -27,6 +27,13 @@ OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop = cms.PSet(
     )
 )
 
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+
+run3_GEM.toModify( OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop,
+    outputCommands = OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop.outputCommands + [
+        'keep *_gemRecHits_*_*',
+        'keep *_gemSegments_*_*'])
+
 import copy
 OutALCARECOMuAlGlobalCosmicsInCollisions = copy.deepcopy(OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop)
 OutALCARECOMuAlGlobalCosmicsInCollisions.outputCommands.insert(0, "drop *")
