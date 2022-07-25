@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D86 tol=0.1
+#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D88 tol=0.1
 #
-#   Options for geometry D77, D83, D86, D88, D92
+#   Options for geometry D77, D83, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D86",
+                 "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D86, D88, D92")
+                  "geometry of operations: D77, D83, D88, D92, D93")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -37,21 +37,21 @@ if (options.geometry == "D83"):
     process = cms.Process('PROD',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
     baseName = 'cms2026D83DDD'
-elif (options.geometry == "D86"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
-    baseName = 'cms2026D86DDD'
 elif (options.geometry == "D77"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
     baseName = 'cms2026D77DDD'
 elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('PROD',Phase2C11)
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     baseName = 'cms2026D92DDD'
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    baseName = 'cms2026D93DDD'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)

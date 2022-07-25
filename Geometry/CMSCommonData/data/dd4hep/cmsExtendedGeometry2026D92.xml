@@ -53,12 +53,12 @@
     <Include ref='Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalbarrelalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcal/v16/hgcal.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcal/v17/hgcal.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalcell/v17/hgcalcell.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v17/hgcalwafer.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v17/hgcalEE.xml'/>

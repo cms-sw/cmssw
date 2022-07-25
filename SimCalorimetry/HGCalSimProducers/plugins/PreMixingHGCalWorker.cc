@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
+#include "DataFormats/HGCalDigi/interface/PHGCSimAccumulator.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"

@@ -17,13 +17,16 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
+class BPHEventSetupWrapper;
 class BPHParticleNeutralVeto;
 class BPHParticlePtSelect;
 class BPHParticleEtaSelect;
@@ -41,22 +44,17 @@ class BPHMassFitSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBcToJPsiPiBuilder : public BPHDecayToResTrkBuilder {
+class BPHBcToJPsiPiBuilder : public BPHDecayToResTrkBuilder<BPHRecoCandidate, BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHBcToJPsiPiBuilder(const edm::EventSetup& es,
+  BPHBcToJPsiPiBuilder(const BPHEventSetupWrapper& es,
                        const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
                        const BPHRecoBuilder::BPHGenericCollection* pionCollection)
-      : BPHDecayToResTrkBuilder(es,
-                                "JPsi",
-                                BPHParticleMasses::jPsiMass,
-                                BPHParticleMasses::jPsiMWidth,
-                                jpsiCollection,
-                                "Pion",
-                                BPHParticleMasses::pionMass,
-                                BPHParticleMasses::pionMSigma,
-                                pionCollection) {
+      : BPHDecayGenericBuilderBase(es, nullptr),  //, false ),
+        BPHDecayConstrainedBuilderBase("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth),
+        BPHDecayToResTrkBuilder(
+            jpsiCollection, "Pion", BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma, pionCollection) {
     setResMassRange(2.80, 3.40);
     setTrkPtMin(0.7);
     setTrkEtaMax(10.0);
@@ -72,7 +70,7 @@ public:
 
   /** Destructor
    */
-  ~BPHBcToJPsiPiBuilder() override {}
+  ~BPHBcToJPsiPiBuilder() override = default;
 
   /** Operations
    */
@@ -87,6 +85,9 @@ public:
   double getPiEtaMax() const { return getTrkEtaMax(); }
   double getJPsiMassMin() const { return getResMassMin(); }
   double getJPsiMassMax() const { return getResMassMax(); }
+
+  /// setup parameters for BPHRecoBuilder
+  void setup(void* parameters) override {}
 };
 
 #endif

@@ -14,15 +14,15 @@ OutALCARECOTkAlMuonIsolatedHI_noDrop = cms.PSet(
 	'keep *_hiSelectedVertex_*_*')
 )
 
-import copy
-OutALCARECOTkAlMuonIsolatedHI = copy.deepcopy(OutALCARECOTkAlMuonIsolatedHI_noDrop)
-OutALCARECOTkAlMuonIsolatedHI.outputCommands.insert(0, "drop *")
-
 # in Run3, SCAL digis replaced by onlineMetaDataDigis
-_run3_common_removedCommands = OutALCARECOTkAlMuonIsolatedHI.outputCommands
+import copy
+_run3_common_removedCommands = OutALCARECOTkAlMuonIsolatedHI_noDrop.outputCommands.copy()
 _run3_common_removedCommands.remove('keep DcsStatuss_scalersRawToDigi_*_*')
 
 _run3_common_extraCommands = ['keep DCSRecord_onlineMetaDataDigis_*_*']
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(OutALCARECOTkAlMuonIsolatedHI, outputCommands = _run3_common_removedCommands + _run3_common_extraCommands)
+run3_common.toModify(OutALCARECOTkAlMuonIsolatedHI_noDrop, outputCommands = _run3_common_removedCommands + _run3_common_extraCommands)
+
+OutALCARECOTkAlMuonIsolatedHI = OutALCARECOTkAlMuonIsolatedHI_noDrop.clone()
+OutALCARECOTkAlMuonIsolatedHI.outputCommands.insert(0, "drop *")

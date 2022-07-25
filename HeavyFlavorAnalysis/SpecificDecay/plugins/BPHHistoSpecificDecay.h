@@ -1,15 +1,17 @@
 #ifndef HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
 #define HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Ref.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <string>
 
@@ -55,18 +57,18 @@ private:
   std::string bcCandsLabel;
   std::string x3872CandsLabel;
   BPHTokenWrapper<edm::TriggerResults> trigResultsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> oniaCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> sdCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ssCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> buCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> bdCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> bsCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> k0CandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> l0CandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> b0CandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> lbCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> bcCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> x3872CandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > oniaCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > sdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ssCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > buCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bsCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > k0CandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > l0CandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > b0CandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > lbCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bcCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > x3872CandsToken;
   bool useTrig;
   bool useOnia;
   bool useSd;
