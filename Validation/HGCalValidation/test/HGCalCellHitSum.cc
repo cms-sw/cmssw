@@ -319,7 +319,9 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
       evt(0) {
   //now do what ever initialization is needed
   usesResource(TFileService::kSharedResource);
-  edm::LogVerbatim("ValidHGCal") << "HGCalCellHitSum::Initialize for " << name_ << " using " << geometryFileName_ << " and collections " << iConfig.getParameter<edm::InputTag>("simtrack") << " and " << iConfig.getParameter<edm::InputTag>("simhits");
+  edm::LogVerbatim("ValidHGCal") << "HGCalCellHitSum::Initialize for " << name_ << " using " << geometryFileName_
+                                 << " and collections " << iConfig.getParameter<edm::InputTag>("simtrack") << " and "
+                                 << iConfig.getParameter<edm::InputTag>("simhits");
   edm::Service<TFileService> fs;
 
   hCharge = fs->make<TH1D>("charge", "Charges", 200, -20, 20);
