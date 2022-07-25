@@ -15,7 +15,7 @@
 #include "G4FieldManager.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4Mag_UsualEqRhs.hh"
-#include "G4TMagFieldEquation.h"
+#include "G4TMagFieldEquationCMS.h"
 #include "G4PropagatorInField.hh"
 
 using namespace sim;
@@ -57,7 +57,7 @@ void FieldBuilder::configureForVolume(const std::string &volName,
   double minStep = stpPSet.getParameter<double>("MinStep") * CLHEP::mm;
 
   if (stepper == "G4TDormandPrince45") {
-    theFieldEquation = new G4TMagFieldEquationCMS<Field>(theField);
+    theFieldEquation = new G4TMagFieldEquationCMS<sim::Field>(theField);
   } else {
     theFieldEquation = new G4Mag_UsualEqRhs(theField);
   }

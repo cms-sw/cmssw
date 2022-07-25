@@ -8,7 +8,8 @@
 #include "G4ClassicalRK4.hh"
 #include "G4TClassicalRK4.hh"
 #include "G4DormandPrince745.hh"
-#include "G4TDormandPrince45.h"
+#include "G4TDormandPrince45.hh"
+#include "G4TDormandPrince45CMS.h"
 #include "G4HelixExplicitEuler.hh"
 #include "G4HelixHeum.hh"
 #include "G4HelixImplicitEuler.hh"
@@ -16,11 +17,11 @@
 #include "G4ImplicitEuler.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4TMagFieldEquation.hh"
+#include "G4TMagFieldEquationCMS.h"
 #include "G4NystromRK4.hh"
 #include "G4SimpleHeum.hh"
 #include "G4SimpleRunge.hh"
 #include "G4TsitourasRK45.hh"
-#include "G4TMagFieldEquation.h"
 
 FieldStepper::FieldStepper(G4Mag_UsualEqRhs *eq, double del, const std::string &nam)
     : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
@@ -55,7 +56,9 @@ void FieldStepper::selectStepper(const std::string &ss) {
   else if (ss == "G4DormandPrince745")
     theStepper = new G4DormandPrince745(theEquation);
   else if (ss == "G4TDormandPrince45")
-    theStepper = new G4TDormandPrince45<G4TMagFieldEquationCMS<sim::Field>>(dynamic_cast<G4TMagFieldEquationCMS<sim::Field>*>(theEquation));
+    //    theStepper = new G4TDormandPrince45<G4TMagFieldEquation<sim::Field>>(dynamic_cast<G4TMagFieldEquation<sim::Field>*>(theEquation));
+    theStepper = new G4TDormandPrince45CMS<G4TMagFieldEquationCMS<sim::Field>>(
+        dynamic_cast<G4TMagFieldEquationCMS<sim::Field> *>(theEquation));
   else if (ss == "G4BogackiShampine45")
     theStepper = new G4BogackiShampine45(theEquation);
   else if (ss == "G4TsitourasRK45")
