@@ -587,12 +587,12 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 
 CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
     : perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
-      tokenPixelTrack_(
-          consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagPixelLocalTracks"))),
-      tokenDiamondHit_(
-          consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(ps.getParameter<edm::InputTag>("tagDiamondRecHits"))),
-      tokenDiamondTrack_(
-          consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(ps.getParameter<edm::InputTag>("tagDiamondLocalTracks"))),
+      tokenPixelTrack_(consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagPixelLocalTracks"))),
+      tokenDiamondHit_(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagDiamondRecHits"))),
+      tokenDiamondTrack_(consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagDiamondLocalTracks"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       // ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
@@ -607,9 +607,9 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       EC_difference_56_(-500),
       EC_difference_45_(-500) {
   if (extract_digi_info_) {
-    tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
-    tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
-    tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
+    tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getUntrackedParameter<edm::InputTag>("tagStatus"));
+    tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getUntrackedParameter<edm::InputTag>("tagFEDInfo"));
+    tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagDigi"));
   }
   for (const auto& pset : ps.getParameter<std::vector<edm::ParameterSet>>("offsetsOOT")) {
     runParameters_.emplace_back(
