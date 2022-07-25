@@ -212,7 +212,9 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
     entry.data_->SetShape(entry.fullShape_);
 
     for (unsigned i0 = 0; i0 < outerDim; ++i0) {
-      memResource_->copyInput(data_in[counter].data(), offset, i);
+      //avoid copying empty input
+      if (entry.byteSizePerBatch_>0)
+        memResource_->copyInput(data_in[counter].data(), offset, i);
       offset += entry.byteSizePerBatch_;
       ++counter;
     }
@@ -251,7 +253,7 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
     const auto& entry = entries_[i];
     const DT* r1 = reinterpret_cast<const DT*>(entry.output_);
 
-    if (!entry.result_) {
+    if (entry.totalByteSize_>0 and !entry.result_) {
       throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
     }
 

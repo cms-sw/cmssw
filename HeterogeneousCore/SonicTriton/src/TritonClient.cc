@@ -293,6 +293,9 @@ void TritonClient::getResults(std::vector<tc::InferResult*>& results) {
 void TritonClient::evaluate() {
   //in case there is nothing to process
   if (batchSize() == 0) {
+    //call getResults on an empty vector
+    std::vector<tc::InferResult*> empty_results;
+    getResults(empty_results);
     finish(true);
     return;
   }

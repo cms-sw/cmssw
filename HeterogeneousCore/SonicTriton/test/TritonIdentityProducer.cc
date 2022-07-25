@@ -16,7 +16,6 @@ public:
   explicit TritonIdentityProducer(edm::ParameterSet const& cfg)
       : TritonEDProducer<>(cfg),
         batchSizes_{1,2,0},
-        batchSize_(0),
         batchCounter_(0) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //follow Triton QA tests for ragged input
@@ -27,29 +26,25 @@ public:
       {3,3,3}
     };
 
-    batchSize_ = batchSizes_[batchCounter_];
+    client_->setBatchSize(batchSizes_[batchCounter_]);
     batchCounter_ = (batchCounter_+1) % batchSizes_.size();
-    client_->setBatchSize(batchSize_);
     auto& input1 = iInput.at("INPUT0");
     auto data1 = input1.allocate<float>();
-    for (int i = 0; i < batchSize_; ++i) {
+    for (unsigned i = 0; i < client_->batchSize(); ++i) {
       (*data1)[i] = value_lists[i];
       input1.setShape(0, (*data1)[i].size(), i);
     }
 
     // convert to server format
-    if (batchSize_>0)
-      input1.toServer(data1);
+    input1.toServer(data1);
   }
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
-    if (batchSize_==0)
-      return;
     // check the results
     const auto& output1 = iOutput.at("OUTPUT0");
     // convert from server format
     const auto& tmp = output1.fromServer<float>();
     edm::LogInfo msg(debugName_);
-    for (int i = 0; i < batchSize_; ++i){
+    for (unsigned i = 0; i < client_->batchSize(); ++i){
         msg << "output " << i << " (" << triton_utils::printColl(output1.shape(i)) << "): ";
         for(int j = 0; j < output1.shape(i)[0]; ++j){
             msg << tmp[i][j] << " ";
@@ -67,8 +62,8 @@ public:
   }
 
 private:
-  std::vector<int> batchSizes_;
-  int batchSize_, batchCounter_;
+  std::vector<unsigned> batchSizes_;
+  unsigned batchCounter_;
 };
 
 DEFINE_FWK_MODULE(TritonIdentityProducer);
