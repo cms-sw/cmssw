@@ -2372,7 +2372,9 @@ for s in autoSkim.keys():
     steps['SKIM'+s.upper()+'RUN3']={'-s':'SKIM:%s'%(autoSkim[s]),
                                     '--data':'',
                                     '--era':'Run3',
+                                    '--scenario':'pp',
                                     '--conditions':'auto:run3_data_relval'}
+    if 'Cosmics' in s: steps['SKIM'+s.upper()+'RUN3']['--scenario'] = 'cosmics'
 
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
