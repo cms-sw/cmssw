@@ -223,6 +223,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         # ES variables
         esEffSigmaRR = Var("full5x5_showerShapeVariables().effSigmaRR()", float, doc="preshower sigmaRR"),
         esEnergyOverRawE = Var("superCluster().preshowerEnergy()/superCluster().rawEnergy()", float, doc="ratio of preshower energy to raw supercluster energy"),
+         haloTaggerMVAVal = Var("haloTaggerMVAVal()",float,doc="Value of MVA based BDT based  beam halo tagger in the Ecal endcap (valid for pT > 200 GeV)",precision=8),
     )
 )
 
