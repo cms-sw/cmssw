@@ -17,6 +17,8 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
+	'keep *_gemRecHits_*_*', 
+	'keep *_gemSegments_*_*',
         'keep *_rpcRecHits_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
@@ -26,14 +28,6 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep DcsStatuss_scalersRawToDigi_*_*',
     )
 )
-
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-
-run3_GEM.toModify( OutALCARECOMuAlCalIsolatedMu_noDrop, 
-    outputCommands = OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands + [
-	'keep *_gemRecHits_*_*', 
-	'keep *_gemSegments_*_*'])
-
 
 import copy
 OutALCARECOMuAlCalIsolatedMu = copy.deepcopy(OutALCARECOMuAlCalIsolatedMu_noDrop)
