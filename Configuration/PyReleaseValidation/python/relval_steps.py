@@ -2371,6 +2371,7 @@ steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
 for s in autoSkim.keys():
     steps['SKIM'+s.upper()+'RUN3']={'-s':'SKIM:%s'%(autoSkim[s]),
                                     '--data':'',
+                                    '--era':'Run3',
                                     '--conditions':'auto:run3_data_relval'}
 
 # step1 gensim for HI mixing
