@@ -14,3 +14,5 @@
 <library file="Geant4ePropagatorAnalyzer.cc" name="Geant4ePropagatorAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testG4Refitter" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/Geant4e_example_cfg.py"/>
