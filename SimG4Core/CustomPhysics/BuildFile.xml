@@ -3,9 +3,12 @@
 </export>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
 <use name="SimG4Core/Physics"/>
 <use name="SimG4Core/PhysicsLists"/>
+<use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="clhep"/>
 <use name="boost"/>
 <use name="rootmath"/>
+<use name="root"/>
