@@ -163,11 +163,11 @@ CMSTDormandPrince45<T_Equation, N>::CMSTDormandPrince45(T_Equation* equation, G4
 
 template <class T_Equation, unsigned int N>
 inline void CMSTDormandPrince45<T_Equation, N>::StepWithFinalDerivate(const G4double yInput[],
-                                                                        const G4double dydx[],
-                                                                        G4double hstep,
-                                                                        G4double yOutput[],
-                                                                        G4double yError[],
-                                                                        G4double dydxOutput[]) {
+                                                                      const G4double dydx[],
+                                                                      G4double hstep,
+                                                                      G4double yOutput[],
+                                                                      G4double yError[],
+                                                                      G4double dydxOutput[]) {
   StepWithError(yInput, dydx, hstep, yOutput, yError);
   field_utils::copy(dydxOutput, ak7, N);
 }

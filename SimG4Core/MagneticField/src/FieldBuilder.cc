@@ -61,7 +61,7 @@ void FieldBuilder::configureForVolume(const std::string &volName,
     theFieldEquation = new CMSTMagFieldEquation<sim::Field>(theField);
   } else if (stepper == "G4TDormandPrince45") {
     theFieldEquation = new G4TMagFieldEquation<sim::Field>(theField);
-  } else {   
+  } else {
     theFieldEquation = new G4Mag_UsualEqRhs(theField);
   }
 
