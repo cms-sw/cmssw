@@ -1,29 +1,5 @@
 //
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-// G4TDormandPrince45CMS
+// copied from G4TDormandPrince45
 //
 // Class desription:
 //
@@ -33,25 +9,25 @@
 //
 //  DormandPrince7 - 5(4) embedded RK method
 //
-
+//
 // Created: Somnath Banerjee, Google Summer of Code 2015, 25 May 2015
 // Supervision: John Apostolakis, CERN
 //
 //  Modified by Vincenzo Innocente on 7/2022 to account for constant momentum magnitude
 //
 // --------------------------------------------------------------------
-#ifndef G4TDORMAND_PRINCE_45CMS_HH
-#define G4TDORMAND_PRINCE_45CMS_HH
+#ifndef CMSTDORMAND_PRINCE_45_HH
+#define CMSTDORMAND_PRINCE_45_HH
 
 #include <cassert>
 #include "G4MagIntegratorStepper.hh"
 #include "G4FieldUtils.hh"
 
 template <class T_Equation, unsigned int N = 6>
-class G4TDormandPrince45CMS : public G4MagIntegratorStepper {
+class CMSTDormandPrince45 : public G4MagIntegratorStepper {
 public:
-  G4TDormandPrince45CMS(T_Equation* equation);
-  G4TDormandPrince45CMS(T_Equation* equation, G4int numVar);  // must have numVar == N
+  CMSTDormandPrince45(T_Equation* equation);
+  CMSTDormandPrince45(T_Equation* equation, G4int numVar);  // must have numVar == N
 
   inline void StepWithError(
       const G4double yInput[], const G4double dydx[], G4double hstep, G4double yOutput[], G4double yError[]);
@@ -150,7 +126,7 @@ private:
 // Constructor
 //
 template <class T_Equation, unsigned int N>
-G4TDormandPrince45CMS<T_Equation, N>::G4TDormandPrince45CMS(T_Equation* equation)
+CMSTDormandPrince45<T_Equation, N>::CMSTDormandPrince45(T_Equation* equation)
     : G4MagIntegratorStepper(dynamic_cast<G4EquationOfMotion*>(equation), N), fEquation_Rhs(equation) {
   // assert( dynamic_cast<G4EquationOfMotion*>(equation) != nullptr );
   if (dynamic_cast<G4EquationOfMotion*>(equation) == nullptr) {
@@ -173,8 +149,8 @@ G4TDormandPrince45CMS<T_Equation, N>::G4TDormandPrince45CMS(T_Equation* equation
 }
 
 template <class T_Equation, unsigned int N>
-G4TDormandPrince45CMS<T_Equation, N>::G4TDormandPrince45CMS(T_Equation* equation, G4int numVar)
-    : G4TDormandPrince45CMS<T_Equation, N>(equation) {
+CMSTDormandPrince45<T_Equation, N>::CMSTDormandPrince45(T_Equation* equation, G4int numVar)
+    : CMSTDormandPrince45<T_Equation, N>(equation) {
   if (numVar != G4int(N)) {
     G4ExceptionDescription msg;
     msg << "Equation has an incompatible number of variables.";
@@ -186,7 +162,7 @@ G4TDormandPrince45CMS<T_Equation, N>::G4TDormandPrince45CMS(T_Equation* equation
 }
 
 template <class T_Equation, unsigned int N>
-inline void G4TDormandPrince45CMS<T_Equation, N>::StepWithFinalDerivate(const G4double yInput[],
+inline void CMSTDormandPrince45<T_Equation, N>::StepWithFinalDerivate(const G4double yInput[],
                                                                         const G4double dydx[],
                                                                         G4double hstep,
                                                                         G4double yOutput[],
@@ -203,7 +179,7 @@ inline void G4TDormandPrince45CMS<T_Equation, N>::StepWithFinalDerivate(const G4
 //
 
 template <class T_Equation, unsigned int N>
-inline void G4TDormandPrince45CMS<T_Equation, N>::StepWithError(
+inline void CMSTDormandPrince45<T_Equation, N>::StepWithError(
     const G4double yInput[], const G4double dydx[], G4double hstep, G4double yOut[], G4double yErr[]) {
   // The parameters of the Butcher tableu
   //
@@ -290,7 +266,7 @@ inline void G4TDormandPrince45CMS<T_Equation, N>::StepWithError(
 }
 
 template <class T_Equation, unsigned int N>
-inline void G4TDormandPrince45CMS<T_Equation, N>::Stepper(
+inline void CMSTDormandPrince45<T_Equation, N>::Stepper(
     const G4double yInput[], const G4double dydx[], G4double Step, G4double yOutput[], G4double yError[]) {
   assert(yOutput != yInput);
   assert(yError != yInput);
@@ -299,7 +275,7 @@ inline void G4TDormandPrince45CMS<T_Equation, N>::Stepper(
 }
 
 template <class T_Equation, unsigned int N>
-G4double G4TDormandPrince45CMS<T_Equation, N>::DistChord() const {
+G4double CMSTDormandPrince45<T_Equation, N>::DistChord() const {
   // Coefficients were taken from Some Practical Runge-Kutta Formulas
   // by Lawrence F. Shampine, page 149, c*
   //
@@ -327,7 +303,7 @@ G4double G4TDormandPrince45CMS<T_Equation, N>::DistChord() const {
 //        pp. 1007-1017, 1986.
 //
 template <class T_Equation, unsigned int N>
-void G4TDormandPrince45CMS<T_Equation, N>::Interpolate4thOrder(G4double yOut[], G4double tau) const {
+void CMSTDormandPrince45<T_Equation, N>::Interpolate4thOrder(G4double yOut[], G4double tau) const {
   // const G4int numberOfVariables = GetNumberOfVariables();
 
   const G4double tau2 = tau * tau, tau3 = tau * tau2, tau4 = tau2 * tau2;
@@ -365,7 +341,7 @@ void G4TDormandPrince45CMS<T_Equation, N>::Interpolate4thOrder(G4double yOut[], 
 // Calculating the extra stages for the interpolant
 //
 template <class T_Equation, unsigned int N>
-void G4TDormandPrince45CMS<T_Equation, N>::SetupInterpolation5thOrder() {
+void CMSTDormandPrince45<T_Equation, N>::SetupInterpolation5thOrder() {
   // Coefficients for the additional stages
   //
   const G4double b81 = 6245.0 / 62208.0, b82 = 0.0, b83 = 8875.0 / 103032.0, b84 = -125.0 / 1728.0,
@@ -398,7 +374,7 @@ void G4TDormandPrince45CMS<T_Equation, N>::SetupInterpolation5thOrder() {
 // Calculating the interpolated result yOut with the coefficients
 //
 template <class T_Equation, unsigned int N>
-void G4TDormandPrince45CMS<T_Equation, N>::Interpolate5thOrder(G4double yOut[], G4double tau) const {
+void CMSTDormandPrince45<T_Equation, N>::Interpolate5thOrder(G4double yOut[], G4double tau) const {
   // Define the coefficients for the polynomials
   //
   G4double bi[10][5];
