@@ -228,13 +228,7 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prep_str),
-                                                               ),
-                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'),
-                                                               Source              = cms.untracked.string("AlcaHarvesting"),
-                                                               FileClass           = cms.untracked.string("ALCA"),
-                                                               prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prod_str),
-                                                               prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prep_str),
-                                                               ),
+                                                               )
                                                       ),
                                   # this boolean will read the content of whichever payload is available and print its content to stoutput
                                   # set this to false if you write out a sqlite.db translating the json's into a payload
