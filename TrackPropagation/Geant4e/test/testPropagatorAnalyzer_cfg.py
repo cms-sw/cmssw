@@ -29,7 +29,7 @@ labels = ["propAna", "geopro"] # Python module's label
 messageLogger = dict()
 for category in labels:
       main_key = '%sMessageLogger'%(category)
-      category_key = '"Geant4e"' # C++ EDProducer type
+      category_key = 'Geant4e' # C++ EDProducer type
       messageLogger[main_key] = dict(
               filename = '%s_%s.log' % ("debugG4e", category),
               threshold = 'DEBUG',

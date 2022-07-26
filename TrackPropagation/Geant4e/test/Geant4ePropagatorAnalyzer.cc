@@ -331,19 +331,20 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   ///////////////////////////////////////
   // Get the sim tracks & vertices
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByLabel<SimTrackContainer>("g4SimHits", "",simTracks);
+  iEvent.getByLabel<SimTrackContainer>("g4SimHits", "", simTracks);
   if (!simTracks.isValid()) {
     LogWarning("Geant4e") << "No tracks found" << std::endl;
-//    return;
+    //    return;
   }
   LogDebug("Geant4e") << "G4e -- Got simTracks of size " << simTracks->size();
-  std::cout << "Geant4e " << "G4e -- Got simTracks of size " << simTracks->size()  << std::endl;
+  std::cout << "Geant4e "
+            << "G4e -- Got simTracks of size " << simTracks->size() << std::endl;
 
   Handle<SimVertexContainer> simVertices;
   iEvent.getByLabel<SimVertexContainer>("g4SimHits", simVertices);
   if (!simVertices.isValid()) {
     LogWarning("Geant4e") << "No verticess found" << std::endl;
-//    return;
+    //    return;
   }
   LogDebug("Geant4e") << "Got simVertices of size " << simVertices->size();
 
