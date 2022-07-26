@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_12_5_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v8-v2/10000/6a6528c0-9d66-4358-bacc-158c40b439cf.root'
+        '/store/relval/CMSSW_12_4_0/RelValSingleMuPt10/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v5-v1/2580000/7a892809-eb85-4c21-8fc2-3723b4f85c85.root'
     ),
 )
 
