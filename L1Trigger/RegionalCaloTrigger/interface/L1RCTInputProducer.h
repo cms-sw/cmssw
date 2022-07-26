@@ -1,7 +1,7 @@
 #ifndef L1RCTInputProducer_h
 #define L1RCTInputProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,7 +27,7 @@
 class L1RCT;
 class L1RCTLookupTables;
 
-class L1RCTInputProducer : public edm::EDProducer {
+class L1RCTInputProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1RCTInputProducer(const edm::ParameterSet &ps);
   ~L1RCTInputProducer() override;
