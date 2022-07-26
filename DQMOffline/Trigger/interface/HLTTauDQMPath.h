@@ -76,6 +76,12 @@ public:
     else
       return 0;
   }
+  int getFilterJet(size_t i) const {
+    if (i < filterJetN_.size())
+      return filterJetN_[i];
+    else
+      return 0;
+  }
   int getFilterLevel(size_t i) const {
     if (i < filterLevel_.size())
       return filterLevel_[i];
@@ -138,6 +144,7 @@ private:
   std::vector<int> filterElectronN_;
   std::vector<int> filterMuonN_;
   std::vector<int> filterMET_;
+  std::vector<int> filterJetN_;
   std::vector<int> filterLevel_;
   const std::string pathName_;
   const unsigned int pathIndex_;

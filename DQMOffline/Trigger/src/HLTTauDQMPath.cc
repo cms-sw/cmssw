@@ -211,11 +211,12 @@ namespace {
   }
 
   struct TauLeptonMultiplicity {
-    TauLeptonMultiplicity() : tau(0), electron(0), muon(0), met(0), level(0) {}
+    TauLeptonMultiplicity() : tau(0), electron(0), muon(0), met(0), jet(0), level(0) {}
     int tau;
     int electron;
     int muon;
     int met;
+    int jet;
     int level;
   };
   TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP,
@@ -272,6 +273,10 @@ namespace {
       if (getParameterSafe(HLTCP, filterName, "TriggerType") == trigger::TriggerTau) {
         //n.tau = pset.getParameter<int>("MinJets");
         n.tau = getParameterSafe(HLTCP, filterName, "MinJets");
+      }
+      if (getParameterSafe(HLTCP, filterName, "TriggerType") == trigger::TriggerJet) {
+	//n.tau = pset.getParameter<int>("MinJets");
+	n.jet = getParameterSafe(HLTCP, filterName, "MinN");
       }
     } else if (moduleType == "HLT1Tau" || moduleType == "HLT1PFTau") {
       n.level = 3;
@@ -390,10 +395,12 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
 #endif
   // Set the filter multiplicity counts
   filterTauN_.clear();
+  filterJetN_.clear();
   filterElectronN_.clear();
   filterMuonN_.clear();
   filterMET_.clear();
   filterTauN_.reserve(filterIndices_.size());
+  filterJetN_.reserve(filterIndices_.size());
   filterElectronN_.reserve(filterIndices_.size());
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
@@ -407,6 +414,7 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
     filterTauN_.push_back(n.tau);
+    filterJetN_.push_back(n.jet);
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
     filterMET_.push_back(n.met);

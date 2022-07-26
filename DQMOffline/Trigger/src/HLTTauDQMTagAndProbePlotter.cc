@@ -112,6 +112,8 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
     offlineObjects = refCollection.electrons;
   if (xvariable == "met")
     offlineObjects = refCollection.met;
+  if (xvariable == "jet")
+    offlineObjects = refCollection.jets;
 
   if (offlineObjects.size() < nOfflineObjs)
     return;

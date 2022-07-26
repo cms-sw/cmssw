@@ -21,7 +21,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "Math/GenVector/VectorUtil.h"
-
+//PFJet includes
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 using namespace edm;
 using namespace reco;
 using namespace std;

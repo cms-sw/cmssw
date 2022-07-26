@@ -10,9 +10,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
                             PFTauDiscriminators = cms.untracked.VInputTag(
                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
-                                    cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -37,9 +35,9 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             IdCollection = cms.untracked.InputTag("elecIDext")
                             ),
                     Jets = cms.untracked.PSet(
-                            JetCollection = cms.untracked.InputTag("ak4PFJetsCHS"),
+                            JetCollection = cms.untracked.InputTag("ak4CaloJets"),
                             etMin = cms.untracked.double(15.0),
-                            doJets = cms.untracked.bool(False)
+                            doJets = cms.untracked.bool(True)
                             ),
                     Towers = cms.untracked.PSet(
                             TowerCollection = cms.untracked.InputTag("towerMaker"),
@@ -115,6 +113,10 @@ hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
                                         FilterName        = cms.untracked.InputTag("TauRefProducer","MET"),
 					matchObjectID     = cms.untracked.int32(0),
                                     ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","Jets"),
+					matchObjectID     = cms.untracked.int32(1),
+                                    ),
                                 ),
     ),
 )
@@ -160,6 +162,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
                                     cms.untracked.PSet(                                                          
                                         FilterName        = cms.untracked.InputTag("TauRefProducer","MET"),
                                         matchObjectID     = cms.untracked.int32(0),                              
+                                    ),
+                                    cms.untracked.PSet(                                                          
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","Jets"),
+                                        matchObjectID     = cms.untracked.int32(1),                              
                                     ),
                                 ),
     ),
@@ -251,6 +257,21 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleEle24_eta2p1_WPTight_Gsf_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele35_WPTight_Gsf_v*'))
-        )
+        ),
+        cms.untracked.PSet(
+            name        = cms.string('TauJetTemplate'),
+            xvariable   = cms.string('Jet'),
+            nPtBins     = cms.int32(20),
+            ptmin       = cms.double(10.0),
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),  
+            etamin      = cms.double(-2.5),
+            etamax      = cms.double(2.5),
+            nPhiBins    = cms.int32(20),  
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60_CrossL1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1_v*'))
+        ),
     )
 )

@@ -21,11 +21,13 @@ struct HLTTauDQMOfflineObjects {
     muons.clear();
     taus.clear();
     met.clear();
+    jets.clear();
   };
   std::vector<LV> electrons;
   std::vector<LV> muons;
   std::vector<LV> taus;
   std::vector<LV> met;
+  std::vector<LV> jets;
 };
 
 //Virtual base class for HLT-Tau-DQM Plotters
