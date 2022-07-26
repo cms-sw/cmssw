@@ -11,27 +11,41 @@ geopro = cms.EDProducer("GeometryProducer",
      UseMagneticField = cms.bool(True),
      UseSensitiveDetectors = cms.bool(False),
      MagneticField = cms.PSet(
-         UseLocalMagFieldManager = cms.bool(False),
-         Verbosity = cms.untracked.bool(False),
-         ConfGlobalMFM = cms.PSet(
-             Volume = cms.string('OCMS'),
-             OCMS = cms.PSet(
-                 Stepper = cms.string('G4ClassicalRK4'),
-                 Type = cms.string('CMSIMField'),
-                 StepperParam = cms.PSet(
-                     MaximumEpsilonStep = cms.untracked.double(0.01), ## in mm
-                     DeltaOneStep = cms.double(1e-4),## in mm
-                     MaximumLoopCounts = cms.untracked.double(1000.0),
-                     DeltaChord = cms.double(0.001), ## in mm
-                     MinStep = cms.double(0.1), ## in mm
-                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
-                     DeltaIntersection = cms.double(1e-6), ## in mm
-                     MinimumEpsilonStep = cms.untracked.double(1e-05) ## in mm
-                 )
-             )
-         ),
-         delta = cms.double(1.0)
-     )
+        UseLocalMagFieldManager = cms.bool(False),
+        Verbosity = cms.bool(False),
+        ConfGlobalMFM = cms.PSet(
+            Volume = cms.string('OCMS'),
+            OCMS = cms.PSet(
+                Stepper = cms.string('G4TDormandPrince45'),
+                Type = cms.string('CMSIMField'),
+                StepperParam = cms.PSet(
+                    VacRegions = cms.vstring(),
+#                   VacRegions = cms.vstring('DefaultRegionForTheWorld','BeamPipeVacuum','BeamPipeOutside'),
+                    EnergyThTracker = cms.double(0.2),     ## in GeV
+                    RmaxTracker = cms.double(8000),       ## in mm
+                    ZmaxTracker = cms.double(11000),       ## in mm
+                    MaximumEpsilonStep = cms.untracked.double(0.01),
+                    DeltaOneStep = cms.double(0.001),      ## in mm
+                    DeltaOneStepTracker = cms.double(1e-4),## in mm
+                    MaximumLoopCounts = cms.untracked.double(1000.0),
+                    DeltaChord = cms.double(0.002),       ## in mm
+                    DeltaChordTracker = cms.double(0.001), ## in mm
+                    MinStep = cms.double(0.1),             ## in mm
+                    DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
+                    DeltaIntersection = cms.double(0.0001),     ## in mm
+                    DeltaIntersectionTracker = cms.double(1e-6),## in mm
+                    MaxStep = cms.double(150.),            ## in cm
+                    MinimumEpsilonStep = cms.untracked.double(1e-05),
+                    EnergyThSimple = cms.double(0.015),    ## in GeV
+                    DeltaChordSimple = cms.double(0.1),    ## in mm
+                    DeltaOneStepSimple = cms.double(0.1),  ## in mm
+                    DeltaIntersectionSimple = cms.double(0.01), ## in mm
+                    MaxStepSimple = cms.double(50.),       ## in cm
+                )
+            )
+    ),
+    delta = cms.double(1.0)
+    ),
    )
 
 # load this to do a track refit
