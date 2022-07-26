@@ -56,7 +56,8 @@ void FieldStepper::selectStepper(const std::string &ss) {
   else if (ss == "G4DormandPrince745")
     theStepper = new G4DormandPrince745(theEquation);
   else if (ss == "G4TDormandPrince45")
-    theStepper = new G4TDormandPrince45<G4TMagFieldEquation<sim::Field>>(dynamic_cast<G4TMagFieldEquation<sim::Field>*>(theEquation));
+    theStepper = new G4TDormandPrince45<G4TMagFieldEquation<sim::Field>>(
+        dynamic_cast<G4TMagFieldEquation<sim::Field> *>(theEquation));
   else if (ss == "CMSTDormandPrince45")
     theStepper = new CMSTDormandPrince45<CMSTMagFieldEquation<sim::Field>>(
         dynamic_cast<CMSTMagFieldEquation<sim::Field> *>(theEquation));
