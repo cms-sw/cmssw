@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config 
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("G4eRefit")
 
@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.default = cms.untracked.PSet(ERROR = cms.untracked.PSet(limit = cms.untracked.int32(5)))
@@ -23,8 +23,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_7_4_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/4C6BF9BF-95A9-E411-ADA9-0025905A60FE.root',
-       '/store/relval/CMSSW_7_4_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/DE6B164D-9FA9-E411-9BAF-0025905B85D0.root' 
+      '/store/relval/CMSSW_12_5_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v8-v2/10000/6a6528c0-9d66-4358-bacc-158c40b439cf.root'
     ),
 )
 
