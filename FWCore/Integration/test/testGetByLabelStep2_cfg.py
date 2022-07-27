@@ -48,12 +48,8 @@ if args.otherInt:
 
 if args.noConsumes:
     process.intAnalyzer.consumes = False
-    process.intAnalyzer.accessExceptionCategory = cms.untracked.string("ProductNotFound")
+    process.intAnalyzer.getExceptionCategory = cms.untracked.string("GetByLabelWithoutRegistration")
 
     if args.thing:
         process.thingAnalyzer.consumes = False
         process.thingAnalyzer.getExceptionCategory = cms.untracked.string("GetByLabelWithoutRegistration")
-
-    if args.otherInt:
-        process.intAnalyzer.getExceptionCategory = cms.untracked.string("GetByLabelWithoutRegistration")
-        process.intAnalyzer.accessExceptionCategory = ""
