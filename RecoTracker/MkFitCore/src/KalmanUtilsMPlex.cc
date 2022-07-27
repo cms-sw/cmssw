@@ -322,7 +322,8 @@ namespace {
 #pragma omp simd
     for (int n = 0; n < N; ++n) {
       // a bit loopy to avoid temporaries
-      co[0 * N + n] = r00[n] * r00[n] * ci[0 * N + n] + 2 * r00[n] * r01[n] * ci[1 * N + n] + r01[n] * r01[n] * ci[2 * N + n];
+      co[0 * N + n] =
+          r00[n] * r00[n] * ci[0 * N + n] + 2 * r00[n] * r01[n] * ci[1 * N + n] + r01[n] * r01[n] * ci[2 * N + n];
       co[1 * N + n] = r00[n] * r01[n] * co[0 * N + n];
       co[2 * N + n] = r01[n] * r01[n] * co[0 * N + n];
       co[0 * N + n] = r00[n] * r00[n] * co[0 * N + n];
@@ -490,9 +491,11 @@ namespace mkfit {
 
       propagateHelixToRMPlex(psErr, psPar, Chg, msRad, propErr, propPar, N_proc, propFlags);
 
-      kalmanOperation(KFO_Update_Params | KFO_Local_Cov, propErr, propPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
+      kalmanOperation(
+          KFO_Update_Params | KFO_Local_Cov, propErr, propPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     } else {
-      kalmanOperation(KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
+      kalmanOperation(
+          KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
     for (int n = 0; n < NN; ++n) {
       if (outPar.At(n, 3, 0) < 0) {

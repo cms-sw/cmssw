@@ -28,8 +28,7 @@ namespace mkfit {
   class Event;
 #endif
 
-  struct UpdateIndices
-  {
+  struct UpdateIndices {
     int seed_idx;
     int cand_idx;
     int hit_idx;
