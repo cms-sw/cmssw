@@ -11,7 +11,7 @@
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="DataFormats/MuonDetId"/>
-<library file="Geant4ePropagatorAnalyzer.cc" name="Geant4ePropagatorAnalyzer">
+<library file="*.cc" name="Geant4ePropagatorTests">
   <flags EDM_PLUGIN="1"/>
 </library>
 
