@@ -147,6 +147,8 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet &iC
       thePropagator(nullptr),
       G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
       G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
+  auto token = consumes(G4TrkSrc_);
+
   // debug_ = iConfig.getParameter<bool>("debug");
   fStudyStation = iConfig.getParameter<int>("StudyStation");
 
@@ -331,7 +333,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   ///////////////////////////////////////
   // Get the sim tracks & vertices
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByLabel<SimTrackContainer>("g4SimHits", "", simTracks);
+  iEvent.getByLabel<SimTrackContainer>(G4TrkSrc_, simTracks);
   if (!simTracks.isValid()) {
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     //    return;

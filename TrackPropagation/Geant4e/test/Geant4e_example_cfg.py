@@ -1,15 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("G4eRefit")
+from Configuration.Eras.Era_Run3_cff import Run3
 
+process = cms.Process("G4eRefit",Run3)
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load("Configuration.EventContent.EventContent_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.GeometrySimDB_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -41,7 +46,6 @@ process.out = cms.OutputModule( "PoolOutputModule",
   fileName = cms.untracked.string( 'test.root' )
 )
 
-process.g4RefitPath = cms.Path( process.MeasurementTrackerEvent * process.geant4eTrackRefit )
 process.e = cms.EndPath(process.out)
 process.schedule = cms.Schedule( process.g4RefitPath, process.e )
 

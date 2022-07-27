@@ -61,7 +61,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
       m_firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
-      m_pGeoFromDD4hep(false) {
+      m_pGeoFromDD4hep(p.getParameter<bool>("GeoFromDD4hep")) {
   // Look for an outside SimActivityRegistry
   // this is used by the visualization code
 
