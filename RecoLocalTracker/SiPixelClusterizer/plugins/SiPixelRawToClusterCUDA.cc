@@ -78,7 +78,7 @@ private:
   const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
-  const uint32_t maxFedWords_;
+  uint32_t maxFedWords_;
   uint32_t nDigis_;
   const SiPixelClusterThresholds clusterThresholds_;
 };
@@ -181,13 +181,18 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   errors_.clear();
 
   // GPU specific: Data extraction for RawToDigi GPU
-  unsigned int wordCounterGPU = 0;
+  unsigned int wordCounter = 0;
   unsigned int fedCounter = 0;
   bool errorsInEvent = false;
 
+  std::vector<unsigned int> index(fedIds_.size(), 0);
+  std::vector<cms_uint32_t const*> start(fedIds_.size(), nullptr);
+  std::vector<ptrdiff_t> words(fedIds_.size(), 0);
+
   // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
   ErrorChecker errorcheck;
-  for (int fedId : fedIds_) {
+  for (uint32_t i = 0; i < fedIds_.size(); ++i) {
+    const int fedId = fedIds_[i];
     if (regions_ && !regions_->mayUnpackFED(fedId))
       continue;
 
@@ -235,15 +240,34 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
     const cms_uint32_t* ew = (const cms_uint32_t*)(trailer);
 
     assert(0 == (ew - bw) % 2);
-    wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew - bw));
-    wordCounterGPU += (ew - bw);
+    index[i] = wordCounter;
+    start[i] = bw;
+    words[i] = (ew - bw);
+    wordCounter += (ew - bw);
 
   }  // end of for loop
 
-  nDigis_ = wordCounterGPU;
+  nDigis_ = wordCounter;
 
   if (nDigis_ == 0)
     return;
+
+  if (nDigis_ > maxFedWords_) {
+    edm::LogWarning("SiPixelRawToClusterCUDA")
+        << "Found " << wordCounter << " words, which is larger than the current size of the word buffer of "
+        << maxFedWords_ << " words.\n"
+        << "The buffer size will be automatically increased.\n"
+        << "To avoid the reallocation, please update the configuration and increase the value of the MaxFEDWords "
+           "parameter.";
+
+    maxFedWords_ = wordCounter;
+    wordFedAppender_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender>(maxFedWords_);
+  }
+
+  // copy the FED data to a single cpu buffer
+  for (uint32_t i = 0; i < fedIds_.size(); ++i) {
+    wordFedAppender_->initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
+  }
 
   gpuAlgo_.makeClustersAsync(isRun2_,
                              clusterThresholds_,
@@ -252,7 +276,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                              gpuGains,
                              *wordFedAppender_,
                              std::move(errors_),
-                             wordCounterGPU,
+                             wordCounter,
                              fedCounter,
                              maxFedWords_,
                              useQuality_,

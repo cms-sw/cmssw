@@ -79,7 +79,7 @@ namespace pixelgpudetails {
       WordFedAppender(uint32_t maxFedWords);
       ~WordFedAppender() = default;
 
-      void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t* src, unsigned int length);
+      void initializeWordFed(int fedId, unsigned int index, const cms_uint32_t* src, unsigned int length);
 
       const unsigned int* word() const { return word_.get(); }
       const unsigned char* fedId() const { return fedId_.get(); }

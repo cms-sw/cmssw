@@ -40,11 +40,11 @@ namespace pixelgpudetails {
   }
 
   void SiPixelRawToClusterGPUKernel::WordFedAppender::initializeWordFed(int fedId,
-                                                                        unsigned int wordCounterGPU,
+                                                                        unsigned int index,
                                                                         const cms_uint32_t *src,
                                                                         unsigned int length) {
-    std::memcpy(word_.get() + wordCounterGPU, src, sizeof(cms_uint32_t) * length);
-    std::memset(fedId_.get() + wordCounterGPU / 2, fedId - FEDNumbering::MINSiPixeluTCAFEDID, length / 2);
+    std::memcpy(word_.get() + index, src, sizeof(cms_uint32_t) * length);
+    std::memset(fedId_.get() + index / 2, fedId - FEDNumbering::MINSiPixeluTCAFEDID, length / 2);
   }
 
   ////////////////////
