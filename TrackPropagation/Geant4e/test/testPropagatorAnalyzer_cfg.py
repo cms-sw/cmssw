@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROPAGATORTEST")
+
+from Configuration.Eras.Era_Run3_cff import Run3
+
+process = cms.Process("PROPAGATORTEST",Run3)
 
 
 
@@ -17,8 +20,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -46,8 +49,9 @@ for category in labels:
 # Pool Source #######################################################
 #
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:step1.root")
-#      '/store/relval/CMSSW_12_5_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v8-v2/10000/6a6528c0-9d66-4358-bacc-158c40b439cf.root'
+    fileNames = cms.untracked.vstring(
+      '/store/relval/CMSSW_12_5_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v8-v2/10000/6a6528c0-9d66-4358-bacc-158c40b439cf.root'
+ )
 )
   
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
@@ -59,53 +63,20 @@ from TrackPropagation.Geant4e.Geant4ePropagator_cfi import *
 from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 
 ## Set up geometry
+from SimG4Core.Application.g4SimHits_cfi import g4SimHits as _g4SimHits
 process.geopro = cms.EDProducer("GeometryProducer",
+     GeoFromDD4hep = cms.bool(False),
      UseMagneticField = cms.bool(True),
      UseSensitiveDetectors = cms.bool(False),
-     MagneticField = cms.PSet(
-        UseLocalMagFieldManager = cms.bool(False),
-        Verbosity = cms.bool(False),
-        ConfGlobalMFM = cms.PSet(
-            Volume = cms.string('OCMS'),
-            OCMS = cms.PSet(
-                Stepper = cms.string('G4TDormandPrince45'),
-                Type = cms.string('CMSIMField'),
-                StepperParam = cms.PSet(
-                    VacRegions = cms.vstring(),
-#                   VacRegions = cms.vstring('DefaultRegionForTheWorld','BeamPipeVacuum','BeamPipeOutside'),
-                    EnergyThTracker = cms.double(0.2),     ## in GeV
-                    RmaxTracker = cms.double(8000),        ## in mm
-                    ZmaxTracker = cms.double(11000),       ## in mm
-                    MaximumEpsilonStep = cms.untracked.double(0.01),
-                    DeltaOneStep = cms.double(0.001),      ## in mm
-                    DeltaOneStepTracker = cms.double(1e-4),## in mm
-                    MaximumLoopCounts = cms.untracked.double(1000.0),
-                    DeltaChord = cms.double(0.002),        ## in mm
-                    DeltaChordTracker = cms.double(0.001), ## in mm
-                    MinStep = cms.double(0.1),             ## in mm
-                    DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
-                    DeltaIntersection = cms.double(0.0001),     ## in mm
-                    DeltaIntersectionTracker = cms.double(1e-6),## in mm
-                    MaxStep = cms.double(150.),            ## in cm
-                    MinimumEpsilonStep = cms.untracked.double(1e-05),
-                    EnergyThSimple = cms.double(0.015),    ## in GeV
-                    DeltaChordSimple = cms.double(0.1),    ## in mm
-                    DeltaOneStepSimple = cms.double(0.1),  ## in mm
-                    DeltaIntersectionSimple = cms.double(0.01), ## in mm
-                    MaxStepSimple = cms.double(50.),       ## in cm
-                )
-            )
-        ),
-        delta = cms.double(1.0)
-    ),
-   )
+     MagneticField =  _g4SimHits.MagneticField.clone()
+)
 
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+dd4hep.toModify(process.geopro, GeoFromDD4hep = True )
 
-
-
-  #####################################################################
-  # Extrapolator ######################################################
-  #
+#####################################################################
+# Extrapolator ######################################################
+#
 process.propAna = cms.EDAnalyzer("Geant4ePropagatorAnalyzer",
     G4VtxSrc = cms.InputTag("g4SimHits"),
     G4TrkSrc = cms.InputTag("g4SimHits"),
