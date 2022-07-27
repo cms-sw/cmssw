@@ -30,7 +30,8 @@ namespace gpuClustering {
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
     constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
-    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    [[maybe_unused]] constexpr int nMaxModules =
+        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
 
     assert(nMaxModules < maxNumModules);
     assert(startBPIX2 < nMaxModules);
