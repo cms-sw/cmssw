@@ -102,11 +102,12 @@
 
         <!-- HepMC3 externals -->
         <class name="HepMC3::GenEvent"/>
+        <class name="HepMC3::GenVertex"/>
+        <class name="HepMC3::GenParticle"/>
 
         <!-- HepMC3Product -->
 
         <class name="edm::Wrapper&lt;edm::HepMC3Product&gt;"/>
-        <class name="edm::HepMC3Product"/>
         <class name="std::vector&lt;const edm::HepMC3Product*&gt;"/>
 	<!--
         <class name="edm::Ref&lt;edm::HepMC3Product,HepMC3::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenVertex&gt;::Find&gt;"/>
@@ -219,9 +220,7 @@
 
         <!-- GenEventInfoProduct3 -->
         <class name="GenEventInfoProduct3"/>
-        <ioread sourceClass = "GenEventInfoProduct3" version="[1]" targetClass="GenEventInfoProduct3" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-        </ioread>
-        <class name="edm::Wrapper&lt;GenEventInfoProduct3&gt;"/>
+        <class name="edm::Wrapper<GenEventInfoProduct3>"/>
 
 
 

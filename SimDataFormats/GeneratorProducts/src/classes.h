@@ -23,6 +23,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorEventInfo.h"
 
 #include <HepMC/GenRanges.h>
+#include <HepMC3/GenVertex.h>
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/Attribute.h>
 
 //needed for backward compatibility between HepMC 2.06.xx and 2.05.yy
 namespace hepmc_rootio {
