@@ -8,6 +8,7 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 
 ## Set up geometry
 geopro = cms.EDProducer("GeometryProducer",
+     GeoFromDD4hep = cms.bool(True),
      UseMagneticField = cms.bool(True),
      UseSensitiveDetectors = cms.bool(False),
      MagneticField = cms.PSet(
