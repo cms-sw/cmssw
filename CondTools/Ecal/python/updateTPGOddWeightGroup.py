@@ -12,7 +12,12 @@ options.register ('output', # output file with SQLite format
                 'EcalTPGOddWeightGroup.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
-                "output")                                                               
+                "output")
+options.register ('filetype', # input file format txt/xml                              
+                'txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "filetype")
 options.register('outputtag',
                  'EcalTPGOddWeightGroup',
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -71,8 +76,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightGroupAnalyzer",
     Location = cms.string(''),
     GenTag = cms.string(''),
     RunType = cms.string(''),
-    # fileType = cms.string('xml'),
-    fileType = cms.string('txt'),
+    fileType = cms.string(options.filetype),
     fileName = cms.string(options.input),
   )
 )

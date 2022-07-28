@@ -13,6 +13,11 @@ options.register ('output', # output file with SQLite format
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "output")
+options.register ('filetype', # input file format txt/xml                              
+                'txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "filetype")
 options.register('outputtag',
                  'EcalTPGOddWeightIdMap',
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -71,9 +76,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightIdMapAnalyzer",
     Location = cms.string(''),
     GenTag = cms.string(''),
     RunType = cms.string(''),
-#    fileType = cms.string('xml'),
-    fileType = cms.string('txt'),
-#    fileName = cms.string('EcalTPGWeightIdMap.xml'),
+    fileType = cms.string(options.filetype),
     fileName = cms.string(options.input),
   )                            
 )
