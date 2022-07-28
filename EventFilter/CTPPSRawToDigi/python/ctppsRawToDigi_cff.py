@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# ---------- trigger data ----------
-from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
-totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-
 # ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
@@ -46,7 +42,7 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2022.xml"),
       maskFileNames = cms.vstring()
     )
-    
+
   )
 )
 
@@ -95,7 +91,7 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
       maskFileNames = cms.vstring()
     )
-    
+
   )
 )
 
@@ -148,7 +144,6 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(
-  totemTriggerRawToDigi,
   totemRPRawToDigi,
   ctppsDiamondRawToDigi,
   totemTimingRawToDigi,
