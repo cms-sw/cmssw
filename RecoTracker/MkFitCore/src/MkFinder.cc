@@ -1520,7 +1520,7 @@ namespace mkfit {
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,
@@ -1682,7 +1682,7 @@ namespace mkfit {
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags, &no_mat_effs);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,
