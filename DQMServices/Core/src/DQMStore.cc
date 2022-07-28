@@ -13,6 +13,10 @@
 
 namespace dqm::implementation {
 
+  // list of acceptable characters for ME path names, in order to be able to upload to the CMS DQM GUI
+  // See https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+  static const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
+
   std::string NavigatorBase::pwd() {
     if (cwd_.empty()) {
       return "";
@@ -66,6 +70,13 @@ namespace dqm::implementation {
                                   bool forceReplace /* = false */) {
     MonitorElementData::Path path;
     std::string fullpath = cwd_ + std::string(name.View());
+
+    if (fullpath.find_first_not_of(s_safe) != std::string::npos) {
+      throw cms::Exception("BadMonitorElementPathName")
+          << " Monitor element path name: '" << fullpath.c_str() << "' uses unacceptable characters."
+          << "\n Acceptable characters are: " << s_safe.c_str();
+    }
+
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
 
     // We should check if there is a local ME for this module and name already.
