@@ -48,6 +48,19 @@ std::vector<reco::TransientTrack> TrackFilterForPVFinding::select(
   return seltks;
 }
 
+// select the vector of tracks that pass the filter cuts with a tighter pt selection
+std::vector<reco::TransientTrack> TrackFilterForPVFinding::selectTight(const std::vector<reco::TransientTrack>& tracks,
+                                                                       double minPtTight) const {
+  std::vector<reco::TransientTrack> seltks;
+  for (std::vector<reco::TransientTrack>::const_iterator itk = tracks.begin(); itk != tracks.end(); itk++) {
+    if (itk->impactPointState().globalMomentum().transverse() < minPtTight)
+      continue;
+    if (operator()(*itk))
+      seltks.push_back(*itk);  //  calls the filter function for single tracks
+  }
+  return seltks;
+}
+
 void TrackFilterForPVFinding::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("maxNormalizedChi2", 10.0);
   desc.add<double>("minPt", 0.0);

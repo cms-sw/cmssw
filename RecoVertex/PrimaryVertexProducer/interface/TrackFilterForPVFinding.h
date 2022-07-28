@@ -20,6 +20,8 @@ public:
 
   bool operator()(const reco::TransientTrack& tracks) const;
   std::vector<reco::TransientTrack> select(const std::vector<reco::TransientTrack>& tracks) const override;
+  std::vector<reco::TransientTrack> selectTight(const std::vector<reco::TransientTrack>& tracks,
+                                                double minPtTight) const;
 
 private:
   float maxD0Sig_, minPt_, maxEta_;
