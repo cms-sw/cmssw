@@ -3,9 +3,10 @@
 #include <cstdio>
 #include <vector>
 
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
+
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 l1ct::DeregionizerEmulator::DeregionizerEmulator(const edm::ParameterSet &iConfig)
     : DeregionizerEmulator(iConfig.getParameter<uint32_t>("nPuppiFinalBuffer"),
@@ -15,8 +16,6 @@ l1ct::DeregionizerEmulator::DeregionizerEmulator(const edm::ParameterSet &iConfi
                            iConfig.getParameter<uint32_t>("nPuppiThirdBuffers")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
-#else
-#include "../../utils/dbgPrintf.h"
 #endif
 
 l1ct::DeregionizerEmulator::DeregionizerEmulator(const unsigned int nPuppiFinalBuffer /*=128*/,

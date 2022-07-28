@@ -38,6 +38,13 @@ process.L1VertexFinderEmulator.l1TracksInputTag = cms.InputTag("L1GTTInputProduc
 from L1Trigger.Phase2L1GMT.gmt_cfi import standaloneMuons
 process.L1SAMuonsGmt = standaloneMuons.clone()
 
+from L1Trigger.Phase2L1ParticleFlow.L1SeedConePFJetProducer_cfi import L1SeedConePFJetEmulatorProducer
+from L1Trigger.Phase2L1ParticleFlow.DeregionizerProducer_cfi import DeregionizerProducer
+from L1Trigger.Phase2L1ParticleFlow.l1ctJetFileWriter_cfi import l1ctSeededConeJetFileWriter
+process.l1ctLayer2Deregionizer = DeregionizerProducer.clone()
+process.l1ctLayer2SeedConeJets = L1SeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1ctLayer2Deregionizer', 'Puppi'))
+process.l1ctLayer2SeedConeJetWriter = l1ctSeededConeJetFileWriter.clone(jets = "l1ctLayer2SeedConeJets")
+
 process.l1ctLayer1Barrel9 = process.l1ctLayer1Barrel.clone()
 process.l1ctLayer1Barrel9.puAlgo.nFinalSort = 32
 process.l1ctLayer1Barrel9.regions[0].etaBoundaries = [ -1.5, -0.5, 0.5, 1.5 ] 
@@ -50,22 +57,42 @@ process.l1ctLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
+from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
+process.l1ctLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
+#process.l1ctLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
+process.l1ctLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
+process.l1ctLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
+process.l1ctLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
+
 process.runPF = cms.Path( 
         process.L1SAMuonsGmt +
         process.L1GTTInputProducer +
         process.L1VertexFinderEmulator +
         process.l1ctLayer1Barrel +
-        process.l1ctLayer1Barrel9 +
+        #process.l1ctLayer1Barrel9 +
         process.l1ctLayer1HGCal +
         process.l1ctLayer1HGCalNoTK +
-        process.l1ctLayer1HF
-)
+        process.l1ctLayer1HF +
+        process.l1ctLayer1 +
+        process.l1ctLayer2EG +
+        process.l1ctLayer2Deregionizer +
+        process.l1ctLayer2SeedConeJets +
+        process.l1ctLayer2SeedConeJetWriter
+    )
 process.runPF.associate(process.l1ctLayer1TaskInputsTask)
 
 
-for det in "Barrel", "Barrel9", "HGCal", "HGCalNoTK", "HF":
-    l1pf = getattr(process, 'l1ctLayer1'+det)
-    l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
+#####################################################################################################################
+## Layer 2 e/gamma 
+
+process.l1ctLayer2EG.writeInPattern = True
+process.l1ctLayer2EG.writeOutPattern = True
+process.l1ctLayer2EG.inPatternFile.maxLinesPerFile = eventsPerFile_*54
+process.l1ctLayer2EG.outPatternFile.maxLinesPerFile = eventsPerFile_*54
+
+#####################################################################################################################
+## Layer 2 seeded-cone jets 
+process.l1ctLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/11_1_0/NewInputs110X/110121.done/TTbar_PU200/inputs110X_%d.root' % i for i in (1,3,7,8,9) ]
 process.pfClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("L1EGammaClusterEmuProducer",)]

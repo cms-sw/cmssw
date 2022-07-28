@@ -3,14 +3,7 @@
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
-
-#ifdef CMSSW_GIT_HASH
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-
-#else
-#include "../../utils/dbgPrintf.h"
-
-#endif
 
 namespace edm {
   class ParameterSet;
@@ -19,7 +12,6 @@ namespace edm {
 namespace l1ct {
 
   struct L2EgEncoderEmulator {
-  public:
     L2EgEncoderEmulator(unsigned int nTKELE_OUT, unsigned int nTKPHO_OUT)
         : nTkEleOut_(nTKELE_OUT), nTkPhoOut_(nTKPHO_OUT), nEncodedWords_(nTKELE_OUT * 1.5 + nTKPHO_OUT * 1.5) {
       assert(nTkEleOut_ % 2 == 0);

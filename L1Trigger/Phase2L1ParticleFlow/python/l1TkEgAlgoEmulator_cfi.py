@@ -10,6 +10,7 @@ tkEgAlgoParameters = cms.PSet(
     writeBeforeBremRecovery=cms.bool(True),
     filterHwQuality=cms.bool(False),
     caloHwQual=cms.int32(4),
+    doEndcapHwQual=cms.bool(False),
     dEtaMaxBrem=cms.double(0.02),
     dPhiMaxBrem=cms.double(0.1),
     absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
