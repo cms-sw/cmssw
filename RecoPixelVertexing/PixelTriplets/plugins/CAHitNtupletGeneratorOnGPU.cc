@@ -247,5 +247,11 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
   std::cout << "finished building pixel tracks on CPU" << std::endl;
 #endif
 
+  // check that the fixed-size SoA does not overflow
+  auto const& tsoa = *soa;
+  auto maxTracks = tsoa.stride();
+  auto nTracks = tsoa.nTracks();
+  assert(nTracks < maxTracks);
+
   return tracks;
 }
