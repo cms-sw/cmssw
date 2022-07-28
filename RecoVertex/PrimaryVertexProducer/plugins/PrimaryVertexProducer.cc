@@ -354,7 +354,9 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     TrackFilterForPVFinding::fillPSetDescription(psd0);
-    psd0.add<int>("numTracksThreshold", 0);  // HI only
+    psd0.add<int>("numTracksThreshold", 0);            // HI only
+    psd0.add<int>("maxNumTracksThreshold", 10000000);  // HI only
+    psd0.add<double>("minPtTight", 0.0);               // HI only
     desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
   }
   desc.add<edm::InputTag>("beamSpotLabel", edm::InputTag("offlineBeamSpot"));
