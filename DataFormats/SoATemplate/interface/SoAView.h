@@ -93,12 +93,18 @@ namespace cms::soa {
   constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) =                                   \
       BOOST_PP_CAT(TypeOf_, LAYOUT_NAME)::Metadata::BOOST_PP_CAT(ColumnTypeOf_, LAYOUT_MEMBER);                        \
   SOA_HOST_DEVICE SOA_INLINE                                                                                           \
-  const BOOST_PP_CAT(ParametersTypeOf_, LOCAL_NAME) BOOST_PP_CAT(parametersOf_, LOCAL_NAME)() const {                  \
+  const auto BOOST_PP_CAT(parametersOf_, LOCAL_NAME)() const {                                                         \
     return CAST(parent_.BOOST_PP_CAT(LOCAL_NAME, Parameters_));                                                        \
   };
 // clang-format on
 
-// DATA should be a function used to convert parent_.LOCAL_NAME ## Parameters_ to ParametersTypeOf_ ## LOCAL_NAME, or empty
+// DATA should be a function used to convert
+//   parent_.LOCAL_NAME ## Parameters_
+// to
+//   ParametersTypeOf_ ## LOCAL_NAME                (for a View)
+// or
+//   ParametersTypeOf_ ## LOCAL_NAME :: ConstType   (for a ConstView)
+// or empty, if no conversion is necessary.
 #define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL BOOST_PP_TUPLE_PUSH_BACK(LAYOUT_MEMBER_NAME, DATA))
 
