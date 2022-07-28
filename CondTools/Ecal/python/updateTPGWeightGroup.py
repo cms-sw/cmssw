@@ -1,4 +1,29 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+options = VarParsing.VarParsing('analysis')
+
+options.register ('input', # input text file with encoded weight groups                             
+                'EcalTPGWeightGroup.txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "input")           
+options.register ('output', # output file with SQLite format                              
+                'EcalTPGWeightGroup.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "output")
+options.register ('filetype', # input file format txt/xml                              
+                'txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "filetype")   
+options.register('outputtag',
+                 'EcalTPGWeightGroup',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "outputtag")
+options.parseArguments()
 
 process = cms.Process("ProcessOne")
 
@@ -22,7 +47,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTPGWeightGroup.db'
+process.CondDB.connect = 'sqlite_file:%s'%(options.output)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
@@ -30,7 +55,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalTPGWeightGroupRcd'),
-      tag = cms.string('EcalTPGWeightGroup')
+      tag = cms.string(options.outputtag)
     )
   )
 )
@@ -50,10 +75,8 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightGroupAnalyzer",
     Location = cms.string(''),
     GenTag = cms.string(''),
     RunType = cms.string(''),
-    fileType = cms.string('xml'),
-#    fileType = cms.string('txt'),
-    fileName = cms.string('EcalTPGWeightGroup.xml'),
-#    fileName = cms.string('EcalTPGWeightGroup.txt'),
+    fileType = cms.string(options.filetype),
+    fileName = cms.string(options.input),
   )
 )
 
