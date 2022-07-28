@@ -129,6 +129,7 @@ from EventFilter.CTPPSRawToDigi.totemTimingRawToDigi_cfi import totemTimingRawTo
 totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- Totem nT2 ----------
+from CalibPPS.ESProducers.totemT2DAQMapping_cff import totemDAQMappingESSourceXML as totemDAQMappingESSourceXML_TotemT2
 from EventFilter.CTPPSRawToDigi.totemT2Digis_cfi import totemT2Digis
 totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
 
