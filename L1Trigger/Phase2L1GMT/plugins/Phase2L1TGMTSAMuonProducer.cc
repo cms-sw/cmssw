@@ -141,6 +141,7 @@ SAMuon Phase2L1TGMTSAMuonProducer::Convertl1tMuon(const l1t::Muon& mu, const int
 
   int bstart = 0;
   wordtype word(0);
+  bstart = wordconcat<wordtype>(word, bstart, pt > 0, 1);
   bstart = wordconcat<wordtype>(word, bstart, pt, BITSGTPT);
   bstart = wordconcat<wordtype>(word, bstart, phi, BITSGTPHI);
   bstart = wordconcat<wordtype>(word, bstart, eta, BITSGTETA);

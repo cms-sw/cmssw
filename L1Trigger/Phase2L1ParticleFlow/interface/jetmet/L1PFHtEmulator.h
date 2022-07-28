@@ -3,13 +3,10 @@
 
 #include "DataFormats/L1TParticleFlow/interface/jets.h"
 #include "DataFormats/L1TParticleFlow/interface/sums.h"
-
-#ifdef CMSSW_GIT_HASH
-#include "./L1SeedConePFJetEmulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../../seededcone/ref/L1SeedConePFJetEmulator.h"
-#include "../../../utils/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
+
+#ifndef CMSSW_GIT_HASH
 #include "hls_math.h"
 #endif
 
