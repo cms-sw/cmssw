@@ -21,6 +21,7 @@ namespace l1ct {
     bool doBremRecovery;
     bool writeBeforeBremRecovery;
     int caloHwQual;
+    bool doEndcapHwQual;
     float emClusterPtMin;  // GeV
     float dEtaMaxBrem;
     float dPhiMaxBrem;
@@ -63,6 +64,7 @@ namespace l1ct {
                         bool doBremRecovery,
                         bool writeBeforeBremRecovery = false,
                         int caloHwQual = 4,
+                        bool doEndcapHwQual = false,
                         float emClusterPtMin = 2.,
                         float dEtaMaxBrem = 0.02,
                         float dPhiMaxBrem = 0.1,
@@ -78,7 +80,8 @@ namespace l1ct {
                         bool doTkIso = true,
                         bool doPfIso = false,
                         EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
-                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV)
+                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
+                        int debug = 0)
 
         : nTRACK(nTrack),
           nTRACK_EGIN(nTrack_in),
@@ -88,6 +91,7 @@ namespace l1ct {
           doBremRecovery(doBremRecovery),
           writeBeforeBremRecovery(writeBeforeBremRecovery),
           caloHwQual(caloHwQual),
+          doEndcapHwQual(doEndcapHwQual),
           emClusterPtMin(emClusterPtMin),
           dEtaMaxBrem(dEtaMaxBrem),
           dPhiMaxBrem(dPhiMaxBrem),
@@ -103,7 +107,8 @@ namespace l1ct {
           doTkIso(doTkIso),
           doPfIso(doPfIso),
           hwIsoTypeTkEle(hwIsoTypeTkEle),
-          hwIsoTypeTkEm(hwIsoTypeTkEm) {}
+          hwIsoTypeTkEm(hwIsoTypeTkEm),
+          debug(debug) {}
   };
 
   class PFTkEGAlgoEmulator {
@@ -157,26 +162,26 @@ namespace l1ct {
                        const std::vector<EmCaloObjEmu> &emcalo,
                        const std::vector<TkObjEmu> &track,
                        const int calo_idx,
-                       const int hwQual,
+                       const unsigned int hwQual,
                        const pt_t ptCorr,
                        const int tk_idx,
                        const std::vector<unsigned int> &components = {}) const;
 
     EGObjEmu &addEGStaToPF(std::vector<EGObjEmu> &egobjs,
                            const EmCaloObjEmu &calo,
-                           const int hwQual,
+                           const unsigned int hwQual,
                            const pt_t ptCorr,
                            const std::vector<unsigned int> &components) const;
 
     EGIsoObjEmu &addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
                               const EmCaloObjEmu &calo,
-                              const int hwQual,
+                              const unsigned int hwQual,
                               const pt_t ptCorr) const;
 
     EGIsoEleObjEmu &addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> &egobjs,
                                     const EmCaloObjEmu &calo,
                                     const TkObjEmu &track,
-                                    const int hwQual,
+                                    const unsigned int hwQual,
                                     const pt_t ptCorr) const;
 
     // FIXME: reimplemented from PFAlgoEmulatorBase
