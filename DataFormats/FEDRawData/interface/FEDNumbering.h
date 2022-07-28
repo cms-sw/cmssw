@@ -30,8 +30,8 @@ public:
     MAXSiStripFEDID = 489,
     MINPreShowerFEDID = 520,
     MAXPreShowerFEDID = 575,
-    MINTotemTriggerFEDID = 577,
-    MAXTotemTriggerFEDID = 577,
+    MINTotemT2FEDID = 577,
+    MAXTotemT2FEDID = 577,
     MINTotemRPHorizontalFEDID = 578,
     MAXTotemRPHorizontalFEDID = 581,
     MINCTPPSDiamondFEDID = 582,
@@ -40,8 +40,6 @@ public:
     MAXTotemRPVerticalFEDID = 585,
     MINTotemRPTimingVerticalFEDID = 586,
     MAXTotemRPTimingVerticalFEDID = 587,
-    MINTotemT2FEDID = 582,      //FIXME
-    MAXTotemT2FEDID = 582 + 1,  //FIXME
     MINECALFEDID = 600,
     MAXECALFEDID = 670,
     MINCASTORFEDID = 690,
