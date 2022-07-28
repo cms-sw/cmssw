@@ -31,6 +31,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <vector>
