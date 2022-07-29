@@ -467,6 +467,11 @@ steps['RunMuOnia2018D']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018D-v1/RAW',lab
 steps['RunNoBPTX2018D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
 steps['RunDisplacedJet2018D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
 steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
+
+#### PPS run3 2022B
+steps['RunRawPPS2022B']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls={355207: [[1, 100]]})}
+steps['RunRawPPS2022A']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls={354332: [[1, 100]]})}
+
 # UL AOD
 steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
 
@@ -2213,6 +2218,17 @@ steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,
                           '--datatier':'ALCARECO',
                           '--eventcontent':'ALCARECO',
                           }
+                          
+steps['TIER0EXPPPSCALRUN3']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalMaxTracks,ENDJOB',
+                          '-n':1000,
+                          '--process':'ALCARECO',
+                          '--scenario': 'pp',
+                          '--era':'Run3',
+                          '--conditions':'auto:run3_data_express',
+                          '--data': '',
+                          '--datatier':'ALCARECO',
+                          '--eventcontent':'ALCARECO',
+                          }
 
 steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
                              '-n':1000,
@@ -2255,6 +2271,28 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibP
                         '--conditions':'auto:run2_data',
                         '--triggerResultsProcess':'RECO',
                         }
+                        
+steps['ALCASPLITPPSCALRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSTimingCalib',
+			 '-n':1000,
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run3',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--conditions':'auto:run3_data_express',
+                        '--triggerResultsProcess':'ALCARECO',
+                        }                     
+                        
+steps['ALCASPLITPPSCALSAMPIC']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSDiamondSampic',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run3',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--conditions':'auto:run3_data_express',
+                        '--triggerResultsProcess':'ALCARECO',
+                        }
+                        
 
 steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSAlignment',
                            '-n':1000,
@@ -2319,7 +2357,21 @@ steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimi
                         '--data':'',
                         '--era':'Run2_2017',
                         '--filein':'file:ALCARECOStreamPromptCalibProdPPSTimingCalib.root'}
+                        
+steps['ALCAHARVDPPSCALRUN3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimingCalib']),
+                        '--conditions':'auto:run3_data_express',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run3',
+                        '--filein':'file:ALCARECOStreamPromptCalibProdPPSTimingCalib.root'}
 
+steps['ALCAHARVDPPSCALSAMPIC']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSDiamondSampic']),
+                        '--conditions':'auto:run3_data_express',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run3',
+                        '--filein':'file:ALCARECOStreamPromptCalibProdPPSDiamondSampic.root'}
+                        
 steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlignment']),
                            '--conditions':'auto:run3_data_express',
                            '--scenario':'pp',
