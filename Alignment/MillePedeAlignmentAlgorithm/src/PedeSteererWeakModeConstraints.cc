@@ -533,8 +533,7 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const align::A
       for (std::list<Alignable*>::const_iterator iAlignables = iHLS.second.begin(); iAlignables != iHLS.second.end();
            iAlignables++) {
         const Alignable* ali = (*iAlignables);
-        const auto aliLabel =
-            myLabels_->alignableLabelFromParamAndInstance(const_cast<Alignable*>(ali), 0, it.instance_);
+        const auto aliLabel = myLabels_->alignableLabelFromParamAndInstance(ali, 0, it.instance_);
         const AlignableSurface& surface = ali->surface();
 
         const LocalPoint lUDirection(1., 0., 0.), lVDirection(0., 1., 0.), lWDirection(0., 0., 1.);
