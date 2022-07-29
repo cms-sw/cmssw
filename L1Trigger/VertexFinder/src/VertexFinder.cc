@@ -824,14 +824,15 @@ namespace l1tVertexFinder {
     };
 
     auto fetch_bin = [&](const z0_t& z0, int nbins) -> std::pair<histbin_t, bool> {
-       // Increase the the number of bits in the word to allow for additional dynamic range
-       ap_int<TrackBitWidths::kZ0Size + 1> z0_13 = z0;
-       // Add a number equal to half of the range in z0, meaning that the range is now [0, 2*z0_max]
-       ap_int<TrackBitWidths::kZ0Size + 1> absz0_13 = z0_13 + (1 << (TrackBitWidths::kZ0Size - 1));
-       // Shift the bits down to truncate the dynamic range to the most significant HistogramBitWidths::kBinFixedSize bits
-       ap_int<TrackBitWidths::kZ0Size + 1> absz0_13_reduced = absz0_13 >> (TrackBitWidths::kZ0Size - HistogramBitWidths::kBinFixedSize);
-       // Put the relevant bits into the histbin_t container
-       histbin_t bin = absz0_13_reduced.range(HistogramBitWidths::kBinFixedSize - 1, 0);
+      // Increase the the number of bits in the word to allow for additional dynamic range
+      ap_int<TrackBitWidths::kZ0Size + 1> z0_13 = z0;
+      // Add a number equal to half of the range in z0, meaning that the range is now [0, 2*z0_max]
+      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13 = z0_13 + (1 << (TrackBitWidths::kZ0Size - 1));
+      // Shift the bits down to truncate the dynamic range to the most significant HistogramBitWidths::kBinFixedSize bits
+      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13_reduced =
+          absz0_13 >> (TrackBitWidths::kZ0Size - HistogramBitWidths::kBinFixedSize);
+      // Put the relevant bits into the histbin_t container
+      histbin_t bin = absz0_13_reduced.range(HistogramBitWidths::kBinFixedSize - 1, 0);
 
       if (settings_->debug() > 2) {
         edm::LogInfo("VertexProducer")
