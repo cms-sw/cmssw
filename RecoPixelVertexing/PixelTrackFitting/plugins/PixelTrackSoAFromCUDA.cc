@@ -65,6 +65,10 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
   auto maxTracks = tsoa.stride();
   auto nTracks = tsoa.nTracks();
   assert(nTracks < maxTracks);
+  if (nTracks == maxTracks - 1) {
+    edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
+                                   << " candidates";
+  }
 
 #ifdef PIXEL_DEBUG_PRODUCE
   std::cout << "size of SoA " << sizeof(tsoa) << " stride " << maxTracks << std::endl;
