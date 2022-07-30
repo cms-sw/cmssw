@@ -86,7 +86,7 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
+  iEvent.emplace(tokenSOA_, std::move(soa_));
 
   assert(!soa_);
 }
