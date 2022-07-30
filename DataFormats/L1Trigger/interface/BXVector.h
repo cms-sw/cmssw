@@ -132,6 +132,6 @@ private:
   std::vector<unsigned> itrs_;
 };
 
-#include "BXVector.impl"
+#include "BXVector.icc"
 
 #endif
