@@ -71,9 +71,15 @@ namespace dqm::implementation {
     MonitorElementData::Path path;
     std::string fullpath = cwd_ + std::string(name.View());
 
-    if (fullpath.find_first_not_of(s_safe) != std::string::npos) {
+    auto pathToCheck{fullpath};
+    std::string limiter{".root:/"};          // this indicates that all the substring before is a file name
+    size_t pos = pathToCheck.find(limiter);  //find location of limiter
+    //delete everything prior to location found as it might contain illegal chars
+    pathToCheck.erase(0, pos + limiter.size());
+
+    if (pathToCheck.find_first_not_of(s_safe) != std::string::npos) {
       throw cms::Exception("BadMonitorElementPathName")
-          << " Monitor element path name: '" << fullpath.c_str() << "' uses unacceptable characters."
+          << " Monitor element path name: '" << pathToCheck.c_str() << "' uses unacceptable characters."
           << "\n Acceptable characters are: " << s_safe.c_str();
     }
 
