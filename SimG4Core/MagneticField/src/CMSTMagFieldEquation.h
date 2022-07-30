@@ -14,6 +14,9 @@
 //
 // Modified by Vincenzo innocente 7/2022 to adapt to specific CMS field
 //
+#ifndef CMSTMAGFIELDEQUATION_H
+#define CMSTMAGFIELDEQUATION_H
+
 
 #include "G4Mag_UsualEqRhs.hh"
 #include <cassert>
@@ -62,3 +65,5 @@ private:
   // Dependent objects
   T_Field* itsField;
 };
+
+#endof
