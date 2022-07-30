@@ -21,6 +21,6 @@ std::string_view DD4hep2DDDName::namePV(const std::string& name, bool dd4hep) {
   if (!dd4hep)
     return name;
   std::string_view nam = (dd4hep::dd::noNamespace(name));
-  auto n = nam.rfind("_");
+  auto n = nam.rfind('_');
   return ((n != std::string::npos) ? nam.substr(0, n) : nam);
 }

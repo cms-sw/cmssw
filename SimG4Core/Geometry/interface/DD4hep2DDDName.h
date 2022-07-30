@@ -10,4 +10,3 @@ namespace DD4hep2DDDName {
 };  // namespace DD4hep2DDDName
 
 #endif
-
