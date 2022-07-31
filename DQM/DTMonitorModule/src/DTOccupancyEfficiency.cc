@@ -22,11 +22,12 @@ using namespace std;
 DTOccupancyEfficiency::DTOccupancyEfficiency(const ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   // label for dtDigis
-  dtDigiToken_ = consumes<DTDigiCollection>(edm::InputTag(pset.getParameter<string>("digiLabel")));
+  dtDigiToken_ = consumes<DTDigiCollection>(edm::InputTag(pset.getUntrackedParameter<string>("digiLabel")));
   // the name of the 4D rec hits collection
-  recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+  recHits4DToken_ =
+      consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getUntrackedParameter<string>("recHits4DLabel")));
   // the name of the rechits collection
-  recHitToken_ = consumes<DTRecHitCollection>(edm::InputTag(pset.getParameter<string>("recHitLabel")));
+  recHitToken_ = consumes<DTRecHitCollection>(edm::InputTag(pset.getUntrackedParameter<string>("recHitLabel")));
 
   parameters = pset;
 }
