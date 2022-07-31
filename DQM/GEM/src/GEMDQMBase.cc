@@ -71,7 +71,7 @@ int GEMDQMBase::loadChambers() {
       }
     }
   }
-  
+
   // Borrwed from DQM/GEM/src/GEMOfflineMonitor.cc
   nMaxNumCh_ = 0;
   for (const GEMRegion* region : GEMGeometry_->regions()) {
