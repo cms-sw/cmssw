@@ -4,8 +4,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
     staticBooking = cms.untracked.bool(True),
     # labels of TM data and 4D segments
-    TMInputTag    = cms.InputTag('dttfDigis'),
-    SEGInputTag    = cms.InputTag('dt4DSegments'),
+    TMInputTag    = cms.untracked.InputTag('dttfDigis'),
+    SEGInputTag    = cms.untracked.InputTag('dt4DSegments'),
     bxTimeInterval = cms.double(25),
     rangeWithinBX  = cms.bool(True),
     nBXHigh        = cms.int32(0),
