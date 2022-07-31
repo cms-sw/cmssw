@@ -157,8 +157,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
   std::map<ME3IdsKey, Int_t> total_digi_layer;
   std::map<ME3IdsKey, Int_t> total_digi_eta;
-  for (const auto& ch : gemChambers_) {
-    GEMDetId gid = ch.id();
+  for (auto gid : listChamberId_) {
     ME2IdsKey key2{gid.region(), gid.station()};
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
@@ -168,7 +167,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
     if (total_digi_layer.find(key3) == total_digi_layer.end())
       total_digi_layer[key3] = 0;
-    for (auto iEta : ch.etaPartitions()) {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
       if (total_digi_eta.find(key3IEta) == total_digi_eta.end())
