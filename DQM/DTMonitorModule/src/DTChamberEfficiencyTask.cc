@@ -30,7 +30,7 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset)
 
   // the name of the 4D rec hits collection
   recHits4DToken_ =
-      consumes<DTRecSegment4DCollection>(edm::InputTag(parameters.getParameter<string>("recHits4DLabel")));
+      consumes<DTRecSegment4DCollection>(edm::InputTag(parameters.getUntrackedParameter<string>("recHits4DLabel")));
 
   // parameters to use for the segment quality check
   theMinHitsSegment = static_cast<unsigned int>(parameters.getParameter<int>("minHitsSegment"));

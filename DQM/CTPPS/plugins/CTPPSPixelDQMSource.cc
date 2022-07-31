@@ -164,9 +164,9 @@ using namespace edm;
 CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet &ps)
     : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)) {
-  tokenDigi = consumes<DetSetVector<CTPPSPixelDigi>>(ps.getParameter<edm::InputTag>("tagRPixDigi"));
-  tokenCluster = consumes<DetSetVector<CTPPSPixelCluster>>(ps.getParameter<edm::InputTag>("tagRPixCluster"));
-  tokenTrack = consumes<DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagRPixLTrack"));
+  tokenDigi = consumes<DetSetVector<CTPPSPixelDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixDigi"));
+  tokenCluster = consumes<DetSetVector<CTPPSPixelCluster>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixCluster"));
+  tokenTrack = consumes<DetSetVector<CTPPSPixelLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixLTrack"));
   offlinePlots = ps.getUntrackedParameter<bool>("offlinePlots", true);
   onlinePlots = ps.getUntrackedParameter<bool>("onlinePlots", true);
 
