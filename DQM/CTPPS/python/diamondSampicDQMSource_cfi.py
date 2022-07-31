@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 diamondSampicDQMSourceOnline = DQMEDAnalyzer('DiamondSampicDQMSource',
     tagDigi = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
     tagRecHits = cms.untracked.InputTag("totemTimingRecHits"),
     tagTracks = cms.untracked.InputTag("diamondSampicLocalTracks"),
     tagLocalTrack = cms.untracked.InputTag("totemRPLocalTrackFitter"),
@@ -16,7 +16,7 @@ diamondSampicDQMSourceOnline = DQMEDAnalyzer('DiamondSampicDQMSource',
 
 diamondSampicDQMSourceOffline = DQMEDAnalyzer('DiamondSampicDQMSource',
     tagDigi = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
     tagRecHits = cms.untracked.InputTag("totemTimingRecHits"),
     tagTracks = cms.untracked.InputTag("diamondSampicLocalTracks"),
     tagLocalTrack = cms.untracked.InputTag("totemRPLocalTrackFitter"),

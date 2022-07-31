@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 totemTimingDQMSource = DQMEDAnalyzer('TotemTimingDQMSource',
     tagDigi = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
     tagRecHits = cms.untracked.InputTag("totemTimingRecHits"),
     # tagTracks = cms.untracked.InputTag("totemTimingLocalTracks"),
     tagLocalTrack = cms.untracked.InputTag("totemRPLocalTrackFitter"),

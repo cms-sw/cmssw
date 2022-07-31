@@ -50,7 +50,7 @@ ctppsDiamondDQMOfflineSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
     tagFEDInfo = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
     tagDiamondRecHits = cms.untracked.InputTag("ctppsDiamondRecHits"),
     tagDiamondLocalTracks = cms.untracked.InputTag("ctppsDiamondLocalTracks"),
-    tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
+    tagPixelLocalTracks = cms.untracked.InputTag("ctppsPixelLocalTracks"),
 
     excludeMultipleHits = cms.bool(True),
     extractDigiInfo = cms.bool(True),
