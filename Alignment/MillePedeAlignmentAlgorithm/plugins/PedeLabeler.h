@@ -33,8 +33,8 @@ public:
   /// uniqueId of Alignable, 0 if alignable not known
   /// between this ID and the next there is enough 'space' to add parameter
   /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
-  unsigned int alignableLabel(Alignable *alignable) const override;
-  unsigned int alignableLabelFromParamAndInstance(Alignable *alignable,
+  unsigned int alignableLabel(const Alignable *alignable) const override;
+  unsigned int alignableLabelFromParamAndInstance(const Alignable *alignable,
                                                   unsigned int param,
                                                   unsigned int instance) const override;
   unsigned int lasBeamLabel(unsigned int lasBeamId) const override;
@@ -61,7 +61,7 @@ public:
   unsigned int lasBeamIdFromLabel(unsigned int label) const override;
 
 private:
-  typedef std::map<Alignable *, unsigned int> AlignableToIdMap;
+  typedef std::map<Alignable *, unsigned int, AlignableComparator> AlignableToIdMap;
   typedef AlignableToIdMap::value_type AlignableToIdPair;
   typedef std::map<unsigned int, Alignable *> IdToAlignableMap;
   typedef std::map<unsigned int, unsigned int> UintUintMap;
