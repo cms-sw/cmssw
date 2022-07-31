@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <DD4hep/Filter.h>
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 
 struct materials {
   int occ;
@@ -55,30 +55,6 @@ struct regions {
   double nmat, nvol;
   regions(int oc = 1, double mat = 0, double vol = 0) : occ(oc), nmat(mat), nvol(vol) {}
 };
-
-std::string nameMatterLV(const std::string& name, bool dd4hep) {
-  return (dd4hep ? static_cast<std::string>(dd4hep::dd::noNamespace(name)) : name);
-}
-
-std::string nameSolid(const std::string& name, bool dd4hep) {
-  if (!dd4hep)
-    return name;
-  std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
-  auto n = nam.find("_shape");
-  if (n != std::string::npos)
-    nam = nam.substr(0, n);
-  if (name.find("_refl") != std::string::npos)
-    nam += "_refl";
-  return nam;
-}
-
-std::string namePV(const std::string& name, bool dd4hep) {
-  if (!dd4hep)
-    return name;
-  std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
-  auto n = nam.rfind("_");
-  return ((n != std::string::npos) ? nam.substr(0, n) : nam);
-}
 
 std::string removeExtraName(const std::string& name, int debug) {
   std::string nam(name);
@@ -175,11 +151,11 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     while (fInput1.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
       if ((type == 0) || (type == 2))
-        name = nameMatterLV(items[0], !typeFile1);
+        name = DD4hep2DDDName::nameMatterLV(items[0], !typeFile1);
       else if (type == 1)
-        name = nameSolid(items[0], !typeFile1);
+        name = DD4hep2DDDName::nameSolid(items[0], !typeFile1);
       else if (type == 3)
-        name = namePV(items[0], !typeFile1);
+        name = DD4hep2DDDName::namePV(items[0], !typeFile1);
       else
         name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
@@ -228,11 +204,11 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     while (fInput2.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
       if ((type == 0) || (type == 2))
-        name = nameMatterLV(items[0], !typeFile2);
+        name = DD4hep2DDDName::nameMatterLV(items[0], !typeFile2);
       else if (type == 1)
-        name = nameSolid(items[0], !typeFile2);
+        name = DD4hep2DDDName::nameSolid(items[0], !typeFile2);
       else if (type == 3)
-        name = namePV(items[0], !typeFile2);
+        name = DD4hep2DDDName::namePV(items[0], !typeFile2);
       else
         name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
