@@ -192,7 +192,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
     MEStationInfo& stationInfo = mapStationInfo_[key3];
-    for (auto iEta : mapEtaPartition_[gid])  {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
       ME3IdsKey key3AbsReIEta{std::abs(gid.region()), gid.station(), eId.ieta()};
