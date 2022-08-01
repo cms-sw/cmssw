@@ -18,10 +18,6 @@ finalTaus = cms.EDFilter("PATTauRefSelector",
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))")
 )
 
-run2_nanoAOD_106Xv2.toModify(finalTaus,
-                             cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
-)
-
 for era in [run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(finalTaus,
                  src = cms.InputTag("slimmedTausUpdated"),
@@ -217,14 +213,14 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
                  idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
     )
 (run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1| run2_nanoAOD_94XMiniAODv2 | \
- run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | \
- run2_nanoAOD_106Xv2).toModify(tauTable.variables,
-                 rawDeepTau2018v2p5VSe = None,
-                 rawDeepTau2018v2p5VSmu = None,
-                 rawDeepTau2018v2p5VSjet = None,
-                 idDeepTau2018v2p5VSe = None,
-                 idDeepTau2018v2p5VSmu = None,
-                 idDeepTau2018v2p5VSjet = None
+ run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1
+).toModify(tauTable.variables,
+           rawDeepTau2018v2p5VSe = None,
+           rawDeepTau2018v2p5VSmu = None,
+           rawDeepTau2018v2p5VSjet = None,
+           idDeepTau2018v2p5VSe = None,
+           idDeepTau2018v2p5VSmu = None,
+           idDeepTau2018v2p5VSjet = None
     )
 
 tauGenJetsForNano = tauGenJets.clone(
