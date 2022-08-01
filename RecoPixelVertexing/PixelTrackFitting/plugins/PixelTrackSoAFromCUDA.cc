@@ -60,10 +60,17 @@ void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
 }
 
 void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-#ifdef PIXEL_DEBUG_PRODUCE
+  // check that the fixed-size SoA does not overflow
   auto const& tsoa = *soa_;
   auto maxTracks = tsoa.stride();
   auto nTracks = tsoa.nTracks();
+  assert(nTracks < maxTracks);
+  if (nTracks == maxTracks - 1) {
+    edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
+                                   << " candidates";
+  }
+
+#ifdef PIXEL_DEBUG_PRODUCE
   std::cout << "size of SoA " << sizeof(tsoa) << " stride " << maxTracks << std::endl;
   std::cout << "found " << nTracks << " tracks in cpu SoA at " << &tsoa << std::endl;
 
@@ -79,7 +86,7 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
+  iEvent.emplace(tokenSOA_, std::move(soa_));
 
   assert(!soa_);
 }
