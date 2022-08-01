@@ -220,10 +220,6 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
         auto qj = tracks->quality(jt);
         if (qj <= reject)
           continue;
-#ifdef GPU_DEBUG
-        if (foundNtuplets->size(it) != foundNtuplets->size(jt))
-          printf(" a mess\n");
-#endif
         auto opj = tracks->stateAtBS.state(jt)(2);
         auto ctj = tracks->stateAtBS.state(jt)(3);
         auto dct = nSigma2 * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
