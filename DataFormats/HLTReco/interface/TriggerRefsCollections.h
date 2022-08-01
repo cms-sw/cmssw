@@ -1786,7 +1786,7 @@ namespace trigger {
 
     size_type l1tp2etsumSize() const { return l1tp2etsumIds_.size(); }
     const Vids& l1tp2etsumIds() const { return l1tp2etsumIds_; }
-    const VRl1tetsum& l1tp2etsumRefs() const { return l1tp2etsumRefs_; }
+    const VRl1tp2etsum& l1tp2etsumRefs() const { return l1tp2etsumRefs_; }
 
     size_type l1ttauSize() const { return l1ttauIds_.size(); }
     const Vids& l1ttauIds() const { return l1ttauIds_; }
