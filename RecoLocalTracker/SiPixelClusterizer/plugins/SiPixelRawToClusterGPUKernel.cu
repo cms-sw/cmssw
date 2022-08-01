@@ -649,7 +649,7 @@ namespace pixelgpudetails {
       cudaCheck(cudaGetLastError());
 
       threadsPerBlock = 256 + 128;  /// should be larger than 6000/16 aka (maxPixInModule/maxiter in the kernel)
-      blocks = phase2PixelTopology::numberOfModules;
+      blocks = phase1PixelTopology::numberOfModules;
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
