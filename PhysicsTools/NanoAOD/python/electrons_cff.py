@@ -103,7 +103,7 @@ bitmapVIDForEleSpring15 = bitmapVIDForEle.clone(
         "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto",
         "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose",
         "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium",
-        #    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight", # not fitting in sizeof(int)
+        #"egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight", # not fitting in sizeof(int)
     )
 )
 _bitmapVIDForEleSpring15_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEleSpring15.WorkingPoints)
@@ -133,7 +133,7 @@ isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
     EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-(run2_miniAOD_80XLegacy|run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(isoForEle, 
+(run2_miniAOD_80XLegacy|run2_nanoAOD_106X2015).toModify(isoForEle, 
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
                                 EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
@@ -208,13 +208,6 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     ),
     userIntFromBools = cms.PSet(
 
-        #mvaFall17V1Iso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90"),
-        #mvaFall17V1Iso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80"),
-        #mvaFall17V1Iso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose"),
-        #mvaFall17V1noIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp90"),
-        #mvaFall17V1noIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp80"),
-        #mvaFall17V1noIso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wpLoose"),
-
         mvaFall17V2Iso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90"),
         mvaFall17V2Iso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp80"),
         mvaFall17V2Iso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpLoose"),
@@ -225,12 +218,11 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         cutbasedID_Fall17_V1_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-veto"),
         cutbasedID_Fall17_V1_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-loose"),
         cutbasedID_Fall17_V1_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-medium"),
-        #cutbasedID_Fall17_V1_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-tight"),
         cutbasedID_Fall17_V2_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto"),
         cutbasedID_Fall17_V2_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose"),
         cutbasedID_Fall17_V2_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium"),
         cutbasedID_Fall17_V2_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight"),
-        #cutbasedID_HEEP = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV70"),
+        
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForEle"),
@@ -242,8 +234,21 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     ),
 )
 
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1Iso_WP90 = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1Iso_WP80 = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1Iso_WPL = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1noIso_WP90 = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1noIso_WP80 = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, mvaFall17V1noIso_WPL = None)
+
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, cutbasedID_Fall17_V1_tight = None)
+run2_nanoAOD_106X2015.toModify(slimmedElectronsWithUserData.userIntFromBools, cutbasedID_HEEP = None)
+
+
+
+
 ###Not to update with S+S vars as they already exist for run2_nanoAOD_94X2016 era
-(run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(slimmedElectronsWithUserData.userFloats,
+(run2_nanoAOD_106X2015|run2_nanoAOD_106X2015).toModify(slimmedElectronsWithUserData.userFloats,
                               ecalTrkEnergyErrPostCorrNew = None,
                               ecalTrkEnergyPreCorrNew = None,
                               ecalTrkEnergyPostCorrNew = None,
@@ -255,7 +260,7 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
                               
 )
 
-(run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(slimmedElectronsWithUserData.userIntFromBools,
+(run2_nanoAOD_106X2015|run2_nanoAOD_106X2015).toModify(slimmedElectronsWithUserData.userIntFromBools,
     # MVAs and HEEP are already pre-computed. Cut-based too (except V2), but we re-add it for consistency with the nested bitmap
     cutbasedID_Sum16_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
     cutbasedID_Sum16_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),

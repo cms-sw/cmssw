@@ -31,7 +31,7 @@ jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8',
     payload = cms.string('AK8PFPuppi'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
 
 from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
 

@@ -65,6 +65,6 @@ protonTables = cms.Sequence(
 
 if singleRPProtons: protonTables.insert(protonTables.index(multiRPTable),singleRPTable)
 
-(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
+(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | \
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
     run2_nanoAOD_102Xv1 | ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) ).toReplaceWith(protonTables, cms.Sequence())
