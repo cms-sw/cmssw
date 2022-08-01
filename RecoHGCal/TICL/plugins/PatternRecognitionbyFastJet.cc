@@ -53,7 +53,11 @@ void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<Pseud
   }
 
   auto trackster_idx = result.size();
-  result.resize(trackster_idx + jets.size());
+  auto jetsSize = std::count_if(jets.begin(), jets.end(), [=](fastjet::PseudoJet jet) {
+    return jet.constituents().size() > static_cast<unsigned int>(minNumLayerCluster_);
+  });
+  result.resize(trackster_idx + jetsSize);
+
   for (const auto &pj : jets) {
     if (pj.constituents().size() > static_cast<unsigned int>(minNumLayerCluster_)) {
       for (const auto &component : pj.constituents()) {
