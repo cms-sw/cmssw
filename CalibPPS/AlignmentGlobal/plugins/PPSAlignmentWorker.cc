@@ -273,8 +273,11 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
 
     char buf[100];
     sprintf(buf, "%.1f-%.1f", x_min, x_max);
+    for (uint c = 0; c < sizeof(buf); c++) {
+      if (buf[c] == '.') buf[c] = 'p';
+    }
 
-    iBooker.setCurrentFolder(rootDir + "/" + scfg_.name_ + "/near_far/x slices, N/" + buf);
+    iBooker.setCurrentFolder(rootDir + "/" + scfg_.name_ + "/near_far/x slices -- N/" + buf);
     x_slice_plots_N.insert({i, SlicePlots(iBooker, cfg, debug)});
   }
 
@@ -284,8 +287,11 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
 
     char buf[100];
     sprintf(buf, "%.1f-%.1f", x_min, x_max);
+    for (uint c = 0; c < sizeof(buf); c++) {
+      if (buf[c] == '.') buf[c] = 'p';
+    }
 
-    iBooker.setCurrentFolder(rootDir + "/" + scfg_.name_ + "/near_far/x slices, F/" + buf);
+    iBooker.setCurrentFolder(rootDir + "/" + scfg_.name_ + "/near_far/x slices -- F/" + buf);
     x_slice_plots_F.insert({i, SlicePlots(iBooker, cfg, debug)});
   }
 }
