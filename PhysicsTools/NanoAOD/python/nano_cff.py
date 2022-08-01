@@ -277,6 +277,8 @@ def nanoAOD_customizeCommon(process):
     )
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoAOD_tau_switch, idsToAdd = ["deepTau2017v2p1"])
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value()))
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(nanoAOD_tau_switch, idsToAdd = ["deepTau2018v2p5"])
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value()))
     nanoAOD_boostedTau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
@@ -322,30 +324,3 @@ _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_106Xv1 )
 _modifiers.toModify(linkedObjects,lowPtElectrons="")
 _modifiers.toModify(simpleCleanerTable,lowPtElectrons="")
-
-###add items missing in Run-2 UL samples needed for V10
-def nanoAOD_customizeV10(process):
-    ## deepTauID v2p5
-    _originalTauName = process.finalTaus.src.value()
-    _updatedTauName = _originalTauName+'ForV10'
-    _tauIdEmbedderForV10 = tauIdConfig.TauIDEmbedder(process, debug = False,
-                                                     originalTauName = _originalTauName,
-                                                     updatedTauName = _updatedTauName,
-                                                     postfix = "V10",
-                                                     toKeep = ['deepTau2018v2p5'])
-    _tauIdEmbedderForV10.runTauID()
-    process.rerunMvaIsolationTaskV10.add(getattr(process, _updatedTauName))
-    process.tauTask.add(process.rerunMvaIsolationTaskV10)
-    process.finalTaus.src = _updatedTauName
-    #add selection of final taus
-    from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
-    _selStrV10 = process.finalTaus.cut.value().replace("tauID('byVVVLooseDeepTau2017v2p1VSjet')",
-                                                       "tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {})")
-    process.finalTaus.cut = _selStrV10.format(WORKING_POINTS_v2p5["jet"]["VVVLoose"])
-    #add to tau table
-    from PhysicsTools.NanoAOD.taus_cff import _deepTauVars2018v2p5
-    _tauVarsForV10 = cms.PSet(process.tauTable.variables,
-                              _deepTauVars2018v2p5)
-    process.tauTable.variables = _tauVarsForV10
-
-    return process
