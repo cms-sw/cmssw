@@ -1111,7 +1111,8 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
         // TrackerMuon failed arbitration
         // If not any other base type - erase the element
         // (PFMuon is not a base type)
-        unsigned int mask = reco::Muon::TrackerMuon | reco::Muon::PFMuon;
+        // GEMMuon should be a subset of TrackerMuon, so don't count it either
+        unsigned int mask = reco::Muon::TrackerMuon | reco::Muon::PFMuon | reco::Muon::GEMMuon;
         if ((muon->type() & (~mask)) == 0) {
           const reco::CaloMuon& caloMuon = makeCaloMuon(*muon);
           if (isGoodCaloMuon(caloMuon))
@@ -1119,7 +1120,7 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
           muon = muons->erase(muon);
           continue;
         } else {
-          muon->setType(muon->type() & (~reco::Muon::TrackerMuon));
+          muon->setType(muon->type() & (~(reco::Muon::TrackerMuon | reco::Muon::GEMMuon)));
         }
       }
     }
