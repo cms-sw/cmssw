@@ -118,7 +118,9 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
   double offlinePt(0.0);
   auto iSum = l1tSums->begin();
 
-
+  // The correct way of doing this would be using the EtSumHelper class.
+  // However, it doesn't support std::vector<l1t::EtSum>, only the
+  // older BXVector<l1t::EtSum> collection.
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMET) {
       // MET is index [0], and uses .et() method
       onlinePt = iSum->et();
