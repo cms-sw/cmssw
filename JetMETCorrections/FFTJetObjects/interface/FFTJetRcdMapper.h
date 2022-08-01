@@ -49,7 +49,11 @@ public:
     tokenAcquired_ = true;
   }
 
-  inline edm::ESHandle<DataType> load(const edm::EventSetup& iSetup) const override { return iSetup.getHandle(token_); }
+  inline edm::ESHandle<DataType> load(const edm::EventSetup& iSetup) const override {
+    if (!tokenAcquired_)
+      throw cms::Exception("ESGetTokenNotAcquired");
+    return iSetup.getHandle(token_);
+  }
 
 private:
   edm::ESGetToken<DataType, RecordType> token_;
