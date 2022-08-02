@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_43_V4::All'
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 # process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
