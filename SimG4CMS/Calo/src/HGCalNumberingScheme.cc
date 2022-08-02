@@ -19,7 +19,7 @@
 HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                                            const DetId::Detector& det,
                                            const std::string& name,
-					   const std::string& fileName)
+                                           const std::string& fileName)
     : hgcons_(hgc), mode_(hgc.geomMode()), det_(det), name_(name) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
@@ -39,13 +39,13 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
     } else {
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
-	std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
-	if (items.size() > 2) {
+        std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
+        if (items.size() > 2) {
           int layer = std::atoi(items[0].c_str());
           int waferU = std::atoi(items[1].c_str());
           int waferV = std::atoi(items[2].c_str());
-	  wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
-	}
+          wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+        }
       }
       edm::LogVerbatim("HGCalSim") << "Reads in " << wafers_.size() << " wafer information from " << filetmp2;
       fInput.close();
@@ -79,9 +79,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       double xx = (pos.z() > 0) ? pos.x() : -pos.x();
       bool debug(false);
       if (!wafers_.empty()) {
-	int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, waferU, waferV, false);
-	if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
-	  debug = true;
+        int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, waferU, waferV, false);
+        if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+          debug = true;
       }
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
     }

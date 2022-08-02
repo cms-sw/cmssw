@@ -7,7 +7,7 @@ std::vector<std::string> CaloSimUtils::splitString(const std::string& fLine) {
   for (unsigned i = 0; i <= fLine.size(); i++) {
     if (fLine[i] == ' ' || i == fLine.size()) {
       if (!empty) {
-	std::string item(fLine, start, i - start);
+        std::string item(fLine, start, i - start);
         result.emplace_back(item);
         empty = true;
       }
