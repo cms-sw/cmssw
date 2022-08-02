@@ -268,21 +268,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
   evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
 
-  edm::Handle<std::vector<reco::Muon>> muons_h;
-  evt.getByToken(muons_token_, muons_h);
-  const auto &muons = *muons_h;
-
-  edm::Handle<edm::ValueMap<float>> trackTime_h;
-  evt.getByToken(tracks_time_token_, trackTime_h);
-  const auto &trackTime = *trackTime_h;
-
-  edm::Handle<edm::ValueMap<float>> trackTimeErr_h;
-  evt.getByToken(tracks_time_err_token_, trackTimeErr_h);
-  const auto &trackTimeErr = *trackTimeErr_h;
-
-  edm::Handle<edm::ValueMap<float>> trackTimeQual_h;
-  evt.getByToken(tracks_time_quality_token_, trackTimeQual_h);
-  const auto &trackTimeQual = *trackTimeQual_h;
+  const auto &muons = evt.get(muons_token_);
+  const auto &trackTime = evt.get(tracks_time_token_);
+  const auto &trackTimeErr = evt.get(tracks_time_err_token_);
+  const auto &trackTimeQual = evt.get(tracks_time_quality_token_);
 
   // Linking
   linkingAlgo_->linkTracksters(

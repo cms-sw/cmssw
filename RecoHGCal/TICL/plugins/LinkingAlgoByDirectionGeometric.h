@@ -4,6 +4,7 @@
 #include <memory>
 #include <array>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoBase.h"
+#include "RecoHGCal/TICL/interface/commons.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,11 +20,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-//#include "RecoHGCal/TICL/test/PCA_mod.h"
 
 namespace ticl {
   class LinkingAlgoByDirectionGeometric final : public LinkingAlgoBase {
@@ -63,8 +59,37 @@ namespace ticl {
                                 std::vector<std::vector<unsigned>> &resultCollection,
                                 bool useMask);
 
+    bool timeAndEnergyCompatible(double &total_raw_energy,
+                                 const reco::Track &track,
+                                 const Trackster &trackster,
+                                 const float &tkTime,
+                                 const float &tkTimeErr,
+                                 const float &tkTimeQual);
+
+    void recordTrackster(const unsigned ts,  // trackster index
+                         const std::vector<Trackster> &tracksters,
+                         const edm::Handle<std::vector<Trackster>> tsH,
+                         std::vector<unsigned> &ts_mask,
+                         double &energy_in_candidate,
+                         TICLCandidate &candidate);
+
+    void addTracksterIfCompatible(const unsigned ts,
+                                  const edm::Handle<std::vector<Trackster>> tsH,
+                                  const unsigned tk,
+                                  const reco::TrackRef &tkRef,
+                                  const std::vector<Trackster> &tracksters,
+                                  const std::vector<reco::Track> &tracks,
+                                  std::vector<unsigned> &ts_mask,
+                                  double &energy_in_candidate,
+                                  TICLCandidate &candidate,
+                                  const edm::ValueMap<float> &tkTime,
+                                  const edm::ValueMap<float> &tkTimeErr,
+                                  const edm::ValueMap<float> &tkTimeQual);
+
     void dumpLinksFound(std::vector<std::vector<unsigned>> &resultCollection, const char *label) const;
 
+    const double tkEnergyCut_ = 2.0;
+    const double maxDeltaT_ = 3.;
     const double del_tk_ts_layer1_;
     const double del_tk_ts_int_;
     const double del_ts_em_had_;
