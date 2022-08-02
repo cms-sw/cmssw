@@ -562,7 +562,8 @@ __global__ void kernel_fillHitDetIndices(HitContainer const *__restrict__ tuples
 __global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks, cms::cuda::AtomicPairCounter *apc) {
   auto &tracks = *ptracks;
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
-  auto ntracks = apc->get().m;
+  // clamp the number of tracks to the capacity of the SoA
+  auto ntracks = std::min<int>(apc->get().m, tracks.stride() - 1);
   if (0 == first)
     tracks.setNTracks(ntracks);
   for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {
