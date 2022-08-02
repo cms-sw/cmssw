@@ -194,6 +194,19 @@ DiphotonMass55NewANDnoPV_monitoring = hltPhotonmonitoring.clone(
     histoPSet = dict(massBinning = [50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.])
 )
 
+DiPhoton10Time1p4ns_monitoring = hltPhotonmonitoring.clone(
+    FolderName = 'HLT/EXO/DiPhoton/DiPhoton10Time1p4ns/',
+    nphotons = 2,
+    photonSelection = "(pt > 10 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 10 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DiPhoton10Time1p4ns_v*"]),
+)
+
+DiPhoton10sminlt0p1_monitoring = hltPhotonmonitoring.clone(
+    FolderName = 'HLT/EXO/DiPhoton/DiPhoton10sminlt0p1/',
+    nphotons = 2,
+    photonSelection = "(pt > 10 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 10 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DiPhoton10sminlt0p1_v*"]),
+)
 
 higgsHLTDiphotonMonitoring = cms.Sequence(
     DiphotonMass90_monitoring
@@ -204,4 +217,6 @@ higgsHLTDiphotonMonitoring = cms.Sequence(
     +DiphotonMass55EBnoPV_monitoring 
     +DiphotonMass55NewAND_monitoring
     +DiphotonMass55NewANDnoPV_monitoring
+    +DiPhoton10Time1p4ns_monitoring
+    +DiPhoton10sminlt0p1_monitoring
 )
