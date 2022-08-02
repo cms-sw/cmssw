@@ -55,6 +55,10 @@ process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('hgcV17.root')
 )
 
+process.hgcalHitPartialEE.missingFile = "missingWafers.txt"
+process.hgcalHitPartialHE.missingFile = "missingWafers.txt"
+process.g4SimHits.HGCSD.MissingWaferFile = "missingWafers.txt"
+
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE)
