@@ -581,8 +581,7 @@ namespace pixelgpudetails {
           debug);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-      cudaDeviceSynchronize();
-      cudaCheck(cudaGetLastError());
+      cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
       if (includeErrors) {
@@ -621,8 +620,7 @@ namespace pixelgpudetails {
 
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-      cudaDeviceSynchronize();
-      cudaCheck(cudaGetLastError());
+      cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
 #ifdef GPU_DEBUG
@@ -635,7 +633,7 @@ namespace pixelgpudetails {
       cudaCheck(cudaGetLastError());
 
       threadsPerBlock = 256 + 128;  /// should be larger than 6000/16 aka (maxPixInModule/maxiter in the kernel)
-      blocks = phase2PixelTopology::numberOfModules;
+      blocks = phase1PixelTopology::numberOfModules;
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
@@ -650,8 +648,7 @@ namespace pixelgpudetails {
                                                               wordCounter);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-      cudaDeviceSynchronize();
-      cudaCheck(cudaGetLastError());
+      cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
       // apply charge cut
@@ -681,8 +678,7 @@ namespace pixelgpudetails {
           nModules_Clusters_h.get(), nModules_Clusters_d.get(), 3 * sizeof(uint32_t), cudaMemcpyDefault, stream));
 
 #ifdef GPU_DEBUG
-      cudaDeviceSynchronize();
-      cudaCheck(cudaGetLastError());
+      cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
     }  // end clusterizer scope
@@ -728,8 +724,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+    cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
 #ifdef GPU_DEBUG
@@ -758,8 +753,7 @@ namespace pixelgpudetails {
 
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+    cudaCheck(cudaStreamSynchronize(stream));
 #endif
 
     // apply charge cut
@@ -783,8 +777,7 @@ namespace pixelgpudetails {
         nModules_Clusters_h.get(), nModules_Clusters_d.get(), 3 * sizeof(uint32_t), cudaMemcpyDefault, stream));
 
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+    cudaCheck(cudaStreamSynchronize(stream));
 #endif
   }  //
 }  // namespace pixelgpudetails
