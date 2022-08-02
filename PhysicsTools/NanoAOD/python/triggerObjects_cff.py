@@ -66,9 +66,9 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
                             "filter('*RelTrkIsoVVLFiltered0p4') + " \
-                            "2*filter('hltL3crIso*Filtered0p07') + " \
+                            "2*max(filter('hltL3crIso*Filtered0p07'),filter('hltL3crIso*Filtered0p08')) + " \
                             "4*filter('*OverlapFilterIsoMu*PFTau*') + " \
-                            "8*max(filter('hltL3crIsoL1*SingleMu*Filtered0p07'),filter('hltL3crIsoL1sMu*Filtered0p07')) + " \
+                            "8*max(max(filter('hltL3crIsoL1*SingleMu*Filtered0p07'),filter('hltL3crIsoL1sMu*Filtered0p07')),max(filter('hltL3crIsoL1*SingleMu*Filtered0p08'),filter('hltL3crIsoL1sMu*Filtered0p08'))) + " \
                             "16*filter('hltDiMuon*Filtered*') + " \
                             "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*') + " \
                             "64*filter('hlt*OverlapFilterIsoMu*PFTau*') + " \
