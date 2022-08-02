@@ -64,13 +64,13 @@ HGCalHitPartial::HGCalHitPartial(const edm::ParameterSet& ps)
     } else {
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
-	std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
-	if (items.size() > 2) {
+        std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
+        if (items.size() > 2) {
           int layer = std::atoi(items[0].c_str());
           int waferU = std::atoi(items[1].c_str());
           int waferV = std::atoi(items[2].c_str());
-	  wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
-	}
+          wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+        }
       }
       edm::LogVerbatim("HGCalSim") << "Reads in " << wafers_.size() << " wafer information from " << fileName;
       fInput.close();
@@ -97,7 +97,8 @@ void HGCalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), allSi(0), all(0);
-  edm::LogVerbatim("HGCalSim") << "HGCalHitPartial: Input flags Hits " << getHits << " with " << nhits << " hits first Layer " << firstLayer;
+  edm::LogVerbatim("HGCalSim") << "HGCalHitPartial: Input flags Hits " << getHits << " with " << nhits
+                               << " hits first Layer " << firstLayer;
 
   if (getHits) {
     std::vector<PCaloHit> hits;
@@ -110,21 +111,21 @@ void HGCalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
         if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
           ++allSi;
           HGCSiliconDetId hid(id);
-	  const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
-	  bool toCheck(false);
-	  if (wafers_.size() > 0) {
-	    int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
-	    if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
-	      toCheck = true;
-	  } else {
-          // Only partial wafers
-	    toCheck = (info.part != HGCalTypes::WaferFull);
-	  }
-	  if (toCheck) {
+          const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
+          bool toCheck(false);
+          if (!wafers_.empty()) {
+            int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
+            if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+              toCheck = true;
+          } else {
+            // Only partial wafers
+            toCheck = (info.part != HGCalTypes::WaferFull);
+          }
+          if (toCheck) {
             ++good;
             GlobalPoint pos = geom->getPosition(id);
-	    bool valid1 = geom->topology().valid(id);
-	    bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV());
+            bool valid1 = geom->topology().valid(id);
+            bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV());
             edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id)
                                          << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
                                          << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()

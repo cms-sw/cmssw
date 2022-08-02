@@ -18,7 +18,10 @@
 
 class HGCalNumberingScheme {
 public:
-  HGCalNumberingScheme(const HGCalDDDConstants& hgc, const DetId::Detector& det, const std::string& name, const std::string& fileName);
+  HGCalNumberingScheme(const HGCalDDDConstants& hgc,
+                       const DetId::Detector& det,
+                       const std::string& name,
+                       const std::string& fileName);
   HGCalNumberingScheme() = delete;
   ~HGCalNumberingScheme();
 
