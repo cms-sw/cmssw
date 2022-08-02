@@ -23,13 +23,12 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load("RecoHI.HiEgammaAlgos.HiEgamma_cff")
 
-process.GlobalTag.globaltag = cms.string('MC_39Y_V3::All')
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
