@@ -21,7 +21,8 @@ namespace gpuClustering {
                                int32_t* __restrict__ clusterId,
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    [[maybe_unused]] constexpr int nMaxModules =
+        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
     assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
@@ -52,7 +53,8 @@ namespace gpuClustering {
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
 
-    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    [[maybe_unused]] constexpr int nMaxModules =
+        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
     assert(nMaxModules < maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
