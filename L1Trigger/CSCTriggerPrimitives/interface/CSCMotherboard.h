@@ -234,10 +234,9 @@ protected:
   void dumpConfigParams() const;
 
   /* match cathode shower and anode shower with and/or logic */
-  void matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi * cathode_showers, bool andlogic);
+  void matchShowers(CSCShowerDigi* anode_showers, CSCShowerDigi* cathode_showers, bool andlogic);
 
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits();
-
 };
 #endif

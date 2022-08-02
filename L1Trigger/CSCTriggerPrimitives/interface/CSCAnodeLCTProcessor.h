@@ -88,7 +88,7 @@ public:
   CSCALCTDigi getSecondALCT(int bx) const;
 
   /* get array of high multiplicity triggers */
-  std::vector<CSCShowerDigi> getAllShower() const; 
+  std::vector<CSCShowerDigi> getAllShower() const;
 
   /** Returns shower bits */
   std::vector<CSCShowerDigi> readoutShower() const;

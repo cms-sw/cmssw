@@ -55,7 +55,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   allLCTs_.setMatchTrigWindowSize(match_trig_window_size);
 
   // get the preferred CLCT BX match array
-  preferred_bx_match_ = tmbParams_.getParameter<std::vector<int> >("preferredBxMatch");
+  preferred_bx_match_ = tmbParams_.getParameter<std::vector<int>>("preferredBxMatch");
 
   // quality assignment
   qualityAssignment_ = std::make_unique<LCTQualityAssignment>(endcap, station, sector, subsector, chamber, conf);
@@ -369,23 +369,25 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   return tmpV;
 }
 
-std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const { 
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
-  unsigned minBXdiff = 2*tmb_l1a_window_size;//impossible value
+std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
+  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  unsigned minBXdiff = 2 * tmb_l1a_window_size;  //impossible value
   unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++){
-    unsigned bx_diff =  (bx > bx-CSCConstants::LCT_CENTRAL_BX ) ? bx-CSCConstants::LCT_CENTRAL_BX : CSCConstants::LCT_CENTRAL_BX-bx;
-    if (showers_[bx].isValid() and bx_diff < minBXdiff){
-	minBXdiff = bx_diff;
-	minBX = bx;
+  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++) {
+    unsigned bx_diff = (bx > bx - CSCConstants::LCT_CENTRAL_BX) ? bx - CSCConstants::LCT_CENTRAL_BX
+                                                                : CSCConstants::LCT_CENTRAL_BX - bx;
+    if (showers_[bx].isValid() and bx_diff < minBXdiff) {
+      minBXdiff = bx_diff;
+      minBX = bx;
     }
   }
 
-  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
-      if (bx == minBX) showerOut.push_back(showers_[bx]); 
-  return showerOut; 
+  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+    if (bx == minBX)
+      showerOut.push_back(showers_[bx]);
+  return showerOut;
 }
 
 void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
@@ -599,14 +601,13 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   return cLCT_shifted;
 }
 
-void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi * cathode_showers, bool andlogic){
-
+void CSCMotherboard::matchShowers(CSCShowerDigi* anode_showers, CSCShowerDigi* cathode_showers, bool andlogic) {
   CSCShowerDigi ashower, cshower;
   bool used_cshower_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
-  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
+  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     ashower = anode_showers[bx];
-    cshower = CSCShowerDigi();//use empty shower digi to initialize cshower
-    if (ashower.isValid()){
+    cshower = CSCShowerDigi();  //use empty shower digi to initialize cshower
+    if (ashower.isValid()) {
       for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
         int cbx = bx + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
         //check bx range [0, CSCConstants::MAX_LCT_TBINS]
@@ -614,33 +615,41 @@ void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi *
           continue;
         if (cathode_showers[cbx].isValid() and not used_cshower_mask[cbx]) {
           cshower = cathode_showers[cbx];
-	  used_cshower_mask[cbx] = true;
+          used_cshower_mask[cbx] = true;
           break;
-        } 
+        }
       }
-    }else cshower = cathode_showers[bx];//if anode shower is not valid, use the cshower from this bx
-   
-   //matched HMT, with and/or logic
+    } else
+      cshower = cathode_showers[bx];  //if anode shower is not valid, use the cshower from this bx
+
+    //matched HMT, with and/or logic
     unsigned matchHMT = 0;
     if (andlogic) {
-      if (ashower.isTightInTime() and cshower.isTightInTime()) matchHMT = 3;
-      else if (ashower.isNominalInTime() and cshower.isNominalInTime()) matchHMT = 2;
-      else if (ashower.isLooseInTime() and cshower.isLooseInTime()) matchHMT = 1;
-    }else{
-      if (ashower.isTightInTime() or cshower.isTightInTime()) matchHMT = 3; 
-      else if (ashower.isNominalInTime() or cshower.isNominalInTime()) matchHMT = 2;
-      else if (ashower.isLooseInTime() or cshower.isLooseInTime()) matchHMT = 1;
+      if (ashower.isTightInTime() and cshower.isTightInTime())
+        matchHMT = 3;
+      else if (ashower.isNominalInTime() and cshower.isNominalInTime())
+        matchHMT = 2;
+      else if (ashower.isLooseInTime() and cshower.isLooseInTime())
+        matchHMT = 1;
+    } else {
+      if (ashower.isTightInTime() or cshower.isTightInTime())
+        matchHMT = 3;
+      else if (ashower.isNominalInTime() or cshower.isNominalInTime())
+        matchHMT = 2;
+      else if (ashower.isLooseInTime() or cshower.isLooseInTime())
+        matchHMT = 1;
     }
     //LCTShower with showerType = 3
-    showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx, 3, ashower.getWireNHits(), cshower.getComparatorNHits());
+    showers_[bx] = CSCShowerDigi(
+        matchHMT & 3, false, ashower.getCSCID(), bx, 3, ashower.getWireNHits(), cshower.getComparatorNHits());
   }
 }
 
 void CSCMotherboard::encodeHighMultiplicityBits() {
   // get the high multiplicity
   // for anode this reflects what is already in the anode CSCShowerDigi object
-  CSCShowerDigi cathode_showers [CSCConstants::MAX_CLCT_TBINS]; 
-  CSCShowerDigi anode_showers [CSCConstants::MAX_ALCT_TBINS]; 
+  CSCShowerDigi cathode_showers[CSCConstants::MAX_CLCT_TBINS];
+  CSCShowerDigi anode_showers[CSCConstants::MAX_ALCT_TBINS];
   auto cshowers_v = clctProc->getAllShower();
   auto ashowers_v = alctProc->getAllShower();
 
@@ -665,5 +674,4 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
       std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
       break;
   };
-
 }

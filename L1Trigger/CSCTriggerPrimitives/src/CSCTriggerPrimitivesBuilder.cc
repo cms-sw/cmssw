@@ -192,13 +192,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             if (checkBadChambers_ && badChambers->isInBadChamber(detid))
               continue;
 
-	    //only process the selected chambers when selectedChambers is not empty
-	    if (!selectedChambers_.empty()) {
-	      if (std::find(selectedChambers_.begin(), selectedChambers_.end(), detid.chamberName()) ==
-		      selectedChambers_.end()) {
-			continue;
-		}
-	    }
+            //only process the selected chambers when selectedChambers is not empty
+            if (!selectedChambers_.empty()) {
+              if (std::find(selectedChambers_.begin(), selectedChambers_.end(), detid.chamberName()) ==
+                  selectedChambers_.end()) {
+                continue;
+              }
+            }
             const bool upgrade = runPhase2_ and ring == 1;
             const bool upgradeGE11 = upgrade and stat == 1 and runME11Up_ and runME11ILT_;
             const bool upgradeGE21 = upgrade and stat == 2 and runME21Up_ and runME21ILT_;
@@ -247,9 +247,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
             put(alctpretriggerV, oc_alctpretrigger, detid, tmb->getCSCName() + " ALCT pre-trigger digi");
 
-            put(shower,  oc_shower, detid, tmb->getCSCName()+"TMB shower");
-            put(anodeShower,  oc_shower_anode, detid, tmb->getCSCName()+"Anode shower");
-            put(cathodeShower,  oc_shower_cathode, detid, tmb->getCSCName()+"Cathode shower");
+            put(shower, oc_shower, detid, tmb->getCSCName() + "TMB shower");
+            put(anodeShower, oc_shower_anode, detid, tmb->getCSCName() + "Anode shower");
+            put(cathodeShower, oc_shower_cathode, detid, tmb->getCSCName() + "Cathode shower");
             //if (shower.isValid())
             //  oc_shower.insertDigi(detid, shower);
             //if (anodeShower.isValid())
