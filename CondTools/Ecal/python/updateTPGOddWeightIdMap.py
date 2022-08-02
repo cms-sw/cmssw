@@ -3,13 +3,13 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing('analysis')
 
-options.register ('input', # input text file with encoded weight groups                             
-                'EcalTPGWeightGroup.txt', 
+options.register ('input', # input text file with encoded weights mapping                             
+                'EcalTPGOddWeightIdMap.txt', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "input")           
 options.register ('output', # output file with SQLite format                              
-                'EcalTPGWeightGroup.db', 
+                'EcalTPGOddWeightIdMap.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "output")
@@ -17,13 +17,14 @@ options.register ('filetype', # input file format txt/xml
                 'txt', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
-                "filetype")   
+                "filetype")
 options.register('outputtag',
-                 'EcalTPGWeightGroup',
+                 'EcalTPGOddWeightIdMap',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "outputtag")
 options.parseArguments()
+
 
 process = cms.Process("ProcessOne")
 
@@ -54,14 +55,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   logconnect = cms.untracked.string('sqlite_file:log.db'),   
   toPut = cms.VPSet(
     cms.PSet(
-      record = cms.string('EcalTPGWeightGroupRcd'),
+      record = cms.string('EcalTPGOddWeightIdMapRcd'),
       tag = cms.string(options.outputtag)
     )
   )
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightGroupAnalyzer",
-  record = cms.string('EcalTPGWeightGroupRcd'),
+process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightIdMapAnalyzer",
+  record = cms.string('EcalTPGOddWeightIdMapRcd'),
   loggingOn= cms.untracked.bool(True),
   IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
   SinceAppendMode=cms.bool(True),
@@ -77,7 +78,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightGroupAnalyzer",
     RunType = cms.string(''),
     fileType = cms.string(options.filetype),
     fileName = cms.string(options.input),
-  )
+  )                            
 )
 
 process.p = cms.Path(process.Test1)

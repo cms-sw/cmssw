@@ -1,5 +1,30 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
+options = VarParsing.VarParsing('analysis')
+
+options.register ('input', # input text file with encoded weight groups                             
+                'EcalTPGWeightIdMap.txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "input")           
+options.register ('output', # output file with SQLite format                              
+                'EcalTPGWeightIdMap.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "output")
+options.register ('filetype', # input file format txt/xml                              
+                'txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "filetype")   
+options.register('outputtag',
+                 'EcalTPGWeightIdMap',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "outputtag")
+options.parseArguments()
+    
 process = cms.Process("ProcessOne")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -22,7 +47,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTPGWeightIdMap.db'
+process.CondDB.connect = 'sqlite_file:%s'%(options.output)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
@@ -30,7 +55,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalTPGWeightIdMapRcd'),
-      tag = cms.string('EcalTPGWeightIdMap')
+      tag = cms.string(options.outputtag)
     )
   )
 )
@@ -50,10 +75,8 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightIdMapAnalyzer",
     Location = cms.string(''),
     GenTag = cms.string(''),
     RunType = cms.string(''),
-#    fileType = cms.string('xml'),
-    fileType = cms.string('txt'),
-#    fileName = cms.string('EcalTPGWeightIdMap.xml'),
-    fileName = cms.string('EcalTPGWeightIdMap.txt'),
+    fileType = cms.string(options.filetype),
+    fileName = cms.string(options.input),
   )                            
 )
 
