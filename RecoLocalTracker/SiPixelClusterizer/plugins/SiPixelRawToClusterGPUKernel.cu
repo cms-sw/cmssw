@@ -34,21 +34,6 @@
 
 namespace pixelgpudetails {
 
-  SiPixelRawToClusterGPUKernel::WordFedAppender::WordFedAppender(uint32_t maxFedWords) {
-    word_ = cms::cuda::make_host_noncached_unique<unsigned int[]>(maxFedWords, cudaHostAllocWriteCombined);
-    fedId_ = cms::cuda::make_host_noncached_unique<unsigned char[]>(maxFedWords, cudaHostAllocWriteCombined);
-  }
-
-  void SiPixelRawToClusterGPUKernel::WordFedAppender::initializeWordFed(int fedId,
-                                                                        unsigned int wordCounterGPU,
-                                                                        const cms_uint32_t *src,
-                                                                        unsigned int length) {
-    std::memcpy(word_.get() + wordCounterGPU, src, sizeof(cms_uint32_t) * length);
-    std::memset(fedId_.get() + wordCounterGPU / 2, fedId - FEDNumbering::MINSiPixeluTCAFEDID, length / 2);
-  }
-
-  ////////////////////
-
   __device__ bool isBarrel(uint32_t rawId) {
     return (PixelSubdetector::PixelBarrel == ((rawId >> DetId::kSubdetOffset) & DetId::kSubdetMask));
   }
@@ -543,7 +528,6 @@ namespace pixelgpudetails {
                                                        SiPixelFormatterErrors &&errors,
                                                        const uint32_t wordCounter,
                                                        const uint32_t fedCounter,
-                                                       const uint32_t maxFedWords,
                                                        bool useQualityInfo,
                                                        bool includeErrors,
                                                        bool debug,
@@ -553,7 +537,7 @@ namespace pixelgpudetails {
     nDigis = wordCounter;
 
 #ifdef GPU_DEBUG
-    std::cout << "decoding " << wordCounter << " digis. Max is " << maxFedWords << std::endl;
+    std::cout << "decoding " << wordCounter << " digis." << std::endl;
 #endif
 
     // since wordCounter != 0 we're not allocating 0 bytes,
