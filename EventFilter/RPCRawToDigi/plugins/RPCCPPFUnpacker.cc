@@ -121,7 +121,8 @@ bool RPCCPPFUnpacker::processCPPF(RPCAMCLink const& link,
         have_bx_header = true;
       } else {
         if (caption_id == 0x01) {  // RX
-          processRXRecord(link, bx_counter_mod, rpccppf::RXRecord(*record), counters, rpc_digis, bx_min, bx_max, cppfDaq_Delay);
+          processRXRecord(
+              link, bx_counter_mod, rpccppf::RXRecord(*record), counters, rpc_digis, bx_min, bx_max, cppfDaq_Delay);
         } else if (caption_id == 0x02) {  // TX
           processTXRecord(link, block_id, 6 - bx_words, rpccppf::TXRecord(*record), rpc_cppf_digis);
         }
@@ -219,7 +220,7 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     return;
   }
 
-  if ((bx-cppfDaq_Delay) < bx_min || (bx-cppfDaq_Delay) > bx_max) {
+  if ((bx - cppfDaq_Delay) < bx_min || (bx - cppfDaq_Delay) > bx_max) {
     return;
   }
 
@@ -235,8 +236,9 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     if (data & (0x1 << channel)) {
       unsigned int strip(feb_connector.getStrip(channel + channel_offset));
       if (strip) {
-        rpc_digis.insert(std::pair<RPCDetId, RPCDigi>(det_id, RPCDigi(strip, bx-cppfDaq_Delay_)));
-        LogDebug("RPCCPPFRawToDigi") << "RPCDigi " << det_id.rawId() << ", " << strip << ", " << bx << ", " << bx-cppfDaq_Delay_;
+        rpc_digis.insert(std::pair<RPCDetId, RPCDigi>(det_id, RPCDigi(strip, bx - cppfDaq_Delay_)));
+        LogDebug("RPCCPPFRawToDigi") << "RPCDigi " << det_id.rawId() << ", " << strip << ", " << bx << ", "
+                                     << bx - cppfDaq_Delay_;
       }
     }
   }
