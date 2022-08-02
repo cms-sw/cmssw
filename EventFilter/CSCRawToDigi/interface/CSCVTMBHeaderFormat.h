@@ -86,7 +86,6 @@ public:
 
   virtual void print(std::ostream& os) const = 0;
 
-
 protected:
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 };

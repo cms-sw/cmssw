@@ -90,7 +90,7 @@ public:
   //unsigned getInTimeHMT() const { return inTimeHMT_; }
   //unsigned getOutTimeHMT() const { return outTimeHMT_; }
   /* get array of high multiplicity triggers */
-  std::vector<CSCShowerDigi>  getAllShower() const;
+  std::vector<CSCShowerDigi> getAllShower() const;
 
   /** Returns shower bits */
   std::vector<CSCShowerDigi> readoutShower() const;

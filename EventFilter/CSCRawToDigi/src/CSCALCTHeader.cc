@@ -229,7 +229,7 @@ void CSCALCTHeader::addShower(const std::vector<CSCShowerDigi> &digis) {
       if (bx < (int)header2007.lctBins) {
         const CSCShowerDigi &digi = digis[bx];
         int i = bx * 2;
-	unsigned hmt_bits = digi.isValid() ? digi.bitsInTime() : 0;
+        unsigned hmt_bits = digi.isValid() ? digi.bitsInTime() : 0;
         theALCTs[i].reserved = hmt_bits & 0x3;
         theALCTs[i + 1].reserved = hmt_bits & 0x3;
       }

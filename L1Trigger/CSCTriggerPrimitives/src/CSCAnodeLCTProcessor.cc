@@ -178,7 +178,7 @@ void CSCAnodeLCTProcessor::clear() {
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
-    anode_showers_[bx].clear();//?
+    anode_showers_[bx].clear();  //?
   }
   lct_list.clear();
 }
@@ -1278,29 +1278,31 @@ CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx
 CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
 
 /** return vector of CSCShower digi **/
-std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const { 
+std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const {
   std::vector<CSCShowerDigi> vshowers(anode_showers_, anode_showers_ + CSCConstants::MAX_ALCT_TBINS);
-  return vshowers; 
+  return vshowers;
 };
-   
+
 /** Returns shower bits */
-std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const { 
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
-  unsigned minBXdiff = 2*l1a_window_width;//impossible value
+std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const {
+  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
+  unsigned minBXdiff = 2 * l1a_window_width;  //impossible value
   unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++){
-    unsigned bx_diff =  (bx > bx-CSCConstants::LCT_CENTRAL_BX ) ? bx-CSCConstants::LCT_CENTRAL_BX : CSCConstants::LCT_CENTRAL_BX-bx;
-    if (anode_showers_[bx].isValid() and bx_diff < minBXdiff){
-	minBXdiff = bx_diff;
-	minBX = bx;
+  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++) {
+    unsigned bx_diff = (bx > bx - CSCConstants::LCT_CENTRAL_BX) ? bx - CSCConstants::LCT_CENTRAL_BX
+                                                                : CSCConstants::LCT_CENTRAL_BX - bx;
+    if (anode_showers_[bx].isValid() and bx_diff < minBXdiff) {
+      minBXdiff = bx_diff;
+      minBX = bx;
     }
   }
 
-  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
-      if (bx == minBX) showerOut.push_back(anode_showers_[bx]); 
-  return showerOut; 
+  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+    if (bx == minBX)
+      showerOut.push_back(anode_showers_[bx]);
+  return showerOut;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1360,30 +1362,29 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
   alct.setHits(wireHits);
 }
 
-void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
-
+void CSCAnodeLCTProcessor::encodeHighMultiplicityBits() {
   //numer of layer with hits and number of hits for 0-15 BXs
-  std::set<unsigned> layersWithHits [CSCConstants::MAX_ALCT_TBINS];
-  unsigned hitsInTime [CSCConstants::MAX_ALCT_TBINS]; 
+  std::set<unsigned> layersWithHits[CSCConstants::MAX_ALCT_TBINS];
+  unsigned hitsInTime[CSCConstants::MAX_ALCT_TBINS];
   // Calculate layers with hits
-  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
+  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     hitsInTime[bx] = 0;
     for (unsigned i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       bool atLeastOneWGHit = false;
       for (const auto& wd : digiV[i_layer]) {
         std::vector<int> bx_times = wd.getTimeBinsOn();
         // there is at least one wiregroup in this bx
-        if (std::find(bx_times.begin(), bx_times.end(), bx) != bx_times.end()){
-            hitsInTime[bx] += 1; 
-            atLeastOneWGHit = true;
+        if (std::find(bx_times.begin(), bx_times.end(), bx) != bx_times.end()) {
+          hitsInTime[bx] += 1;
+          atLeastOneWGHit = true;
         }
       }
-    // add this layer to the number of layers hit
+      // add this layer to the number of layers hit
       if (atLeastOneWGHit) {
-         layersWithHits[bx].insert(i_layer);
+        layersWithHits[bx].insert(i_layer);
       }
     }
-  }//end of full bx loop
+  }  //end of full bx loop
 
   // convert station and ring number to index
   // index runs from 2 to 10, subtract 2
@@ -1393,18 +1394,19 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
-  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
-    unsigned minbx = bx >= showerNumTBins_/2 ? bx-showerNumTBins_/2 : bx;
-    unsigned maxbx = bx < CSCConstants::MAX_ALCT_TBINS - showerNumTBins_/2 ? bx+showerNumTBins_/2 : CSCConstants::MAX_ALCT_TBINS - 1; 
+  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
+    unsigned minbx = bx >= showerNumTBins_ / 2 ? bx - showerNumTBins_ / 2 : bx;
+    unsigned maxbx = bx < CSCConstants::MAX_ALCT_TBINS - showerNumTBins_ / 2 ? bx + showerNumTBins_ / 2
+                                                                             : CSCConstants::MAX_ALCT_TBINS - 1;
     unsigned this_hitsInTime = 0;
-    for (unsigned mbx = minbx; mbx <= maxbx; mbx++){
+    for (unsigned mbx = minbx; mbx <= maxbx; mbx++) {
       this_hitsInTime += hitsInTime[mbx];
     }
 
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
-    if (layersWithHits[bx].size() >= minLayersCentralTBin_){
+    if (layersWithHits[bx].size() >= minLayersCentralTBin_) {
       // assign the bits
       for (unsigned i = 0; i < station_thresholds.size(); i++) {
         if (this_hitsInTime >= station_thresholds[i]) {
@@ -1413,6 +1415,6 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
       }
     }
     //ALCT shower construction with showerType_=1, comparatorhits_= 0;
-    anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 1, this_hitsInTime, 0); 
+    anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 1, this_hitsInTime, 0);
   }
 }
