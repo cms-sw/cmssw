@@ -9,7 +9,7 @@ from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, 
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
 from PhysicsTools.NanoAOD.jets_cff   import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger, hfJetShowerShapeforNanoAOD
-from PhysicsTools.NanoAOD.jets_cff   import genJetTable, genJetFlavourAssociation, genJetFlavourTable
+from PhysicsTools.NanoAOD.jets_cff import genJetTable, genJetFlavourAssociation, genJetFlavourTable
 
 from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetAdder
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
@@ -213,7 +213,7 @@ CALOJETVARS = cms.PSet(P4Vars,
 #
 #
 #******************************************
-def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
+def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate PF jet ID
   """
@@ -273,17 +273,17 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
     modifier.toModify(getattr(proc, jetTableName).variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int, doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
 
 
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, tightJetId))
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, tightJetId))+1, getattr(proc, tightJetIdLepVeto))
+  getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
+  getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
 
-  setattr(proc,"_"+jetSequenceName+"_2016", getattr(proc,jetSequenceName).copy())
-  getattr(proc,"_"+jetSequenceName+"_2016").insert(getattr(proc, "_"+jetSequenceName+"_2016").index(getattr(proc, tightJetId)), getattr(proc, looseJetId))
+  setattr(proc,"_"+jetTaskName+"_2016", getattr(proc,jetTaskName).copy())
+  getattr(proc,"_"+jetTaskName+"_2016").add(getattr(proc, looseJetId))
   for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toReplaceWith(getattr(proc,jetSequenceName), getattr(proc, "_"+jetSequenceName+"_2016"))
+    modifier.toReplaceWith(getattr(proc,jetTaskName), getattr(proc, "_"+jetTaskName+"_2016"))
 
   return proc
 
-def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
+def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate pileup jet ID input variables for PF jet
   """
@@ -300,7 +300,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
       usePuppi = True if "Puppi" in jetName else False
     )
   )
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, puJetIdVarsCalculator))
+  getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
 
   #
   # Get the variables
@@ -311,7 +311,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
       srcPileupJetId = cms.InputTag(puJetIdVarsCalculator)
     )
   )
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, puJetIdVarsCalculator))+1, getattr(proc, puJetIDVar))
+  getattr(proc,jetTaskName).add(getattr(proc, puJetIDVar))
 
   #
   # Save variables as userFloats and userInts for each jet
@@ -350,7 +350,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
 
   return proc
 
-def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName="", calculateQGLVars=False):
+def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName="", calculateQGLVars=False):
   """
   Schedule the QGTagger module to calculate input variables to the QG likelihood
   """
@@ -379,7 +379,7 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceNa
   getattr(proc,jetTableName).variables.qgl_mult  =  QGLVARS.qgl_mult
 
   if calculateQGLVars:
-    getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, QGLTagger))
+    getattr(proc,jetTaskName).add(getattr(proc, QGLTagger))
 
   return proc
 
@@ -544,43 +544,39 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   )
 
   #
-  # Define the jet modules sequence first
+  # Define the jet modules Task first
   #
-  jetSequenceName = "jet{}Sequence".format(jetName)
-  setattr(proc, jetSequenceName, cms.Sequence(
-      getattr(proc,jetCorrFactors)+
-      getattr(proc,srcJets)+
-      getattr(proc,srcJetsWithUserData)+
-      getattr(proc,finalJetsForTable)
-    )
+  jetTaskName = "jet{}Task".format(jetName)
+  setattr(proc, jetTaskName, cms.Task(
+     getattr(proc,jetCorrFactors),
+     getattr(proc,srcJets),
+     getattr(proc,srcJetsWithUserData),
+     getattr(proc,finalJetsForTable)
+   )
   )
+  proc.jetTask.add(getattr(proc,jetTaskName))
 
   #
-  # Define the jet table sequences
+  # Define the jet tables Task
   #
-  jetTableSequenceName = "jet{}TablesSequence".format(jetName)
-  setattr(proc, jetTableSequenceName, cms.Sequence(getattr(proc,jetTable)))
+  jetTableTaskName = "jet{}TablesTask".format(jetName)
+  setattr(proc, jetTableTaskName, cms.Task(getattr(proc,jetTable)))
+  proc.jetTablesTask.add(getattr(proc,jetTableTaskName))
 
-  jetTableSequenceMCName = "jet{}MCTablesSequence".format(jetName)
-  setattr(proc, jetTableSequenceMCName, cms.Sequence(getattr(proc,jetMCTable)))
-
+  jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
+  setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTable)))
   if runOnMC:
-    proc.nanoSequenceMC += getattr(proc,jetSequenceName)
-    proc.nanoSequenceMC += getattr(proc,jetTableSequenceName)
-    proc.nanoSequenceMC += getattr(proc,jetTableSequenceMCName)
-  else:
-    proc.nanoSequence += getattr(proc,jetSequenceName)
-    proc.nanoSequence += getattr(proc,jetTableSequenceName)
+    proc.jetMCTask.add(getattr(proc,jetMCTableTaskName))
 
   #
   # Schedule plugins to calculate Jet ID, PileUp Jet ID input variables, and Quark-Gluon Likehood input variables.
   #
   if doPF:
-    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName)
+    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetTaskName=jetTaskName)
     if doPUIDVar:
-      proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName)
+      proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetTaskName=jetTaskName)
     if doQGL:
-      proc = AddQGLTaggerVars(proc,jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName, calculateQGLVars=True)
+      proc = AddQGLTaggerVars(proc,jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetTaskName=jetTaskName, calculateQGLVars=True)
 
   #
   # Save b-tagging algorithm scores. Should only be done for jet collection with b-tagging
@@ -678,7 +674,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
       vertexes = "offlineSlimmedPrimaryVertices"
     )
   )
-  proc.jetSequence.insert(proc.jetSequence.index(proc.pileupJetId94X), getattr(proc, pileupJetId80X))
+  proc.jetUserDataTask.add(getattr(proc, pileupJetId80X))
 
   proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
   proc.updatedJetsWithUserData.userFloats.puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
@@ -705,7 +701,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
     jetName = "",
     jetSrc = "updatedJets",
     jetTableName = "jetTable",
-    jetSequenceName = "jetSequence"
+    jetTaskName = "jetTask"
   )
   #
   # Add variables for quark guon likelihood tagger studies.
@@ -752,7 +748,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #The following lines make sure it is.
   hfJetShowerShapeforCustomNanoAOD = "hfJetShowerShapeforCustomNanoAOD"
   setattr(proc, hfJetShowerShapeforCustomNanoAOD, hfJetShowerShapeforNanoAOD.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices") )
-  proc.jetSequence.insert(proc.jetSequence.index(proc.updatedJetsWithUserData), getattr(proc, hfJetShowerShapeforCustomNanoAOD))
+  proc.jetUserDataTask.add(getattr(proc, hfJetShowerShapeforCustomNanoAOD))
   proc.updatedJetsWithUserData.userFloats.hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaEtaEta')
   proc.updatedJetsWithUserData.userFloats.hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaPhiPhi')
   proc.updatedJetsWithUserData.userInts.hfcentralEtaStripSize = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:centralEtaStripSize')
@@ -883,8 +879,8 @@ def SaveGenJets(proc, genJetName, genJetAlgo, genJetSizeNr, genJetFinalColl, gen
   Schedule modules for a given genJet collection and save its variables into custom NanoAOD
   """
 
-  genJetTableThisJet = "jet{}Table".format(genJetName)
-  setattr(proc, genJetTableThisJet, genJetTable.clone(
+  genJetTableName = "jet{}Table".format(genJetName)
+  setattr(proc, genJetTableName, genJetTable.clone(
       src       = genJetFinalColl,
       cut       = "", # No cut specified here. Save all gen jets after clustering
       name      = genJetTablePrefix,
@@ -893,31 +889,31 @@ def SaveGenJets(proc, genJetName, genJetAlgo, genJetSizeNr, genJetFinalColl, gen
     )
   )
 
-  genJetFlavourAssociationThisJet = "genJet{}FlavourAssociation".format(genJetName)
-  setattr(proc, genJetFlavourAssociationThisJet, genJetFlavourAssociation.clone(
-      jets           = getattr(proc,genJetTableThisJet).src,
+  genJetFlavourAssociationName = "genJet{}FlavourAssociation".format(genJetName)
+  setattr(proc, genJetFlavourAssociationName, genJetFlavourAssociation.clone(
+      jets           = getattr(proc,genJetTableName).src,
       jetAlgorithm   = supportedJetAlgos[genJetAlgo],
       rParam         = genJetSizeNr,
     )
   )
 
-  genJetFlavourTableThisJet = "genJet{}FlavourTable".format(genJetName)
-  setattr(proc, genJetFlavourTableThisJet, genJetFlavourTable.clone(
-      name            = getattr(proc,genJetTableThisJet).name,
-      src             = getattr(proc,genJetTableThisJet).src,
-      cut             = getattr(proc,genJetTableThisJet).cut,
-      jetFlavourInfos = genJetFlavourAssociationThisJet,
+  genJetFlavourTableName = "genJet{}FlavourTable".format(genJetName)
+  setattr(proc, genJetFlavourTableName, genJetFlavourTable.clone(
+      name            = getattr(proc,genJetTableName).name,
+      src             = getattr(proc,genJetTableName).src,
+      cut             = getattr(proc,genJetTableName).cut,
+      jetFlavourInfos = genJetFlavourAssociationName,
     )
   )
 
-  genJetSequenceName = "genJet{}Sequence".format(genJetName)
-  setattr(proc, genJetSequenceName, cms.Sequence(
-      getattr(proc,genJetTableThisJet)+
-      getattr(proc,genJetFlavourAssociationThisJet)+
-      getattr(proc,genJetFlavourTableThisJet)
+  genJetTaskName = "genJet{}Task".format(genJetName)
+  setattr(proc, genJetTaskName, cms.Task(
+      getattr(proc,genJetTableName),
+      getattr(proc,genJetFlavourAssociationName),
+      getattr(proc,genJetFlavourTableName)
     )
   )
-  proc.nanoSequenceMC.insert(proc.nanoSequenceMC.index(proc.jetMC)+1, getattr(proc,genJetSequenceName))
+  proc.jetMCTask.add(getattr(proc,genJetTaskName))
 
   return proc
 
@@ -951,14 +947,14 @@ def ReclusterAK4GenJets(proc, genJA):
   proc.genJetTable.cut = "" # No cut specified here. Save all gen jets after clustering
   proc.genJetTable.doc = "AK4 Gen jets (made with visible genparticles) with pt > 3 GeV" # default pt cut after clustering is 3 GeV
 
-  genJetFlavourAssociationThisJet = "genJet{}FlavourAssociation".format(genJetName)
-  setattr(proc, genJetFlavourAssociationThisJet, genJetFlavourAssociation.clone(
+  genJetFlavourAssociationName = "genJet{}FlavourAssociation".format(genJetName)
+  setattr(proc, genJetFlavourAssociationName, genJetFlavourAssociation.clone(
       jets           = proc.genJetTable.src,
       jetAlgorithm   = supportedJetAlgos[genJetAlgo],
       rParam         = genJetSizeNr,
     )
   )
-  proc.jetMC.insert(proc.jetMC.index(proc.genJetFlavourTable), getattr(proc, genJetFlavourAssociationThisJet))
+  proc.jetMCTask.add(getattr(proc, genJetFlavourAssociationName))
   return proc
 
 def AddNewAK8GenJetsForJEC(proc, genJA):
