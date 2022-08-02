@@ -131,11 +131,11 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
 
 CSCShowerDigi CSCTMBHeader2020_TMB::showerDigi(uint32_t idlayer) const {
   unsigned hmt_bits = bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1);  // HighMultiplicityTrigger bits
-  uint16_t cscid = bits.cscID;                                                  // ??? What is 4-bits CSC Id in CSshowerDigi
+  uint16_t cscid = bits.cscID;  // ??? What is 4-bits CSC Id in CSshowerDigi
   //L1A_TMB_WINDOW is not included in below formula
   //correct version:  CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + L1A_TMB_WINDOW/2;
   // same for anode HMT and cathode HMT
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   //LCTshower with showerType = 3. wireNHits is not avaiable
   //TMB LCT shower is copied from ALCT shower
   CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid, bx, 3, 0, 0);  // 2-bits intime, 2-bits out of time
@@ -144,7 +144,7 @@ CSCShowerDigi CSCTMBHeader2020_TMB::showerDigi(uint32_t idlayer) const {
 
 CSCShowerDigi CSCTMBHeader2020_TMB::anodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   //ALCTshower with showerType = 1. wireNHits is not avaiable
   CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid, bx, 1, 0, 0);  // 2-bits intime, no out of time
   return result;
@@ -152,7 +152,7 @@ CSCShowerDigi CSCTMBHeader2020_TMB::anodeShowerDigi(uint32_t idlayer) const {
 
 CSCShowerDigi CSCTMBHeader2020_TMB::cathodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   //CLCTshower with showerType = 2. comparatorNhits is not avaiable for TMB yet
   CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx, 2, 0, 0);  // 2-bits intime, no out of time
   return result;
@@ -267,23 +267,25 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
   //not valid LCT shower, then in-time bits must be 0
-  if (not digi.isValid()) hmt_bits =  ((digi.bitsOutOfTime() & 0x3) << 2);
+  if (not digi.isValid())
+    hmt_bits = ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
   if (digi.isValid())
-      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+    bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
   else
-      bits.pop_l1a_match_win = 3;//default value
+    bits.pop_l1a_match_win = 3;  //default value
 }
 
 void CSCTMBHeader2020_TMB::addAnodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
-  if (not digi.isValid()) hmt_bits = 0;
+  if (not digi.isValid())
+    hmt_bits = 0;
   bits.anode_hmt = hmt_bits;
   if (digi.isValid())
-      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+    bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
   else
-      bits.pop_l1a_match_win = 3;//default value
+    bits.pop_l1a_match_win = 3;  //default value
 }
 
 void CSCTMBHeader2020_TMB::addCathodeShower(const CSCShowerDigi& digi) {
@@ -306,7 +308,8 @@ void CSCTMBHeader2020_TMB::print(std::ostream& os) const {
      << (bits.activeCFEBs | (bits.activeCFEBs_2 << 5)) << ", readCFEBs = 0x" << std::hex
      << (bits.readCFEBs | (bits.readCFEBs_2 << 5)) << std::dec << "\n";
   os << "bxnPreTrigger = " << bits.bxnPreTrigger << "\n";
-  os << "ALCT location in CLCt window "<< bits.matchWin << " L1A location in TMB window "<< bits.pop_l1a_match_win << "\n";
+  os << "ALCT location in CLCT window " << bits.matchWin << " L1A location in TMB window " << bits.pop_l1a_match_win
+     << "\n";
   os << "tmbMatch = " << bits.tmbMatch << " alctOnly = " << bits.alctOnly << " clctOnly = " << bits.clctOnly << "\n";
 
   os << "CLCT Words:\n"
