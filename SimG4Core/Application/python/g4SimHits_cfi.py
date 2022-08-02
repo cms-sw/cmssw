@@ -513,7 +513,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MouseBite        = cms.untracked.double(2.5),
         CheckID          = cms.untracked.bool(True),
         UseDetector      = cms.untracked.int32(3),
-        Detectors        = cms.untracked.int32(2)
+        Detectors        = cms.untracked.int32(2),
+        MissingWaferFile = cms.untracked.string("")
     ),
     HGCScintSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
