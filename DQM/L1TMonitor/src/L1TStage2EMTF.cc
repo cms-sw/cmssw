@@ -365,8 +365,67 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       gemChamberPad[hist]->setBinLabel(bin, std::to_string(bin), 1);
       gemChamberPartition[hist]->setBinLabel(bin, std::to_string(bin), 1);
     }
-  }
+    //Added 07-21-22 **
+    for (int ch = 0; ch < 36; ch++) {
+      for (int lyr = 0; lyr < 2; lyr++) {
+        gemVFATBXPerChamber[ch][hist][lyr] = ibooker.book2D(
+            "gemVFATBXPerChamber_" + std::to_string(ch) + "_" + std::to_string(hist) + "_" + std::to_string(lyr + 1),
+            "GEM BX vs VFAT in Chamber " + std::to_string(ch + 1) + " " + label + " Layer " + std::to_string(lyr + 1),
+            7,
+            -3,
+            4,
+            24,
+            0,
+            24);
+        gemVFATBXPerChamber[ch][hist][lyr]->setAxisTitle("BX", 1);
+        gemVFATBXPerChamber[ch][hist][lyr]->setAxisTitle("VFAT #", 2);
 
+        for (int bin = 1; bin <= 24; ++bin) {
+          gemVFATBXPerChamber[ch][hist][lyr]->setBinLabel(bin, std::to_string(bin - 1), 2);
+        }
+        for (int bx = 1; bx <= 7; ++bx) {
+          gemVFATBXPerChamber[ch][hist][lyr]->setBinLabel(bx, std::to_string(bx - 4), 1);
+        }
+      }
+    }
+
+    //changed gemChamberVFATBX to be indexed by BX 07-21-2022
+    string bx_string;
+    for (int bx = 1; bx <= 7; ++bx) {
+      //Assign (m)inus or (p)us to plot name
+      if (bx < 4)
+        bx_string = "Neg" + std::to_string(-1 * (bx - 4));
+      else if (bx > 4)
+        bx_string = "Pos" + std::to_string(bx - 4);
+      else
+        bx_string = "0";
+
+      gemChamberVFATBX[hist][bx - 1] =
+          ibooker.book2D("gemChamberVFATBX" + bx_string + name,
+                         "GEM Chamber vs VFAT at BX = " + std::to_string(bx - 4) + ", " + label,
+                         42,
+                         1,
+                         43,
+                         24,
+                         0,
+                         24);  // 8* (0-2) phi part + (0-7) eta part
+      gemChamberVFATBX[hist][bx - 1]->setAxisTitle("Chamber, " + label, 1);
+      gemChamberVFATBX[hist][bx - 1]->setAxisTitle("VFAT #", 2);
+
+      for (int bin = 1; bin <= 24; bin++)
+        gemChamberVFATBX[hist][bx - 1]->setBinLabel(bin, std::to_string(bin - 1), 2);
+
+      int count = 0;
+      for (int bin = 1; bin <= 42; ++bin) {
+        gemChamberVFATBX[hist][bx - 1]->setBinLabel(bin, std::to_string(bin - count), 1);
+        if (bin == 2 || bin == 9 || bin == 16 || bin == 23 || bin == 30 || bin == 37) {
+          ++bin;
+          ++count;
+          gemChamberVFATBX[hist][bx - 1]->setBinLabel(bin, "N", 1);
+        }
+      }
+    }
+  }
   // CSC LCT and RPC Hit Timing
   ibooker.setCurrentFolder(monitorDir + "/Timing");
 
@@ -896,11 +955,22 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (Hit->Is_GEM() == true) {
       gemHitBX->Fill(Hit->BX(), (endcap > 0) ? 1.5 : 0.5);
       hist_index = (endcap > 0) ? 1 : 0;
+      //Added def of layer
+      int layer = Hit->Layer();
+      int phi_part = Hit->Pad() / 64;  // 0-2
+      int vfat = phi_part * 8 + Hit->Partition();
       if (Hit->Neighbor() == false) {
         gemChamberPad[hist_index]->Fill(chamber, Hit->Pad());
         gemChamberPartition[hist_index]->Fill(chamber, Hit->Partition());
         gemHitOccupancy->Fill(chamber_bin(1, 1, chamber), (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
-      } else {
+        //Added plots 07-21-22 ***
+        gemVFATBXPerChamber[chamber - 1][hist_index][layer]->Fill(Hit->BX(), vfat);
+        //indexed plots by BX 07-21-22
+        gemChamberVFATBX[hist_index][Hit->BX() + 3]->Fill(chamber_bin(1, 1, chamber), vfat);
+      }
+      //Added plots 06-07-22
+
+      else {
         gemChamberPad[hist_index]->Fill((Hit->Sector() % 6) * 6 + 2, Hit->Pad());
         gemChamberPartition[hist_index]->Fill((Hit->Sector() % 6) * 6 + 2, Hit->Partition());
         gemHitOccupancy->Fill((Hit->Sector() % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
