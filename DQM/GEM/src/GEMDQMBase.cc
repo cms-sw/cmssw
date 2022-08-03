@@ -26,11 +26,9 @@ GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm
 
 int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   GEMGeometry_ = nullptr;
-  try {
-    //edm::ESHandle<GEMGeometry> hGeom;
-    //iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &iSetup.getData(geomToken_);
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+  if (auto handle = iSetup.getHandle(geomToken_)) {
+    GEMGeometry_ = handle.product();
+  } else {
     edm::LogError(log_category_) << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return -1;
   }
@@ -58,20 +56,19 @@ int GEMDQMBase::getNumEtaPartitions(const GEMStation* station) {
 int GEMDQMBase::loadChambers() {
   if (GEMGeometry_ == nullptr)
     return -1;
-  gemChambers_.clear();
-  const std::vector<const GEMSuperChamber*>& superChambers_ = GEMGeometry_->superChambers();
-  for (auto sch : superChambers_) {  // FIXME: This loop can be merged into the below loop
-    for (auto pch : sch->chambers()) {
-      Bool_t bExist = false;
-      for (const auto& ch : gemChambers_) {
-        if (pch->id() == ch.id()) {
-          bExist = true;
-          break;
+  listChamberId_.clear();
+  mapEtaPartition_.clear();
+  for (const GEMRegion* region : GEMGeometry_->regions()) {
+    for (const GEMStation* station : region->stations()) {
+      for (auto sch : station->superChambers()) {
+        for (auto pchamber : sch->chambers()) {
+          GEMDetId gid = pchamber->id();
+          listChamberId_.push_back(pchamber->id());
+          for (auto iEta : pchamber->etaPartitions()) {
+            mapEtaPartition_[gid].push_back(iEta);
+          }
         }
       }
-      if (bExist)
-        continue;
-      gemChambers_.push_back(*pch);
     }
   }
 
@@ -183,8 +180,7 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
   MEMap3Check_.clear();
   MEMap3WithChCheck_.clear();
   MEMap4Check_.clear();
-  for (const auto& ch : gemChambers_) {
-    GEMDetId gid = ch.id();
+  for (auto gid : listChamberId_) {
     ME2IdsKey key2{gid.region(), gid.station()};
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key3WithChamber{gid.region(), gid.station(), gid.layer(), gid.chamber()};
@@ -212,7 +208,7 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       ProcessWithMEMap3WithChamber(bh3Ch, key3WithChamber);
       MEMap3WithChCheck_[key3WithChamber] = true;
     }
-    for (auto iEta : ch.etaPartitions()) {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), eId.ieta()};
       ME3IdsKey key2WithEta{gid.region(), gid.station(), eId.ieta()};
