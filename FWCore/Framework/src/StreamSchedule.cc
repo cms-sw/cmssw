@@ -549,7 +549,7 @@ namespace edm {
     for (auto const& ci : consumesInfo) {
       if (not ci.skipCurrentProcess() and
           (ci.process().empty() or ci.process() == processConfiguration->processName())) {
-        auto productModuleLabel = ci.label();
+        auto productModuleLabel = std::string(ci.label());
         if (productModuleLabel.empty()) {
           //this is a consumesMany request
           for (auto const& branch : conditionalModuleBranches) {
