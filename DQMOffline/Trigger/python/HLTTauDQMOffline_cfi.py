@@ -6,11 +6,17 @@ hltTauDQMofflineProcess = "HLT"
 TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
-                            PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
-                            PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
+                            PFTauDiscriminatorContainers  = cms.untracked.VInputTag(
+                                    cms.InputTag("hpsPFTauDiscriminationByMuonRejection3"),
+                                    cms.InputTag("hpsPFTauBasicDiscriminators")
+                            ),
+                            PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(
+                                "ByLooseMuonRejection3",
+                                "ByMediumCombinedIsolationDBSumPtCorr3Hits"
+                            ),
                             PFTauDiscriminators = cms.untracked.VInputTag(
                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -72,8 +78,8 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
-kEverything = 0
-kVital      = 1
+kEverything = 1
+kVital      = 0
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
@@ -183,7 +189,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_.+PFTau.+')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu27_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('ETauTemplate'),
@@ -230,7 +236,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         ),
         cms.untracked.PSet(
             name        = cms.string('IsoMu24_eta2p1'),
-            xvariable   = cms.string('Muon'),
+            xvariable   = cms.string('Tau'),
             nPtBins     = cms.int32(20),  
             ptmin       = cms.double(0.),  
             ptmax       = cms.double(200.),
@@ -240,8 +246,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             nPhiBins    = cms.int32(20),   
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15),
-            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleIsoMu24_eta2p1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu27_v*'))
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_.+PFTauHPS27.+')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('Ele24_eta2p1_WPTight_Gsf'),
