@@ -20,8 +20,6 @@ public:
 
   G4bool IsApplicable(const G4ParticleDefinition& p) override;
 
-  void PrintInfo() override;
-
   void SetMethod(std::string method_in);
 
   G4bool IsEnabled();
