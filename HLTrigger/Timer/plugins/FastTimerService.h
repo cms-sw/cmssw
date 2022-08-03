@@ -183,6 +183,7 @@ private:
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static std::string fix_for_dqm(std::string input);
 
 private:
   // forward declarations
