@@ -32,8 +32,9 @@ namespace {
     for (const auto& exist : existing) {
       //it is our understanding that there is an exact eta phi match
       //and we should not be concerned with numerical precision
-      // FIXME: should this use hardware or physics pt?
-      if (reco::deltaR2(*muon, *exist) <= 0) {
+      // DISCUSS: should this use hardware or physics pt?
+      // For the time being we use hardware pt, because this is just for a duplicate check.
+      if (reco::deltaR2(muon->hwEta(), muon->hwPhi(), exist->hwEta(), exist->hwPhi()) <= 0) {
         return true;
       }
     }
@@ -72,7 +73,7 @@ void L1TTkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MaxEta", 5.0);
   desc.add<int>("MinN", 1);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("L1TkMuons"));
-  desc.add<bool>("applyQuality", true);
+  desc.add<bool>("applyQuality", false);
   desc.add<bool>("applyDuplicateRemoval", true);
   desc.add<edm::ParameterSetDescription>("qualities", MuonQualityCut::makePSetDescription());
 
@@ -147,22 +148,34 @@ L1TTkMuonFilter::MuonQualityCut::MuonQualityCut(const edm::ParameterSet& iConfig
 }
 
 bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TrackerMuon& muon) const {
-  const auto& qualities = allowedQualities_.find(muon.muonDetector());
-  if (qualities != allowedQualities_.end()) {
-    return std::binary_search(qualities->second.begin(), qualities->second.end(), muon.quality());
-  } else {
-    return true;  //if qualities for that detector is not specified, we return true
+  bool passesQuality(false);
+
+  // If we didn't load any qualities from the config file, that means we don't care.
+  // So we set passesQuality to true.
+  if(allowedQualities_.empty()) {
+    passesQuality = true;
+    return passesQuality;
   }
+
+  // The muonDetector() method is not available for TrackerMuon (it was available in TkMuon),
+  // so for the time being we just take the union of all quality vectors for all muon detectors.
+  for (const auto& detQuality: allowedQualities_) {
+    passesQuality = std::binary_search(detQuality.second.begin(),
+                                       detQuality.second.end(),
+                                       muon.hwQual());
+  }
+
+  return passesQuality;
 }
 
 void L1TTkMuonFilter::MuonQualityCut::fillPSetDescription(edm::ParameterSetDescription& desc) {
   edm::ParameterSetDescription detQualDesc;
-  detQualDesc.add<std::vector<int>>("detectors", {3});
-  detQualDesc.add<std::vector<int>>("qualities", {11, 13, 14, 15});
+  detQualDesc.add<std::vector<int>>("detectors", {-99});
+  detQualDesc.add<std::vector<int>>("qualities", {-99, -99, -99});
   std::vector<edm::ParameterSet> detQualDefaults;
   edm::ParameterSet detQualDefault;
-  detQualDefault.addParameter<std::vector<int>>("detectors", {3});
-  detQualDefault.addParameter<std::vector<int>>("qualities", {11, 13, 14, 15});
+  detQualDefault.addParameter<std::vector<int>>("detectors", {-99});
+  detQualDefault.addParameter<std::vector<int>>("qualities", {-99, -99, -99});
   detQualDefaults.push_back(detQualDefault);
   desc.addVPSet("values", detQualDesc, detQualDefaults);
 }
