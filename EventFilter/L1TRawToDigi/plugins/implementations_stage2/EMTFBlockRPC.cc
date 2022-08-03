@@ -223,6 +223,16 @@ namespace l1t {
           }
         }  // End loop: for (auto const & iHit : *res_hit)
 
+        // Reject TPs with out-of-range BX values. This needs to be adjusted if we increase l1a_window parameter in EMTF config - EY 03.08.2022
+        if (Hit_.BX() > 3 or Hit_.BX() < -3) {
+          edm::LogWarning("L1T|EMTF") << "EMTF unpacked CPPF digis with out-of-range BX! BX " << Hit_.BX()
+                                      << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station() << ", sector "
+                                      << Hit_.Sector() << ", neighbor " << Hit_.Neighbor() << ", ring " << Hit_.Ring()
+                                      << ", chamber " << Hit_.Chamber() << ", theta " << Hit_.Theta_fp() / 4 << ", phi "
+                                      << Hit_.Phi_fp() / 4 << std::endl;
+          return true;
+        }
+
         if (exact_duplicate)
           edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate CPPF digis: BX " << Hit_.BX() << ", endcap "
                                       << Hit_.Endcap() << ", station " << Hit_.Station() << ", sector " << Hit_.Sector()
