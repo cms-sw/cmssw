@@ -44,13 +44,19 @@ namespace gpuClustering {
     __device__ constexpr inline void promote(uint32_t* __restrict__ status, const uint16_t x, const uint16_t y) {
       uint32_t index = getIndex(x, y);
       uint32_t shift = getShift(x, y);
-      Status old = getStatus(status, x, y);
-      if (kDuplicate == old) {
-        // nothing to do
-        return;
-      }
-      Status target = (kEmpty == old) ? kFound : kDuplicate;
-      atomicOr(&status[index], static_cast<uint32_t>(target) << shift);
+      uint32_t old_word = status[index];
+      uint32_t expected = old_word;
+      do {
+        expected = old_word;
+        Status old_status{(old_word >> shift) & mask};
+        if (kDuplicate == old_status) {
+          // nothing to do
+          return;
+        }
+        Status new_status = (kEmpty == old_status) ? kFound : kDuplicate;
+        uint32_t new_word = old_word | (static_cast<uint32_t>(new_status) << shift);
+        old_word = atomicCAS(&status[index], expected, new_word);
+      } while (expected != old_word);
     }
 
   }  // namespace pixelStatus
