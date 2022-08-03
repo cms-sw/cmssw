@@ -28,10 +28,11 @@
 //
 
 namespace {
-  bool isDupMuon(const l1t::TkMuonRef& muon, const std::vector<l1t::TkMuonRef>& existing) {
+  bool isDupMuon(const l1t::TrackerMuonRef& muon, const std::vector<l1t::TrackerMuonRef>& existing) {
     for (const auto& exist : existing) {
       //it is our understanding that there is an exact eta phi match
       //and we should not be concerned with numerical precision
+      // FIXME: should this use hardware or physics pt?
       if (reco::deltaR2(*muon, *exist) <= 0) {
         return true;
       }
@@ -43,7 +44,7 @@ namespace {
 L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)),
+      tkMuonToken_(consumes<l1t::TrackerMuonCollection>(l1TkMuonTag_)),
       qualityCut_(iConfig.getParameter<edm::ParameterSet>("qualities")) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
@@ -105,27 +106,27 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   // Specific filter code
 
   // get hold of products from Event
-  Handle<l1t::TkMuonCollection> tkMuons;
+  Handle<l1t::TrackerMuonCollection> tkMuons;
   iEvent.getByToken(tkMuonToken_, tkMuons);
 
   //it looks rather slow to get the added muons back out of the filterproduct
   //so we just make a vector of passing and then add them all at the end
-  std::vector<l1t::TkMuonRef> passingMuons;
+  std::vector<l1t::TrackerMuonRef> passingMuons;
   auto atrkmuons(tkMuons->begin());
   auto otrkmuons(tkMuons->end());
-  TkMuonCollection::const_iterator itkMuon;
+  l1t::TrackerMuonCollection::const_iterator itkMuon;
   for (itkMuon = atrkmuons; itkMuon != otrkmuons; itkMuon++) {
-    double offlinePt = this->TkMuonOfflineEt(itkMuon->pt(), itkMuon->eta());
+    double offlinePt = this->TkMuonOfflineEt(itkMuon->phPt(), itkMuon->phEta());
     bool passesQual = !applyQuality_ || qualityCut_(*itkMuon);
-    if (passesQual && offlinePt >= min_Pt_ && itkMuon->eta() <= max_Eta_ && itkMuon->eta() >= min_Eta_) {
-      l1t::TkMuonRef ref(l1t::TkMuonRef(tkMuons, distance(atrkmuons, itkMuon)));
+    if (passesQual && offlinePt >= min_Pt_ && itkMuon->phEta() <= max_Eta_ && itkMuon->phEta() >= min_Eta_) {
+      l1t::TrackerMuonRef ref(l1t::TrackerMuonRef(tkMuons, distance(atrkmuons, itkMuon)));
       if (!applyDuplicateRemoval_ || !isDupMuon(ref, passingMuons)) {
         passingMuons.push_back(ref);
       }
     }
   }
   for (const auto& muon : passingMuons) {
-    filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkMu, muon);
+    // TEMP filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkMu, muon);
   }
 
   // return with final filter decision
@@ -145,7 +146,7 @@ L1TTkMuonFilter::MuonQualityCut::MuonQualityCut(const edm::ParameterSet& iConfig
   }
 }
 
-bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TkMuon& muon) const {
+bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TrackerMuon& muon) const {
   const auto& qualities = allowedQualities_.find(muon.muonDetector());
   if (qualities != allowedQualities_.end()) {
     return std::binary_search(qualities->second.begin(), qualities->second.end(), muon.quality());
