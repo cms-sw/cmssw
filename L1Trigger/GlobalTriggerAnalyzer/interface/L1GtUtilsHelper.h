@@ -65,11 +65,6 @@ public:
   // A module defining its fillDescriptions function might want to use this
   static void fillDescription(edm::ParameterSetDescription& desc);
 
-  // Callback which will be registered with the Framework if the InputTags
-  // are not specified in the configuration or constructor arguments. It
-  // will get called for each product in the ProductRegistry.
-  void operator()(edm::BranchDescription const& branchDescription);
-
   edm::InputTag const& l1GtRecordInputTag() const { return m_l1GtRecordInputTag; }
   edm::InputTag const& l1GtReadoutRecordInputTag() const { return m_l1GtReadoutRecordInputTag; }
   edm::InputTag const& l1GtTriggerMenuLiteInputTag() const { return m_l1GtTriggerMenuLiteInputTag; }
@@ -81,7 +76,14 @@ public:
   edm::EDGetTokenT<L1GtTriggerMenuLite> const& l1GtTriggerMenuLiteToken() const { return m_l1GtTriggerMenuLiteToken; }
 
 private:
-  edm::ConsumesCollector m_consumesCollector;
+  // Callback which will be registered with the Framework if the InputTags
+  // are not specified in the configuration or constructor arguments. It
+  // will get called for each product in the ProductRegistry.
+  void checkToUpdateTags(edm::BranchDescription const& branchDescription,
+                         edm::ConsumesCollector,
+                         bool findRecord,
+                         bool findReadoutRecord,
+                         bool findMenuLite);
 
   edm::InputTag m_l1GtRecordInputTag;
   edm::InputTag m_l1GtReadoutRecordInputTag;
@@ -90,23 +92,6 @@ private:
   edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordToken;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtReadoutRecordToken;
   edm::EDGetTokenT<L1GtTriggerMenuLite> m_l1GtTriggerMenuLiteToken;
-
-  bool m_findRecord;
-  bool m_findReadoutRecord;
-  bool m_findMenuLite;
-
-  bool m_foundPreferredRecord;
-  bool m_foundPreferredReadoutRecord;
-  bool m_foundPreferredMenuLite;
-
-  bool m_foundMultipleL1GtRecord;
-  bool m_foundMultipleL1GtReadoutRecord;
-  bool m_foundMultipleL1GtMenuLite;
-
-  // use vector here, InputTag has no '<' operator to use std::set
-  std::vector<edm::InputTag> m_inputTagsL1GtRecord;
-  std::vector<edm::InputTag> m_inputTagsL1GtReadoutRecord;
-  std::vector<edm::InputTag> m_inputTagsL1GtMenuLite;
 };
 
 template <typename T>
@@ -124,24 +109,10 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset,
                                  edm::InputTag const& l1GtRecordInputTag,
                                  edm::InputTag const& l1GtReadoutRecordInputTag,
                                  edm::InputTag const& l1GtTriggerMenuLiteInputTag)
-    : m_consumesCollector(iC),
-
-      // Set InputTags from arguments
+    :  // Set InputTags from arguments
       m_l1GtRecordInputTag(l1GtRecordInputTag),
       m_l1GtReadoutRecordInputTag(l1GtReadoutRecordInputTag),
-      m_l1GtTriggerMenuLiteInputTag(l1GtTriggerMenuLiteInputTag),
-
-      m_findRecord(false),
-      m_findReadoutRecord(false),
-      m_findMenuLite(false),
-
-      m_foundPreferredRecord(false),
-      m_foundPreferredReadoutRecord(false),
-      m_foundPreferredMenuLite(false),
-
-      m_foundMultipleL1GtRecord(false),
-      m_foundMultipleL1GtReadoutRecord(false),
-      m_foundMultipleL1GtMenuLite(false) {
+      m_l1GtTriggerMenuLiteInputTag(l1GtTriggerMenuLiteInputTag) {
   // If the InputTags are not set to valid values by the arguments, then
   // try to set them from the configuration.
   if (m_l1GtRecordInputTag.label().empty() && pset.existsAs<edm::InputTag>("l1GtRecordInputTag")) {
@@ -167,14 +138,16 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset,
   }
 
   // Do we still need to search for each InputTag?
-  m_findRecord = m_l1GtRecordInputTag.label().empty();
-  m_findReadoutRecord = m_l1GtReadoutRecordInputTag.label().empty();
-  m_findMenuLite = m_l1GtTriggerMenuLiteInputTag.label().empty() && useL1GtTriggerMenuLite;
+  bool findRecord = m_l1GtRecordInputTag.label().empty();
+  bool findReadoutRecord = m_l1GtReadoutRecordInputTag.label().empty();
+  bool findMenuLite = m_l1GtTriggerMenuLiteInputTag.label().empty() && useL1GtTriggerMenuLite;
 
   // Register the callback function with the Framework
   // if any InputTags still need to be found.
-  if (m_findRecord || m_findReadoutRecord || m_findMenuLite) {
-    module.callWhenNewProductsRegistered(std::ref(*this));
+  if (findRecord || findReadoutRecord || findMenuLite) {
+    module.callWhenNewProductsRegistered([this, findRecord, findReadoutRecord, findMenuLite, iC](auto iBranch) {
+      checkToUpdateTags(iBranch, iC, findRecord, findReadoutRecord, findMenuLite);
+    });
   }
 }
 #endif
