@@ -1,7 +1,7 @@
 autoSkim = {
  'BTagMu' : 'LogError+LogErrorMonitor',
  'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+LogError+LogErrorMonitor',
- 'JETMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+LogError+LogErrorMonitor',
  'EGamma':'ZElectron+WElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
  'Muon' : 'ZMu+LogError+LogErrorMonitor',
