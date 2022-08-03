@@ -44,8 +44,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
@@ -88,7 +87,10 @@ namespace trigger {
   typedef l1t::EtSumVectorRef VRl1tetsum;
 
   /* Phase-2 */
-  typedef l1t::TkMuonVectorRef VRl1ttkmuon;
+  // This is a std::vector<TrackerMuonRef>,
+  // and should be called TrackerMuonVectorRef upstream.
+  // The L1T group should be made aware of that
+  typedef l1t::TrackerMuonRefVector VRl1ttkmuon; 
   typedef l1t::TkElectronVectorRef VRl1ttkele;
   typedef l1t::TkEmVectorRef VRl1ttkem;
   typedef l1t::PFJetVectorRef VRl1tpfjet;
@@ -390,7 +392,7 @@ namespace trigger {
     }
 
     /* Phase-2 */
-    void addObject(int id, const l1t::TkMuonRef& ref) {
+    void addObject(int id, const l1t::TrackerMuonRef& ref) {
       l1ttkmuonIds_.push_back(id);
       l1ttkmuonRefs_.push_back(ref);
     }
