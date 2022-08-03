@@ -33,8 +33,6 @@ void G4muDarkBremsstrahlung::InitialiseProcess(const G4ParticleDefinition*) {
   }
 }
 
-void G4muDarkBremsstrahlung::PrintInfo() {}
-
 void G4muDarkBremsstrahlung::SetMethod(std::string method_in) {
   ((G4muDarkBremsstrahlungModel*)EmModel(1))->SetMethod(method_in);
   return;
