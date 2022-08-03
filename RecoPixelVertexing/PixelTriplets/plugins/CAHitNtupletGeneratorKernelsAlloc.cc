@@ -40,9 +40,10 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(int32_t nHits, cudaStream_t 
     cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream));
   } else {
     *device_nCells_ = 0;
+    // for gpu moved to populate functions
+    cms::cuda::launchZero(device_tupleMultiplicity_.get(), stream);
+    cms::cuda::launchZero(hitToTupleView_, stream);  // we may wish to keep it in the edm
   }
-  cms::cuda::launchZero(device_tupleMultiplicity_.get(), stream);
-  cms::cuda::launchZero(hitToTupleView_, stream);  // we may wish to keep it in the edm
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
