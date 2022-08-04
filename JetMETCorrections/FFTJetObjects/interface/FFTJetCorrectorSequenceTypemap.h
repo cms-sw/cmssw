@@ -16,32 +16,32 @@ struct FFTJetCorrectorSequenceTypemap {};
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::BasicJet> > {
-  typedef StaticFFTBasicJetCorrectorSequenceLoader loader;
+  typedef FFTBasicJetCorrectorSequenceLoader loader;
 };
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::CaloJet> > {
-  typedef StaticFFTCaloJetCorrectorSequenceLoader loader;
+  typedef FFTCaloJetCorrectorSequenceLoader loader;
 };
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::GenJet> > {
-  typedef StaticFFTGenJetCorrectorSequenceLoader loader;
+  typedef FFTGenJetCorrectorSequenceLoader loader;
 };
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::PFJet> > {
-  typedef StaticFFTPFJetCorrectorSequenceLoader loader;
+  typedef FFTPFJetCorrectorSequenceLoader loader;
 };
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::TrackJet> > {
-  typedef StaticFFTTrackJetCorrectorSequenceLoader loader;
+  typedef FFTTrackJetCorrectorSequenceLoader loader;
 };
 
 template <>
 struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::JPTJet> > {
-  typedef StaticFFTJPTJetCorrectorSequenceLoader loader;
+  typedef FFTJPTJetCorrectorSequenceLoader loader;
 };
 
 #endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceTypemap_h
