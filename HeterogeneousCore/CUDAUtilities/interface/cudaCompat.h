@@ -105,6 +105,30 @@ namespace cms {
       return atomicMax(a, b);
     }
 
+    template <typename T1, typename T2>
+    T1 atomicAnd(T1* a, T2 b) {
+      auto ret = *a;
+      (*a) &= b;
+      return ret;
+    }
+
+    template <typename T1, typename T2>
+    T1 atomicAnd_block(T1* a, T2 b) {
+      return atomicAnd(a, b);
+    }
+
+    template <typename T1, typename T2>
+    T1 atomicOr(T1* a, T2 b) {
+      auto ret = *a;
+      (*a) |= b;
+      return ret;
+    }
+
+    template <typename T1, typename T2>
+    T1 atomicOr_block(T1* a, T2 b) {
+      return atomicOr(a, b);
+    }
+
     inline void __syncthreads() {}
     inline void __threadfence() {}
     inline bool __syncthreads_or(bool x) { return x; }
