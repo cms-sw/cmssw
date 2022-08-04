@@ -640,8 +640,13 @@ void CSCMotherboard::matchShowers(CSCShowerDigi* anode_showers, CSCShowerDigi* c
         matchHMT = 1;
     }
     //LCTShower with showerType = 3
-    showers_[bx] = CSCShowerDigi(
-        matchHMT & 3, false, ashower.getCSCID(), bx, 3, ashower.getWireNHits(), cshower.getComparatorNHits());
+    showers_[bx] = CSCShowerDigi(matchHMT & 3,
+                                 false,
+                                 ashower.getCSCID(),
+                                 bx,
+                                 CSCShowerDigi::ShowerType::kLCTShower,
+                                 ashower.getWireNHits(),
+                                 cshower.getComparatorNHits());
   }
 }
 
