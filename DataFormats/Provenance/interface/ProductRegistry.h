@@ -95,6 +95,7 @@ namespace edm {
 
     //NOTE: this is not const since we only want items that have non-const access to this class to be
     // able to call this internal iteration
+    // Called only for branches that are present (part of avoiding creating type information for dropped branches)
     template <typename T>
     void callForEachBranch(T const& iFunc) {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
@@ -102,7 +103,9 @@ namespace edm {
       for (ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(), itEntryEnd = productList_.end();
            itEntry != itEntryEnd;
            ++itEntry) {
-        iFunc(itEntry->second);
+        if (itEntry->second.present()) {
+          iFunc(itEntry->second);
+        }
       }
     }
     ProductList::size_type size() const { return productList_.size(); }
