@@ -40,6 +40,8 @@ namespace gpuClustering {
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
+      while (id[firstPixel] == invalidModuleId)
+        ++firstPixel;  // could be duplicates!
       auto thisModuleId = id[firstPixel];
       assert(thisModuleId < nMaxModules);
       assert(thisModuleId == moduleId[module]);
