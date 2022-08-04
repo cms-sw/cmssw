@@ -731,8 +731,10 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
     if (bymodule) {
       booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
       for (unsigned int id : process.modules_) {
-        auto const& module_name = fix_for_dqm(job.module(id).moduleLabel());
-        modules_[id].book(booker, module_name, module_name, module_ranges, lumisections, byls);
+        std::string const& module_label = job.module(id).moduleLabel();
+        std::string safe_label = module_label;
+        fixForDQM(safe_label);
+        modules_[id].book(booker, safe_label, module_label, module_ranges, lumisections, byls);
       }
       booker.setCurrentFolder(basedir);
     }
@@ -942,14 +944,13 @@ void FastTimerService::postGlobalBeginRun(edm::GlobalContext const& gc) { ignore
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
-std::string FastTimerService::fix_for_dqm(std::string input) {
+void FastTimerService::fixForDQM(std::string& label) {
   // clean characters that are deemed unsafe for DQM
   // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
-  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
-  for (auto& c : input)
+  static const auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+  for (auto& c : label)
     if (safe_for_dqm.find(c) == std::string::npos)
       c = '_';
-  return input;
 }
 
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
@@ -962,7 +963,8 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
     dqm_path_ += fmt::sprintf(
         "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams_, concurrent_threads_);
 
-  dqm_path_ = fix_for_dqm(dqm_path_);
+  // fix the DQM path to avoid invalid characters
+  fixForDQM(dqm_path_);
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
