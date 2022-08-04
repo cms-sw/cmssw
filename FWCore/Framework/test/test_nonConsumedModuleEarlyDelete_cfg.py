@@ -21,32 +21,20 @@ process.maker3 = cms.EDProducer("DeleteEarlyProducer") # this module should get 
 
 # These 3 modules should get deleted
 process.otherProducer1 = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(1),
-    mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker1__TEST")
+    ivalue = cms.int32(1)
 )
 process.otherProducer2 = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(2),
-    mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker2__TEST")
+    ivalue = cms.int32(2)
 )
 process.otherProducer3 = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(3),
-    mightGet = cms.untracked.vstring(
-        "edmtestDeleteEarly_maker2__TEST",
-        "edmtestDeleteEarly_maker3__TEST"
-    )
+    ivalue = cms.int32(3)
 )
 
 process.reader1 = cms.EDAnalyzer("DeleteEarlyReader",
-    tag = cms.untracked.InputTag("maker1"),
-    mightGet = cms.untracked.vstring(
-        "edmtestDeleteEarly_maker1__TEST",
-    )
+    tag = cms.untracked.InputTag("maker1")
 )
 process.reader2 = cms.EDAnalyzer("DeleteEarlyReader",
-    tag = cms.untracked.InputTag("maker2"),
-    mightGet = cms.untracked.vstring(
-        "edmtestDeleteEarly_maker2__TEST",
-    )
+    tag = cms.untracked.InputTag("maker2")
 )
 
 process.tester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",

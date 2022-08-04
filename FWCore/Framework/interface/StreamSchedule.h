@@ -250,6 +250,7 @@ namespace edm {
 
     void initializeEarlyDelete(ModuleRegistry& modReg,
                                std::vector<std::string> const& branchesToDeleteEarly,
+                               std::multimap<std::string, std::string> const& referencesToBranches,
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers

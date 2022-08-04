@@ -445,6 +445,17 @@ namespace edm {
     if (not hasSubProcesses) {
       branchesToDeleteEarly_ = optionsPset.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
     }
+    if (not branchesToDeleteEarly_.empty()) {
+      auto referencePSets =
+          optionsPset.getUntrackedParameter<std::vector<edm::ParameterSet>>("holdsReferencesToDeleteEarly");
+      for (auto const& pset : referencePSets) {
+        auto product = pset.getParameter<std::string>("product");
+        auto references = pset.getParameter<std::vector<std::string>>("references");
+        for (auto const& ref : references) {
+          referencesToBranches_.emplace(product, ref);
+        }
+      }
+    }
 
     // Now do general initialization
     ScheduleItems items;
@@ -660,8 +671,9 @@ namespace edm {
     // modules to avoid non-consumed non-run modules to keep the
     // products unnecessarily alive
     if (not branchesToDeleteEarly_.empty()) {
-      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, *preg_);
+      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, referencesToBranches_, *preg_);
       decltype(branchesToDeleteEarly_)().swap(branchesToDeleteEarly_);
+      referencesToBranches_.clear();
     }
 
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
