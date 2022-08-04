@@ -22,20 +22,12 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 
 RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection const& inrpcDigis) : m_rpcDigis{inrpcDigis} {}
 
-namespace RPC_bitShift {
-  int bitShift(int num, int bits) {
-    if (num < 0) {
-      return -1 * ((-1 * num) << bits);
-    } else {
-      return (num << bits);
-    }
-  }
-}  // namespace RPC_bitShift
 namespace {
   constexpr int max_rpc_bx = 2;
   constexpr int min_rpc_bx = -2;
@@ -213,19 +205,19 @@ void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
               phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip));
               phi2 /= 2;
             }
-            int average = RPC_bitShift::bitShift(((phi1 + phi2) / 2), 2);  //10-bit->12-bit
+            int average = l1t::bitShift(((phi1 + phi2) / 2), 2);  //10-bit->12-bit
             rpc2dt_phi.push_back(average);                                 //Convert and store to 12-bit
             //int xin = localX(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
             //int xout = localX(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
             //cout<<(phi1<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
             //cout<<(phi2<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
-            int xin = localXX(RPC_bitShift::bitShift(phi1, 2), 1, vrpc_hit_layer1[l1].station);
-            int xout = localXX(RPC_bitShift::bitShift(phi2, 2), 2, vrpc_hit_layer2[l2].station);
+            int xin = localXX(l1t::bitShift(phi1, 2), 1, vrpc_hit_layer1[l1].station);
+            int xout = localXX(l1t::bitShift(phi2, 2), 2, vrpc_hit_layer2[l2].station);
             if (vcluster_size[id] == 2 && itr2 == 1) {
               int phi1_n1 = radialAngle(vrpc_hit_layer1[l1 - 1].detid, rpcGeometry, vrpc_hit_layer1[l1 - 1].strip);
               int phi2_n1 = radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip);
-              xin += localXX(RPC_bitShift::bitShift(phi1_n1, 2), 1, vrpc_hit_layer1[l1].station);
-              xout += localXX(RPC_bitShift::bitShift(phi2_n1, 2), 2, vrpc_hit_layer2[l2].station);
+              xin += localXX(l1t::bitShift(phi1_n1, 2), 1, vrpc_hit_layer1[l1].station);
+              xout += localXX(l1t::bitShift(phi2_n1, 2), 2, vrpc_hit_layer2[l2].station);
               xin /= 2;
               xout /= 2;
             }
@@ -260,11 +252,11 @@ void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
             continue;
           }
           int phi2 = radialAngle(vrpc_hit_layer1[l1].detid, rpcGeometry, vrpc_hit_layer1[l1].strip);
-          phi2 = RPC_bitShift::bitShift(phi2, 2);
+          phi2 = l1t::bitShift(phi2, 2);
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
             phi2 =
-                phi2 + RPC_bitShift::bitShift(
+                phi2 + l1t::bitShift(
                            radialAngle(vrpc_hit_layer1[l1 - 1].detid, rpcGeometry, vrpc_hit_layer1[l1 - 1].strip), 2);
             phi2 /= 2;
           }
@@ -286,11 +278,11 @@ void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
             continue;
           }
           int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, rpcGeometry, vrpc_hit_layer2[l2].strip);
-          phi2 = RPC_bitShift::bitShift(phi2, 2);
+          phi2 = l1t::bitShift(phi2, 2);
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
             phi2 =
-                phi2 + RPC_bitShift::bitShift(
+                phi2 + l1t::bitShift(
                            radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip), 2);
             phi2 /= 2;
           }
@@ -312,10 +304,10 @@ void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
             continue;
           }
           int phi2 = radialAngle(vrpc_hit_st3[l1].detid, rpcGeometry, vrpc_hit_st3[l1].strip);
-          phi2 = RPC_bitShift::bitShift(phi2, 2);
+          phi2 = l1t::bitShift(phi2, 2);
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + RPC_bitShift::bitShift(
+            phi2 = phi2 + l1t::bitShift(
                               radialAngle(vrpc_hit_st3[l1 - 1].detid, rpcGeometry, vrpc_hit_st3[l1 - 1].strip), 2);
             phi2 /= 2;
           }
@@ -337,10 +329,10 @@ void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
             continue;
           }
           int phi2 = radialAngle(vrpc_hit_st4[l1].detid, rpcGeometry, vrpc_hit_st4[l1].strip);
-          phi2 = RPC_bitShift::bitShift(phi2, 2);
+          phi2 = l1t::bitShift(phi2, 2);
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + RPC_bitShift::bitShift(
+            phi2 = phi2 + l1t::bitShift(
                               radialAngle(vrpc_hit_st4[l1 - 1].detid, rpcGeometry, vrpc_hit_st4[l1 - 1].strip), 2);
             phi2 /= 2;
           }
