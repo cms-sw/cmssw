@@ -2,7 +2,7 @@
 #define ECALTRIGPRIMRECPRODUCERTEST_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -15,7 +15,7 @@
  *
  **/
 
-class EcalCompactTrigPrimProducerTest : public edm::EDAnalyzer {
+class EcalCompactTrigPrimProducerTest : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   EcalCompactTrigPrimProducerTest(const edm::ParameterSet& ps)
@@ -33,15 +33,15 @@ public:
 
 protected:
   /// Analyzes the event.
-  void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 private:
   std::ostream& err(const char* mess);
 
 private:
-  edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiToken_;
-  edm::EDGetTokenT<EcalTrigPrimCompactColl> tpRecToken_;
-  edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpSkimToken_;
+  const edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiToken_;
+  const edm::EDGetTokenT<EcalTrigPrimCompactColl> tpRecToken_;
+  const edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpSkimToken_;
   int nCompressEt_;
   int nFineGrain_;
   int nTTF_;

@@ -172,12 +172,15 @@ namespace ecaldqm {
           int iEta((channel - 1) / 4 + 1);
           int zside(0);
           int iPhi(0);
-          if (module(3) == '-') {
+          std::string smName = module.Data();
+          unsigned smNumber(std::atoi(smName.substr(3).c_str()));
+
+          if (module(2) == '-') {
             zside = -1;
-            iPhi = (channel - 1) % 4 + 1;
+            iPhi = 4 * (smNumber - 1) + (channel - 1) % 4 - 1;
           } else {
             zside = 1;
-            iPhi = (68 - channel) % 4 + 1;
+            iPhi = 4 * (smNumber - 1) + (68 - channel) % 4 - 1;
           }
 
           status_.insert(

@@ -142,6 +142,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 			'PostDQMOffline',
 			'DQMNone'],
 
+            'heavyFlavor': ['DQMOfflineHeavyFlavor',
+                            'PostDQMOffline',
+                            'DQMNone'],
+
             'L1TMon': ['DQMOfflineL1T',
                        'PostDQMOffline',
                        'DQMHarvestL1T'],

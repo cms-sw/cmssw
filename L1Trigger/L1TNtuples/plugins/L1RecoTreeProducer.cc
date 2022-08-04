@@ -12,7 +12,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class L1RecoTreeProducer : public edm::EDAnalyzer {
+class L1RecoTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1RecoTreeProducer(const edm::ParameterSet&);
   ~L1RecoTreeProducer() override;
@@ -72,6 +72,7 @@ L1RecoTreeProducer::L1RecoTreeProducer(const edm::ParameterSet& iConfig) {
 
   vtxData_ = new L1Analysis::L1AnalysisRecoVertexDataFormat();
 
+  usesResource(TFileService::kSharedResource);
   // set up output
   tree_ = fs_->make<TTree>("RecoTree", "RecoTree");
   tree_->Branch("Vertex", "L1Analysis::L1AnalysisRecoVertexDataFormat", &vtxData_, 32000, 3);

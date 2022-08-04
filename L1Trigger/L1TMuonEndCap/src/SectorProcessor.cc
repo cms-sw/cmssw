@@ -86,7 +86,9 @@ void SectorProcessor::process_single_bx(int bx,
                      cfg.bxShiftME0_,
                      cfg.includeNeighbor_,
                      cfg.duplicateTheta_,
-                     cfg.bugME11Dupes_);
+                     cfg.bugME11Dupes_,
+                     cfg.useRun3CCLUT_OTMB_,
+                     cfg.useRun3CCLUT_TMB_);
 
   PrimitiveConversion prim_conv;
   prim_conv.configure(tp_geom_,

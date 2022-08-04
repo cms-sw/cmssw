@@ -22,7 +22,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,17 +42,13 @@ Implementation:
 // class declaration
 //
 
-class L1MenuTreeProducer : public edm::EDAnalyzer {
+class L1MenuTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1MenuTreeProducer(const edm::ParameterSet&);
   ~L1MenuTreeProducer() override;
 
 private:
-  void beginJob(void) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override {}
-  void endJob() override;
 
 public:
   L1Analysis::L1AnalysisL1Menu* l1Menu;
@@ -73,6 +69,8 @@ private:
 L1MenuTreeProducer::L1MenuTreeProducer(const edm::ParameterSet& iConfig)
     :  //  l1MenuInputTag_(iConfig.getParameter<edm::InputTag>("L1MenuInputTag")),
       l1GtUtils_(iConfig, consumesCollector(), true, L1GtUtils::UseEventSetupIn::Event) {
+  usesResource(TFileService::kSharedResource);
+
   l1Menu = new L1Analysis::L1AnalysisL1Menu();
   l1MenuData = l1Menu->getData();
 
@@ -106,17 +104,6 @@ void L1MenuTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   tree_->Fill();
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void L1MenuTreeProducer::beginJob(void) {}
-
-void L1MenuTreeProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
-  // L1GtTriggerMenuLite input tag from provenance
-  //l1GtUtils_.getL1GtRunCache(iRun, evSetup, true, true);
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void L1MenuTreeProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1MenuTreeProducer);

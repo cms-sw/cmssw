@@ -213,12 +213,28 @@ void L1TdeCSCTPGShowerClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *clctShowerDataNomSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_data_nom_summary_denom");
   MonitorElement *clctShowerDataNomSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_data_nom_summary_num");
 
+  if (lctShowerDataNomSummary_denom_ == nullptr or lctShowerDataNomSummary_num_ == nullptr or
+      alctShowerDataNomSummary_denom_ == nullptr or alctShowerDataNomSummary_num_ == nullptr or
+      clctShowerDataNomSummary_denom_ == nullptr or clctShowerDataNomSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGShowerClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary shower data histograms for harvesting";
+    return;
+  }
+
   MonitorElement *lctShowerEmulNomSummary_denom_ = igetter.get(monitorDir_ + "/lct_cscshower_emul_nom_summary_denom");
   MonitorElement *lctShowerEmulNomSummary_num_ = igetter.get(monitorDir_ + "/lct_cscshower_emul_nom_summary_num");
   MonitorElement *alctShowerEmulNomSummary_denom_ = igetter.get(monitorDir_ + "/alct_cscshower_emul_nom_summary_denom");
   MonitorElement *alctShowerEmulNomSummary_num_ = igetter.get(monitorDir_ + "/alct_cscshower_emul_nom_summary_num");
   MonitorElement *clctShowerEmulNomSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_nom_summary_denom");
   MonitorElement *clctShowerEmulNomSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_nom_summary_num");
+
+  if (lctShowerEmulNomSummary_denom_ == nullptr or lctShowerEmulNomSummary_num_ == nullptr or
+      alctShowerEmulNomSummary_denom_ == nullptr or alctShowerEmulNomSummary_num_ == nullptr or
+      clctShowerEmulNomSummary_denom_ == nullptr or clctShowerEmulNomSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGShowerClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary shower emulation histograms for harvesting";
+    return;
+  }
 
   MonitorElement *lctShowerDataTightSummary_denom_ =
       igetter.get(monitorDir_ + "/lct_cscshower_data_tight_summary_denom");
@@ -230,6 +246,14 @@ void L1TdeCSCTPGShowerClient::processHistograms(DQMStore::IGetter &igetter) {
       igetter.get(monitorDir_ + "/clct_cscshower_data_tight_summary_denom");
   MonitorElement *clctShowerDataTightSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_data_tight_summary_num");
 
+  if (lctShowerDataTightSummary_denom_ == nullptr or lctShowerDataTightSummary_num_ == nullptr or
+      alctShowerDataTightSummary_denom_ == nullptr or alctShowerDataTightSummary_num_ == nullptr or
+      clctShowerDataTightSummary_denom_ == nullptr or clctShowerDataTightSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGShowerClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary shower data (tight) histograms for harvesting";
+    return;
+  }
+
   MonitorElement *lctShowerEmulTightSummary_denom_ =
       igetter.get(monitorDir_ + "/lct_cscshower_emul_tight_summary_denom");
   MonitorElement *lctShowerEmulTightSummary_num_ = igetter.get(monitorDir_ + "/lct_cscshower_emul_tight_summary_num");
@@ -239,6 +263,14 @@ void L1TdeCSCTPGShowerClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *clctShowerEmulTightSummary_denom_ =
       igetter.get(monitorDir_ + "/clct_cscshower_emul_tight_summary_denom");
   MonitorElement *clctShowerEmulTightSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_tight_summary_num");
+
+  if (lctShowerEmulTightSummary_denom_ == nullptr or lctShowerEmulTightSummary_num_ == nullptr or
+      alctShowerEmulTightSummary_denom_ == nullptr or alctShowerEmulTightSummary_num_ == nullptr or
+      clctShowerEmulTightSummary_denom_ == nullptr or clctShowerEmulTightSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGShowerClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary shower emulation (tight) histograms for harvesting";
+    return;
+  }
 
   lctShowerDataNomSummary_eff_->getTH2F()->Divide(
       lctShowerDataNomSummary_num_->getTH2F(), lctShowerDataNomSummary_denom_->getTH2F(), 1, 1, "");

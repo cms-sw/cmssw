@@ -62,6 +62,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpTouch        = cms.untracked.bool(False),
     DumpSense        = cms.untracked.bool(True),
     DumpParams       = cms.untracked.bool(True),
+    DumpRegion       = cms.untracked.bool(True),
     DD4hep           = cms.untracked.bool(True),
     Name             = cms.untracked.string(''),
     Names            = cms.untracked.vstring(''),

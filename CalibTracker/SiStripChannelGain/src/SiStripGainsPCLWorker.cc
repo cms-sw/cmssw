@@ -54,6 +54,7 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
   m_association_token = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 
   tTopoToken_ = esConsumes();
+  tTopoTokenBR_ = esConsumes<edm::Transition::BeginRun>();
   tkGeomTokenBR_ = esConsumes<edm::Transition::BeginRun>();
   tkGeomToken_ = esConsumes<>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -69,7 +70,8 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
 
   // fills the APV collections at each begin run
   const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomTokenBR_);
-  checkBookAPVColls(bareTkGeomPtr, histograms);
+  const TrackerTopology* bareTkTopoPtr = &iSetup.getData(tTopoTokenBR_);
+  checkBookAPVColls(bareTkGeomPtr, bareTkTopoPtr, histograms);
 
   const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
@@ -389,6 +391,7 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 //********************************************************************************//
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomPtr,
+                                              const TrackerTopology* bareTkTopoPtr,
                                               APVGain::APVGainHistograms& histograms) const {
   if (bareTkGeomPtr) {  // pointer not yet set: called the first time => fill the APVColls
     auto const& Det = bareTkGeomPtr->dets();
@@ -415,6 +418,14 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
           APV->Index = Index;
           APV->Bin = -1;
           APV->DetId = Detid.rawId();
+          APV->Side = 0;
+
+          if (SubDet == StripSubdetector::TID) {
+            APV->Side = bareTkTopoPtr->tidSide(Detid);
+          } else if (SubDet == StripSubdetector::TEC) {
+            APV->Side = bareTkTopoPtr->tecSide(Detid);
+          }
+
           APV->APVId = j;
           APV->SubDet = SubDet;
           APV->FitMPV = -1;
@@ -463,6 +474,7 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
             APV->Index = Index;
             APV->Bin = -1;
             APV->DetId = Detid.rawId();
+            APV->Side = 0;
             APV->APVId = (j << 3 | i);
             APV->SubDet = SubDet;
             APV->FitMPV = -1;

@@ -1,0 +1,16 @@
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="HeterogeneousCoreAlpakaServicesPlugins">
+  <use name="alpaka"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <!--
+  The dependency on "HeterogeneousCore/AlpakaServices" automatically expands to include
+  the host-only library (if it exists) and the corresponding Alpaka libraries (if they exist)
+  -->
+  <use name="HeterogeneousCore/AlpakaServices"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</library>

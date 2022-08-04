@@ -20,7 +20,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
                                           double deltaRchargedMother,
                                           const fastsim::ParticleFilter& particleFilter,
                                           std::vector<SimTrack>& simTracks,
-                                          std::vector<SimVertex>& simVertices)
+                                          std::vector<SimVertex>& simVertices,
+                                          bool useFastSimsDecayer)
     : genEvent_(&genEvent),
       genParticleIterator_(genEvent_->particles_begin()),
       genParticleEnd_(genEvent_->particles_end()),
@@ -30,7 +31,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
       deltaRchargedMother_(deltaRchargedMother),
       particleFilter_(&particleFilter),
       simTracks_(&simTracks),
-      simVertices_(&simVertices)
+      simVertices_(&simVertices),
+      useFastSimsDecayer_(useFastSimsDecayer)
       // prepare unit convsersions
       //  --------------------------------------------
       // |          |      hepmc               |  cms |
@@ -218,7 +220,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     int exoticRelativeId = 0;
     const bool producedWithinBeamPipe =
         productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
-    if (!producedWithinBeamPipe) {
+    if (!producedWithinBeamPipe && useFastSimsDecayer_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
       if (!isExotic(exoticRelativeId)) {
         continue;
@@ -233,7 +235,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     }
 
     // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed
-    if (producedWithinBeamPipe && !decayedWithinBeamPipe) {
+    if (producedWithinBeamPipe && !decayedWithinBeamPipe && useFastSimsDecayer_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
     }
 

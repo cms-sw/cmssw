@@ -22,19 +22,20 @@
 // class declaration
 //
 
-namespace alcaHcalHBHEMuon {
+namespace alcaHcalHBHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
-}  // namespace alcaHcalHBHEMuon
+}  // namespace alcaHcalHBHEMuonFilter
 
-class AlCaHcalHBHEMuonFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalHBHEMuon::Counters> > {
+class AlCaHcalHBHEMuonFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalHBHEMuonFilter::Counters> > {
 public:
   AlCaHcalHBHEMuonFilter(edm::ParameterSet const&);
   ~AlCaHcalHBHEMuonFilter() override = default;
 
-  std::shared_ptr<alcaHcalHBHEMuon::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  std::shared_ptr<alcaHcalHBHEMuonFilter::Counters> globalBeginRun(edm::Run const&,
+                                                                   edm::EventSetup const&) const override;
 
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override;
@@ -108,10 +109,10 @@ bool AlCaHcalHBHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::Even
 }  // AlCaHcalHBHEMuonFilter::filter
 
 // ------------ method called when starting to processes a run  ------------
-std::shared_ptr<alcaHcalHBHEMuon::Counters> AlCaHcalHBHEMuonFilter::globalBeginRun(edm::Run const& iRun,
-                                                                                   edm::EventSetup const&) const {
+std::shared_ptr<alcaHcalHBHEMuonFilter::Counters> AlCaHcalHBHEMuonFilter::globalBeginRun(edm::Run const& iRun,
+                                                                                         edm::EventSetup const&) const {
   edm::LogVerbatim("HBHEMuon") << "Start the Run " << iRun.run();
-  return std::make_shared<alcaHcalHBHEMuon::Counters>();
+  return std::make_shared<alcaHcalHBHEMuonFilter::Counters>();
 }
 
 // ------------ method called when ending the processing of a run  ------------

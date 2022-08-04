@@ -50,6 +50,7 @@ namespace magneticfield {
   class DD4hep_VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
   public:
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
+    ~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() override;
     // forbid copy ctor and assignment op.
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
     const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(
@@ -73,6 +74,9 @@ namespace magneticfield {
     edm::ESGetToken<MagFieldConfig, IdealMagneticFieldRecord> chosenConfigToken_;
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
+    cms::DDDetector* detector_{nullptr};
+    int cachedGeometryVersion_{-1};
+
     const bool debug_;
     const bool useMergeFileIfAvailable_;
   };
@@ -130,6 +134,10 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
   chosenConfigToken_ = cc.consumes(myConfigTag);  //Use same tag as the choice
 }
 
+DD4hep_VolumeBasedMagneticFieldESProducerFromDB::~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() {
+  delete detector_;
+}
+
 std::shared_ptr<MagFieldConfig const> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(
     IdealMagneticFieldRecord const& iRcd) {
   edm::ESHandle<MagFieldConfig> config = iRcd.getHandle(mayGetConfigToken_);
@@ -176,20 +184,28 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
     builder.setGridFiles(conf->gridFiles);
   }
 
-  // Build the geometry from the DB blob
+  // Build the geometry from the DB blob and cache it
+  if (cachedGeometryVersion_ != conf->geometryVersion) {
+    if (nullptr != detector_) {
+      edm::LogError("MagneticField") << "MF Geometry needs to be re-created since current changed (cached: "
+                                     << cachedGeometryVersion_ << " requested: " << conf->geometryVersion
+                                     << "), which is not supported by dd4hep" << endl;
+    }
 
-  auto const& blob = iRecord.getTransientHandle(mayConsumeBlobToken_);
-  std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
+    auto const& blob = iRecord.getTransientHandle(mayConsumeBlobToken_);
+    std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
 
-  string sblob(tb->begin(), tb->end());
-  sblob.insert(
-      sblob.rfind("</DDDefinition>"),
-      "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
-      "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
+    string sblob(tb->begin(), tb->end());
+    sblob.insert(sblob.rfind("</DDDefinition>"),
+                 "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" "
+                 "density=\"1e-13*mg/cm3\" "
+                 "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  auto ddet = make_unique<cms::DDDetector>("cmsMagneticField:MAGF", sblob, true);
+    detector_ = new cms::DDDetector("cmsMagneticField:MAGF", sblob, true);
+    cachedGeometryVersion_ = conf->geometryVersion;
+  }
 
-  builder.build(ddet.get());
+  builder.build(detector_);
 
   // Build the VB map. Ownership of the parametrization is transferred to it
   return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,

@@ -33,6 +33,7 @@
 #include <iomanip>
 #include <cmath>
 #include <utility>
+#include <algorithm>
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -386,6 +387,7 @@ std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromMonitorElemen
       std::string parentPath = me->getPathname();
       size_t parentPos = parentPath.substr(0, parentPath.size() - 1).find_last_of('/') + 1;
       std::string parentName = parentPath.substr(parentPos);
+      std::replace(parentName.begin(), parentName.end(), '_', '.');  // replace _ with .
       size_t d = parentName.find('-');
       const double x_min = std::stod(parentName.substr(0, d));
       const double x_max = std::stod(parentName.substr(d + 1));
@@ -581,7 +583,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
                                    std::make_pair(cfg.sectorConfig56(), cfg_ref.sectorConfig56())}) {
     for (const auto& [rpc, rpc_ref] :
          {std::make_pair(sc.rp_F_, sc_ref.rp_F_), std::make_pair(sc.rp_N_, sc_ref.rp_N_)}) {
-      auto mes_test = iGetter.getAllContents(dqmDir_ + "/worker/" + sc.name_ + "/near_far/x slices, " + rpc.position_);
+      auto mes_test = iGetter.getAllContents(dqmDir_ + "/worker/" + sc.name_ + "/near_far/x slices " + rpc.position_);
       if (mes_test.empty()) {
         edm::LogWarning("PPSAlignmentHarvester") << "[x_alignment] " << rpc.name_ << ": could not load mes_test";
         continue;

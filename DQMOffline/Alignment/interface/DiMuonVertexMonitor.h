@@ -48,7 +48,7 @@ private:
   const std::string MEFolderName_;  // Top-level folder name
   const float maxSVdist_;
 
-  // 1D
+  // vertex quantities
   MonitorElement *hSVProb_;
   MonitorElement *hSVDist_;
   MonitorElement *hSVDistErr_;
@@ -62,5 +62,15 @@ private:
   MonitorElement *hCosPhiInv3D_;
   MonitorElement *hTrackInvMass_;
   MonitorElement *hCutFlow_;
+
+  // impact parameters information
+  MonitorElement *hdxy_;
+  MonitorElement *hdz_;
+  MonitorElement *hdxyErr_;
+  MonitorElement *hdzErr_;
+  MonitorElement *hIP2d_;
+  MonitorElement *hIP3d_;
+  MonitorElement *hIP2dsig_;
+  MonitorElement *hIP3dsig_;
 };
 #endif

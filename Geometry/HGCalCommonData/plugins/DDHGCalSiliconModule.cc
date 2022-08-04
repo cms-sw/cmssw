@@ -232,7 +232,7 @@ void DDHGCalSiliconModule::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: NameSpace " << nameSpace_ << ":";
 #endif
 }
 
@@ -258,9 +258,6 @@ void DDHGCalSiliconModule::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {

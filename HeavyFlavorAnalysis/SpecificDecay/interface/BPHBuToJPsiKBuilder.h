@@ -17,12 +17,16 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -34,22 +38,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBuToJPsiKBuilder : public BPHDecayToResTrkBuilder {
+class BPHBuToJPsiKBuilder : public BPHDecayToResTrkBuilder<BPHRecoCandidate, BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHBuToJPsiKBuilder(const edm::EventSetup& es,
+  BPHBuToJPsiKBuilder(const BPHEventSetupWrapper& es,
                       const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
                       const BPHRecoBuilder::BPHGenericCollection* kaonCollection)
-      : BPHDecayToResTrkBuilder(es,
-                                "JPsi",
-                                BPHParticleMasses::jPsiMass,
-                                BPHParticleMasses::jPsiMWidth,
-                                jpsiCollection,
-                                "Kaon",
-                                BPHParticleMasses::kaonMass,
-                                BPHParticleMasses::kaonMSigma,
-                                kaonCollection) {
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth),
+        BPHDecayToResTrkBuilder(
+            jpsiCollection, "Kaon", BPHParticleMasses::kaonMass, BPHParticleMasses::kaonMSigma, kaonCollection) {
     setResMassRange(2.80, 3.40);
     setTrkPtMin(0.7);
     setTrkEtaMax(10.0);
@@ -65,7 +64,7 @@ public:
 
   /** Destructor
    */
-  ~BPHBuToJPsiKBuilder() override {}
+  ~BPHBuToJPsiKBuilder() override = default;
 
   /** Operations
    */
@@ -80,6 +79,9 @@ public:
   double getKEtaMax() const { return getTrkEtaMax(); }
   double getJPsiMassMin() const { return getResMassMin(); }
   double getJPsiMassMax() const { return getResMassMax(); }
+
+  /// setup parameters for BPHRecoBuilder
+  void setup(void* parameters) override {}
 };
 
 #endif

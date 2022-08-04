@@ -21,6 +21,8 @@ namespace edm {
 
   Run::~Run() {}
 
+  RunAuxiliary const& Run::runAuxiliary() const { return aux_; }
+
   Run::CacheIdentifier_t Run::cacheIdentifier() const { return runPrincipal().cacheIdentifier(); }
 
   RunIndex Run::index() const { return runPrincipal().index(); }

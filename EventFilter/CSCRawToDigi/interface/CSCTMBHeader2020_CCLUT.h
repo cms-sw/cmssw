@@ -11,6 +11,7 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
 
   uint16_t BXNCount() const override { return bits.bxnCount; }
   uint16_t ALCTMatchTime() const override { return bits.matchWin; }
+  void setALCTMatchTime(uint16_t alctmatchtime) override { bits.matchWin = alctmatchtime & 0xF; }
   uint16_t CLCTOnly() const override { return bits.clctOnly; }
   uint16_t ALCTOnly() const override { return bits.alctOnly; }
   uint16_t TMBMatch() const override { return bits.tmbMatch; }

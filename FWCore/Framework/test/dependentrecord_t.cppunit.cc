@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -758,17 +759,12 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          edm::FinalWaitingTask waitTask;
           oneapi::tbb::task_group group;
+          edm::FinalWaitingTask waitTask{group};
           edm::ServiceToken token;
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, token, edm::ESParentContext{});
-          do {
-            group.wait();
-          } while (not waitTask.done());
-          if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(*waitTask.exceptionPtr());
-          }
+          waitTask.wait();
         }
       }
     }
@@ -787,17 +783,12 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          edm::FinalWaitingTask waitTask;
           oneapi::tbb::task_group group;
+          edm::FinalWaitingTask waitTask{group};
           edm::ServiceToken token;
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, token, edm::ESParentContext{});
-          do {
-            group.wait();
-          } while (not waitTask.done());
-          if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(*waitTask.exceptionPtr());
-          }
+          waitTask.wait();
         }
       }
     }

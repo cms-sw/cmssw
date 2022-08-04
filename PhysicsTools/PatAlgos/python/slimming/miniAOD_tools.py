@@ -261,7 +261,8 @@ def miniAOD_customizeCommon(process):
             'pfDeepCSVDiscriminatorsJetTags:CvsB',
             'pfDeepCSVDiscriminatorsJetTags:CvsL',
         ])
-    (~pp_on_AA).toModify(process, _add_deepFlavour)
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    (~pp_on_AA_2018).toModify(process, _add_deepFlavour)
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
@@ -301,6 +302,9 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
+		    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff',
                     ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -319,11 +323,11 @@ def miniAOD_customizeCommon(process):
                                      keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
                                      src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
 
-    from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-    pp_on_AA.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
-    pp_on_AA.toModify(process.electronMVAValueMapProducer,
-                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
-                                     src = "gedGsfElectronsFrom94XTo106X")
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    pp_on_AA_2018.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
+    pp_on_AA_2018.toModify(process.electronMVAValueMapProducer,
+                           keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                           src = "gedGsfElectronsFrom94XTo106X")
 
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
@@ -457,8 +461,9 @@ def miniAOD_customizeCommon(process):
     process.patJets.tagInfoSources = ["pixelClusterTagInfos"]
 
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
-    
-    pp_on_AA.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfos","secondaryVertexTagInfos"]) )
+
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    pp_on_AA_2018.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfos","secondaryVertexTagInfos"]) )
 
     ## puppi met
     def _add_metPuppi(process):
@@ -494,29 +499,10 @@ def miniAOD_customizeCommon(process):
     (~pp_on_AA).toModify(process, _add_slimmedMETsPuppi)
 
     def _add_deepMET(process):
-        process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+        from RecoMET.METPUSubtraction.deepMETProducer_cff import deepMETsResolutionTune, deepMETsResponseTune
 
-        addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
-        addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
-        process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
-
-        from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-        phase2_common.toModify(
-            process.deepMETsResolutionTune,
-            max_n_pf=12500,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
-        )
-        phase2_common.toModify(
-            process.deepMETsResponseTune,
-            max_n_pf=12500,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
-        )
-        
-        from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
-        run2_jme_2016.toModify(
-            process.deepMETsResponseTune,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
-        )
+        addToProcessAndTask('deepMETsResolutionTune', deepMETsResolutionTune, process, task)
+        addToProcessAndTask('deepMETsResponseTune', deepMETsResponseTune, process, task)
     (~pp_on_AA).toModify(process, _add_deepMET)
 
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)

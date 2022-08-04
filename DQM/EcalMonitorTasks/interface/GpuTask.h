@@ -33,7 +33,17 @@ namespace ecaldqm {
     void setParams(edm::ParameterSet const&) override;
 
     bool runGpuTask_;
-    bool gpuOnlyPlots_;
+    bool enableDigi_;
+    bool enableUncalib_;
+    bool enableRecHit_;
+
+    bool digi1D_;
+    bool digi2D_;
+    bool uncalib1D_;
+    bool uncalib2D_;
+    bool rechit1D_;
+    bool rechit2D_;
+
     std::vector<int> uncalibOOTAmps_;
 
     EBDigiCollection const* EBCpuDigis_;

@@ -14,7 +14,7 @@ Processing History:
 Module: TriggerResults PROD1
  PSet id:1d569bb732972ed5978f283a32c90565
  products: {
-  edmTriggerResults_TriggerResults__PROD1.
+  edmTriggerResults_TriggerResults__PROD1. BranchID 3548090599
  }
  parameters: {
   @trigger_paths: vstring tracked  = {'p'}
@@ -23,7 +23,7 @@ Module: TriggerResults PROD1
 Module: aliasForInt PROD1
  PSet id:6629013372178d257799a6e9fc9aa2cd
  products: {
-  edmtestIntProduct_aliasForInt__PROD1.
+  edmtestIntProduct_aliasForInt__PROD1. BranchID 3673681161
  }
  parameters: {
   @module_edm_type: string tracked  = 'EDAlias'
@@ -39,7 +39,7 @@ Module: aliasForInt PROD1
 Module: intProducer PROD1
  PSet id:3df1a82d54b59acbefd683a0491cddcf
  products: {
-  edmtestIntProduct_intProducer__PROD1.
+  edmtestIntProduct_intProducer__PROD1. BranchID 709634656
  }
  parameters: {
   @module_edm_type: string tracked  = 'EDProducer'
@@ -51,7 +51,7 @@ Module: intProducer PROD1
 Module: intProducerA PROD1
  PSet id:38971365e8174cb2ccc12430661ba6d4
  products: {
-  edmtestIntProduct_intProducerA__PROD1.
+  edmtestIntProduct_intProducerA__PROD1. BranchID 1289746214
  }
  parameters: {
   @module_edm_type: string tracked  = 'EDProducer'
@@ -63,7 +63,7 @@ Module: intProducerA PROD1
 Module: intProducerU PROD1
  PSet id:4af95ea04257c4d5af7a39a5d880e879
  products: {
-  edmtestIntProduct_intProducerU__PROD1.
+  edmtestIntProduct_intProducerU__PROD1. BranchID 3186877531
  }
  parameters: {
   @module_edm_type: string tracked  = 'EDProducer'
@@ -75,7 +75,7 @@ Module: intProducerU PROD1
 Module: intVectorProducer PROD1
  PSet id:c016fa1f72fbfead00d09bc2e8e8a3c4
  products: {
-  ints_intVectorProducer__PROD1.
+  ints_intVectorProducer__PROD1. BranchID 315054627
  }
  parameters: {
   @module_edm_type: string tracked  = 'EDProducer'
@@ -89,7 +89,7 @@ Module: intVectorProducer PROD1
 Module: source PROD1
  PSet id:031810a3ee2992e7936b85708f83a8b2
  products: {
-  edmtestIntProduct_source__PROD1.
+  edmtestIntProduct_source__PROD1. BranchID 3765011715
  }
  parameters: {
   @module_edm_type: string tracked  = 'Source'

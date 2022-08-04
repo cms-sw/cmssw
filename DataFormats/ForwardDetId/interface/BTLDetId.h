@@ -25,49 +25,17 @@ public:
   static constexpr uint32_t kBTLCrystalMask = 0x3F;
 
   /// range constants, need two sets for the time being (one for tiles and one for bars)
-  static constexpr int kModulesPerROD = 54;
-  static constexpr int kModulesPerRODBarZflat = 42;
-  static constexpr int kModulesPerRODBarPhiFlat = 48;
-  static constexpr std::array<int, 4> kTypeBoundariesReference{{0, 18, 36, 54}};
-  static constexpr std::array<int, 4> kTypeBoundariesBarZflat{{0, 14, 28, 42}};
-  static constexpr std::array<int, 4> kTypeBoundariesBarPhiFlat{{0, 16, 32, 48}};
-  static constexpr int kCrystalsInPhiTile = 16;    // per module and ROD
-  static constexpr int kCrystalsInEtaTile = 4;     // per module
-  static constexpr int kCrystalsInPhiBar = 4;      // per module and ROD
-  static constexpr int kCrystalsInEtaBar = 16;     // per module
-  static constexpr int kCrystalsInPhiBarZ = 64;    // per module and ROD
-  static constexpr int kCrystalsInEtaBarZ = 1;     // per module
-  static constexpr int kCrystalsInPhiBarPhi = 3;   // per module and ROD
-  static constexpr int kCrystalsInEtaBarPhi = 16;  // per module
-  static constexpr int kCrystalsPerROD =
-      kModulesPerROD * kCrystalsInPhiTile *
-      kCrystalsInEtaTile;  // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
-  static constexpr int kCrystalsPerRODBarZflat =
-      kModulesPerRODBarZflat * kCrystalsInPhiBarZ *
-      kCrystalsInEtaBarZ;  // 64 crystals per module x 42 modules per rod, independent on geometry scenario Tile or Bar
-  static constexpr int kCrystalsPerRODBarPhiFlat = kModulesPerRODBarPhiFlat * kCrystalsInPhiBarPhi *
-                                                   kCrystalsInEtaBarPhi;  // 48 crystals per module x 48 modules per rod
-  static constexpr int MIN_ROD = 1;
-  static constexpr int MAX_ROD = 72;
-  static constexpr int HALF_ROD = 36;
-  static constexpr int MIN_IETA = 1;
-  static constexpr int MIN_IPHI = 1;
-  static constexpr int MAX_IETA_TILE = kCrystalsInEtaTile * kModulesPerROD;
-  static constexpr int MAX_IPHI_TILE = kCrystalsInPhiTile * HALF_ROD;
-  static constexpr int MAX_IETA_BAR = kCrystalsInEtaBar * kModulesPerROD;
-  static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar * HALF_ROD;
-  static constexpr int MAX_IETA_BARZ = kCrystalsInEtaBarZ * kModulesPerROD;
-  static constexpr int MAX_IPHI_BARZ = kCrystalsInPhiBarZ * HALF_ROD;
-  static constexpr int MAX_IETA_BARZFLAT = kCrystalsInEtaBarZ * kModulesPerRODBarZflat;
-  static constexpr int MAX_IPHI_BARZFLAT = kCrystalsInPhiBarZ * HALF_ROD;
-  static constexpr int MAX_IETA_BARPHIFLAT = kCrystalsInEtaBarPhi * kModulesPerRODBarPhiFlat;
-  static constexpr int MAX_IPHI_BARPHIFLAT = kCrystalsInPhiBarPhi * HALF_ROD;
-  static constexpr int MIN_HASH = 0;  // always 0 ...
-  static constexpr int MAX_HASH =
-      2 * MAX_IPHI_TILE * MAX_IETA_TILE - 1;  // the total amount is invariant per tile or bar)
-  static constexpr int kSizeForDenseIndexing = MAX_HASH + 1;
+  static constexpr uint32_t HALF_ROD = 36;
+  static constexpr uint32_t kModulesPerRODBarPhiFlat = 48;
+  static constexpr uint32_t kModulePerTypeBarPhiFlat = 48 / 3;
+  static constexpr uint32_t kCrystalsPerModuleTdr = 16;
 
-  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4 };
+  // Number of crystals in BTL according to TDR design, valid also for barphiflat scenario:
+  // 16 crystals x 24 modules x 6 readout units x 36 rods/side x 2 sides
+  //
+  static constexpr uint32_t kCrystalsBTL = kCrystalsPerModuleTdr * 24 * 6 * HALF_ROD * 2;
+
+  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, tdr = 5 };
 
   // ---------- Constructors, enumerated types ----------
 
@@ -102,34 +70,15 @@ public:
   inline int crystal() const { return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask) + 1; }
 
   /** return the row in GeomDet language **/
-  inline int row(unsigned nrows = 16) const {
+  inline int row(unsigned nrows = kCrystalsPerModuleTdr) const {
     return (crystal() - 1) % nrows;  // anything else for now
   }
 
   /** return the column in GeomDetLanguage **/
-  inline int column(unsigned nrows = 16) const { return (crystal() - 1) / nrows; }
-
-  /** Returns BTL iphi index for crystal according to type tile or bar */
-  int iphi(CrysLayout lay) const;
-
-  /** Returns BTL ieta index for crystal according to type tile or bar */
-  int ietaAbs(CrysLayout lay) const;
-
-  int ieta(CrysLayout lay) const { return zside() * ietaAbs(lay); }
-
-  /** define a dense index of arrays from a DetId */
-  int hashedIndex(CrysLayout lay) const;
-
-  static bool validHashedIndex(uint32_t din) { return (din < kSizeForDenseIndexing); }
-
-  /** get a DetId from a compact index for arrays */
-  BTLDetId getUnhashedIndex(int hi, CrysLayout lay) const;
+  inline int column(unsigned nrows = kCrystalsPerModuleTdr) const { return (crystal() - 1) / nrows; }
 
   /** create a Geographical DetId for Tracking **/
   BTLDetId geographicalId(CrysLayout lay) const;
-
-  /** return the number of modules per type according to scenario */
-  int modulesPerType(CrysLayout lay) const;
 };
 
 std::ostream& operator<<(std::ostream&, const BTLDetId&);

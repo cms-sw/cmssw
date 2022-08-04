@@ -18,7 +18,7 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  conversionsName = cms.InputTag('conversions'),
 
                                  MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*"),
-                                 MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
+                                 MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08"),
 
                                  IDType   = cms.untracked.string("CustomTight"), # Tight, Medium, Loose, CustomTight
                                  IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based

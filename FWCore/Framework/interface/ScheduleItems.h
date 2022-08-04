@@ -1,6 +1,7 @@
 #ifndef FWCore_Framework_ScheduleItems_h
 #define FWCore_Framework_ScheduleItems_h
 
+#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
@@ -21,11 +22,13 @@ namespace edm {
   class ProcessConfiguration;
   class ProcessContext;
   class ProductRegistry;
-  class Schedule;
   class SignallingProductRegistry;
   class StreamID;
   class PreallocationConfiguration;
   class SubProcessParentageHelper;
+  namespace service {
+    class TriggerNamesService;
+  }
 
   struct ScheduleItems {
     ScheduleItems();
@@ -53,6 +56,28 @@ namespace edm {
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*,
                                            ProcessBlockHelperBase& processBlockHelper);
+
+    class MadeModules {
+      friend struct ScheduleItems;
+      explicit MadeModules(std::unique_ptr<Schedule> iSched) : m_schedule(std::move(iSched)) {}
+
+      std::unique_ptr<Schedule> m_schedule;
+
+    public:
+      MadeModules() = delete;
+    };
+
+    MadeModules initModules(ParameterSet& parameterSet,
+                            service::TriggerNamesService const& tns,
+                            PreallocationConfiguration const& iAllocConfig,
+                            ProcessContext const*);
+    std::unique_ptr<Schedule> finishSchedule(MadeModules,
+                                             ParameterSet& parameterSet,
+                                             service::TriggerNamesService const& tns,
+                                             bool hasSubprocesses,
+                                             PreallocationConfiguration const& iAllocConfig,
+                                             ProcessContext const*,
+                                             ProcessBlockHelperBase& processBlockHelper);
 
     std::shared_ptr<SignallingProductRegistry const> preg() const { return get_underlying_safe(preg_); }
     std::shared_ptr<SignallingProductRegistry>& preg() { return get_underlying_safe(preg_); }

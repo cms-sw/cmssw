@@ -25,32 +25,27 @@
 
 #include <iomanip>
 
-L1GctConfigDump::L1GctConfigDump(const edm::ParameterSet& pSet) {
-  // empty
-}
-
-// destructor
-L1GctConfigDump::~L1GctConfigDump() {
+L1GctConfigDump::L1GctConfigDump(const edm::ParameterSet& pSet)
+    : m_jfParamsToken{esConsumes()},
+      m_chanMaskToken{esConsumes()},
+      m_jetScaleToken{esConsumes()},
+      m_htmScaleToken{esConsumes()},
+      m_hfRingScaleToken{esConsumes()} {
   // empty
 }
 
 void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get records
 
-  edm::ESHandle<L1GctJetFinderParams> jfParams;
-  iSetup.get<L1GctJetFinderParamsRcd>().get(jfParams);
+  edm::ESHandle<L1GctJetFinderParams> jfParams = iSetup.getHandle(m_jfParamsToken);
 
-  edm::ESHandle<L1GctChannelMask> chanMask;
-  iSetup.get<L1GctChannelMaskRcd>().get(chanMask);
+  edm::ESHandle<L1GctChannelMask> chanMask = iSetup.getHandle(m_chanMaskToken);
 
-  edm::ESHandle<L1CaloEtScale> jetScale;
-  iSetup.get<L1JetEtScaleRcd>().get(jetScale);
+  edm::ESHandle<L1CaloEtScale> jetScale = iSetup.getHandle(m_jetScaleToken);
 
-  edm::ESHandle<L1CaloEtScale> htmScale;
-  iSetup.get<L1HtMissScaleRcd>().get(htmScale);
+  edm::ESHandle<L1CaloEtScale> htmScale = iSetup.getHandle(m_htmScaleToken);
 
-  edm::ESHandle<L1CaloEtScale> hfRingScale;
-  iSetup.get<L1HfRingEtScaleRcd>().get(hfRingScale);
+  edm::ESHandle<L1CaloEtScale> hfRingScale = iSetup.getHandle(m_hfRingScaleToken);
 
   edm::LogInfo("L1GctConfigDump") << (*jfParams) << std::endl;
   edm::LogInfo("L1GctConfigDump") << (*chanMask) << std::endl;
