@@ -63,10 +63,10 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSDirectProtonSimulation : public edm::stream::EDProducer<> {
+class PPSDirectProtonSimulation : public edm::stream::EDProducer<> {
 public:
-  explicit CTPPSDirectProtonSimulation(const edm::ParameterSet &);
-  ~CTPPSDirectProtonSimulation() override {}
+  explicit PPSDirectProtonSimulation(const edm::ParameterSet &);
+  ~PPSDirectProtonSimulation() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -149,7 +149,7 @@ private:
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet &iConfig)
+PPSDirectProtonSimulation::PPSDirectProtonSimulation(const edm::ParameterSet &iConfig)
     : tokenLHCInfo_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
       tokenBeamParameters_(esConsumes()),
       pixelTopologyToken_(esConsumes()),
@@ -209,7 +209,7 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 0);
 
@@ -237,12 +237,12 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("pitchPixelsHor", 100.e-3);
   desc.add<double>("pitchPixelsVer", 150.e-3);
 
-  descriptions.add("ctppsDirectProtonSimulation", desc);
+  descriptions.add("ppsDirectProtonSimulation", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void PPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get input
   edm::Handle<edm::HepMCProduct> hepmc_prod;
   iEvent.getByToken(hepMCToken_, hepmc_prod);
@@ -338,7 +338,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDirectProtonSimulation::processProton(
+void PPSDirectProtonSimulation::processProton(
     const HepMC::GenVertex *in_vtx,
     const HepMC::GenParticle *in_trk,
     const CTPPSGeometry &geometry,
@@ -688,4 +688,4 @@ void CTPPSDirectProtonSimulation::processProton(
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(CTPPSDirectProtonSimulation);
+DEFINE_FWK_MODULE(PPSDirectProtonSimulation);
