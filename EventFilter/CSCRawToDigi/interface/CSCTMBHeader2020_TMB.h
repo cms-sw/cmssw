@@ -26,6 +26,7 @@ struct CSCTMBHeader2020_TMB : public CSCVTMBHeaderFormat {
   uint16_t syncErrorCLCT() const override { return bits.clct_sync_err; }
   uint16_t syncErrorMPC0() const override { return 0; }
   uint16_t syncErrorMPC1() const override { return 0; }
+  uint16_t L1AMatchTime() const override { return bits.pop_l1a_match_win; }
 
   // == Run 3 CSC-GEM Trigger Format
   uint16_t clct0_ComparatorCode() const override { return 0; }
