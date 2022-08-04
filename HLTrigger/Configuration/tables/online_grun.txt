@@ -654,7 +654,8 @@ HLTMonitorOutput                          # CMSHLT-462, CMSHLT-481
 CalibrationOutput
 EcalCalibrationOutput
 RPCMONOutput
-ALCAPPSOutput				#	CMSHLT-2179
+ALCAPPSExpressOutput    # CMSHLT-2412
+ALCAPPSPromptOutput     # CMSHLT-2412
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALowPtJetOutput      # CMSHLT-2358
@@ -674,7 +675,9 @@ ParkingDoubleMuonLowMass0Output # CMSHLT-2261
 ParkingDoubleMuonLowMass1Output # CMSHLT-2261
 ParkingDoubleMuonLowMass2Output # CMSHLT-2261
 ParkingDoubleMuonLowMass3Output # CMSHLT-2261
-ParkingSingleMuonOutput # CMSHLT-1805, CMSHLT-2362
+ParkingSingleMuon0Output # CMSHLT-1805, CMSHLT-2362, CMSHLT-2416
+ParkingSingleMuon1Output # CMSHLT-1805, CMSHLT-2362, CMSHLT-2416
+ParkingSingleMuon2Output # CMSHLT-1805, CMSHLT-2362, CMSHLT-2416
 
 ######## paths that are different between GRun and online_grun ################################
 
