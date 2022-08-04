@@ -731,7 +731,7 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
     if (bymodule) {
       booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
       for (unsigned int id : process.modules_) {
-        auto const& module_name = job.module(id).moduleLabel();
+        auto const& module_name = fix_for_dqm(job.module(id).moduleLabel());
         modules_[id].book(booker, module_name, module_name, module_ranges, lumisections, byls);
       }
       booker.setCurrentFolder(basedir);
@@ -942,6 +942,16 @@ void FastTimerService::postGlobalBeginRun(edm::GlobalContext const& gc) { ignore
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
+std::string FastTimerService::fix_for_dqm(std::string input) {
+  // clean characters that are deemed unsafe for DQM
+  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+  for (auto& c : input)
+    if (safe_for_dqm.find(c) == std::string::npos)
+      c = '_';
+  return input;
+}
+
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
   concurrent_lumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   concurrent_runs_ = bounds.maxNumberOfConcurrentRuns();
@@ -952,12 +962,7 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
     dqm_path_ += fmt::sprintf(
         "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams_, concurrent_threads_);
 
-  // clean characters that are deemed unsafe for DQM
-  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
-  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
-  for (auto& c : dqm_path_)
-    if (safe_for_dqm.find(c) == std::string::npos)
-      c = '_';
+  dqm_path_ = fix_for_dqm(dqm_path_);
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
