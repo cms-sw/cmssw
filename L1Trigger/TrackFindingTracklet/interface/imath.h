@@ -127,6 +127,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 #ifdef IMATH_ROOT
 #include <TH2F.h>
@@ -139,16 +140,6 @@
 #define MULT_LATENCY 1
 #define LUT_LATENCY 2
 #define DSP_LATENCY 3
-
-namespace Trk_bitShift {
-  inline int bitShift(int num, int bits) {
-    if (num < 0) {
-      return -1 * ((-1 * num) << bits);
-    } else {
-      return (num << bits);
-    }
-  }
-}  // namespace Trk_bitShift
 
 // Print out information on the pass/fail status of all variables. Warning:
 // this outputs a lot of information for busy events!
@@ -1022,11 +1013,11 @@ namespace trklet {
     int addr_to_ival(int addr) {
       switch (m_) {
         case mode::pos:
-          return Trk_bitShift::bitShift(addr, shift_);
+          return l1t::bitShift(addr, shift_);
         case mode::neg:
-          return Trk_bitShift::bitShift((addr - Nelements_), shift_);
+          return l1t::bitShift((addr - Nelements_), shift_);
         case mode::both:
-          return Trk_bitShift::bitShift(addr, ashift_) >> (ashift_ - shift_);
+          return l1t::bitShift(addr, ashift_) >> (ashift_ - shift_);
       }
       assert(0);
     }

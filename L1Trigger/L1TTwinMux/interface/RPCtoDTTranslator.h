@@ -20,10 +20,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-namespace RPC_bitShift {
-  int bitShift(int num, int bits);
-}
-
 class RPCtoDTTranslator {
 public:
   RPCtoDTTranslator(const RPCDigiCollection& inrpcDigis);
