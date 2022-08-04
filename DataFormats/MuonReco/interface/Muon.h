@@ -238,7 +238,7 @@ namespace reco {
     };
 
     bool passed(uint64_t selection) const { return (selectors_ & selection) == selection; }
-    bool passed(Selector selection) const { return passed(static_cast<uint64_t>(1UL<<selection)); }
+    bool passed(Selector selection) const { return passed(static_cast<uint64_t>(1UL << selection)); }
     uint64_t selectors() const { return selectors_; }
     void setSelectors(uint64_t selectors) { selectors_ = selectors; }
     void setSelector(Selector selector, bool passed) {
