@@ -25,6 +25,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   disableME42_ = commonParams.getParameter<bool>("disableME42");
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+  selectedChambers_ = conf.getParameter<std::vector<std::string>>("selectedChambers");
 
   runME11Up_ = commonParams.getParameter<bool>("runME11Up");
   runME21Up_ = commonParams.getParameter<bool>("runME21Up");
@@ -191,6 +192,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             if (checkBadChambers_ && badChambers->isInBadChamber(detid))
               continue;
 
+            //only process the selected chambers when selectedChambers is not empty
+            if (!selectedChambers_.empty()) {
+              if (std::find(selectedChambers_.begin(), selectedChambers_.end(), detid.chamberName()) ==
+                  selectedChambers_.end()) {
+                continue;
+              }
+            }
             const bool upgrade = runPhase2_ and ring == 1;
             const bool upgradeGE11 = upgrade and stat == 1 and runME11Up_ and runME11ILT_;
             const bool upgradeGE21 = upgrade and stat == 2 and runME21Up_ and runME21ILT_;
@@ -227,9 +235,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = tmb->alctProc->preTriggerDigis();
 
             // showers
-            const CSCShowerDigi& shower = tmb->readoutShower();
-            const CSCShowerDigi& anodeShower = tmb->alctProc->readoutShower();
-            const CSCShowerDigi& cathodeShower = tmb->clctProc->readoutShower();
+            const std::vector<CSCShowerDigi>& shower = tmb->readoutShower();
+            const std::vector<CSCShowerDigi>& anodeShower = tmb->alctProc->readoutShower();
+            const std::vector<CSCShowerDigi>& cathodeShower = tmb->clctProc->readoutShower();
 
             put(alctV, oc_alct, detid, tmb->getCSCName() + " ALCT digi");
             put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
@@ -239,12 +247,15 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
             put(alctpretriggerV, oc_alctpretrigger, detid, tmb->getCSCName() + " ALCT pre-trigger digi");
 
-            if (shower.isValid())
-              oc_shower.insertDigi(detid, shower);
-            if (anodeShower.isValid())
-              oc_shower_anode.insertDigi(detid, anodeShower);
-            if (cathodeShower.isValid())
-              oc_shower_cathode.insertDigi(detid, cathodeShower);
+            put(shower, oc_shower, detid, tmb->getCSCName() + "TMB shower");
+            put(anodeShower, oc_shower_anode, detid, tmb->getCSCName() + "Anode shower");
+            put(cathodeShower, oc_shower_cathode, detid, tmb->getCSCName() + "Cathode shower");
+            //if (shower.isValid())
+            //  oc_shower.insertDigi(detid, shower);
+            //if (anodeShower.isValid())
+            //  oc_shower_anode.insertDigi(detid, anodeShower);
+            //if (cathodeShower.isValid())
+            //  oc_shower_cathode.insertDigi(detid, cathodeShower);
 
             if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
               LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;
