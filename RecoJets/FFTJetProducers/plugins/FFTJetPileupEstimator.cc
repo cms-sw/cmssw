@@ -96,6 +96,8 @@ private:
   std::string calibrationCurveName;
   std::string uncertaintyCurveName;
   bool loadCalibFromDB;
+
+  FFTJetLookupTableSequenceLoader esLoader;
 };
 
 //
@@ -123,6 +125,8 @@ FFTJetPileupEstimator::FFTJetPileupEstimator(const edm::ParameterSet& ps)
   inputToken = consumes<reco::DiscretizedEnergyFlow>(inputLabel);
 
   produces<reco::FFTJetPileupSummary>(outputLabel);
+
+  esLoader.acquireToken(calibTableRecord, consumesCollector());
 }
 
 FFTJetPileupEstimator::~FFTJetPileupEstimator() {}
@@ -189,8 +193,7 @@ std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromC
 
 std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromDB(const double curve,
                                                                                   const edm::EventSetup& iSetup) const {
-  edm::ESHandle<FFTJetLookupTableSequence> h;
-  StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, calibTableRecord, h);
+  edm::ESHandle<FFTJetLookupTableSequence> h = esLoader.load(calibTableRecord, iSetup);
   std::shared_ptr<npstat::StorableMultivariateFunctor> uz = (*h)[calibTableCategory][uncertaintyZonesName];
   std::shared_ptr<npstat::StorableMultivariateFunctor> cc = (*h)[calibTableCategory][calibrationCurveName];
   std::shared_ptr<npstat::StorableMultivariateFunctor> uc = (*h)[calibTableCategory][uncertaintyCurveName];
