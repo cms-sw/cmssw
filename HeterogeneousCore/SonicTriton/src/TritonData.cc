@@ -4,11 +4,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "model_config.pb.h"
-#include "model_config.h"
+#include "triton/common/model_config.h"
 
 #include <sstream>
 
-namespace ni = nvidia::inferenceserver;
+namespace tco = triton::common;
 namespace tc = triton::client;
 
 //dims: kept constant, represents config.pbtxt parameters of model (converted from google::protobuf::RepeatedField to vector)
@@ -32,8 +32,8 @@ TritonData<IO>::TritonData(const std::string& name,
       variableDims_(anyNeg(shape_)),
       productDims_(variableDims_ ? -1 : dimProduct(shape_)),
       dname_(model_info.datatype()),
-      dtype_(ni::ProtocolStringToDataType(dname_)),
-      byteSize_(ni::GetDataTypeByteSize(dtype_)),
+      dtype_(tco::ProtocolStringToDataType(dname_)),
+      byteSize_(tco::GetDataTypeByteSize(dtype_)),
       totalByteSize_(0) {
   //create input or output object
   IO* iotmp;
