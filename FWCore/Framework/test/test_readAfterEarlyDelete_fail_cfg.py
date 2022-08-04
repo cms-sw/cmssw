@@ -13,8 +13,7 @@ process.options = cms.untracked.PSet(
 process.maker = cms.EDProducer("DeleteEarlyProducer")
 
 process.reader = cms.EDAnalyzer("DeleteEarlyReader",
-                                tag = cms.untracked.InputTag("maker"),
-                                mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                tag = cms.untracked.InputTag("maker"))
 
 #the following wants the DeleteEarly but does not say it needs it so will fail
 process.readerFail = cms.EDAnalyzer("DeleteEarlyReader",

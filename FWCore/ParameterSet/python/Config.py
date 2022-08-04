@@ -251,6 +251,7 @@ class Process(object):
                               FailPath = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
+                              holdsReferencesToDeleteEarly = untracked.VPSet(),
                               dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,

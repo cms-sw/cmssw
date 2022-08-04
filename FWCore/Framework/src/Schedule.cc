@@ -1239,9 +1239,10 @@ namespace edm {
   }
 
   void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                                       std::multimap<std::string, std::string> const& referencesToBranches,
                                        edm::ProductRegistry const& preg) {
     for (auto& stream : streamSchedules_) {
-      stream->initializeEarlyDelete(*moduleRegistry(), branchesToDeleteEarly, preg);
+      stream->initializeEarlyDelete(*moduleRegistry(), branchesToDeleteEarly, referencesToBranches, preg);
     }
   }
 

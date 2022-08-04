@@ -278,7 +278,9 @@ namespace edm {
     /// Deletes module with label iLabel
     void deleteModule(std::string const& iLabel, ActivityRegistry* areg);
 
-    void initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly, edm::ProductRegistry const& preg);
+    void initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                               std::multimap<std::string, std::string> const& referencesToBranches,
+                               edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;

@@ -88,6 +88,15 @@ namespace edm {
     description.addUntracked<std::vector<std::string>>("canDeleteEarly", emptyVector)
         ->setComment("Branch names of products that the Framework can try to delete before the end of the Event");
 
+    {
+      edm::ParameterSetDescription validator;
+      validator.add<std::string>("product");
+      validator.add<std::vector<std::string>>("references")
+          ->setComment("All the branch names for products to which 'product' contains a reference.");
+      description.addVPSetUntracked("holdsReferencesToDeleteEarly", validator, std::vector<edm::ParameterSet>{})
+          ->setComment(
+              "The 'product' branch name of product which internally hold references to data in another product");
+    }
     description.addUntracked<bool>("dumpOptions", false)
         ->setComment(
             "Print values of selected Framework parameters. The Framework might modify the values "
