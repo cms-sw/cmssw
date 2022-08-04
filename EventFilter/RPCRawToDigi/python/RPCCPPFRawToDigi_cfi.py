@@ -5,3 +5,8 @@ rpcCPPFRawToDigi = _mod.RPCAMCRawToDigi.clone(
     RPCAMCUnpacker = 'RPCCPPFUnpacker',
     RPCAMCUnpackerSettings = dict()
 )
+
+from Configuration.Eras.Modifier_run3_RPC_cff import run3_RPC
+run3_RPC.toModify(rpcCPPFRawToDigi, 
+        RPCAMCUnpackerSettings = dict(cppfDaqDelay = 2)
+)
