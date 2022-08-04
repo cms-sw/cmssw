@@ -19,6 +19,7 @@ public:
   virtual void setEventInformation(const CSCDMBHeader&) = 0;
   virtual uint16_t BXNCount() const = 0;
   virtual uint16_t ALCTMatchTime() const = 0;
+  virtual void setALCTMatchTime(uint16_t alctmatchtime) = 0;
   virtual uint16_t CLCTOnly() const = 0;
   virtual uint16_t ALCTOnly() const = 0;
   virtual uint16_t TMBMatch() const = 0;

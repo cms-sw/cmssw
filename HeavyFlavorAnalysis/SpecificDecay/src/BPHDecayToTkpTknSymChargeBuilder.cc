@@ -13,15 +13,15 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleEtaSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSymSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -38,17 +38,17 @@ using namespace std;
 // Constructors --
 //----------------
 BPHDecayToTkpTknSymChargeBuilder::BPHDecayToTkpTknSymChargeBuilder(
-    const edm::EventSetup& es,
-    const std::string& daug1Name,
+    const BPHEventSetupWrapper& es,
+    const string& daug1Name,
     double daug1Mass,
     double daug1Sigma,
-    const std::string& daug2Name,
+    const string& daug2Name,
     double daug2Mass,
     double daug2Sigma,
     const BPHRecoBuilder::BPHGenericCollection* posCollection,
     const BPHRecoBuilder::BPHGenericCollection* negCollection,
     double expectedMass)
-    : BPHDecayGenericBuilder(es),
+    : BPHDecayGenericBuilderBase(es),
       d1Name(daug1Name),
       d1Mass(daug1Mass),
       d1Sigma(daug1Sigma),
@@ -65,19 +65,9 @@ BPHDecayToTkpTknSymChargeBuilder::BPHDecayToTkpTknSymChargeBuilder(
       dzMax(1.0) {}
 
 //--------------
-// Destructor --
-//--------------
-BPHDecayToTkpTknSymChargeBuilder::~BPHDecayToTkpTknSymChargeBuilder() {}
-
-//--------------
 // Operations --
 //--------------
-vector<BPHPlusMinusConstCandPtr> BPHDecayToTkpTknSymChargeBuilder::build() {
-  if (updated)
-    return recList;
-
-  recList.clear();
-
+void BPHDecayToTkpTknSymChargeBuilder::fillRecList() {
   // extract basic informations from input collections
 
   vector<Particle*> pList;
@@ -121,10 +111,6 @@ vector<BPHPlusMinusConstCandPtr> BPHDecayToTkpTknSymChargeBuilder::build() {
       const float tb = ((p2 > 0.0) && (n1 > 0.0) ? p2 + n1 : -1.0);
       float ma = (ta > 0 ? (ta * ta) - ((tx * tx) + (ty * ty) + (tz * tz)) : -1.0);
       float mb = (tb > 0 ? (tb * tb) - ((tx * tx) + (ty * ty) + (tz * tz)) : -1.0);
-      //      if ( ma > 0.0 ) ma = sqrt( ma );
-      //      else            ma = -1.0;
-      //      if ( mb > 0.0 ) mb = sqrt( mb );
-      //      else            mb = -1.0;
       if (((ma < mSqMin) || (ma > mSqMax)) && ((mb < mSqMin) || (mb > mSqMax)))
         continue;
       BPHPlusMinusCandidatePtr rc(nullptr);
@@ -168,37 +154,36 @@ vector<BPHPlusMinusConstCandPtr> BPHDecayToTkpTknSymChargeBuilder::build() {
   for (iNeg = 0; iNeg < nNeg; ++iNeg)
     delete nList[iNeg];
 
-  updated = true;
-  return recList;
+  return;
 }
 
 /// set cuts
 void BPHDecayToTkpTknSymChargeBuilder::setTrk1PtMin(double pt) {
-  updated = false;
+  outdated = true;
   pt1Min = pt;
   return;
 }
 
 void BPHDecayToTkpTknSymChargeBuilder::setTrk2PtMin(double pt) {
-  updated = false;
+  outdated = true;
   pt2Min = pt;
   return;
 }
 
 void BPHDecayToTkpTknSymChargeBuilder::setTrk1EtaMax(double eta) {
-  updated = false;
+  outdated = true;
   eta1Max = eta;
   return;
 }
 
 void BPHDecayToTkpTknSymChargeBuilder::setTrk2EtaMax(double eta) {
-  updated = false;
+  outdated = true;
   eta2Max = eta;
   return;
 }
 
 void BPHDecayToTkpTknSymChargeBuilder::setDzMax(double dz) {
-  updated = false;
+  outdated = true;
   dzMax = dz;
   return;
 }

@@ -75,18 +75,21 @@ namespace pixelgpudetails {
   public:
     class WordFedAppender {
     public:
-      WordFedAppender();
-      WordFedAppender(uint32_t maxFedWords);
-      ~WordFedAppender() = default;
+      WordFedAppender(uint32_t words, cudaStream_t stream)
+          : word_{cms::cuda::make_host_unique<unsigned int[]>(words, stream)},
+            fedId_{cms::cuda::make_host_unique<unsigned char[]>(words, stream)} {}
 
-      void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t* src, unsigned int length);
+      void initializeWordFed(int fedId, unsigned int index, cms_uint32_t const* src, unsigned int length) {
+        std::memcpy(word_.get() + index, src, sizeof(cms_uint32_t) * length);
+        std::memset(fedId_.get() + index / 2, fedId - FEDNumbering::MINSiPixeluTCAFEDID, length / 2);
+      }
 
       const unsigned int* word() const { return word_.get(); }
       const unsigned char* fedId() const { return fedId_.get(); }
 
     private:
-      cms::cuda::host::noncached::unique_ptr<unsigned int[]> word_;
-      cms::cuda::host::noncached::unique_ptr<unsigned char[]> fedId_;
+      cms::cuda::host::unique_ptr<unsigned int[]> word_;
+      cms::cuda::host::unique_ptr<unsigned char[]> fedId_;
     };
 
     SiPixelRawToClusterGPUKernel() = default;
@@ -106,7 +109,6 @@ namespace pixelgpudetails {
                            SiPixelFormatterErrors&& errors,
                            const uint32_t wordCounter,
                            const uint32_t fedCounter,
-                           const uint32_t maxFedWords,
                            bool useQualityInfo,
                            bool includeErrors,
                            bool debug,

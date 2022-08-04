@@ -69,7 +69,7 @@ namespace edm {
     }
 
     // ---------- const member functions ---------------------
-    bool taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
+    bool taskHasFailed() const noexcept { return static_cast<bool>(m_task->exceptionPtr()); }
 
     bool hasTask() const noexcept { return m_task != nullptr; }
     /** since oneapi::tbb::task_group is thread safe, we can return it non-const from here since

@@ -13,12 +13,12 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D46.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D92.xml'),
                                             appendToDataLabel = cms.string('DDHGCal')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('CMS2026D46DD4hep.root'),
+                                  outputFileName = cms.untracked.string('CMS2026D92DD4hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHGCal')
                                   )
 

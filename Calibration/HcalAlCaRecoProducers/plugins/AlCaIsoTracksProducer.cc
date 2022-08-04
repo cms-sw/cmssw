@@ -76,25 +76,25 @@
 // class declaration
 //
 
-namespace AlCaIsoTracks {
+namespace alCaIsoTracksProducer {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nRange_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nRange_;
   };
-}  // namespace AlCaIsoTracks
+}  // namespace alCaIsoTracksProducer
 
-class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
+class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaIsoTracksProducer::Counters> > {
 public:
-  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
+  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const alCaIsoTracksProducer::Counters* count);
   ~AlCaIsoTracksProducer() override;
 
-  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaIsoTracks::Counters>();
+  static std::unique_ptr<alCaIsoTracksProducer::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaIsoTracksProducer::Counters>();
   }
 
   void produce(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsoTracks::Counters* counters);
+  static void globalEndJob(const alCaIsoTracksProducer::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -147,7 +147,8 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
-AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters)
+AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig,
+                                             const alCaIsoTracksProducer::Counters* counters)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -456,7 +457,7 @@ void AlCaIsoTracksProducer::endStream() {
   globalCache()->nRange_ += nRange_;
 }
 
-void AlCaIsoTracksProducer::globalEndJob(const AlCaIsoTracks::Counters* count) {
+void AlCaIsoTracksProducer::globalEndJob(const alCaIsoTracksProducer::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events and "
                                    << count->nRange_ << " events in the momentum raange";
 }

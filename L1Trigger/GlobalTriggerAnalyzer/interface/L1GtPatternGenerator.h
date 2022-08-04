@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@
 class L1GtPatternWriter;
 class L1GtPatternMap;
 
-class L1GtPatternGenerator : public edm::EDAnalyzer {
+class L1GtPatternGenerator : public edm::one::EDAnalyzer<> {
 public:
   explicit L1GtPatternGenerator(const edm::ParameterSet&);
   ~L1GtPatternGenerator() override;

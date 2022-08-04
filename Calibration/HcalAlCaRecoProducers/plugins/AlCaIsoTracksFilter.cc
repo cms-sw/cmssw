@@ -62,25 +62,25 @@
 // class declaration
 //
 
-namespace AlCaIsoTracks {
+namespace alCaIsoTracksFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nRange_(0), nHigh_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nRange_, nHigh_;
   };
-}  // namespace AlCaIsoTracks
+}  // namespace alCaIsoTracksFilter
 
-class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracks::Counters>> {
+class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksFilter::Counters>> {
 public:
-  explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
+  explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const alCaIsoTracksFilter::Counters* count);
   ~AlCaIsoTracksFilter() override = default;
 
-  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsoTracks::Counters>();
+  static std::unique_ptr<alCaIsoTracksFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsoTracksFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsoTracks::Counters* counters);
+  static void globalEndJob(const alCaIsoTracksFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -134,7 +134,7 @@ private:
 //
 // constructors and destructor
 //
-AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const AlCaIsoTracks::Counters* count)
+AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const alCaIsoTracksFilter::Counters* count)
     : trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
       labelGenTrack_(iConfig.getParameter<edm::InputTag>("labelTrack")),
       labelRecVtx_(iConfig.getParameter<edm::InputTag>("labelVertex")),
@@ -479,7 +479,7 @@ void AlCaIsoTracksFilter::endStream() {
   globalCache()->nHigh_ += nHigh_;
 }
 
-void AlCaIsoTracksFilter::globalEndJob(const AlCaIsoTracks::Counters* count) {
+void AlCaIsoTracksFilter::globalEndJob(const alCaIsoTracksFilter::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events and with "
                                    << count->nRange_ << " events in the p-range" << count->nHigh_
                                    << " events with high p";

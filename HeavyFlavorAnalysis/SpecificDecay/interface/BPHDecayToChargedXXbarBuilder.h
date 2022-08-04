@@ -13,6 +13,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilder.h"
 
 //------------------------------------
@@ -22,8 +23,7 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
-
+class BPHEventSetupWrapper;
 class BPHParticlePtSelect;
 class BPHParticleEtaSelect;
 class BPHChi2Select;
@@ -39,11 +39,12 @@ class BPHMassSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayToChargedXXbarBuilder : public BPHDecayGenericBuilder {
+class BPHDecayToChargedXXbarBuilder : public virtual BPHDecayGenericBuilderBase,
+                                      public virtual BPHDecayGenericBuilder<BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHDecayToChargedXXbarBuilder(const edm::EventSetup& es,
+  BPHDecayToChargedXXbarBuilder(const BPHEventSetupWrapper& es,
                                 const std::string& dPosName,
                                 const std::string& dNegName,
                                 double daugMass,
@@ -57,12 +58,10 @@ public:
 
   /** Destructor
    */
-  ~BPHDecayToChargedXXbarBuilder() override;
+  ~BPHDecayToChargedXXbarBuilder() override = default;
 
   /** Operations
    */
-  /// build Phi candidates
-  std::vector<BPHPlusMinusConstCandPtr> build();
 
   /// set cuts
   void setPtMin(double pt);
@@ -70,11 +69,19 @@ public:
   void setDzMax(double dz);
 
   /// get current cuts
-  double getPtMin() const;
-  double getEtaMax() const;
+  double getPtMin() const { return ptMin; }
+  double getEtaMax() const { return etaMax; }
   double getDzMax() const { return dzMax; }
 
-private:
+protected:
+  double ptMin;
+  double etaMax;
+  double dzMax;
+
+  /// build candidates
+  void fillRecList() override;
+
+protected:
   std::string pName;
   std::string nName;
   double dMass;
@@ -83,12 +90,7 @@ private:
   const BPHRecoBuilder::BPHGenericCollection* pCollection;
   const BPHRecoBuilder::BPHGenericCollection* nCollection;
 
-  double ptMin;
-  double etaMax;
-  double dzMax;
-
-  std::vector<BPHPlusMinusConstCandPtr> recList;
-
+private:
   class Particle {
   public:
     Particle(const reco::Candidate* c, const reco::Track* tk, double x, double y, double z, double e)

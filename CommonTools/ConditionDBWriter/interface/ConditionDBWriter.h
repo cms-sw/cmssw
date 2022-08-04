@@ -138,6 +138,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 //#include "FWCore/Framework/interface/EventSetup.h"
@@ -146,7 +147,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 template <class T>
-class ConditionDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class ConditionDBWriter
+    : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::one::SharedResources> {
 public:
   explicit ConditionDBWriter(const edm::ParameterSet &iConfig)
       : minRunRange_(1 << 31),

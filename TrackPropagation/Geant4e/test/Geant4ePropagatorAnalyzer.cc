@@ -147,6 +147,8 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet &iC
       thePropagator(nullptr),
       G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
       G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
+  auto token = consumes(G4TrkSrc_);
+
   // debug_ = iConfig.getParameter<bool>("debug");
   fStudyStation = iConfig.getParameter<int>("StudyStation");
 
@@ -334,15 +336,17 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   iEvent.getByLabel<SimTrackContainer>(G4TrkSrc_, simTracks);
   if (!simTracks.isValid()) {
     LogWarning("Geant4e") << "No tracks found" << std::endl;
-    return;
+    //    return;
   }
   LogDebug("Geant4e") << "G4e -- Got simTracks of size " << simTracks->size();
+  std::cout << "Geant4e "
+            << "G4e -- Got simTracks of size " << simTracks->size() << std::endl;
 
   Handle<SimVertexContainer> simVertices;
-  iEvent.getByLabel<SimVertexContainer>(G4VtxSrc_, simVertices);
+  iEvent.getByLabel<SimVertexContainer>("g4SimHits", simVertices);
   if (!simVertices.isValid()) {
-    LogWarning("Geant4e") << "No tracks found" << std::endl;
-    return;
+    LogWarning("Geant4e") << "No verticess found" << std::endl;
+    //    return;
   }
   LogDebug("Geant4e") << "Got simVertices of size " << simVertices->size();
 

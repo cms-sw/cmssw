@@ -86,6 +86,34 @@ PFMETNoMu140_PFMHTNoMu140_METmonitoring = hltMETmonitoring.clone(
     enableFullMonitoring = True,
     jetSelection      = "pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1"
 )
+# HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF
+PFMETNoMu110_PFMHTNoMu110_FilterHF_METmonitoring = hltMETmonitoring.clone(
+    FolderName = 'HLT/EXO/MET/PFMETNoMu110FilterHF',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF_v*"]),
+    enableFullMonitoring = True,
+    jetSelection      = "pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1"
+)
+# HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF
+PFMETNoMu120_PFMHTNoMu120_FilterHF_METmonitoring = hltMETmonitoring.clone(
+    FolderName = 'HLT/EXO/MET/PFMETNoMu120FilterHF',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF_v*"]),
+    enableFullMonitoring = True,
+    jetSelection      = "pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1"
+)
+# HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF
+PFMETNoMu130_PFMHTNoMu130_FilterHF_METmonitoring = hltMETmonitoring.clone(
+    FolderName = 'HLT/EXO/MET/PFMETNoMu130FilterHF',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF_v*"]),
+    enableFullMonitoring = True,
+    jetSelection      = "pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1"
+)
+# HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_FilterHF
+PFMETNoMu140_PFMHTNoMu140_FilterHF_METmonitoring = hltMETmonitoring.clone(
+    FolderName = 'HLT/EXO/MET/PFMETNoMu140FilterHF',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_FilterHF_v*"]),
+    enableFullMonitoring = True,
+    jetSelection      = "pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1"
+)
 # HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_METmonitoring = hltMETmonitoring.clone(
     FolderName = 'HLT/EXO/MET/MonoCentralPFJet80_PFMETNoMu110/',
@@ -251,6 +279,10 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFMETNoMu120_PFMHTNoMu120_METmonitoring
     + PFMETNoMu130_PFMHTNoMu130_METmonitoring
     + PFMETNoMu140_PFMHTNoMu140_METmonitoring
+    + PFMETNoMu110_PFMHTNoMu110_FilterHF_METmonitoring
+    + PFMETNoMu120_PFMHTNoMu120_FilterHF_METmonitoring
+    + PFMETNoMu130_PFMHTNoMu130_FilterHF_METmonitoring
+    + PFMETNoMu140_PFMHTNoMu140_FilterHF_METmonitoring
     + MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_METmonitoring
     + MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_METmonitoring
     + MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_METmonitoring

@@ -34,10 +34,10 @@ set InputGenSimPRef3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Commissioning2021_MinimumBias1_run346304/0949cd03-66a6-4034-a630-b9fef4dde3d2.root
+set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2022B_HLTPhysics0_run355558/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
 set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
 #et InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/853DBE29-53BA-9A44-9FDD-58E4E9064EB1.root
-set InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Commissioning2021_MinimumBias1_run346304/0949cd03-66a6-4034-a630-b9fef4dde3d2.root
+set InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2022B_HLTPhysics0_run355558/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
 set InputLHCRawPIon3 = $InputLHCRawGRun3
@@ -126,7 +126,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef 2022v11 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef 2022v13 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2022v11 )
+    set tables = ( 2022v13 )
   else
     set tables = ( $1 )
   endif
@@ -210,11 +210,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2022v11 ) then
+    else if ( $table == 2022v13 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2022v11
-      set GTAG = ${BASE3}_2022v11
-      set RTAG = ${RECO3}_2022v11
+      set XHLT = HLT:2022v13
+      set GTAG = ${BASE3}_2022v13
+      set RTAG = ${RECO3}_2022v13
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

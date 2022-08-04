@@ -28,10 +28,16 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.CaloSim=dict()
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
+
+process.Timing = cms.Service("Timing")
 
 # Input source
 process.source = cms.Source("EmptySource")

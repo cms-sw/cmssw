@@ -6,6 +6,22 @@
 FebConnectorSpec::FebConnectorSpec(int num, const ChamberLocationSpec& chamber, const FebLocationSpec& feb)
     : theLinkBoardInputNum(num), theChamber(chamber), theFeb(feb), theAlgo(0), theRawId(0) {}
 
+FebConnectorSpec::FebConnectorSpec(FebConnectorSpec const& iOther)
+    : theLinkBoardInputNum(iOther.theLinkBoardInputNum),
+      theChamber(iOther.theChamber),
+      theFeb(iOther.theFeb),
+      theAlgo(iOther.theAlgo),
+      theRawId(iOther.theRawId.load()) {}
+
+FebConnectorSpec& FebConnectorSpec::operator=(FebConnectorSpec const& iOther) {
+  theLinkBoardInputNum = iOther.theLinkBoardInputNum;
+  theChamber = iOther.theChamber;
+  theFeb = iOther.theFeb;
+  theAlgo = iOther.theAlgo;
+  theRawId.store(iOther.theRawId.load());
+  return *this;
+}
+
 const ChamberStripSpec FebConnectorSpec::strip(int pinNumber) const {
   int nStrips = theAlgo / 10000;
   int firstChamberStrip = (theAlgo - 10000 * nStrips) / 100;
@@ -61,11 +77,13 @@ const int FebConnectorSpec::cablePinNum(int istrip) const {
   return thePin;
 }
 
-const uint32_t& FebConnectorSpec::rawId() const {
+uint32_t FebConnectorSpec::rawId() const {
   DBSpecToDetUnit toDU;
-  if (!theRawId)
-    theRawId = toDU(theChamber, theFeb);
-  return theRawId;
+  if (!theRawId) {
+    uint32_t expected = 0;
+    theRawId.compare_exchange_strong(expected, toDU(theChamber, theFeb));
+  }
+  return theRawId.load();
 }
 
 std::string FebConnectorSpec::print(int depth) const {

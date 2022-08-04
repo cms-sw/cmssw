@@ -11,11 +11,12 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
+from Configuration.DataProcessing.Impl.AlCa import AlCa
 from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect,addMonitoring
 from Configuration.Eras.Era_Run3_cff import Run3
 import FWCore.ParameterSet.Config as cms
 
-class AlCaPPS_Run3(Scenario):
+class AlCaPPS_Run3(AlCa):
     def __init__(self):
         Scenario.__init__(self)
         self.eras=Run3

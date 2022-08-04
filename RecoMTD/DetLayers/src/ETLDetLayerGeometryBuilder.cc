@@ -23,7 +23,8 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
   vector<DetLayer*> result[2];  // one for each endcap
 
   const int mtdTopologyMode = topo.getMTDTopologyMode();
-  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+  ETLDetId::EtlLayout etlL = MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode);
+  if (etlL == ETLDetId::EtlLayout::tp) {
     for (unsigned endcap = 0; endcap < 2; ++endcap) {
       // there is only one layer for ETL right now, maybe more later
       for (unsigned layer = 0; layer < ETLDetId::kETLv1nDisc; ++layer) {
@@ -41,16 +42,12 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
     // number of layers is identical for post TDR scenarios, pick v4
     // loop on number of sectors per face, two faces per disc (i.e. layer) taken into account in layer building (front/back)
     unsigned int nSector(1);
-    switch (mtdTopologyMode) {
-      case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv4):
-        nSector *= ETLDetId::kETLv4maxSector;
-        break;
-      case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5):
-        nSector *= ETLDetId::kETLv5maxSector;
-        break;
-      default:
-        throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
-        break;
+    if (etlL == ETLDetId::EtlLayout::v4) {
+      nSector *= ETLDetId::kETLv4maxSector;
+    } else if (etlL == ETLDetId::EtlLayout::v5) {
+      nSector *= ETLDetId::kETLv5maxSector;
+    } else {
+      throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
     }
 
     for (unsigned endcap = 0; endcap < 2; ++endcap) {

@@ -100,7 +100,6 @@ private:
   edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
-  std::vector<std::string> m_G4CommandsEndRun;
   edm::ParameterSet m_p;
 
   std::unique_ptr<DDDWorld> m_world;

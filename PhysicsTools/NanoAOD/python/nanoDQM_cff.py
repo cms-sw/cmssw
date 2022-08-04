@@ -137,9 +137,6 @@ nanoDQMQTester = DQMQualityTester(
     verboseQT =  cms.untracked.bool(True)
 )
 
-(run3_nanoAOD_devel).toModify(nanoDQM.vplots, Electron = None)
-(run3_nanoAOD_devel).toModify(nanoDQMMC.vplots, Electron = None)
-
 _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_94XMiniAODv1 |
                run2_nanoAOD_94XMiniAODv2 |

@@ -24,7 +24,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -46,11 +46,13 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 class L1RCTLookupTables;
 class L1RCT;
 
-class L1RCTSaveInput : public edm::EDAnalyzer {
+class L1RCTSaveInput : public edm::one::EDAnalyzer<> {
 public:
   explicit L1RCTSaveInput(const edm::ParameterSet &);
   ~L1RCTSaveInput() override;
@@ -62,8 +64,8 @@ private:
   L1RCT *rct;
   bool useEcal;
   bool useHcal;
-  edm::InputTag ecalDigisLabel;
-  edm::InputTag hcalDigisLabel;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalDigisToken_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalDigisToken_;
   edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> rctParametersToken_;
   edm::ESGetToken<L1RCTChannelMask, L1RCTChannelMaskRcd> channelMaskToken_;
   edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken_;

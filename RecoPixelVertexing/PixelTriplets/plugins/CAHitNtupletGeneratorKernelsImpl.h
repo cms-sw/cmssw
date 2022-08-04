@@ -220,10 +220,6 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
         auto qj = tracks->quality(jt);
         if (qj <= reject)
           continue;
-#ifdef GPU_DEBUG
-        if (foundNtuplets->size(it) != foundNtuplets->size(jt))
-          printf(" a mess\n");
-#endif
         auto opj = tracks->stateAtBS.state(jt)(2);
         auto ctj = tracks->stateAtBS.state(jt)(3);
         auto dct = nSigma2 * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
@@ -562,7 +558,8 @@ __global__ void kernel_fillHitDetIndices(HitContainer const *__restrict__ tuples
 __global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks, cms::cuda::AtomicPairCounter *apc) {
   auto &tracks = *ptracks;
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
-  auto ntracks = apc->get().m;
+  // clamp the number of tracks to the capacity of the SoA
+  auto ntracks = std::min<int>(apc->get().m, tracks.stride() - 1);
   if (0 == first)
     tracks.setNTracks(ntracks);
   for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {

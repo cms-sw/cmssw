@@ -83,7 +83,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
-  desc.add<bool>("keepDAQStatus", false);
+  desc.add<bool>("keepDAQStatus", true);
   desc.add<bool>("readMultiBX", false);
   desc.add<bool>("ge21Off", false);
   desc.add<unsigned int>("fedIdStart", FEDNumbering::MINGEMFEDID);

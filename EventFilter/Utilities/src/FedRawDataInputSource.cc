@@ -174,8 +174,23 @@ FedRawDataInputSource::~FedRawDataInputSource() {
   quit_threads_ = true;
 
   //delete any remaining open files
-  for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++)
-    it->second.reset();
+  if (!fms_ || !fms_->exceptionDetected()) {
+    for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++)
+      it->second.reset();
+  } else {
+    //skip deleting files with exception
+    for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++) {
+      //it->second->unsetDeleteFile();
+      if (fms_->isExceptionOnData(it->second->lumi_))
+        it->second->unsetDeleteFile();
+      else
+        it->second.reset();
+    }
+    //disable deleting current file with exception
+    if (currentFile_.get())
+      if (fms_->isExceptionOnData(currentFile_->lumi_))
+        currentFile_->unsetDeleteFile();
+  }
 
   if (startedSupervisorThread_) {
     readSupervisorThread_->join();
@@ -670,7 +685,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
           break;
         }
       }
-      if (!fileIsBeingProcessed) {
+      if (!fileIsBeingProcessed && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {
         std::string fileToDelete = it->second->fileName_;
         it = filesToDelete_.erase(it);
       } else

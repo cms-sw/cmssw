@@ -1,0 +1,5 @@
+<library file="PPSTimingCalibration_PayloadInspector.cc" name="PPSTimingCalibration_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>

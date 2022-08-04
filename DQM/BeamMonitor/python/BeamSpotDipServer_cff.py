@@ -13,7 +13,7 @@ beamSpotDipServer = DQMEDAnalyzer("BeamSpotDipServer",
   #
   readFromNFS = cms.untracked.bool(True),
   #
-  dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" ),
+  dcsRecordInputTag = cms.untracked.InputTag ( "onlineMetaDataDigis" ),
   #
   sourceFile  = cms.untracked.string(
     "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt"),

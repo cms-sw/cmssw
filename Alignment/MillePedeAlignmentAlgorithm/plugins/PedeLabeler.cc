@@ -40,7 +40,7 @@ PedeLabeler::~PedeLabeler() {}
 
 //___________________________________________________________________________
 /// Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int PedeLabeler::alignableLabel(Alignable* alignable) const {
+unsigned int PedeLabeler::alignableLabel(const Alignable* alignable) const {
   if (!alignable)
     return 0;
 
@@ -60,7 +60,7 @@ unsigned int PedeLabeler::alignableLabel(Alignable* alignable) const {
 
 //___________________________________________________________________________
 // Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int PedeLabeler::alignableLabelFromParamAndInstance(Alignable* alignable,
+unsigned int PedeLabeler::alignableLabelFromParamAndInstance(const Alignable* alignable,
                                                              unsigned int /*param*/,
                                                              unsigned int /*instance*/) const {
   return this->alignableLabel(alignable);
