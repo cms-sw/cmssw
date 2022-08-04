@@ -85,10 +85,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   const auto& shower = showerParams_.getParameterSet("anodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
-  //showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
-  //showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
-  //showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
-  //showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
 }
 
@@ -1415,6 +1411,7 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits() {
       }
     }
     //ALCT shower construction with showerType_=1, comparatorhits_= 0;
-    anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 1, this_hitsInTime, 0);
+    anode_showers_[bx] = CSCShowerDigi(
+        this_inTimeHMT, false, theTrigChamber, bx, CSCShowerDigi::ShowerType::kALCTShower, this_hitsInTime, 0);
   }
 }

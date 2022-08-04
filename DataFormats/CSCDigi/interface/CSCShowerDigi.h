@@ -11,16 +11,23 @@ public:
   // Run-3 definitions as provided in DN-20-033
   enum Run3Shower { kInvalid = 0, kLoose = 1, kNominal = 2, kTight = 3 };
   // Shower types. and showers from OTMB/TMB are assigned with kLCTShower
-  enum ShowerType { kInvalidShower = 0, kALCTShower = 1, kCLCTShower = 2, kLCTShower = 3 };
+  enum ShowerType {
+    kInvalidShower = 0,
+    kALCTShower = 1,
+    kCLCTShower = 2,
+    kLCTShower = 3,
+    kEMTFShower = 4,
+    kGMTShower = 5
+  };
 
   /// Constructors
   CSCShowerDigi(const uint16_t inTimeBits,
                 const uint16_t outTimeBits,
                 const uint16_t cscID,
-                const uint16_t bx,
-                const uint16_t showerType,
-                const uint16_t wireNHits,
-                const uint16_t compNHits);
+                const uint16_t bx = 0,
+                const uint16_t showerType = 4,
+                const uint16_t wireNHits = 0,
+                const uint16_t compNHits = 0);
   /// default
   CSCShowerDigi();
 

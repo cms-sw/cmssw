@@ -61,11 +61,34 @@ std::ostream& operator<<(std::ostream& o, const CSCShowerDigi& digi) {
   compHitsStr += std::to_string(digi.getComparatorNHits());
   std::string wireHitsStr(", wireHits ");
   wireHitsStr += std::to_string(digi.getWireNHits());
+  std::string showerStr;
+  switch (showerType) {
+    case 0:
+      showerStr = "Invalid ShowerType";
+      break;
+    case 1:
+      showerStr = "AnodeShower";
+      break;
+    case 2:
+      showerStr = "CathodeShower";
+      break;
+    case 3:
+      showerStr = "MatchedShower";
+      break;
+    case 4:
+      showerStr = "EMTFShower";
+      break;
+    case 5:
+      showerStr = "GMTShower";
+      break;
+    default:
+      showerStr = "UnknownShowerType";
+  }
 
-  return o << (showerType == 0
-                   ? "Invalid ShowerType"
-                   : (showerType == 1 ? "ALCTShower" : (showerType == 2 ? "CLCTShower" : "correlatedLCTShower")))
-           << ": bx " << digi.getBX() << ", in-time bits " << digi.bitsInTime() << ", out-of-time bits "
+  //return o << (showerType == 0
+  //                 ? "Invalid ShowerType"
+  //                 : (showerType == 1 ? "ALCTShower" : (showerType == 2 ? "CLCTShower" : "correlatedLCTShower")))
+  return o << showerStr << ": bx " << digi.getBX() << ", in-time bits " << digi.bitsInTime() << ", out-of-time bits "
            << digi.bitsOutOfTime() << ((showerType == 1 or showerType == 3) ? wireHitsStr : "")
            << ((showerType == 2 or showerType == 3) ? compHitsStr : "") << ";";
 }

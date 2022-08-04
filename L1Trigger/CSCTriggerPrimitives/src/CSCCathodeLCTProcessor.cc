@@ -1294,6 +1294,7 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits() {
       }
     }
     //CLCTshower constructor with showerType_ = 2, wirehits = 0;
-    cathode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 2, 0, this_hitsInTime);
+    cathode_showers_[bx] = CSCShowerDigi(
+        this_inTimeHMT, false, theTrigChamber, bx, CSCShowerDigi::ShowerType::kCLCTShower, 0, this_hitsInTime);
   }
 }

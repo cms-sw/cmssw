@@ -170,7 +170,7 @@ public:
           for (unsigned bx = 0; bx < header2007.lctBins; bx++) {
             //CSCID is set to be 0
             //ALCTshower, showerType_= 1, wireNHits and ComparatorNHits are not available in data
-            results.push_back(CSCShowerDigi(theALCTs[bx * 2].reserved & 0x3, 0, 0, bx, 1, 0, 0));
+            results.push_back(CSCShowerDigi(theALCTs[bx * 2].reserved & 0x3, 0, 0, bx, CSCShowerDigi::ShowerType::kALCTShower, 0, 0));
           }
           return results;
         } else
