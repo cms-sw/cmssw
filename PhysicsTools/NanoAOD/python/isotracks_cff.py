@@ -53,6 +53,6 @@ isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(isoTrackTable.variables, charge = None)
 
-isoTrackSequence = cms.Sequence()
-#isoTrackTables = cms.Sequence(isoTrackTable)
-isoTrackTables = cms.Sequence()
+isoTrackSequence = cms.Sequence(finalIsolatedTracks + isoForIsoTk + isFromLostTrackForIsoTk)
+isoTrackTables = cms.Sequence(isoTrackTable)
+

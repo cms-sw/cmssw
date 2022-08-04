@@ -268,7 +268,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 ( (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) | run2_nanoAOD_102Xv1 ).toModify( jetTable.variables, puIdDisc = Var("userFloat('puId102XDisc')",float,doc="Pileup ID discriminant with 102X (2018) training", precision=10)  )
 ( (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) | run2_nanoAOD_102Xv1 ).toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings")  )
 run2_jme_2016.toModify( jetTable.variables, puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant with 80X (2016) training",precision=10))
-#run2_jme_2016.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings"))
+run2_jme_2016.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings"))
 (run2_jme_2016 & ~tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puId = Var("userInt('puId106XUL16Id')",int,doc="Pileup ID flags with 106X (2016) training"))
 (run2_jme_2016 & ~tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XUL16Disc')",float,doc="Pileup ID discriminant with 106X (2016) training",precision=10))
 (run2_jme_2016 & tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puId = Var("userInt('puId106XUL16APVId')",int,doc="Pileup ID flags with 106X (2016APV) training"))
@@ -440,7 +440,7 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tau4 = Var("userFloat('NjettinessAK8Puppi:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
-        # msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Corrected soft drop mass with PUPPI",precision=10),
+        msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Corrected soft drop mass with PUPPI",precision=10),
         btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
@@ -475,10 +475,10 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         particleNetMD_Xcc = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXcc')",float,doc="Mass-decorrelated ParticleNet tagger raw X->cc score. For X->cc vs QCD tagging, use Xcc/(Xcc+QCD)",precision=10),
         particleNetMD_Xqq = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXqq')",float,doc="Mass-decorrelated ParticleNet tagger raw X->qq (uds) score. For X->qq vs QCD tagging, use Xqq/(Xqq+QCD). For W vs QCD tagging, use (Xcc+Xqq)/(Xcc+Xqq+QCD)",precision=10),
         particleNetMD_QCD = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDbb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDcc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDothers')",float,doc="Mass-decorrelated ParticleNet tagger raw QCD score",precision=10),
-        #subJetIdx1 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>0?subjets('SoftDropPuppi')[0].key():-1", int,
-		     #doc="index of first subjet"),
-        #subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", int,
-		     #doc="index of second subjet"),
+        subJetIdx1 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>0?subjets('SoftDropPuppi')[0].key():-1", int,
+		     doc="index of first subjet"),
+        subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", int,
+		     doc="index of second subjet"),
 
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant",precision=10),
@@ -513,6 +513,8 @@ run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables, msoftdrop = None)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables, subJetIdx1 = None, subJetIdx2 = None)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
 (run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, tau4 = None)
 (run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n2b1 = None)
