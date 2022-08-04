@@ -168,7 +168,7 @@ CSCShowerDigi CSCTMBHeader2020_CCLUT::showerDigi(uint32_t idlayer) const {
   uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   //LCTshower with showerType = 3.  comparatorNHits from hmt_nhits() and wireNHit is not available
   CSCShowerDigi result(
-      hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid, bx, 3, 0, hmt_nhits());  // 2-bits intime, 2-bits out of time
+      hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid, bx, CSCShowerDigi::ShowerType::kLCTShower, 0, hmt_nhits());  // 2-bits intime, 2-bits out of time
   return result;
 }
 
@@ -176,7 +176,7 @@ CSCShowerDigi CSCTMBHeader2020_CCLUT::anodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
   uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   //ALCT shower with showerType = 1. nhits_ is not available from unpack data
-  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid, bx, 1, 0, 0);  // 2-bits intime, no out of time
+  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid, bx, CSCShowerDigi::ShowerType::kALCTShower, 0, 0);  // 2-bits intime, no out of time
   return result;
 }
 
@@ -184,7 +184,7 @@ CSCShowerDigi CSCTMBHeader2020_CCLUT::cathodeShowerDigi(uint32_t idlayer) const 
   uint16_t cscid = bits.cscID;
   uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win - bits.hmt_match_win + 3;
   //CLCT shower with showerType = 2.
-  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx, 2, 0, hmt_nhits());  // 2-bits intime, no out of time
+  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx, CSCShowerDigi::ShowerType::kCLCTShower, 0, hmt_nhits());  // 2-bits intime, no out of time
   return result;
 }
 
