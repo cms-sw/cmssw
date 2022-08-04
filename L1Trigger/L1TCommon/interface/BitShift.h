@@ -3,8 +3,8 @@
 
 namespace l1t {
 
-  inline int bitShift(int num, int bits) {                          
-    if (num < 0) {                                   
+  inline int bitShift(int num, int bits) {
+    if (num < 0) {
       return -1 * ((-1 * num) << bits);
     } else {
       return (num << bits);
