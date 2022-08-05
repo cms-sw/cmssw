@@ -302,7 +302,7 @@ namespace cms::alpakatools {
             out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " reused cached block at "
                 << block.buffer->data() << " (" << block.bytes << " bytes) for queue "
                 << block.queue->m_spQueueImpl.get() << ", event " << block.event->m_spEventImpl.get()
-                << " (previously associated with stream " << iBlock->second.queue->m_spQueueImpl.get() << " , event "
+                << " (previously associated with queue " << iBlock->second.queue->m_spQueueImpl.get() << " , event "
                 << iBlock->second.event->m_spEventImpl.get() << ")." << std::endl;
             std::cout << out.str() << std::endl;
           }

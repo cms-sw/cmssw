@@ -11,7 +11,7 @@ namespace cms::alpakatools {
   alpaka::Dev<TPlatform> const& chooseDevice(edm::StreamID id) {
     // For startes we "statically" assign the device based on
     // edm::Stream number. This is suboptimal if the number of
-    // edm::Streams is not a multiple of the number of CUDA devices
+    // edm::Streams is not a multiple of the number of devices
     // (and even then there is no load balancing).
 
     // TODO: improve the "assignment" logic
