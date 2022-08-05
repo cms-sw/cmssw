@@ -13,6 +13,9 @@ autoSkim = {
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
  'MonteCarlo':'EXODisappTrk+LogError+LogErrorMonitor',
+
+ # Used in unit test scenario ppEra_Run2_2018
+ 'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
 autoSkimRunII = {
