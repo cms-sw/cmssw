@@ -638,7 +638,8 @@ namespace pixelgpudetails {
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
 
-      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                              digis_d.view().moduleInd(),
                                                               digis_d.view().xx(),
                                                               digis_d.view().yy(),
                                                               clusters_d.moduleStart(),
@@ -742,7 +743,8 @@ namespace pixelgpudetails {
     threadsPerBlock = 256;
     blocks = phase2PixelTopology::numberOfModules;
 
-    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                           digis_d.view().moduleInd(),
                                                            digis_d.view().xx(),
                                                            digis_d.view().yy(),
                                                            clusters_d.moduleStart(),
