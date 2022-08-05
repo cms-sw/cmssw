@@ -1,1 +1,7 @@
 <test name="testHeterogeneousCoreAlpakaTestWriteRead" command="testHeterogeneousCoreAlpakaTestWriteRead.sh"/>
+
+<ifrelease name="_GPU_">
+  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cuda"/>
+<else/>
+  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cpu"/>
+</ifrelease>
