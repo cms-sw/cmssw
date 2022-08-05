@@ -8,6 +8,7 @@
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 // generic SoA-based product in host memory
 template <typename T>
@@ -31,7 +32,7 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TDev>
+  template <typename TDev, typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev>>>
   PortableHostCollection(int32_t elements, alpaka_common::DevHost const &host, TDev const &device)
       // allocate pinned host memory, accessible by the given device
       : buffer_{alpaka::allocMappedBuf<std::byte, uint32_t>(
