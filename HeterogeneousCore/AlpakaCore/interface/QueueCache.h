@@ -8,11 +8,25 @@
 
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 namespace cms::alpakatools {
 
   template <typename Queue>
   class QueueCache {
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+    friend class alpaka_cuda_async::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+    friend class alpaka_hip_async::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+    friend class alpaka_serial_sync::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
+    friend class alpaka_tbb_async::AlpakaService;
+#endif
+
     using Device = alpaka::Dev<Queue>;
     using Platform = alpaka::Pltf<Device>;
 
@@ -29,7 +43,7 @@ namespace cms::alpakatools {
     }
 
   private:
-    // FIXME: not thread safe, intended to be called only from CUDAService destructor ?
+    // not thread safe, intended to be called only from AlpakaService
     void clear() {
       // Reset the contents of the caches, but leave an
       // edm::ReusableObjectHolder alive for each device. This is needed
