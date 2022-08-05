@@ -252,6 +252,7 @@ class Process(object):
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
                               holdsReferencesToDeleteEarly = untracked.VPSet(),
+                              modulesToIgnoreForDeleteEarly = untracked.vstring(),
                               dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,

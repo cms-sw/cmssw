@@ -455,6 +455,8 @@ namespace edm {
           referencesToBranches_.emplace(product, ref);
         }
       }
+      modulesToIgnoreForDeleteEarly_ =
+          optionsPset.getUntrackedParameter<std::vector<std::string>>("modulesToIgnoreForDeleteEarly");
     }
 
     // Now do general initialization
@@ -671,7 +673,8 @@ namespace edm {
     // modules to avoid non-consumed non-run modules to keep the
     // products unnecessarily alive
     if (not branchesToDeleteEarly_.empty()) {
-      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, referencesToBranches_, *preg_);
+      auto modulesToSkip = std::move(modulesToIgnoreForDeleteEarly_);
+      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, referencesToBranches_, modulesToSkip, *preg_);
       decltype(branchesToDeleteEarly_)().swap(branchesToDeleteEarly_);
       referencesToBranches_.clear();
     }

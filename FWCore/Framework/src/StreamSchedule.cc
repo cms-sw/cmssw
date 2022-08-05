@@ -391,6 +391,7 @@ namespace edm {
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
                                              std::vector<std::string> const& branchesToDeleteEarly,
                                              std::multimap<std::string, std::string> const& referencesToBranches,
+                                             std::vector<std::string> const& modulesToSkip,
                                              edm::ProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
@@ -426,7 +427,11 @@ namespace edm {
       return;
     }
 
+    std::unordered_set<std::string> modulesToExclude(modulesToSkip.begin(), modulesToSkip.end());
     for (auto w : allWorkers()) {
+      if (modulesToExclude.end() != modulesToExclude.find(w->description()->moduleLabel())) {
+        continue;
+      }
       //determine if this module could read a branch we want to delete early
       auto consumes = w->consumesInfo();
       if (not consumes.empty()) {
