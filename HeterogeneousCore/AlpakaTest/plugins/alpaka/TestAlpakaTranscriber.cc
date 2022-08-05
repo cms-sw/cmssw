@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "HeterogeneousCore/AlpakaCore/interface/chooseDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
@@ -36,9 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (not service->enabled()) {
         throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
       }
-      auto& devices = service->devices();
-      unsigned int index = sid.value() % devices.size();
-      device_ = devices[index];
+      device_ = cms::alpakatools::chooseDevice<Platform>(sid);
     }
 
     void produce(edm::Event& event, edm::EventSetup const&) override {

@@ -15,6 +15,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 // Inspired by cub::CachingDeviceAllocator
 
@@ -85,6 +86,19 @@ namespace cms::alpakatools {
             typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
   class CachingAllocator {
   public:
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+    friend class alpaka_cuda_async::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+    friend class alpaka_hip_async::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+    friend class alpaka_serial_sync::AlpakaService;
+#endif
+#ifdef ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
+    friend class alpaka_tbb_async::AlpakaService;
+#endif
+
     using Device = TDev;                 // the "memory device", where the memory will be allocated
     using Queue = TQueue;                // the queue used to submit the memory operations
     using Event = alpaka::Event<Queue>;  // the events used to synchronise the operations
