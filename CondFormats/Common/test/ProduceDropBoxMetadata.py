@@ -213,11 +213,17 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaData        = cms.untracked.string(CTPPSRPAlignmentCorrectionsDataRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(CTPPSRPAlignmentCorrectionsDataRcd_prep_str),
                                                                ),
-                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd'),
+                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd_HPTDC'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd_SAMPIC'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prod_str),
+                                                               prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prep_str),
                                                                )
                                                       ),
                                   # this boolean will read the content of whichever payload is available and print its content to stoutput
@@ -246,5 +252,4 @@ if process.mywriter.write:
                                               )
     
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '121X_dataRun3_Express_Queue'
-
+process.GlobalTag.globaltag = '124X_dataRun3_Express_Queue'
