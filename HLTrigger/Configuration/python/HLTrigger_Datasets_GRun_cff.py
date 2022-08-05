@@ -728,13 +728,31 @@ streamParkingDoubleMuonLowMass3_datasetParkingDoubleMuonLowMass7_selector.trigge
 )
 
 
-# stream ParkingSingleMuon
+# stream ParkingSingleMuon0
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon_datasetParkingSingleMuon_selector
-streamParkingSingleMuon_datasetParkingSingleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamParkingSingleMuon_datasetParkingSingleMuon_selector.l1tResults = cms.InputTag('')
-streamParkingSingleMuon_datasetParkingSingleMuon_selector.throw      = cms.bool(False)
-streamParkingSingleMuon_datasetParkingSingleMuon_selector.triggerConditions = cms.vstring('HLT_Mu12_IP6_v1')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon0_datasetParkingSingleMuon0_selector
+streamParkingSingleMuon0_datasetParkingSingleMuon0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon0_datasetParkingSingleMuon0_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon0_datasetParkingSingleMuon0_selector.throw      = cms.bool(False)
+streamParkingSingleMuon0_datasetParkingSingleMuon0_selector.triggerConditions = cms.vstring('HLT_Mu12_IP6_v1')
+
+
+# stream ParkingSingleMuon1
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon1_datasetParkingSingleMuon1_selector
+streamParkingSingleMuon1_datasetParkingSingleMuon1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon1_datasetParkingSingleMuon1_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon1_datasetParkingSingleMuon1_selector.throw      = cms.bool(False)
+streamParkingSingleMuon1_datasetParkingSingleMuon1_selector.triggerConditions = cms.vstring('HLT_Mu12_IP6_v1')
+
+
+# stream ParkingSingleMuon2
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon2_datasetParkingSingleMuon2_selector
+streamParkingSingleMuon2_datasetParkingSingleMuon2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon2_datasetParkingSingleMuon2_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon2_datasetParkingSingleMuon2_selector.throw      = cms.bool(False)
+streamParkingSingleMuon2_datasetParkingSingleMuon2_selector.triggerConditions = cms.vstring('HLT_Mu12_IP6_v1')
 
 
 # stream PhysicsCommissioning
