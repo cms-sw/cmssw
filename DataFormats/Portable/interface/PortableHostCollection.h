@@ -70,8 +70,8 @@ public:
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostCollection *newObj, Layout const &layout) {
     newObj->~PortableHostCollection();
-    // use the global "host" object returned by alpaka_common::host()
-    new (newObj) PortableHostCollection(layout.metadata().size(), alpaka_common::host());
+    // use the global "host" object returned by cms::alpakatools::host()
+    new (newObj) PortableHostCollection(layout.metadata().size(), cms::alpakatools::host());
     newObj->layout_.ROOTReadStreamer(layout);
   }
 
