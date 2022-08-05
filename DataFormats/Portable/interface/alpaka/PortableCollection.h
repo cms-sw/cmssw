@@ -9,6 +9,7 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/TransferToHost.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -38,5 +39,21 @@ namespace traits {
   };
 
 }  // namespace traits
+
+namespace cms::alpakatools {
+  // TODO: Is this the right place for the specialization? Or should it be in PortableDeviceProduct?
+  template <typename T>
+  struct TransferToHost<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>> {
+    using HostDataType = ::PortableHostCollection<T>;
+
+    template <typename TQueue>
+    static HostDataType transferAsync(TQueue& queue,
+                                      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T> const& deviceData) {
+      HostDataType hostData(deviceData->metadata().size(), queue);
+      alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
+      return hostData;
+    }
+  };
+}  // namespace cms::alpakatools
 
 #endif  // DataFormats_Portable_interface_alpaka_PortableDeviceCollection_h
