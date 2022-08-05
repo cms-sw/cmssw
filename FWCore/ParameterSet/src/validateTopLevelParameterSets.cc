@@ -97,6 +97,10 @@ namespace edm {
           ->setComment(
               "The 'product' branch name of product which internally hold references to data in another product");
     }
+    description.addUntracked<std::vector<std::string>>("modulesToIgnoreForDeleteEarly", emptyVector)
+        ->setComment(
+            "labels of modules whose consumes information will be ingored when determing lifetime for delete early "
+            "data products");
     description.addUntracked<bool>("dumpOptions", false)
         ->setComment(
             "Print values of selected Framework parameters. The Framework might modify the values "
