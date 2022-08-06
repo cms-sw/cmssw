@@ -6,7 +6,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, imp, re, random
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -53,6 +53,11 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load("IOMC.RandomEngine.IOMC_cff")
+
+rndm = random.randint(0,200000)
+process.RandomNumberGeneratorService.generator.initialSeed = rndm
+print("Processing with random number seed: ", rndm)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
