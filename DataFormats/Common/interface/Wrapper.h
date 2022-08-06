@@ -46,7 +46,7 @@ namespace edm {
     Wrapper(T*);
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(3)
+    CMS_CLASS_VERSION(4)
 
   private:
     bool isPresent_() const override { return present; }
