@@ -275,7 +275,7 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker&
 
 void PPSDiamondSampicTimingCalibrationPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("timingCalibrationTag", "GlobalTag:DiamondSampicCalibration")
+  desc.add<std::string>("timingCalibrationTag", "GlobalTag:PPSDiamondSampicCalibration")
       ->setComment("input tag for timing calibration retrieval");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSDiamondSampicTimingCalibrationPCL")
       ->setComment("input path for the various DQM plots");

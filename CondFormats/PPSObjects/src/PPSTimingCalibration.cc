@@ -60,7 +60,12 @@ std::ostream& operator<<(std::ostream& os, const PPSTimingCalibration& data) {
     os << kv.first << " [";
     for (size_t i = 0; i < kv.second.size(); ++i)
       os << (i > 0 ? ", " : "") << kv.second.at(i);
-    const auto& time = data.timeInfo_.at(kv.first);
+
+    PPSTimingCalibration::Key key = kv.first;
+    if (data.timeInfo_.find(key) == data.timeInfo_.end())
+      key = {kv.first.db, kv.first.sampic, kv.first.channel, -1};
+
+    const auto& time = data.timeInfo_.at(key);
     os << "] " << time.first << " " << time.second << "\n";
   }
   return os;
