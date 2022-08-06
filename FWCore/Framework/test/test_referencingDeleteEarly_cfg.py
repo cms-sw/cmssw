@@ -8,7 +8,7 @@ process.maxEvents.input = 3
 
 process.options = cms.untracked.PSet(
         canDeleteEarly = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
-process.options.holdsReferencesToDeleteEarly = [cms.PSet(product=cms.string("edmtestDeleteEarlyedmRefProd_ref__TEST"), references=cms.vstring(process.options.canDeleteEarly[0]))]
+process.options.holdsReferencesToDeleteEarly = [cms.PSet(product=cms.string("edmtestDeleteEarlyedmRefProd_ref__TEST"), references=cms.vstring("edmtestDeleteEarly_maker__TEST"))]
 
 process.maker = cms.EDProducer("DeleteEarlyProducer")
 
