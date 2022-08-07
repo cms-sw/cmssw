@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="TotemT2Digi" ClassVersion="10">
+    <version ClassVersion="10" checksum="4024006040"/>
+  </class>
+  <class name="edm::DetSet<TotemT2Digi>"/>
+  <class name="edm::DetSetVector<TotemT2Digi>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemT2Digi> >"/>
+  <class name="std::vector<TotemT2Digi>"/>
+  <class name="std::vector<edm::DetSet<TotemT2Digi> >"/>
+</lcgdict>
