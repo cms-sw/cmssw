@@ -1,12 +1,10 @@
 autoSkim = {
  'BTagMu' : 'LogError+LogErrorMonitor',
- 'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
  'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+LogError+LogErrorMonitor',
- 'MET' : 'EXOHighMET+EXODelayedJetMET+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+LogError+LogErrorMonitor',
  'EGamma':'ZElectron+WElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
- 'SingleMuon' : 'ZMu+LogError+LogErrorMonitor',
- 'DoubleMuon' : 'LogError+LogErrorMonitor',
+ 'Muon' : 'ZMu+LogError+LogErrorMonitor',
  'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
  'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
@@ -14,8 +12,10 @@ autoSkim = {
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
- 'ParkingBPH':'SkimBPark+LogError+LogErrorMonitor',
  'MonteCarlo':'EXODisappTrk+LogError+LogErrorMonitor',
+
+ # Used in unit test scenario ppEra_Run2_2018
+ 'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
 autoSkimRunII = {
