@@ -257,7 +257,7 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::calibDb(DQMStore::IGetter& i
   auto calibPPS = PPSTimingCalibration(formula, params, time_info);
   // write the object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->writeOneIOV(calibPPS, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+  poolDbService->writeOneIOV(calibPPS, poolDbService->currentTime(), "PPSTimingCalibrationRcd_SAMPIC");
 }
 
 //------------------------------------------------------------------------------

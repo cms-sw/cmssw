@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
@@ -45,7 +45,8 @@ TotemTriggerRawToDigi::TotemTriggerRawToDigi(const edm::ParameterSet &conf)
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   if (fedId == 0)
-    fedId = FEDNumbering::MINTotemTriggerFEDID;
+    throw cms::Exception("TotemTriggerRawToDigi")
+        << "Invalid FED id for TOTEM trigger. Please specify it through the 'fedId' parameter.";
 
   produces<TotemTriggerCounters>();
 }
