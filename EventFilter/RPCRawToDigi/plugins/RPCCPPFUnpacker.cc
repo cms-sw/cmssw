@@ -220,7 +220,8 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     return;
   }
 
-  if ((bx - cppfDaq_Delay) < bx_min || (bx - cppfDaq_Delay) > bx_max) {
+  auto bx_corrected = bx - cppfDaq_Delay;
+  if (bx_corrected < bx_min || bx_corrected > bx_max) {
     return;
   }
 
