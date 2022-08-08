@@ -97,6 +97,8 @@ private:
 
   std::vector<std::string> newmodulelist_;
   const std::string dqmDir_;
+  const bool doChebyshevFit_;
+  const int order_;
   const double fitChi2Cut_;
   const int minHitsCut_;
   const std::string recordName_;
@@ -104,7 +106,7 @@ private:
   float width_;
   float theMagField_{0.f};
 
-  static constexpr float inverseGeVtoTesla_ = 2.99792458e-3f;
+  static constexpr float teslaToInverseGeV_ = 2.99792458e-3f;
 
   SiPixelLorentzAngleCalibrationHistograms hists_;
   const SiPixelLorentzAngle* currentLorentzAngle_;
@@ -120,6 +122,8 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       newmodulelist_(iConfig.getParameter<std::vector<std::string>>("newmodulelist")),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+      doChebyshevFit_(iConfig.getParameter<bool>("doChebyshevFit")),
+      order_(iConfig.getParameter<int>("order")),
       fitChi2Cut_(iConfig.getParameter<double>("fitChi2Cut")),
       minHitsCut_(iConfig.getParameter<int>("minHitsCut")),
       recordName_(iConfig.getParameter<std::string>("record")) {
@@ -144,7 +148,7 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   // theInverseBzAtOriginInGeV = 1.f / (at0z * 2.99792458e-3f);
   // ==> at0z = 1.f / (theInverseBzAtOriginInGeV * 2.99792458e-3f)
 
-  theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * inverseGeVtoTesla_);
+  theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * teslaToInverseGeV_);
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   hists_.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
@@ -591,9 +595,16 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   // output results
   SiPixelLAHarvest::fitResults res;
 
-  double half_width = width_ * 10000 / 2;  // pixel half thickness in units of micro meter
+  double half_width = width_ * siPixelLACalibration::cmToum / 2.f;  // pixel half thickness in units of micro meter
 
-  f1_ = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
+  if (doChebyshevFit_) {
+    const int npar = order_ + 1;
+    auto cheb = new siPixelLACalibration::Chebyshev(order_, 5., 280.);
+    f1_ = std::make_unique<TF1>("ff", cheb, 5., 280., npar, "Chebyshev");
+  } else {
+    f1_ = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
+  }
+
   f1_->SetParName(0, "offset");
   f1_->SetParName(1, "tan#theta_{LA}");
   f1_->SetParName(2, "quad term");
@@ -719,6 +730,8 @@ void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescrip
   desc.setComment("Harvester module of the SiPixel Lorentz Angle PCL monitoring workflow");
   desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
   desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle")->setComment("the directory of PCL Worker output");
+  desc.add<bool>("doChebyshevFit", false)->setComment("use Chebyshev polynomials for the dript vs depth fit");
+  desc.add<int>("order", 5)->setComment("order of the Chebyshev polynomial used for the fit");
   desc.add<double>("fitChi2Cut", 20.)->setComment("cut on fit chi2/ndof to accept measurement");
   desc.add<int>("minHitsCut", 10000)->setComment("cut on minimum number of on-track hits to accept measurement");
   desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
