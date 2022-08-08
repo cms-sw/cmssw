@@ -95,7 +95,9 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
     return false;
 }
 
-bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TrackerMuonRef& r1, l1t::TrackerMuonRef& r2) const {
+bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent,
+                                            l1t::TrackerMuonRef& r1,
+                                            l1t::TrackerMuonRef& r2) const {
   if (minDR_ < 0.)
     return true;
 

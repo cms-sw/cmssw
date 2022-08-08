@@ -90,7 +90,7 @@ namespace trigger {
   // This is a std::vector<TrackerMuonRef>,
   // and should be called TrackerMuonVectorRef upstream.
   // The L1T group should be made aware of that
-  typedef l1t::TrackerMuonRefVector VRl1ttkmuon; 
+  typedef l1t::TrackerMuonRefVector VRl1ttkmuon;
   typedef l1t::TkElectronVectorRef VRl1ttkele;
   typedef l1t::TkEmVectorRef VRl1ttkem;
   typedef l1t::PFJetVectorRef VRl1tpfjet;

@@ -46,12 +46,12 @@ namespace l1t {
     void setHwIsoSumAp(int isoSum) { hwIsoSumAp_ = isoSum; }
 
     // For HLT
-    const double phZ0() const { return Phase2L1GMT::LSBGTz0*hwZ0();}
-    const double phD0() const { return Phase2L1GMT::LSBGTd0*hwD0();}
-    const double phPt() const { return Phase2L1GMT::LSBpt*hwPt();}
-    const double phEta() const { return Phase2L1GMT::LSBeta*hwEta();}
-    const double phPhi() const { return Phase2L1GMT::LSBphi*hwPhi();}
-    const int    phCharge() const {return pow(-1,hwCharge()); }
+    const double phZ0() const { return Phase2L1GMT::LSBGTz0 * hwZ0(); }
+    const double phD0() const { return Phase2L1GMT::LSBGTd0 * hwD0(); }
+    const double phPt() const { return Phase2L1GMT::LSBpt * hwPt(); }
+    const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
+    const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
+    const int phCharge() const { return pow(-1, hwCharge()); }
 
     const std::array<uint64_t, 2> word() const { return word_; }
     void setWord(std::array<uint64_t, 2> word) { word_ = word; }
