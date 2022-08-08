@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ticlTrackstersMerge = cms.EDProducer("TrackstersMergeProducer",
+ticlTrackstersMerge = cms.EDProducer("TrackstersMergeProducerV3",
     cosangle_align = cms.double(0.9945),
     debug = cms.bool(True),
     e_over_h_threshold = cms.double(1),
