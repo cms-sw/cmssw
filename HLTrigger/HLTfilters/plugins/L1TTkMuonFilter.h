@@ -41,7 +41,7 @@ private:
     std::unordered_map<int, std::vector<int>> allowedQualities_;
   };
 
-  edm::InputTag l1TkMuonTag_;  //input tag for L1 TrackerMuon product
+  edm::InputTag l1TkMuonTag_;                                 //input tag for L1 TrackerMuon product
   edm::EDGetTokenT<l1t::TrackerMuonCollection> tkMuonToken_;  // token identifying product containing L1 TrackerMuons
 
   double min_Pt_;                        // min pt cut

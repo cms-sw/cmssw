@@ -122,20 +122,20 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
   // However, it doesn't support std::vector<l1t::EtSum>, only the
   // older BXVector<l1t::EtSum> collection.
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMET) {
-      // MET is index [0], and uses .et() method
-      onlinePt = iSum->et();
+    // MET is index [0], and uses .et() method
+    onlinePt = iSum->et();
   }
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
-      // HT is index [0], and uses .pt() method
-      onlinePt = iSum->pt();
+    // HT is index [0], and uses .pt() method
+    onlinePt = iSum->pt();
   }
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
-      // MHT is index [1], and uses .pt() method
-      ++iSum;
-      onlinePt = iSum->pt();
+    // MHT is index [1], and uses .pt() method
+    ++iSum;
+    onlinePt = iSum->pt();
   }
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT) {
-      // As of now, L1 doesn't support this object it seems.
+    // As of now, L1 doesn't support this object it seems.
   }
 
   // Do the scaling
@@ -143,9 +143,9 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
 
   // Add the passing element to the filterproduct.
   if (offlinePt >= minPt_) {
-      ++nSum;
-      edm::Ref<std::vector<T>> ref(l1tSums, std::distance(l1tSums->begin(), iSum));
-      filterproduct.addObject(l1tSumType_, ref);
+    ++nSum;
+    edm::Ref<std::vector<T>> ref(l1tSums, std::distance(l1tSums->begin(), iSum));
+    filterproduct.addObject(l1tSumType_, ref);
   }
 
   // return final filter decision
