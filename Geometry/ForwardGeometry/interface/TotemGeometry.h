@@ -25,7 +25,7 @@ public:
   const TotemT2Tile& tile(const TotemT2DetId&) const;
 
 private:
-  void browse(const DetGeomDesc*&, bool in_t2);
+  void browse(const DetGeomDesc*, bool in_t2);
   void browseT2(const DetGeomDesc*&);
 
   std::map<TotemT2DetId, const DetGeomDesc*> nt2_planes_;
