@@ -625,8 +625,10 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   run2_nanoAOD_ANY.toModify(proc.jetTable, name = "Jet")
   # So need to change the table name for AK4 puppi here
-  run2_nanoAOD_ANY.toModify(proc.jetPuppiTable, name = "JetPuppi")
-  run2_nanoAOD_ANY.toModify(proc.jetPuppiTable, src = cms.InputTag("finalJetsPuppi"))
+  run2_nanoAOD_ANY.toModify(proc.jetPuppiTable,
+   name = "JetPuppi",
+   src = cms.InputTag("finalJetsPuppi")
+  )
   
   #
   # Jet table documentation
@@ -780,8 +782,10 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   #
-  run2_nanoAOD_ANY.toModify(proc.jetTable, src = cms.InputTag("linkedObjects","jets"))
-  run2_nanoAOD_ANY.toModify(proc.jetTable, name = "Jet")
+  run2_nanoAOD_ANY.toModify(proc.jetTable, 
+    src = cms.InputTag("linkedObjects","jets"),
+    name = "Jet"
+  )
 
   #
   # Jet table documentation
@@ -909,23 +913,28 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   _jetTablesTask = proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
   (~run2_nanoAOD_ANY).toReplaceWith(proc.jetTablesTask, _jetTablesTask)
 
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leadTrackPt = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRel = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRatio = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRelInv = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRelv0 = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRatiov0 = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPtRelInvv0 = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonDeltaR = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, leptonPt = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, vtxPt = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, vtxMass = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, vtx3dL = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, vtx3deL = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, ptD = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats, genPtwNu = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userInts, vtxNtrk = None)
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userInts, leptonPdgId = None)
+  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats,
+    leadTrackPt = None,
+    leptonPtRel = None,
+    leptonPtRatio = None,
+    leptonPtRelInv = None,
+    leptonPtRelv0 = None,
+    leptonPtRatiov0 = None,
+    leptonPtRelInvv0 = None,
+    leptonDeltaR = None,
+    leptonPt = None,
+    vtxPt = None,
+    vtxMass = None,
+    vtx3dL = None,
+    vtx3deL = None,
+    ptD = None,
+    genPtwNu = None
+  )
+
+  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userInts,
+    vtxNtrk = None,
+    leptonPdgId = None
+  )
 
   (~run2_nanoAOD_ANY).toModify(proc.jetTable, externalVariables = cms.PSet())
 
@@ -1295,17 +1304,17 @@ def PrepJMECustomNanoAOD(process,runOnMC):
       proc.nanoTableTaskCommon.add(proc.jetPuppiForMETTask)
     return proc
 
-  jmeNano_addAK4JetTaks_switch = cms.PSet(
+  jmeNano_addAK4JetTasks_switch = cms.PSet(
     jmeNano_addAK4CHS_switch = cms.untracked.bool(True),
     jmeNano_addAK4Puppi_switch = cms.untracked.bool(False)
   )
-  run2_nanoAOD_ANY.toModify(jmeNano_addAK4JetTaks_switch, 
+  run2_nanoAOD_ANY.toModify(jmeNano_addAK4JetTasks_switch,
     jmeNano_addAK4CHS_switch = False,
     jmeNano_addAK4Puppi_switch = True
   )
   process = addAK4JetTasks(process, 
-    addAK4CHSJetTasks = jmeNano_addAK4JetTaks_switch.jmeNano_addAK4CHS_switch,
-    addAK4PuppiJetTasks = jmeNano_addAK4JetTaks_switch.jmeNano_addAK4Puppi_switch,
+    addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4CHS_switch,
+    addAK4PuppiJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4Puppi_switch,
   )
 
   ###########################################################################
