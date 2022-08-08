@@ -28,11 +28,11 @@ private:
   /// Tile centre position
   GlobalPoint centre_;
   /// Leading edge time
-  float time_;
+  float time_{0.f};
   /// Uncertainty on leading edge time
-  float time_unc_;
+  float time_unc_{0.f};
   /// Time over threshold/pulse width
-  float tot_;
+  float tot_{0.f};
 };
 
 bool operator<(const TotemT2RecHit&, const TotemT2RecHit&);

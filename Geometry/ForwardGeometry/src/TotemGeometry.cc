@@ -8,25 +8,16 @@
 
 #include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
 
-TotemGeometry::TotemGeometry(const DetGeomDesc* dgd) {
-  std::deque<const DetGeomDesc*> buffer;
-  buffer.emplace_back(dgd);
-  while (!buffer.empty()) {
-    // get the next item
-    const auto* desc = buffer.front();
-    buffer.pop_front();
-    browse(desc, false);
-  }
-}
+TotemGeometry::TotemGeometry(const DetGeomDesc* dgd) { browse(dgd, false); }
 
-void TotemGeometry::browse(const DetGeomDesc*& parent, bool in_t2) {
+void TotemGeometry::browse(const DetGeomDesc* parent, bool in_t2) {
   if (parent->name() == "TotemT2")
     in_t2 = true;  // define the mother volume for all children
   if (in_t2)
     browseT2(parent);
   // start the recursive browsing
   for (const auto& child : parent->components())
-    browse(const_cast<const DetGeomDesc*&>(child), in_t2);
+    browse(child, in_t2);
 }
 
 void TotemGeometry::browseT2(const DetGeomDesc*& parent) {

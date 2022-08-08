@@ -20,6 +20,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
@@ -60,27 +61,21 @@ TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
   if (applyCalib_)
     timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
-  produces<edm::DetSetVector<TotemT2RecHit> >();
+  produces<edmNew::DetSetVector<TotemT2RecHit> >();
 }
 
 void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto pOut = std::make_unique<edm::DetSetVector<TotemT2RecHit> >();
+  auto pOut = std::make_unique<edmNew::DetSetVector<TotemT2RecHit> >();
 
   // get the digi collection
-  edm::Handle<edm::DetSetVector<TotemT2Digi> > digis;
-  iEvent.getByToken(digiToken_, digis);
+  const auto& digis = iEvent.get(digiToken_);
 
-  if (!digis->empty()) {
-    if (applyCalib_ && calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
-      edm::ESHandle<PPSTimingCalibrationLUT> hTimingCalibLUT = iSetup.getHandle(timingCalibrationLUTToken_);
-      algo_.setCalibration(*hTimingCalib, *hTimingCalibLUT);
-    }
-    // get the geometry
-    edm::ESHandle<TotemGeometry> geometry = iSetup.getHandle(geometryToken_);
+  if (!digis.empty()) {
+    if (applyCalib_ && calibWatcher_.check(iSetup))
+      algo_.setCalibration(iSetup.getData(timingCalibrationToken_), iSetup.getData(timingCalibrationLUTToken_));
 
     // produce the rechits collection
-    algo_.build(*geometry, *digis, *pOut);
+    algo_.build(iSetup.getData(geometryToken_), digis, *pOut);
   }
 
   iEvent.put(std::move(pOut));

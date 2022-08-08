@@ -29,7 +29,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  const edm::ESGetToken<DetGeomDesc, TotemGeometryRcd> detGeomDescToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddlToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
 

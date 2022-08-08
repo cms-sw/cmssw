@@ -7,4 +7,3 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="clhep"/>
-<use name="Geom"/>

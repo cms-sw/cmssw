@@ -15,8 +15,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PTotemRcd.h"
 
-#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
-
 /**
  * \ingroup TotemGeometry
  * \brief Event setup record containing the real (actual) geometry information.
