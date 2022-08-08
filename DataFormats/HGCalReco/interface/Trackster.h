@@ -38,7 +38,7 @@ namespace ticl {
 
     Trackster()
         : iterationIndex_(0),
-          seedIndex_(0),
+          seedIndex_(-1),
           time_(0.f),
           timeError_(-1.f),
           regressed_energy_(0.f),
