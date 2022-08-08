@@ -295,29 +295,29 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
        of view of the final cluster charge since these are typically >= 20000.
     */
 
-    if (adc >= thePixelThreshold) {
-      thePixelOccurrence[theBuffer.index(row, col)]++;                     // increment the occurrence counter
-      uint8_t occurrence = thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
+    thePixelOccurrence[theBuffer.index(row, col)]++;                     // increment the occurrence counter
+    uint8_t occurrence = thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
 
-      switch (occurrence) {
-        // the 1st occurrence (standard treatment)
-        case 1:
+    switch (occurrence) {
+      // the 1st occurrence (standard treatment)
+      case 1:
+        if (adc >= thePixelThreshold) {
           theBuffer.set_adc(row, col, adc);
           // VV: add pixel to the fake list. Only when running on digi collection
           if (di->flag() != 0)
             theFakePixels[row * theNumOfCols + col] = true;
           if (adc >= theSeedThreshold)
             theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
-          break;
+        }
+        break;
 
-        // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
-        case 2:
-          theBuffer.set_adc(row, col, 0);
-          std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
-          break;
+      // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
+      case 2:
+        theBuffer.set_adc(row, col, 0);
+        std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
+        break;
 
-          // in case a pixel appears more than twice, nothing needs to be done because it was already removed at the 2nd occurrence
-      }
+        // in case a pixel appears more than twice, nothing needs to be done because it was already removed at the 2nd occurrence
     }
   }
   assert(i == (end - begin));
