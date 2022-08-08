@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/chooseDevice.h"
+#include "HeterogeneousCore/AlpakaCore/interface/ScopedContext.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 
@@ -30,25 +30,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TestAlpakaTranscriber(edm::ParameterSet const& config)
         : deviceToken_{consumes(config.getParameter<edm::InputTag>("source"))}, hostToken_{produces()} {}
 
-    void beginStream(edm::StreamID sid) override {
-      // choose a device based on the EDM stream number
+    void beginStream(edm::StreamID) override {
       edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
       if (not service->enabled()) {
         throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
       }
-      device_ = cms::alpakatools::chooseDevice<Platform>(sid);
     }
 
     void produce(edm::Event& event, edm::EventSetup const&) override {
-      // create a queue to submit async work
-      Queue queue{*device_};
+      // create a context based on the EDM stream number
+      cms::alpakatools::ScopedContextProduce<Queue> ctx(event.streamID());
+
       portabletest::TestDeviceCollection const& deviceProduct = event.get(deviceToken_);
 
-      portabletest::TestHostCollection hostProduct{deviceProduct->metadata().size(), queue};
-      alpaka::memcpy(queue, hostProduct.buffer(), deviceProduct.const_buffer());
+      portabletest::TestHostCollection hostProduct{deviceProduct->metadata().size(), ctx.queue()};
+      alpaka::memcpy(ctx.queue(), hostProduct.buffer(), deviceProduct.const_buffer());
 
       // wait for any async work to complete
-      alpaka::wait(queue);
+      alpaka::wait(ctx.queue());
 
       event.emplace(hostToken_, std::move(hostProduct));
     }
@@ -62,9 +61,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     const edm::EDGetTokenT<portabletest::TestDeviceCollection> deviceToken_;
     const edm::EDPutTokenT<portabletest::TestHostCollection> hostToken_;
-
-    // device associated to the EDM stream
-    std::optional<Device> device_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
