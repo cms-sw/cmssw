@@ -64,6 +64,12 @@
   <class name="edm::Wrapper<l1t::EtSumRefVector>"/>
   <class name="l1t::EtSumVectorRef"/>
   <class name="edm::Wrapper<l1t::EtSumVectorRef>"/>
+  <class name="l1t::EtSumP2Ref"/>
+  <class name="edm::Wrapper<l1t::EtSumP2Ref>"/>
+  <class name="l1t::EtSumP2RefVector"/>
+  <class name="edm::Wrapper<l1t::EtSumP2RefVector>"/>
+  <class name="l1t::EtSumVectorP2Ref"/>
+  <class name="edm::Wrapper<l1t::EtSumVectorP2Ref>"/>
 
   <class name="l1t::Tau" ClassVersion="13">
    <version ClassVersion="13" checksum="3236083459"/>
@@ -295,6 +301,8 @@
   <class name="std::vector<l1t::VertexWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::VertexWord> >"/>
   <class name="l1t::VertexWord::VertexRef"/>
+  <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
+  <class name="edm::Ref<l1t::VertexWordCollection>" />
 
   <class name="l1t::TkJetWord" ClassVersion="3">
     <version ClassVersion="3" checksum="3521396532"/>
