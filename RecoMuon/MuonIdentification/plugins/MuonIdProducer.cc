@@ -882,7 +882,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   for (const auto& chamber : info.chambers) {
     if (chamber.id.subdetId() == MuonSubdetId::RPC && rpcHitHandle_.isValid())
       continue;  // Skip RPC chambers, they are taken care of below)
-    if (chamber.id.subdetId() == MuonSubdetId::GEM && gemHitHandle_.isValid() && GEMDetId(chamber.id.rawId()).station() != 0)
+    if (chamber.id.subdetId() == MuonSubdetId::GEM && gemHitHandle_.isValid() &&
+        GEMDetId(chamber.id.rawId()).station() != 0)
       continue;  // Skip GE1/1 and 2/1 chambers, they are taken care of below)
     reco::MuonChamberMatch matchedChamber;
 
@@ -1038,7 +1039,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   if (gemHitHandle_.isValid()) {
     for (const auto& chamber : info.chambers) {
       // only GE1/1 and 2/1 are for rechits, reject station 0 and segments (layer==0 for GEMSegment)
-      if (chamber.id.subdetId() != MuonSubdetId::GEM || GEMDetId(chamber.id.rawId()).station() == 0 || GEMDetId(chamber.id.rawId()).layer() == 0)
+      if (chamber.id.subdetId() != MuonSubdetId::GEM || GEMDetId(chamber.id.rawId()).station() == 0 ||
+          GEMDetId(chamber.id.rawId()).layer() == 0)
         continue;  // Consider RPC chambers only
       const auto& lErr = chamber.tState.localError();
       const auto& lPos = chamber.tState.localPosition();
@@ -1072,7 +1074,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
         // std::cout << " h:" << gemRecHit.gemId();
         //  constexpr GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
-        if (GEMDetId(gemRecHit.gemId().region(),gemRecHit.gemId().ring(),gemRecHit.gemId().station(),gemRecHit.gemId().layer(),gemRecHit.gemId().chamber(),0).rawId() != chamber.id.rawId())
+        if (GEMDetId(gemRecHit.gemId().region(),
+                     gemRecHit.gemId().ring(),
+                     gemRecHit.gemId().station(),
+                     gemRecHit.gemId().layer(),
+                     gemRecHit.gemId().chamber(),
+                     0)
+                .rawId() != chamber.id.rawId())
           continue;
 
         gemHitMatch.x = gemRecHit.localPosition().x();
