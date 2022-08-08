@@ -53,13 +53,13 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # Minimum pt of tracks used to create vertex [GeV]
         VxMinTrackPt = cms.double(2.0),
         # Maximum pt of tracks used to create vertex [GeV]
-        VxMaxTrackPt = cms.double(50.0),
+        VxMaxTrackPt = cms.double(127.0),
         # When the track pt > VxMaxTrackPt, how should the tracks be considered
         #   -1 = tracks are valid
         #   0 = tracks are mismeasured and ignored/truncated
         #   1 = tracks are mismeasured and saturate at VxMaxTrackPt
         # Option '0' was used for the TDR, but '1' is used for the firmware
-        VxMaxTrackPtBehavior = cms.int32(0),
+        VxMaxTrackPtBehavior = cms.int32(1),
         # Maximum chi2 of tracks used to create vertex
         VxMaxTrackChi2 = cms.double(100.),
         # Minimum number of stubs associated to a track
