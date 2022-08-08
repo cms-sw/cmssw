@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/chooseDevice.h"
+#include "HeterogeneousCore/AlpakaCore/interface/ScopedContext.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 
@@ -28,25 +28,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TestAlpakaProducer(edm::ParameterSet const& config)
         : deviceToken_{produces()}, size_{config.getParameter<int32_t>("size")} {}
 
-    void beginStream(edm::StreamID sid) override {
-      // choose a device based on the EDM stream number
+    void beginStream(edm::StreamID) override {
       edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
       if (not service->enabled()) {
         throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
       }
-      device_ = cms::alpakatools::chooseDevice<Platform>(sid);
     }
 
     void produce(edm::Event& event, edm::EventSetup const&) override {
-      // create a queue to submit async work
-      Queue queue{*device_};
-      portabletest::TestDeviceCollection deviceProduct{size_, *device_};
+      // create a context based on the EDM stream number
+      cms::alpakatools::ScopedContextProduce<Queue> ctx(event.streamID());
 
       // run the algorithm, potentially asynchronously
-      algo_.fill(queue, deviceProduct);
+      portabletest::TestDeviceCollection deviceProduct{size_, ctx.queue()};
+      algo_.fill(ctx.queue(), deviceProduct);
 
       // wait for any asynchronous work to complete
-      alpaka::wait(queue);
+      alpaka::wait(ctx.queue());
 
       event.emplace(deviceToken_, std::move(deviceProduct));
     }
@@ -60,9 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     const edm::EDPutTokenT<portabletest::TestDeviceCollection> deviceToken_;
     const int32_t size_;
-
-    // device associated to the EDM stream
-    std::optional<Device> device_;
 
     // implementation of the algorithm
     TestAlgo algo_;
