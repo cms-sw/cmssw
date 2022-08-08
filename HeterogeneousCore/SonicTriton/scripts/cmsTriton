@@ -18,7 +18,7 @@ PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:22.03-py3-geometric
+IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
 
