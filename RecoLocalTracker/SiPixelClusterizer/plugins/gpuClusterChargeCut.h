@@ -40,11 +40,21 @@ namespace gpuClustering {
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
-      while (id[firstPixel] == invalidModuleId)
-        ++firstPixel;  // could be duplicates!
       auto thisModuleId = id[firstPixel];
+      while (thisModuleId == invalidModuleId and firstPixel < numElements) {
+        // skip invalid or duplicate pixels
+        ++firstPixel;
+        thisModuleId = id[firstPixel];
+      }
+      if (firstPixel >= numElements) {
+        // reached the end of the input while skipping the invalid pixels, nothing left to do
+        break;
+      }
+      if (thisModuleId != moduleId[module]) {
+        // reached the end of the module while skipping the invalid pixels, skip this module
+        continue;
+      }
       assert(thisModuleId < nMaxModules);
-      assert(thisModuleId == moduleId[module]);
 
       auto nclus = nClustersInModule[thisModuleId];
       if (nclus == 0)
