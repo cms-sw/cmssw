@@ -30,6 +30,8 @@ from DQMOffline.Trigger.JetMETPromptMonitoring_Client_cff import *
 from DQMOffline.Trigger.DiJetMonitor_Client_cff import *
 from DQMOffline.Trigger.BTagAndProbeMonitoring_Client_cff import *
 
+from DQMOffline.Trigger.ParticleNetJetTag_Client_cfi import *
+
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient
     sipixelHarvesterHLTsequence
@@ -57,6 +59,7 @@ hltOfflineDQMClient = cms.Sequence(
   * JetMetPromClient
   * dijetClient
   * BTagAndProbeClient
+  * particleNetClient
 )
 
 hltOfflineDQMClientExtra = cms.Sequence(
