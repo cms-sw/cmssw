@@ -14,11 +14,10 @@ process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectories_cff")
 
 process.load("Configuration.StandardSequences.Services_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V6::All'
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
 
