@@ -4,19 +4,21 @@
  *  \author G. Cerminara - CERN
  */
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/Common/interface/DropBoxMetadata.h"
-#include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+// system includes
 #include <string>
 #include <vector>
 #include <iostream>
+
+// cmssw includes
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/Common/interface/DropBoxMetadata.h"
+#include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 class PCLMetadataWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
@@ -27,8 +29,8 @@ public:
   ~PCLMetadataWriter() override = default;
 
   // Operations
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override{};
+  void beginRun(const edm::Run &, const edm::EventSetup &) override{};
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 protected:
@@ -46,31 +48,26 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet)
   readFromDB = pSet.getParameter<bool>("readFromDB");
 
   vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet>>("recordsToMap");
-  for (vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin(); recordPset != recordsToMap.end();
-       ++recordPset) {
+  for (const auto &recordPset : recordsToMap) {
     // record is the key which identifies one set of metadata in
     // DropBoxMetadataRcd (not necessarily a record in the strict framework
     // sense)
-    string record = (*recordPset).getUntrackedParameter<string>("record");
+    string record = recordPset.getUntrackedParameter<string>("record");
 
     map<string, string> jrInfo;
     if (!readFromDB) {
-      vector<string> paramKeys = (*recordPset).getParameterNames();
-      for (vector<string>::const_iterator key = paramKeys.begin(); key != paramKeys.end(); ++key) {
+      vector<string> paramKeys = recordPset.getParameterNames();
+      for (const auto &key : paramKeys) {
         jrInfo["Source"] = "AlcaHarvesting";
         jrInfo["FileClass"] = "ALCA";
-        if (*key != "record") {
-          jrInfo[*key] = (*recordPset).getUntrackedParameter<string>(*key);
+        if (key != "record") {
+          jrInfo[key] = recordPset.getUntrackedParameter<string>(key);
         }
       }
     }
     recordMap[record] = jrInfo;
   }
 }
-
-void PCLMetadataWriter::analyze(const edm::Event &event, const edm::EventSetup &eSetup) {}
-
-void PCLMetadataWriter::beginRun(const edm::Run &run, const edm::EventSetup &eSetup) {}
 
 void PCLMetadataWriter::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   const DropBoxMetadata *metadata = nullptr;
@@ -89,13 +86,11 @@ void PCLMetadataWriter::endRun(const edm::Run &run, const edm::EventSetup &eSetu
       string filename = poolDbService->session().connectionString();
 
       // loop over all records
-      for (map<string, map<string, string>>::const_iterator recordAndMap = recordMap.begin();
-           recordAndMap != recordMap.end();
-           ++recordAndMap) {
-        string record = (*recordAndMap).first;
+      for (const auto &recordAndMap : recordMap) {
+        string record = recordAndMap.first;
 
         // this is the map of metadata that we write in the JR
-        map<string, string> jrInfo = (*recordAndMap).second;
+        map<string, string> jrInfo = recordAndMap.second;
         if (readFromDB) {
           if (metadata->knowsRecord(record)) {
             jrInfo = metadata->getRecordParameters(record).getParameterMap();
