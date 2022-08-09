@@ -1,4 +1,4 @@
-#include "SimG4Core/CustomPhysics/interface/DBremWatcher.h"
+#include "DBremWatcher.h"
 
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
