@@ -3,6 +3,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Portable/interface/Product.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,10 +44,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       portabletest::TestDeviceCollection deviceProduct{size_, ctx.queue()};
       algo_.fill(ctx.queue(), deviceProduct);
 
-      // wait for any asynchronous work to complete
-      alpaka::wait(ctx.queue());
-
-      event.emplace(deviceToken_, std::move(deviceProduct));
+      // put the asynchronous product into the event without waiting
+      ctx.emplace(event, deviceToken_, std::move(deviceProduct));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -56,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    const edm::EDPutTokenT<portabletest::TestDeviceCollection> deviceToken_;
+    const edm::EDPutTokenT<cms::alpakatools::Product<Queue, portabletest::TestDeviceCollection>> deviceToken_;
     const int32_t size_;
 
     // implementation of the algorithm
