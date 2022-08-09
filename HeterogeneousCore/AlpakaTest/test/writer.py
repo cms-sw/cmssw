@@ -30,10 +30,15 @@ process.testProducerCpu = cms.EDProducer('alpaka_serial_sync::TestAlpakaProducer
     size = cms.int32(42)
 )
 
+# extract the cpu product from the heterogeneous wrapper
+process.testTranscriberFromCpu = cms.EDProducer('alpaka_serial_sync::TestAlpakaTranscriber',
+    source = cms.InputTag('testProducerCpu')
+)
+
 # either run the producer on a CUDA gpu (if available) and copy the product to the cpu, or run the producer directly on the cpu
 process.testProducer = SwitchProducerCUDA(
     cpu = cms.EDAlias(
-        testProducerCpu = cms.VPSet(cms.PSet(type = cms.string('*')))
+        testTranscriberFromCpu = cms.VPSet(cms.PSet(type = cms.string('*')))
     ),
     cuda = cms.EDAlias(
         testTranscriberFromCuda = cms.VPSet(cms.PSet(type = cms.string('*')))
@@ -50,9 +55,14 @@ process.testProducerSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaProdu
     size = cms.int32(99)
 )
 
+# extract the cpu product from the heterogeneous wrapper
+process.testTranscriberSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaTranscriber',
+    source = cms.InputTag('testProducerSerial')
+)
+
 # analyse the second product
 process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',
-    source = cms.InputTag('testProducerSerial')
+    source = cms.InputTag('testTranscriberSerial')
 )
 
 # write the two products to a 'test.root' file
@@ -61,11 +71,11 @@ process.output = cms.OutputModule('PoolOutputModule',
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_testProducer_*_*',
-        'keep *_testProducerSerial_*_*',
+        'keep *_testTranscriberSerial_*_*',
   )
 )
 
-process.producer_task = cms.Task(process.testProducerCuda, process.testTranscriberFromCuda, process.testProducerCpu)
+process.producer_task = cms.Task(process.testProducerCuda, process.testTranscriberFromCuda, process.testProducerCpu, process.testTranscriberFromCpu)
 
 process.process_path = cms.Path(
     process.testProducer +
@@ -74,6 +84,7 @@ process.process_path = cms.Path(
 
 process.serial_path = cms.Path(
     process.testProducerSerial +
+    process.testTranscriberSerial +
     process.testAnalyzerSerial)
 
 process.output_path = cms.EndPath(process.output)
