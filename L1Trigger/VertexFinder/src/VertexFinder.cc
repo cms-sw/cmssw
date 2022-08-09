@@ -952,7 +952,7 @@ namespace l1tVertexFinder {
 
     // Create the histogram
     unsigned int nbins =
-        std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
+        std::round((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
     unsigned int nsums = nbins - settings_->vx_windowSize();
     std::vector<link_pt_sum_fixed_t> hist(nbins, 0);
 
