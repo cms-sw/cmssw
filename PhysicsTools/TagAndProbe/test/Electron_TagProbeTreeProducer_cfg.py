@@ -69,7 +69,7 @@ JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFract
 ##
 process = cms.Process("TagProbe")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
