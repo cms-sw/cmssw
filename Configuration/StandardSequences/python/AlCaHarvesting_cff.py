@@ -17,7 +17,7 @@ from CalibPPS.TimingCalibration.PPSTimingCalibrationHarvester_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalibHarvester_cff import *
 from CalibPPS.AlignmentGlobal.PPSAlignmentHarvester_cff import *
 
-from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
+from CommonTools.ConditionDBWriter.PCLMetadataWriter_cfi import *
 
 # common ingredients
 from CondCore.CondDB.CondDB_cfi import CondDB
