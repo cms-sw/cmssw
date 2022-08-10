@@ -100,6 +100,7 @@ private:
   const bool doChebyshevFit_;
   const int order_;
   const double fitChi2Cut_;
+  const std::vector<double> fitRange_;
   const int minHitsCut_;
   const std::string recordName_;
   std::unique_ptr<TF1> f1_;
@@ -107,6 +108,7 @@ private:
   float theMagField_{0.f};
 
   static constexpr float teslaToInverseGeV_ = 2.99792458e-3f;
+  std::pair<double, double> theFitRange_{5., 280.};
 
   SiPixelLorentzAngleCalibrationHistograms hists_;
   const SiPixelLorentzAngle* currentLorentzAngle_;
@@ -125,8 +127,17 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
       doChebyshevFit_(iConfig.getParameter<bool>("doChebyshevFit")),
       order_(iConfig.getParameter<int>("order")),
       fitChi2Cut_(iConfig.getParameter<double>("fitChi2Cut")),
+      fitRange_(iConfig.getParameter<std::vector<double>>("fitRange")),
       minHitsCut_(iConfig.getParameter<int>("minHitsCut")),
       recordName_(iConfig.getParameter<std::string>("record")) {
+  // initialize the fit range
+  if (fitRange_.size() == 2) {
+    theFitRange_.first = fitRange_[0];
+    theFitRange_.second = fitRange_[1];
+  } else {
+    throw cms::Exception("SiPixelLorentzAnglePCLHarvester") << "Too many fit range parameters specified";
+  }
+
   // first ensure DB output service is available
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())
@@ -599,10 +610,13 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
 
   if (doChebyshevFit_) {
     const int npar = order_ + 1;
-    auto cheb = new siPixelLACalibration::Chebyshev(order_, 5., 280.);
-    f1_ = std::make_unique<TF1>("ff", cheb, 5., 280., npar, "Chebyshev");
+    auto cheb = std::make_unique<siPixelLACalibration::Chebyshev>(order_, theFitRange_.first, theFitRange_.second);
+    f1_ = std::make_unique<TF1>("ff", cheb.release(), 5., 280., npar, "Chebyshev");
   } else {
-    f1_ = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
+    f1_ = std::make_unique<TF1>("f1",
+                                "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x",
+                                theFitRange_.first,
+                                theFitRange_.second);
   }
 
   f1_->SetParName(0, "offset");
@@ -689,7 +703,9 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   float LorentzAnglePerTesla_;
   float currentLA = currentLorentzAngle_->getLorentzAngle(detIdsToFill.front());
   // if the fit quality is OK
-  if ((res.redChi2 != 0.) && (res.redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
+  // check the result of the chi2 only if doing the chebyshev fit
+  const bool chi2Cut = doChebyshevFit_ ? (res.redChi2 < fitChi2Cut_) : true;
+  if ((res.redChi2 != 0.) && chi2Cut && (nentries > minHitsCut_)) {
     LorentzAnglePerTesla_ = res.tan_LA / theMagField_;
     // fill the LA actually written to payload
     hists_.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
@@ -733,6 +749,7 @@ void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescrip
   desc.add<bool>("doChebyshevFit", false)->setComment("use Chebyshev polynomials for the dript vs depth fit");
   desc.add<int>("order", 5)->setComment("order of the Chebyshev polynomial used for the fit");
   desc.add<double>("fitChi2Cut", 20.)->setComment("cut on fit chi2/ndof to accept measurement");
+  desc.add<std::vector<double>>("fitRange", {5., 280.})->setComment("range of depths to perform the LA fit");
   desc.add<int>("minHitsCut", 10000)->setComment("cut on minimum number of on-track hits to accept measurement");
   desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
