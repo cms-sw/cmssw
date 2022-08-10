@@ -81,6 +81,9 @@ public:
   dqm::reco::MonitorElement* h_bySectLA_;
   dqm::reco::MonitorElement* h_bySectDeltaLA_;
   dqm::reco::MonitorElement* h_bySectChi2_;
+  dqm::reco::MonitorElement* h_bySectFitStatus_;
+  dqm::reco::MonitorElement* h_bySectCovMatrixStatus_;
+  dqm::reco::MonitorElement* h_bySectDriftError_;
 
   // ouput LA maps
   std::vector<dqm::reco::MonitorElement*> h2_byLayerLA_;
