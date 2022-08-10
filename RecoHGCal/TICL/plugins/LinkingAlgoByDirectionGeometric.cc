@@ -154,6 +154,8 @@ void LinkingAlgoByDirectionGeometric::recordTrackster(const unsigned ts,  //trac
                                                       std::vector<unsigned> &ts_mask,
                                                       double &energy_in_candidate,
                                                       TICLCandidate &candidate) {
+  if (ts_mask[ts])
+    return;
   candidate.addTrackster(edm::Ptr<Trackster>(tsH, ts));
   ts_mask[ts] = 1;
   energy_in_candidate += tracksters[ts].raw_energy();
