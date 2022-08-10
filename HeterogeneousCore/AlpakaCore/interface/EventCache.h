@@ -8,6 +8,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
@@ -89,7 +90,7 @@ namespace cms::alpakatools {
   template <typename Event>
   EventCache<Event>& getEventCache() {
     // the public interface is thread safe
-    static EventCache<Event> cache;
+    CMS_THREAD_SAFE static EventCache<Event> cache;
     return cache;
   }
 
