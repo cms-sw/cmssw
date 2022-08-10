@@ -363,7 +363,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
                                                           0.,
                                                           double(NplaneMAX * NROCsMAX),
                                                           0.,
-                                                          ROCSizeInX *ROCSizeInY,
+                                                          rpixValues::ROCSizeInX *rpixValues::ROCSizeInY,
                                                           "");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
@@ -410,7 +410,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
                                                         -0.5,
                                                         NROCsMAX - 0.5,
                                                         0.,
-                                                        ROCSizeInX * ROCSizeInY,
+                                                        rpixValues::ROCSizeInX * rpixValues::ROCSizeInY,
                                                         "");
           h2HitsMultROC[indexP]->getTProfile2D()->SetOption("colztext");
           h2HitsMultROC[indexP]->getTProfile2D()->SetMinimum(1.e-10);
@@ -428,7 +428,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
           hRPotActivBXall[indexP] = ibooker.book1D("hits per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
         }
-        int nbins = defaultDetSizeInX / pixBinW;
+        int nbins = rpixValues::defaultDetSizeInX / pixBinW;
 
         for (int p = 0; p < NplaneMAX; p++) {
           if (isPlanePlotsTurnedOff[arm][stn][rp][p])
@@ -439,20 +439,29 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
           string st1 = ": " + rpTitle + "_" + string(s);
 
           st = "adc average value";
-          hp2xyADC[indexP][p] = ibooker.bookProfile2D(
-              st, st1 + ";pix col;pix row", nbins, 0, defaultDetSizeInX, nbins, 0, defaultDetSizeInX, 0., 512., "");
+          hp2xyADC[indexP][p] = ibooker.bookProfile2D(st,
+                                                      st1 + ";pix col;pix row",
+                                                      nbins,
+                                                      0,
+                                                      rpixValues::defaultDetSizeInX,
+                                                      nbins,
+                                                      0,
+                                                      rpixValues::defaultDetSizeInX,
+                                                      0.,
+                                                      512.,
+                                                      "");
           hp2xyADC[indexP][p]->getTProfile2D()->SetOption("colz");
 
           if (onlinePlots) {
             st = "hits position";
             h2xyHits[indexP][p] = ibooker.book2DD(st,
                                                   st1 + ";pix col;pix row",
-                                                  defaultDetSizeInX,
+                                                  rpixValues::defaultDetSizeInX,
                                                   0,
-                                                  defaultDetSizeInX,
-                                                  defaultDetSizeInX,
+                                                  rpixValues::defaultDetSizeInX,
+                                                  rpixValues::defaultDetSizeInX,
                                                   0,
-                                                  defaultDetSizeInX);
+                                                  rpixValues::defaultDetSizeInX);
             h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
 
             st = "hits multiplicity";
