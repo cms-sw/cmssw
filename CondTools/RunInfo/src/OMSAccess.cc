@@ -33,6 +33,16 @@ namespace cond {
 
   OMSServiceResultIterator OMSServiceResult::end() const { return OMSServiceResultIterator(m_data->end()); }
 
+  OMSServiceResultRef OMSServiceResult::front() const {
+    auto& attributeList = m_data->front().second.get_child("attributes");
+    return OMSServiceResultRef(&attributeList);
+  }
+
+  OMSServiceResultRef OMSServiceResult::back() const {
+    auto& attributeList = m_data->back().second.get_child("attributes");
+    return OMSServiceResultRef(&attributeList);
+  }
+
   size_t OMSServiceResult::parseData(const std::string& data) {
     m_data = nullptr;
     std::stringstream sout;

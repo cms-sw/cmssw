@@ -52,6 +52,12 @@ namespace cond {
       unsigned long int_val = from_string_impl<unsigned long, &s_to_ul>(attributeValue, 0);
       return (unsigned short)int_val;
     }
+    inline unsigned long long s_to_ull(const std::string& val) { return std::stoull(val); }
+    template <>
+    inline unsigned long long from_string(const std::string& attributeValue) {
+      unsigned long long int_val = from_string_impl<unsigned long long, &s_to_ull>(attributeValue, 0);
+      return int_val;
+    }
 
     inline boost::posix_time::ptime s_to_time(const std::string& val) {
       boost::posix_time::time_input_facet* facet = new boost::posix_time::time_input_facet(OMS_TIME_FMT);
@@ -146,6 +152,9 @@ namespace cond {
     // basic iterators, to enable the C++11 for loop semantics
     OMSServiceResultIterator begin() const;
     OMSServiceResultIterator end() const;
+
+    OMSServiceResultRef front() const;
+    OMSServiceResultRef back() const;
 
     // parse json returned from curl, filling the property tree
     size_t parseData(const std::string& data);
