@@ -13,19 +13,17 @@ hltDisappTrk = _hltHighLevel.hltHighLevel.clone(
    HLTPaths = [
       "HLT_PFMET*_PFMHT*_IDTight_v*",
       "HLT_PFMETTypeOne*_PFMHT*_IDTight_v*",
-      "HLT_PFMETNoMu*_PFMHTNoMu*_IDTight_v*", 
-      "HLT_MET*_IsoTrk*_v*", 
-      "HLT_PFMET*_*Cleaned_v*", 
-      "HLT_Ele*_WPTight_Gsf_v*", 
-      "HLT_Ele*_WPLoose_Gsf_v*", 
-      "HLT_IsoMu*_v*", 
-      "HLT_IsoMu*_TightChargedIsoPFTauHPS*_Trk1_eta2p1_SingleL1_v*", 
-      "HLT_IsoMu*_eta2p1_TightChargedIsoPFTauHPS*_eta2p1_CrossL1_v*",
-      "HLT_IsoMu*_MediumChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v*", 
-      "HLT_MediumChargedIsoPFTau*HighPtRelaxedIso_Trk50_eta2p1_v*", 
+      "HLT_PFMETNoMu*_PFMHTNoMu*_IDTight_v*",
+      "HLT_MET*_IsoTrk*_v*",
+      "HLT_PFMET*_*Cleaned_v*",
+      "HLT_Ele*_WPTight_Gsf_v*",
+      "HLT_Ele*_WPLoose_Gsf_v*",
+      "HLT_IsoMu*_v*",
+      "HLT_MediumChargedIsoPFTau*HighPtRelaxedIso_Trk50_eta2p1_v*",
       "HLT_VBF_DoubleMediumChargedIsoPFTauHPS20_Trk1_eta2p1_v*",
       "HLT_DoubleMediumDeepTauIsoPFTauHPS*_L2NN_eta2p1_v*",
-      "HLT_DoubleMediumChargedIsoPFTauHPS*_Trk1_eta2p1_v*"
+      "HLT_DoubleMediumChargedIsoPFTauHPS*_Trk1_eta2p1_v*",
+      "HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*"
    ]
 )
 
