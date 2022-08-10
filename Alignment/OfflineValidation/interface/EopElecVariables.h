@@ -8,7 +8,7 @@
 struct EopElecVariables {
   /// constructor initialises to empty values
   EopElecVariables() { clear(); }
-  ~EopElecVariables() {}
+  ~EopElecVariables() = default;
   /// set to empty values
   void clear() {
     /// doubles
