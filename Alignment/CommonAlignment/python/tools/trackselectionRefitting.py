@@ -121,7 +121,8 @@ def getSequence(process, collection,
     isCosmics = False
 
     if collection in ("ALCARECOTkAlMinBias", "generalTracks",
-                      "ALCARECOTkAlMinBiasHI", "hiGeneralTracks"):
+                      "ALCARECOTkAlMinBiasHI", "hiGeneralTracks",
+                      "ALCARECOTkAlJetHT"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
