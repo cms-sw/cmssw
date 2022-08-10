@@ -7,6 +7,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
@@ -62,7 +63,7 @@ namespace cms::alpakatools {
   template <typename Queue>
   QueueCache<Queue>& getQueueCache() {
     // the public interface is thread safe
-    static QueueCache<Queue> cache;
+    CMS_THREAD_SAFE static QueueCache<Queue> cache;
     return cache;
   }
 

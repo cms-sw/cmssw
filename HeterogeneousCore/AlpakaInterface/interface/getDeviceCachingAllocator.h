@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AllocatorConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
@@ -73,7 +74,7 @@ namespace cms::alpakatools {
             typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
   inline CachingAllocator<TDev, TQueue>& getDeviceCachingAllocator(TDev const& device) {
     // initialise all allocators, one per device
-    static auto allocators = detail::allocate_device_allocators<TDev, TQueue>();
+    CMS_THREAD_SAFE static auto allocators = detail::allocate_device_allocators<TDev, TQueue>();
 
     size_t const index = alpaka::getNativeHandle(device);
     assert(index < cms::alpakatools::devices<alpaka::Pltf<TDev>>().size());
