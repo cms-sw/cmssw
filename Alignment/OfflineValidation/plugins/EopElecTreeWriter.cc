@@ -404,25 +404,25 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // our trigger table
   std::map<std::string, EopTriggerType> HLTpaths;
-  for (unsigned int i = 0; i < triggerNames_.size(); i++) {
-    if (triggerNames_[i].find(theTrigger_) != 0)
+  for (const auto& triggerName : triggerNames_) {
+    if (triggerName.find(theTrigger_) != 0)
       continue;
     EopTriggerType myTrigger;
 
     const unsigned int prescaleSize = hltConfig_.prescaleSize();
     for (unsigned int ps = 0; ps < prescaleSize; ps++) {
-      const unsigned int prescaleValue = hltConfig_.prescaleValue(ps, triggerNames_[i]);
+      const unsigned int prescaleValue = hltConfig_.prescaleValue(ps, triggerName);
       if (prescaleValue != 1) {
         myTrigger.prescale = prescaleValue;
       }
     }
 
-    myTrigger.index = hltConfig_.triggerIndex(triggerNames_[i]);
+    myTrigger.index = hltConfig_.triggerIndex(triggerName);
     if (myTrigger.index == -1)
       continue;
     myTrigger.fired =
         trigRes->wasrun(myTrigger.index) && trigRes->accept(myTrigger.index) && !trigRes->error(myTrigger.index);
-    HLTpaths[triggerNames_[i]] = myTrigger;
+    HLTpaths[triggerName] = myTrigger;
   }
 
   // First cut : trigger cut
@@ -484,26 +484,26 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //-----------------   Tracks   -------------------
 
   // getting GsfTrack
-  const reco::GsfTrackCollection* tracks = &iEvent.get(theGsfTrackCollectionToken_);
+  const reco::GsfTrackCollection& tracks = iEvent.get(theGsfTrackCollectionToken_);
 
   // filtering track
   int nRejected = 0;
   int nSelected = 0;
   std::vector<const reco::GsfTrack*> filterTracks;
-  for (unsigned int i = 0; i < tracks->size(); i++) {
+  for (const auto& track : tracks) {
     h_nTracks->Fill(0.5);
-    double deltar = reco::deltaR(
-        (*tracks)[i].eta(), (*tracks)[i].phi(), HLTelectrons[HighPtIndex]->eta(), HLTelectrons[HighPtIndex]->phi());
+    double deltar =
+        reco::deltaR(track.eta(), track.phi(), HLTelectrons[HighPtIndex]->eta(), HLTelectrons[HighPtIndex]->phi());
     // remove the triggered electron with highest pt
     if (deltar < 0.025) {
-      treeMemPtr_->px_rejected_track = (*tracks)[i].px();
-      treeMemPtr_->py_rejected_track = (*tracks)[i].py();
-      treeMemPtr_->pz_rejected_track = (*tracks)[i].pz();
-      treeMemPtr_->p_rejected_track = (*tracks)[i].p();
+      treeMemPtr_->px_rejected_track = track.px();
+      treeMemPtr_->py_rejected_track = track.py();
+      treeMemPtr_->pz_rejected_track = track.pz();
+      treeMemPtr_->p_rejected_track = track.p();
       nRejected++;
       continue;
     }
-    filterTracks.push_back(&(*tracks)[i]);  // we use all the others
+    filterTracks.push_back(&track);  // we use all the others
     nSelected++;
     h_nTracksFiltered->Fill(0.5);
   }

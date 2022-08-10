@@ -28,7 +28,7 @@
 #include <vector>
 
 // CMSSW headers
-#include "../interface/EopElecVariables.h"
+#include "Alignment/OfflineValidation/interface/EopElecVariables.h"
 
 // New enumeration for kind of plots
 enum ModeType { TRACK_ETA, TRACK_PHI };
@@ -78,7 +78,7 @@ struct HistoType {
 };
 
 // Prototype of functions
-void InitializeHistograms(ModeType mode, HistoType& histos);
+void initializeHistograms(ModeType mode, HistoType& histos);
 Bool_t checkArguments(TString variable,  //input
                       TString path,
                       TString alignmentWithLabel,
@@ -92,11 +92,11 @@ Bool_t checkArguments(TString variable,  //input
                       std::vector<TString>& labels);
 void configureROOTstyle(Bool_t verbose);
 Bool_t initializeTree(std::vector<TFile*>& files, std::vector<TTree*>& trees, EopElecVariables* track);
-void ReadTree(ModeType mode, TString variable, HistoType& histo, EopElecVariables* track, Double_t radius);
-void FillIntermediateHisto(
+void readTree(ModeType mode, TString variable, HistoType& histo, EopElecVariables* track, Double_t radius);
+void fillIntermediateHisto(
     ModeType mode, Bool_t verbose, HistoType& histo, TCanvas* ccontrol, TString outputType, Double_t radius);
-void FillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo);
-void LayoutFinalPlot(ModeType mode,
+void fillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo);
+void layoutFinalPlot(ModeType mode,
                      std::vector<HistoType>& histos,
                      TString outputType,
                      TString variable,
@@ -141,7 +141,8 @@ void momentumBiasValidation(TString variable,
   std::vector<TTree*> trees(files.size(), 0);
   EopElecVariables* track = new EopElecVariables();
   if (!initializeTree(files, trees, track))
-    return;
+    delete track;
+  return;
 
   // Configuring ROOT style
   std::cout << "Configuring the ROOT style ..." << std::endl;
@@ -259,34 +260,37 @@ void momentumBiasValidation(TString variable,
 
     // Initializing histos
     std::cout << "Initialzing histograms ..." << std::endl;
-    InitializeHistograms(mode, histo);
+    initializeHistograms(mode, histo);
 
     // Filling with events
     std::cout << "Reading the TFile ..." << std::endl;
-    ReadTree(mode, variable, histo, track, radius);
+    readTree(mode, variable, histo, track, radius);
 
     //Filling histograms
     std::cout << "Filling histograms ..." << std::endl;
-    FillIntermediateHisto(mode, verbose, histo, ccontrol, outputType, radius);
-    FillFinalHisto(mode, verbose, histo);
+    fillIntermediateHisto(mode, verbose, histo, ccontrol, outputType, radius);
+    fillFinalHisto(mode, verbose, histo);
   }
 
   // Achieving the final plot
   std::cout << "Final plot ..." << std::endl;
-  LayoutFinalPlot(mode, histos, outputType, variable, c, givenMin, givenMax);
+  layoutFinalPlot(mode, histos, outputType, variable, c, givenMin, givenMax);
 
   // Displaying final message
   time_t end = time(0);
   std::cout << "Done in " << static_cast<int>(difftime(end, start)) / 60 << " min and "
             << static_cast<int>(difftime(end, start)) % 60 << " sec." << std::endl;
+
+  delete track;
+  delete histo1;
 }
 
 // -----------------------------------------------------------------------------
 //
-//    Auxiliary function : FillIntermediateHisto
+//    Auxiliary function : fillIntermediateHisto
 //
 // -----------------------------------------------------------------------------
-void FillIntermediateHisto(
+void fillIntermediateHisto(
     ModeType mode, Bool_t verbose, HistoType& histo, TCanvas* ccontrol, TString outputType, Double_t radius) {
   // Loop over eta or phi range
   for (UInt_t j = 0; j < (histo.etaRange.size() - 1); j++) {
@@ -394,10 +398,10 @@ void FillIntermediateHisto(
 
 // -----------------------------------------------------------------------------
 //
-//    Auxiliary function : FillFinalHisto
+//    Auxiliary function : fillFinalHisto
 //
 // -----------------------------------------------------------------------------
-void FillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo) {
+void fillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo) {
   TString fitOption;
   if (verbose)
     fitOption = "";
@@ -506,7 +510,7 @@ void FillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo) {
 //    Auxiliary function : LayoutFinalPlot
 //
 // -----------------------------------------------------------------------------
-void LayoutFinalPlot(ModeType mode,
+void layoutFinalPlot(ModeType mode,
                      std::vector<HistoType>& histos,
                      TString outputType,
                      TString variable,
@@ -631,10 +635,10 @@ void LayoutFinalPlot(ModeType mode,
 
 // -----------------------------------------------------------------------------
 //
-//    Auxiliary function : Initialize Histograms
+//    Auxiliary function : initialize Histograms
 //
 // -----------------------------------------------------------------------------
-void InitializeHistograms(ModeType mode, HistoType& histo) {
+void initializeHistograms(ModeType mode, HistoType& histo) {
   // -----------------------------------------
   //      Initializing Basic Histograms
   // -----------------------------------------
@@ -763,10 +767,10 @@ void InitializeHistograms(ModeType mode, HistoType& histo) {
 
 // -----------------------------------------------------------------------------
 //
-//    Auxiliary function : ReadTree
+//    Auxiliary function : readTree
 //
 // -----------------------------------------------------------------------------
-void ReadTree(ModeType mode, TString variable, HistoType& histo, EopElecVariables* track, Double_t radius) {
+void readTree(ModeType mode, TString variable, HistoType& histo, EopElecVariables* track, Double_t radius) {
   // Displaying sample name
   Long64_t nevent = (Long64_t)histo.tree->GetEntries();
   std::cout << "Reading sample labeled by '" << histo.label << "' containing " << nevent << " events ..." << std::endl;
@@ -1406,7 +1410,7 @@ void configureROOTstyle(Bool_t verbose) {
 
 // -----------------------------------------------------------------------------
 //
-//    InitializeTree
+//    Initialize Tree
 //
 // -----------------------------------------------------------------------------
 Bool_t initializeTree(std::vector<TFile*>& files, std::vector<TTree*>& trees, EopElecVariables* track) {
