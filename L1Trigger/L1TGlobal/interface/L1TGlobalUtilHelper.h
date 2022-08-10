@@ -135,7 +135,6 @@ namespace l1t {
     // Register the callback function with the Framework
     // if any InputTags still need to be found.
     if (findL1TAlgBlk || findL1TExtBlk) {
-      assert(false);
       auto const* pModule = &module;
       module.callWhenNewProductsRegistered([this, findL1TAlgBlk, findL1TExtBlk, iC, pModule](auto iBranch) {
         try {
