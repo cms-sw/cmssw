@@ -44,7 +44,8 @@ protected:
                        RPCAMCLinkCounters& counters,
                        std::set<std::pair<RPCDetId, RPCDigi> >& rpc_digis,
                        int bx_min,
-                       int bx_max) const;
+                       int bx_max,
+                       int cppfDaq_Delay) const;
   void processTXRecord(RPCAMCLink link,
                        unsigned int block,
                        unsigned int word,
@@ -54,7 +55,7 @@ protected:
 
 protected:
   bool fill_counters_;
-  int bx_min_, bx_max_;
+  int bx_min_, bx_max_, cppfDaq_Delay_;
 
   edm::ESWatcher<RPCCPPFLinkMapRcd> es_cppf_link_map_watcher_;
   edm::ESHandle<RPCAMCLinkMap> es_cppf_link_map_;
