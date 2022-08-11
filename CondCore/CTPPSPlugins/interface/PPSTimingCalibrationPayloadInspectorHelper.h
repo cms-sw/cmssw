@@ -46,13 +46,73 @@ public:
   static std::string getStringFromParamEnum(const parameter& parameter) {
     switch (parameter) {
       case 0:
-        return "parameter no.0";
+        return "parameter 0";
       case 1:
-        return "parameter no.1";
+        return "parameter 1";
       case 2:
-        return "parameter no.2";
+        return "parameter 2";
       case 3:
-        return "parameter no.3";
+        return "parameter 3";
+
+      default:
+        return "not here";
+    }
+  }
+
+  static std::string getStringFromDbEnum(const conditions_db& db) {
+    switch (db) {
+      case 0:
+        return "db = 0";
+      case 1:
+        return "db = 1";
+
+      default:
+        return "not here";
+    }
+  }
+
+  static std::string getStringFromPlaneEnum(const conditions_plane& plane) {
+    switch (plane) {
+      case 0:
+        return "plane = 0";
+      case 1:
+        return "plane = 1";
+      case 2:
+        return "plane = 2";
+      case 3:
+        return "plane = 3";
+
+      default:
+        return "not here";
+    }
+  }
+
+  static std::string getStringFromChannelEnum(const conditions_channel& channel) {
+    switch (channel) {
+      case 0:
+        return "channel = 0";
+      case 1:
+        return "channel = 1";
+      case 2:
+        return "channel = 2";
+      case 3:
+        return "channel = 3";
+      case 4:
+        return "channel = 4";
+      case 5:
+        return "channel = 5";
+      case 6:
+        return "channel = 6";
+      case 7:
+        return "channel = 7";
+      case 8:
+        return "channel = 8";
+      case 9:
+        return "channel = 9";
+      case 10:
+        return "channel = 10";
+      case 11:
+        return "channel = 11";
 
       default:
         return "not here";
@@ -62,7 +122,7 @@ public:
 
 /************************************************
     History plots
-  *************************************************/
+*************************************************/
 template <PPSTimingCalibrationPI::conditions_db db,
           PPSTimingCalibrationPI::conditions_plane plane,
           PPSTimingCalibrationPI::conditions_channel channel,
@@ -72,7 +132,10 @@ class ParametersPerRun : public cond::payloadInspector::HistoryPlot<PayloadType,
 public:
   ParametersPerRun()
       : cond::payloadInspector::HistoryPlot<PayloadType, float>(
-            PPSTimingCalibrationPI::getStringFromParamEnum(param) + "vs. Runs",
+            PPSTimingCalibrationPI::getStringFromParamEnum(param) + " " +
+                PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
+                PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
+                PPSTimingCalibrationPI::getStringFromChannelEnum(channel) + " vs. Runs",
             PPSTimingCalibrationPI::getStringFromParamEnum(param)) {}
 
   float getFromPayload(PayloadType& payload) override { return payload.parameters(db, 1, plane, channel)[param]; }
@@ -80,7 +143,7 @@ public:
 
 /************************************************
     X-Y correlation plots
-  *************************************************/
+*************************************************/
 template <PPSTimingCalibrationPI::conditions_db db,
           PPSTimingCalibrationPI::conditions_plane plane,
           PPSTimingCalibrationPI::conditions_channel channel,
@@ -91,8 +154,11 @@ class PpPCorrelation : public cond::payloadInspector::ScatterPlot<PayloadType, d
 public:
   PpPCorrelation()
       : cond::payloadInspector::ScatterPlot<PayloadType, double, double>(
-            "TimingCalibration" + PPSTimingCalibrationPI::getStringFromParamEnum(param1) + "vs." +
-                PPSTimingCalibrationPI::getStringFromParamEnum(param2),
+            "TimingCalibration " + PPSTimingCalibrationPI::getStringFromParamEnum(param1) + " vs. " +
+                PPSTimingCalibrationPI::getStringFromParamEnum(param2) + " on " +
+                PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
+                PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
+                PPSTimingCalibrationPI::getStringFromChannelEnum(channel),
             PPSTimingCalibrationPI::getStringFromParamEnum(param1),
             PPSTimingCalibrationPI::getStringFromParamEnum(param2)) {}
 
@@ -104,8 +170,7 @@ public:
 
 /************************************************
     Other plots
-  *************************************************/
-
+*************************************************/
 template <PPSTimingCalibrationPI::conditions_db db,
           PPSTimingCalibrationPI::conditions_plane plane,
           PPSTimingCalibrationPI::parameter param,
@@ -119,28 +184,42 @@ public:
   bool fill() override {
     auto tag = cond::payloadInspector::PlotBase::getTag<0>();
     auto tagname = tag.name;
-    auto iov = tag.iovs.front();
-
+    auto iov = tag.iovs.back();
     auto m_payload = this->fetchPayload(std::get<1>(iov));
 
-    TCanvas canvas(
-        "PPSTimingCalibration parameters per channel", "PPSTimingCalibration parameters per channel", 1400, 1000);
-    canvas.cd(1);
-    const Int_t n = 12;
-    Double_t x[n] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    Double_t y[n];
-    for (int i = 0; i < n; i++) {
-      y[i] = m_payload->parameters(db, 1, plane, i)[param];
+    if (m_payload != nullptr) {
+      TCanvas canvas(
+          "PPSTimingCalibration parameters per channel", "PPSTimingCalibration parameters per channel", 1400, 1000);
+      canvas.cd(1);
+      canvas.SetGrid();
+      const Int_t n = 12;
+      Double_t x[n];
+      Double_t y[n];
+      for (int i = 0; i < n; i++) {
+        y[i] = m_payload->parameters(db, 1, plane, i)[param];
+        x[i] = i;
+      }
+
+      TGraph* graph = new TGraph(n, x, y);
+      graph->SetTitle(("PPSTimingCalibration " + PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
+                       PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
+                       PPSTimingCalibrationPI::getStringFromParamEnum(param) + " per channel; channel; parameter")
+                          .c_str());
+      graph->SetMarkerColor(2);
+      graph->SetMarkerSize(1.5);
+      graph->SetMarkerStyle(21);
+      graph->GetXaxis()->SetRangeUser(-.5, 11.5);
+      graph->GetXaxis()->SetNdivisions(16);
+      graph->GetYaxis()->SetNdivisions(32);
+      graph->Draw("AP");
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    } else {
+      return false;
     }
-
-    TGraph* gr = new TGraph(n, x, y);
-    gr->SetTitle("PPSTimingCalibration param per channel Example");
-    gr->Draw("AP");
-
-    std::string fileName(this->m_imageFileName);
-    canvas.SaveAs(fileName.c_str());
-
-    return true;
   }
 };
 
