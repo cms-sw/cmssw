@@ -34,12 +34,12 @@ hltGTs = {
     'run2_mc_Fake'           : ('run2_mc'                 ,l1Menus['Fake']),
     'run2_mc_Fake1'          : ('run2_mc_l1stage1'        ,l1Menus['Fake1']),
     'run2_mc_Fake2'          : ('run2_mc'                 ,l1Menus['Fake2']),
-    'run3_mc_FULL'           : ('phase1_2022_realistic'   ,l1Menus['FULL']),
-    'run3_mc_GRun'           : ('phase1_2022_realistic'   ,l1Menus['GRun']),
-    'run3_mc_2022v12'        : ('phase1_2022_realistic'   ,l1Menus['2022v12']),
-    'run3_mc_HIon'           : ('phase1_2022_realistic_hi',l1Menus['HIon']),
-    'run3_mc_PIon'           : ('phase1_2022_realistic'   ,l1Menus['PIon']),
-    'run3_mc_PRef'           : ('phase1_2022_realistic'   ,l1Menus['PRef']),
+    'run3_mc_FULL'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['FULL']),
+    'run3_mc_GRun'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['GRun']),
+    'run3_mc_2022v12'        : ('phase1_2022_realistic'                          ,l1Menus['2022v12']),
+    'run3_mc_HIon'           : ('124X_mcRun3_2022_realistic_HI_forTSG_menu1p4_v1',l1Menus['HIon']),
+    'run3_mc_PIon'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['PIon']),
+    'run3_mc_PRef'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['PRef']),
 
     'run1_hlt_Fake'          : ('run1_hlt_relval'         ,l1Menus['Fake']),
     'run2_hlt_Fake'          : ('run2_hlt_relval'         ,l1Menus['Fake']),
@@ -67,9 +67,8 @@ hltGTs = {
 
 def autoCondHLT(autoCond):
     for key,val in hltGTs.items():
-        if len(val)==1 :
-           autoCond[key] = ( autoCond[val[0]] )
-        else:
-           autoCond[key] = ( autoCond[val[0]],) + val[1]
+        autoCond[key] = autoCond[val[0]] if val[0] in autoCond else val[0]
+        if len(val) > 1:
+           autoCond[key] = (autoCond[key], *val[1])
 
     return autoCond
