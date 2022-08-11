@@ -32,6 +32,7 @@ muonCSCStubPSet = cms.PSet(
         minBX = cms.int32(7),
         maxBX = cms.int32(9),
         minNHitsChamber = cms.int32(4),
+        lctMatchType_tight = cms.bool(True),
         addGhosts = cms.bool(False)
     ),
     #csc LCT, central BX 8
@@ -40,6 +41,7 @@ muonCSCStubPSet = cms.PSet(
         inputTag = cms.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED"),
         minBX = cms.int32(7),
         maxBX = cms.int32(9),
+        mpcLctMatchType_tight = cms.bool(True),
         minNHitsChamber = cms.int32(4),
     ),
 )
