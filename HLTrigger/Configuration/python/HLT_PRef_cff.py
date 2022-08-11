@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_4_0/PRef --type PRef
 
-# /dev/CMSSW_12_4_0/PRef/V94 (CMSSW_12_4_0)
+# /dev/CMSSW_12_4_0/PRef/V110 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V94')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V110')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -2580,9 +2580,9 @@ fragment.streams = cms.PSet(
   ExpressAlignment = cms.vstring( 'ExpressAlignment' ),
   ExpressCosmics = cms.vstring(  ),
   NanoDST = cms.vstring( 'L1Accept' ),
-  PhysicsCommissioning = cms.vstring( 'HLTPhysics',
+  PhysicsCommissioning = cms.vstring( 'EmptyBX',
+    'HLTPhysics',
     'ZeroBias' ),
-  PhysicsEndOfFill = cms.vstring( 'EmptyBX' ),
   PhysicsHIZeroBias1 = cms.vstring( 'HIZeroBias1',
     'HIZeroBias2' ),
   PhysicsHIZeroBias2 = cms.vstring( 'HIZeroBias3',

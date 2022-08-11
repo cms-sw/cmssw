@@ -485,6 +485,6 @@ PhysicsHIMinimumBiasReducedFormat11Output
 PhysicsHITrackerNZSOutput
 PhysicsHIForwardOutput
 
-#HLTAnalyzerEndpath              # only in 'HIon', not in 'online'
+#HLTAnalyzerEndpath            # only in 'HIon', not in 'online'
 RatesMonitoring                # only in 'online', not in 'HIon'
 DQMHistograms                  # only in 'online', not in 'HIon'

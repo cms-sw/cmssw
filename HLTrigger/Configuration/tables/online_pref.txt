@@ -181,12 +181,12 @@ DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 
 ## EndPaths / FinalPaths ##
 
-PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
+PhysicsDispJetBTagMuEGTauOutput # CMSHLT-2431
 PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
 PhysicsForwardOutput
+PhysicsJetMETOutput             # CMSHLT-2431
+PhysicsMuonOutput               # CMSHLT-2431
 PhysicsTracksOutput
 
 PhysicsHIZeroBias1Output
@@ -215,6 +215,6 @@ NanoDSTOutput
 
 ######## paths that are different between PRef and online_pref ################################
 
-#HLTAnalyzerEndpath              # only in 'GRun', not in 'online'
+#HLTAnalyzerEndpath            # only in 'GRun', not in 'online'
 RatesMonitoring                # only in 'online', not in 'GRun'
 DQMHistograms                  # only in 'online', not in 'GRun'
