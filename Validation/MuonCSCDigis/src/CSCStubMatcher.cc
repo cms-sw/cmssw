@@ -22,6 +22,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   const auto& cscLCT = pSet.getParameter<edm::ParameterSet>("cscLCT");
   minBXLCT_ = cscLCT.getParameter<int>("minBX");
   maxBXLCT_ = cscLCT.getParameter<int>("maxBX");
+  lct_matchtype_tight_ = cscLCT.getParameter<bool>("lctMatchType_tight");
   verboseLCT_ = cscLCT.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
   addGhostLCTs_ = cscLCT.getParameter<bool>("addGhosts");
@@ -29,6 +30,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   const auto& cscMPLCT = pSet.getParameter<edm::ParameterSet>("cscMPLCT");
   minBXMPLCT_ = cscMPLCT.getParameter<int>("minBX");
   maxBXMPLCT_ = cscMPLCT.getParameter<int>("maxBX");
+  mpclct_matchtype_tight_ = cscMPLCT.getParameter<bool>("mpcLctMatchType_tight");
   verboseMPLCT_ = cscMPLCT.getParameter<int>("verbose");
   minNHitsChamberMPLCT_ = cscMPLCT.getParameter<int>("minNHitsChamber");
 
@@ -377,7 +379,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
 
       bool lct_tight_matched = alct_clct or alct_gem or clct_gem;
       bool lct_loose_matched = lct_clct_match or lct_alct_match;
-      bool lct_matched = lct_loose_matched or lct_tight_matched;
+      bool lct_matched = lct_matchtype_tight_ ? lct_tight_matched : (lct_loose_matched or lct_tight_matched);
 
       if (lct_matched) {
         if (verboseLCT_)
