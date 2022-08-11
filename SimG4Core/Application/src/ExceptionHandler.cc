@@ -62,7 +62,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   mescode >> code;
 
   // track is killed
-  if (ekin < m_eth && code == "GeomNav0003") {
+  if (ekin < m_eth && (code == "GeomNav0003" || code == "GeomField0003")) {
     localSeverity = JustWarning;
     track->SetTrackStatus(fStopAndKill);
   }
