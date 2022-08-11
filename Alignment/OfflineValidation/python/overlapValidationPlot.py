@@ -6,7 +6,7 @@ import math
 
 import ROOT
 
-from .TkAlStyle import TkAlStyle
+from TkAlStyle import TkAlStyle
 
 dirNameList=["z","r","phi"]# in general directions are labeled z=0 r =1 phi =2 throughout this, I should probably think of something more elegant
 detNameList = ("BPIX", "FPIX", "TIB", "TID", "TOB", "TEC")
