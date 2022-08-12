@@ -190,7 +190,7 @@ void HGCScintSD::update(const BeginOfJob* job) {
                                << " top Level " << levelT1_ << ":" << levelT2_;
 #endif
 
-    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, "");
   } else {
     throw cms::Exception("Unknown", "HGCScintSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
