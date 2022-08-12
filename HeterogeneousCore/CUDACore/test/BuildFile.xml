@@ -25,8 +25,7 @@
     <use name="openmpi"/>
     <use name="cuda"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <flags TEST_RUNNER_CMD="cmsenv_mpirun  -np 2 mpiCudaGeneric -t100 -a10 -s200000 -p123"/>
+    <flags TEST_RUNNER_CMD="cudaIsEnabled &amp;&amp; cmsenv_mpirun -np 2 mpiCudaGeneric -t100 -a10 -s200000 -p123 || echo 'Failed to initialise the CUDA runtime, the test will be skipped.'"/>
 </bin>
 
 </iftool>
-
