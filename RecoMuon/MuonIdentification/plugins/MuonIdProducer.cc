@@ -797,7 +797,6 @@ bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
   return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
-  //return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
@@ -1041,7 +1040,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
       // only GE1/1 and 2/1 are for rechits, reject station 0 and segments (layer==0 for GEMSegment)
       if (chamber.id.subdetId() != MuonSubdetId::GEM || GEMDetId(chamber.id.rawId()).station() == 0 ||
           GEMDetId(chamber.id.rawId()).layer() == 0)
-        continue;  // Consider RPC chambers only
+        continue;  // Consider GEM chambers only
       const auto& lErr = chamber.tState.localError();
       const auto& lPos = chamber.tState.localPosition();
       const auto& lDir = chamber.tState.localDirection();
@@ -1068,12 +1067,9 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
       matchedChamber.id = chamber.id;
 
-      //std::cout << "In GEM Hit Matching info s" << GEMDetId(chamber.id.rawId()) << " ngs:" << gemHitHandle_->size() << " :: ";
       for (const auto& gemRecHit : *gemHitHandle_) {
         reco::MuonGEMHitMatch gemHitMatch;
 
-        // std::cout << " h:" << gemRecHit.gemId();
-        //  constexpr GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
         if (GEMDetId(gemRecHit.gemId().region(),
                      gemRecHit.gemId().ring(),
                      gemRecHit.gemId().station(),
@@ -1088,11 +1084,9 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         gemHitMatch.bx = gemRecHit.BunchX();
 
         const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
-        //std::cout << " absdx " << absDx << "  :";
         if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
           matchedChamber.gemHitMatches.push_back(gemHitMatch);
       }
-      //std::cout << ":" << std::endl;
 
       muonChamberMatches.push_back(matchedChamber);
     }
