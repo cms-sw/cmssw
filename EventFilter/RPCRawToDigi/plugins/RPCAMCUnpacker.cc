@@ -10,6 +10,7 @@ void RPCAMCUnpacker::fillDescription(edm::ParameterSetDescription& desc) {
   pset.add<bool>("fillAMCCounters", true);
   pset.add<int>("bxMin", -2);
   pset.add<int>("bxMax", +2);
+  pset.add<int>("cppfDaqDelay", 0);
   desc.add<edm::ParameterSetDescription>("RPCAMCUnpackerSettings", pset);
 }
 

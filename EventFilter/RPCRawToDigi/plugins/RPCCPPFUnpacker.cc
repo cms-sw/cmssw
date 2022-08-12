@@ -21,6 +21,7 @@ RPCCPPFUnpacker::RPCCPPFUnpacker(edm::ParameterSet const& config,
       fill_counters_(config.getParameter<bool>("fillAMCCounters")),
       bx_min_(config.getParameter<int>("bxMin")),
       bx_max_(config.getParameter<int>("bxMax")),
+      cppfDaq_Delay_(config.getParameter<int>("cppfDaqDelay")),
       es_cppf_link_map_br_token_(
           consumesCollector.esConsumes<RPCAMCLinkMap, RPCCPPFLinkMapRcd, edm::Transition::BeginRun>()),
       es_cppf_link_map_token_(consumesCollector.esConsumes<RPCAMCLinkMap, RPCCPPFLinkMapRcd>()),
@@ -88,7 +89,7 @@ bool RPCCPPFUnpacker::processCPPF(RPCAMCLink const& link,
   unsigned int bx_counter(header.getBXCounter());
   unsigned int bx_counter_mod(bx_counter % 27);
 
-  int bx_min(bx_min_), bx_max(bx_max_);
+  int bx_min(bx_min_), bx_max(bx_max_), cppfDaq_Delay(cppfDaq_Delay_);
   // no adjustable bx window implemented in readout yet
 
   unsigned int pos(0), length(0);
@@ -120,7 +121,8 @@ bool RPCCPPFUnpacker::processCPPF(RPCAMCLink const& link,
         have_bx_header = true;
       } else {
         if (caption_id == 0x01) {  // RX
-          processRXRecord(link, bx_counter_mod, rpccppf::RXRecord(*record), counters, rpc_digis, bx_min, bx_max);
+          processRXRecord(
+              link, bx_counter_mod, rpccppf::RXRecord(*record), counters, rpc_digis, bx_min, bx_max, cppfDaq_Delay);
         } else if (caption_id == 0x02) {  // TX
           processTXRecord(link, block_id, 6 - bx_words, rpccppf::TXRecord(*record), rpc_cppf_digis);
         }
@@ -139,7 +141,8 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
                                       RPCAMCLinkCounters& counters,
                                       std::set<std::pair<RPCDetId, RPCDigi> >& rpc_digis,
                                       int bx_min,
-                                      int bx_max) const {
+                                      int bx_max,
+                                      int cppfDaq_Delay) const {
   LogDebug("RPCCPPFRawToDigi") << "RXRecord " << std::hex << record.getRecord() << std::dec << std::endl;
   unsigned int fed(link.getFED());
   unsigned int amc_number(link.getAMCNumber());
@@ -217,7 +220,8 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     return;
   }
 
-  if (bx < bx_min || bx > bx_max) {
+  auto bx_corrected = bx - cppfDaq_Delay;
+  if (bx_corrected < bx_min || bx_corrected > bx_max) {
     return;
   }
 
@@ -233,8 +237,9 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     if (data & (0x1 << channel)) {
       unsigned int strip(feb_connector.getStrip(channel + channel_offset));
       if (strip) {
-        rpc_digis.insert(std::pair<RPCDetId, RPCDigi>(det_id, RPCDigi(strip, bx)));
-        LogDebug("RPCCPPFRawToDigi") << "RPCDigi " << det_id.rawId() << ", " << strip << ", " << bx;
+        rpc_digis.insert(std::pair<RPCDetId, RPCDigi>(det_id, RPCDigi(strip, bx - cppfDaq_Delay_)));
+        LogDebug("RPCCPPFRawToDigi") << "RPCDigi " << det_id.rawId() << ", " << strip << ", " << bx << ", "
+                                     << bx - cppfDaq_Delay_;
       }
     }
   }
