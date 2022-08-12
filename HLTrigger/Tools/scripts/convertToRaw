@@ -26,6 +26,43 @@ def cmsRun(config, **args):
         sys.exit(status.returncode)
 
 
+class LuminosityBlockRange:
+    def __init__(self, value: str = '') -> None:
+        self.min_run = 0
+        self.max_run = 0
+        self.min_lumi = 0
+        self.max_lumi = 0
+        if value and value != 'all':
+            ((self.min_run, self.min_lumi), (self.max_run, self.max_lumi)) = LuminosityBlockRange.parse_range(value)
+
+    @staticmethod
+    def parse_value(value: str) -> int:
+        return 0 if value in ('', 'min', 'max') else int(value)
+
+    @staticmethod
+    def parse_value_pair(value: str) -> (int, int):
+        if value.count(':') > 1:
+            raise ValueError('invalid syntax')
+        (first, second) = value.split(':') if ':' in value else ('', value)
+        return LuminosityBlockRange.parse_value(first), LuminosityBlockRange.parse_value(second)
+
+    @staticmethod
+    def parse_range(value: str) -> ((int, int), (int, int)):
+        if value.count('-') > 1:
+            raise ValueError('invalid syntax')
+        (first, second) = value.split('-') if '-' in value else (value, value)
+        return LuminosityBlockRange.parse_value_pair(first), LuminosityBlockRange.parse_value_pair(second)
+
+    def is_in_range(self, run: int, lumi: int) -> bool:
+        return (
+            (self.min_run == 0 or self.min_run == run) and (self.min_lumi == 0 or self.min_lumi <= lumi) or
+            (self.min_run != 0 and self.min_run < run)
+        ) and (
+            (self.max_run == 0 or self.max_run == run) and (self.max_lumi == 0 or self.max_lumi >= lumi) or
+            (self.min_run != 0 and self.max_run > run)
+        )
+
+
 # default values
 events_per_file = 100
 events_per_lumi = 11655
@@ -36,6 +73,7 @@ parser.add_argument('files', type=str, metavar='FILES', nargs='+', help='input f
 parser.add_argument('-o', '--output', type=str, dest='output_directory', metavar='PATH', default='', help='base path to store the output files; subdirectories based on the run number are automatically created')
 parser.add_argument('-f', '--events_per_file', type=int, dest='events_per_file', metavar='EVENTS', default=events_per_file, help='split the output into files with at most EVENTS events')
 parser.add_argument('-l', '--events_per_lumi', type=int, dest='events_per_lumi', metavar='EVENTS', default=events_per_lumi, help='process at most EVENTS events in each lumisection')
+parser.add_argument('-r', '--range', type=LuminosityBlockRange, dest='range', metavar='[RUN:LUMI-RUN:LUMI]', default='all', help='process only the runs and lumisections in the given range')
 parser.add_argument('--one-file-per-lumi', action='store_true', dest='one_file_per_lumi', default=False, help='assume that lumisections are not split across files (and disable --events_per_lumi)')
 
 # parse the command line arguments and options
@@ -86,6 +124,8 @@ for f in files:
 
         if parsing:
             run, lumi, events = tuple(map(int, line.split()))
+            if not args.range.is_in_range(run, lumi):
+                continue
             if not run in content:
                 content[run] = {}
             if not lumi in content[run]:
