@@ -148,8 +148,9 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                 "65536     * filter('hlt4PFCentralJetLooseID40') + " \
                 "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )+ " \
                 "262144    * filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*') + " \
-                "524288   * filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*') + " \
-                "1048576   * filter('*CrossCleanedUsingDiJetCorrChecker*')"
+                "524288    * filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*') + " \
+                "1048576   * filter('*CrossCleanedUsingDiJetCorrChecker*') + " \
+                "2097152   * filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')"
                 ), 
             qualityBitsDoc = cms.string(
                 "Jet bits: bit 0 for VBF cross-cleaned from loose iso PFTau, bit 1 for hltBTagCaloCSVp087Triple, bit 2 for hltDoubleCentralJet90, bit 3 for hltDoublePFCentralJetLooseID90," \
@@ -161,8 +162,9 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                 " bit 14 for hlt2PFCentralJetLooseID60, bit 15 for hlt3PFCentralJetLooseID45, bit 16 for hlt4PFCentralJetLooseID40," \
                 " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple,"\
                 " bit 18 for Double tau + jet,"\
-                " bit 19 for VBF cross-cleaned from medium deeptau PFTau,"+
-                " bit 20 for VBF cross-cleaned using dijet correlation checker ")
+                " bit 19 for VBF cross-cleaned from medium deeptau PFTau,"\
+                " bit 20 for VBF cross-cleaned using dijet correlation checker,"\
+                " bit 21 for monitoring muon + tau + jet")
         ),
         cms.PSet(
             name = cms.string("FatJet"),
