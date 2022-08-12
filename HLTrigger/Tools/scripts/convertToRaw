@@ -27,8 +27,8 @@ def cmsRun(config, **args):
 
 
 # default values
-events_per_file = 50
-events_per_lumi = 11650
+events_per_file = 100
+events_per_lumi = 11655
 output_directory = ''
 
 parser = argparse.ArgumentParser(description='Convert RAW data from .root format to .raw format.', formatter_class = argparse.ArgumentDefaultsHelpFormatter)
