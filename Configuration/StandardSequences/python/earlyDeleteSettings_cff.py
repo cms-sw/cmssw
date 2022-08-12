@@ -20,12 +20,6 @@ def customiseEarlyDelete(process):
 
     products = customiseEarlyDeleteForCandIsoDeposits(process, products)
 
-    # Set process.options.canDeleteEarly
-    if not hasattr(process.options, "canDeleteEarly"):
-        process.options.canDeleteEarly = cms.untracked.vstring()
-    if not hasattr(process.options, "holdsReferencesToDeleteEarly"):
-        process.options.holdsReferencesToDeleteEarly=cms.untracked.VPSet()
-
     branchSet = set()
     for branches in products.values():
         for branch in branches:
