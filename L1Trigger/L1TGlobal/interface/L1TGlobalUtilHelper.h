@@ -62,7 +62,10 @@ namespace l1t {
                         edm::InputTag const& l1tExtBlkInputTag);
 
     // A module defining its fillDescriptions function might want to use this
-    static void fillDescription(edm::ParameterSetDescription& desc);
+    static void fillDescription(edm::ParameterSetDescription& desc,
+                                edm::InputTag const& iAlg,
+                                edm::InputTag const& iExt,
+                                bool readPrescalesFromFile);
 
     edm::InputTag const& l1tAlgBlkInputTag() const { return m_l1tAlgBlkInputTag; }
     edm::InputTag const& l1tExtBlkInputTag() const { return m_l1tExtBlkInputTag; }
@@ -120,6 +123,7 @@ namespace l1t {
     if (!m_l1tAlgBlkInputTag.label().empty()) {
       m_l1tAlgBlkToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tAlgBlkInputTag);
     }
+
     if (!m_l1tExtBlkInputTag.label().empty()) {
       m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
     }
@@ -131,8 +135,15 @@ namespace l1t {
     // Register the callback function with the Framework
     // if any InputTags still need to be found.
     if (findL1TAlgBlk || findL1TExtBlk) {
-      module.callWhenNewProductsRegistered([this, findL1TAlgBlk, findL1TExtBlk, iC](auto iBranch) {
-        checkToUpdateTags(iBranch, iC, findL1TAlgBlk, findL1TExtBlk);
+      auto const* pModule = &module;
+      module.callWhenNewProductsRegistered([this, findL1TAlgBlk, findL1TExtBlk, iC, pModule](auto iBranch) {
+        try {
+          checkToUpdateTags(iBranch, iC, findL1TAlgBlk, findL1TExtBlk);
+        } catch (cms::Exception& iExcept) {
+          auto const& label = pModule->moduleDescription().moduleLabel();
+          iExcept.addContext(std::string("Running 'callWhenNewProductRegistered' for module ") + label);
+          throw;
+        }
       });
     }
   }

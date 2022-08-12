@@ -33,6 +33,7 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
   class Run;
+  class ParameterSetDescription;
 }  // namespace edm
 
 class HLTPrescaleProvider {
@@ -92,6 +93,12 @@ public:
   // Event rejected by HLTPrescaler on ith HLT path?
   bool rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const;
   static int l1PrescaleDenominator() { return kL1PrescaleDenominator_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc,
+                                  unsigned int stageL1Trigger,
+                                  edm::InputTag const& l1tAlgBlkInputTag,
+                                  edm::InputTag const& l1tExtBlkInputTag,
+                                  bool readPrescalesFromFile);
 
 private:
   void checkL1GtUtils() const;

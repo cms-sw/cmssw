@@ -14,10 +14,13 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset, edm
   m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
 }
 
-void l1t::L1TGlobalUtilHelper::fillDescription(edm::ParameterSetDescription& desc) {
-  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag());
-  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag());
-  desc.add<bool>("ReadPrescalesFromFile", false);
+void l1t::L1TGlobalUtilHelper::fillDescription(edm::ParameterSetDescription& desc,
+                                               edm::InputTag const& iAlg,
+                                               edm::InputTag const& iExt,
+                                               bool readPrescalesFromFile) {
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", iAlg);
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", iExt);
+  desc.add<bool>("ReadPrescalesFromFile", readPrescalesFromFile);
 }
 
 namespace {
@@ -44,15 +47,11 @@ namespace {
           iPreferredTags.end() != std::find(iPreferredTags.begin(), iPreferredTags.end(), ioTag.label());
       if (alreadyFoundPreferred) {
         if (std::find(iPreferredTags.begin(), iPreferredTags.end(), iDesc.moduleLabel()) != iPreferredTags.end()) {
-          edm::LogError("L1GtUtils") << "Found multiple preferred input tags for " << iTypeForErrorMessage
-                                     << " product, "
-                                     << "\nwith different instaces or processes."
-                                     << "\nTag already found: " << (ioTag) << "\nOther tag: "
-                                     << (edm::InputTag{
-                                            iDesc.moduleLabel(), iDesc.productInstanceName(), iDesc.processName()})
-                                     << "\nToken set to invalid." << std::endl;
-          //another preferred also found
-          ioToken = T{};
+          throw cms::Exception("L1GtUtils::TooManyChoices")
+              << "Found multiple preferred input tags for " << iTypeForErrorMessage << " product, "
+              << "\nwith different instaces or processes."
+              << "\nTag already found: " << (ioTag) << "\nOther tag: "
+              << (edm::InputTag{iDesc.moduleLabel(), iDesc.productInstanceName(), iDesc.processName()});
         }
       } else {
         //previous choice was not preferred
