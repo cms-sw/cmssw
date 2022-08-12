@@ -66,11 +66,11 @@ namespace trklet {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
-    int nEvents_;
+    int nEvents_ = 0;
 
     // Histograms
 
@@ -82,8 +82,7 @@ namespace trklet {
     stringstream log_;
   };
 
-  AnalyzerKFout::AnalyzerKFout(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerKFout::AnalyzerKFout(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelKFout");
@@ -99,8 +98,6 @@ namespace trklet {
     }
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

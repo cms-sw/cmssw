@@ -55,9 +55,9 @@ namespace trackerTFP {
     // Demonstrator token
     ESGetToken<Demonstrator, DemonstratorRcd> esGetTokenDemonstrator_;
     //
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     //
-    const Demonstrator* demonstrator_;
+    const Demonstrator* demonstrator_ = nullptr;
   };
 
   AnalyzerDemonstrator::AnalyzerDemonstrator(const ParameterSet& iConfig) {
@@ -67,6 +67,7 @@ namespace trackerTFP {
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
     edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
+    edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
     if (labelIn == "TrackerTFPProducerKFin" || labelIn == "TrackerTFPProducerKF")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
     if (labelOut == "TrackerTFPProducerKF" || labelOut == "TrackerTFPProducerDR")
@@ -74,9 +75,6 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDemonstrator_ = esConsumes<Demonstrator, DemonstratorRcd, Transition::BeginRun>();
-    // initial ES product
-    setup_ = nullptr;
-    demonstrator_ = nullptr;
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {

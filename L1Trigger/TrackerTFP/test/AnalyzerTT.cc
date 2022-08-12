@@ -40,7 +40,7 @@ namespace trackerTFP {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
   };
 
   AnalyzerTT::AnalyzerTT(const ParameterSet& iConfig) {
@@ -52,8 +52,6 @@ namespace trackerTFP {
     edGetTokenStubAssociation_ = consumes<StubAssociation>(inputTag);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
   }
 
   void AnalyzerTT::beginRun(const Run& iEvent, const EventSetup& iSetup) {

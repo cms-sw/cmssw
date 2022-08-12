@@ -13,7 +13,6 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
 #include <string>
 #include <vector>
@@ -69,15 +68,13 @@ namespace trklet {
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
     // helper class to assign tracks to channel
-    ChannelAssignment* channelAssignment_;
+    ChannelAssignment* channelAssignment_ = nullptr;
     //
     bool enableTruncation_;
-    //
-    trklet::Settings settings_;
   };
 
   ProducerTBout::ProducerTBout(const ParameterSet& iConfig) : iConfig_(iConfig) {
@@ -98,10 +95,6 @@ namespace trklet {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
-    channelAssignment_ = nullptr;
     //
     enableTruncation_ = iConfig.getParameter<bool>("EnableTruncation");
   }

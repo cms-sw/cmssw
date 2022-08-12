@@ -36,7 +36,6 @@ namespace trackerTFP {
 
   unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const LayerEncodingRcd& rcd) {
     const DataFormats* dataFormats = &rcd.get(esGetToken_);
-    //return make_unique<LayerEncoding>(iConfig_, dataFormats);
     return make_unique<LayerEncoding>(dataFormats);
   }
 

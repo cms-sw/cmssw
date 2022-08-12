@@ -64,11 +64,11 @@ namespace trackerTFP {
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
     // helper class to
-    KalmanFilterFormats* kalmanFilterFormats_;
+    KalmanFilterFormats* kalmanFilterFormats_ = nullptr;
     // print end job internal unused MSB
     bool printDebug_;
   };
@@ -93,10 +93,6 @@ namespace trackerTFP {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenKalmanFilterFormats_ = esConsumes<KalmanFilterFormats, KalmanFilterFormatsRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
-    kalmanFilterFormats_ = nullptr;
   }
 
   void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {

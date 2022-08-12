@@ -53,11 +53,11 @@ namespace trackerTFP {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetToken_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
-    int nEvents_;
+    int nEvents_ = 0;
 
     // Histograms
 
@@ -69,8 +69,7 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelGP");
@@ -84,7 +83,6 @@ namespace trackerTFP {
     }
     // book ES product
     esGetToken_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    setup_ = nullptr;
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

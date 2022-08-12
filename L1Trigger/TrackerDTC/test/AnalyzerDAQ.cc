@@ -46,7 +46,7 @@ namespace trackerDTC {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
 
     // Histograms
 
@@ -64,8 +64,6 @@ namespace trackerDTC {
     edGetToken_ = consumes<TTClusterDetSetVec>(inputTag);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
   }
 
   void AnalyzerDAQ::beginRun(const Run& iEvent, const EventSetup& iSetup) {

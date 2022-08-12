@@ -44,9 +44,9 @@ namespace trackerDTC {
     void produce(Event&, const EventSetup&) override;
     void endJob() {}
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // class to encode layer ids used between DTC and TFP in Hybrid
-    const LayerEncoding* layerEncoding_;
+    const LayerEncoding* layerEncoding_ = nullptr;
     // ED input token of TTStubs
     EDGetTokenT<TTStubDetSetVec> edGetToken_;
     // ED output token for accepted stubs
@@ -72,9 +72,6 @@ namespace trackerDTC {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    layerEncoding_ = nullptr;
   }
 
   void ProducerED::beginRun(const Run& iRun, const EventSetup& iSetup) {

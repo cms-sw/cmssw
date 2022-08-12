@@ -44,8 +44,7 @@ namespace trklet {
     void convert(const Event& iEvent,
                  const EDGetTokenT<StreamsTrack>& tokenTracks,
                  const EDGetTokenT<StreamsStub>& tokenStubs,
-                 vector<vector<Frame>>& bits,
-                 bool tbOut) const;
+                 vector<vector<Frame>>& bits) const;
     //
     template <typename T>
     void convert(const T& collection, vector<vector<Frame>>& bits) const;
@@ -62,17 +61,15 @@ namespace trklet {
     // Demonstrator token
     ESGetToken<Demonstrator, DemonstratorRcd> esGetTokenDemonstrator_;
     //
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     //
-    const ChannelAssignment* channelAssignment_;
+    const ChannelAssignment* channelAssignment_ = nullptr;
     //
-    const Demonstrator* demonstrator_;
+    const Demonstrator* demonstrator_ = nullptr;
     //
-    int nEvents_;
+    int nEvents_ = 0;
     //
-    int nEventsSuccessful_;
-    //
-    pair<bool, bool> tbOuts_;
+    int nEventsSuccessful_ = 0;
   };
 
   AnalyzerDemonstrator::AnalyzerDemonstrator(const ParameterSet& iConfig) {
@@ -82,23 +79,17 @@ namespace trklet {
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
     edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
+    edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
     if (labelOut != "TrackFindingTrackletProducerKFout")
       edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
     if (labelIn != "TrackFindingTrackletProducerIRin")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
     if (labelOut != "TrackFindingTrackletProducerIRin")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
-    tbOuts_ = {labelIn == "TrackFindingTrackletProducerTBout", labelOut == "TrackFindingTrackletProducerTBout"};
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     esGetTokenDemonstrator_ = esConsumes<Demonstrator, DemonstratorRcd, Transition::BeginRun>();
-    // initial ES product
-    setup_ = nullptr;
-    channelAssignment_ = nullptr;
-    demonstrator_ = nullptr;
-    nEvents_ = 0;
-    nEventsSuccessful_ = 0;
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {
@@ -114,20 +105,17 @@ namespace trklet {
     nEvents_++;
     vector<vector<Frame>> input;
     vector<vector<Frame>> output;
-    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input, tbOuts_.first);
-    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output, tbOuts_.second);
+    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);
+    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output);
     if (demonstrator_->analyze(input, output))
       nEventsSuccessful_++;
-    else
-      cout << "BitError" << endl;
   }
 
   //
   void AnalyzerDemonstrator::convert(const Event& iEvent,
                                      const EDGetTokenT<StreamsTrack>& tokenTracks,
                                      const EDGetTokenT<StreamsStub>& tokenStubs,
-                                     vector<vector<Frame>>& bits,
-                                     bool tbOut) const {
+                                     vector<vector<Frame>>& bits) const {
     const bool tracks = !tokenTracks.isUninitialized();
     const bool stubs = !tokenStubs.isUninitialized();
     Handle<StreamsStub> handleStubs;
@@ -143,13 +131,8 @@ namespace trklet {
     if (stubs) {
       iEvent.getByToken<StreamsStub>(tokenStubs, handleStubs);
       numChannelStubs = handleStubs->size() / setup_->numRegions();
-      if (tbOut) {
-        for (int seed = 0; seed < channelAssignment_->numChannelsTrack(); seed++)
-          numChannelsStubs[seed] = channelAssignment_->numProjectionLayers(seed);
-      } else {
-        const int numChannel = tracks ? numChannelStubs / numChannelTracks : numChannelStubs;
-        numChannelsStubs = vector<int>(numChannelTracks, numChannel);
-      }
+      const int numChannel = tracks ? numChannelStubs / numChannelTracks : numChannelStubs;
+      numChannelsStubs = vector<int>(numChannelTracks, numChannel);
     }
     bits.reserve(numChannelTracks + numChannelStubs);
     for (int region = 0; region < setup_->numRegions(); region++) {

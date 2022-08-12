@@ -367,6 +367,8 @@ namespace tt {
     int offsetLayerDisks() const { return offsetLayerDisks_; }
     // offset between 0 and smallest layer id (barrel layer 1)
     int offsetLayerId() const { return offsetLayerId_; }
+    //
+    int numBarrelLayer() const { return numBarrelLayer_; }
     // total number of outer tracker DTCs
     int numDTCs() const { return numDTCs_; }
     // number of DTCs connected to one TFP (48)
@@ -797,6 +799,8 @@ namespace tt {
     int offsetLayerDisks_;
     // offset between 0 and smallest layer id (barrel layer 1)
     int offsetLayerId_;
+    //
+    int numBarrelLayer_;
     // total number of output channel
     int dtcNumStreams_;
     // slot number changing from PS to 2S (default: 6)
