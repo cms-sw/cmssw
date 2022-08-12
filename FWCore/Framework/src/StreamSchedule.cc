@@ -38,6 +38,7 @@
 #include <list>
 #include <map>
 #include <exception>
+#include <fmt/format.h>
 
 namespace edm {
 
@@ -437,8 +438,11 @@ namespace edm {
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
-          std::string branch = product.type().friendlyClassName() + "_" + product.label().data() + "_" +
-                               product.instance().data() + "_" + product.process().data();
+          std::string branch = fmt::format("{}_{}_{}_{}",
+                                           product.type().friendlyClassName(),
+                                           product.label().data(),
+                                           product.instance().data(),
+                                           product.process().data());
           {
             //Handle case where worker directly consumes product
             auto found = branchToReadingWorker.end();
