@@ -86,7 +86,6 @@ namespace edmtest {
         : getToken_(consumes(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_).get(); }
-    //void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_); }
 
   private:
     edm::EDGetTokenT<edm::RefProd<DeleteEarly>> getToken_;

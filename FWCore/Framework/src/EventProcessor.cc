@@ -674,9 +674,9 @@ namespace edm {
     // products unnecessarily alive
     if (not branchesToDeleteEarly_.empty()) {
       auto modulesToSkip = std::move(modulesToIgnoreForDeleteEarly_);
-      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, referencesToBranches_, modulesToSkip, *preg_);
-      decltype(branchesToDeleteEarly_)().swap(branchesToDeleteEarly_);
-      referencesToBranches_.clear();
+      auto branchesToDeleteEarly = std::move(branchesToDeleteEarly_);
+      auto referencesToBranches = std::move(referencesToBranches_);
+      schedule_->initializeEarlyDelete(branchesToDeleteEarly, referencesToBranches, modulesToSkip, *preg_);
     }
 
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
