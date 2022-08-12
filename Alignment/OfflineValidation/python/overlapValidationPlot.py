@@ -6,7 +6,7 @@ import math
 
 import ROOT
 
-from .TkAlStyle import TkAlStyle
+from TkAlStyle import TkAlStyle
 
 dirNameList=["z","r","phi"]# in general directions are labeled z=0 r =1 phi =2 throughout this, I should probably think of something more elegant
 detNameList = ("BPIX", "FPIX", "TIB", "TID", "TOB", "TEC")
@@ -26,7 +26,7 @@ def hist(tree_file_name, hist_name,subdet_ids,module_directions,overlap_directio
                         for overlap in range(3):
                                 h[subdet][module].append([])
                                 for profile in range(4):
-                                        if subdetConditon(subdet,module,overlap):
+                                        if subdetCondition(subdet,module,overlap):
                                                 h[subdet][module][overlap].append(0)
                                                 continue
                                         name = hist_name + "{0}_{1}_{2}".format(dirNameList[module],dirNameList[overlap],detNameList[subdet])
