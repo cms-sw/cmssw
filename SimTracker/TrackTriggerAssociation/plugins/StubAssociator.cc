@@ -45,7 +45,7 @@ namespace tt {
     void endJob() {}
 
     // helper classe to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // ED input token of TTStubs
     EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
     // ED input token of TTClusterAssociation

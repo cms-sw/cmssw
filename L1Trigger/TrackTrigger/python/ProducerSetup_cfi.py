@@ -141,6 +141,7 @@ TrackTrigger_params = cms.PSet (
     OffsetDetIdTP         = cms.int32( -1 ), # tk layout det id minus TrackerTopology lower det id
     OffsetLayerDisks      = cms.int32( 10 ), # offset in layer ids between barrel layer and endcap disks
     OffsetLayerId         = cms.int32(  1 ), # offset between 0 and smallest layer id (barrel layer 1)
+    NumBarrelLayer        = cms.int32(  6 ), #
     SlotLimitPS           = cms.int32(  6 ), # slot number changing from PS to 2S
     SlotLimit10gbps       = cms.int32(  3 )  # slot number changing from 10 gbps to 5gbps
   ),

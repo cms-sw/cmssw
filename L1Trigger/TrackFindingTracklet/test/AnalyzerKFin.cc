@@ -80,15 +80,15 @@ namespace trklet {
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
     // helper class to assign tracklet track to channel
-    const ChannelAssignment* channelAssignment_;
+    const ChannelAssignment* channelAssignment_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
-    int nEvents_;
+    int nEvents_ = 0;
 
     // Histograms
 
@@ -100,8 +100,7 @@ namespace trklet {
     stringstream log_;
   };
 
-  AnalyzerKFin::AnalyzerKFin(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerKFin::AnalyzerKFin(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelKFin");
@@ -123,10 +122,6 @@ namespace trklet {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
-    channelAssignment_ = nullptr;
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

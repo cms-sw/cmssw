@@ -52,9 +52,9 @@ namespace trackerTFP {
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
   };
 
   ProducerZHT::ProducerZHT(const ParameterSet& iConfig) : iConfig_(iConfig) {
@@ -68,9 +68,6 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
   }
 
   void ProducerZHT::beginRun(const Run& iRun, const EventSetup& iSetup) {

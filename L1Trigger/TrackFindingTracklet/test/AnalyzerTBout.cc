@@ -89,17 +89,17 @@ namespace trklet {
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     //
     const Settings settings_;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
     // helper class to assign tracklet track to channel
-    const ChannelAssignment* channelAssignment_;
+    const ChannelAssignment* channelAssignment_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
-    int nEvents_;
+    int nEvents_ = 0;
     //
     vector<deque<FrameStub>> regionStubs_;
     //
@@ -122,8 +122,7 @@ namespace trklet {
     stringstream log_;
   };
 
-  AnalyzerTBout::AnalyzerTBout(const ParameterSet& iConfig)
-      : settings_(), useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerTBout::AnalyzerTBout(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
     const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTagDTC");
@@ -147,10 +146,6 @@ namespace trklet {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
-    channelAssignment_ = nullptr;
     //
     nOverflows_ = vector<int>(2, 0);
     // log config
@@ -394,7 +389,7 @@ namespace trklet {
     static constexpr int widthZ = 9;
     static constexpr int widthR = 7;
     const bool barrel = setup_->barrel(frameStub.first);
-    const int layerIdTracklet = channelAssignment_->trackletLayerId(frameStub.first);
+    const int layerIdTracklet = setup_->trackletLayerId(frameStub.first);
     static const double baseR = settings_.kz();
     const double basePhi = barrel ? settings_.kphi1() : settings_.kphi(layerIdTracklet);
     const double baseZ = settings_.kz(layerIdTracklet);

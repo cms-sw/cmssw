@@ -47,7 +47,7 @@ namespace trackerTFP {
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
   };
 
   ProducerAS::ProducerAS(const ParameterSet& iConfig) : iConfig_(iConfig) {
@@ -60,8 +60,6 @@ namespace trackerTFP {
     edPutToken_ = produces<TTTrackRefMap>(branch);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
   }
 
   void ProducerAS::beginRun(const Run& iRun, const EventSetup& iSetup) {

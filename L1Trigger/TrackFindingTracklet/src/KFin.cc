@@ -121,7 +121,7 @@ namespace trklet {
             continue;
           // parse residuals from tt::Frame and take r and layerId from tt::TTStubRef
           const bool barrel = setup_->barrel(ttStubRef);
-          const int layerIdTracklet = channelAssignment_->trackletLayerId(ttStubRef);
+          const int layerIdTracklet = setup_->trackletLayerId(ttStubRef);
           const double basePhi = barrel ? settings_->kphi1() : settings_->kphi(layerIdTracklet);
           const double baseRZ = barrel ? settings_->kz(layerIdTracklet) : settings_->kz();
           const int widthRZ = barrel ? settings_->zresidbits() : settings_->rresidbits();

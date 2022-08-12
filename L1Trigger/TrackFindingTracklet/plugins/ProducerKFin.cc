@@ -68,13 +68,13 @@ namespace trklet {
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_;
+    const DataFormats* dataFormats_ = nullptr;
     // helper class to encode layer
-    const LayerEncoding* layerEncoding_;
+    const LayerEncoding* layerEncoding_ = nullptr;
     // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment_;
+    const ChannelAssignment* channelAssignment_ = nullptr;
     // helper class to store tracklet configurations
     Settings settings_;
   };
@@ -97,12 +97,6 @@ namespace trklet {
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    // initial ES products
-    setup_ = nullptr;
-    dataFormats_ = nullptr;
-    layerEncoding_ = nullptr;
-    channelAssignment_ = nullptr;
-    settings_ = Settings();
   }
 
   void ProducerKFin::beginRun(const Run& iRun, const EventSetup& iSetup) {

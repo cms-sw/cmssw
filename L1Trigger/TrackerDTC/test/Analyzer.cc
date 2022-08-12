@@ -117,7 +117,7 @@ namespace trackerDTC {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetToken_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const Setup* setup_ = nullptr;
     // selector to partly select TPs for efficiency measurements
     TrackingParticleSelector tpSelector_;
     //
@@ -127,7 +127,7 @@ namespace trackerDTC {
     // specifies used TT algorithm
     bool hybrid_;
     //
-    int nEvents_;
+    int nEvents_ = 0;
 
     // Histograms
 
@@ -149,9 +149,7 @@ namespace trackerDTC {
   };
 
   Analyzer::Analyzer(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")),
-        hybrid_(iConfig.getParameter<bool>("UseHybrid")),
-        nEvents_(0) {
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hybrid_(iConfig.getParameter<bool>("UseHybrid")) {
     usesResource("TFileService");
     // book in- and output ED products
     const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");
@@ -168,8 +166,6 @@ namespace trackerDTC {
     }
     // book ES product
     esGetToken_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    //initial ES product
-    setup_ = nullptr;
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
