@@ -53,6 +53,7 @@ private:
   int useSimWt_;
   const double tan30deg_;
   std::vector<double> angles_;
+  std::string missingFile_;
 };
 
 #endif  // HGCalSD_h
