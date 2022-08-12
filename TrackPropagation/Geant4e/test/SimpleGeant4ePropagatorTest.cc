@@ -37,7 +37,7 @@
 class SimpleGeant4ePropagatorTest final : public edm::one::EDAnalyzer<> {
 public:
   explicit SimpleGeant4ePropagatorTest(const edm::ParameterSet &);
-  ~SimpleGeant4ePropagatorTest() override {}
+  ~SimpleGeant4ePropagatorTest() override = default;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
