@@ -509,6 +509,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
     )
   )
   getattr(proc,jetTableName).variables.pt.precision=10
+  getattr(proc,jetTableName).variables.rawFactor.precision=10
 
   #
   # Save MC-only jet variables in table
@@ -637,6 +638,8 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   if runOnMC:
     jetPuppiTableDoc += "For jets with pt < 8 GeV, only those matched to AK4 Gen jets are stored."
   proc.jetPuppiTable.doc = jetPuppiTableDoc
+
+  proc.jetPuppiTable.variables.rawFactor.precision = 10
 
   #
   # Add variables
@@ -794,6 +797,8 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   if runOnMC:
     jetTableDoc += "For jets with pt < 8 GeV, only those matched to AK4 Gen jets are stored."
   proc.jetTable.doc   = jetTableDoc
+
+  proc.jetTable.variables.rawFactor.precision = 10
 
   #
   # Add variables
@@ -1032,6 +1037,8 @@ def AddVariablesForAK8PuppiJets(proc):
   """
   Add more variables for AK8 PFPUPPI jets
   """
+
+  proc.fatJetTable.variables.rawFactor.precision = 10
 
   #
   #  These variables are not stored for AK8PFPUPPI (slimmedJetsAK8)
