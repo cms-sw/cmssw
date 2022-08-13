@@ -29,11 +29,8 @@ namespace reco {
   public:
     struct Specific {
       Specific()
-          : mZSPCor(0),
-            mChargedHadronEnergy(0),
-            mNeutralHadronEnergy(0),
+          : mChargedHadronEnergy(0),
             mChargedEmEnergy(0),
-            mNeutralEmEnergy(0),
             mResponseOfChargedWithEff(0),
             mResponseOfChargedWithoutEff(0),
             mSumPtOfChargedWithEff(0),
@@ -44,8 +41,8 @@ namespace reco {
             Eta2momtr(0),
             Phi2momtr(0),
             Pout(0),
-            Zch(0) {}
-      float mZSPCor;
+            Zch(0),
+            JPTSeed(0) {}
       edm::RefToBase<reco::Jet> theCaloJetRef;
       reco::TrackRefVector pionsInVertexInCalo;
       reco::TrackRefVector pionsInVertexOutCalo;
@@ -57,9 +54,7 @@ namespace reco {
       reco::TrackRefVector elecsInVertexOutCalo;
       reco::TrackRefVector elecsOutVertexInCalo;
       float mChargedHadronEnergy;
-      float mNeutralHadronEnergy;
       float mChargedEmEnergy;
-      float mNeutralEmEnergy;
       float mResponseOfChargedWithEff;
       float mResponseOfChargedWithoutEff;
       float mSumPtOfChargedWithEff;
@@ -71,6 +66,7 @@ namespace reco {
       float Phi2momtr;
       float Pout;
       float Zch;
+      int JPTSeed;
     };
 
     /** Default constructor*/
@@ -86,23 +82,14 @@ namespace reco {
     JPTJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
 
     ~JPTJet() override{};
-
     /// chargedHadronEnergy
     float chargedHadronEnergy() const { return mspecific.mChargedHadronEnergy; }
     ///  chargedHadronEnergyFraction
     float chargedHadronEnergyFraction() const { return chargedHadronEnergy() / energy(); }
-    /// neutralHadronEnergy
-    float neutralHadronEnergy() const { return mspecific.mNeutralHadronEnergy; }
-    /// neutralHadronEnergyFraction
-    float neutralHadronEnergyFraction() const { return neutralHadronEnergy() / energy(); }
     /// chargedEmEnergy
     float chargedEmEnergy() const { return mspecific.mChargedEmEnergy; }
     /// chargedEmEnergyFraction
     float chargedEmEnergyFraction() const { return chargedEmEnergy() / energy(); }
-    /// neutralEmEnergy
-    float neutralEmEnergy() const { return mspecific.mNeutralEmEnergy; }
-    /// neutralEmEnergyFraction
-    float neutralEmEnergyFraction() const { return neutralEmEnergy() / energy(); }
     /// chargedMultiplicity
     int chargedMultiplicity() const {
       return mspecific.muonsInVertexInCalo.size() + mspecific.muonsInVertexOutCalo.size() +
@@ -128,8 +115,6 @@ namespace reco {
     const reco::TrackRefVector& getElecsInVertexOutCalo() const { return mspecific.elecsInVertexOutCalo; }
     const reco::TrackRefVector& getElecsOutVertexInCalo() const { return mspecific.elecsOutVertexInCalo; }
 
-    const float& getZSPCor() const { return mspecific.mZSPCor; }
-
     const edm::RefToBase<reco::Jet>& getCaloJetRef() const { return mspecific.theCaloJetRef; }
     /// block accessors
 
@@ -150,7 +135,6 @@ namespace reco {
     //Variables specific to to the JPTJet class
 
     Specific mspecific;
-    //reco::CaloJetRef theCaloJetRef;
   };
 
   // streamer

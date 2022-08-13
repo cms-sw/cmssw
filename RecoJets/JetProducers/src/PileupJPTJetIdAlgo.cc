@@ -108,7 +108,7 @@ namespace cms {
       std::cout << "================    jetEta   =  " << (*jet).eta() << std::endl;
     }
 
-    edm::RefToBase<reco::Jet> jptjetRef = jet->getCaloJetRef();
+    const edm::RefToBase<reco::Jet> jptjetRef = jet->getCaloJetRef();
     reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
 
     int ncalotowers = 0.;
