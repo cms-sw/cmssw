@@ -1636,7 +1636,9 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
     }  //End of Event Loop to extract PU correction parameters
 
     for (int k = 0; k < n; k++)
-      std::cout << "Bin " << k << " for 2D Hist " << vec_h2[k] << ":" << vec_h2[k]->GetEntries() << " Graph " << vec_gr[k] << ":" << points[k] << " Profile " << vec_hp[k] << ":" << vec_hp[k]->GetEntries() << std::endl;
+      std::cout << "Bin " << k << " for 2D Hist " << vec_h2[k] << ":" << vec_h2[k]->GetEntries() << " Graph "
+                << vec_gr[k] << ":" << points[k] << " Profile " << vec_hp[k] << ":" << vec_hp[k]->GetEntries()
+                << std::endl;
 
     std::ofstream myfile0, myfile1, myfile2;
     sprintf(filename, "%s_par2d.txt", fileName.c_str());
