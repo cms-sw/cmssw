@@ -80,9 +80,9 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
       break;
 
     case JustWarning:
-      if(m_number < 20) 
-	edm::LogWarning("SimG4CoreApplication")
-          << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
+      if (m_number < 20)
+        edm::LogWarning("SimG4CoreApplication")
+            << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
       break;
   }
   return res;

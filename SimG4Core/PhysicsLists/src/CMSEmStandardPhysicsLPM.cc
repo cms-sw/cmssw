@@ -58,7 +58,7 @@
 #include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver, const edm::ParameterSet& p)
-: G4VPhysicsConstructor("CMSEmStandard_emm") {
+    : G4VPhysicsConstructor("CMSEmStandard_emm") {
   SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();

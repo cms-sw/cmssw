@@ -16,7 +16,7 @@
 
 class CMSEmStandardPhysicsEMZ : public G4VPhysicsConstructor {
 public:
-  CMSEmStandardPhysicsEMZ(G4int ver,  const edm::ParameterSet& p);
+  CMSEmStandardPhysicsEMZ(G4int ver, const edm::ParameterSet& p);
   ~CMSEmStandardPhysicsEMZ() override;
 
   void ConstructParticle() override;
