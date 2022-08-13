@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 using namespace trklet;
@@ -1271,7 +1272,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
   int iz1 = outerFPGAStub->z().value();
 
   //To get global precission
-  ir1 <<= (8 - settings_.nrbitsstub(ll - 1));
+  ir1 = l1t::bitShift(ir1, (8 - settings_.nrbitsstub(ll - 1)));
   iphi1 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
   iphi2 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
 
