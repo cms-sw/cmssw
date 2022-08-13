@@ -1,7 +1,8 @@
 ######################################################################################
 # Makes pkl and text files comparing PU and noPU samples for training regressor and other stuff
 # Usage:
-# python3 isotrackNtupler.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -NPU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_noPU.root -O isotk_relval 
+# source /cvmfs/sft.cern.ch/lcg/views/LCG_97apython3/x86_64-centos7-gcc8-opt/setup.csh
+# python3 isotrackNtupler.py -PU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -NPU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -O isotk_relval 
 ######################################################################################
 
 
@@ -13,8 +14,8 @@ import argparse
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-PU", "--filePU",help="input PU file",default="root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root")
-parser.add_argument("-NPU", "--fileNPU",help="input no PU file",default="root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_noPU.root")
+parser.add_argument("-PU", "--filePU",help="input PU file",default="root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root")
+parser.add_argument("-NPU", "--fileNPU",help="input no PU file",default="//eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root")
 parser.add_argument("-O", "--opfilename",help="ouput file name",default="isotk_relval")
 
 
