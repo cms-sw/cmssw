@@ -67,6 +67,8 @@ namespace edm {
         addBranchSizes(btemp, size);
       }
     }
+    Long64_t branchCompressedSizes(TBranch *branch) { return branch->GetZipBytes("*"); }
+
   }  // namespace
 
   void printBranchNames(TTree *tree) {
@@ -77,7 +79,7 @@ namespace edm {
         TBranch *btemp = (TBranch *)tree->GetListOfBranches()->At(i);
         addBranchSizes(btemp, size);
         std::cout << "Branch " << i << " of " << tree->GetName() << " tree: " << btemp->GetName()
-                  << " Total size = " << size << std::endl;
+                  << " Total size = " << size << " Compressed size = " << branchCompressedSizes(btemp) << std::endl;
       }
     } else {
       std::cout << "Missing Events tree?\n";
