@@ -296,6 +296,8 @@ class RecoJetAdder(object):
           self.addProcessAndTask(proc, pfCand, puppi.clone(
               candName = self.pfLabel,
               vertexName = self.pvLabel,
+              clonePackedCands = True,
+              useExistingWeights = True,
             )
           )
           self.prerequisites.append(pfCand)
