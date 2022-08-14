@@ -160,7 +160,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                 )
             )
         ),
-        delta = cms.double(1.0)
+        delta = cms.double(1.0) ## in mm
     ),
     Physics = cms.PSet(
         common_maximum_time,
@@ -175,11 +175,12 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         G4MuonBremsstrahlungThreshold = cms.double(10000.), ## cut in GeV
+        G4TrackingCut = cms.double(0.001), ## cut in MeV
         G4MscRangeFactor = cms.double(0.04),
         G4MscGeomFactor = cms.double(2.5), 
         G4MscSafetyFactor = cms.double(0.6), 
-        G4MscLambdaLimit = cms.double(1.0), # mm 
-        G4MscStepLimit = cms.string("UseSafety"), 
+        G4MscLambdaLimit = cms.double(1.0), # in mm 
+        G4MscStepLimit = cms.string("UseSafety"),
         G4GeneralProcess = cms.bool(False),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),

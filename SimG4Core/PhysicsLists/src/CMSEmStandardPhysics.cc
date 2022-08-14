@@ -72,6 +72,9 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   if (msc == "Minimal") {
     fStepLimitType = fMinimal;
   }
+  double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
+  param->SetLowestElectronEnergy(tcut);
+  param->SetLowestMuHadEnergy(tcut);
 }
 
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {}
