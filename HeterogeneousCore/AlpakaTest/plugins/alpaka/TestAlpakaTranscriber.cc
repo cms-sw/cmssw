@@ -1,11 +1,9 @@
-// The "Transcriber" makes sense only across different memory spaces
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) or defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-
 #include <optional>
 #include <string>
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Portable/interface/Product.h"
 #include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,40 +17,45 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "HeterogeneousCore/AlpakaCore/interface/ScopedContext.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class TestAlpakaTranscriber : public edm::stream::EDProducer<> {
+  class TestAlpakaTranscriber : public edm::stream::EDProducer<edm::ExternalWork> {
   public:
     TestAlpakaTranscriber(edm::ParameterSet const& config)
         : deviceToken_{consumes(config.getParameter<edm::InputTag>("source"))}, hostToken_{produces()} {}
 
-    void beginStream(edm::StreamID sid) override {
-      // choose a device based on the EDM stream number
+    void beginStream(edm::StreamID) override {
       edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
       if (not service->enabled()) {
         throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
       }
-      auto& devices = service->devices();
-      unsigned int index = sid.value() % devices.size();
-      device_ = devices[index];
+    }
+
+    void acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder task) override {
+      // create a context reusing the same device and queue as the producer of the input collection
+      auto const& input = event.get(deviceToken_);
+      cms::alpakatools::ScopedContextAcquire ctx{input, std::move(task)};
+
+      portabletest::TestDeviceCollection const& deviceProduct = ctx.get(input);
+
+      // allocate a host product based on the metadata of the device product
+      hostProduct_ = portabletest::TestHostCollection{deviceProduct->metadata().size(), ctx.queue()};
+
+      // FIXME find a way to avoid the copy when the device product is actually a wrapped host prodict
+
+      // copy the content of the device product to the host product
+      alpaka::memcpy(ctx.queue(), hostProduct_.buffer(), deviceProduct.const_buffer());
+
+      // do not wait for the asynchronous operation to complete
     }
 
     void produce(edm::Event& event, edm::EventSetup const&) override {
-      // create a queue to submit async work
-      Queue queue{*device_};
-      portabletest::TestDeviceCollection const& deviceProduct = event.get(deviceToken_);
-
-      portabletest::TestHostCollection hostProduct{deviceProduct->metadata().size(), alpaka_common::host(), *device_};
-      alpaka::memcpy(queue, hostProduct.buffer(), deviceProduct.const_buffer());
-
-      // wait for any async work to complete
-      alpaka::wait(queue);
-
-      event.emplace(hostToken_, std::move(hostProduct));
+      // produce() is called once the asynchronous operation has completed, so there is no need for an explicit wait
+      event.emplace(hostToken_, std::move(hostProduct_));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -62,16 +65,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    const edm::EDGetTokenT<portabletest::TestDeviceCollection> deviceToken_;
+    const edm::EDGetTokenT<cms::alpakatools::Product<Queue, portabletest::TestDeviceCollection>> deviceToken_;
     const edm::EDPutTokenT<portabletest::TestHostCollection> hostToken_;
 
-    // device associated to the EDM stream
-    std::optional<Device> device_;
+    // hold the output product between acquire() and produce()
+    portabletest::TestHostCollection hostProduct_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(TestAlpakaTranscriber);
-
-#endif  // defined(ALPAKA_ACC_GPU_CUDA_ENABLED) or defined(ALPAKA_ACC_GPU_HIP_ENABLED)
