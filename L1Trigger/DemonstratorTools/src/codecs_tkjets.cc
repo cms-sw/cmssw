@@ -35,12 +35,12 @@ namespace l1t::demo::codecs {
       //  break;
 
       TkJetWord j(TkJetWord::pt_t(frames[f](TkJetWord::kPtMSB, TkJetWord::kPtLSB)),
-                   TkJetWord::glbeta_t(frames[f](TkJetWord::kGlbEtaMSB, TkJetWord::kGlbEtaLSB)),
-                   TkJetWord::glbphi_t(frames[f](TkJetWord::kGlbPhiMSB, TkJetWord::kGlbPhiLSB)),
-                   TkJetWord::z0_t(frames[f](TkJetWord::kZ0MSB, TkJetWord::kZ0LSB)),
-                   TkJetWord::nt_t(frames[f](TkJetWord::kNtMSB, TkJetWord::kNtLSB)),
-                   TkJetWord::nx_t(frames[f](TkJetWord::kXtMSB, TkJetWord::kXtLSB)),
-                   TkJetWord::tkjetunassigned_t(frames[f](TkJetWord::kUnassignedMSB, TkJetWord::kUnassignedLSB)));
+                  TkJetWord::glbeta_t(frames[f](TkJetWord::kGlbEtaMSB, TkJetWord::kGlbEtaLSB)),
+                  TkJetWord::glbphi_t(frames[f](TkJetWord::kGlbPhiMSB, TkJetWord::kGlbPhiLSB)),
+                  TkJetWord::z0_t(frames[f](TkJetWord::kZ0MSB, TkJetWord::kZ0LSB)),
+                  TkJetWord::nt_t(frames[f](TkJetWord::kNtMSB, TkJetWord::kNtLSB)),
+                  TkJetWord::nx_t(frames[f](TkJetWord::kXtMSB, TkJetWord::kXtLSB)),
+                  TkJetWord::tkjetunassigned_t(frames[f](TkJetWord::kUnassignedMSB, TkJetWord::kUnassignedLSB)));
       tkJets.push_back(j);
     }
 

@@ -27,10 +27,27 @@ namespace l1tmhtemu {
   // extra room for sumPx, sumPy
   const unsigned int kEtExtra{10};
 
+  const unsigned int kValidSize{1};
   const unsigned int kMHTSize{15};     // For output Magnitude default 15
   const unsigned int kMHTPhiSize{14};  // For output Phi default 14
   const unsigned int kHTSize{kInternalPtWidth + kEtExtra};
-  const float kMaxMHT{4096};           // 4 TeV
+  const unsigned int kUnassignedSize{64 - (kHTSize + kMHTSize + kMHTPhiSize + kValidSize)};
+
+  enum BitLocations {
+    // The location of the least significant bit (LSB) and most significant bit (MSB) in the sum word for different fields
+    kValidLSB = 0,
+    kValidMSB = kValidLSB + kValidSize - 1,
+    kMHTLSB = kValidMSB + 1,
+    kMHTMSB = kMHTLSB + kMHTSize - 1,
+    kMHTPhiLSB = kMHTMSB + 1,
+    kMHTPhiMSB = kMHTPhiLSB + kMHTPhiSize - 1,
+    kHTLSB = kMHTPhiMSB + 1,
+    kHTMSB = kHTLSB + kHTSize - 1,
+    kUnassignedLSB = kHTMSB + 1,
+    kUnassignedMSB = kUnassignedLSB + kUnassignedSize - 1
+  };
+
+  const float kMaxMHT{4096};  // 4 TeV
   const float kMaxMHTPhi{2 * M_PI};
 
   typedef ap_uint<5> ntracks_t;

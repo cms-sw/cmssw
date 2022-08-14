@@ -4,16 +4,14 @@
 namespace l1t::demo::codecs {
 
   ap_uint<64> encodeHtSum(const l1t::EtSum& htSum) {
-
-  	l1tmhtemu::EtMiss htMiss;
-  	htMiss.Et = htSum.p4().energy();
-  	htMiss.Phi = htSum.hwPhi();
+    l1tmhtemu::EtMiss htMiss;
+    htMiss.Et = htSum.p4().energy();
+    htMiss.Phi = htSum.hwPhi();
     l1tmhtemu::Et_t HT = htSum.hwPt();
-  	ap_uint<1> valid = (htSum.hwQual() > 0);
-  	ap_uint<64 - (l1tmhtemu::kHTSize + l1tmhtemu::kMHTSize + l1tmhtemu::kMHTPhiSize + 1)> unassigned = 0;
-  	ap_uint<64> htSumWord = (unassigned, HT, htMiss.Phi, htMiss.Et, valid);
-  	return htSumWord;
-
+    ap_uint<l1tmhtemu::kValidSize> valid = (htSum.hwQual() > 0);
+    ap_uint<l1tmhtemu::kUnassignedSize> unassigned = 0;
+    ap_uint<64> htSumWord = (unassigned, HT, htMiss.Phi, htMiss.Et, valid);
+    return htSumWord;
   }
 
   // Encodes htsum collection onto 1 output link
@@ -41,12 +39,13 @@ namespace l1t::demo::codecs {
       if (not x.test(0))
         break;
 
-      math::XYZTLorentzVector v(0, 0, 0, l1tmhtemu::MHT_t(x(l1tmhtemu::kMHTSize + 1, 1)).to_int());
+      math::XYZTLorentzVector v(0, 0, 0, l1tmhtemu::MHT_t(x(l1tmhtemu::kMHTMSB, l1tmhtemu::kMHTLSB)).to_int());
       l1t::EtSum s(v,
                    l1t::EtSum::EtSumType::kMissingHt,
-                   l1tmhtemu::Et_t(x(l1tmhtemu::kHTSize + l1tmhtemu::kMHTPhiSize + l1tmhtemu::kMHTSize + 1, 1 + l1tmhtemu::kMHTPhiSize + l1tmhtemu::kMHTSize + 1)).to_int(),
+                   l1tmhtemu::Et_t(x(l1tmhtemu::kHTMSB, l1tmhtemu::kHTLSB)).to_int(),
                    0,
-                   l1tmhtemu::MHTphi_t(x(l1tmhtemu::kMHTPhiSize + l1tmhtemu::kMHTSize + 1, 1 + l1tmhtemu::kMHTSize + 1)).to_int(), 0);
+                   l1tmhtemu::MHTphi_t(x(l1tmhtemu::kMHTPhiMSB, l1tmhtemu::kMHTPhiLSB)).to_int(),
+                   0);
       htSums.push_back(s);
     }
 
