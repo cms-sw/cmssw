@@ -29,6 +29,7 @@ namespace l1tmhtemu {
 
   const unsigned int kMHTSize{15};     // For output Magnitude default 15
   const unsigned int kMHTPhiSize{14};  // For output Phi default 14
+  const unsigned int kHTSize{kInternalPtWidth + kEtExtra};
   const float kMaxMHT{4096};           // 4 TeV
   const float kMaxMHTPhi{2 * M_PI};
 
@@ -37,7 +38,7 @@ namespace l1tmhtemu {
   typedef ap_int<kInternalEtaWidth> eta_t;
   typedef ap_int<kInternalPhiWidth> phi_t;
 
-  typedef ap_int<kInternalPtWidth + kEtExtra> Et_t;
+  typedef ap_int<kHTSize> Et_t;
   typedef ap_uint<kMHTSize> MHT_t;
   typedef ap_uint<kMHTPhiSize> MHTphi_t;
 
