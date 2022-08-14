@@ -228,6 +228,7 @@ private:
   std::vector<float>* m_pv_L1reco;
   std::vector<float>* m_pv_L1reco_sum;
   std::vector<float>* m_pv_L1reco_emu;
+  std::vector<float>* m_pv_L1reco_sum_emu;
   std::vector<float>* m_pv_MC;
   std::vector<int>* m_MC_lep;
 
@@ -383,6 +384,7 @@ private:
   float trueMET = 0;
   float trueTkMET = 0;
   float trkMET = 0;
+  float trkMETPhi = 0;
   float trkMHT = 0;
   float trkHT = 0;
   float trkMHTEmu = 0;
@@ -393,6 +395,7 @@ private:
 
   //displaced
   float trkMETExt = 0;
+  float trkMETPhiExt = 0;
   float trkMHTExt = 0;
   float trkHTExt = 0;
   float trkMHTEmuExt = 0;
@@ -729,6 +732,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_pv_L1reco = new std::vector<float>;
   m_pv_L1reco_sum = new std::vector<float>;
   m_pv_L1reco_emu = new std::vector<float>;
+  m_pv_L1reco_sum_emu = new std::vector<float>;
   m_pv_MC = new std::vector<float>;
   m_MC_lep = new std::vector<int>;
 
@@ -934,6 +938,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   eventTree->Branch("pv_L1reco", &m_pv_L1reco);
   eventTree->Branch("pv_L1reco_sum", &m_pv_L1reco_sum);
   eventTree->Branch("pv_L1reco_emu", &m_pv_L1reco_emu);
+  eventTree->Branch("pv_L1reco_sum_emu", &m_pv_L1reco_sum_emu);
   eventTree->Branch("MC_lep", &m_MC_lep);
   eventTree->Branch("pv_MC", &m_pv_MC);
   eventTree->Branch("gen_pt", &m_gen_pt);
@@ -1002,7 +1007,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
 
     if (Displaced == "Prompt" || Displaced == "Both") {
       eventTree->Branch("trkMET", &trkMET, "trkMET/F");
+      eventTree->Branch("trkMETPhi", &trkMETPhi, "trkMETPhi/F");
       eventTree->Branch("trkMETEmu", &trkMETEmu, "trkMETEmu/F");
+      eventTree->Branch("trkMETEmuPhi", &trkMETEmuPhi, "trkMETEmuPhi/F");
       eventTree->Branch("trkMHT", &trkMHT, "trkMHT/F");
       eventTree->Branch("trkHT", &trkHT, "trkHT/F");
       eventTree->Branch("trkMHTEmu", &trkMHTEmu, "trkMHTEmu/F");
@@ -1011,6 +1018,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
     }
     if (Displaced == "Displaced" || Displaced == "Both") {
       eventTree->Branch("trkMETExt", &trkMETExt, "trkMETExt/F");
+      eventTree->Branch("trkMETPhiExt", &trkMETPhiExt, "trkMETPhiExt/F");
       eventTree->Branch("trkMHTExt", &trkMHTExt, "trkMHTExt/F");
       eventTree->Branch("trkHTExt", &trkHTExt, "trkHTExt/F");
       eventTree->Branch("trkMHTEmuExt", &trkMHTEmuExt, "trkMHTEmuExt/F");
@@ -1237,6 +1245,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_pv_L1reco->clear();
     m_pv_L1reco_sum->clear();
     m_pv_L1reco_emu->clear();
+    m_pv_L1reco_sum_emu->clear();
     m_pv_MC->clear();
     m_MC_lep->clear();
   }
@@ -2379,21 +2388,28 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   if (L1PrimaryVertexEmuHandle.isValid()) {
     for (vtxEmuIter = L1PrimaryVertexEmuHandle->begin(); vtxEmuIter != L1PrimaryVertexEmuHandle->end(); ++vtxEmuIter) {
       m_pv_L1reco_emu->push_back(vtxEmuIter->z0());
+      m_pv_L1reco_sum_emu->push_back(vtxEmuIter->pt());
     }
   } else
     edm::LogWarning("DataNotFound") << "\nWarning: L1PrimaryVertexEmuHandle not found" << std::endl;
 
   if (SaveTrackSums) {
     if (Displaced == "Prompt" || Displaced == "Both") {
-      if (L1TkMETHandle.isValid())
+      if (L1TkMETHandle.isValid()){
         trkMET = L1TkMETHandle->begin()->etMiss();
-      else
+        trkMETPhi = L1TkMETHandle->begin()->p4().phi();
+      }
+      else {
         edm::LogWarning("DataNotFound") << "\nWarning: tkMET handle not found" << std::endl;
+      }
 
-      if (L1TkMETEmuHandle.isValid())
+      if (L1TkMETEmuHandle.isValid()) {
         trkMETEmu = L1TkMETEmuHandle->begin()->hwPt() * l1tmetemu::kStepMET;
-      else
+        trkMETEmuPhi = L1TkMETEmuHandle->begin()->hwPhi() * l1tmetemu::kStepMETPhi - M_PI;
+      }
+      else {
         edm::LogWarning("DataNotFound") << "\nWarning: tkMETEmu handle not found" << std::endl;
+      }
 
       if (L1TkMHTHandle.isValid()) {
         trkMHT = L1TkMHTHandle->begin()->EtMiss();
@@ -2410,16 +2426,20 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     }  //end prompt-track quantities
 
     if (Displaced == "Displaced" || Displaced == "Both") {
-      if (L1TkMETExtendedHandle.isValid())
+      if (L1TkMETExtendedHandle.isValid()) {
         trkMETExt = L1TkMETExtendedHandle->begin()->etMiss();
-      else
+        trkMETPhiExt = L1TkMETExtendedHandle->begin()->p4().phi();
+      }
+      else {
         edm::LogWarning("DataNotFound") << "\nWarning: tkMETExtended handle not found" << std::endl;
+      }
 
       if (L1TkMHTExtendedHandle.isValid()) {
         trkMHTExt = L1TkMHTExtendedHandle->begin()->EtMiss();
         trkHTExt = L1TkMHTExtendedHandle->begin()->etTotal();
-      } else
+      } else {
         edm::LogWarning("DataNotFound") << "\nWarning: tkMHTExtended handle not found" << std::endl;
+      }
 
       if (L1TkMHTEmuExtendedHandle.isValid()) {
         trkMHTEmuExt = L1TkMHTEmuExtendedHandle->begin()->p4().energy() * l1tmhtemu::kStepMHT;
