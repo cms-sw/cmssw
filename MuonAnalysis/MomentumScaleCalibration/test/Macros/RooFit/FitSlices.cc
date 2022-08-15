@@ -112,7 +112,7 @@ public:
       TH2* tempHisto= (TH2*)histo3D->Project3D("xy");
       std::stringstream ss;
       ss << z;
-      tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
+      tempHisto->SetName((std::string{tempHisto->GetName()}+ss.str()).c_str());
       tempHisto->RebinX(rebinX);
       tempHisto->RebinY(rebinY);
       twoDprojection.insert(std::make_pair(z, tempHisto));
