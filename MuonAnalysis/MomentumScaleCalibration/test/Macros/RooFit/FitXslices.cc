@@ -105,7 +105,7 @@ public:
     for (unsigned int x=1; x<=binsX; ++x) {
       std::stringstream ss;
       ss << x;
-      TH1* sliceHisto = histo->ProjectionY(name+ss.str(), x, x);
+      TH1* sliceHisto = histo->ProjectionY((std::string{name.Data()}+ss.str()).c_str(), x, x);
       if (sliceHisto->GetEntries() != 0) {
         // std::cout << "filling for x = " << x << endl;
         slices.insert(std::make_pair(x, sliceHisto));
@@ -259,7 +259,7 @@ public:
       for (unsigned int y=1; y<=binsY; ++y) {
         std::stringstream ss;
         ss << x << "_" << y;
-        TH1* sliceHisto = histo->ProjectionZ(name+ss.str(), x, x, y, y);
+        TH1* sliceHisto = histo->ProjectionZ((std::string{name.Data()}+ss.str()).c_str(), x, x, y, y);
         if (sliceHisto->GetEntries() != 0) {
           sliceHisto->Rebin(rebinZ);
           // std::cout << "filling for x = " << x << endl;
