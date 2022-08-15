@@ -457,7 +457,7 @@ mu8diEle12CaloIdLTrackIdL_effdz = DQMEDHarvester("DQMGenericClient",
 diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
                                            "HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
-                                           "HLT/photon/HLT_Diphoton30_18_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v"),
+                                           "HLT/photon/HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_Mass55_v"),
                                     #subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),

@@ -145,7 +145,7 @@ DiphotonMass55_monitoring = hltPhotonmonitoring.clone(
     FolderName = 'HLT/HIG/DiPhoton/diphoton3018Mass55/',
     nphotons = 2,
     photonSelection = "(pt > 15 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 15 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)",
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Diphoton30_18_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v*"]),
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_Mass55_v*"]),
     histoPSet = dict(massBinning = [50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.])
 )
 
