@@ -39,7 +39,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // Common tools
-//#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -120,32 +119,19 @@ private:
   std::map<MuType, std::string> muonNames_;
 
   // config params
-  std::string histFolder_;
-  std::vector<edm::ParameterSet> cutsVPSet_;
+  const std::string histFolder_;
+  const std::vector<edm::ParameterSet> cutsVPSet_;
 
-  std::vector<double> effVsPtBins_;
-  std::vector<double> effVsPhiBins_;
-  std::vector<double> effVsEtaBins_;
+  const std::vector<double> effVsPtBins_;
+  const std::vector<double> effVsPhiBins_;
+  const std::vector<double> effVsEtaBins_;
 
-  bool useAtVtxCoord_;
-  bool isParticleGun_;
-  float maxGmtMuonDR_;
+  const double maxGmtMuonDR_;
 
   // Helper methods
   void matchMuonsToGen(std::vector<const reco::GenParticle*> genmus);
   std::vector<float> getHistBinsEff(EffType eff);
   std::tuple<int, double, double> getHistBinsRes(ResType res);
-
-  // Keys for histogram maps
-  /*typedef std::tuple<MuType, ResType, EtaRegion, QualLevel> histoKeyResType_;  
-    typedef std::tuple<MuType, EffType, int, EtaRegion, QualLevel> histoKeyEffType_; 
-    typedef std::tuple<MuType, VarType> histoKeyVarType_;
-  */
-  // Histograms and histogram containers
-  //  std::map<std::tuple<MuType, EffType, int, EtaRegion, QualLevel>, MonitorElement*> efficiencyHistos_;
-  //  std::map<std::tuple<MuType, ResType, EtaRegion, QualLevel>, MonitorElement*> resolutionHistos_;
-  //  TH1F* efficiencyNum_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes];
-  //  TH1F* efficiencyDen_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes];
 
   MonitorElement* efficiencyNum_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes];
   MonitorElement* efficiencyDen_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes];
@@ -157,11 +143,11 @@ private:
   std::vector<GenMuonGMTPair> gmtTkMuonPairs_;
   std::vector<std::pair<int, QualLevel>> cuts_;
 
-  float lsb_pt;
-  float lsb_phi;
-  float lsb_eta;
-  float lsb_z0;
-  float lsb_d0;
+  float lsb_pt = Phase2L1GMT::LSBpt;
+  float lsb_phi = Phase2L1GMT::LSBphi;
+  float lsb_eta = Phase2L1GMT::LSBeta;
+  float lsb_z0 = Phase2L1GMT::LSBSAz0;
+  float lsb_d0 = Phase2L1GMT::LSBSAd0;
 };
 
 //

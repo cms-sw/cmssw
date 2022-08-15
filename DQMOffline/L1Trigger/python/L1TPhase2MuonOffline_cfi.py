@@ -47,6 +47,8 @@ l1tPhase2MuonOffline = DQMEDAnalyzer('L1TPhase2MuonOffline',
     efficiencyVsPhiBins = cms.untracked.vdouble(effVsPhiBins),
     efficiencyVsEtaBins = cms.untracked.vdouble(effVsEtaBins),
     efficiencyVsVtxBins = cms.untracked.vdouble(effVsVtxBins),
+   
+    maxDR = cms.untracked.double(0.3),
 )
 
 

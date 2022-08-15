@@ -123,15 +123,8 @@ L1TPhase2MuonOffline::L1TPhase2MuonOffline(const ParameterSet& ps)
       effVsPtBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
       effVsPhiBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
       effVsEtaBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
-      maxGmtMuonDR_(0.3) {
+      maxGmtMuonDR_(ps.getUntrackedParameter<double>("maxDR")) {
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::L1TPhase2MuonOffline()" << endl;
-
-  // Get Muon constants
-  lsb_pt = Phase2L1GMT::LSBpt;
-  lsb_phi = Phase2L1GMT::LSBphi;
-  lsb_eta = Phase2L1GMT::LSBeta;
-  lsb_z0 = Phase2L1GMT::LSBSAz0;
-  lsb_d0 = Phase2L1GMT::LSBSAd0;
 
   for (const auto& c : cutsVPSet_) {
     const auto qCut = c.getUntrackedParameter<int>("qualCut");
