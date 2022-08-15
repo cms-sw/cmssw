@@ -87,6 +87,13 @@ namespace trklet {
     unsigned int nMatchEngines_;
     std::vector<MatchEngineUnit> matchengines_;
 
+    int best_ideltaphi_barrel;
+    int best_ideltaz_barrel;
+    int best_ideltaphi_disk;
+    int best_ideltar_disk;
+    Tracklet* curr_tracklet;
+    Tracklet* next_tracklet;
+
     CircularBuffer<ProjectionTemp> inputProjBuffer_;
   };
 
