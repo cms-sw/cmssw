@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////
+// TrackletLUT
+// This class writes out the variuos look up tables
+// for all modules.
+//////////////////////////////////////////////////////////////////
 #ifndef L1Trigger_TrackFindingTracklet_interface_TrackletLUT_h
 #define L1Trigger_TrackFindingTracklet_interface_TrackletLUT_h
 
@@ -24,7 +29,18 @@ namespace trklet {
 
     ~TrackletLUT() = default;
 
-    enum MatchType { barrelphi, barrelz, disk2Sphi, disk2Sr, diskPSphi, diskPSr };
+    enum MatchType {
+      barrelphi,   // write LUT for barrel phi
+      barrelz,     // write LUT for barrel z
+      disk2Sphi,   // write LUT for disk 2S phi
+      disk2Sr,     // write LUT for disk 2S r
+      diskPSphi,   // write LUT for disk PS phi
+      diskPSr,     // write LUT for disk PS r
+      alphainner,  // write alpha corrections LUT for 2S (inner)
+      alphaouter,  // write alpha corrections LUT for 2S (outer)
+      rSSinner,    // write r LUT for 2S (inner)
+      rSSouter     // write r LUT for 2S (inner)
+    };
 
     //region only used for name - should be removed
     void initmatchcut(unsigned int layerdisk, MatchType type, unsigned int region);

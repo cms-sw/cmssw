@@ -34,6 +34,30 @@ void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned 
       table_.push_back(settings_.rcutPS(iSeed, layerdisk - N_LAYER) / settings_.krprojshiftdisk());
     }
   }
+  if (type == alphainner) {
+    for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
+      table_.push_back((1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
+                       (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSinner(i) * settings_.rDSSinner(i)) /
+                       settings_.kphi());
+    }
+  }
+  if (type == alphaouter) {
+    for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
+      table_.push_back((1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
+                       (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSouter(i) * settings_.rDSSouter(i)) /
+                       settings_.kphi());
+    }
+  }
+  if (type == rSSinner) {
+    for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
+      table_.push_back(settings_.rDSSinner(i) / settings_.kr());
+    }
+  }
+  if (type == rSSouter) {
+    for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
+      table_.push_back(settings_.rDSSouter(i) / settings_.kr());
+    }
+  }
 
   name_ = settings_.combined() ? "MP_" : "MC_";
 
@@ -54,6 +78,18 @@ void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned 
   }
   if (type == diskPSr) {
     name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_PSrcut.tab";
+  }
+  if (type == alphainner) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_alphainner.tab";
+  }
+  if (type == alphaouter) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_alphaouter.tab";
+  }
+  if (type == rSSinner) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_rDSSinner.tab";
+  }
+  if (type == rSSouter) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_rDSSouter.tab";
   }
 
   positive_ = false;

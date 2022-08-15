@@ -58,6 +58,10 @@ namespace trklet {
     TrackletLUT rphicut2Stable_;
     TrackletLUT rcutPStable_;
     TrackletLUT rcut2Stable_;
+    TrackletLUT alphainner_;
+    TrackletLUT alphaouter_;
+    TrackletLUT rSSinner_;
+    TrackletLUT rSSouter_;
 
     int nrbits_;
     int nphiderbits_;

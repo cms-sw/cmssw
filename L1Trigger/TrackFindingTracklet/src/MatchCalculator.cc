@@ -36,7 +36,11 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
       rphicutPStable_(settings),
       rphicut2Stable_(settings),
       rcutPStable_(settings),
-      rcut2Stable_(settings) {
+      rcut2Stable_(settings),
+      alphainner_(settings),
+      alphaouter_(settings),
+      rSSinner_(settings),
+      rSSouter_(settings) {
   phiregion_ = name[8] - 'A';
   layerdisk_ = initLayerDisk(3);
 
@@ -71,6 +75,10 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
     rphicut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sphi, region);
     rcutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSr, region);
     rcut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sr, region);
+    alphainner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphainner, region);
+    alphaouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphaouter, region);
+    rSSinner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSinner, region);
+    rSSouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSouter, region);
   }
 
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
