@@ -39,10 +39,10 @@ private:
   // ----------member data ---------------------------
   const edm::EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
   const edm::EDGetTokenT<L1TTTrackRefCollectionType> vtxAssocTrackToken_;
-  std::string L1MetCollectionName;
-  float maxPt_;       // in GeV
-  int highPtTracks_;  // saturate or truncate
-  bool debug_;
+  const std::string L1MetCollectionName;
+  const float maxPt_;       // in GeV
+  const int highPtTracks_;  // saturate or truncate
+  const bool debug_;
 };
 
 // constructor
