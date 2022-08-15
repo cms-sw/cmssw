@@ -50,24 +50,26 @@ namespace edm {
     };
 
     template <typename T,          //producer's type
+              typename TFunc,      //functor type
               typename TReturn,    //return type of the producer's method
               typename TRecord,    //the record passed in as an argument
               typename TDecorator  //allows customization using pre/post calls
               = CallbackSimpleDecorator<TRecord>>
     class Callback {
     public:
-      using method_type = TReturn (T ::*)(const TRecord&);
+      Callback(T* iProd, TFunc iFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
+          : Callback(iProd, std::make_shared<TFunc>(std::move(iFunc)), iID, iDec) {}
 
-      Callback(T* iProd, method_type iMethod, unsigned int iID, const TDecorator& iDec = TDecorator())
+      Callback(T* iProd, std::shared_ptr<TFunc> iFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
           : proxyData_{},
             producer_(iProd),
             callingContext_(&iProd->description()),
-            method_(iMethod),
+            function_(std::move(iFunc)),
             id_(iID),
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
 
-      Callback* clone() { return new Callback(producer_.get(), method_, id_, decorator_); }
+      Callback* clone() { return new Callback(producer_.get(), function_, id_, decorator_); }
 
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
@@ -207,7 +209,7 @@ namespace edm {
               };
               EndGuard guard(iRecord, callingContext_);
               decorator_.pre(rec);
-              storeReturnedValues((producer_->*method_)(rec));
+              storeReturnedValues((*function_)(rec));
               decorator_.post(rec);
             });
           } catch (cms::Exception& iException) {
@@ -223,7 +225,9 @@ namespace edm {
       edm::propagate_const<T*> producer_;
       ESModuleCallingContext callingContext_;
       edm::WaitingTaskList taskList_;
-      method_type method_;
+      // Using std::shared_ptr in order to share the state of the
+      // functor across all clones
+      std::shared_ptr<TFunc> function_;
       // This transition id identifies which setWhatProduced call this Callback is associated with
       const unsigned int id_;
       std::atomic<bool> wasCalledForThisRecord_;

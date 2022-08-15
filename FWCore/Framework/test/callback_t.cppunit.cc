@@ -89,7 +89,6 @@ namespace callbacktest {
     edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>> method(const Record&) {
       using namespace edm::es;
       auto dataT = std::shared_ptr<Data>(&data_, edm::do_nothing_deleter());
-      ;
       auto doubleT = std::shared_ptr<Double>(&double_, edm::do_nothing_deleter());
       ++data_.value_;
       ++double_.value_;
@@ -127,6 +126,11 @@ class testCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST(sharedPtrTest);
   CPPUNIT_TEST(ptrProductsTest);
 
+  CPPUNIT_TEST(uniquePtrLambdaTest);
+  CPPUNIT_TEST(uniquePtrLambdaCaptureTest);
+  CPPUNIT_TEST(sharedPtrLambdaTest);
+  CPPUNIT_TEST(ptrProductsLambdaTest);
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -137,6 +141,11 @@ public:
   void sharedPtrTest();
   void ptrProductsTest();
 
+  void uniquePtrLambdaTest();
+  void uniquePtrLambdaCaptureTest();
+  void sharedPtrLambdaTest();
+  void ptrProductsLambdaTest();
+
 private:
   edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 };
@@ -144,12 +153,15 @@ private:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCallback);
 
-using UniquePtrCallback = Callback<UniquePtrProd, std::unique_ptr<Data>, Record>;
+template <typename P, typename F>
+using UniquePtrCallbackT = Callback<P, F, std::unique_ptr<Data>, Record>;
 
 void testCallback::uniquePtrTest() {
   UniquePtrProd prod;
 
-  UniquePtrCallback callback(&prod, &UniquePtrProd::method, 0);
+  auto func = [&prod](Record const& rec) { return prod.method(rec); };
+  using UniquePtrCallback = UniquePtrCallbackT<UniquePtrProd, decltype(func)>;
+  UniquePtrCallback callback(&prod, func, 0);
   std::unique_ptr<Data> handle;
   callback.holdOntoPointer(&handle);
 
@@ -193,14 +205,24 @@ void testCallback::uniquePtrTest() {
   call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback.newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 5);
 }
 
-typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;
+template <typename P, typename F>
+using SharedPtrCallbackT = Callback<P, F, std::shared_ptr<Data>, Record>;
 
 void testCallback::sharedPtrTest() {
   SharedPtrProd prod;
 
-  SharedPtrCallback callback(&prod, &SharedPtrProd::method, 0);
+  auto func = [&prod](Record const& rec) { return prod.method(rec); };
+
+  using SharedPtrCallback = SharedPtrCallbackT<SharedPtrProd, decltype(func)>;
+  SharedPtrCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
 
   callback.holdOntoPointer(&handle);
@@ -223,13 +245,16 @@ void testCallback::sharedPtrTest() {
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
 
-typedef Callback<PtrProductsProd, edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>>, Record>
-    PtrProductsCallback;
+template <typename P, typename F>
+using PtrProductsCallbackT = Callback<P, F, edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>>, Record>;
 
 void testCallback::ptrProductsTest() {
   PtrProductsProd prod;
 
-  PtrProductsCallback callback(&prod, &PtrProductsProd::method, 0);
+  auto func = [&prod](Record const& rec) { return prod.method(rec); };
+
+  using PtrProductsCallback = PtrProductsCallbackT<PtrProductsProd, decltype(func)>;
+  PtrProductsCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
   std::shared_ptr<Double> doubleHandle;
 
@@ -251,4 +276,185 @@ void testCallback::ptrProductsTest() {
   call(callback);
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 2);
+}
+
+// Lambda tests
+
+void testCallback::uniquePtrLambdaTest() {
+  Base prod;
+
+  int value = 0;
+  auto func = [&value](Record const& rec) mutable { return std::make_unique<Data>(++value); };
+  using UniquePtrCallback = UniquePtrCallbackT<Base, decltype(func)>;
+  UniquePtrCallback callback(&prod, func, 0);
+  std::unique_ptr<Data> handle;
+  callback.holdOntoPointer(&handle);
+
+  auto callback2 = std::unique_ptr<UniquePtrCallback>(callback.clone());
+  std::unique_ptr<Data> handle2;
+  callback2->holdOntoPointer(&handle2);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(0 != handle.get());
+  CPPUNIT_ASSERT(value == 1);
+  CPPUNIT_ASSERT(value == handle->value_);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(value == 1);
+  CPPUNIT_ASSERT(value == handle->value_);
+
+  handle.release();
+
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(0 != handle.get());
+  CPPUNIT_ASSERT(value == 2);
+  CPPUNIT_ASSERT(value == handle->value_);
+
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback2->newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback.newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 5);
+}
+
+void testCallback::uniquePtrLambdaCaptureTest() {
+  // The difference wrt uniquePtrLambdaTest is that the 'value' is
+  // stored only in the lambda capture
+  Base prod;
+
+  auto func = [value = int(0)](Record const& rec) mutable { return std::make_unique<Data>(++value); };
+  using UniquePtrCallback = UniquePtrCallbackT<Base, decltype(func)>;
+  UniquePtrCallback callback(&prod, func, 0);
+  std::unique_ptr<Data> handle;
+  callback.holdOntoPointer(&handle);
+
+  auto callback2 = std::unique_ptr<UniquePtrCallback>(callback.clone());
+  std::unique_ptr<Data> handle2;
+  callback2->holdOntoPointer(&handle2);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(0 != handle.get());
+  CPPUNIT_ASSERT(handle->value_ == 1);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(handle->value_ == 1);
+
+  handle.release();
+
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback2->newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback.newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 5);
+}
+
+void testCallback::sharedPtrLambdaTest() {
+  Base prod;
+
+  auto ptr = std::make_shared<Data>();
+  auto func = [ptr](Record const& rec) mutable {
+    ++ptr->value_;
+    return ptr;
+  };
+
+  using SharedPtrCallback = SharedPtrCallbackT<Base, decltype(func)>;
+  SharedPtrCallback callback(&prod, func, 0);
+  std::shared_ptr<Data> handle;
+
+  callback.holdOntoPointer(&handle);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == ptr.get());
+  CPPUNIT_ASSERT(ptr->value_ == 1);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == ptr.get());
+  CPPUNIT_ASSERT(ptr->value_ == 1);
+
+  handle.reset();
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == ptr.get());
+  CPPUNIT_ASSERT(ptr->value_ == 2);
+}
+
+void testCallback::ptrProductsLambdaTest() {
+  PtrProductsProd prod;
+
+  Data dataValue;
+  auto func = [&dataValue, doubleValue = Double()](Record const& rec) mutable {
+    auto dataT = std::shared_ptr<Data>(&dataValue, edm::do_nothing_deleter());
+    auto doubleT = std::shared_ptr<Double>(&doubleValue, edm::do_nothing_deleter());
+    ++dataValue.value_;
+    ++doubleValue.value_;
+    return edm::es::products(dataT, doubleT);
+  };
+
+  using PtrProductsCallback = PtrProductsCallbackT<Base, decltype(func)>;
+  PtrProductsCallback callback(&prod, func, 0);
+  std::shared_ptr<Data> handle;
+  std::shared_ptr<Double> doubleHandle;
+
+  callback.holdOntoPointer(&handle);
+  callback.holdOntoPointer(&doubleHandle);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == &dataValue);
+  CPPUNIT_ASSERT(dataValue.value_ == 1);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == &dataValue);
+  CPPUNIT_ASSERT(dataValue.value_ == 1);
+
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == &dataValue);
+  CPPUNIT_ASSERT(dataValue.value_ == 2);
 }
