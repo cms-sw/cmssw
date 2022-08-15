@@ -34,6 +34,7 @@
 // user include files
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
@@ -82,7 +83,7 @@ private:
   typedef std::vector<L1Track> TTTrackCollection;
   typedef edm::Handle<TTTrackCollection> TTTrackCollectionHandle;
   typedef edm::Ref<TTTrackCollection> TTTrackRef;
-  typedef std::vector<TTTrackRef> TTTrackRefCollection;
+  typedef edm::RefVector<TTTrackCollection> TTTrackRefCollection;
   typedef std::unique_ptr<TTTrackRefCollection> TTTrackRefCollectionUPtr;
 
   // ----------member functions ----------------------

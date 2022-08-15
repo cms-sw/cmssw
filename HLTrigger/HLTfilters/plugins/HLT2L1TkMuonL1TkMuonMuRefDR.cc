@@ -3,14 +3,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 #include "HLT2L1TkMuonL1TkMuonMuRefDR.h"
 
@@ -47,8 +45,8 @@ void HLT2L1TkMuonL1TkMuonMuRefDR::fillDescriptions(edm::ConfigurationDescription
 }
 
 bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
-                                                 std::vector<l1t::TkMuonRef>& coll1,
-                                                 std::vector<l1t::TkMuonRef>& coll2,
+                                                 std::vector<l1t::TrackerMuonRef>& coll1,
+                                                 std::vector<l1t::TrackerMuonRef>& coll2,
                                                  trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   edm::Handle<trigger::TriggerFilterObjectWithRefs> handle1, handle2;
   if (iEvent.getByToken(inputToken1_, handle1) and iEvent.getByToken(inputToken2_, handle2)) {
@@ -97,37 +95,13 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
     return false;
 }
 
-std::pair<float, float> HLT2L1TkMuonL1TkMuonMuRefDR::convertEtaPhi(l1t::TkMuonRef& tkmu) const {
-  float muRefEta = 0.;
-  float muRefPhi = 0.;
-
-  if (tkmu->muonDetector() != emtfRegion_) {
-    if (tkmu->muRef().isNull())
-      return std::make_pair(muRefEta, muRefPhi);
-
-    muRefEta = tkmu->muRef()->hwEta() * etaScale_;
-    muRefPhi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
-        tkmu->muRef()->hwPhi(), tkmu->muRef()->trackFinderType(), tkmu->muRef()->processor()));
-    muRefPhi = muRefPhi * phiScale_;
-  } else {
-    if (tkmu->emtfTrk().isNull())
-      return std::make_pair(muRefEta, muRefPhi);
-
-    muRefEta = tkmu->emtfTrk()->Eta();
-    muRefPhi = angle_units::operators::convertDegToRad(tkmu->emtfTrk()->Phi_glob());
-  }
-  muRefPhi = reco::reduceRange(muRefPhi);
-
-  return std::make_pair(muRefEta, muRefPhi);
-}
-
-bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& r1, l1t::TkMuonRef& r2) const {
+bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent,
+                                            l1t::TrackerMuonRef& r1,
+                                            l1t::TrackerMuonRef& r2) const {
   if (minDR_ < 0.)
     return true;
 
-  auto [eta1, phi1] = convertEtaPhi(r1);
-  auto [eta2, phi2] = convertEtaPhi(r2);
-  return (reco::deltaR2(eta1, phi1, eta2, phi2) > minDR_ * minDR_);
+  return (reco::deltaR2(r1->phEta(), r1->phPhi(), r2->phEta(), r2->phPhi()) > minDR_ * minDR_);
 }
 
 // ------------ method called to produce the data  ------------
@@ -139,13 +113,13 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::hltFilter(edm::Event& iEvent,
   // this HLT filter, and place it in the Event.
   bool accept(false);
 
-  std::vector<l1t::TkMuonRef> coll1;
-  std::vector<l1t::TkMuonRef> coll2;
+  std::vector<l1t::TrackerMuonRef> coll1;
+  std::vector<l1t::TrackerMuonRef> coll2;
 
   if (getCollections(iEvent, coll1, coll2, filterproduct)) {
     int n(0);
-    l1t::TkMuonRef r1;
-    l1t::TkMuonRef r2;
+    l1t::TrackerMuonRef r1;
+    l1t::TrackerMuonRef r2;
 
     for (unsigned int i1 = 0; i1 != coll1.size(); i1++) {
       r1 = coll1[i1];
