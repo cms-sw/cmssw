@@ -24,8 +24,8 @@ from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
 TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
 l1emulator += TrackTriggerAssociatorTracks
 
-from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import *
-l1emulator += L1TkPrimaryVertex
+from L1Trigger.VertexFinder.VertexProducer_cff import *
+l1emulator += VertexProducer
 
 from Configuration.StandardSequences.SimL1Emulator_cff import *
 l1emulator += SimL1Emulator

@@ -70,7 +70,7 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
         << "Both input collection must be aligned and represent same physical muon objects";
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
-  std::vector<l1t::TkMuonRef> vl1cands;
+  std::vector<l1t::TrackerMuonRef> vl1cands;
 
   bool check_l1match = true;
   if (m_previousCandTag == edm::InputTag(""))
