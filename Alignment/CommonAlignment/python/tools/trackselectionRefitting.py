@@ -2,8 +2,6 @@ from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 
-
-
 def getSequence(process, collection,
                 saveCPU = False,
                 TTRHBuilder = "WithAngleAndTemplate",
@@ -14,7 +12,8 @@ def getSequence(process, collection,
                 momentumConstraint = None,
                 cosmicTrackSplitting = False,
                 isPVValidation = False,
-                use_d0cut = True):
+                use_d0cut = True,
+                g4Refitting = False):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
     subsequent processing steps.
@@ -53,6 +52,8 @@ def getSequence(process, collection,
     # resolve default values incl. consistency checks #
     ###################################################
 
+    print("g4Refitting=",g4Refitting)
+
     if usePixelQualityFlag is None:
         if "Template" not in TTRHBuilder:
             usePixelQualityFlag = False # not defined without templates
@@ -69,7 +70,8 @@ def getSequence(process, collection,
     options = {"TrackHitFilter": {},
                "TrackFitter": {},
                "TrackRefitter": {},
-               "TrackSelector": {}}
+               "TrackSelector": {},
+               "geopro": {} }
 
     options["TrackSelector"]["HighPurity"] = {
         "trackQualities": ["highPurity"],
@@ -113,7 +115,27 @@ def getSequence(process, collection,
         "NavigationSchool": "",
         "TTRHBuilder": TTRHBuilder,
         }
+    options["geopro"][""] = {
+        }
 
+    if g4Refitting:
+        options["TrackRefitter"]["Second"] = {
+            "AlgorithmName" : cms.string('undefAlgorithm'),
+            "Fitter" : cms.string('G4eFitterSmoother'),
+            "GeometricInnerState" : cms.bool(False),
+            "MeasurementTracker" : cms.string(''),
+            "MeasurementTrackerEvent" : cms.InputTag("MeasurementTrackerEvent"),
+            "NavigationSchool" : cms.string('SimpleNavigationSchool'),  # Correct?
+            "Propagator" : cms.string('Geant4ePropagator'),
+            "TTRHBuilder" : cms.string('WithAngleAndTemplate'),
+            "TrajectoryInEvent" : cms.bool(True),
+            "beamSpot" : cms.InputTag("offlineBeamSpot"),
+            "constraint" : cms.string(''),
+            "src" : cms.InputTag("AlignmentTrackSelector"),
+            "srcConstr" : cms.InputTag(""),
+            "useHitsSplitting" : cms.bool(False),
+            "usePropagatorForPCA" : cms.bool(True)   # not sure whether it is needed
+        }
 
     #########################################
     ## setting collection specific options ##
@@ -122,7 +144,7 @@ def getSequence(process, collection,
 
     if collection in ("ALCARECOTkAlMinBias", "generalTracks",
                       "ALCARECOTkAlMinBiasHI", "hiGeneralTracks",
-                      "ALCARECOTkAlJetHT"):
+                      "ALCARECOTkAlJetHT", "ALCARECOTkAlDiMuonVertexTracks"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
@@ -131,7 +153,6 @@ def getSequence(process, collection,
                 "minimumHits": 10,
                 })
     elif collection in ("ALCARECOTkAlCosmicsCTF0T",
-                        "ALCARECOTkAlCosmicsCosmicTF0T",
                         "ALCARECOTkAlCosmicsInCollisions"):
         isCosmics = True
         options["TrackSelector"]["HighPurity"] = {} # drop high purity cut
@@ -174,7 +195,8 @@ def getSequence(process, collection,
                 })
     elif collection in ("ALCARECOTkAlZMuMu",
                         "ALCARECOTkAlZMuMuHI",
-                        "ALCARECOTkAlZMuMuPA"):
+                        "ALCARECOTkAlZMuMuPA",
+                        "ALCARECOTkAlDiMuon"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 15.0,
                 "etaMin": -3.0,
@@ -267,6 +289,17 @@ def getSequence(process, collection,
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
                 ("TrackRefitter", "Second", {"method": "load",
                                              "clone": True})]
+    elif g4Refitting:
+        mods = [("TrackSelector", "HighPurity", {"method": "import"}),
+                ("TrackRefitter", "First", {"method": "load",
+                                            "clone": True}),
+                ("TrackHitFilter", "Tracker", {"method": "load"}),
+                ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
+                ("TrackSelector", "Alignment", {"method": "load"}),
+                #("geopro","", {"method": "load"}),
+                ("TrackRefitter", "Second", {"method": "load",
+                                             "clone": True})]
+        if isCosmics: mods = mods[1:] # skip high purity selector for cosmics
     else:
         mods = [("TrackSelector", "HighPurity", {"method": "import"}),
                 ("TrackRefitter", "First", {"method": "load",
@@ -323,8 +356,6 @@ def getSequence(process, collection,
     #######################################################
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
-
-
     ###############################
     ## put the sequence together ##
     ###############################
@@ -342,12 +373,23 @@ def getSequence(process, collection,
                 not mods[-1][-1].get("clone", False):
             print("Name of the last module needs to be modifiable.")
             sys.exit(1)
+
+        if g4Refitting:
+            print("Here we must include geopro first")
+            process.load('Configuration.StandardSequences.GeometryDB_cff')
+            process.load("TrackPropagation.Geant4e.geantRefit_cff")
+            modules.append(getattr(process,"geopro"))
+
         src = _getModule(process, src, mods[-1][0], "FinalTrackRefitter",
                          options[mods[-1][0]][mods[-1][1]],
                          isCosmics = isCosmics, **(mods[-1][2]))
         modules.append(getattr(process, src))
 
     moduleSum = process.offlineBeamSpot        # first element of the sequence
+    if g4Refitting:
+        # g4Refitter needs measurements
+        moduleSum += getattr(process,"MeasurementTrackerEvent")
+
     for module in modules:
         # Spply srcConstr fix here
         if hasattr(module,"srcConstr"):
@@ -375,10 +417,6 @@ def getSequence(process, collection,
         moduleSum += module # append the other modules
 
     return cms.Sequence(moduleSum)
-
-
-
-
 
 ###############################
 ###############################
@@ -490,6 +528,9 @@ def _TrackRefitter(kwargs):
 def _TrackSplitting(kwargs):
     return ("RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi",
             "cosmicTrackSplitter")
+
+def _geopro(kwargs):
+    return ("TrackPropagation.Geant4e.geantRefit_cff","geopro")
 
 
 def _customSetattr(obj, attr, val):
