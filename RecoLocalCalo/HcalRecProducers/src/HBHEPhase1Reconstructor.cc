@@ -307,7 +307,6 @@ private:
   bool recoParamsFromDB_;
   bool saveEffectivePedestal_;
   bool use8ts_;
-  bool makeDummySoA_;
 
   int sipmQTSShift_;
   int sipmQNTStoSum_;
@@ -446,12 +445,6 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
     negToken_ = esConsumes<HBHENegativeEFilter, HBHENegativeEFilterRcd>();
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
     feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd, edm::Transition::BeginRun>();
-
-  makeDummySoA_ = conf.getParameter<bool>("produceDummySoA");
-  if (makeDummySoA_) {
-    using OProductType = hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
-    produces<OProductType>(conf.getParameter<std::string>("recHitsM0LabelOut"));
-  }
 }
 
 HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
@@ -803,8 +796,6 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("setPulseShapeFlagsQIE11");
   desc.add<bool>("setLegacyFlagsQIE8");
   desc.add<bool>("setLegacyFlagsQIE11");
-  desc.add<bool>("produceDummySoA");
-  desc.add<std::string>("recHitsM0LabelOut");
 
   desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHBHEPhase1Algo());
   add_param_set(flagParametersQIE8);

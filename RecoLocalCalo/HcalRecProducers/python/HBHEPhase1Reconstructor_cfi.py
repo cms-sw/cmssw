@@ -49,10 +49,6 @@ hbheprereco = cms.EDProducer(
     # only when there are 10 TSs, e.g., <=2017
     use8ts = cms.bool(True),
 
-    # hack some parameters in
-    produceDummySoA = cms.bool(True),
-    recHitsM0LabelOut = cms.string(''),
-
     # Parameters which define how we calculate the charge for the basic SiPM
     # nonlinearity correction. To sum up the charge in all time slices
     # (e.g., for cosmics), set sipmQTSShift to -100 and sipmQNTStoSum to 200.
