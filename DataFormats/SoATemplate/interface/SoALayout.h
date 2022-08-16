@@ -181,6 +181,37 @@
 #define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME) \
   BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME)
 
+// clang-format off
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                             \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar */                                                                                                     \
+      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)}),                                                            \
+      /* Column */                                                                                                     \
+      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)}),                                                            \
+      /* Eigen column */                                                                                               \
+      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)})                                                             \
+      (BOOST_PP_CAT(NAME, Stride_){other.BOOST_PP_CAT(NAME, Stride_)})                                                 \
+  )
+// clang-format on
+
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME) \
+  BOOST_PP_EXPAND(_DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME)
+
+// clang-format off
+#define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                    \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar */                                                                                                     \
+      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);,                                                          \
+      /* Column */                                                                                                     \
+      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);,                                                          \
+      /* Eigen column */                                                                                               \
+      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);                                                           \
+      BOOST_PP_CAT(NAME, Stride_) = other.BOOST_PP_CAT(NAME, Stride_);                                               \
+  )
+// clang-format on
+
+#define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_MEMBER_ASSIGNMENT_IMPL TYPE_NAME)
+
 /**
  * Declare the value_element data members
  */
@@ -474,6 +505,21 @@
     /* Constructor relying on user provided storage (implementation shared with ROOT streamer) */                      \
     SOA_HOST_ONLY CLASS(std::byte* mem, size_type elements) : mem_(mem), elements_(elements), byteSize_(0) {           \
       organizeColumnsFromBuffer();                                                                                     \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* Explicit copy constructor and assignment operator */                                                            \
+    SOA_HOST_ONLY CLASS(CLASS const& other)                                                                            \
+        : mem_(other.mem_),                                                                                            \
+          elements_(other.elements_),                                                                                  \
+          byteSize_(other.byteSize_),                                                                                  \
+          _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_COPY_CONSTRUCTION, ~, __VA_ARGS__) {}                                  \
+                                                                                                                       \
+    SOA_HOST_ONLY CLASS& operator=(CLASS const& other) {                                                               \
+        mem_ = other.mem_;                                                                                             \
+        elements_ = other.elements_;                                                                                   \
+        byteSize_ = other.byteSize_;                                                                                   \
+        _ITERATE_ON_ALL(_DECLARE_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                                    \
+        return *this;                                                                                                  \
     }                                                                                                                  \
                                                                                                                        \
   private:                                                                                                             \
