@@ -259,7 +259,6 @@ jetCoreRegionalStep = TrackCutClassifier.clone(
     ),
     vertices = 'firstStepGoodPrimaryVertices'
 )
-
 jetCoreRegionalStepBarrel = jetCoreRegionalStep.clone(
     src = 'jetCoreRegionalStepBarrelTracks',
     mva = dict(
