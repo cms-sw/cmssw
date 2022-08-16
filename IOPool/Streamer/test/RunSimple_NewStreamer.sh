@@ -37,6 +37,7 @@ cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStre
 cmsRun --parameter-set NewStreamCopy2_cfg.py  > copy2  2>&1 || die "cmsRun NewStreamCopy2_cfg.py" $?
 cmsRun --parameter-set NewStreamInAlt_cfg.py  > alt  2>&1 || die "cmsRun NewStreamInAlt_cfg.py" $?
 cmsRun --parameter-set NewStreamInExt_cfg.py  > ext  2>&1 || die "cmsRun NewStreamInExt_cfg.py" $?
+cmsRun --parameter-set NewStreamInExtBuf_cfg.py  > ext  2>&1 || die "cmsRun NewStreamInExtBuf_cfg.py" $?
 
 # echo "CHECKSUM = 1" > out
 # echo "CHECKSUM = 1" > in
