@@ -536,15 +536,6 @@
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
-    /* Constructor relying on user provided storage */                                                                 \
-    SOA_DEVICE_ONLY CLASS(bool devConstructor, std::byte* mem, size_type elements) :                                   \
-      mem_(mem),                                                                                                       \
-      elements_(elements)                                                                                              \
-    {                                                                                                                  \
-      auto curMem = mem_;                                                                                              \
-      _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                    \
-    }                                                                                                                  \
-                                                                                                                       \
     /* ROOT read streamer */                                                                                           \
     template <typename T>                                                                                              \
     void ROOTReadStreamer(T & onfile) {                                                                                \
@@ -577,6 +568,7 @@
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \
     /* This will be handled later as we handle the integration of the view as a subclass of the layout.             */ \
+                                                                                                                       \
   public:                                                                                                              \
   _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS,                                                                              \
                     SOA_VIEW_LAYOUT_LIST(                                                                              \
