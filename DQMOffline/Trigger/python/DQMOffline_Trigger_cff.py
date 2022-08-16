@@ -39,7 +39,7 @@ from DQMOffline.Trigger.BTagAndProbeMonitor_cfi import *
 from DQMOffline.Trigger.BTagAndProbeMonitoring_cff import *
 
 # ParticleNet jet flavor tagging monitoring
-from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cfi import *
+from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cff import *
 
 # vertexing
 from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
@@ -196,13 +196,12 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     BTVHLTOfflineSource *             # BTV
     bTagHLTTrackMonitoringSequence *  # BTV relative track efficiencies
     trackingMonitorHLT *              # tracking
-    BTagAndProbeHLT *                 #BTag and Probe
+    BTagAndProbeHLT *                 # BTag and Probe
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
     egmTrackingMonitorHLT *           # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
     vertexingMonitorHLT *             # vertexing
-    ParticleNetAK4BTagMonitoring *    # ParticleNet AK4 b-tag
-    ParticleNetAK8HbbTagMonitoring    # ParticleNet AK8 Hbb-tag
+    particleNetMonitoringHLT          # HIG: monitoring of HLT PNET taggers (incl. comparisons to Offline PNET)
 )
 
 # sequences run @tier0 on HLTMonitor PD
