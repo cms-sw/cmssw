@@ -13,7 +13,8 @@ _seedingThresholdsHEphase1 = cms.vdouble(0.1375, 0.275, 0.275, 0.275, 0.275, 0.2
 
 #### PF CLUSTER HCAL ####
 particleFlowClusterHBHE = cms.EDProducer(
-    "PFClusterProducer",
+    "PFClusterProducerCudaHCAL",
+#    "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
     recHitCleaners = cms.VPSet(),
     seedCleaners = cms.VPSet(),
