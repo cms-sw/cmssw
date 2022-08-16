@@ -507,18 +507,17 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
     btagDDCvL = Var("bDiscriminator('pfMassIndependentDeepDoubleCvLJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs QCD",precision=10),
     btagDDCvB = Var("bDiscriminator('pfMassIndependentDeepDoubleCvBJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb",precision=10),
     )
-run2_miniAOD_80XLegacy.toModify(fatJetTable.variables, msoftdrop_chs = Var("userFloat('ak8PFJetsCHSSoftDropMass')",float, doc="Legacy uncorrected soft drop mass with CHS",precision=10))
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, msoftdrop_chs = Var("userFloat('ak8PFJetsCHSSoftDropMass')",float, doc="Legacy uncorrected soft drop mass with CHS",precision=10))
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
-run2_nanoAOD_106X2015.toModify( fatJetTable.variables, msoftdrop = None)
-run2_nanoAOD_106X2015.toModify( fatJetTable.variables, subJetIdx1 = None, subJetIdx2 = None)
 run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, tau4 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n2b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n3b1 = None)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables, msoftdrop = None, subJetIdx1 = None, subJetIdx2 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( fatJetTable.variables, tau4 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( fatJetTable.variables, n2b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( fatJetTable.variables, n3b1 = None)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( fatJetTable.variables, nConstituents = None)
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
   modifier.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
@@ -536,16 +535,17 @@ run2_jme_2017.toModify( cjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAO
 run2_jme_2017.toModify( cjetNN,outputFormulas = cms.vstring(["at(0)*0.24718524515628815+0.9927206635475159","0.5*(at(2)-at(1))*0.24718524515628815"]))
 
 
+
 subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-   src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
-   cut = cms.string(""), #probably already applied in miniaod
-   name = cms.string("SubJet"),
-   doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
-   singleton = cms.bool(False), # the number of entries is variable
-   extension = cms.bool(False), # this is the main table for the jets
-   variables = cms.PSet(P4Vars,
-      btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-      btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+    src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
+    cut = cms.string(""), #probably already applied in miniaod
+    name = cms.string("SubJet"),
+    doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the jets
+    variables = cms.PSet(P4Vars,
+        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+        btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         tau1 = Var("userFloat('NjettinessAK8Subjets:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
         tau2 = Var("userFloat('NjettinessAK8Subjets:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
@@ -567,13 +567,13 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10
 
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau2 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau3 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau4 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, n2b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, n3b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau2 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau3 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau4 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, n2b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, n3b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
 
 corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -765,10 +765,8 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
 #after lepton collections have been run
 jetLepSequence = cms.Sequence(lepInJetVars)
 
-
 #after cross linkining
 jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
-#jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+saJetTable+saTable)
 run2_nanoAOD_106X2015.toReplaceWith(jetTables, jetTables.copyAndExclude([subJetTable]))
 
 
