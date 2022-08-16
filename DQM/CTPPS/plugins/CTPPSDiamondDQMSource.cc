@@ -686,9 +686,18 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
   if (!perLSsaving_ && plotOnline_) {
-    for (auto& plot : potPlots_)
-      d->hitDistribution2dMap[plot.first] =
-          std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+    for (auto& plot : potPlots_) {
+      d->hitDistribution2dMap[plot.first] = std::make_unique<TH2F>(
+          "hits in planes lumisection",
+          (std::string(plot.second.hitDistribution2d_lumisection->getTH2F()->GetTitle()) + ";plane number;x (mm)")
+              .c_str(),
+          10,
+          -0.5,
+          4.5,
+          19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+          -0.5,
+          18.5);
+    }
   }
   return d;
 }
@@ -924,6 +933,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         for (int i = 0; i < numOfBins; ++i)
           hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
+
       } else if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && plotOnline_) {
         // Only leading
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
@@ -1275,9 +1285,8 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
   auto lumiCache = luminosityBlockCache(iLumi.index());
   if (!perLSsaving_) {
     if (plotOnline_)
-      for (auto& plot : potPlots_) {
+      for (auto& plot : potPlots_)
         *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-      }
 
     for (auto& plot : channelPlots_) {
       auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
