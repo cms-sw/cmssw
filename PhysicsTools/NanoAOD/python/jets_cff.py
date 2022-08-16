@@ -567,13 +567,13 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10
 
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau2 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau3 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, tau4 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, n2b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, n3b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau1 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau2 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau3 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau4 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n2b1 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n3b1 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
 
 corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
