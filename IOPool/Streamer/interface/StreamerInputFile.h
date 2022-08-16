@@ -54,7 +54,7 @@ namespace edm {
 
   private:
     void openStreamerFile(std::string const& name, std::string const& LFN);
-    storage::IOSize readBytes(char* buf, storage::IOSize nBytes);
+    storage::IOSize readBytes(char** buf, storage::IOSize nBytes, bool zeroCopy=true, unsigned skipped = 0);
     storage::IOOffset skipBytes(storage::IOSize nBytes);
 
     void readStartMessage();
