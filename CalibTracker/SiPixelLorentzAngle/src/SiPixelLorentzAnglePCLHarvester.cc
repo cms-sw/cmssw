@@ -39,35 +39,38 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+// for ROOT fits
+#include "TFitResult.h"
+
 /* 
  * Auxilliary struct to store fit results
  */
 namespace SiPixelLAHarvest {
+
+  enum covStatus { kNotCalculated = 0, kApproximated = 1, kMadePosDef = 2, kAccurate = 3 };
+
   struct fitResults {
   public:
     fitResults() {
       // set all parameters to default
       p0 = p1 = p2 = p3 = p4 = p5 = 0.;
       e0 = e1 = e2 = e3 = e4 = e5 = 0.;
-      chi2 = prob = redChi2 = tan_LA = error_LA = -9999.;
-      ndf = -999;
+      chi2 = prob = dSq = redChi2 = -9999.;
+      tan_LA = error_LA = -9999.;
+      fitStatus = covMatrixStatus = ndf = -999;
     };
 
-    double p0;
-    double e0;
-    double p1;
-    double e1;
-    double p2;
-    double e2;
-    double p3;
-    double e3;
-    double p4;
-    double e4;
-    double p5;
-    double e5;
+    double p0, e0;
+    double p1, e1;
+    double p2, e2;
+    double p3, e3;
+    double p4, e4;
+    double p5, e5;
     double chi2;
     int ndf;
     double prob;
+    int fitStatus, covMatrixStatus;
+    double dSq;
     double redChi2;
     double tan_LA;
     double error_LA;
@@ -97,14 +100,18 @@ private:
 
   std::vector<std::string> newmodulelist_;
   const std::string dqmDir_;
+  const bool doChebyshevFit_;
+  const int order_;
   const double fitChi2Cut_;
+  const std::vector<double> fitRange_;
   const int minHitsCut_;
   const std::string recordName_;
   std::unique_ptr<TF1> f1_;
   float width_;
   float theMagField_{0.f};
 
-  static constexpr float inverseGeVtoTesla_ = 2.99792458e-3f;
+  static constexpr float teslaToInverseGeV_ = 2.99792458e-3f;
+  std::pair<double, double> theFitRange_{5., 280.};
 
   SiPixelLorentzAngleCalibrationHistograms hists_;
   const SiPixelLorentzAngle* currentLorentzAngle_;
@@ -120,9 +127,20 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       newmodulelist_(iConfig.getParameter<std::vector<std::string>>("newmodulelist")),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+      doChebyshevFit_(iConfig.getParameter<bool>("doChebyshevFit")),
+      order_(iConfig.getParameter<int>("order")),
       fitChi2Cut_(iConfig.getParameter<double>("fitChi2Cut")),
+      fitRange_(iConfig.getParameter<std::vector<double>>("fitRange")),
       minHitsCut_(iConfig.getParameter<int>("minHitsCut")),
       recordName_(iConfig.getParameter<std::string>("record")) {
+  // initialize the fit range
+  if (fitRange_.size() == 2) {
+    theFitRange_.first = fitRange_[0];
+    theFitRange_.second = fitRange_[1];
+  } else {
+    throw cms::Exception("SiPixelLorentzAnglePCLHarvester") << "Too many fit range parameters specified";
+  }
+
   // first ensure DB output service is available
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())
@@ -144,7 +162,7 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   // theInverseBzAtOriginInGeV = 1.f / (at0z * 2.99792458e-3f);
   // ==> at0z = 1.f / (theInverseBzAtOriginInGeV * 2.99792458e-3f)
 
-  theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * inverseGeVtoTesla_);
+  theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * teslaToInverseGeV_);
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   hists_.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
@@ -192,7 +210,7 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
   std::vector<uint32_t> treatedIndices;
 
-  for (auto det : geom->detsPXB()) {
+  for (const auto& det : geom->detsPXB()) {
     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
     width_ = pixelDet->surface().bounds().thickness();
     const auto& layer = tTopo->pxbLayer(pixelDet->geographicalId());
@@ -346,6 +364,18 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   hists_.h_bySectChi2_ =
       iBooker.book1D("h_bySectorChi2", "Fit #chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, lo, hi);
 
+  hists_.h_bySectFitStatus_ =
+      iBooker.book1D("h_bySectFitStatus_", "Fit Status by sector;pixel sector; fit status", maxSect, lo, hi);
+
+  hists_.h_bySectCovMatrixStatus_ = iBooker.book1D(
+      "h_bySectorCovMatrixStatus", "Fit Covariance Matrix Status by sector;pixel sector; fit status", maxSect, lo, hi);
+  hists_.h_bySectDriftError_ =
+      iBooker.book1D("h_bySectorDriftError",
+                     "square error on the measured drift at half-width by sector;pixel sector;#Delta d^{2}(t/2)",
+                     maxSect,
+                     lo,
+                     hi);
+
   // copy the bin labels from the occupancy histogram
   for (int bin = 1; bin <= maxSect; bin++) {
     const auto& binName = hists_.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
@@ -355,6 +385,9 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     hists_.h_bySectLA_->setBinLabel(bin, binName);
     hists_.h_bySectDeltaLA_->setBinLabel(bin, binName);
     hists_.h_bySectChi2_->setBinLabel(bin, binName);
+    hists_.h_bySectFitStatus_->setBinLabel(bin, binName);
+    hists_.h_bySectCovMatrixStatus_->setBinLabel(bin, binName);
+    hists_.h_bySectDriftError_->setBinLabel(bin, binName);
   }
 
   // this will be booked in the Harvesting folder
@@ -591,9 +624,20 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   // output results
   SiPixelLAHarvest::fitResults res;
 
-  double half_width = width_ * 10000 / 2;  // pixel half thickness in units of micro meter
+  double half_width = width_ * siPixelLACalibration::cmToum / 2.f;  // pixel half thickness in units of micro meter
 
-  f1_ = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
+  if (doChebyshevFit_) {
+    const int npar = order_ + 1;
+    auto cheb = std::make_unique<siPixelLACalibration::Chebyshev>(order_, theFitRange_.first, theFitRange_.second);
+    f1_ =
+        std::make_unique<TF1>("fChebyshev", cheb.release(), theFitRange_.first, theFitRange_.second, npar, "Chebyshev");
+  } else {
+    f1_ = std::make_unique<TF1>("fPolynomial",
+                                "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x",
+                                theFitRange_.first,
+                                theFitRange_.second);
+  }
+
   f1_->SetParName(0, "offset");
   f1_->SetParName(1, "tan#theta_{LA}");
   f1_->SetParName(2, "quad term");
@@ -615,7 +659,34 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   f1_->SetParError(5, 0);
   f1_->SetChisquare(0);
 
-  hists_.h_mean_[i_index]->getTH1()->Fit(f1_.get(), "ERQ");
+  TFitResultPtr result = hists_.h_mean_[i_index]->getTH1()->Fit(f1_.get(), "ERQS");
+  if (result.Get()) {
+    res.fitStatus = result->Status();
+    edm::LogInfo("SiPixelLorentzAnglePCLHarvester") << "Fit status: " << res.fitStatus;
+  } else {
+    edm::LogError("SiPixelLorentzAnglePCLHarvester") << "Could not retrieve the fit status! Setting it to 0 by default";
+    res.fitStatus = 0;
+  }
+
+  if (res.fitStatus != 0) {
+    res.covMatrixStatus = result->CovMatrixStatus();
+  } else {
+    res.covMatrixStatus = SiPixelLAHarvest::kNotCalculated;
+  }
+
+  // compute the error on the drift-at-half-width parameter (d^2)
+  float dSq{0.};
+  if (!doChebyshevFit_) {
+    if (res.covMatrixStatus != SiPixelLAHarvest::kNotCalculated) {
+      for (int k = 0; k < order_; k++) {
+        for (int l = 0; l < order_; l++) {
+          dSq += (std::pow(half_width, k) * std::pow(half_width, l) * result->CovMatrix(k, l));
+        }
+      }
+    }
+  }  // compute the error on the drift-at-half width only for the regular polynomial fit
+
+  res.dSq = dSq;
 
   res.p0 = f1_->GetParameter(0);
   res.e0 = f1_->GetParError(0);
@@ -645,12 +716,20 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
       (pow(res.e1, 2) + pow((half_width * res.e2), 2) + pow((half_width * half_width * res.e3), 2) +
        pow((half_width * half_width * half_width * res.e4), 2) +
        pow((half_width * half_width * half_width * half_width * res.e5), 2));  // Propagation of uncertainty
-  res.error_LA = sqrt(errsq_LA);
+
+  res.error_LA = doChebyshevFit_ ? sqrt(errsq_LA) : sqrt(res.dSq + result->CovMatrix(0, 0)) / half_width;
 
   hists_.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
   hists_.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField_));
   hists_.h_bySectChi2_->setBinContent(i_index, res.redChi2);
   hists_.h_bySectChi2_->setBinError(i_index, 0.);  // no errors
+
+  hists_.h_bySectFitStatus_->setBinContent(i_index, res.fitStatus);
+  hists_.h_bySectFitStatus_->setBinError(i_index, 0.);  // no errors
+  hists_.h_bySectCovMatrixStatus_->setBinContent(i_index, res.covMatrixStatus);
+  hists_.h_bySectCovMatrixStatus_->setBinError(i_index, 0.);  // no errors
+  hists_.h_bySectDriftError_->setBinContent(i_index, res.dSq);
+  hists_.h_bySectDriftError_->setBinError(i_index, 0.);
 
   int nentries = hists_.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
 
@@ -678,7 +757,13 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   float LorentzAnglePerTesla_;
   float currentLA = currentLorentzAngle_->getLorentzAngle(detIdsToFill.front());
   // if the fit quality is OK
-  if ((res.redChi2 != 0.) && (res.redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
+
+  // check the result of the chi2 only if doing the chebyshev fit
+  const bool chi2Cut = doChebyshevFit_ ? (res.redChi2 < fitChi2Cut_) : true;
+  // check the covariance matrix status
+  const bool covMatrixStatusCut = (res.covMatrixStatus == SiPixelLAHarvest::kAccurate);
+
+  if ((res.redChi2 != 0.) && covMatrixStatusCut && chi2Cut && (nentries > minHitsCut_)) {
     LorentzAnglePerTesla_ = res.tan_LA / theMagField_;
     // fill the LA actually written to payload
     hists_.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
@@ -719,7 +804,10 @@ void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescrip
   desc.setComment("Harvester module of the SiPixel Lorentz Angle PCL monitoring workflow");
   desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
   desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle")->setComment("the directory of PCL Worker output");
+  desc.add<bool>("doChebyshevFit", false)->setComment("use Chebyshev polynomials for the dript vs depth fit");
+  desc.add<int>("order", 5)->setComment("order of the Chebyshev polynomial used for the fit");
   desc.add<double>("fitChi2Cut", 20.)->setComment("cut on fit chi2/ndof to accept measurement");
+  desc.add<std::vector<double>>("fitRange", {5., 280.})->setComment("range of depths to perform the LA fit");
   desc.add<int>("minHitsCut", 10000)->setComment("cut on minimum number of on-track hits to accept measurement");
   desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
