@@ -491,9 +491,37 @@
       const CLASS& parent_;                                                                                            \
       using ParentClass = CLASS;                                                                                       \
     };                                                                                                                 \
+                                                                                                                       \
     friend Metadata;                                                                                                   \
+                                                                                                                       \
     SOA_HOST_DEVICE SOA_INLINE const Metadata metadata() const { return Metadata(*this); }                             \
     SOA_HOST_DEVICE SOA_INLINE Metadata metadata() { return Metadata(*this); }                                         \
+                                                                                                                       \
+    /* Generate the ConstView template */                                                                              \
+    _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS,                                                                            \
+                    SOA_VIEW_LAYOUT_LIST(                                                                              \
+                        SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized) , BOOST_PP_CAT(instance_, CLASS))),         \
+                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
+                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)))                            \
+                                                                                                                       \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
+      RANGE_CHECKING>;                                                                                                 \
+                                                                                                                       \
+    using ConstView = ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;        \
+                                                                                                                       \
+    /* Generate the mutable View template */                                                                           \
+    _GENERATE_SOA_TRIVIAL_VIEW(CLASS,                                                                                  \
+                    SOA_VIEW_LAYOUT_LIST(                                                                              \
+                        SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized), BOOST_PP_CAT(instance_, CLASS))),          \
+                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
+                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)),                            \
+                    __VA_ARGS__)                                                                                       \
+                                                                                                                       \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
+                                                                                                                       \
+    using View = ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;                  \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
     CLASS()                                                                                                            \
@@ -522,7 +550,19 @@
         return *this;                                                                                                  \
     }                                                                                                                  \
                                                                                                                        \
+    /* ROOT read streamer */                                                                                           \
+    template <typename T>                                                                                              \
+    void ROOTReadStreamer(T & onfile) {                                                                                \
+      auto size = onfile.metadata().size();                                                                            \
+      _ITERATE_ON_ALL(_STREAMER_READ_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* Dump the SoA internal structure */                                                                              \
+    template <typename T>                                                                                              \
+    SOA_HOST_ONLY friend void dump();                                                                                  \
+                                                                                                                       \
   private:                                                                                                             \
+    /* Helper method for the user provided storage constructor and ROOT streamer */                                    \
     void organizeColumnsFromBuffer() {                                                                                 \
       if constexpr (alignmentEnforcement == cms::soa::AlignmentEnforcement::enforced)                                  \
         if (reinterpret_cast<intptr_t>(mem_) % alignment)                                                              \
@@ -535,19 +575,6 @@
         throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
     }                                                                                                                  \
                                                                                                                        \
-  public:                                                                                                              \
-    /* ROOT read streamer */                                                                                           \
-    template <typename T>                                                                                              \
-    void ROOTReadStreamer(T & onfile) {                                                                                \
-      auto size = onfile.metadata().size();                                                                            \
-      _ITERATE_ON_ALL(_STREAMER_READ_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
-    }                                                                                                                  \
-                                                                                                                       \
-    /* dump the SoA internal structure */                                                                              \
-    template <typename T>                                                                                              \
-    SOA_HOST_ONLY friend void dump();                                                                                  \
-                                                                                                                       \
-  private:                                                                                                             \
     /* Range checker conditional to the macro _DO_RANGECHECK */                                                        \
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     void rangeCheck(size_type index) const {                                                                           \
@@ -559,7 +586,7 @@
       }                                                                                                                \
     }                                                                                                                  \
                                                                                                                        \
-    /* data members */                                                                                                 \
+    /* Data members */                                                                                                 \
     std::byte* mem_;                                                                                                   \
     size_type elements_;                                                                                               \
     size_type const scalar_ = 1;                                                                                       \
@@ -569,29 +596,6 @@
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \
     /* This will be handled later as we handle the integration of the view as a subclass of the layout.             */ \
                                                                                                                        \
-  public:                                                                                                              \
-  _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS,                                                                              \
-                    SOA_VIEW_LAYOUT_LIST(                                                                              \
-                        SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized) , BOOST_PP_CAT(instance_, CLASS))),         \
-                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
-                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)))                            \
-                                                                                                                       \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
-    using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
-      RANGE_CHECKING>;                                                                                                 \
-                                                                                                                       \
-  _GENERATE_SOA_TRIVIAL_VIEW(CLASS,                                                                                    \
-                    SOA_VIEW_LAYOUT_LIST(                                                                              \
-                        SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized), BOOST_PP_CAT(instance_, CLASS))),          \
-                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
-                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)),                            \
-                    __VA_ARGS__)                                                                                       \
-                                                                                                                       \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
-    using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
-                                                                                                                       \
-    using ConstView = ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;        \
-    using View = ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;                  \
   };
 // clang-format on
 
