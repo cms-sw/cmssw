@@ -20,17 +20,20 @@ namespace edm {
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
                                        std::string const& LFN,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
         eventBuf_(1000 * 1000 * 7),
+        tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
         streamerNames_(),
         multiStreams_(false),
         currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
+        prefetchMBytes_(prefetchMBytes),
         currRun_(0),
         currProto_(0),
         newHeader_(false),
@@ -40,21 +43,24 @@ namespace edm {
     readStartMessage();
   }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
-      : StreamerInputFile(name, name, eventSkipperByID) {}
+  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID, unsigned int prefetchMBytes)
+      : StreamerInputFile(name, name, eventSkipperByID, prefetchMBytes) {}
 
   StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
         eventBuf_(1000 * 1000 * 7),
+        tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
         streamerNames_(names),
         multiStreams_(true),
         currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
+        prefetchMBytes_(prefetchMBytes),
         currRun_(0),
         currProto_(0),
         newHeader_(false),
@@ -114,7 +120,29 @@ namespace edm {
   storage::IOSize StreamerInputFile::readBytes(char* buf, storage::IOSize nBytes) {
     storage::IOSize n = 0;
     try {
-      n = storage_->read(buf, nBytes);
+      if (prefetchMBytes_) {
+        //assert(tempPos_ > tempLen_);
+        if (tempPos_ == tempLen_) {
+          n = storage_->read(&tempBuf_[0], prefetchMBytes_*1024*1024);
+          tempPos_ = 0;
+          tempLen_ = n;
+          if (n == 0) return 0;
+        }
+        if (nBytes <= tempLen_ - tempPos_) {
+          memcpy(buf, &tempBuf_[0] + tempPos_, nBytes);
+          tempPos_ += nBytes;
+          return nBytes;
+        }
+        else {
+          //crossing buffer boundary
+          auto len = tempLen_ - tempPos_;
+          memcpy(buf, &tempBuf_[0] + tempPos_, len);
+          tempPos_ += len;
+          return len + readBytes(buf + len, nBytes - len);
+        }
+      }
+      else
+        n = storage_->read(buf, nBytes);
     } catch (cms::Exception& ce) {
       Exception ex(errors::FileReadError, "", ce);
       ex.addContext("Calling StreamerInputFile::readBytes()");

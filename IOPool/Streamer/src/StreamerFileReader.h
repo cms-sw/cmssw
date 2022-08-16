@@ -44,6 +44,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<StreamerInputFile>> streamReader_;
     edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
+    int prefetchMBytes_;
     bool isFirstFile_ = true;
   };
 }  // namespace edm
