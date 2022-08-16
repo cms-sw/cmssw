@@ -7,6 +7,10 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testPVValidation.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
+  <bin file="testAlignmentOfflineValidation.cpp" name="testMiscellanea">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testMiscellanea.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="testEoP">
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testEoP.sh"/>
     <use name="FWCore/Utilities"/>
