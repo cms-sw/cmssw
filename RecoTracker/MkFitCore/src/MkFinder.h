@@ -28,6 +28,14 @@ namespace mkfit {
   class Event;
 #endif
 
+  struct UpdateIndices {
+    int seed_idx;
+    int cand_idx;
+    int hit_idx;
+
+    UpdateIndices(int si, int ci, int hi) : seed_idx(si), cand_idx(ci), hit_idx(hi) {}
+  };
+
   class MkFinder : public MkBase {
     friend class MkBuilder;
 
@@ -64,6 +72,13 @@ namespace mkfit {
                               int beg,
                               int end,
                               bool inputProp);
+
+    void inputTracksAndHits(const std::vector<CombCandidate> &tracks,
+                            const LayerOfHits &layer_of_hits,
+                            const std::vector<UpdateIndices> &idxs,
+                            int beg,
+                            int end,
+                            bool inputProp);
 
     void inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                               const std::vector<std::pair<int, IdxChi2List>> &idxs,
@@ -119,7 +134,7 @@ namespace mkfit {
                                    const int N_proc,
                                    const FindingFoos &fnd_foos);
 
-    void updateWithLastHit(const LayerOfHits &layer_of_hits, int N_proc, const FindingFoos &fnd_foos);
+    void updateWithLoadedHit(int N_proc, const FindingFoos &fnd_foos);
 
     void copyOutParErr(std::vector<CombCandidate> &seed_cand_vec, int N_proc, bool outputProp) const;
 
@@ -192,7 +207,6 @@ namespace mkfit {
       m_NInsideMinusOneHits(mslot, 0, 0) = trk.nInsideMinusOneHits();
       m_NTailMinusOneHits(mslot, 0, 0) = trk.nTailMinusOneHits();
 
-      m_LastHoT[mslot] = trk.getLastHitOnTrack();
       m_CombCand[mslot] = trk.combCandidate();
       m_TrkStatus[mslot] = trk.getStatus();
     }
@@ -288,7 +302,6 @@ namespace mkfit {
     MPlexQI m_NTailMinusOneHits;        // sub: before we copied all hit idcs and had a loop counting them only
     MPlexQI m_LastHitCcIndex;           // add: index of last hit in m_CombCand hit tree, STD only
     TrackBase::Status m_TrkStatus[NN];  // STD only, status bits
-    HitOnTrack m_LastHoT[NN];
     CombCandidate *m_CombCand[NN];
     // const TrackCand *m_TrkCand[NN]; // hmmh, could get all data through this guy ... but scattered
     // storing it in now for bkfit debug printouts
