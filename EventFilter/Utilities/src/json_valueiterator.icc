@@ -9,6 +9,7 @@
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     : current_(), isNull_(true) {
@@ -20,18 +21,22 @@ ValueIteratorBase::ValueIteratorBase()
 #endif
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator &current)
     : current_(current), isNull_(false) {}
 #else
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase(const ValueInternalArray::IteratorState &state) : isArray_(true) {
   iterator_.array_ = state;
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase(const ValueInternalMap::IteratorState &state) : isArray_(false) {
   iterator_.map_ = state;
 }
 #endif
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 Value &ValueIteratorBase::deref() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   return current_->second;
@@ -42,6 +47,7 @@ Value &ValueIteratorBase::deref() const {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 void ValueIteratorBase::increment() {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ++current_;
@@ -52,6 +58,7 @@ void ValueIteratorBase::increment() {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 void ValueIteratorBase::decrement() {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   --current_;
@@ -62,6 +69,7 @@ void ValueIteratorBase::decrement() {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::difference_type ValueIteratorBase::computeDistance(const SelfType &other) const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
 #ifdef JSON_USE_CPPTL_SMALLMAP
@@ -93,6 +101,7 @@ ValueIteratorBase::difference_type ValueIteratorBase::computeDistance(const Self
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 bool ValueIteratorBase::isEqual(const SelfType &other) const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   if (isNull_) {
@@ -106,6 +115,7 @@ bool ValueIteratorBase::isEqual(const SelfType &other) const {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 void ValueIteratorBase::copy(const SelfType &other) {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   current_ = other.current_;
@@ -116,6 +126,7 @@ void ValueIteratorBase::copy(const SelfType &other) {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 Value ValueIteratorBase::key() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
@@ -136,6 +147,7 @@ Value ValueIteratorBase::key() const {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 UInt ValueIteratorBase::index() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
@@ -149,6 +161,7 @@ UInt ValueIteratorBase::index() const {
 #endif
 }
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 const char *ValueIteratorBase::memberName() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const char *name = (*current_).first.c_str();
@@ -168,16 +181,21 @@ const char *ValueIteratorBase::memberName() const {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueConstIterator::ValueConstIterator() {}
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueConstIterator::ValueConstIterator(const Value::ObjectValues::iterator &current) : ValueIteratorBase(current) {}
 #else
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueConstIterator::ValueConstIterator(const ValueInternalArray::IteratorState &state) : ValueIteratorBase(state) {}
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueConstIterator::ValueConstIterator(const ValueInternalMap::IteratorState &state) : ValueIteratorBase(state) {}
 #endif
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueConstIterator &ValueConstIterator::operator=(const ValueIteratorBase &other) {
   copy(other);
   return *this;
@@ -191,20 +209,27 @@ ValueConstIterator &ValueConstIterator::operator=(const ValueIteratorBase &other
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator() {}
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator(const Value::ObjectValues::iterator &current) : ValueIteratorBase(current) {}
 #else
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator(const ValueInternalArray::IteratorState &state) : ValueIteratorBase(state) {}
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator(const ValueInternalMap::IteratorState &state) : ValueIteratorBase(state) {}
 #endif
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator(const ValueConstIterator &other) : ValueIteratorBase(other) {}
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator::ValueIterator(const ValueIterator &other) : ValueIteratorBase(other) {}
 
+//NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIterator &ValueIterator::operator=(const SelfType &other) {
   copy(other);
   return *this;
