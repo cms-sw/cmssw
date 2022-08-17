@@ -25,6 +25,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
@@ -39,23 +40,35 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
+  const reco::Vertex *findClosestVertex(const TransientVertex aTransVtx, const reco::VertexCollection *vertices) const;
+
   // ----------member data ---------------------------
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
-  const edm::EDGetTokenT<reco::TrackCollection>
-      tracksToken_;  //used to select what tracks to read from configuration file
-  const edm::EDGetTokenT<reco::VertexCollection>
-      vertexToken_;                 //used to select what vertices to read from configuration file
+
+  //used to select what tracks to read from configuration file
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  //used to select what vertices to read from configuration file
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
   const std::string MEFolderName_;  // Top-level folder name
+  const bool useClosestVertex_;
   const float maxSVdist_;
 
   // vertex quantities
   MonitorElement *hSVProb_;
+  MonitorElement *hSVChi2_;
+  MonitorElement *hSVNormChi2_;
+
   MonitorElement *hSVDist_;
   MonitorElement *hSVDistErr_;
   MonitorElement *hSVDistSig_;
+  MonitorElement *hSVCompatibility_;
+
   MonitorElement *hSVDist3D_;
   MonitorElement *hSVDist3DErr_;
   MonitorElement *hSVDist3DSig_;
+  MonitorElement *hSVCompatibility3D_;
+
   MonitorElement *hCosPhi_;
   MonitorElement *hCosPhi3D_;
   MonitorElement *hCosPhiInv_;
