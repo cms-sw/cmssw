@@ -794,7 +794,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           packedPrescalesL1max->addPrescaledTrigger(i, 1);
           packedPrescalesL1min->addPrescaledTrigger(i, 1);
         } else {
-          int pmin = -1, pmax = -1;
+          float pmin = -1, pmax = -1;
           for (const auto& p : pvdet.first) {
             pmax = std::max(pmax, p.second);
             if (p.second > 0 && (pmin == -1 || pmin > p.second))

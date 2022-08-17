@@ -7,13 +7,13 @@ pat::PackedTriggerPrescales::PackedTriggerPrescales(const edm::Handle<edm::Trigg
   prescaleValues_.resize(handle->size(), 0);
 }
 
-int pat::PackedTriggerPrescales::getPrescaleForIndex(int index) const {
+float pat::PackedTriggerPrescales::getPrescaleForIndex(int index) const {
   if (unsigned(index) >= triggerResults().size())
     throw cms::Exception("InvalidReference", "Index out of bounds");
   return prescaleValues_[index];
 }
 
-int pat::PackedTriggerPrescales::getPrescaleForName(const std::string &name, bool prefixOnly) const {
+float pat::PackedTriggerPrescales::getPrescaleForName(const std::string &name, bool prefixOnly) const {
   if (triggerNames_ == nullptr)
     throw cms::Exception("LogicError", "getPrescaleForName called without having called setTriggerNames first");
   if (prefixOnly) {
@@ -33,7 +33,7 @@ int pat::PackedTriggerPrescales::getPrescaleForName(const std::string &name, boo
   }
 }
 
-void pat::PackedTriggerPrescales::addPrescaledTrigger(int index, int prescale) {
+void pat::PackedTriggerPrescales::addPrescaledTrigger(int index, float prescale) {
   if (unsigned(index) >= triggerResults().size())
     throw cms::Exception("InvalidReference", "Index out of bounds");
   prescaleValues_[index] = prescale;
