@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ExREG")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = 'START44_V7::All'
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     calibratedPatElectrons = cms.PSet(
