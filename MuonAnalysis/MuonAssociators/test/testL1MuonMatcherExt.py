@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TestL1MatcherExtended")
 
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_36X_V12::All'
-
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
