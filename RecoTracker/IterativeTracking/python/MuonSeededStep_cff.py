@@ -152,6 +152,44 @@ muonSeededTracksOutInClassifier = TrackCutClassifier.clone(
     )
 )
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(muonSeededTracksOutInClassifier.mva,
+                  dr_par = cms.PSet(
+                      d0err = cms.vdouble(0.003, 0.003, 0.003),
+                      d0err_par = cms.vdouble(0.001, 0.001, 0.001),
+                      dr_exp = cms.vint32(4, 4, 4),
+                      dr_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dr_par2 = cms.vdouble(0.3, 0.3, 0.3)
+                  ),
+                  dz_par = cms.PSet(
+                      dz_exp = cms.vint32(4, 4, 4),
+                      dz_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dz_par2 = cms.vdouble(0.35, 0.35, 0.35)
+                  ),
+                  maxDr         = [9999.,9999.,0.5],
+                  maxDz         = [9999.,9999.,0.5],
+                  minHits     =   [0,0,10],
+                  minPixelHits  = [0,0,1],
+)
+pp_on_AA.toModify(muonSeededTracksInOutClassifier.mva,
+                  dr_par = cms.PSet(
+                      d0err = cms.vdouble(0.003, 0.003, 0.003),
+                      d0err_par = cms.vdouble(0.001, 0.001, 0.001),
+                      dr_exp = cms.vint32(4, 4, 4),
+                      dr_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dr_par2 = cms.vdouble(0.3, 0.3, 0.3)
+                  ),
+                  dz_par = cms.PSet(
+                      dz_exp = cms.vint32(4, 4, 4),
+                      dz_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dz_par2 = cms.vdouble(0.35, 0.35, 0.35)
+                  ),
+                  maxDr         = [9999.,9999.,0.5],
+                  maxDz         = [9999.,9999.,0.5],
+                  minHits     =   [0,0,10],
+                  minPixelHits  = [0,0,1],
+)
+
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
