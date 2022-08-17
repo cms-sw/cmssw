@@ -14,9 +14,9 @@ namespace pat {
     ~PackedTriggerPrescales() {}
 
     // get prescale by index.
-    int getPrescaleForIndex(int index) const;
+    float getPrescaleForIndex(int index) const;
     // get prescale by name or name prefix (if setTriggerNames was called)
-    int getPrescaleForName(const std::string &name, bool prefixOnly = false) const;
+    float getPrescaleForName(const std::string &name, bool prefixOnly = false) const;
 
     // return the TriggerResults associated with this
     const edm::TriggerResults &triggerResults() const { return *edm::getProduct<edm::TriggerResults>(triggerResults_); }
@@ -26,10 +26,10 @@ namespace pat {
     void setTriggerNames(const edm::TriggerNames &names) { triggerNames_ = &names; }
 
     // set that the trigger of given index has a given prescale
-    void addPrescaledTrigger(int index, int prescale);
+    void addPrescaledTrigger(int index, float prescale);
 
   protected:
-    std::vector<int> prescaleValues_;
+    std::vector<float> prescaleValues_;
     edm::RefCore triggerResults_;
     const edm::TriggerNames *triggerNames_;
   };

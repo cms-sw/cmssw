@@ -103,7 +103,8 @@
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
 
-  <class name="pat::PackedTriggerPrescales"  ClassVersion="10">
+  <class name="pat::PackedTriggerPrescales"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2846706289"/>
    <version ClassVersion="10" checksum="2688342584"/>
    <field name="triggerNames_" transient="true" />
   </class>
