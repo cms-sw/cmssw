@@ -64,8 +64,8 @@ void MatchEngine::execute(unsigned int iSector) {
   unsigned int countall = 0;
   unsigned int countpass = 0;
 
-  bool print = (iSector == 3 && getName() == "ME_L3PHIC20");
-  print = false;
+  //bool print = (iSector == 3 && getName() == "ME_L3PHIC20");
+  bool print = false;
 
   constexpr unsigned int kNBitsBuffer = 3;
 
