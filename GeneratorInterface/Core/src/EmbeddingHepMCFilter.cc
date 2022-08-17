@@ -4,7 +4,8 @@
 #include "boost/algorithm/string/trim_all.hpp"
 
 EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig)
-    : ZPDGID_(iConfig.getParameter<int>("BosonPDGID")), includeDY_(iConfig.getParameter<bool>("IncludeDY")) {
+    : ZPDGID_(iConfig.getParameter<int>("BosonPDGID")),
+      includeDY_(iConfig.existsAs<bool>("IncludeDY") ? iConfig.getParameter<bool>("IncludeDY") : false) {
   // Defining standard decay channels
   ee.fill(TauDecayMode::Electron);
   ee.fill(TauDecayMode::Electron);
