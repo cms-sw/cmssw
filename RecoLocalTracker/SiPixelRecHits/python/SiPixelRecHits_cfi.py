@@ -20,7 +20,7 @@ siPixelRecHitsPreSplitting = SwitchProducerCUDA(
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 # convert the pixel rechits from legacy to SoA format on CPU
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitsPreSplittingSoA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacyPhase1_cfi import siPixelRecHitSoAFromLegacyPhase1 as _siPixelRecHitsPreSplittingSoA
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacyPhase2_cfi import siPixelRecHitSoAFromLegacyPhase2 as _siPixelRecHitsPreSplittingSoAPhase2
 
 siPixelRecHitsPreSplittingCPU = _siPixelRecHitsPreSplittingSoA.clone(convertToLegacy=True)
@@ -68,14 +68,14 @@ cpu = cms.EDAlias(
              cms.PSet(type = cms.string("uintAsHostProduct"))
          )))
 
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromCUDA_cfi import siPixelRecHitSoAFromCUDA as _siPixelRecHitSoAFromCUDA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromCUDAPhase1_cfi import siPixelRecHitSoAFromCUDAPhase1 as _siPixelRecHitSoAFromCUDA
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromCUDAPhase2_cfi import siPixelRecHitSoAFromCUDAPhase2 as _siPixelRecHitSoAFromCUDAPhase2
 
 (gpu & pixelNtupletFit).toModify(siPixelRecHitsPreSplittingSoA, cuda = _siPixelRecHitSoAFromCUDA.clone())
 (gpu & pixelNtupletFit & phase2_tracker).toModify(siPixelRecHitsPreSplittingSoA, cuda = _siPixelRecHitSoAFromCUDAPhase2.clone())
 
 # transfer the pixel rechits to the host and convert them from SoA
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDAPhase1_cfi import siPixelRecHitFromCUDAPhase1 as _siPixelRecHitFromCUDA
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDAPhase2_cfi import siPixelRecHitFromCUDAPhase2 as _siPixelRecHitFromCUDAPhase2
 
 (gpu & pixelNtupletFit).toModify(siPixelRecHitsPreSplitting, cuda = _siPixelRecHitFromCUDA.clone())

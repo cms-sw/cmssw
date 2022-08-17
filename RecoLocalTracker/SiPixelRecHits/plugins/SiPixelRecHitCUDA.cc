@@ -25,10 +25,10 @@
 #include "PixelRecHitGPUKernel.h"
 
 template <typename TrackerTraits>
-class SiPixelRecHitCUDA : public edm::global::EDProducer<> {
+class SiPixelRecHitCUDAT : public edm::global::EDProducer<> {
 public:
-  explicit SiPixelRecHitCUDA(const edm::ParameterSet& iConfig);
-  ~SiPixelRecHitCUDA() override = default;
+  explicit SiPixelRecHitCUDAT(const edm::ParameterSet& iConfig);
+  ~SiPixelRecHitCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -45,7 +45,7 @@ private:
 };
 
 template <typename TrackerTraits>
-SiPixelRecHitCUDA<TrackerTraits>::SiPixelRecHitCUDA(const edm::ParameterSet& iConfig)
+SiPixelRecHitCUDAT<TrackerTraits>::SiPixelRecHitCUDAT(const edm::ParameterSet& iConfig)
     : cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
       tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       token_(consumes<cms::cuda::Product<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -53,7 +53,7 @@ SiPixelRecHitCUDA<TrackerTraits>::SiPixelRecHitCUDA(const edm::ParameterSet& iCo
       tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DGPUT<TrackerTraits>>>()) {}
 
 template <typename TrackerTraits>
-void SiPixelRecHitCUDA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelRecHitCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpotCUDA"));
@@ -63,15 +63,13 @@ void SiPixelRecHitCUDA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescri
   cpe += TrackerTraits::nameModifier;
   desc.add<std::string>("CPE", cpe);
 
-  std::string label = "siPixelRecHitCUDA";
-  label += TrackerTraits::nameModifier;
-  descriptions.add(label, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename TrackerTraits>
-void SiPixelRecHitCUDA<TrackerTraits>::produce(edm::StreamID streamID,
-                                               edm::Event& iEvent,
-                                               const edm::EventSetup& es) const {
+void SiPixelRecHitCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                edm::Event& iEvent,
+                                                const edm::EventSetup& es) const {
   PixelCPEFast<TrackerTraits> const* fcpe = dynamic_cast<const PixelCPEFast<TrackerTraits>*>(&es.getData(cpeToken_));
   if (not fcpe) {
     throw cms::Exception("Configuration") << "SiPixelRecHitCUDA can only use a CPE of type PixelCPEFast";
@@ -96,7 +94,11 @@ void SiPixelRecHitCUDA<TrackerTraits>::produce(edm::StreamID streamID,
               gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream()));
 }
 
-using SiPixelRecHitCUDAPhase1 = SiPixelRecHitCUDA<pixelTopology::Phase1>;
+using SiPixelRecHitCUDA = SiPixelRecHitCUDAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitCUDA);
+
+using SiPixelRecHitCUDAPhase1 = SiPixelRecHitCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRecHitCUDAPhase1);
-using SiPixelRecHitCUDAPhase2 = SiPixelRecHitCUDA<pixelTopology::Phase2>;
+
+using SiPixelRecHitCUDAPhase2 = SiPixelRecHitCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitCUDAPhase2);

@@ -51,8 +51,11 @@ public:
                                           uint32_t const* hitsModuleStart,
                                           cudaStream_t stream = nullptr);
 
-  explicit TrackingRecHit2DHeterogeneousT(
-      float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr);
+  explicit TrackingRecHit2DHeterogeneousT(cms::cuda::host::unique_ptr<float[]>& store32,
+                                          cms::cuda::host::unique_ptr<uint16_t[]>& store16,
+                                          uint32_t* modules,
+                                          int nHits,
+                                          cudaStream_t stream = nullptr);
   ~TrackingRecHit2DHeterogeneousT() = default;
 
   TrackingRecHit2DHeterogeneousT(const TrackingRecHit2DHeterogeneousT&) = delete;
@@ -156,8 +159,11 @@ public:
       : TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>(
             nHits, offsetBPIX2, cpeParams, hitsModuleStart, stream) {}
 
-  explicit TrackingRecHit2DHostT(
-      float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr)
+  explicit TrackingRecHit2DHostT(cms::cuda::host::unique_ptr<float[]>& store32,
+                                 cms::cuda::host::unique_ptr<uint16_t[]>& store16,
+                                 uint32_t* modules,
+                                 int nHits,
+                                 cudaStream_t stream = nullptr)
       : TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>(
             store32, store16, modules, nHits, stream) {}
 
@@ -307,7 +313,11 @@ TrackingRecHit2DHostT<TrackerTraits>::TrackingRecHit2DHostT(
 //this is intended to be used only for CPU SoA but doesn't hurt to have it for all cases
 template <typename Traits, typename TrackerTraits>
 TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogeneousT(
-    float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream)
+    cms::cuda::host::unique_ptr<float[]>& store32,
+    cms::cuda::host::unique_ptr<uint16_t[]>& store16,
+    uint32_t* modules,
+    int nHits,
+    cudaStream_t stream)
     : m_nHits(nHits), m_hitsModuleStart(modules) {
   auto view = Traits::template make_host_unique<TrackingRecHit2DSOAView>(stream);
 
@@ -334,13 +344,16 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
 
   //store transfer
   if constexpr (std::is_same_v<Traits, cms::cudacompat::GPUTraits>) {
-    cudaCheck(cudaMemcpyAsync(
-        m_store16.get(), store16, sizeof(uint16_t) * static_cast<int>(n16 * nHits), cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(
-        m_store32.get(), store32, sizeof(float) * static_cast<int>(n32 * nHits), cudaMemcpyDefault, stream));
+    cms::cuda::copyAsync(m_store16, store16, static_cast<int>(n16 * nHits), stream);
+    cms::cuda::copyAsync(m_store32, store32, static_cast<int>(n32 * nHits), stream);
+    //
+    // cudaCheck(cudaMemcpyAsync(
+    //     m_store16.get(), store16, sizeof(uint16_t) * static_cast<int>(n16 * nHits), cudaMemcpyDefault, stream));
+    // cudaCheck(cudaMemcpyAsync(
+    //     m_store32.get(), store32, sizeof(float) * static_cast<int>(n32 * nHits), cudaMemcpyDefault, stream));
   } else {
-    std::copy(store32, store32 + nHits * n32, m_store32.get());  // want to copy it
-    std::copy(store16, store16 + nHits * n16, m_store16.get());
+    std::copy(store32.get(), store32.get() + nHits * n32, m_store32.get());  // want to copy it
+    std::copy(store16.get(), store16.get() + nHits * n16, m_store16.get());
   }
 
   //getters
@@ -376,17 +389,6 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   }
 }
 
-// This definition below seems to be necessary to ROOT to avoid DictionaryNotFound error for old TrackingRecHit2DHeterogeneous
-// in RAW samples in which the Run3 HLT has already been run. Without this those samples are useless beacuse of the abovementioned
-// ROOT dictionary error. Alternative solution would be to impose a drop of HLT collections in RECO step, but seems not reasonable.
-// Same reasoning applies to PixelTrackHeterogeneous.
-
-template <typename Traits>
-class TrackingRecHit2DHeterogeneous {
-public:
-  CMS_CLASS_VERSION(10);
-};
-
 //Classes definition for Phase1/Phase2, to make the classes_def lighter. Not actually used in the code.
 using TrackingRecHit2DGPUPhase1 = TrackingRecHit2DGPUT<pixelTopology::Phase1>;
 using TrackingRecHit2DCPUPhase1 = TrackingRecHit2DCPUT<pixelTopology::Phase1>;
@@ -395,9 +397,5 @@ using TrackingRecHit2DHostPhase1 = TrackingRecHit2DHostT<pixelTopology::Phase1>;
 using TrackingRecHit2DGPUPhase2 = TrackingRecHit2DGPUT<pixelTopology::Phase2>;
 using TrackingRecHit2DCPUPhase2 = TrackingRecHit2DCPUT<pixelTopology::Phase2>;
 using TrackingRecHit2DHostPhase2 = TrackingRecHit2DHostT<pixelTopology::Phase2>;
-
-using TrackingRecHit2DCPULegacy = TrackingRecHit2DHeterogeneous<cms::cudacompat::CPUTraits>;
-using TrackingRecHit2DGPULegacy = TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits>;
-using TrackingRecHit2DHostLegacy = TrackingRecHit2DHeterogeneous<cms::cudacompat::HostTraits>;
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneousT_h

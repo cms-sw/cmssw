@@ -34,10 +34,10 @@
   produces seeds directly from cuda produced tuples
 */
 template <typename TrackerTraits>
-class SeedProducerFromSoA : public edm::global::EDProducer<> {
+class SeedProducerFromSoAT : public edm::global::EDProducer<> {
 public:
-  explicit SeedProducerFromSoA(const edm::ParameterSet& iConfig);
-  ~SeedProducerFromSoA() override = default;
+  explicit SeedProducerFromSoAT(const edm::ParameterSet& iConfig);
+  ~SeedProducerFromSoAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -55,7 +55,7 @@ private:
 };
 
 template <typename TrackerTraits>
-SeedProducerFromSoA<TrackerTraits>::SeedProducerFromSoA(const edm::ParameterSet& iConfig)
+SeedProducerFromSoAT<TrackerTraits>::SeedProducerFromSoAT(const edm::ParameterSet& iConfig)
     : tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       tokenTrack_(consumes<PixelTrackHeterogeneousT<TrackerTraits>>(iConfig.getParameter<edm::InputTag>("src"))),
       idealMagneticFieldToken_(esConsumes()),
@@ -68,21 +68,19 @@ SeedProducerFromSoA<TrackerTraits>::SeedProducerFromSoA(const edm::ParameterSet&
 }
 
 template <typename TrackerTraits>
-void SeedProducerFromSoA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SeedProducerFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("src", edm::InputTag("pixelTrackSoA"));
   desc.add<int>("minNumberOfHits", 0);
 
-  std::string label = "seedProducerFromSoA";
-  label += TrackerTraits::nameModifier;
-  descriptions.add(label, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename TrackerTraits>
-void SeedProducerFromSoA<TrackerTraits>::produce(edm::StreamID streamID,
-                                                 edm::Event& iEvent,
-                                                 const edm::EventSetup& iSetup) const {
+void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                  edm::Event& iEvent,
+                                                  const edm::EventSetup& iSetup) const {
   // std::cout << "Converting gpu helix to trajectory seed" << std::endl;
   auto result = std::make_unique<TrajectorySeedCollection>();
 
@@ -175,8 +173,11 @@ void SeedProducerFromSoA<TrackerTraits>::produce(edm::StreamID streamID,
   iEvent.put(std::move(result));
 }
 
-using SeedProducerFromSoAPhase1 = SeedProducerFromSoA<pixelTopology::Phase1>;
+using SeedProducerFromSoA = SeedProducerFromSoAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SeedProducerFromSoA);
+
+using SeedProducerFromSoAPhase1 = SeedProducerFromSoAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SeedProducerFromSoAPhase1);
 
-using SeedProducerFromSoAPhase2 = SeedProducerFromSoA<pixelTopology::Phase2>;
+using SeedProducerFromSoAPhase2 = SeedProducerFromSoAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SeedProducerFromSoAPhase2);

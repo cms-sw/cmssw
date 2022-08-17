@@ -14,7 +14,7 @@ public:
   friend class SiPixelDigisCUDA;
 
   template <typename TrackerTraits>
-  friend class SiPixelRecHitSoAFromLegacy;
+  friend class SiPixelRecHitSoAFromLegacyT;
 
   enum class StorageLocation {
     kCLUS = 0,

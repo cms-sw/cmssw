@@ -22,18 +22,8 @@ namespace pixelTrack {
 
 }  // namespace pixelTrack
 
-// This definition below seems to be necessary to ROOT to avoid DictionaryNotFound error for old TrackingRecHit2DHeterogeneous
-// in RAW samples in which the Run3 HLT has already been run. Without this those samples are useless beacuse of the abovementioned
-// ROOT dictionary error. Alternative solution would be to impose a drop of HLT collections in RECO step, but seems not reasonable.
-// Same reasoning applies to TrackingRecHit2DHeterogeneous.
-template <int32_t S>
-class TrackSoAHeterogeneousT {
-public:
-  CMS_CLASS_VERSION(10);
-};
-
 template <typename TrackerTraits>
-class PixelTrackSoAT {
+class TrackSoAHeterogeneousT {
 public:
   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
   static constexpr int32_t H = TrackerTraits::maxHitsOnTrack;  // Average hits rather than max?
@@ -105,27 +95,15 @@ private:
 
 namespace pixelTrack {
 
-#ifdef GPU_SMALL_EVENTS
-  // kept for testing and debugging
-  constexpr uint32_t maxNumber() { return 2 * 1024; }
-#else
-  // tested on MC events with 55-75 pileup events
-  constexpr uint32_t maxNumber() { return 32 * 1024; }
-#endif
-
-  using TrackSoA = TrackSoAHeterogeneousT<maxNumber()>;
-  using TrajectoryState = TrajectoryStateSoAT<maxNumber()>;
-  // using HitContainer = TrackSoA::HitContainer;
+  template <typename TrackerTraits>
+  using TrackSoAT = TrackSoAHeterogeneousT<TrackerTraits>;
 
   template <typename TrackerTraits>
-  using TrackSoAT = PixelTrackSoAT<TrackerTraits>;
-
-  template <typename TrackerTraits>
-  using HitContainerT = typename PixelTrackSoAT<TrackerTraits>::HitContainer;
+  using HitContainerT = typename TrackSoAHeterogeneousT<TrackerTraits>::HitContainer;
 
   //Used only to ease classes definitions
-  using TrackSoAPhase1 = PixelTrackSoAT<pixelTopology::Phase1>;
-  using TrackSoAPhase2 = PixelTrackSoAT<pixelTopology::Phase2>;
+  using TrackSoAPhase1 = TrackSoAHeterogeneousT<pixelTopology::Phase1>;
+  using TrackSoAPhase2 = TrackSoAHeterogeneousT<pixelTopology::Phase2>;
 
   template <typename TrackerTraits, typename Enable = void>
   struct QualityCutsT {};
@@ -146,7 +124,7 @@ namespace pixelTrack {
     Region triplet;
     Region quadruplet;
 
-    __device__ __forceinline__ bool isHP(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks,
+    __device__ __forceinline__ bool isHP(TrackSoAHeterogeneousT<TrackerTraits> const *__restrict__ tracks,
                                          int nHits,
                                          int it) const {
       // impose "region cuts" based on the fit results (phi, Tip, pt, cotan(theta)), Zip)
@@ -159,7 +137,8 @@ namespace pixelTrack {
              (std::abs(tracks->zip(it)) < region.maxZip);
     }
 
-    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks, int it) const {
+    __device__ __forceinline__ bool strictCut(TrackSoAHeterogeneousT<TrackerTraits> const *__restrict__ tracks,
+                                              int it) const {
       auto roughLog = [](float x) {
         // max diff [0.5,12] at 1.25 0.16143
         // average diff  0.0662998
@@ -200,12 +179,13 @@ namespace pixelTrack {
     float maxTip;
     float maxZip;
 
-    __device__ __forceinline__ bool isHP(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks,
+    __device__ __forceinline__ bool isHP(TrackSoAHeterogeneousT<TrackerTraits> const *__restrict__ tracks,
                                          int nHits,
                                          int it) const {
       return (std::abs(tracks->tip(it)) < maxTip) and (tracks->pt(it) > minPt) and (std::abs(tracks->zip(it)) < maxZip);
     }
-    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks, int it) const {
+    __device__ __forceinline__ bool strictCut(TrackSoAHeterogeneousT<TrackerTraits> const *__restrict__ tracks,
+                                              int it) const {
       return tracks->chi2(it) >= maxChi2;
     }
   };

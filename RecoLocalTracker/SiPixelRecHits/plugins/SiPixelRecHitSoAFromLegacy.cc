@@ -28,10 +28,10 @@
 #include "gpuPixelRecHits.h"
 
 template <typename TrackerTraits>
-class SiPixelRecHitSoAFromLegacy : public edm::global::EDProducer<> {
+class SiPixelRecHitSoAFromLegacyT : public edm::global::EDProducer<> {
 public:
-  explicit SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& iConfig);
-  ~SiPixelRecHitSoAFromLegacy() override = default;
+  explicit SiPixelRecHitSoAFromLegacyT(const edm::ParameterSet& iConfig);
+  ~SiPixelRecHitSoAFromLegacyT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -51,7 +51,7 @@ private:
 };
 
 template <typename TrackerTraits>
-SiPixelRecHitSoAFromLegacy<TrackerTraits>::SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& iConfig)
+SiPixelRecHitSoAFromLegacyT<TrackerTraits>::SiPixelRecHitSoAFromLegacyT(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
       bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))},
@@ -64,7 +64,7 @@ SiPixelRecHitSoAFromLegacy<TrackerTraits>::SiPixelRecHitSoAFromLegacy(const edm:
 }
 
 template <typename TrackerTraits>
-void SiPixelRecHitSoAFromLegacy<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
@@ -74,15 +74,13 @@ void SiPixelRecHitSoAFromLegacy<TrackerTraits>::fillDescriptions(edm::Configurat
   desc.add<std::string>("CPE", cpeName);
   desc.add<bool>("convertToLegacy", false);
 
-  std::string label = "siPixelRecHitSoAFromLegacy";
-  label += TrackerTraits::nameModifier;
-  descriptions.add(label, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename TrackerTraits>
-void SiPixelRecHitSoAFromLegacy<TrackerTraits>::produce(edm::StreamID streamID,
-                                                        edm::Event& iEvent,
-                                                        const edm::EventSetup& es) const {
+void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                         edm::Event& iEvent,
+                                                         const edm::EventSetup& es) const {
   const TrackerGeometry* geom_ = &es.getData(geomToken_);
   PixelCPEFast<TrackerTraits> const* fcpe = dynamic_cast<const PixelCPEFast<TrackerTraits>*>(&es.getData(cpeToken_));
   if (not fcpe) {
@@ -289,7 +287,11 @@ void SiPixelRecHitSoAFromLegacy<TrackerTraits>::produce(edm::StreamID streamID,
     iEvent.put(std::move(legacyOutput));
 }
 
-using SiPixelRecHitSoAFromLegacyPhase1 = SiPixelRecHitSoAFromLegacy<pixelTopology::Phase1>;
+using SiPixelRecHitSoAFromLegacy = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacy);
+
+using SiPixelRecHitSoAFromLegacyPhase1 = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase1);
-using SiPixelRecHitSoAFromLegacyPhase2 = SiPixelRecHitSoAFromLegacy<pixelTopology::Phase2>;
+
+using SiPixelRecHitSoAFromLegacyPhase2 = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase2);

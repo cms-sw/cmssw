@@ -34,6 +34,7 @@ int main(void) {
   constexpr SiPixelClusterThresholds clusterThresholds(kSiPixelClusterThresholdsDefaultPhase1);
 
   // these in reality are already on GPU
+  auto h_raw = std::make_unique<uint32_t[]>(numElements);
   auto h_id = std::make_unique<uint16_t[]>(numElements);
   auto h_x = std::make_unique<uint16_t[]>(numElements);
   auto h_y = std::make_unique<uint16_t[]>(numElements);
@@ -41,6 +42,7 @@ int main(void) {
   auto h_clus = std::make_unique<int[]>(numElements);
 
 #ifdef __CUDACC__
+  auto d_raw = cms::cuda::make_device_unique<uint32_t[]>(numElements, nullptr);
   auto d_id = cms::cuda::make_device_unique<uint16_t[]>(numElements, nullptr);
   auto d_x = cms::cuda::make_device_unique<uint16_t[]>(numElements, nullptr);
   auto d_y = cms::cuda::make_device_unique<uint16_t[]>(numElements, nullptr);
@@ -268,6 +270,7 @@ int main(void) {
 
     cms::cuda::launch(findClus<Phase1>,
                       {blocksPerGrid, threadsPerBlock},
+                      d_raw.get(),
                       d_id.get(),
                       d_x.get(),
                       d_y.get(),
@@ -308,8 +311,16 @@ int main(void) {
     h_moduleStart[0] = nModules;
     countModules<Phase1>(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
     memset(h_clusInModule.get(), 0, maxNumModules * sizeof(uint32_t));
-    findClus<Phase1>(
-        h_id.get(), h_x.get(), h_y.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
+
+    findClus<Phase1>(h_raw.get(),
+                     h_id.get(),
+                     h_x.get(),
+                     h_y.get(),
+                     h_moduleStart.get(),
+                     h_clusInModule.get(),
+                     h_moduleId.get(),
+                     h_clus.get(),
+                     n);
 
     nModules = h_moduleStart[0];
     auto nclus = h_clusInModule.get();
