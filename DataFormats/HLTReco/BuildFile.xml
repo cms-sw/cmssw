@@ -11,6 +11,7 @@
 <use name="DataFormats/TauReco"/>
 <use name="DataFormats/L1TParticleFlow"/>
 <use name="DataFormats/L1TCorrelator"/>
+<use name="DataFormats/L1TMuonPhase2"/>
 <use name="DataFormats/GsfTrackReco"/>
 <export>
   <lib name="1"/>
