@@ -198,6 +198,9 @@ namespace edm {
     if (headerBuf_.size() < headerSize)
       headerBuf_.resize(headerSize);
 
+    //set the pointer again as it can be changed by resize
+    headerPtr = &headerBuf_[0];
+
     if (headerSize > sizeof(HeaderView)) {
       nWant = headerSize - sizeof(HeaderView);
       nGot = readBytes(&headerPtr, nWant, true, sizeof(HeaderView));
@@ -307,6 +310,10 @@ namespace edm {
       if (eventRead) {
         if (eventBuf_.size() < eventSize)
           eventBuf_.resize(eventSize);
+
+        //set the pointer again as it can be changed by resize
+        eventPtr = &eventBuf_[0];
+
         nGot = readBytes(&eventPtr, nWant, true, sizeof(EventHeader));
         if (nGot != nWant) {
           throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
