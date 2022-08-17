@@ -124,7 +124,7 @@ namespace edm {
                                                                  bool zeroCopy,
                                                                  unsigned int skippedHdr) {
     storage::IOSize n = 0;
-    char * ptr = buf - skippedHdr;
+    char* ptr = buf - skippedHdr;
     try {
       if (prefetchMBytes_) {
         //assert(tempPos_ > tempLen_);
@@ -214,7 +214,6 @@ namespace edm {
       throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
           << "Failed reading streamer file, init header size from data too small\n";
     }
-
   }
 
   StreamerInputFile::Next StreamerInputFile::next() {
@@ -321,7 +320,8 @@ namespace edm {
               << "Failed reading streamer file, second read in readEventMessage\n"
               << "Requested " << nWant << " bytes, read function returned " << res.first << " bytes\n";
         }
-        currentEvMsg_ = std::make_shared<EventMsgView>((void*)res.second);  // propagate_const<T> has no reset() function
+        currentEvMsg_ =
+            std::make_shared<EventMsgView>((void*)res.second);  // propagate_const<T> has no reset() function
       } else {
         nGot = skipBytes(nWant);
         if (nGot != nWant) {
