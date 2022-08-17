@@ -22,15 +22,13 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
-process.GlobalTag.globaltag = cms.string('STARTUP_V9::All')
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # PAT Layer 0+1
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
 process.load("MuonAnalysis.MuonAssociators.muonL1Match_cfi")
 process.muonL1Match.preselection = cms.string("")
 
@@ -54,4 +52,3 @@ process.p = cms.Path(
 process.TFileService = cms.Service("TFileService", 
     fileName = cms.string("plots.root")
 )
-

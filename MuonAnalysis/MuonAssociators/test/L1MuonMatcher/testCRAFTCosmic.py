@@ -12,10 +12,10 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.GlobalTag.globaltag = cms.string('CRAFT_ALL_V9::All')
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 
 from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import l1extraParticles
 process.l1muonsAnyBX = l1extraParticles.clone(
