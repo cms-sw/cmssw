@@ -185,7 +185,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesPreSplitting, 
     TkFilterParameters = dict(
         trackQuality = 'any',
-        maxNumTracksThreshold = 1000000
+        maxNumTracksThreshold = 2**31-1
     ) 
 )
 

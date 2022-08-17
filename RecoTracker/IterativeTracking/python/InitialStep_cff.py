@@ -288,7 +288,7 @@ firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone(
 (pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesUnsorted,
     TkFilterParameters = dict(
         trackQuality = 'any',
-        maxNumTracksThreshold = 1000000
+        maxNumTracksThreshold = 2**31-1
     ) 
 )
 
