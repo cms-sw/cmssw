@@ -88,7 +88,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.load("DQMOffline.Configuration.AlCaRecoDQM_cff")
-process.seqALCARECOTkAlDiMuonAndVertex = cms.Sequence(process.ALCARECOTkAlDiMuonAndVertexVtxDQM)
+process.seqALCARECOTkAlDiMuonAndVertex = cms.Sequence(process.ALCARECOTkAlDiMuonAndVertexVtxDQM + process.ALCARECOTkAlDiMuonMassBiasDQM)
 
 process.dqmoffline_step = cms.EndPath(process.seqALCARECOTkAlDiMuonAndVertex)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
