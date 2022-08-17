@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EX")
 process.load("Configuration.StandardSequences.Services_cff")
-#process.load('Configuration.StandardSequences.Geometry_cff')
+#process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 
 process.source = cms.Source(
     "PoolSource",
