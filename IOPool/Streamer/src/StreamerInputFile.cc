@@ -43,7 +43,9 @@ namespace edm {
     readStartMessage();
   }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID, unsigned int prefetchMBytes)
+  StreamerInputFile::StreamerInputFile(std::string const& name,
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
       : StreamerInputFile(name, name, eventSkipperByID, prefetchMBytes) {}
 
   StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
@@ -117,16 +119,20 @@ namespace edm {
     currentFileOpen_ = false;
   }
 
-  storage::IOSize StreamerInputFile::readBytes(char** buf, storage::IOSize nBytes, bool zeroCopy, unsigned int skippedHdr) {
+  storage::IOSize StreamerInputFile::readBytes(char** buf,
+                                               storage::IOSize nBytes,
+                                               bool zeroCopy,
+                                               unsigned int skippedHdr) {
     storage::IOSize n = 0;
     try {
       if (prefetchMBytes_) {
         //assert(tempPos_ > tempLen_);
         if (tempPos_ == tempLen_) {
-          n = storage_->read(&tempBuf_[0], prefetchMBytes_*1024*1024);
+          n = storage_->read(&tempBuf_[0], prefetchMBytes_ * 1024 * 1024);
           tempPos_ = 0;
           tempLen_ = n;
-          if (n == 0) return 0;
+          if (n == 0)
+            return 0;
         }
         if (nBytes <= tempLen_ - tempPos_) {
           if (!zeroCopy || skippedHdr > tempPos_)
@@ -137,8 +143,7 @@ namespace edm {
           }
           tempPos_ += nBytes;
           return nBytes;
-        }
-        else {
+        } else {
           //crossing buffer boundary
           auto len = tempLen_ - tempPos_;
           memcpy(*buf + skippedHdr, &tempBuf_[0] + tempPos_, len);
@@ -146,8 +151,7 @@ namespace edm {
           char* tmpPtr = *buf + skippedHdr + len;
           return len + readBytes(&tmpPtr, nBytes - len, false);
         }
-      }
-      else
+      } else
         n = storage_->read(*buf + skippedHdr, nBytes);
     } catch (cms::Exception& ce) {
       Exception ex(errors::FileReadError, "", ce);
