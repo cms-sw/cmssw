@@ -1,12 +1,4 @@
 <lcgdict>
-
-  <class name="TrackingRecHit2DCPULegacy" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DCPULegacy>" persistent="false"/>
-  <class name="TrackingRecHit2DHostLegacy" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DHostLegacy>" persistent="false"/>
-  <class name="cms::cuda::Product<TrackingRecHit2DGPULegacy>" persistent="false"/>
-  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHit2DGPULegacy>>" persistent="false"/>
-
   <class name="TrackingRecHit2DCPUPhase1" persistent="false"/>
   <class name="edm::Wrapper<TrackingRecHit2DCPUPhase1>" persistent="false"/>
   <class name="TrackingRecHit2DHostPhase1" persistent="false"/>
@@ -26,8 +18,5 @@
 
   <class name="TrackingRecHit2DReducedPhase2" persistent="false"/>
   <class name="edm::Wrapper<TrackingRecHit2DReducedPhase2>" persistent="false"/>
-
-  <!-- <class name="TrackingRecHit2DHeterogeneous<cms::cudacompat::CPUTraits>" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DHeterogeneous<cms::cudacompat::CPUTraits> >" persistent="false"/> -->
 
 </lcgdict>

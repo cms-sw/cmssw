@@ -254,6 +254,7 @@ namespace caHitNtupletGeneratorKernels {
       auto score = [&](auto it) { return std::abs(tracks->tip(it)); };
 
       // full crazy combinatorics
+      // full crazy combinatorics
       int ntr = thisCell.tracks().size();
       for (int i = 0; i < ntr - 1; ++i) {
         auto it = thisCell.tracks()[i];
@@ -269,10 +270,6 @@ namespace caHitNtupletGeneratorKernels {
           auto qj = tracks->quality(jt);
           if (qj <= reject)
             continue;
-          // #ifdef GPU_DEBUG
-          //         if (tracks->nHits(it) != tracks->nHits(jt))
-          //           printf(" a mess\n");
-          // #endif
           auto opj = tracks->stateAtBS.state(jt)(2);
           auto ctj = tracks->stateAtBS.state(jt)(3);
           auto dct = nSigma2 * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
@@ -592,8 +589,8 @@ namespace caHitNtupletGeneratorKernels {
   __global__ void kernel_fillNLayers(TkSoA<TrackerTraits> *__restrict__ ptracks, cms::cuda::AtomicPairCounter *apc) {
     auto &tracks = *ptracks;
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
-    auto ntracks = apc->get().m;
-
+    // clamp the number of tracks to the capacity of the SoA
+    auto ntracks = std::min<int>(apc->get().m, tracks.stride() - 1);
     if (0 == first)
       tracks.setNTracks(ntracks);
     for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {

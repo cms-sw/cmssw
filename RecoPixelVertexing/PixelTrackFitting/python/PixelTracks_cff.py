@@ -91,8 +91,8 @@ trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 # "Patatrack" pixel ntuplets, fishbone cleaning, Broken Line fit, and density-based vertex reconstruction
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
-from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
-from RecoPixelVertexing.PixelTriplets.pixelTracksCUDAPhase2_cfi import pixelTracksCUDAPhase2 as _pixelTracksCUDAPhase2
+from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDAPhase1_cfi import caHitNtupletCUDAPhase1 as _pixelTracksCUDA
+from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDAPhase2_cfi import caHitNtupletCUDAPhase2 as _pixelTracksCUDAPhase2
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
@@ -112,7 +112,7 @@ run3_common.toModify(pixelTracksSoA.cpu,
 )
 
 # convert the pixel tracks from SoA to legacy format
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoAPhase1_cfi import pixelTrackProducerFromSoAPhase1 as _pixelTrackProducerFromSoA
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoAPhase2_cfi import pixelTrackProducerFromSoAPhase2 as _pixelTrackProducerFromSoAPhase2
 
 pixelNtupletFit.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
@@ -147,8 +147,8 @@ run3_common.toModify(pixelTracksCUDA,
 )
 
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
-from RecoPixelVertexing.PixelTrackFitting.pixelTracksSoA_cfi import pixelTracksSoA as _pixelTracksSoA
-from RecoPixelVertexing.PixelTrackFitting.pixelTracksSoAPhase2_cfi import pixelTracksSoAPhase2 as _pixelTracksSoAPhase2
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoAFromCUDAPhase1_cfi import pixelTrackSoAFromCUDAPhase1 as _pixelTracksSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoAFromCUDAPhase2_cfi import pixelTrackSoAFromCUDAPhase2 as _pixelTracksSoAPhase2
 
 gpu.toModify(pixelTracksSoA,
     # transfer the pixel tracks in SoA format to the host

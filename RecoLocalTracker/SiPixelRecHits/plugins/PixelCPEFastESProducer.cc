@@ -17,9 +17,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
 template <typename TrackerTraits>
-class PixelCPEFastESProducer : public edm::ESProducer {
+class PixelCPEFastESProducerT : public edm::ESProducer {
 public:
-  PixelCPEFastESProducer(const edm::ParameterSet& p);
+  PixelCPEFastESProducerT(const edm::ParameterSet& p);
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -38,7 +38,7 @@ private:
 using namespace edm;
 
 template <typename TrackerTraits>
-PixelCPEFastESProducer<TrackerTraits>::PixelCPEFastESProducer(const edm::ParameterSet& p) : pset_(p) {
+PixelCPEFastESProducerT<TrackerTraits>::PixelCPEFastESProducerT(const edm::ParameterSet& p) : pset_(p) {
   auto const& myname = p.getParameter<std::string>("ComponentName");
   auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
   useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
@@ -55,7 +55,7 @@ PixelCPEFastESProducer<TrackerTraits>::PixelCPEFastESProducer(const edm::Paramet
 }
 
 template <typename TrackerTraits>
-std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducer<TrackerTraits>::produce(
+std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducerT<TrackerTraits>::produce(
     const TkPixelCPERecord& iRecord) {
   // add the new la width object
   const SiPixelLorentzAngle* lorentzAngleWidthProduct = nullptr;
@@ -79,7 +79,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducer<TrackerTr
 }
 
 template <typename TrackerTraits>
-void PixelCPEFastESProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PixelCPEFastESProducerT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // from PixelCPEBase
@@ -99,12 +99,12 @@ void PixelCPEFastESProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationD
   desc.add<std::string>("ComponentName", name);
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
 
-  name = "PixelCPEFastESProducer";
-  name += TrackerTraits::nameModifier;
-  descriptions.add(name, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-using PixelCPEFastESProducerPhase1 = PixelCPEFastESProducer<pixelTopology::Phase1>;
+using PixelCPEFastESProducer = PixelCPEFastESProducerT<pixelTopology::Phase1>;
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducer);
+using PixelCPEFastESProducerPhase1 = PixelCPEFastESProducerT<pixelTopology::Phase1>;
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase1);
-using PixelCPEFastESProducerPhase2 = PixelCPEFastESProducer<pixelTopology::Phase2>;
+using PixelCPEFastESProducerPhase2 = PixelCPEFastESProducerT<pixelTopology::Phase2>;
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase2);
