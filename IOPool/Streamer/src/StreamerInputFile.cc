@@ -133,7 +133,7 @@ namespace edm {
           tempPos_ = 0;
           tempLen_ = n;
           if (n == 0)
-            return std::make_pair<storage::IOSize, char*>(0, std::move(ptr));
+            return std::pair<storage::IOSize, char*>(0, ptr);
         }
         if (nBytes <= tempLen_ - tempPos_) {
           if (!zeroCopy || skippedHdr > tempPos_) {
@@ -160,7 +160,7 @@ namespace edm {
       ex.addContext("Calling StreamerInputFile::readBytes()");
       throw ex;
     }
-    return std::make_pair<storage::IOSize, char*>(std::move(n), std::move(ptr));
+    return std::pair<storage::IOSize, char*>(n, ptr);
   }
 
   storage::IOOffset StreamerInputFile::skipBytes(storage::IOSize nBytes) {
