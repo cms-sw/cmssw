@@ -52,12 +52,13 @@ from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import caloLayer1Digis
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
 from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
 from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
+from EventFilter.L1TRawToDigi.gtTestcrateStage2Digis_cfi import gtTestcrateStage2Digis
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import twinMuxStage2Digis
 # we only warn if it is stage-2 era and it is an essential, always present, stage-2 payload:
 stage2L1Trigger.toModify(caloStage2Digis, MinFeds = cms.uint32(1))
 stage2L1Trigger.toModify(gmtStage2Digis, MinFeds = cms.uint32(1))
 stage2L1Trigger.toModify(gtStage2Digis, MinFeds = cms.uint32(1))
-L1TRawToDigi_Stage2 = cms.Task(rpcunpacker, rpcTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, rpcCPPFRawToDigi, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis)
+L1TRawToDigi_Stage2 = cms.Task(rpcunpacker,rpcTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, rpcCPPFRawToDigi, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis, gtTestcrateStage2Digis)
 stage2L1Trigger.toReplaceWith(L1TRawToDigiTask, cms.Task(L1TRawToDigi_Stage1,L1TRawToDigi_Stage2))
 
 L1TRawToDigi = cms.Sequence(L1TRawToDigiTask)

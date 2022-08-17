@@ -31,7 +31,7 @@ namespace l1t {
     PackerMap GTSetup::getPackers(int fed, unsigned int fw) {
       PackerMap res;
 
-      if (fed == 1404) {
+      if ((fed == 1404) || (fed == 1405)) {
         // Use board id 1 for packing
         auto gt_muon_packer =
             static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
@@ -101,7 +101,7 @@ namespace l1t {
 
       UnpackerMap res;
 
-      if (fed == 1404) {
+      if ((fed == 1404) || (fed == 1405)) {
         // From the rx buffers
         res[0] = muon_unp;
         res[2] = muon_unp;
