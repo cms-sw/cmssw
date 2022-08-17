@@ -128,7 +128,7 @@ namespace edm {
       if (prefetchMBytes_) {
         //assert(tempPos_ > tempLen_);
         if (tempPos_ == tempLen_) {
-          n = storage_->read(&tempBuf_[0], prefetchMBytes_ * 1024 * 1024);
+          n = storage_->read(&tempBuf_[0], tempBuf_.size());
           tempPos_ = 0;
           tempLen_ = n;
           if (n == 0)
