@@ -11,7 +11,7 @@
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); default (2)
+//                           5 (Run 4; post LS3); default (3)
 //   maxDHB     int          Maximum number of depths for HB (4)
 //   maxDHE     int          Maximum number of depths for HE (7)
 //
@@ -132,7 +132,7 @@ private:
 public:
   HBHEMuonOfflineSimAnalyzer(const char *infile,
                              const char *outfile = "dyll_PU20_25_output.root",
-                             const int mode = 0,
+                             const int mode = 3,
                              const int maxDHB = 4,
                              const int maxDHE = 7);
   virtual ~HBHEMuonOfflineSimAnalyzer();
@@ -203,7 +203,6 @@ HBHEMuonOfflineSimAnalyzer::HBHEMuonOfflineSimAnalyzer(
   maxDepth_ = (maxDepthHB_ > maxDepthHE_) ? maxDepthHB_ : maxDepthHE_;
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
-  // std::cout << "maxDepth_" << maxDepth_ << std::endl;
   TFile *f = new TFile(infile);
   TDirectory *dir = (TDirectory *)f->Get("HcalHBHEMuonAnalyzer");
   TTree *tree(0);
@@ -675,7 +674,6 @@ void HBHEMuonOfflineSimAnalyzer::BookHistograms(const char *fname) {
     h_HotCell[i] = new TH1D(name, title, 100, 0, 2);
 
     std::cout << "problem here" << std::endl;
-    //		output_file->cd();
     for (int eta = 0; eta < 29; ++eta) {
       int nDepth = NDepthBins(eta + 1, -1);
       int nPhi = NPhiBins(eta + 1);
@@ -775,7 +773,6 @@ void HBHEMuonOfflineSimAnalyzer::etaPhiHcal(unsigned int detId, int &eta, int &p
 void HBHEMuonOfflineSimAnalyzer::etaPhiEcal(
     unsigned int detId, int &type, int &zside, int &etaX, int &phiY, int &plane, int &strip) {
   type = ((detId >> 25) & 0x7);
-  // std::cout << "type" << type << std::endl;
   plane = strip = 0;
   if (type == 1) {
     //Ecal Barrel
@@ -814,7 +811,6 @@ void HBHEMuonOfflineSimAnalyzer::close() {
 }
 
 void HBHEMuonOfflineSimAnalyzer::WriteHistograms() {
-  //output_file->cd();
   std::string type[] = {"tight", "soft", "loose"};
   char name[128];
 
@@ -836,7 +832,6 @@ void HBHEMuonOfflineSimAnalyzer::WriteHistograms() {
   }
 
   TDirectory *d_output_file[3][29];
-  //output_file->cd();
   for (int i = 0; i < 3; ++i) {
     h_Pt_Muon[i]->Write();
     h_Eta_Muon[i]->Write();
@@ -895,7 +890,6 @@ void HBHEMuonOfflineSimAnalyzer::WriteHistograms() {
       int nPhi = NPhiBins(eta + 1);
       sprintf(name, "Dir_muon_type_%s_ieta%d", type[i].c_str(), eta + 1);
       d_output_file[i][eta] = output_file->mkdir(name);
-      //output_file->cd(name);
       d_output_file[i][eta]->cd();
       for (int depth = 0; depth < nDepth; ++depth) {
         for (int PHI = 0; PHI < nPhi; ++PHI) {
