@@ -676,6 +676,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
 
   // compute the error on the drift-at-half-width parameter (d^2)
   float dSq{0.};
+  float cov00{0.};  // needed later for the error on the tan(theta_LA)
   if (!doChebyshevFit_) {
     if (res.covMatrixStatus != SiPixelLAHarvest::kNotCalculated) {
       for (int k = 0; k < order_; k++) {
@@ -683,8 +684,9 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
           dSq += (std::pow(half_width, k) * std::pow(half_width, l) * result->CovMatrix(k, l));
         }
       }
-    }
-  }  // compute the error on the drift-at-half width only for the regular polynomial fit
+      cov00 = result->CovMatrix(0, 0);
+    }  // if the covariance matrix is valid
+  }    // compute the error on the drift-at-half width only for the regular polynomial fit
 
   res.dSq = dSq;
 
@@ -717,7 +719,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
        pow((half_width * half_width * half_width * res.e4), 2) +
        pow((half_width * half_width * half_width * half_width * res.e5), 2));  // Propagation of uncertainty
 
-  res.error_LA = doChebyshevFit_ ? sqrt(errsq_LA) : sqrt(res.dSq + result->CovMatrix(0, 0)) / half_width;
+  res.error_LA = doChebyshevFit_ ? sqrt(errsq_LA) : sqrt(res.dSq + cov00) / half_width;
 
   hists_.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
   hists_.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField_));
