@@ -82,6 +82,8 @@ namespace mkfit {
     // Seed cleaning (multi-iter)
     //=========================================================================
     int clean_cms_seedtracks_iter(TrackVec *seed_ptr, const IterationConfig &itrcfg, const BeamSpot &bspot) {
+      using Algo = TrackBase::TrackAlgorithm;
+
       const float etamax_brl = Config::c_etamax_brl;
       const float dpt_common = Config::c_dpt_common;
 
@@ -106,8 +108,11 @@ namespace mkfit {
       const float drmax2_inv_el = 1.f / (drmax_el * drmax_el);
 
       // Merge hits from overlapping seeds?
-      // For now always true, we require extra hits after seed.
+      // For now always true, we require extra hits after seed,
+      // except for lowPtQuadStep, where we only merge hits for seeds at low pT and large pseudo-rapidity
       const bool merge_hits = true;  // itrcfg.merge_seed_hits_during_cleaning();
+      const float ptmax_merge_lowPtQuad = 0.2;
+      const float etamin_merge_lowPtQuad = 1.5;
 
       if (seed_ptr == nullptr)
         return 0;
@@ -264,7 +269,9 @@ namespace mkfit {
                 // NOTE: We have a limit in Track::Status for the number of seed hits.
                 //       There is a check at entry and after adding of a new hit.
                 Track &tk = seeds[i1];
-                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits) {
+                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits &&
+                    (Algo(itrcfg.m_track_algorithm) != Algo::lowPtQuadStep ||
+                     (pt1 < ptmax_merge_lowPtQuad && std::abs(eta1) > etamin_merge_lowPtQuad))) {
                   const Track &tk2 = seeds[i2];
                   //We are not actually fitting to the extra hits; use chi2 of 0
                   float fakeChi2 = 0.0;
