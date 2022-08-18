@@ -76,6 +76,7 @@ Example: two algorithms each creating only one objects
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
+#include "FWCore/Framework/interface/es_impl/ReturnArgumentTypes.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -90,7 +91,6 @@ Example: two algorithms each creating only one objects
 // forward declarations
 namespace edm {
   namespace eventsetup {
-
     class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
@@ -201,6 +201,28 @@ namespace edm {
           [iThis, iMethod](TRecord const& iRecord) { return (iThis->*iMethod)(iRecord); },
           createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec),
           iLabel);
+    }
+
+    /**
+     * This overload allows lambdas (functors) to be used as the
+     * production function. As of now it is not intended for wide use
+     * (we are thinking for a better API for users)
+     *
+     * The decorator functionality is not implemented yet. In
+     * principle the lambda provides the ability for pre(Record
+     * const&) and post(Record const&) functions (in addition to much
+     * more). The main use case of dependsOn() also in practice became
+     * unused with the concurrent IOVs, so it is not clear if the
+     * decorator functionality would really be needed. In principle it
+     * should be straightforward to add.
+     */
+    template <typename TFunc>
+    auto setWhatProduced(TFunc&& func, const es::Label& iLabel = {}) {
+      using Types = eventsetup::impl::ReturnArgumentTypes<TFunc>;
+      using TReturn = typename Types::return_type;
+      using TRecord = typename Types::argument_type;
+      using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
+      return setWhatProduced<TReturn, TRecord>(std::forward<TFunc>(func), DecoratorType(), iLabel);
     }
 
     template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
