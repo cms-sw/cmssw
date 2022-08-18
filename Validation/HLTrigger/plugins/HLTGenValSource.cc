@@ -147,12 +147,7 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
   infoString_ += "\"date & time\":\"" + timeString + "\",";
 
   // CMSSW version
-  std::stringstream cmsswVersionStream(std::getenv("CMSSW_BASE"));
-  std::string cmsswVersionSegment;
-  std::string cmsswVersion;
-  while (std::getline(cmsswVersionStream, cmsswVersionSegment, '/')) {
-    cmsswVersion = cmsswVersionSegment;
-  }
+  std::string cmsswVersion = std::getenv("CMSSW_VERSION");
   infoString_ += std::string("\"CMSSW release\":\"") + cmsswVersion + "\",";
 
   // Initialize hltConfig, for cross-checking whether chosen paths exist
