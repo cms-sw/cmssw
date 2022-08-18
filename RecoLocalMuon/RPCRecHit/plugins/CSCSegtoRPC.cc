@@ -12,8 +12,11 @@
 #include "CSCStationIndex.h"
 #include "CSCObjectMap.h"
 
-CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC)
-    : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {}
+CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet& iConfig)
+    : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {
+  minBX = iConfig.getUntrackedParameter<int>("minBX");
+  maxBX = iConfig.getUntrackedParameter<int>("maxBX");
+}
 
 std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentCollection* allCSCSegments,
                                                             const edm::EventSetup& iSetup,
@@ -45,10 +48,21 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
       segmentsInThisEventInTheEndcap++;
     }
 
+
+    float myTime = -9999.;
+    float myTimeErr = -9999.;
+    int myBx = -99;
+
     if (debug)
       std::cout << "CSC \t loop over all the CSCSegments " << std::endl;
     for (segment = allCSCSegments->begin(); segment != allCSCSegments->end(); ++segment) {
       CSCDetId CSCId = segment->cscDetId();
+
+
+      myTime = segment->time();
+      myBx = round(myTime/25.);
+      if (!(myBx <= maxBX && myBx >= minBX))	// rpc read in bx in [-2, 2]
+        continue;
 
       if (debug)
         std::cout << "CSC \t \t This Segment is in Chamber id: " << CSCId << std::endl;
@@ -87,8 +101,6 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                     << acos(dz) * 180 / 3.1415926 << " < 135? " << std::endl;
 
         if ((segment->dimension() == 4) && (segment->nRecHits() <= 10 && segment->nRecHits() >= 4)) {
-          //&& acos(dz)*180/3.1415926 > 45. && acos(dz)*180/3.1415926 < 135.){
-          //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
 
           if (debug)
             std::cout << "CSC \t \t yes" << std::endl;
@@ -180,7 +192,6 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                 RPCGeomServ rpcsrv(rpcId);
 
                 if (dr > 200. || fabs(dz) > 55. || dfg > 1.) {
-                  //if(rpcRegion==1&&dfg>1.&&dr>100.){
                   if (debug)
                     std::cout << "\t \t \t CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
                               << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
@@ -262,7 +273,10 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                     std::cout << "CSC \t \t \t \t yes" << std::endl;
                   if (debug)
                     std::cout << "CSC \t \t \t \t Creating the RecHit" << std::endl;
-                  RPCRecHit RPCPoint(rpcId, 0, PointExtrapolatedRPCFrame);
+
+                  RPCRecHit RPCPoint(rpcId, myBx, PointExtrapolatedRPCFrame);
+                  RPCPoint.setTimeAndError(myTime, myTimeErr);
+
                   if (debug)
                     std::cout << "CSC \t \t \t \t Clearing the vector" << std::endl;
                   RPCPointVector.clear();
@@ -282,3 +296,4 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
   }
   return _ThePoints;
 }
+

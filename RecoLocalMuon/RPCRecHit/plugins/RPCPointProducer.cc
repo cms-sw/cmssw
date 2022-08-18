@@ -36,11 +36,11 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
       ExtrapolatedRegion(iConfig.getUntrackedParameter<double>("ExtrapolatedRegion", 0.5)) {
   if (incldt) {
     dt4DSegments = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments"));
-    dtSegtoRPC = std::make_unique<DTSegtoRPC>(consumesCollector());
+    dtSegtoRPC = std::make_unique<DTSegtoRPC>(consumesCollector(), iConfig);
   }
   if (inclcsc) {
     cscSegments = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("cscSegments"));
-    cscSegtoRPC = std::make_unique<CSCSegtoRPC>(consumesCollector());
+    cscSegtoRPC = std::make_unique<CSCSegtoRPC>(consumesCollector(), iConfig);
   }
   if (incltrack) {
     tracks = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
@@ -89,3 +89,4 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 }
+

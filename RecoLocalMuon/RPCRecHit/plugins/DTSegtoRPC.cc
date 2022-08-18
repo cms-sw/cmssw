@@ -36,13 +36,10 @@ int distwheel(int wheel1, int wheel2) {
   return distance;
 }
 
-DTSegtoRPC::DTSegtoRPC(edm::ConsumesCollector iC)
+DTSegtoRPC::DTSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet& iConfig)
     : rpcGeoToken_(iC.esConsumes()), dtGeoToken_(iC.esConsumes()), dtMapToken_(iC.esConsumes()) {
-  /*
-  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
-  MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
-  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
-  */
+  minPhiBX = iConfig.getUntrackedParameter<int>("minBX");
+  maxPhiBX = iConfig.getUntrackedParameter<int>("maxBX");
   incldt = true;
   incldtMB4 = true;
 
@@ -51,30 +48,17 @@ DTSegtoRPC::DTSegtoRPC(edm::ConsumesCollector iC)
   MaxD = 80.;
   MaxDrb4 = 150.;
   MaxDistanceBetweenSegments = 150;
-  /*
-
-  //These should be always true expect for debuggin porpouses
-  incldt=true;
-  incldtMB4=true;
-  */
 }
 
 std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DCollection* all4DSegments,
                                                            const edm::EventSetup& iSetup,
                                                            bool debug,
                                                            double eyr) {
-  /*
-    struct timespec start_time, stop_time;
-    time_t fs;
-    time_t fn;
-    time_t ls;
-    time_t ln;
-    clock_gettime(CLOCK_REALTIME, &start_time);
-  */
 
   auto _ThePoints = std::make_unique<RPCRecHitCollection>();
   edm::OwnVector<RPCRecHit> RPCPointVector;
   std::vector<uint32_t> extrapolatedRolls;
+
 
   if (all4DSegments->size() > 8) {
     if (debug)
@@ -84,15 +68,6 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
     edm::ESHandle<DTGeometry> dtGeo = iSetup.getHandle(dtGeoToken_);
     edm::ESHandle<DTObjectMap> dtMap = iSetup.getHandle(dtMapToken_);
 
-    /*
-      clock_gettime(CLOCK_REALTIME, &stop_time);
-      fs=start_time.tv_sec;
-      fn=start_time.tv_nsec;
-      ls=stop_time.tv_sec;
-      ln=stop_time.tv_nsec;
-      std::cout <<" =================|| "<<ls-fs<<" sec "<<ln-fn<<" us"<<std::endl;
-      clock_gettime(CLOCK_REALTIME, &start_time);
-    */
 
     std::map<DTChamberId, int> DTSegmentCounter;
     DTRecSegment4DCollection::const_iterator segment;
@@ -101,15 +76,6 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
       DTSegmentCounter[segment->chamberId()]++;
     }
 
-    /*
-      clock_gettime(CLOCK_REALTIME, &stop_time);
-      fs=start_time.tv_sec;
-      fn=start_time.tv_nsec;
-      ls=stop_time.tv_sec;
-      ln=stop_time.tv_nsec;
-      if(debug) std::cout <<" =================||| "<<ls-fs<<" sec "<<ln-fn<<" us"<<std::endl;
-      clock_gettime(CLOCK_REALTIME, &start_time);
-    */
 
     if (incldt) {
       for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment) {
@@ -160,6 +126,18 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
         float dx = segmentDirection.x();
         float dy = segmentDirection.y();
         float dz = segmentDirection.z();
+
+          float myPhiTime = -9999.;
+          float myPhiTimeErr = -9999.;
+          int myPhiBx = -99;
+
+          if (segment->hasPhi()) {
+            myPhiTime = segment->phiSegment()->t0();
+            myPhiBx = round(segment->phiSegment()->t0()/25.);
+            if (debug) std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
+          }
+          if(!(myPhiBx<=maxPhiBX && myPhiBx>=minPhiBX)) //limit only to the RPC readout range
+            continue;
 
         if (debug)
           std::cout << "Creating the DTIndex" << std::endl;
@@ -267,7 +245,10 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                 std::cout << "DT  \t \t \t \t yes" << std::endl;
               if (debug)
                 std::cout << "DT  \t \t \t \t Creating the RecHit" << std::endl;
-              RPCRecHit RPCPoint(rpcId, 0, PointExtrapolatedRPCFrame);
+
+              RPCRecHit RPCPoint(rpcId, myPhiBx, PointExtrapolatedRPCFrame);
+              RPCPoint.setTimeAndError(myPhiTime, myPhiTimeErr);
+
               if (debug)
                 std::cout << "DT  \t \t \t \t Clearing the vector" << std::endl;
               RPCPointVector.clear();
@@ -303,6 +284,18 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
         extrapolatedRolls.clear();
         for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment) {
           DTChamberId DTId = segment->chamberId();
+
+          float myPhiTime = -9999.;
+          float myPhiTimeErr = -9999.;
+          int myPhiBx = -99;
+
+          if (segment->hasPhi()) {
+            myPhiTime = segment->phiSegment()->t0();
+            myPhiBx = round(segment->phiSegment()->t0()/25.);
+            if (debug) std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
+          }
+          if(!(myPhiBx<=maxPhiBX && myPhiBx>=minPhiBX))	//limit only to the RPC readout range
+            continue;
 
           if (debug)
             std::cout << "MB4 \t \t This Segment is in Chamber id: " << DTId << std::endl;
@@ -360,7 +353,6 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                   GlobalPoint segmentPositionMB3inGlobal = DTSurface3.toGlobal(segMB3->localPosition());
                   GlobalPoint segmentPositionMB4inGlobal = DTSurface4.toGlobal(segmentPosition);
 
-                  //LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
                   LocalVector segDirMB3inMB4Frame = DTSurface4.toLocal(DTSurface3.toGlobal(segmentDirectionMB3));
 
                   GlobalVector segDirMB4inGlobalFrame = DTSurface4.toGlobal(segmentDirectionMB4);
@@ -434,7 +426,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                       LocalPoint CenterRollinMB4Frame = DTSurface4.toLocal(CenterPointRollGlobal);  //In MB4
                       LocalPoint segmentPositionMB3inMB4Frame =
                           DTSurface4.toLocal(segmentPositionMB3inGlobal);  //In MB4
-                      //LocalPoint segmentPositionMB3inRB4Frame = RPCSurfaceRB4.toLocal(segmentPositionMB3inGlobal); //In MB4
+
                       LocalVector segmentDirectionMB3inMB4Frame = DTSurface4.toLocal(segDirMB3inGlobalFrame);  //In MB4
 
                       //The exptrapolation is done in MB4 frame. for local x and z is done from MB4,
@@ -533,7 +525,10 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                             std::cout << "MB4 \t \t \t \t yes" << std::endl;
                           if (debug)
                             std::cout << "MB4 \t \t \t \t Creating the RecHit" << std::endl;
-                          RPCRecHit RPCPointMB4(rpcId, 0, PointExtrapolatedRPCFrame);
+
+                          RPCRecHit RPCPointMB4(rpcId, myPhiBx, PointExtrapolatedRPCFrame);
+                          RPCPointMB4.setTimeAndError(myPhiTime, myPhiTimeErr);
+
                           if (debug)
                             std::cout << "MB4 \t \t \t \t Clearing the RPCPointVector" << std::endl;
                           RPCPointVector.clear();
@@ -580,7 +575,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                                    "not compatibles, Diferent Directions"
                                 << std::endl;
                   }
-                } else {  //if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
+                } else {
                   if (debug)
                     std::cout << "MB4 \t \t \t No the same station or same wheel or segment dim in mb3 not 4D"
                               << std::endl;
@@ -602,14 +597,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
     }
   }
 
-  /*
-  clock_gettime(CLOCK_REALTIME, &stop_time);
-  fs=start_time.tv_sec;
-  fn=start_time.tv_nsec;
-  ls=stop_time.tv_sec;
-  ln=stop_time.tv_nsec;
-  std::cout <<" =================|||| "<<ls-fs<<" sec "<<ln-fn<<" us"<<std::endl;
-  */
 
   return _ThePoints;
 }
+
