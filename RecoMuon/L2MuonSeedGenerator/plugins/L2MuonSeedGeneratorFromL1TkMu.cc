@@ -31,8 +31,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
@@ -64,7 +63,7 @@ public:
 
 private:
   edm::InputTag source_;
-  edm::EDGetTokenT<l1t::TkMuonCollection> muCollToken_;
+  edm::EDGetTokenT<l1t::TrackerMuonCollection> muCollToken_;
 
   edm::InputTag offlineSeedLabel_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> offlineSeedToken_;
@@ -105,7 +104,7 @@ private:
 // constructors
 L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::ParameterSet &iConfig)
     : source_(iConfig.getParameter<InputTag>("InputObjects")),
-      muCollToken_(consumes<l1t::TkMuonCollection>(source_)),
+      muCollToken_(consumes(source_)),
       propagatorName_(iConfig.getParameter<string>("Propagator")),
       l1MinPt_(iConfig.getParameter<double>("L1MinPt")),
       l1MaxEta_(iConfig.getParameter<double>("L1MaxEta")),
@@ -170,8 +169,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
 
   auto output = std::make_unique<L2MuonTrajectorySeedCollection>();
 
-  edm::Handle<l1t::TkMuonCollection> muColl;
-  iEvent.getByToken(muCollToken_, muColl);
+  auto const muColl = iEvent.getHandle(muCollToken_);
   LogDebug(metname) << "Number of muons " << muColl->size() << endl;
 
   edm::Handle<edm::View<TrajectorySeed>> offlineSeedHandle;

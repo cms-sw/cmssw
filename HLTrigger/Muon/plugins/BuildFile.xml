@@ -4,6 +4,7 @@
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TMuonPhase2"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/MuonSeed"/>
 <use name="DataFormats/RecoCandidate"/>
