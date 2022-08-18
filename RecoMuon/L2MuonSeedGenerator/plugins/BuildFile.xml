@@ -2,6 +2,7 @@
     <use name="DataFormats/Common"/>
     <use name="DataFormats/GeometrySurface"/>
     <use name="DataFormats/L1Trigger"/>
+    <use name="DataFormats/L1TMuonPhase2"/>
     <use name="DataFormats/MuonDetId"/>
     <use name="DataFormats/MuonSeed"/>
     <use name="DataFormats/TrajectoryState"/>
