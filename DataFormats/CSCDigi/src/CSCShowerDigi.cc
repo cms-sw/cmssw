@@ -85,9 +85,6 @@ std::ostream& operator<<(std::ostream& o, const CSCShowerDigi& digi) {
       showerStr = "UnknownShowerType";
   }
 
-  //return o << (showerType == 0
-  //                 ? "Invalid ShowerType"
-  //                 : (showerType == 1 ? "ALCTShower" : (showerType == 2 ? "CLCTShower" : "correlatedLCTShower")))
   return o << showerStr << ": bx " << digi.getBX() << ", in-time bits " << digi.bitsInTime() << ", out-of-time bits "
            << digi.bitsOutOfTime() << ((showerType == 1 or showerType == 3) ? wireHitsStr : "")
            << ((showerType == 2 or showerType == 3) ? compHitsStr : "") << ";";
