@@ -404,12 +404,14 @@ TotemTimingDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, uns
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
-    : tokenLocalTrack_(consumes<edm::DetSetVector<TotemRPLocalTrack>>(ps.getParameter<edm::InputTag>("tagLocalTrack"))),
-      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getParameter<edm::InputTag>("tagDigi"))),
-      tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
+    : tokenLocalTrack_(
+          consumes<edm::DetSetVector<TotemRPLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagLocalTrack"))),
+      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagDigi"))),
+      tokenRecHit_(
+          consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getUntrackedParameter<edm::InputTag>("tagRecHits"))),
       // tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(
       //     ps.getParameter<edm::InputTag>("tagLocalTracks"))),
-      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getUntrackedParameter<edm::InputTag>("tagFEDInfo"))),
       geometryToken_(esConsumes()),
       geometryTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()),
       minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
