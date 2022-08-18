@@ -129,7 +129,7 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   for (const auto& muon : passingMuons) {
     filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkMu, muon);
   }
-  
+
   // return with final filter decision
   const bool accept(static_cast<int>(passingMuons.size()) >= min_N_);
   return accept;
