@@ -60,16 +60,16 @@ public:
   // negative == error
 
   /// combining the two methods above
-  template <typename T = float>
+  template <typename T = double>
   T prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) {
     const int set(prescaleSet(iEvent, iSetup));
     //there is a template specialisation for unsigned in which returns +1 which
     //emulates old behaviour
-    return set < 0 ? -1 : hltConfigProvider_.prescaleValue<T>(static_cast<float>(set), trigger);
+    return set < 0 ? -1 : hltConfigProvider_.prescaleValue<T>(static_cast<unsigned int>(set), trigger);
   }
 
   /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
-  template <typename TL1 = float, typename THLT = TL1>
+  template <typename TL1 = double, typename THLT = TL1>
   std::pair<TL1, THLT> prescaleValues(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
                                       const std::string& trigger) {
@@ -79,7 +79,7 @@ public:
   // any one negative => error in retrieving this (L1T or HLT) prescale
 
   // In case of a complex Boolean expression as L1 seed
-  template <typename TL1 = float, typename THLT = TL1>
+  template <typename TL1 = double, typename THLT = TL1>
   std::pair<std::vector<std::pair<std::string, TL1> >, THLT> prescaleValuesInDetail(const edm::Event& iEvent,
                                                                                     const edm::EventSetup& iSetup,
                                                                                     const std::string& trigger) {
@@ -138,7 +138,7 @@ template <>
 FractionalPrescale HLTPrescaleProvider::convertL1PS<FractionalPrescale>(double val) const;
 
 template <>
-float HLTPrescaleProvider::prescaleValue<float>(const edm::Event& iEvent,
+double HLTPrescaleProvider::prescaleValue<double>(const edm::Event& iEvent,
                                                 const edm::EventSetup& iSetup,
                                                 const std::string& trigger);
 
