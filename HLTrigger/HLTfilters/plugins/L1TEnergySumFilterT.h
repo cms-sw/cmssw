@@ -112,10 +112,12 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
   l1t::EtSum met = l1MetPF->at(0);
   l1extra_.puppiMETEt = met.et();
   */
+  if (l1tSums->size() < 1) {
+    throw cms::Exception("BadCollectionSize") << "l1tSums should have size() >= 1";
+  }
 
   int nSum(0);
   double onlinePt(0.0);
-  double offlinePt(0.0);
   auto iSum = l1tSums->begin();
 
   // The correct way of doing this would be using the EtSumHelper class.
@@ -131,15 +133,21 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
   }
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
     // MHT is index [1], and uses .pt() method
+    if (l1tSums->size() < 2) {
+      throw cms::Exception("BadCollectionSize")
+          << "If we want trigger::TriggerObjectType::TriggerL1PFMHT, l1tSums should have size() >= 2";
+    }
     ++iSum;
     onlinePt = iSum->pt();
   }
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT) {
     // As of now, L1 doesn't support this object it seems.
+    throw cms::Exception("UnsupportedType")
+        << "As of now, L1 doesn't support trigger::TriggerObjectType::TriggerL1PFETT";
   }
 
   // Do the scaling
-  offlinePt = offlineEnergySum(onlinePt);
+  auto const offlinePt = offlineEnergySum(onlinePt);
 
   // Add the passing element to the filterproduct.
   if (offlinePt >= minPt_) {

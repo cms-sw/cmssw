@@ -104,7 +104,7 @@ private:
 // constructors
 L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::ParameterSet &iConfig)
     : source_(iConfig.getParameter<InputTag>("InputObjects")),
-      muCollToken_(consumes<l1t::TrackerMuonCollection>(source_)),
+      muCollToken_(consumes(source_)),
       propagatorName_(iConfig.getParameter<string>("Propagator")),
       l1MinPt_(iConfig.getParameter<double>("L1MinPt")),
       l1MaxEta_(iConfig.getParameter<double>("L1MaxEta")),
@@ -169,8 +169,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
 
   auto output = std::make_unique<L2MuonTrajectorySeedCollection>();
 
-  edm::Handle<l1t::TrackerMuonCollection> muColl;
-  iEvent.getByToken(muCollToken_, muColl);
+  auto const muColl = iEvent.getHandle(muCollToken_);
   LogDebug(metname) << "Number of muons " << muColl->size() << endl;
 
   edm::Handle<edm::View<TrajectorySeed>> offlineSeedHandle;
