@@ -153,14 +153,13 @@ bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TrackerMuon& muon) c
   // If we didn't load any qualities from the config file, that means we don't care.
   // So we set passesQuality to true.
   if (allowedQualities_.empty()) {
-    passesQuality = true;
-    return passesQuality;
+    return true;
   }
 
   // The muonDetector() method is not available for TrackerMuon (it was available in TkMuon),
   // so for the time being we just take the union of all quality vectors for all muon detectors.
   for (const auto& detQuality : allowedQualities_) {
-    passesQuality = std::binary_search(detQuality.second.begin(), detQuality.second.end(), muon.hwQual());
+    passesQuality |= std::binary_search(detQuality.second.begin(), detQuality.second.end(), muon.hwQual());
   }
 
   return passesQuality;
