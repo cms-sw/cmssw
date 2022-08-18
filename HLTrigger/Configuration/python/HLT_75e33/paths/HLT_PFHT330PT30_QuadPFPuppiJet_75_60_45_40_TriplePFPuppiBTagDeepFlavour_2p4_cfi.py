@@ -13,7 +13,6 @@ from ..modules.l1t2PFPuppiJet55offMaxEta2p4_cfi import *
 from ..modules.l1t4PFPuppiJet25OnlineMaxEta2p4_cfi import *
 from ..modules.l1t4PFPuppiJet40offMaxEta2p4_cfi import *
 from ..modules.l1tPFPuppiHT400offMaxEta2p4_cfi import *
-from ..modules.l1tPFPuppiHT_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppiModEta2p4_cfi import *
@@ -22,7 +21,6 @@ from ..sequences.HLTParticleFlowSequence_cfi import *
 
 HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4 = cms.Path(
     HLTBeginSequence +
-    l1tPFPuppiHT +
     l1tPFPuppiHT400offMaxEta2p4 +
     l1t1PFPuppiJet70offMaxEta2p4 +
     l1t2PFPuppiJet55offMaxEta2p4 +

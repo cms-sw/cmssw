@@ -41,15 +41,18 @@
   <class name="trigger::TriggerObject" ClassVersion="10">
    <version ClassVersion="10" checksum="2923979599"/>
   </class>
+
   <class name="trigger::TriggerObjectCollection"/>
-  <class name="trigger::TriggerRefsCollections" ClassVersion="16">
+  <class name="trigger::TriggerRefsCollections" ClassVersion="17">
+   <version ClassVersion="17" checksum="2974272653"/>
    <version ClassVersion="16" checksum="3574724031"/>
    <version ClassVersion="15" checksum="1920377523"/>
    <version ClassVersion="14" checksum="874193725"/>
    <version ClassVersion="13" checksum="3831523881"/>
    <version ClassVersion="12" checksum="4231679693"/>
   </class>
-  <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="15">
+  <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="16">
+   <version ClassVersion="16" checksum="1634484558"/>
    <version ClassVersion="15" checksum="2946786356"/>
    <version ClassVersion="14" checksum="4087045168"/>
    <version ClassVersion="13" checksum="2951644382"/>
@@ -66,7 +69,8 @@
    <version ClassVersion="11" checksum="3351458717"/>
    <version ClassVersion="10" checksum="1112210423"/>
   </class>
-  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="16">
+  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="17">
+   <version ClassVersion="17" checksum="3926145865"/>
    <version ClassVersion="16" checksum="752200108"/>
    <version ClassVersion="15" checksum="450435068"/>
    <version ClassVersion="14" checksum="1673531968"/>
@@ -74,7 +78,8 @@
    <version ClassVersion="12" checksum="2301242282"/>
   </class>
   <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
-  <class name="trigger::TriggerEventWithRefs" ClassVersion="15">
+  <class name="trigger::TriggerEventWithRefs" ClassVersion="16">
+   <version ClassVersion="16" checksum="3502028356"/>
    <version ClassVersion="15" checksum="3947606822"/>
    <version ClassVersion="14" checksum="2001321210"/>
    <version ClassVersion="13" checksum="1258968436"/>
