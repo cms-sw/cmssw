@@ -297,8 +297,10 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
 CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet &ps)
     : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       ctppsRecordToken(consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))),
-      tokenLocalTrackLite(consumes<vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))),
-      tokenRecoProtons(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtons"))),
+      tokenLocalTrackLite(
+          consumes<vector<CTPPSLocalTrackLite>>(ps.getUntrackedParameter<edm::InputTag>("tagLocalTrackLite"))),
+      tokenRecoProtons(
+          consumes<std::vector<reco::ForwardProton>>(ps.getUntrackedParameter<InputTag>("tagRecoProtons"))),
       makeProtonRecoPlots_(ps.getParameter<bool>("makeProtonRecoPlots")),
       perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)) {
   currentLS = 0;

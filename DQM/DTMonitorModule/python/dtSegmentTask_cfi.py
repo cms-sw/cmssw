@@ -5,7 +5,7 @@ dtSegmentAnalysisMonitor = DQMEDAnalyzer('DTSegmentAnalysisTask',
                                           # switch for verbosity
                                           debug = cms.untracked.bool(False),
                                           # label of 4D segments
-                                          recHits4DLabel = cms.string('dt4DSegments'),
+                                          recHits4DLabel = cms.untracked.string('dt4DSegments'),
                                           # skip segments with noisy cells (reads from DB)
                                           checkNoisyChannels = cms.untracked.bool(True),
                                           # switch off uneeded histograms
