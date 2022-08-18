@@ -35,6 +35,9 @@
 #include "G4QGSModel.hh"
 #include "G4TheoFSGenerator.hh"
 
+#include "G4GammaGeneralProcess.hh"
+#include "G4LossTableManager.hh"
+
 #include "G4EmParameters.hh"
 #include "G4SystemOfUnits.hh"
 
@@ -154,9 +157,11 @@ CMSEmStandardPhysicsTrackingManager::CMSEmStandardPhysicsTrackingManager(const e
 
   // gamma
   {
-    gamma.pe = new G4PhotoElectricEffect;
-    gamma.compton = new G4ComptonScattering;
-    gamma.conversion = new G4GammaConversion;
+    gammaProc = new G4GammaGeneralProcess;
+
+    gammaProc->AddEmProcess(new G4PhotoElectricEffect);
+    gammaProc->AddEmProcess(new G4ComptonScattering);
+    gammaProc->AddEmProcess(new G4GammaConversion);
 
     G4HadronInelasticProcess *nuc = new G4HadronInelasticProcess("photonNuclear", G4Gamma::Definition());
     auto xsreg = G4CrossSectionDataSetRegistry::Instance();
@@ -202,7 +207,8 @@ CMSEmStandardPhysicsTrackingManager::CMSEmStandardPhysicsTrackingManager(const e
     theModel->SetMaxEnergy(param->GetMaxEnergy());
     nuc->RegisterMe(theModel);
 
-    gamma.nuc = nuc;
+    gammaProc->AddHadProcess(nuc);
+    G4LossTableManager::Instance()->SetGammaGeneralProcess(gammaProc);
   }
 
   // Create lepto-nuclear processes last, they access cross section data from
@@ -236,10 +242,7 @@ CMSEmStandardPhysicsTrackingManager::CMSEmStandardPhysicsTrackingManager(const e
     positron.annihilation->SetMasterProcess(masterTrackingManager->positron.annihilation);
     positron.nuc->SetMasterProcess(masterTrackingManager->positron.nuc);
 
-    gamma.pe->SetMasterProcess(masterTrackingManager->gamma.pe);
-    gamma.compton->SetMasterProcess(masterTrackingManager->gamma.compton);
-    gamma.conversion->SetMasterProcess(masterTrackingManager->gamma.conversion);
-    gamma.nuc->SetMasterProcess(masterTrackingManager->gamma.nuc);
+    gammaProc->SetMasterProcess(masterTrackingManager->gammaProc);
   }
 }
 
@@ -264,10 +267,7 @@ void CMSEmStandardPhysicsTrackingManager::BuildPhysicsTable(const G4ParticleDefi
     positron.ss->BuildPhysicsTable(part);
     positron.nuc->BuildPhysicsTable(part);
   } else if (&part == G4Gamma::Definition()) {
-    gamma.pe->BuildPhysicsTable(part);
-    gamma.compton->BuildPhysicsTable(part);
-    gamma.conversion->BuildPhysicsTable(part);
-    gamma.nuc->BuildPhysicsTable(part);
+    gammaProc->BuildPhysicsTable(part);
   }
 }
 
@@ -286,10 +286,7 @@ void CMSEmStandardPhysicsTrackingManager::PreparePhysicsTable(const G4ParticleDe
     positron.ss->PreparePhysicsTable(part);
     positron.nuc->PreparePhysicsTable(part);
   } else if (&part == G4Gamma::Definition()) {
-    gamma.pe->PreparePhysicsTable(part);
-    gamma.compton->PreparePhysicsTable(part);
-    gamma.conversion->PreparePhysicsTable(part);
-    gamma.nuc->PreparePhysicsTable(part);
+    gammaProc->PreparePhysicsTable(part);
   }
 }
 
@@ -648,54 +645,23 @@ void CMSEmStandardPhysicsTrackingManager::TrackGamma(G4Track *aTrack) {
     GammaPhysics(CMSEmStandardPhysicsTrackingManager &mgr) : fMgr(mgr) {}
 
     void StartTracking(G4Track *aTrack) override {
-      auto &gamma = fMgr.gamma;
-
-      gamma.pe->StartTracking(aTrack);
-      gamma.compton->StartTracking(aTrack);
-      gamma.conversion->StartTracking(aTrack);
-      gamma.nuc->StartTracking(aTrack);
+      fMgr.gammaProc->StartTracking(aTrack);
 
       fPreviousStepLength = 0;
     }
-    void EndTracking() override {
-      auto &gamma = fMgr.gamma;
-
-      gamma.pe->EndTracking();
-      gamma.compton->EndTracking();
-      gamma.conversion->EndTracking();
-      gamma.nuc->EndTracking();
-    }
+    void EndTracking() override { fMgr.gammaProc->EndTracking(); }
 
     G4double GetPhysicalInteractionLength(const G4Track &track) override {
-      auto &gamma = fMgr.gamma;
       G4double physIntLength;
       G4ForceCondition condition;
 
       fProposedStep = DBL_MAX;
       fSelected = -1;
 
-      physIntLength = gamma.nuc->PostStepGPIL(track, fPreviousStepLength, &condition);
-      if (physIntLength < fProposedStep) {
-        fProposedStep = physIntLength;
-        fSelected = 3;
-      }
-
-      physIntLength = gamma.conversion->PostStepGPIL(track, fPreviousStepLength, &condition);
+      physIntLength = fMgr.gammaProc->PostStepGPIL(track, fPreviousStepLength, &condition);
       if (physIntLength < fProposedStep) {
         fProposedStep = physIntLength;
         fSelected = 0;
-      }
-
-      physIntLength = gamma.compton->PostStepGPIL(track, fPreviousStepLength, &condition);
-      if (physIntLength < fProposedStep) {
-        fProposedStep = physIntLength;
-        fSelected = 1;
-      }
-
-      physIntLength = gamma.pe->PostStepGPIL(track, fPreviousStepLength, &condition);
-      if (physIntLength < fProposedStep) {
-        fProposedStep = physIntLength;
-        fSelected = 2;
       }
 
       return fProposedStep;
@@ -717,28 +683,8 @@ void CMSEmStandardPhysicsTrackingManager::TrackGamma(G4Track *aTrack) {
       }
       step.GetPostStepPoint()->SetStepStatus(fPostStepDoItProc);
 
-      auto &gamma = fMgr.gamma;
-      G4VProcess *process = nullptr;
-      G4VParticleChange *particleChange = nullptr;
-
-      switch (fSelected) {
-        case 3:
-          process = gamma.nuc;
-          particleChange = gamma.nuc->PostStepDoIt(track, step);
-          break;
-        case 0:
-          process = gamma.conversion;
-          particleChange = gamma.conversion->PostStepDoIt(track, step);
-          break;
-        case 1:
-          process = gamma.compton;
-          particleChange = gamma.compton->PostStepDoIt(track, step);
-          break;
-        case 2:
-          process = gamma.pe;
-          particleChange = gamma.pe->PostStepDoIt(track, step);
-          break;
-      }
+      G4VProcess *process = fMgr.gammaProc;
+      G4VParticleChange *particleChange = fMgr.gammaProc->PostStepDoIt(track, step);
 
       particleChange->UpdateStepForPostStep(&step);
       step.UpdateTrack();
