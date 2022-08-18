@@ -120,13 +120,16 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
     double offlinePt = this->TkMuonOfflineEt(itkMuon->phPt(), itkMuon->phEta());
     bool passesQual = !applyQuality_ || qualityCut_(*itkMuon);
     if (passesQual && offlinePt >= min_Pt_ && itkMuon->phEta() <= max_Eta_ && itkMuon->phEta() >= min_Eta_) {
-      l1t::TrackerMuonRef ref(l1t::TrackerMuonRef(tkMuons, distance(atrkmuons, itkMuon)));
+      l1t::TrackerMuonRef ref(tkMuons, distance(atrkmuons, itkMuon));
       if (!applyDuplicateRemoval_ || !isDupMuon(ref, passingMuons)) {
         passingMuons.push_back(ref);
       }
     }
   }
-
+  for (const auto& muon : passingMuons) {
+    filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkMu, muon);
+  }
+  
   // return with final filter decision
   const bool accept(static_cast<int>(passingMuons.size()) >= min_N_);
   return accept;
