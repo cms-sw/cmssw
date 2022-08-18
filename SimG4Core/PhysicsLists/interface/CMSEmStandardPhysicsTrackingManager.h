@@ -18,10 +18,7 @@ class G4eplusAnnihilation;
 class G4ElectronNuclearProcess;
 class G4PositronNuclearProcess;
 
-class G4ComptonScattering;
-class G4GammaConversion;
-class G4PhotoElectricEffect;
-class G4HadronInelasticProcess;
+class G4GammaGeneralProcess;
 
 class CMSEmStandardPhysicsTrackingManager : public G4VTrackingManager {
 public:
@@ -62,12 +59,7 @@ private:
     G4PositronNuclearProcess *nuc;
   } positron;
 
-  struct {
-    G4PhotoElectricEffect *pe;
-    G4ComptonScattering *compton;
-    G4GammaConversion *conversion;
-    G4HadronInelasticProcess *nuc;
-  } gamma;
+  G4GammaGeneralProcess *gammaProc;
 
   static CMSEmStandardPhysicsTrackingManager *masterTrackingManager;
 };
