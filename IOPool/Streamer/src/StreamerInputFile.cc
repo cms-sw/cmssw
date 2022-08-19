@@ -126,7 +126,7 @@ namespace edm {
     //even if we read event payload that comes afterwards
     char* ptr = buf - skippedHdr;
     try {
-      if (tempBuf_.size()) {
+      if (!tempBuf_.empty()) {
         if (tempPos_ == tempLen_) {
           n = storage_->read(&tempBuf_[0], tempBuf_.size());
           tempPos_ = 0;
