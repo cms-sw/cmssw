@@ -2,7 +2,7 @@
 #define HLTrigger_HLTfilters_TriggerExpressionParser_h
 
 // Note: this requires Boost 1.41 or higher, for Spirit 2.1 or higher
-#include <boost/spirit/include/phoenix.hpp>
+#include <boost/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 
 #include "HLTrigger/HLTcore/interface/TriggerExpressionPathReader.h"
@@ -37,7 +37,7 @@ namespace triggerExpression {
 
       operand %= (prescale | element);
 
-      unary = (operand[qi::_val = qi::_1] | (qi::lit("NOT") >> operand)[qi::_val = new_<OperatorNot>(qi::_1)]);
+      unary = ((qi::lit("NOT") >> operand)[qi::_val = new_<OperatorNot>(qi::_1)] | operand[qi::_val = qi::_1]);
 
       expression =
           unary[qi::_val = qi::_1] >> *((qi::lit("AND") >> unary)[qi::_val = new_<OperatorAnd>(qi::_val, qi::_1)] |
