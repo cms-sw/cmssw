@@ -54,11 +54,9 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                                                            const edm::EventSetup& iSetup,
                                                            bool debug,
                                                            double eyr) {
-
   auto _ThePoints = std::make_unique<RPCRecHitCollection>();
   edm::OwnVector<RPCRecHit> RPCPointVector;
   std::vector<uint32_t> extrapolatedRolls;
-
 
   if (all4DSegments->size() > 8) {
     if (debug)
@@ -68,14 +66,12 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
     edm::ESHandle<DTGeometry> dtGeo = iSetup.getHandle(dtGeoToken_);
     edm::ESHandle<DTObjectMap> dtMap = iSetup.getHandle(dtMapToken_);
 
-
     std::map<DTChamberId, int> DTSegmentCounter;
     DTRecSegment4DCollection::const_iterator segment;
 
     for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment) {
       DTSegmentCounter[segment->chamberId()]++;
     }
-
 
     if (incldt) {
       for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment) {
@@ -127,17 +123,18 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
         float dy = segmentDirection.y();
         float dz = segmentDirection.z();
 
-          float myPhiTime = -9999.;
-          float myPhiTimeErr = -9999.;
-          int myPhiBx = -99;
+        float myPhiTime = -9999.;
+        float myPhiTimeErr = -9999.;
+        int myPhiBx = -99;
 
-          if (segment->hasPhi()) {
-            myPhiTime = segment->phiSegment()->t0();
-            myPhiBx = round(segment->phiSegment()->t0()/25.);
-            if (debug) std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
-          }
-          if(!(myPhiBx<=maxPhiBX && myPhiBx>=minPhiBX)) //limit only to the RPC readout range
-            continue;
+        if (segment->hasPhi()) {
+          myPhiTime = segment->phiSegment()->t0();
+          myPhiBx = round(segment->phiSegment()->t0() / 25.);
+          if (debug)
+            std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
+        }
+        if (!(myPhiBx <= maxPhiBX && myPhiBx >= minPhiBX))  //limit only to the RPC readout range
+          continue;
 
         if (debug)
           std::cout << "Creating the DTIndex" << std::endl;
@@ -291,10 +288,11 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
 
           if (segment->hasPhi()) {
             myPhiTime = segment->phiSegment()->t0();
-            myPhiBx = round(segment->phiSegment()->t0()/25.);
-            if (debug) std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
+            myPhiBx = round(segment->phiSegment()->t0() / 25.);
+            if (debug)
+              std::cout << "segment t0 = " << myPhiTime << "\tround = " << myPhiBx << std::endl;
           }
-          if(!(myPhiBx<=maxPhiBX && myPhiBx>=minPhiBX))	//limit only to the RPC readout range
+          if (!(myPhiBx <= maxPhiBX && myPhiBx >= minPhiBX))  //limit only to the RPC readout range
             continue;
 
           if (debug)
@@ -597,7 +595,5 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
     }
   }
 
-
   return _ThePoints;
 }
-

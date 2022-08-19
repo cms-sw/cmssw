@@ -48,7 +48,6 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
       segmentsInThisEventInTheEndcap++;
     }
 
-
     float myTime = -9999.;
     float myTimeErr = -9999.;
     int myBx = -99;
@@ -58,10 +57,9 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
     for (segment = allCSCSegments->begin(); segment != allCSCSegments->end(); ++segment) {
       CSCDetId CSCId = segment->cscDetId();
 
-
       myTime = segment->time();
-      myBx = round(myTime/25.);
-      if (!(myBx <= maxBX && myBx >= minBX))	// rpc read in bx in [-2, 2]
+      myBx = round(myTime / 25.);
+      if (!(myBx <= maxBX && myBx >= minBX))  // rpc read in bx in [-2, 2]
         continue;
 
       if (debug)
@@ -101,7 +99,6 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                     << acos(dz) * 180 / 3.1415926 << " < 135? " << std::endl;
 
         if ((segment->dimension() == 4) && (segment->nRecHits() <= 10 && segment->nRecHits() >= 4)) {
-
           if (debug)
             std::cout << "CSC \t \t yes" << std::endl;
           if (debug)
@@ -296,4 +293,3 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
   }
   return _ThePoints;
 }
-
