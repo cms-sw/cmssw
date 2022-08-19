@@ -177,19 +177,20 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                  kChannelIdsInput,
                                  kChannelSpecsInput),
       fileWriterSelectedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                                 iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
-                                 kFramesPerTMUXPeriod,
-                                 kGTTBoardTMUX,
-                                 kMaxLinesPerFile,
-                                 kChannelIdsInput,
-                                 kChannelSpecsInput),
-      fileWriterVertexAssociatedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                                 iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
-                                 kFramesPerTMUXPeriod,
-                                 kGTTBoardTMUX,
-                                 kMaxLinesPerFile,
-                                 kChannelIdsInput,
-                                 kChannelSpecsInput),
+                                iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
+                                kFramesPerTMUXPeriod,
+                                kGTTBoardTMUX,
+                                kMaxLinesPerFile,
+                                kChannelIdsInput,
+                                kChannelSpecsInput),
+      fileWriterVertexAssociatedTracks_(
+          l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+          iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
+          kFramesPerTMUXPeriod,
+          kGTTBoardTMUX,
+          kMaxLinesPerFile,
+          kChannelIdsInput,
+          kChannelSpecsInput),
       fileWriterOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                     iConfig.getUntrackedParameter<std::string>("outputCorrelatorFilename"),
                                     kFramesPerTMUXPeriod,
@@ -209,12 +210,12 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace l1t::demo::codecs;
 
   // 0) Gather the necessary collections
-  const auto tracksCollection = iEvent.get(tracksToken_);
-  const auto convertedTracksCollection = iEvent.get(convertedTracksToken_);
-  const auto verticesCollection = iEvent.get(verticesToken_);
-  const auto jetsCollection = iEvent.get(jetsToken_);
-  const auto htMissCollection = iEvent.get(htMissToken_);
-  const auto etMissCollection = iEvent.get(etMissToken_);
+  const auto& tracksCollection = iEvent.get(tracksToken_);
+  const auto& convertedTracksCollection = iEvent.get(convertedTracksToken_);
+  const auto& verticesCollection = iEvent.get(verticesToken_);
+  const auto& jetsCollection = iEvent.get(jetsToken_);
+  const auto& htMissCollection = iEvent.get(htMissToken_);
+  const auto& etMissCollection = iEvent.get(etMissToken_);
 
   edm::Handle<TrackCollection_t> convertedTracksHandle;
   edm::Handle<TrackRefCollection_t> selectedTracksHandle;
@@ -293,8 +294,10 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.addUntracked<edm::InputTag>("convertedTracks", edm::InputTag("l1tGTTInputProducer", "Level1TTTracksConverted"));
-  desc.addUntracked<edm::InputTag>("selectedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"));
-  desc.addUntracked<edm::InputTag>("vertexAssociatedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
+  desc.addUntracked<edm::InputTag>("selectedTracks",
+                                   edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"));
+  desc.addUntracked<edm::InputTag>(
+      "vertexAssociatedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "l1verticesEmulation"));
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
