@@ -47,7 +47,7 @@
  */
 namespace SiPixelLAHarvest {
 
-  enum covStatus { kNotCalculated = 0, kApproximated = 1, kMadePosDef = 2, kAccurate = 3 };
+  enum covStatus { kUndefined = -1, kNotCalculated = 0, kApproximated = 1, kMadePosDef = 2, kAccurate = 3 };
 
   struct fitResults {
   public:
@@ -57,7 +57,8 @@ namespace SiPixelLAHarvest {
       e0 = e1 = e2 = e3 = e4 = e5 = 0.;
       chi2 = prob = dSq = redChi2 = -9999.;
       tan_LA = error_LA = -9999.;
-      fitStatus = covMatrixStatus = ndf = -999;
+      fitStatus = covMatrixStatus = ndf = nentries = -999;
+      quality = {0b0000};
     };
 
     double p0, e0;
@@ -68,12 +69,14 @@ namespace SiPixelLAHarvest {
     double p5, e5;
     double chi2;
     int ndf;
+    int nentries;
     double prob;
     int fitStatus, covMatrixStatus;
     double dSq;
     double redChi2;
     double tan_LA;
     double error_LA;
+    std::bitset<4> quality; /* to store if passes cuts*/
   };
 }  // namespace SiPixelLAHarvest
 
@@ -91,6 +94,7 @@ private:
   void endRun(const edm::Run&, const edm::EventSetup&) override;
   void findMean(MonitorElement* h_drift_depth_adc_slice_, int i, int i_ring);
   SiPixelLAHarvest::fitResults fitAndStore(std::shared_ptr<SiPixelLorentzAngle> theLA, int i_idx, int i_lay, int i_mod);
+  bool checkFitQuality(SiPixelLAHarvest::fitResults& res);
 
   // es tokens
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomEsToken_;
@@ -629,14 +633,19 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   if (doChebyshevFit_) {
     const int npar = order_ + 1;
     auto cheb = std::make_unique<siPixelLACalibration::Chebyshev>(order_, theFitRange_.first, theFitRange_.second);
-    f1_ =
-        std::make_unique<TF1>("fChebyshev", cheb.release(), theFitRange_.first, theFitRange_.second, npar, "Chebyshev");
+    f1_ = std::make_unique<TF1>("f1", cheb.release(), theFitRange_.first, theFitRange_.second, npar, "Chebyshev");
   } else {
-    f1_ = std::make_unique<TF1>("fPolynomial",
+    f1_ = std::make_unique<TF1>("f1",
                                 "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x",
                                 theFitRange_.first,
                                 theFitRange_.second);
   }
+
+  // DO NOT REMOVE
+  // this is needed to ensure it stays synch with the render plugin:
+  // https://github.com/dmwm/deployment/blob/master/dqmgui/style/SiPixelLorentzAnglePCLRenderPlugin.cc#L199
+  //assert(std::string{f1_->GetName()}=="f1");
+  assert(strcmp(f1_->GetName(), "f1") == 0);
 
   f1_->SetParName(0, "offset");
   f1_->SetParName(1, "tan#theta_{LA}");
@@ -671,14 +680,14 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   if (res.fitStatus != 0) {
     res.covMatrixStatus = result->CovMatrixStatus();
   } else {
-    res.covMatrixStatus = SiPixelLAHarvest::kNotCalculated;
+    res.covMatrixStatus = SiPixelLAHarvest::kUndefined;
   }
 
   // compute the error on the drift-at-half-width parameter (d^2)
   float dSq{0.};
   float cov00{0.};  // needed later for the error on the tan(theta_LA)
   if (!doChebyshevFit_) {
-    if (res.covMatrixStatus != SiPixelLAHarvest::kNotCalculated) {
+    if (res.covMatrixStatus > SiPixelLAHarvest::kNotCalculated) {
       for (int k = 0; k < order_; k++) {
         for (int l = 0; l < order_; l++) {
           dSq += (std::pow(half_width, k) * std::pow(half_width, l) * result->CovMatrix(k, l));
@@ -733,7 +742,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   hists_.h_bySectDriftError_->setBinContent(i_index, res.dSq);
   hists_.h_bySectDriftError_->setBinError(i_index, 0.);
 
-  int nentries = hists_.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
+  res.nentries = hists_.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
 
   bool isNew = (i_index > hists_.nlay * hists_.nModules_[hists_.nlay - 1]);
   int shiftIdx = i_index - hists_.nlay * hists_.nModules_[hists_.nlay - 1] - 1;
@@ -763,9 +772,9 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   // check the result of the chi2 only if doing the chebyshev fit
   const bool chi2Cut = doChebyshevFit_ ? (res.redChi2 < fitChi2Cut_) : true;
   // check the covariance matrix status
-  const bool covMatrixStatusCut = (res.covMatrixStatus == SiPixelLAHarvest::kAccurate);
+  const bool covMatrixStatusCut = (res.covMatrixStatus >= SiPixelLAHarvest::kMadePosDef);
 
-  if ((res.redChi2 != 0.) && covMatrixStatusCut && chi2Cut && (nentries > minHitsCut_)) {
+  if ((res.redChi2 != 0.) && covMatrixStatusCut && chi2Cut && (res.nentries > minHitsCut_)) {
     LorentzAnglePerTesla_ = res.tan_LA / theMagField_;
     // fill the LA actually written to payload
     hists_.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
@@ -798,6 +807,34 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   }
   // return the struct of fit details
   return res;
+}
+
+// function to check the fit quality
+bool SiPixelLorentzAnglePCLHarvester::checkFitQuality(SiPixelLAHarvest::fitResults& res) {
+  // check if reduced chi2 is different from 0.
+  const bool notZeroCut = (res.redChi2 != 0.);
+  // check the result of the chi2 only if doing the chebyshev fit
+  const bool chi2Cut = doChebyshevFit_ ? (res.redChi2 < fitChi2Cut_) : true;
+  // check the covariance matrix status
+  const bool covMatrixStatusCut = (res.covMatrixStatus >= SiPixelLAHarvest::kMadePosDef);
+  // check that the number of entries is larger than the minimum amount
+  const bool nentriesCut = (res.nentries > minHitsCut_);
+
+  if (notZeroCut) {
+    res.quality.set(0);
+  }
+  if (chi2Cut) {
+    res.quality.set(1);
+  }
+  if (covMatrixStatusCut) {
+    res.quality.set(2);
+  }
+  if (nentriesCut) {
+    res.quality.set(3);
+  }
+
+  // check if all the bits are set
+  return (res.quality.all());
 }
 
 //------------------------------------------------------------------------------
