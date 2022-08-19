@@ -40,7 +40,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps)
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Constructor" << endl;
 
   // The label to retrieve the digis
-  dtDigiToken_ = consumes<DTDigiCollection>(ps.getParameter<InputTag>("dtDigiLabel"));
+  dtDigiToken_ = consumes<DTDigiCollection>(ps.getUntrackedParameter<InputTag>("dtDigiLabel"));
   // Read the configuration parameters
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber", 30000);
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
@@ -55,7 +55,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps)
   // Switch for local/global runs
   isLocalRun = ps.getUntrackedParameter<bool>("localrun", true);
   if (!isLocalRun) {
-    ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(ps.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
+    ltcDigiCollectionToken_ =
+        consumes<LTCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
 
   // Setting for the reset of the ME after n (= ResetCycle) luminosity sections

@@ -278,6 +278,9 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStepBarrel, jetCoreRegionalStep.clon
      src = 'jetCoreRegionalStepBarrelTracks',
 ))
 
+pp_on_AA.toModify(jetCoreRegionalStep, qualityCuts = [-0.2, 0.0, 0.8])
+pp_on_AA.toModify(jetCoreRegionalStepBarrel, qualityCuts = [-0.2, 0.0, 0.8])
+
 from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *

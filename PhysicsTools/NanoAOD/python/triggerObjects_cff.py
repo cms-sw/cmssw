@@ -107,7 +107,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                             "32*filter('*Hps*') + " \
                             "64*filter('hlt*DoublePFTau*TrackPt1*ChargedIsolation*Dz02*') + " \
                             "128*filter('hlt*DoublePFTau*DeepTau*L1HLTMatched') + " \
-                            "256*filter('hlt*OverlapFilterIsoEle*WPTightGsf*PFTau') + " \
+                            "256*filter('hlt*OverlapFilterIsoEle*WPTightGsf*PFTau*') + " \
                             "512*filter('hlt*OverlapFilterIsoMu*PFTau*') + " \
                             "1024*filter('hlt*SelectedPFTau*L1HLTMatched') + " \
                             "2048*filter('hlt*DoublePFTau*TrackPt1*ChargedIso*') + " \

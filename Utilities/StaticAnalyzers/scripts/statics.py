@@ -53,7 +53,7 @@ for tfunc in sorted(toplevelfuncs):
 
             if 'kind' in G[path[len(path)-2]][path[len(path)-1]] and G[path[len(path)-2]][path[len(path)-1]]['kind'] == ' static variable ':
                 for key in G[tfunc].keys():
-                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ' and not key.startswith('edm::one'):
+                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ':
                         print("Non-const static variable \'"+re.sub(farg, "()",
                                                                     static)+"' is accessed in call stack '", end=' ')
                         for i in range(0, len(path)-1):
@@ -74,7 +74,7 @@ for tfunc in sorted(toplevelfuncs):
                         print()
             else:
                 for key in G[tfunc].keys():
-                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ' and not key.startswith('edm::one'):
+                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ' and not (key.startswith('edm::one') and 'TFileService::' in static):
                         print("Known thread unsafe function \'"+re.sub(farg, "()",
                                                                        static)+"' is called in call stack '", end=' ')
                         for i in range(0, len(path)-1):
