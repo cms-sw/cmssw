@@ -4,13 +4,13 @@
 namespace l1t::demo::codecs {
 
   // Return true if a track is contained within a collection
-  bool trackInCollection(const edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& trackRef,
-                         const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& trackRefCollection) {
-    auto it = std::find_if(trackRefCollection->begin(),
-                           trackRefCollection->end(),
-                           [&trackRef](edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> const& obj) {
-                            return obj == trackRef;
-                          });
+  bool trackInCollection(
+      const edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& trackRef,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& trackRefCollection) {
+    auto it = std::find_if(
+        trackRefCollection->begin(),
+        trackRefCollection->end(),
+        [&trackRef](edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> const& obj) { return obj == trackRef; });
     if (it != trackRefCollection->end())
       return true;
     else
@@ -30,17 +30,18 @@ namespace l1t::demo::codecs {
   }
 
   // Return the 96-bit track words from a given track collection and place them on the appropriate 18 'logical' links
-  std::array<std::vector<ap_uint<96>>, 18> getTrackWords(const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
-                                                         const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks) {
+  std::array<std::vector<ap_uint<96>>, 18> getTrackWords(
+      const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks) {
     std::array<std::vector<ap_uint<96>>, 18> trackWords;
     for (unsigned int itrack = 0; itrack < referenceTracks->size(); itrack++) {
       const auto& referenceTrack = referenceTracks->at(itrack);
       edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> referenceTrackRef(referenceTracks, itrack);
 
       if (trackInCollection(referenceTrackRef, tracks)) {
-        trackWords.at((referenceTrack.eta() >= 0 ? 9 : 0) + referenceTrack.phiSector()).push_back(encodeTrack(referenceTrack));
-      }
-      else {
+        trackWords.at((referenceTrack.eta() >= 0 ? 9 : 0) + referenceTrack.phiSector())
+            .push_back(encodeTrack(referenceTrack));
+      } else {
         trackWords.at((referenceTrack.eta() >= 0 ? 9 : 0) + referenceTrack.phiSector()).push_back(ap_uint<96>(0));
       }
     }
@@ -87,9 +88,10 @@ namespace l1t::demo::codecs {
 
   // Encodes a track collection based off the ordering of another track collection
   // Requirement: The second collection must be a subset of the first
-  std::array<std::vector<ap_uint<64>>, 18> encodeTracks(const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
-                                                        const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks,
-                                                        int debug) {
+  std::array<std::vector<ap_uint<64>>, 18> encodeTracks(
+      const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks,
+      int debug) {
     if (debug > 0) {
       edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoding " << tracks->size() << " tracks";
     }
