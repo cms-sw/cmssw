@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_4_0/PRef/V94 (CMSSW_12_4_0)
+# /dev/CMSSW_12_4_0/PRef/V110 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPRef" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V94')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V110')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2580,9 +2580,9 @@ process.streams = cms.PSet(
   ExpressAlignment = cms.vstring( 'ExpressAlignment' ),
   ExpressCosmics = cms.vstring(  ),
   NanoDST = cms.vstring( 'L1Accept' ),
-  PhysicsCommissioning = cms.vstring( 'HLTPhysics',
+  PhysicsCommissioning = cms.vstring( 'EmptyBX',
+    'HLTPhysics',
     'ZeroBias' ),
-  PhysicsEndOfFill = cms.vstring( 'EmptyBX' ),
   PhysicsHIZeroBias1 = cms.vstring( 'HIZeroBias1',
     'HIZeroBias2' ),
   PhysicsHIZeroBias2 = cms.vstring( 'HIZeroBias3',
@@ -9856,23 +9856,9 @@ process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HLTPhysics',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_EmptyBX',
+  'Dataset_HLTPhysics',
   'Dataset_ZeroBias' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsEndOfFill = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsEndOfFill.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_EmptyBX' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -10088,7 +10074,6 @@ process.ExpressAlignmentOutput = cms.FinalPath( process.hltOutputExpressAlignmen
 process.NanoDSTOutput = cms.FinalPath( process.hltOutputNanoDST )
 process.RPCMONOutput = cms.FinalPath( process.hltOutputRPCMON )
 process.PhysicsCommissioningOutput = cms.FinalPath( process.hltOutputPhysicsCommissioning )
-process.PhysicsEndOfFillOutput = cms.FinalPath( process.hltOutputPhysicsEndOfFill )
 process.PhysicsHIZeroBias1Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBias1 )
 process.PhysicsHIZeroBias2Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBias2 )
 process.PhysicsHIZeroBias3Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBias3 )
@@ -10126,7 +10111,7 @@ process.Dataset_TestEnablesEcalHcalDQM = cms.Path( process.HLTDatasetPathBeginSe
 process.Dataset_ZeroBias = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetZeroBias + process.hltPreDatasetZeroBias )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_ZeroBias_Beamspot_v5, process.HLT_Physics_v8, process.DST_Physics_v8, process.HLT_Random_v3, process.HLT_ZeroBias_v7, process.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v3, process.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v3, process.HLT_HIL1NotBptxORForPPRef_v3, process.HLT_HIHT80_Beamspot_ppRef5TeV_v4, process.HLT_HIZeroBias_part0_v7, process.HLT_HIZeroBias_part1_v7, process.HLT_HIZeroBias_part2_v7, process.HLT_HIZeroBias_part3_v7, process.HLT_HIZeroBias_part4_v7, process.HLT_HIZeroBias_part5_v7, process.HLT_HIZeroBias_part6_v7, process.HLT_HIZeroBias_part7_v7, process.HLT_HIZeroBias_part8_v7, process.HLT_HIZeroBias_part9_v7, process.HLT_HIZeroBias_part10_v7, process.HLT_HIZeroBias_part11_v7, process.AlCa_HIEcalPi0EBonly_v2, process.AlCa_HIEcalPi0EEonly_v2, process.AlCa_HIEcalEtaEBonly_v2, process.AlCa_HIEcalEtaEEonly_v2, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v5, process.AlCa_EcalPhiSym_v10, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v6, process.AlCa_HIRPCMuonNormalisation_v2, process.AlCa_LumiPixelsCounts_Random_v3, process.AlCa_LumiPixelsCounts_ZeroBias_v3, process.DQM_HIEcalReconstruction_v1, process.DQM_HIHcalReconstruction_v1, process.DQM_HIPixelReconstruction_v1, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsCommissioningOutput, process.PhysicsEndOfFillOutput, process.PhysicsHIZeroBias1Output, process.PhysicsHIZeroBias2Output, process.PhysicsHIZeroBias3Output, process.PhysicsHIZeroBias4Output, process.PhysicsHIZeroBias5Output, process.PhysicsHIZeroBias6Output, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_EcalLaser, process.Dataset_EmptyBX, process.Dataset_ExpressAlignment, process.Dataset_ExpressPhysics, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias10, process.Dataset_HIZeroBias11, process.Dataset_HIZeroBias12, process.Dataset_HIZeroBias2, process.Dataset_HIZeroBias3, process.Dataset_HIZeroBias4, process.Dataset_HIZeroBias5, process.Dataset_HIZeroBias6, process.Dataset_HIZeroBias7, process.Dataset_HIZeroBias8, process.Dataset_HIZeroBias9, process.Dataset_HLTPhysics, process.Dataset_L1Accept, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_ZeroBias, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_ZeroBias_Beamspot_v5, process.HLT_Physics_v8, process.DST_Physics_v8, process.HLT_Random_v3, process.HLT_ZeroBias_v7, process.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v3, process.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v3, process.HLT_HIL1NotBptxORForPPRef_v3, process.HLT_HIHT80_Beamspot_ppRef5TeV_v4, process.HLT_HIZeroBias_part0_v7, process.HLT_HIZeroBias_part1_v7, process.HLT_HIZeroBias_part2_v7, process.HLT_HIZeroBias_part3_v7, process.HLT_HIZeroBias_part4_v7, process.HLT_HIZeroBias_part5_v7, process.HLT_HIZeroBias_part6_v7, process.HLT_HIZeroBias_part7_v7, process.HLT_HIZeroBias_part8_v7, process.HLT_HIZeroBias_part9_v7, process.HLT_HIZeroBias_part10_v7, process.HLT_HIZeroBias_part11_v7, process.AlCa_HIEcalPi0EBonly_v2, process.AlCa_HIEcalPi0EEonly_v2, process.AlCa_HIEcalEtaEBonly_v2, process.AlCa_HIEcalEtaEEonly_v2, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v5, process.AlCa_EcalPhiSym_v10, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v6, process.AlCa_HIRPCMuonNormalisation_v2, process.AlCa_LumiPixelsCounts_Random_v3, process.AlCa_LumiPixelsCounts_ZeroBias_v3, process.DQM_HIEcalReconstruction_v1, process.DQM_HIHcalReconstruction_v1, process.DQM_HIPixelReconstruction_v1, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsCommissioningOutput, process.PhysicsHIZeroBias1Output, process.PhysicsHIZeroBias2Output, process.PhysicsHIZeroBias3Output, process.PhysicsHIZeroBias4Output, process.PhysicsHIZeroBias5Output, process.PhysicsHIZeroBias6Output, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_EcalLaser, process.Dataset_EmptyBX, process.Dataset_ExpressAlignment, process.Dataset_ExpressPhysics, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias10, process.Dataset_HIZeroBias11, process.Dataset_HIZeroBias12, process.Dataset_HIZeroBias2, process.Dataset_HIZeroBias3, process.Dataset_HIZeroBias4, process.Dataset_HIZeroBias5, process.Dataset_HIZeroBias6, process.Dataset_HIZeroBias7, process.Dataset_HIZeroBias8, process.Dataset_HIZeroBias9, process.Dataset_HLTPhysics, process.Dataset_L1Accept, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_ZeroBias, ))
 
 
 # source module (EDM inputs)
