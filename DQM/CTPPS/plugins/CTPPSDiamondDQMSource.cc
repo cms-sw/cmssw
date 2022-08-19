@@ -912,7 +912,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         }
       }
 
-      if (rechit.toT() != 0) {
+      if (rechit.toT() > 0) {
         // Both
         potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
         potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill(rechit.toT());
@@ -922,7 +922,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
-          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
+          hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
       } else if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && plotOnline_) {
         // Only leading
@@ -930,10 +930,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
         int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
-          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
+        for (int i = 0; i < numOfBins; ++i)
+          hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
-        }
       }
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
           potPlots_[detId_pot].activity_per_bx.count(rechit.ootIndex()) > 0)
