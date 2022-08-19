@@ -433,12 +433,12 @@ template <>
 bool HLTDoubletDZ<l1t::TrackerMuon, l1t::TrackerMuon>::computeDZ(edm::Event& iEvent,
                                                                  l1t::TrackerMuonRef& r1,
                                                                  l1t::TrackerMuonRef& r2) const {
-  if (reco::deltaR2(r1->phEta(), r1->phPhi(), r2->phEta(), r2->phPhi()) < minDR_ * minDR_)
-    return false;
-
   // We don't care about minPixHitsForDZ_ with the L1TTrackerMuons,
   // especially because the pixel does not participate in the L1T
   if (std::abs(r1->phZ0() - r2->phZ0()) > maxDZ_)
+    return false;
+
+  if (reco::deltaR2(r1->phEta(), r1->phPhi(), r2->phEta(), r2->phPhi()) < minDR_ * minDR_)
     return false;
 
   return true;
