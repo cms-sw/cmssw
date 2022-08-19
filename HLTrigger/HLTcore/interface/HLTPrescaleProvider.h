@@ -138,7 +138,7 @@ template <>
 FractionalPrescale HLTPrescaleProvider::convertL1PS<FractionalPrescale>(double val) const;
 
 template <>
-double HLTPrescaleProvider::prescaleValue<double>(const edm::Event& iEvent,
+unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& iEvent,
                                                   const edm::EventSetup& iSetup,
                                                   const std::string& trigger);
 
