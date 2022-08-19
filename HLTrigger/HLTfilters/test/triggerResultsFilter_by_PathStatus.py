@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
 
+process.options.wantSummary = True
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # define the Prescaler service, and set the scale factors
@@ -82,9 +84,16 @@ process.filter_any_or = triggerResultsFilter.clone(
     throw = False
 )
 
-# accept if 'Path_1' succeeds, prescaled by 2
+# accept if 'Path_1' succeeds, prescaled by 15
 process.filter_1_pre = triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', ),
+    l1tResults = '',
+    throw = False
+)
+
+# accept if 'Path_1' prescaled by 15 does not succeed
+process.filter_not_1_pre = triggerResultsFilter.clone(
+    triggerConditions =  ( 'NOT (Path_1 / 15)', ),
     l1tResults = '',
     throw = False
 )
@@ -99,6 +108,13 @@ process.filter_2_pre = triggerResultsFilter.clone(
 # accept if any path succeeds, with different prescales (explicit OR, prescaled)
 process.filter_any_pre = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_1 / 15', 'Path_2 / 10', 'Path_3 / 6', ),
+    l1tResults = '',
+    throw = False
+)
+
+# equivalent of filter_any_pre using NOT operator twice
+process.filter_any_pre_doubleNOT = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT (NOT (Path_1 / 15 OR Path_2 / 10 OR Path_3 / 6))', ),
     l1tResults = '',
     throw = False
 )
@@ -190,9 +206,11 @@ process.Check_All_Explicit = cms.Path( process.filter_all_explicit )
 process.Check_Any_Or   = cms.Path( process.filter_any_or )
 process.Check_Any_Star = cms.Path( process.filter_any_star )
 
-process.Check_1_Pre    = cms.Path( process.filter_1_pre )
-process.Check_2_Pre    = cms.Path( process.filter_2_pre )
-process.Check_Any_Pre  = cms.Path( process.filter_any_pre ) 
+process.Check_1_Pre     = cms.Path( process.filter_1_pre )
+process.Check_NOT_1_Pre = cms.Path( process.filter_not_1_pre )
+process.Check_2_Pre     = cms.Path( process.filter_2_pre )
+process.Check_Any_Pre   = cms.Path( process.filter_any_pre )
+process.Check_Any_Pre_DoubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
 
 process.Check_Any_Question        = cms.Path( process.filter_any_question )
 process.Check_Any_StarQuestion    = cms.Path( process.filter_any_starquestion )
