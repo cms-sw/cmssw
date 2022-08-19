@@ -6,10 +6,15 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/pdgEntryReplace.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Common/interface/Association.h"
 
+#include <vector>
+#include <unordered_set>
+#include <string>
 namespace helper {
   struct SelectCode {
     enum KeepOrDrop { kKeep, kDrop };
@@ -24,16 +29,19 @@ class GenParticlePruner : public edm::stream::EDProducer<> {
 public:
   GenParticlePruner(const edm::ParameterSet &);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   bool firstEvent_;
-  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
-  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
   int keepOrDropAll_;
-  std::vector<std::string> selection_;
+  const std::vector<std::string> selection_;
   std::vector<std::pair<StringCutObjectSelector<reco::GenParticle>, helper::SelectCode>> select_;
   std::vector<int> flags_;
-  std::vector<size_t> indices_;
+  std::unordered_map<size_t, size_t> replaceSkippedParticle_;
+  const bool sumGluonsWithSameChildren_;
   void parse(const std::string &selection, helper::SelectCode &code, std::string &cut) const;
   void flagDaughters(const reco::GenParticle &, int);
   void flagMothers(const reco::GenParticle &, int);
@@ -47,7 +55,9 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-const int keep = 1, drop = -1;
+namespace {
+  constexpr int keep = 1, drop = -1;
+}
 
 void GenParticlePruner::parse(const std::string &selection, ::helper::SelectCode &code, std::string &cut) const {
   using namespace ::helper;
@@ -102,10 +112,20 @@ GenParticlePruner::GenParticlePruner(const ParameterSet &cfg)
       srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))),
       tableToken_(esConsumes()),
       keepOrDropAll_(drop),
-      selection_(cfg.getParameter<vector<string>>("select")) {
+      selection_(cfg.getParameter<vector<string>>("select")),
+      sumGluonsWithSameChildren_(cfg.getParameter<bool>("sumGluonsWithSameChildren")) {
   using namespace ::helper;
   produces<GenParticleCollection>();
   produces<edm::Association<reco::GenParticleCollection>>();
+}
+
+void GenParticlePruner::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src");
+  desc.add<std::vector<string>>("select");
+  desc.add<bool>("sumGluonsWithSameChildren", false);
+
+  descriptions.addDefault(desc);
 }
 
 void GenParticlePruner::flagDaughters(const reco::GenParticle &gen, int keepOrDrop) {
@@ -192,9 +212,9 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   }
 
   using namespace ::helper;
-  Handle<GenParticleCollection> src;
-  evt.getByToken(srcToken_, src);
-  const size_t n = src->size();
+  Handle<GenParticleCollection> srcHandle = evt.getHandle(srcToken_);
+  auto const &src = *srcHandle;
+  const size_t n = src.size();
   flags_.clear();
   flags_.resize(n, keepOrDropAll_);
   for (size_t j = 0; j < select_.size(); ++j) {
@@ -202,7 +222,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
     SelectCode code = sel.second;
     const StringCutObjectSelector<GenParticle> &cut = sel.first;
     for (size_t i = 0; i < n; ++i) {
-      const GenParticle &p = (*src)[i];
+      const GenParticle &p = src[i];
       if (cut(p)) {
         int keepOrDrop = keep;
         switch (code.keepOrDrop_) {
@@ -217,7 +237,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
         std::vector<size_t> allIndicesMo;
         switch (code.daughtersDepth_) {
           case SelectCode::kAll:
-            recursiveFlagDaughters(i, *src, keepOrDrop, allIndicesDa);
+            recursiveFlagDaughters(i, src, keepOrDrop, allIndicesDa);
             break;
           case SelectCode::kFirst:
             flagDaughters(p, keepOrDrop);
@@ -226,7 +246,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
         };
         switch (code.mothersDepth_) {
           case SelectCode::kAll:
-            recursiveFlagMothers(i, *src, keepOrDrop, allIndicesMo);
+            recursiveFlagMothers(i, src, keepOrDrop, allIndicesMo);
             break;
           case SelectCode::kFirst:
             flagMothers(p, keepOrDrop);
@@ -236,11 +256,51 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
       }
     }
   }
-  indices_.clear();
+  //sum equivalent family gluons
+  replaceSkippedParticle_.clear();
+  std::unordered_map<size_t, reco::Candidate::LorentzVector> summedParticle;
+  std::unordered_map<size_t, pair<size_t, size_t>> summedParticleGroups;
+  if (sumGluonsWithSameChildren_) {
+    for (size_t i = 0; i < n; ++i) {
+      if (flags_[i] == keep) {
+        const GenParticle &p = src[i];
+        auto nDaughters = p.numberOfDaughters();
+        if (p.pdgId() == 21 and nDaughters > 0) {
+          auto d0 = p.daughterRefVector()[0].index();
+          auto dN = p.daughterRefVector()[nDaughters - 1].index();
+          std::pair<size_t, size_t> range(i + n, i + n);
+          for (size_t j = i + 1; j < n; ++j) {
+            auto &other = src[j];
+            if (nDaughters != other.numberOfDaughters()) {
+              break;
+            }
+            if (d0 != other.daughterRefVector()[0].index() or dN != other.daughterRefVector()[nDaughters - 1].index()) {
+              break;
+            }
+            if (flags_[j] == keep and other.pdgId() == 21) {
+              if (range.first > j) {
+                range.first = j;
+              }
+              range.second = j + 1;
+              summedParticle[i] += other.p4();
+              flags_[j] = drop;
+              replaceSkippedParticle_[j] = i;
+            }
+          }
+          if (range.first != range.second) {
+            summedParticleGroups[i] = range;
+          }
+        }
+      }
+    }
+  }
+
+  std::vector<size_t> indices;
+  indices.reserve(n);
   int counter = 0;
   for (size_t i = 0; i < n; ++i) {
     if (flags_[i] == keep) {
-      indices_.push_back(i);
+      indices.push_back(i);
       flags_[i] = counter++;
     } else {
       flags_[i] = -1;  //set to invalid ref
@@ -251,12 +311,15 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   GenParticleRefProd outRef = evt.getRefBeforePut<GenParticleCollection>();
   out->reserve(counter);
 
-  for (vector<size_t>::const_iterator i = indices_.begin(); i != indices_.end(); ++i) {
-    size_t index = *i;
-    const GenParticle &gen = (*src)[index];
+  for (size_t index : indices) {
+    const GenParticle &gen = src[index];
     const LeafCandidate &part = gen;
     out->push_back(GenParticle(part));
     GenParticle &newGen = out->back();
+    if (auto it = summedParticle.find(index); it != summedParticle.end()) {
+      newGen.setP4(it->second);
+      newGen.setStatus(900 + newGen.status());
+    }
     //fill status flags
     newGen.statusFlags() = gen.statusFlags();
     newGen.setCollisionId(gen.collisionId());
@@ -264,25 +327,39 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
     // parentage/descendency. In some cases, a circular referencing is encountered,
     // which would result in an infinite loop. The list is checked to
     // avoid this.
-    vector<size_t> daIndxs, daNewIndxs;
-    getDaughterKeys(daIndxs, daNewIndxs, gen.daughterRefVector());
-    std::sort(daNewIndxs.begin(), daNewIndxs.end());
-    for (size_t i = 0; i < daNewIndxs.size(); ++i)
-      newGen.addDaughter(GenParticleRef(outRef, daNewIndxs[i]));
-
-    vector<size_t> moIndxs, moNewIndxs;
-    getMotherKeys(moIndxs, moNewIndxs, gen.motherRefVector());
-    std::sort(moNewIndxs.begin(), moNewIndxs.end());
-    for (size_t i = 0; i < moNewIndxs.size(); ++i)
-      newGen.addMother(GenParticleRef(outRef, moNewIndxs[i]));
+    {
+      vector<size_t> daIndxs, daNewIndxs;
+      getDaughterKeys(daIndxs, daNewIndxs, gen.daughterRefVector());
+      std::sort(daNewIndxs.begin(), daNewIndxs.end());
+      auto itEnd = std::unique(daNewIndxs.begin(), daNewIndxs.end());
+      for (auto it = daNewIndxs.begin(); it != itEnd; ++it)
+        newGen.addDaughter(GenParticleRef(outRef, *it));
+    }
+    {
+      vector<size_t> moIndxs, moNewIndxs;
+      getMotherKeys(moIndxs, moNewIndxs, gen.motherRefVector());
+      if (auto it = summedParticleGroups.find(index); it != summedParticleGroups.end()) {
+        auto range = it->second;
+        for (auto j = range.first; j != range.second; ++j) {
+          auto const &skippedPart = src[j];
+          getMotherKeys(moIndxs, moNewIndxs, skippedPart.motherRefVector());
+        }
+      }
+      std::sort(moNewIndxs.begin(), moNewIndxs.end());
+      auto itEnd = std::unique(moNewIndxs.begin(), moNewIndxs.end());
+      for (auto it = moNewIndxs.begin(); it != itEnd; ++it)
+        newGen.addMother(GenParticleRef(outRef, *it));
+    }
   }
 
   edm::OrphanHandle<reco::GenParticleCollection> oh = evt.put(std::move(out));
   auto orig2new = std::make_unique<edm::Association<reco::GenParticleCollection>>(oh);
   edm::Association<reco::GenParticleCollection>::Filler orig2newFiller(*orig2new);
-  orig2newFiller.insert(src, flags_.begin(), flags_.end());
+  orig2newFiller.insert(srcHandle, flags_.begin(), flags_.end());
   orig2newFiller.fill();
   evt.put(std::move(orig2new));
+  replaceSkippedParticle_.clear();
+  flags_.clear();
 }
 
 void GenParticlePruner::getDaughterKeys(vector<size_t> &daIndxs,
@@ -296,9 +373,14 @@ void GenParticlePruner::getDaughterKeys(vector<size_t> &daIndxs,
       if (idx > 0) {
         daNewIndxs.push_back(idx);
       } else {
-        const GenParticleRefVector &daus = dau->daughterRefVector();
-        if (!daus.empty())
-          getDaughterKeys(daIndxs, daNewIndxs, daus);
+        if (auto it = replaceSkippedParticle_.find(dau.key()); it != replaceSkippedParticle_.end()) {
+          //the replaced particle will inherit the mothers of the skipped ones
+          daNewIndxs.push_back(flags_[it->second]);
+        } else {
+          const GenParticleRefVector &daus = dau->daughterRefVector();
+          if (!daus.empty())
+            getDaughterKeys(daIndxs, daNewIndxs, daus);
+        }
       }
     }
   }
@@ -315,6 +397,11 @@ void GenParticlePruner::getMotherKeys(vector<size_t> &moIndxs,
       if (idx >= 0) {
         moNewIndxs.push_back(idx);
       } else {
+        if (replaceSkippedParticle_.find(mom.key()) != replaceSkippedParticle_.end()) {
+          //the replaced particle has the same daughters so we are already covered
+          //  by another mother in this list
+          continue;
+        }
         const GenParticleRefVector &moms = mom->motherRefVector();
         if (!moms.empty())
           getMotherKeys(moIndxs, moNewIndxs, moms);
