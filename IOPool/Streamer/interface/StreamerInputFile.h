@@ -87,8 +87,6 @@ namespace edm {
 
     edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
 
-    unsigned int prefetchMBytes_;
-
     uint32 currRun_;
     uint32 currProto_;
 

@@ -33,7 +33,6 @@ namespace edm {
         currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
-        prefetchMBytes_(prefetchMBytes),
         currRun_(0),
         currProto_(0),
         newHeader_(false),
@@ -62,7 +61,6 @@ namespace edm {
         currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
-        prefetchMBytes_(prefetchMBytes),
         currRun_(0),
         currProto_(0),
         newHeader_(false),
@@ -124,10 +122,11 @@ namespace edm {
                                                                  bool zeroCopy,
                                                                  unsigned int skippedHdr) {
     storage::IOSize n = 0;
+    //returned pointer should point to the beginning of the header
+    //even if we read event payload that comes afterwards
     char* ptr = buf - skippedHdr;
     try {
-      if (prefetchMBytes_) {
-        //assert(tempPos_ > tempLen_);
+      if (tempBuf_.size()) {
         if (tempPos_ == tempLen_) {
           n = storage_->read(&tempBuf_[0], tempBuf_.size());
           tempPos_ = 0;
@@ -136,11 +135,12 @@ namespace edm {
             return std::pair<storage::IOSize, char*>(0, ptr);
         }
         if (nBytes <= tempLen_ - tempPos_) {
+          //zero-copy can't done when header start address is in the previous buffer
           if (!zeroCopy || skippedHdr > tempPos_) {
             memcpy(buf, &tempBuf_[0] + tempPos_, nBytes);
             tempPos_ += nBytes;
           } else {
-            //pass pointer to the prebuffer address (zero copy)
+            //pass pointer to the prebuffer address (zero copy) at the beginning of the header
             ptr = &tempBuf_[0] + tempPos_ - skippedHdr;
             tempPos_ += nBytes;
           }
@@ -312,9 +312,7 @@ namespace edm {
         if (eventBuf_.size() < eventSize)
           eventBuf_.resize(eventSize);
 
-        //set the pointer again as it can be changed by resize
-        //eventPtr = &eventBuf_[0];
-        auto res = readBytes(&eventBuf_[sizeof(EventHeader)], nWant, false, sizeof(EventHeader));
+        auto res = readBytes(&eventBuf_[sizeof(EventHeader)], nWant, true, sizeof(EventHeader));
         if (res.first != nWant) {
           throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
               << "Failed reading streamer file, second read in readEventMessage\n"
