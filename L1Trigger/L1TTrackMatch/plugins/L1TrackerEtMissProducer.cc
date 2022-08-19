@@ -31,7 +31,7 @@ public:
   typedef edm::RefVector<L1TTTrackCollectionType> L1TTTrackRefCollectionType;
 
   explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
-  ~L1TrackerEtMissProducer() override;
+  ~L1TrackerEtMissProducer() override = default;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -56,8 +56,6 @@ L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfi
       debug_(iConfig.getParameter<bool>("debug")) {
   produces<TkEtMissCollection>(L1MetCollectionName);
 }
-
-L1TrackerEtMissProducer::~L1TrackerEtMissProducer() {}
 
 void L1TrackerEtMissProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;

@@ -126,12 +126,10 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
   if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMET) {
     // MET is index [0], and uses .et() method
     onlinePt = iSum->et();
-  }
-  if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
+  } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
     // HT is index [0], and uses .pt() method
     onlinePt = iSum->pt();
-  }
-  if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
+  } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
     // MHT is index [1], and uses .pt() method
     if (l1tSums->size() < 2) {
       throw cms::Exception("BadCollectionSize")

@@ -148,14 +148,13 @@ L1TTkMuonFilter::MuonQualityCut::MuonQualityCut(const edm::ParameterSet& iConfig
 }
 
 bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TrackerMuon& muon) const {
-  bool passesQuality(false);
-
   // If we didn't load any qualities from the config file, that means we don't care.
   // So we set passesQuality to true.
   if (allowedQualities_.empty()) {
     return true;
   }
 
+  bool passesQuality(false);
   // The muonDetector() method is not available for TrackerMuon (it was available in TkMuon),
   // so for the time being we just take the union of all quality vectors for all muon detectors.
   for (const auto& detQuality : allowedQualities_) {
