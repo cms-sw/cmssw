@@ -79,7 +79,8 @@ void TriggerTools::initHLTObjects(const HLTConfigProvider& hltConfigProvider_) {
     }
 
     if (iRec.hltPathIndex == (unsigned int)-1) {
-      edm::LogWarning("TriggerTools") << "TriggerTools::initHLTObjects hltPathIndex has not been found for: " << iRec.hltPattern << std::endl;
+      edm::LogWarning("TriggerTools") << "TriggerTools::initHLTObjects hltPathIndex has not been found for: "
+                                      << iRec.hltPattern << std::endl;
       continue;
     }
   }
@@ -122,7 +123,7 @@ bool TriggerTools::pass() const {
         check if the event passed any of the initialized triggers
     */
 
-  return triggerBits!=0;
+  return triggerBits != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
