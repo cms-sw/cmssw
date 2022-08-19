@@ -17,11 +17,14 @@
 //
 ZCountingElectrons::ZCountingElectrons(const edm::ParameterSet& iConfig)
     : triggerResultsInputTag_(iConfig.getParameter<edm::InputTag>("TriggerResults")),
-      fPVName_token(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<std::string>("edmPVName", "offlinePrimaryVertices"))),
+      fPVName_token(consumes<reco::VertexCollection>(
+          iConfig.getUntrackedParameter<std::string>("edmPVName", "offlinePrimaryVertices"))),
 
       // Electron-specific Parameters
-      fGsfElectronName_token(consumes<edm::View<reco::GsfElectron>>(iConfig.getUntrackedParameter<std::string>("edmGsfEleName", "gedGsfElectrons"))),
-      fSCName_token(consumes<edm::View<reco::SuperCluster>>(iConfig.getUntrackedParameter<std::string>("edmSCName", "particleFlowEGamma"))),
+      fGsfElectronName_token(consumes<edm::View<reco::GsfElectron>>(
+          iConfig.getUntrackedParameter<std::string>("edmGsfEleName", "gedGsfElectrons"))),
+      fSCName_token(consumes<edm::View<reco::SuperCluster>>(
+          iConfig.getUntrackedParameter<std::string>("edmSCName", "particleFlowEGamma"))),
 
       // Electron-specific Tags
       fRhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoname"))),
@@ -40,7 +43,7 @@ ZCountingElectrons::ZCountingElectrons(const edm::ParameterSet& iConfig)
 
       LumiBin_(iConfig.getUntrackedParameter<double>("LumiBin")),
       LumiMin_(iConfig.getUntrackedParameter<double>("LumiMin")),
-      LumiMax_(iConfig.getUntrackedParameter<double>("LumiMax")),      
+      LumiMax_(iConfig.getUntrackedParameter<double>("LumiMax")),
 
       PVBin_(iConfig.getUntrackedParameter<int>("PVBin")),
       PVMin_(iConfig.getUntrackedParameter<double>("PVMin")),
@@ -62,12 +65,10 @@ ZCountingElectrons::ZCountingElectrons(const edm::ParameterSet& iConfig)
   triggers->setDRMAX(DRMAX);
 
   edm::LogVerbatim("ZCounting") << "ZCounting::ZCounting set trigger names";
-  const std::vector<std::string> patterns_ =
-      iConfig.getParameter<std::vector<std::string>>("ElectronTriggerNames");
-  for (const std::string pattern_ : patterns_) {
+  const std::vector<std::string> patterns_ = iConfig.getParameter<std::vector<std::string>>("ElectronTriggerNames");
+  for (const std::string& pattern_ : patterns_) {
     triggers->addTriggerRecord(pattern_);
   }
-
 
   EleID_.setID(ELE_ID_WP);
 }
@@ -75,7 +76,9 @@ ZCountingElectrons::ZCountingElectrons(const edm::ParameterSet& iConfig)
 //
 //  -------------------------------------- Destructor --------------------------------------------
 //
-ZCountingElectrons::~ZCountingElectrons() { edm::LogInfo("ZCountingElectrons") << "Destructor ZCountingElectrons::~ZCountingElectrons " << std::endl; }
+ZCountingElectrons::~ZCountingElectrons() {
+  edm::LogInfo("ZCountingElectrons") << "Destructor ZCountingElectrons::~ZCountingElectrons " << std::endl;
+}
 
 //
 // -------------------------------------- beginRun --------------------------------------------
@@ -89,15 +92,15 @@ void ZCountingElectrons::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
 
   bool hltChanged_ = true;
   if (hltConfigProvider_.init(iRun, iSetup, triggerResultsInputTag_.process(), hltChanged_)) {
-    edm::LogVerbatim("ZCountingElectrons") << "ZCountingElectrons::dqmBeginRun [TriggerObjMatchValueMapsProducer::beginRun] "
-                                     "HLTConfigProvider initialized [processName() = \""
-                                  << hltConfigProvider_.processName() << "\", tableName() = \""
-                                  << hltConfigProvider_.tableName() << "\", size() = " << hltConfigProvider_.size()
-                                  << "]";
+    edm::LogVerbatim("ZCountingElectrons")
+        << "ZCountingElectrons::dqmBeginRun [TriggerObjMatchValueMapsProducer::beginRun] "
+           "HLTConfigProvider initialized [processName() = \""
+        << hltConfigProvider_.processName() << "\", tableName() = \"" << hltConfigProvider_.tableName()
+        << "\", size() = " << hltConfigProvider_.size() << "]";
   } else {
-    edm::LogError("ZCountingElectrons") << "ZCountingElectrons::dqmBeginRun Initialization of HLTConfigProvider failed for Run="
-                               << iRun.id() << " (process=\"" << triggerResultsInputTag_.process()
-                               << "\") -> plugin will not produce outputs for this Run";
+    edm::LogError("ZCountingElectrons")
+        << "ZCountingElectrons::dqmBeginRun Initialization of HLTConfigProvider failed for Run=" << iRun.id()
+        << " (process=\"" << triggerResultsInputTag_.process() << "\") -> plugin will not produce outputs for this Run";
     return;
   }
 
@@ -118,26 +121,83 @@ void ZCountingElectrons::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run co
   h_npv->setAxisTitle("number of primary vertices", 2);
 
   // Electron histograms
-  h_ee_mass_id_pass_central  = ibooker_.book2D("h_ee_mass_id_pass_central", "h_ee_mass_id_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_fail_central  = ibooker_.book2D("h_ee_mass_id_fail_central", "h_ee_mass_id_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_pass_forward  = ibooker_.book2D("h_ee_mass_id_pass_forward", "h_ee_mass_id_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_fail_forward  = ibooker_.book2D("h_ee_mass_id_fail_forward", "h_ee_mass_id_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_ee_mass_id_pass_central = ibooker_.book2D("h_ee_mass_id_pass_central",
+                                              "h_ee_mass_id_pass_central",
+                                              LumiBin_,
+                                              LumiMin_,
+                                              LumiMax_,
+                                              MassBin_,
+                                              MassMin_,
+                                              MassMax_);
+  h_ee_mass_id_fail_central = ibooker_.book2D("h_ee_mass_id_fail_central",
+                                              "h_ee_mass_id_fail_central",
+                                              LumiBin_,
+                                              LumiMin_,
+                                              LumiMax_,
+                                              MassBin_,
+                                              MassMin_,
+                                              MassMax_);
+  h_ee_mass_id_pass_forward = ibooker_.book2D("h_ee_mass_id_pass_forward",
+                                              "h_ee_mass_id_pass_forward",
+                                              LumiBin_,
+                                              LumiMin_,
+                                              LumiMax_,
+                                              MassBin_,
+                                              MassMin_,
+                                              MassMax_);
+  h_ee_mass_id_fail_forward = ibooker_.book2D("h_ee_mass_id_fail_forward",
+                                              "h_ee_mass_id_fail_forward",
+                                              LumiBin_,
+                                              LumiMin_,
+                                              LumiMax_,
+                                              MassBin_,
+                                              MassMin_,
+                                              MassMax_);
 
-  h_ee_mass_HLT_pass_central = ibooker_.book2D("h_ee_mass_HLT_pass_central", "h_ee_mass_HLT_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_fail_central = ibooker_.book2D("h_ee_mass_HLT_fail_central", "h_ee_mass_HLT_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_pass_forward = ibooker_.book2D("h_ee_mass_HLT_pass_forward", "h_ee_mass_HLT_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_fail_forward = ibooker_.book2D("h_ee_mass_HLT_fail_forward", "h_ee_mass_HLT_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_ee_mass_HLT_pass_central = ibooker_.book2D("h_ee_mass_HLT_pass_central",
+                                               "h_ee_mass_HLT_pass_central",
+                                               LumiBin_,
+                                               LumiMin_,
+                                               LumiMax_,
+                                               MassBin_,
+                                               MassMin_,
+                                               MassMax_);
+  h_ee_mass_HLT_fail_central = ibooker_.book2D("h_ee_mass_HLT_fail_central",
+                                               "h_ee_mass_HLT_fail_central",
+                                               LumiBin_,
+                                               LumiMin_,
+                                               LumiMax_,
+                                               MassBin_,
+                                               MassMin_,
+                                               MassMax_);
+  h_ee_mass_HLT_pass_forward = ibooker_.book2D("h_ee_mass_HLT_pass_forward",
+                                               "h_ee_mass_HLT_pass_forward",
+                                               LumiBin_,
+                                               LumiMin_,
+                                               LumiMax_,
+                                               MassBin_,
+                                               MassMin_,
+                                               MassMax_);
+  h_ee_mass_HLT_fail_forward = ibooker_.book2D("h_ee_mass_HLT_fail_forward",
+                                               "h_ee_mass_HLT_fail_forward",
+                                               LumiBin_,
+                                               LumiMin_,
+                                               LumiMax_,
+                                               MassBin_,
+                                               MassMin_,
+                                               MassMax_);
 
-  h_ee_yield_Z_ebeb       = ibooker_.book1D("h_ee_yield_Z_ebeb", "h_ee_yield_Z_ebeb", LumiBin_, LumiMin_, LumiMax_);
-  h_ee_yield_Z_ebee       = ibooker_.book1D("h_ee_yield_Z_ebee", "h_ee_yield_Z_ebee", LumiBin_, LumiMin_, LumiMax_);
-  h_ee_yield_Z_eeee       = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);
+  h_ee_yield_Z_ebeb = ibooker_.book1D("h_ee_yield_Z_ebeb", "h_ee_yield_Z_ebeb", LumiBin_, LumiMin_, LumiMax_);
+  h_ee_yield_Z_ebee = ibooker_.book1D("h_ee_yield_Z_ebee", "h_ee_yield_Z_ebee", LumiBin_, LumiMin_, LumiMax_);
+  h_ee_yield_Z_eeee = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);
 }
 
 //
 // -------------------------------------- Analyze --------------------------------------------
 //
 //--------------------------------------------------------------------------------------------------
-void ZCountingElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  // Fill event tree on the fly
+void ZCountingElectrons::analyze(const edm::Event& iEvent,
+                                 const edm::EventSetup& iSetup) {  // Fill event tree on the fly
   edm::LogInfo("ZCountingElectrons") << "ZCountingElectrons::analyze" << std::endl;
 
   //-------------------------------

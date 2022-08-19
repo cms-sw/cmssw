@@ -32,7 +32,6 @@ protected:
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
 private:
-
   // Electron-specific functions
   bool ele_probe_selection(double pt, double abseta);
   bool ele_tag_selection(double pt, double abseta);
@@ -74,9 +73,9 @@ private:
 
   // trigger objects
   HLTConfigProvider hltConfigProvider_;
-  TriggerTools *triggers;
+  TriggerTools* triggers;
 
-  //constants 
+  //constants
   const double DRMAX = 0.1;  // max dR matching between muon and hlt object
   const float ELECTRON_MASS = 0.000511;
   const float ELE_ETA_CRACK_LOW = 1.4442;

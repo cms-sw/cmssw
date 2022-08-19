@@ -49,8 +49,7 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
 
       IDTypestr_(iConfig.getUntrackedParameter<std::string>("IDType")),
       IsoTypestr_(iConfig.getUntrackedParameter<std::string>("IsoType")),
-      IsoCut_(iConfig.getUntrackedParameter<double>("IsoCut"))
-{
+      IsoCut_(iConfig.getUntrackedParameter<double>("IsoCut")) {
   edm::LogInfo("ZCounting") << "Constructor  ZCounting::ZCounting " << std::endl;
 
   // Trigger settings
@@ -61,7 +60,7 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("ZCounting") << "ZCounting::ZCounting set trigger names";
   const std::vector<std::string> patterns_ = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
-  for (const std::string pattern_ : patterns_) {
+  for (const std::string& pattern_ : patterns_) {
     triggers->addTriggerRecord(pattern_);
   }
 
@@ -274,7 +273,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
-  const reco::Vertex* pv = 0;
+  const reco::Vertex* pv = nullptr;
   int nvtx = 0;
 
   for (auto const& itVtx : *hVertexProduct) {
