@@ -32,12 +32,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
-#include "DataFormats/Common/interface/View.h"
 
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
@@ -116,6 +118,8 @@ private:
       {"vertices", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerVertices}}};
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> Track_t;
+  typedef std::vector<Track_t> TrackCollection_t;
+  typedef edm::RefVector<TrackCollection_t> TrackRefCollection_t;
 
   // ----------member functions ----------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -124,6 +128,9 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<Track_t>> tracksToken_;
   edm::EDGetTokenT<edm::View<Track_t>> convertedTracksToken_;
+  edm::EDGetTokenT<TrackCollection_t> convertedTrackCollectionToken_;
+  edm::EDGetTokenT<TrackRefCollection_t> selectedTracksToken_;
+  edm::EDGetTokenT<TrackRefCollection_t> vertexAssociatedTracksToken_;
   edm::EDGetTokenT<edm::View<l1t::VertexWord>> verticesToken_;
   edm::EDGetTokenT<edm::View<l1t::TkJetWord>> jetsToken_;
   edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissToken_;
@@ -131,6 +138,8 @@ private:
 
   l1t::demo::BoardDataWriter fileWriterInputTracks_;
   l1t::demo::BoardDataWriter fileWriterConvertedTracks_;
+  l1t::demo::BoardDataWriter fileWriterSelectedTracks_;
+  l1t::demo::BoardDataWriter fileWriterVertexAssociatedTracks_;
   l1t::demo::BoardDataWriter fileWriterOutputToCorrelator_;
   l1t::demo::BoardDataWriter fileWriterOutputToGlobalTrigger_;
 };
@@ -143,6 +152,12 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
     : tracksToken_(consumes<edm::View<Track_t>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
       convertedTracksToken_(
           consumes<edm::View<Track_t>>(iConfig.getUntrackedParameter<edm::InputTag>("convertedTracks"))),
+      convertedTrackCollectionToken_(
+          consumes<TrackCollection_t>(iConfig.getUntrackedParameter<edm::InputTag>("convertedTracks"))),
+      selectedTracksToken_(
+          consumes<TrackRefCollection_t>(iConfig.getUntrackedParameter<edm::InputTag>("selectedTracks"))),
+      vertexAssociatedTracksToken_(
+          consumes<TrackRefCollection_t>(iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociatedTracks"))),
       verticesToken_(consumes<edm::View<l1t::VertexWord>>(iConfig.getUntrackedParameter<edm::InputTag>("vertices"))),
       jetsToken_(consumes<edm::View<l1t::TkJetWord>>(iConfig.getUntrackedParameter<edm::InputTag>("jets"))),
       htMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("htmiss"))),
@@ -156,6 +171,20 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                              kChannelSpecsInput),
       fileWriterConvertedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                  iConfig.getUntrackedParameter<std::string>("inputConvertedFilename"),
+                                 kFramesPerTMUXPeriod,
+                                 kGTTBoardTMUX,
+                                 kMaxLinesPerFile,
+                                 kChannelIdsInput,
+                                 kChannelSpecsInput),
+      fileWriterSelectedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+                                 iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
+                                 kFramesPerTMUXPeriod,
+                                 kGTTBoardTMUX,
+                                 kMaxLinesPerFile,
+                                 kChannelIdsInput,
+                                 kChannelSpecsInput),
+      fileWriterVertexAssociatedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+                                 iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
                                  kFramesPerTMUXPeriod,
                                  kGTTBoardTMUX,
                                  kMaxLinesPerFile,
@@ -179,20 +208,41 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
   using namespace l1t::demo::codecs;
 
+  // 0) Gather the necessary collections
+  const auto tracksCollection = iEvent.get(tracksToken_);
+  const auto convertedTracksCollection = iEvent.get(convertedTracksToken_);
+  const auto verticesCollection = iEvent.get(verticesToken_);
+  const auto jetsCollection = iEvent.get(jetsToken_);
+  const auto htMissCollection = iEvent.get(htMissToken_);
+  const auto etMissCollection = iEvent.get(etMissToken_);
+
+  edm::Handle<TrackCollection_t> convertedTracksHandle;
+  edm::Handle<TrackRefCollection_t> selectedTracksHandle;
+  edm::Handle<TrackRefCollection_t> vertexAssociatedTracksHandle;
+  iEvent.getByToken(convertedTrackCollectionToken_, convertedTracksHandle);
+  iEvent.getByToken(selectedTracksToken_, selectedTracksHandle);
+  iEvent.getByToken(vertexAssociatedTracksToken_, vertexAssociatedTracksHandle);
+
   // 1) Encode 'object' information onto vectors containing link data
-  const auto trackData(encodeTracks(iEvent.get(tracksToken_)));
-  const auto convertedTrackData(encodeTracks(iEvent.get(convertedTracksToken_)));
-  const auto vertexData(encodeVertices(iEvent.get(verticesToken_)));
-  const auto jetsData(encodeTkJets(iEvent.get(jetsToken_)));
-  const auto htMissData(encodeHtSums(iEvent.get(htMissToken_)));
-  const auto etMissData(encodeEtSums(iEvent.get(etMissToken_)));
+  const auto trackData(encodeTracks(tracksCollection));
+  const auto convertedTrackData(encodeTracks(convertedTracksCollection));
+  const auto selectedTrackData(encodeTracks(convertedTracksHandle, selectedTracksHandle));
+  const auto vertexAssociatedTrackData(encodeTracks(convertedTracksHandle, vertexAssociatedTracksHandle));
+  const auto vertexData(encodeVertices(verticesCollection));
+  const auto jetsData(encodeTkJets(jetsCollection));
+  const auto htMissData(encodeHtSums(htMissCollection));
+  const auto etMissData(encodeEtSums(etMissCollection));
 
   // 2) Pack 'object' information into 'event data' object
   l1t::demo::EventData eventDataTracks;
   l1t::demo::EventData eventDataConvertedTracks;
+  l1t::demo::EventData eventDataSelectedTracks;
+  l1t::demo::EventData eventDataVertexAssociatedTracks;
   for (size_t i = 0; i < 18; i++) {
     eventDataTracks.add({"tracks", i}, trackData.at(i));
     eventDataConvertedTracks.add({"tracks", i}, convertedTrackData.at(i));
+    eventDataSelectedTracks.add({"tracks", i}, selectedTrackData.at(i));
+    eventDataVertexAssociatedTracks.add({"tracks", i}, vertexAssociatedTrackData.at(i));
   }
 
   l1t::demo::EventData eventDataVertices;
@@ -222,6 +272,8 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   fileWriterInputTracks_.addEvent(eventDataTracks);
   fileWriterConvertedTracks_.addEvent(eventDataConvertedTracks);
+  fileWriterSelectedTracks_.addEvent(eventDataSelectedTracks);
+  fileWriterVertexAssociatedTracks_.addEvent(eventDataVertexAssociatedTracks);
   fileWriterOutputToCorrelator_.addEvent(eventDataVertices);
   fileWriterOutputToGlobalTrigger_.addEvent(eventDataGlobalTrigger);
 }
@@ -241,12 +293,16 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.addUntracked<edm::InputTag>("convertedTracks", edm::InputTag("l1tGTTInputProducer", "Level1TTTracksConverted"));
+  desc.addUntracked<edm::InputTag>("selectedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"));
+  desc.addUntracked<edm::InputTag>("vertexAssociatedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "l1verticesEmulation"));
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
   desc.addUntracked<edm::InputTag>("etmiss", edm::InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss"));
   desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");
   desc.addUntracked<std::string>("inputConvertedFilename", "L1GTTInputConvertedFile");
+  desc.addUntracked<std::string>("selectedTracksFilename", "L1GTTSelectedTracksFile");
+  desc.addUntracked<std::string>("vertexAssociatedTracksFilename", "L1GTTVertexAssociatedTracksFile");
   desc.addUntracked<std::string>("outputCorrelatorFilename", "L1GTTOutputToCorrelatorFile");
   desc.addUntracked<std::string>("outputGlobalTriggerFilename", "L1GTTOutputToGlobalTriggerFile");
   desc.addUntracked<std::string>("format", "APx");
