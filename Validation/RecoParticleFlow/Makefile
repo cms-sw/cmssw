@@ -66,7 +66,7 @@ NuGunPU_dqm:
 
 plots:
 	rm -Rf plots
-	python test/compare.py \
+	python3 test/compare.py \
 	    --sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
@@ -74,25 +74,25 @@ plots:
 
 QCD_plots:
 	rm -Rf plots
-	python test/compare.py \
+	python3 test/compare.py \
 	    --sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
 		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 QCDPU_plots:
 	rm -Rf plots
-	python test/compare.py \
+	python3 test/compare.py \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
 		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 NuGunPU_plots:
 	rm -Rf plots
-	python test/compare.py \
+	python3 test/compare.py \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
 		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 plots_with_ref:
 	rm -Rf plots
-	python test/compare.py \
+	python3 test/compare.py \
 		--sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD_ref/${DQM_MC}.root \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU_ref/${DQM_MC}.root \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU_ref/${DQM_MC}.root \
