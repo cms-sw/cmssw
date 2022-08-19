@@ -364,8 +364,8 @@ void HLTPrescaleProvider::checkL1TGlobalUtil() const {
 
 template <>
 unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& iEvent,
-                                                  const edm::EventSetup& iSetup,
-                                                  const std::string& trigger) {
+                                                              const edm::EventSetup& iSetup,
+                                                              const std::string& trigger) {
   const int set(prescaleSet(iEvent, iSetup));
   return set < 0 ? 1 : hltConfigProvider_.prescaleValue<unsigned int>(static_cast<unsigned int>(set), trigger);
 }

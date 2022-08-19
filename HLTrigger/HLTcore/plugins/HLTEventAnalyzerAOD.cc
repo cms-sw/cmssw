@@ -155,7 +155,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent,
   LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyzeTrigger: path " << triggerName << " ["
                                      << triggerIndex << "] "
                                      << "prescales L1T,HLT: " << prescales.first << "," << prescales.second << endl;
-  const std::pair<std::vector<std::pair<std::string, double> >, int> prescalesInDetail(
+  const std::pair<std::vector<std::pair<std::string, int> >, int> prescalesInDetail(
       hltPrescaleProvider_.prescaleValuesInDetail(iEvent, iSetup, triggerName));
   std::ostringstream message;
   for (unsigned int i = 0; i < prescalesInDetail.first.size(); ++i) {

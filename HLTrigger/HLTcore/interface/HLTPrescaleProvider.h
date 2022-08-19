@@ -60,7 +60,7 @@ public:
   // negative == error
 
   /// combining the two methods above
-  template <typename T = double>
+  template <typename T = unsigned int>
   T prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) {
     const int set(prescaleSet(iEvent, iSetup));
     //there is a template specialisation for unsigned in which returns +1 which
@@ -69,7 +69,7 @@ public:
   }
 
   /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
-  template <typename TL1 = double, typename THLT = TL1>
+  template <typename TL1 = int, typename THLT = TL1>
   std::pair<TL1, THLT> prescaleValues(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
                                       const std::string& trigger) {
@@ -79,7 +79,7 @@ public:
   // any one negative => error in retrieving this (L1T or HLT) prescale
 
   // In case of a complex Boolean expression as L1 seed
-  template <typename TL1 = double, typename THLT = TL1>
+  template <typename TL1 = int, typename THLT = TL1>
   std::pair<std::vector<std::pair<std::string, TL1> >, THLT> prescaleValuesInDetail(const edm::Event& iEvent,
                                                                                     const edm::EventSetup& iSetup,
                                                                                     const std::string& trigger) {
@@ -139,7 +139,7 @@ FractionalPrescale HLTPrescaleProvider::convertL1PS<FractionalPrescale>(double v
 
 template <>
 unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& iEvent,
-                                                  const edm::EventSetup& iSetup,
-                                                  const std::string& trigger);
+                                                              const edm::EventSetup& iSetup,
+                                                              const std::string& trigger);
 
 #endif
