@@ -38,7 +38,7 @@ protected:
 
 private:
   //other functions
-  bool passMuonID(const reco::Muon& muon, const reco::Vertex *vtx);
+  bool passMuonID(const reco::Muon& muon, const reco::Vertex* vtx);
   bool passMuonIso(const reco::Muon& muon);
   bool isCustomTightMuon(const reco::Muon& muon);
 
@@ -80,14 +80,14 @@ private:
   const std::string IDTypestr_;
   const std::string IsoTypestr_;
   const double IsoCut_;
-  
+
   // muon ID and ISO parameters
   MuonIDTypes IDType_{NoneID};
   MuonIsoTypes IsoType_{NoneIso};
 
   // trigger objects
   HLTConfigProvider hltConfigProvider_;
-  TriggerTools *triggers;
+  TriggerTools* triggers;
 
   // constants
   const double DRMAX = 0.1;  // max dR matching between muon and hlt object
@@ -114,7 +114,6 @@ private:
   MonitorElement* h_mass_Glo_fail_BB;
   MonitorElement* h_mass_Glo_fail_BE;
   MonitorElement* h_mass_Glo_fail_EE;
-
 };
 
 #endif
