@@ -89,4 +89,3 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 }
-
