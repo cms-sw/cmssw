@@ -11,7 +11,7 @@ dtDigiMonitor = DQMEDAnalyzer('DTDigiTask',
     # Value of the ttrig pedestal used when not reading from DB
     defaultTtrig = cms.int32(2700),
     # the label to retrieve the DT digis
-    dtDigiLabel = cms.InputTag('dtunpacker'),
+    dtDigiLabel = cms.untracked.InputTag('dtunpacker'),
     # check the noisy flag in the DB and use it
     checkNoisyChannels = cms.untracked.bool(True),
     # set static booking (all the detector)

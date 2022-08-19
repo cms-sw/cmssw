@@ -182,13 +182,13 @@ TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet &ps)
       geometryToken_(esConsumes())
 
 {
-  tokenStatus = consumes<DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
+  tokenStatus = consumes<DetSetVector<TotemVFATStatus>>(ps.getUntrackedParameter<edm::InputTag>("tagStatus"));
 
-  tokenDigi = consumes<DetSetVector<TotemRPDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
-  tokenCluster = consumes<edm::DetSetVector<TotemRPCluster>>(ps.getParameter<edm::InputTag>("tagCluster"));
-  tokenRecHit = consumes<edm::DetSetVector<TotemRPRecHit>>(ps.getParameter<edm::InputTag>("tagRecHit"));
-  tokenUVPattern = consumes<DetSetVector<TotemRPUVPattern>>(ps.getParameter<edm::InputTag>("tagUVPattern"));
-  tokenLocalTrack = consumes<DetSetVector<TotemRPLocalTrack>>(ps.getParameter<edm::InputTag>("tagLocalTrack"));
+  tokenDigi = consumes<DetSetVector<TotemRPDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagDigi"));
+  tokenCluster = consumes<edm::DetSetVector<TotemRPCluster>>(ps.getUntrackedParameter<edm::InputTag>("tagCluster"));
+  tokenRecHit = consumes<edm::DetSetVector<TotemRPRecHit>>(ps.getUntrackedParameter<edm::InputTag>("tagRecHit"));
+  tokenUVPattern = consumes<DetSetVector<TotemRPUVPattern>>(ps.getUntrackedParameter<edm::InputTag>("tagUVPattern"));
+  tokenLocalTrack = consumes<DetSetVector<TotemRPLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagLocalTrack"));
 }
 
 //----------------------------------------------------------------------------------------------------
