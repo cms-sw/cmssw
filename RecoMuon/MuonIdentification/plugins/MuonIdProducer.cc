@@ -796,7 +796,8 @@ bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
     return false;
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
+  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) +
+          muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
