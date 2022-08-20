@@ -108,6 +108,8 @@ public:  //====================================================================
     return mpPCLresults(updateDB_, vetoUpdateDB_, Nrec_, exitCode_, exitMessage_, updateBits_);
   }
 
+  const std::map<std::string, std::array<bool, 6>>& getResultsHG() const { return fractionExceeded_; }
+
 private:
   //========================= PRIVATE ENUMS ====================================
   //============================================================================
@@ -184,6 +186,9 @@ private:
 
   // pede binaries available
   int binariesAmount_{0};
+
+  // Fraction threshold booleans for HG alignment
+  std::map<std::string, std::array<bool, 6>> fractionExceeded_;
 
   int Nrec_{0};
   int exitCode_{-1};

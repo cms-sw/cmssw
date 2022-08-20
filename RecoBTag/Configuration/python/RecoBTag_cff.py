@@ -79,6 +79,7 @@ pfBTaggingTask = cms.Task(
     
     # pixel cluster
     pixelClusterTagInfos,
+
 )
 
 pfBTagging = cms.Sequence(pfBTaggingTask)
@@ -88,4 +89,10 @@ btaggingTask = cms.Task(
     pfCTaggingTask
 )
 btagging = cms.Sequence(btaggingTask)
+
+## modifying b-tagging task in Run3 adding ParticleNet inferece
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_pfBTaggingTask_particleNet = pfBTaggingTask.copy()
+_pfBTaggingTask_particleNet.add( pfParticleNetAK4TaskForRECO, pfParticleNetTask )
+run3_common.toReplaceWith( pfBTaggingTask, _pfBTaggingTask_particleNet)
 

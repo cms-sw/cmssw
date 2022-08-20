@@ -322,8 +322,11 @@ void MillePedeFileReader ::readMillePedeResultFile() {
           if (fraction_ >= fractions_[ali][i]) {
             updateDB_ = true;
             ss << "   above fraction threshold" << std::endl;
-          } else
+            fractionExceeded_[ali][i] = true;
+          } else {
             ss << std::endl;
+            fractionExceeded_[ali][i] = false;
+          }
         } else
           ss << "No entries available or no fraction thresholds defined" << std::endl;
       }
@@ -498,7 +501,6 @@ void MillePedeFileReader::initializeIndexHelper() {
   indexHelper[PclHLS::TPEPanelDisk2] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(2));
   currentSum += pixelTopologyMap_->getPXFBlades(2) * 2;
   indexHelper[PclHLS::TPEPanelDisk3] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(3));
-  currentSum += pixelTopologyMap_->getPXFBlades(3) * 2;
 }
 
 int MillePedeFileReader::getIndexForHG(align::ID id, PclHLS HLS) {

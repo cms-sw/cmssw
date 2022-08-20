@@ -364,16 +364,15 @@ namespace edm {
     }
   }
 
-  void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+  void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                             EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      assert(*iEPtr);
-      if (shouldRethrowException(*iEPtr, parentContext, true)) {
-        exceptionPtr = *iEPtr;
+      if (shouldRethrowException(iEPtr, parentContext, true)) {
+        exceptionPtr = iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
@@ -389,18 +388,17 @@ namespace edm {
     holder.doneWaiting(exceptionPtr);
   }
 
-  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr const* iEPtr,
-                                                         ParentContext const& parentContext) {
+  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext) {
     if (ranAcquireWithoutException_) {
       try {
-        convertException::wrap([iEPtr]() { std::rethrow_exception(*iEPtr); });
+        convertException::wrap([iEPtr]() { std::rethrow_exception(iEPtr); });
       } catch (cms::Exception& ex) {
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
         edm::exceptionContext(ex, moduleCallingContext_);
         return std::current_exception();
       }
     }
-    return *iEPtr;
+    return iEPtr;
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,

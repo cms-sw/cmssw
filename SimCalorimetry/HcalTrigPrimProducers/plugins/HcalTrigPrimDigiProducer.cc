@@ -175,7 +175,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
     int aieta = abs(hcalTTDetId.ieta());
 
     // Filter weight represented in fixed point 8 bit
-    int fixedPointWeight = -1.0;
+    int fixedPointWeight = -1;
 
     // The absence of TT channels in the HcalTPChannelParameters
     // is intepreted as to not use the new filter
@@ -190,22 +190,22 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       // Size of filter is already known when using DB weights
       // Weight from DB represented as 8-bit integer
       if (!overrideDBweightsAndFilterHB_) {
-        if (fixedPointWeight != -1.0) {
+        if (fixedPointWeight != -1) {
           theAlgo_.setNumFilterPresamplesHBQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
         } else {
           theAlgo_.setNumFilterPresamplesHBQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 1.0);
+          theAlgo_.setWeightQIE11(aieta, 255);
         }
       }
     } else if (aieta < lastHERing) {
       if (!overrideDBweightsAndFilterHE_) {
-        if (fixedPointWeight != -1.0) {
+        if (fixedPointWeight != -1) {
           theAlgo_.setNumFilterPresamplesHEQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
         } else {
           theAlgo_.setNumFilterPresamplesHEQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 1.0);
+          theAlgo_.setWeightQIE11(aieta, 255);
         }
       }
     }

@@ -185,6 +185,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       nMEFiltered(-1),
       nISRveto(0),
       nFSRveto(0) {
+  ivhepmc = 2;
   // J.Y.: the following 3 parameters are hacked "for a reason"
   //
   if (params.exists("PPbarInitialState")) {

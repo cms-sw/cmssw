@@ -1,2 +1,3 @@
+<use name="SimG4Core/Geometry"/>
 <flags EDM_PLUGIN="1"/>
 <bin name="SimFileCompare" file="SimFileCompare.cpp"> </bin>

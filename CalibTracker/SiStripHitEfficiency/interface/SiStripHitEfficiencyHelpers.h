@@ -4,6 +4,7 @@
 // A bunch of helper functions to deal with menial tasks in the
 // hit efficiency computation for the PCL workflow
 
+#include "TString.h"
 #include <string>
 #include <fmt/printf.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -18,8 +19,19 @@ namespace {
     k_LayersAtTOBEnd = 10,
     k_LayersAtTIDEnd = 13,
     k_LayersAtTECEnd = 22,
-    k_END_OF_LAYERS = 23
+    k_END_OF_LAYERS = 23,
+    k_END_OF_LAYS_AND_RINGS = 35
   };
+
+  inline void replaceInString(std::string& str, const std::string& from, const std::string& to) {
+    if (from.empty())
+      return;
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+      str.replace(start_pos, from.length(), to);
+      start_pos += to.length();  // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+  }
 
   inline unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
     switch (DetId(iidd).subdetId()) {
@@ -47,7 +59,26 @@ namespace {
     } else if (k > bounds::k_LayersAtTIDEnd && k <= bounds::k_LayersAtTIDEnd + nTEClayers) {
       return fmt::format("TEC {0}{1:d}", ringlabel, k - bounds::k_LayersAtTIDEnd);
     } else {
-      return "";
+      return "should never be here!";
+    }
+  }
+
+  inline std::string layerSideName(Long_t k, const bool showRings, const unsigned int nTEClayers) {
+    const std::string ringlabel{showRings ? "R" : "D"};
+    if (k > bounds::k_LayersStart && k <= bounds::k_LayersAtTIBEnd) {
+      return fmt::format("TIB L{:d}", k);
+    } else if (k > bounds::k_LayersAtTIBEnd && k <= bounds::k_LayersAtTOBEnd) {
+      return fmt::format("TOB L{:d}", k - bounds::k_LayersAtTIBEnd);
+    } else if (k > bounds::k_LayersAtTOBEnd && k < 14) {
+      return fmt::format("TID- {0}{1:d}", ringlabel, k - bounds::k_LayersAtTOBEnd);
+    } else if (k > 13 && k < 17) {
+      return fmt::format("TID+ {0}{1:d}", ringlabel, k - 13);
+    } else if (k > 16 && k < 17 + nTEClayers) {
+      return fmt::format("TEC- {0}{1:d}", ringlabel, k - 16);
+    } else if (k > 16 + nTEClayers) {
+      return fmt::format("TEC+ {0}{1:d}", ringlabel, k - 16 - nTEClayers);
+    } else {
+      return "shoud never be here!";
     }
   }
 

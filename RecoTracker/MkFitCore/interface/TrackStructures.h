@@ -494,9 +494,10 @@ namespace mkfit {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx)) {
+        bool cStereo = trk_inf[thisL].is_stereo();
         if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf[thisL].is_stereo()) {
+        else if (cStereo) {
           ++stereo;
           if (thisL == prevL)
             doubleStereo = thisL;
@@ -509,7 +510,7 @@ namespace mkfit {
             ++matched;  //doubleMatch, the first is counted early on
         }
         prevL = thisL;
-        prevStereo = stereo;
+        prevStereo = cStereo;
       }
       ch = hot_node.m_prev_idx;
     }
@@ -527,9 +528,10 @@ namespace mkfit {
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx) &&
           thisL != prevL) {
+        bool cStereo = trk_inf[thisL].is_stereo();
         if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf[thisL].is_stereo())
+        else if (cStereo)
           ++stereo;
         else {
           //mono if not pixel, nor stereo - can be matched to stereo
@@ -538,7 +540,7 @@ namespace mkfit {
             ++matched;
         }
         prevL = thisL;
-        prevStereo = stereo;
+        prevStereo = cStereo;
       }
       ch = hot_node.m_prev_idx;
     }

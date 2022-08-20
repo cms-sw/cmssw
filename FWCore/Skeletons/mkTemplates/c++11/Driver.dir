@@ -4,4 +4,4 @@ src/c++11.cpp
 src/main.cpp
 include/c++11.h
 include/c++11Tmpl.h
-include/c++11Tmpl.inl
+include/c++11Tmpl.icc

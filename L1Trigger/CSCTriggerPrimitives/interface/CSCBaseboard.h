@@ -108,6 +108,7 @@ protected:
   bool runME31Up_;
   bool runME41Up_;
 
+  bool run3_;
   bool runCCLUT_;
   bool runCCLUT_TMB_;
   bool runCCLUT_OTMB_;

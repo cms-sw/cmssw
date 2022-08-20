@@ -59,6 +59,8 @@ public:
 private:
   void updateMagneticField(edm::EventSetup const &es);
 
+  void makeGeom(const edm::EventSetup &c);
+
   G4RunManagerKernel *m_kernel;
   edm::ParameterSet m_pField;
   SimActivityRegistry m_registry;

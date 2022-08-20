@@ -97,7 +97,12 @@ namespace l1t {
     /// check that the L1TGlobalUtil has been properly initialised
     bool valid() const;
 
-    static void fillDescription(edm::ParameterSetDescription& desc) { L1TGlobalUtilHelper::fillDescription(desc); }
+    static void fillDescription(edm::ParameterSetDescription& desc,
+                                edm::InputTag const& iAlg,
+                                edm::InputTag const& iExt,
+                                bool readPrescalesFromFile) {
+      L1TGlobalUtilHelper::fillDescription(desc, iAlg, iExt, readPrescalesFromFile);
+    }
 
     // OverridePrescalesAndMasks
     // The ability to override the prescale/mask file will not be part of the permanent interface of this class.

@@ -50,14 +50,14 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps) {
   //
   bsLegacyToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
-  dcsRecordInputTag_ = ps.getParameter<edm::InputTag>("dcsRecordInputTag");
+  dcsRecordInputTag_ = ps.getUntrackedParameter<edm::InputTag>("dcsRecordInputTag");
   dcsRecordToken_ = consumes<DCSRecord>(dcsRecordInputTag_);
 
   //
   dip = Dip::create("CmsBeamSpotServer");
 
-  //
-  dip->setDNSNode("cmsdimns1.cern.ch");
+  // Use both CMS-based DIM DNS server (https://its.cern.ch/jira/browse/CMSOMS-280)
+  dip->setDNSNode("cmsdimns1.cern.ch,cmsdimns2.cern.ch");
 
   edm::LogInfo("BeamSpotDipServer") << "reading from " << (readFromNFS ? "file (NFS)" : "database");
 }

@@ -42,8 +42,8 @@ namespace spr {
     HcalDetId hcid(hcid0.subdet(), hcid0.ieta(), hcid0.iphi(), 1);
     DetId det(hcid.rawId());
     if (debug)
-      std::cout << "Inside eHCALmatrixTotal " << ieta << "X" << iphi << " Inclusion of HO Flag " << includeHO
-                << std::endl;
+      edm::LogVerbatim("IsoTrack") << "Inside eHCALmatrixTotal " << ieta << "X" << iphi << " Inclusion of HO Flag "
+                                   << includeHO;
 
     spr::EtaPhi etaphi = spr::getEtaPhi(ieta, iphi, debug);
 
@@ -69,8 +69,8 @@ namespace spr {
         itrym = itry;
       }
       if (debug)
-        std::cout << "eHCALMatrix::Total energy " << energy << " Max " << energySum << "in trial # " << itrym
-                  << std::endl;
+        edm::LogVerbatim("IsoTrack") << "eHCALMatrix::Total energy " << energy << " Max " << energySum << "in trial # "
+                                     << itrym;
     }
 
     return std::pair<double, int>(energySum, itrym);
@@ -93,12 +93,12 @@ namespace spr {
     HcalDetId hcid(hcid0.subdet(), hcid0.ieta(), hcid0.iphi(), 1);
     DetId det(hcid.rawId());
     if (debug)
-      std::cout << "Inside energyHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " Inclusion of HO Flag "
-                << includeHO << std::endl;
+      edm::LogVerbatim("IsoTrack") << "Inside energyHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1
+                                   << " Inclusion of HO Flag " << includeHO;
 
     double energy = 0;
     if (ieta > 2) {
-      std::cout << " no matrix > 5x5 is coded ! " << std::endl;
+      edm::LogVerbatim("IsoTrack") << " no matrix > 5x5 is coded ! ";
       return energy;
     }
     // used dets during building the matrix
@@ -113,23 +113,25 @@ namespace spr {
       // go to east from central tower
       vNeighboursDetId.clear();
       if (debug)
-        std::cout << "hitHCALMatrix:: det " << (HcalDetId)det << std::endl;
+        edm::LogVerbatim("IsoTrack") << "hitHCALMatrix:: det " << (HcalDetId)det;
       vNeighboursDetId = topology->east(det);
       if (debug) {
-        std::cout << "Neighbour:: East";
+        std::ostringstream st1;
+        st1 << "Neighbour:: East";
         for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-          std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-        std::cout << std::endl;
+          st1 << " " << (HcalDetId)vNeighboursDetId[i];
+        edm::LogVerbatim("IsoTrack") << st1.str();
       }
       energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
       if (ieta == 2) {
         for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
           std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
           if (debug) {
-            std::cout << "Neighbour:: East";
+            std::ostringstream st1;
+            st1 << "Neighbour:: East";
             for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
         }
@@ -139,20 +141,22 @@ namespace spr {
       vNeighboursDetId.clear();
       vNeighboursDetId = topology->west(det);
       if (debug) {
-        std::cout << "Neighbour:: West";
+        std::ostringstream st1;
+        st1 << "Neighbour:: West";
         for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-          std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-        std::cout << std::endl;
+          st1 << " " << (HcalDetId)vNeighboursDetId[i];
+        edm::LogVerbatim("IsoTrack") << st1.str();
       }
       energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
       if (ieta == 2) {
         for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
           std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
           if (debug) {
-            std::cout << "Neighbour:: West";
+            std::ostringstream st1;
+            st1 << "Neighbour:: West";
             for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
         }
@@ -163,13 +167,14 @@ namespace spr {
     DetId detnorth = det;
     for (int inorth = 0; inorth < iphi; inorth++) {
       if (debug)
-        std::cout << "hitHCALMatrix:: detNorth " << (HcalDetId)detnorth << std::endl;
+        edm::LogVerbatim("IsoTrack") << "hitHCALMatrix:: detNorth " << (HcalDetId)detnorth;
       std::vector<DetId> NorthDetId = topology->north(detnorth);
       if (debug) {
-        std::cout << "Neighbour:: North";
+        std::ostringstream st1;
+        st1 << "Neighbour:: North";
         for (unsigned int i = 0; i < NorthDetId.size(); i++)
-          std::cout << " " << (HcalDetId)NorthDetId[i];
-        std::cout << std::endl;
+          st1 << " " << (HcalDetId)NorthDetId[i];
+        edm::LogVerbatim("IsoTrack") << st1.str();
       }
       if (!(NorthDetId.empty())) {
         energy += energyHCAL(NorthDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -178,20 +183,22 @@ namespace spr {
           vNeighboursDetId.clear();
           vNeighboursDetId = topology->east(NorthDetId[0]);
           if (debug) {
-            std::cout << "Neighbour:: East";
+            std::ostringstream st1;
+            st1 << "Neighbour:: East";
             for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetId[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
             for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
               std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
               if (debug) {
-                std::cout << "Neighbour:: East";
+                std::ostringstream st1;
+                st1 << "Neighbour:: East";
                 for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-                std::cout << std::endl;
+                  st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+                edm::LogVerbatim("IsoTrack") << st1.str();
               }
               energy +=
                   energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -202,20 +209,22 @@ namespace spr {
           vNeighboursDetId.clear();
           vNeighboursDetId = topology->west(NorthDetId[0]);
           if (debug) {
-            std::cout << "Neighbour:: West";
+            std::ostringstream st1;
+            st1 << "Neighbour:: West";
             for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetId[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
             for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
               std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
               if (debug) {
-                std::cout << "Neighbour:: West";
+                std::ostringstream st1;
+                st1 << "Neighbour:: West";
                 for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-                std::cout << std::endl;
+                  st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+                edm::LogVerbatim("IsoTrack") << st1.str();
               }
               energy +=
                   energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -232,16 +241,17 @@ namespace spr {
     DetId detsouth = det;
     for (int isouth = 0; isouth < iphi; isouth++) {
       if (debug)
-        std::cout << "hitHCALMatrix:: detSouth " << (HcalDetId)detsouth << std::endl;
+        edm::LogVerbatim("IsoTrack") << "hitHCALMatrix:: detSouth " << (HcalDetId)detsouth;
       vNeighboursDetId.clear();
       std::vector<DetId> SouthDetId = topology->south(detsouth);
       if (!(SouthDetId.empty())) {
         energy += energyHCAL(SouthDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
         if (debug) {
-          std::cout << "Neighbour:: South";
+          std::ostringstream st1;
+          st1 << "Neighbour:: South";
           for (unsigned int i = 0; i < SouthDetId.size(); i++)
-            std::cout << " " << (HcalDetId)SouthDetId[i];
-          std::cout << std::endl;
+            st1 << " " << (HcalDetId)SouthDetId[i];
+          edm::LogVerbatim("IsoTrack") << st1.str();
         }
 
         // go to east
@@ -250,20 +260,22 @@ namespace spr {
           vNeighboursDetId.clear();
           vNeighboursDetId = topology->east(SouthDetId[0]);
           if (debug) {
-            std::cout << "Neighbour:: East";
+            std::ostringstream st1;
+            st1 << "Neighbour:: East";
             for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetId[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
             for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
               std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
               if (debug) {
-                std::cout << "Neighbour:: East";
+                std::ostringstream st1;
+                st1 << "Neighbour:: East";
                 for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-                std::cout << std::endl;
+                  st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+                edm::LogVerbatim("IsoTrack") << st1.str();
               }
               energy +=
                   energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -274,20 +286,22 @@ namespace spr {
           vNeighboursDetId.clear();
           vNeighboursDetId = topology->west(SouthDetId[0]);
           if (debug) {
-            std::cout << "Neighbour:: West";
+            std::ostringstream st1;
+            st1 << "Neighbour:: West";
             for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
-            std::cout << std::endl;
+              st1 << " " << (HcalDetId)vNeighboursDetId[i];
+            edm::LogVerbatim("IsoTrack") << st1.str();
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
             for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
               std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
               if (debug) {
-                std::cout << "Neighbour:: West";
+                std::ostringstream st1;
+                st1 << "Neighbour:: West";
                 for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
-                std::cout << std::endl;
+                  st1 << " " << (HcalDetId)vNeighboursDetIdc[i];
+                edm::LogVerbatim("IsoTrack") << st1.str();
               }
               energy +=
                   energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -375,7 +389,7 @@ namespace spr {
       }
     }
     if (debug)
-      std::cout << "energyHCAL:: Energy " << energySum << " from " << kHit << " hits" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "energyHCAL:: Energy " << energySum << " from " << kHit << " hits";
     return energySum;
   }
 
@@ -400,13 +414,13 @@ namespace spr {
           khit++;
           ok = true;
           if (debug)
-            std::cout << "energyDetIdHCALneighbours:: Hit " << khit << " " << (HcalDetId)vdets[i] << " energy "
-                      << hit[ihit]->energy() << std::endl;
+            edm::LogVerbatim("IsoTrack") << "energyDetIdHCALneighbours:: Hit " << khit << " " << (HcalDetId)vdets[i]
+                                         << " energy " << hit[ihit]->energy();
         }
       }
       if (debug)
-        std::cout << "energyDetIdHCALneighbours::Detector " << i << " " << (HcalDetId)vdets[i] << " energy " << energy
-                  << std::endl;
+        edm::LogVerbatim("IsoTrack") << "energyDetIdHCALneighbours::Detector " << i << " " << (HcalDetId)vdets[i]
+                                     << " energy " << energy;
       if (ok) {
         int subdet = ((HcalDetId)(vdets[i].rawId())).subdet();
         double eThr = hbThr;
@@ -422,7 +436,7 @@ namespace spr {
     }
 
     if (debug)
-      std::cout << "energyDetIdHCALneighbours::EnergyDetId buffer size " << energyDetId.size() << std::endl;
+      edm::LogVerbatim("IsoTrack") << "energyDetIdHCALneighbours::EnergyDetId buffer size " << energyDetId.size();
     return energyDetId;
   }
 

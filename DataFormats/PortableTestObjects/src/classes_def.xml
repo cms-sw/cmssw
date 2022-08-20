@@ -1,0 +1,12 @@
+<lcgdict>
+  <class name="portabletest::TestSoA">
+    <field name="mem_" comment="!"/>
+    <field name="byteSize_" comment="!"/>
+    <field name="x_" comment="[nElements_]"/>
+    <field name="y_" comment="[nElements_]"/>
+    <field name="z_" comment="[nElements_]"/>
+    <field name="id_" comment="[nElements_]"/>
+    <field name="metadata()" comment="!"/>
+  </class>
+  <class name="portabletest::TestSoA::View"/>
+</lcgdict>

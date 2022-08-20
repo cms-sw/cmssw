@@ -374,8 +374,6 @@ namespace pat {
     const reco::TrackRefVector& elecsInVertexOutCalo() const { return jptSpecific().elecsInVertexOutCalo; }
     /// electrons that curled in
     const reco::TrackRefVector& elecsOutVertexInCalo() const { return jptSpecific().elecsOutVertexInCalo; }
-    /// zero suppression correction
-    const float& zspCorrection() const { return jptSpecific().mZSPCor; }
     /// chargedMultiplicity
     float elecMultiplicity() const {
       return jptSpecific().elecsInVertexInCalo.size() + jptSpecific().elecsInVertexOutCalo.size();
@@ -706,8 +704,6 @@ inline float pat::Jet::chargedHadronEnergy() const {
 inline float pat::Jet::neutralHadronEnergy() const {
   if (isPFJet()) {
     return pfSpecific().mNeutralHadronEnergy;
-  } else if (isJPTJet()) {
-    return jptSpecific().mNeutralHadronEnergy;
   } else {
     throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n";
   }
@@ -726,8 +722,6 @@ inline float pat::Jet::chargedEmEnergy() const {
 inline float pat::Jet::neutralEmEnergy() const {
   if (isPFJet()) {
     return pfSpecific().mNeutralEmEnergy;
-  } else if (isJPTJet()) {
-    return jptSpecific().mNeutralEmEnergy;
   } else {
     throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n";
   }

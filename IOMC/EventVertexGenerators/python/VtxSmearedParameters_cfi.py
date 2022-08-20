@@ -780,6 +780,38 @@ Realistic25ns900GeV2021CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.423776)
 )
 
+# From first Run 3 data at 13.6 TeV and 3.8T
+# BS parameters extracted from run 355100, fill 7920:
+# X0         =  0.172394 [cm]
+# Y0         = -0.180946 [cm]
+# Z0         =  0.94181  [cm]
+# sigmaZ0    =  3.81941  [cm]
+# BeamWidthX = 0.0008772 [cm]
+# BeamWidthY = 0.0010078 [cm]
+#
+# set SigmaZ0 = 3.8 [cm]
+# set BeamWidthX = BeamWidthY = 10.0 [um]
+# set beta* = 30 cm
+# energy = 13.6 TeV
+# From LHC calculator, emittance is 6.621e-8 cm
+# https://lpc.web.cern.ch/lumiCalc.html
+#
+# BPIX absolute position (https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition?rev=45#Collisions_at_s_13_6_TeV):
+# X =  0.0717651 cm
+# Y = -0.165951  cm
+# Z = -0.356345  cm
+Realistic25ns13p6TeVEarly2022CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(6.621e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.100629),
+    Y0 = cms.double(-0.014995),
+    Z0 = cms.double(1.298155)
+)
+
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
@@ -936,6 +968,19 @@ Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.0836),
     Y0 = cms.double(0.1837),
     Z0 = cms.double(1.3577)
+)
+
+# Guess for 2022 PbPb beam conditions, which takes the 2018 PbPb beam width parameters from RealisticPbPbCollision2018VtxSmearingParameters with the current pp MC beam centroid from Realistic25ns13p6TeVEarly2022Collision
+Nominal2022PbPbCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(3.36e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.97),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.100629),
+    Y0 = cms.double(-0.014995),
+    Z0 = cms.double(1.298155)
 )
 
 # Parameters for HL-LHC operation at 13TeV

@@ -65,6 +65,7 @@ namespace edm {
 
     const_iterator begin() const { return unscheduledWorkers_.begin(); }
     const_iterator end() const { return unscheduledWorkers_.end(); }
+    worker_container const& workers() const { return unscheduledWorkers_; }
 
     template <typename T, typename U>
     void runNowAsync(WaitingTaskHolder task,

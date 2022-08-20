@@ -8,7 +8,7 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  enum KalmanFilterOperation { KFO_Calculate_Chi2 = 1, KFO_Update_Params = 2 };
+  enum KalmanFilterOperation { KFO_Calculate_Chi2 = 1, KFO_Update_Params = 2, KFO_Local_Cov = 4 };
 
   //------------------------------------------------------------------------------
 

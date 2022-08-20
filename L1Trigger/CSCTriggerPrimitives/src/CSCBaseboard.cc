@@ -48,6 +48,7 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
   runME11ILT_ = commonParams_.getParameter<bool>("runME11ILT");
   runME21ILT_ = commonParams_.getParameter<bool>("runME21ILT");
 
+  run3_ = commonParams_.getParameter<bool>("run3");
   runCCLUT_TMB_ = commonParams_.getParameter<bool>("runCCLUT_TMB");
   runCCLUT_OTMB_ = commonParams_.getParameter<bool>("runCCLUT_OTMB");
   // check if CCLUT should be on in this chamber

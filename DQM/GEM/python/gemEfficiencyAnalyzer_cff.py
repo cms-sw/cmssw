@@ -5,19 +5,12 @@ from DQM.GEM.gemEfficiencyAnalyzer_cfi import *
 # Tight global muons
 ################################################################################
 
-# FIXME
-# the folowing expression doesn't work since 12_3_?:
-# "&& passed('CutBasedIdTight')"
-# so characters are replaced with the number
-# CutBasedIdTight = 1UL << 3 = 8
-# see https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/interface/Muon.h#L205
-
 gemDQMTightGlbMuons = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
     cut = cms.string(
         "isGlobalMuon"
         "&& globalTrack.isNonnull"
-        "&& passed(8)" # CutBasedIdTight = 1UL << 3 = 8
+        "&& passed('CutBasedIdTight')"
     ),
     filter = cms.bool(False)
 )

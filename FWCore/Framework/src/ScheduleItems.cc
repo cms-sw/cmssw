@@ -137,18 +137,53 @@ namespace edm {
                                                         PreallocationConfiguration const& config,
                                                         ProcessContext const* processContext,
                                                         ProcessBlockHelperBase& processBlockHelper) {
-    return std::make_unique<Schedule>(parameterSet,
-                                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
-                                      *preg_,
-                                      *branchIDListHelper_,
-                                      processBlockHelper,
-                                      *thinnedAssociationsHelper_,
-                                      subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
-                                      *act_table_,
-                                      actReg_,
-                                      processConfiguration(),
-                                      hasSubprocesses,
-                                      config,
-                                      processContext);
+    auto& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+    auto ret = std::make_unique<Schedule>(
+        parameterSet, tns, *preg_, *act_table_, actReg_, processConfiguration(), config, processContext);
+    ret->finishSetup(parameterSet,
+                     tns,
+                     *preg_,
+                     *branchIDListHelper_,
+                     processBlockHelper,
+                     *thinnedAssociationsHelper_,
+                     subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
+                     actReg_,
+                     processConfiguration(),
+                     hasSubprocesses,
+                     config,
+                     processContext);
+    return ret;
   }
+
+  ScheduleItems::MadeModules ScheduleItems::initModules(ParameterSet& parameterSet,
+                                                        service::TriggerNamesService const& tns,
+                                                        PreallocationConfiguration const& config,
+                                                        ProcessContext const* processContext) {
+    return MadeModules(std::make_unique<Schedule>(
+        parameterSet, tns, *preg_, *act_table_, actReg_, processConfiguration(), config, processContext));
+  }
+
+  std::unique_ptr<Schedule> ScheduleItems::finishSchedule(MadeModules madeModules,
+                                                          ParameterSet& parameterSet,
+                                                          service::TriggerNamesService const& tns,
+                                                          bool hasSubprocesses,
+                                                          PreallocationConfiguration const& config,
+                                                          ProcessContext const* processContext,
+                                                          ProcessBlockHelperBase& processBlockHelper) {
+    auto sched = std::move(madeModules.m_schedule);
+    sched->finishSetup(parameterSet,
+                       tns,
+                       *preg_,
+                       *branchIDListHelper_,
+                       processBlockHelper,
+                       *thinnedAssociationsHelper_,
+                       subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
+                       actReg_,
+                       processConfiguration(),
+                       hasSubprocesses,
+                       config,
+                       processContext);
+    return sched;
+  }
+
 }  // namespace edm

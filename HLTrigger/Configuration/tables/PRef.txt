@@ -37,9 +37,9 @@ AlCa_HIEcalPi0EEonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEBonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEEonly_v*	#	CMSHLT-1680
 
-DQM_EcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343
-DQM_HcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343
-DQM_PixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343
+DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 
 ## EndPaths / FinalPaths ##
 

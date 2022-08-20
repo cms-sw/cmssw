@@ -114,6 +114,8 @@ namespace edm {
   class PreallocationConfiguration;
   class WaitingTaskHolder;
 
+  class ConditionalTaskHelper;
+
   namespace service {
     class TriggerNamesService;
   }
@@ -172,10 +174,9 @@ namespace edm {
                    service::TriggerNamesService const& tns,
                    PreallocationConfiguration const& prealloc,
                    ProductRegistry& pregistry,
-                   BranchIDListHelper& branchIDListHelper,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration> processConfiguration,
+                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                    StreamID streamID,
                    ProcessContext const* processContext);
 
@@ -253,9 +254,17 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManager_.allWorkers(); }
 
+    AllWorkers const& unscheduledWorkers() const { return workerManager_.unscheduledWorkers(); }
     unsigned int numberOfUnscheduledModules() const { return number_of_unscheduled_modules_; }
 
     StreamContext const& context() const { return streamContext_; }
+
+    struct AliasInfo {
+      std::string friendlyClassName;
+      std::string instanceLabel;
+      std::string originalInstanceLabel;
+      std::string originalModuleLabel;
+    };
 
   private:
     //Sentry class to only send a signal if an
@@ -289,17 +298,11 @@ namespace edm {
 
     void reportSkipped(EventPrincipal const& ep) const;
 
-    struct AliasInfo {
-      std::string friendlyClassName;
-      std::string instanceLabel;
-      std::string originalInstanceLabel;
-      std::string originalModuleLabel;
-    };
     std::vector<Worker*> tryToPlaceConditionalModules(
         Worker*,
         std::unordered_set<std::string>& conditionalModules,
-        std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
-        std::multimap<std::string, AliasInfo> const& aliasMap,
+        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
         ParameterSet& proc_pset,
         ProductRegistry& preg,
         PreallocationConfiguration const* prealloc,
@@ -311,7 +314,8 @@ namespace edm {
                      std::string const& name,
                      bool ignoreFilters,
                      PathWorkers& out,
-                     std::vector<std::string> const& endPathNames);
+                     std::vector<std::string> const& endPathNames,
+                     ConditionalTaskHelper const& conditionalTaskHelper);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
@@ -319,14 +323,16 @@ namespace edm {
                       int bitpos,
                       std::string const& name,
                       TrigResPtr,
-                      std::vector<std::string> const& endPathNames);
+                      std::vector<std::string> const& endPathNames,
+                      ConditionalTaskHelper const& conditionalTaskHelper);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos,
                      std::string const& name,
-                     std::vector<std::string> const& endPathNames);
+                     std::vector<std::string> const& endPathNames,
+                     ConditionalTaskHelper const& conditionalTaskHelper);
 
     void addToAllWorkers(Worker* w);
 

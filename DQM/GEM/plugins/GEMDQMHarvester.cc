@@ -322,9 +322,18 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
 
     for (Int_t i = 1; i <= nBinY; i++) {
       std::string strLabelFull = h2Src->getTH2F()->GetYaxis()->GetBinLabel(i);
-      Int_t nBinXActual = (Int_t)(h2Src->getBinContent(0, i) + 0.5);
       auto nPos = strLabelFull.find(';');
       auto strLayer = strLabelFull.substr(nPos + 1);
+      Int_t nBinXActual = (Int_t)(h2Src->getBinContent(0, i) + 0.5);
+      if (nBinXActual > 108) {  // When the number seems wrong
+        if (strLayer.find("GE11") != std::string::npos) {
+          nBinXActual = 36;
+        } else if (strLayer.find("GE21") != std::string::npos) {
+          nBinXActual = 18;
+        } else if (strLayer.find("GE01") != std::string::npos) {
+          nBinXActual = 36;
+        }
+      }
       listLayer_.push_back(strLayer);
       mapIdxLayer_[strLayer] = i;
       mapNumChPerChamber_[i] = nBinXActual;

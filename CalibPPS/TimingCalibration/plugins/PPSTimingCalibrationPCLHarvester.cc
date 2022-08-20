@@ -25,7 +25,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-
+#include "TFitResult.h"
 //------------------------------------------------------------------------------
 
 class PPSTimingCalibrationPCLHarvester : public DQMEDHarvester {
@@ -94,6 +94,10 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
+
+    calib_params[key] = {0, 0, 0, 0};
+    calib_time[key] = std::make_pair(0.1, 0.);
+
     hists.leadingTime[chid] = iGetter.get(dqmDir_ + "/t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
@@ -125,8 +129,9 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
                             hists.toT[chid]->getMean(),
                             0.8,
                             hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-      const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-      if ((bool)res) {
+      TFitResultPtr res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+
+      if (res == 0) {
         calib_params[key] = {
             interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
         calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
@@ -142,7 +147,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
 
   // write the object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->writeOneIOV(calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+  poolDbService->writeOneIOV(calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd_HPTDC");
 }
 
 //------------------------------------------------------------------------------

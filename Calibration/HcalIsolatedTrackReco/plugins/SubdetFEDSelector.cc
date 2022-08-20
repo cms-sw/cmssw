@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -184,8 +185,8 @@ void SubdetFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
       // this fed has data -- lets copy it
       FEDRawData& fedDataProd = producedData->FEDData(j);
       if (fedDataProd.size() != 0) {
-        //	   std::cout << " More than one FEDRawDataCollection with data in FED ";
-        //	   std::cout << j << " Skipping the 2nd\n";
+        edm::LogVerbatim("HcalCalib") << " More than one FEDRawDataCollection with data in FED " << j
+                                      << " Skipping the 2nd";
         continue;
       }
       fedDataProd.resize(size);

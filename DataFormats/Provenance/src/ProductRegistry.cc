@@ -218,6 +218,20 @@ namespace edm {
     }
   }
 
+  void ProductRegistry::addFromInput(edm::ProductRegistry const& other) {
+    throwIfFrozen();
+    for (auto const& prod : other.productList_) {
+      ProductList::iterator iter = productList_.find(prod.first);
+      if (iter == productList_.end()) {
+        productList_.insert(std::make_pair(prod.first, prod.second));
+        addCalled(prod.second, false);
+      } else {
+        assert(combinable(iter->second, prod.second));
+        iter->second.merge(prod.second);
+      }
+    }
+  }
+
   void ProductRegistry::setUnscheduledProducts(std::set<std::string> const& unscheduledLabels) {
     throwIfFrozen();
 
@@ -297,7 +311,7 @@ namespace edm {
                                                std::set<TypeID> const* elementTypesConsumed,
                                                std::string const* processName) {
     std::map<TypeID, TypeID> containedTypeMap;
-    std::map<TypeID, std::vector<TypeWithDict>> containedTypeToBaseTypesMap;
+    std::map<TypeID, std::vector<TypeID>> containedTypeToBaseTypesMap;
 
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> branchNamesForMissing;
@@ -351,7 +365,7 @@ namespace edm {
         }
         bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
 
-        std::vector<TypeWithDict>* baseTypesOfContainedType = nullptr;
+        std::vector<TypeID>* baseTypesOfContainedType = nullptr;
 
         if (!alreadySawThisType) {
           bool alreadyCheckedConstituents = desc.produced() && !desc.transient();
@@ -367,7 +381,7 @@ namespace edm {
           if (hasContainedType) {
             auto iterBaseTypes = containedTypeToBaseTypesMap.find(containedTypeID);
             if (iterBaseTypes == containedTypeToBaseTypesMap.end()) {
-              std::vector<TypeWithDict> baseTypes;
+              std::vector<TypeID> baseTypes;
               if (!public_base_classes(missingDictionaries, containedTypeID, baseTypes)) {
                 branchNamesForMissing.emplace_back(desc.branchName());
                 if (desc.produced()) {
@@ -399,7 +413,7 @@ namespace edm {
           bool containedTypeConsumed =
               hasContainedType && (elementTypesConsumed->find(containedTypeID) != elementTypesConsumed->end());
           if (hasContainedType && !containedTypeConsumed && baseTypesOfContainedType != nullptr) {
-            for (TypeWithDict const& baseType : *baseTypesOfContainedType) {
+            for (TypeID const& baseType : *baseTypesOfContainedType) {
               if (elementTypesConsumed->find(TypeID(baseType.typeInfo())) != elementTypesConsumed->end()) {
                 containedTypeConsumed = true;
                 break;
@@ -466,7 +480,7 @@ namespace edm {
   void ProductRegistry::addElementTypesForAliases(
       std::set<TypeID> const* elementTypesConsumed,
       std::map<TypeID, TypeID> const& containedTypeMap,
-      std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap) {
+      std::map<TypeID, std::vector<TypeID>> const& containedTypeToBaseTypesMap) {
     Transients::AliasToOriginalVector elementAliases;
     for (auto& item : transient_.aliasToOriginal_) {
       auto iterContainedType = containedTypeMap.find(std::get<Transients::kType>(item));
@@ -496,8 +510,7 @@ namespace edm {
       if (iterBaseTypes == containedTypeToBaseTypesMap.end()) {
         continue;
       }
-      for (TypeWithDict const& baseType : iterBaseTypes->second) {
-        TypeID baseTypeID(baseType.typeInfo());
+      for (TypeID const& baseTypeID : iterBaseTypes->second) {
         if (elementTypesConsumed->find(baseTypeID) != elementTypesConsumed->end()) {
           elementAliases.emplace_back(ELEMENT_TYPE,
                                       baseTypeID,
@@ -516,7 +529,7 @@ namespace edm {
       std::set<TypeID> const* productTypesConsumed,
       std::set<TypeID> const* elementTypesConsumed,
       std::map<TypeID, TypeID> const& containedTypeMap,
-      std::map<TypeID, std::vector<TypeWithDict>>& containedTypeToBaseTypesMap) {
+      std::map<TypeID, std::vector<TypeID>>& containedTypeToBaseTypesMap) {
     std::vector<std::string> missingDictionaries;
     std::set<std::string> consumedTypesWithMissingDictionaries;
 
@@ -549,7 +562,7 @@ namespace edm {
             bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
             if (hasContainedType) {
               if (containedTypeToBaseTypesMap.find(containedTypeID) == containedTypeToBaseTypesMap.end()) {
-                std::vector<TypeWithDict> bases;
+                std::vector<TypeID> bases;
                 // Run this to check for missing dictionaries, bases is not really used
                 if (!public_base_classes(missingDictionaries, containedTypeID, bases)) {
                   consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
@@ -576,7 +589,7 @@ namespace edm {
       consumedTypesWithMissingDictionaries.clear();
       for (auto const& consumedTypeID : *elementTypesConsumed) {
         if (containedTypeToBaseTypesMap.find(consumedTypeID) == containedTypeToBaseTypesMap.end()) {
-          std::vector<TypeWithDict> bases;
+          std::vector<TypeID> bases;
           // Run this to check for missing dictionaries, bases is not really used
           if (!public_base_classes(missingDictionaries, consumedTypeID, bases)) {
             consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());

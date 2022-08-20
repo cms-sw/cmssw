@@ -53,7 +53,7 @@ process.totemTimingRawToDigi = cms.EDProducer('DiamondSampicDigiProducer',
 )
 
 process.totemTimingRecHits.mergeTimePeaks= cms.bool(False)
-process.totemTimingRecHits.timingCalibrationTag= cms.string('GlobalTag:DiamondSampicCalibration')
+process.totemTimingRecHits.timingCalibrationTag= cms.string('GlobalTag:PPSDiamondSampicCalibration')
 ################
 #geometry
 ################

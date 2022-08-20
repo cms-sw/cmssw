@@ -11,6 +11,10 @@
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="DataFormats/MuonDetId"/>
-<library file="Geant4ePropagatorAnalyzer.cc" name="Geant4ePropagatorAnalyzer">
+<library file="*.cc" name="Geant4ePropagatorTests">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testG4Refitter" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/Geant4e_example_cfg.py"/>
+<test name="testG4SimplePropagator" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/simpleTestPropagator_cfg.py"/>
+<test name="testG4PropagatorAnalyzer" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/testPropagatorAnalyzer_cfg.py"/>
