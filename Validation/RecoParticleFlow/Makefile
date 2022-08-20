@@ -17,7 +17,7 @@ QCD_reco:
 
 #Need to expand the CMSSW python3 configuration
 QCD_dumpconf:
-	cd ${TMPDIR}/QCD && python3 -c 'import step3_RAW2DIGI_L1Reco_RECO_RECOSIM_EI_PAT as step3; print(step3.process.dumpPython())' > step3_dump.py
+	cd ${TMPDIR}/QCD && python3 -c 'import step3_RAW2DIGI_L1Reco_RECO_RECOSIM_PAT as step3; print(step3.process.dumpPython())' > step3_dump.py
 	cp ${TMPDIR}/QCD/step3_dump.py crab/
 
 QCDPU_reco:
