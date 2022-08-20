@@ -72,6 +72,11 @@ TEST_CASE("Test TriggerExpressionParser", "[TriggerExpressionParser]") {
         " OR Uninitialised_Path_Expression))) AND Uninitialised_L1_Expression)"));
     REQUIRE(testExpression("NOT (NOT (HLT_Path1 AND HLT_Path_*))",  //
                            "(NOT (NOT (Uninitialised_Path_Expression AND Uninitialised_Path_Expression)))"));
+    REQUIRE(testExpression("NOT NOT (HLT_Path1 AND L1_Seed_?? OR HLT_Path_*)",  //
+                           "(NOT (NOT ((Uninitialised_Path_Expression AND Uninitialised_L1_Expression) OR "
+                           "Uninitialised_Path_Expression)))"));
+    REQUIRE(testExpression("NOT NOT HLT_Path1 AND L1_Seed_??",  //
+                           "((NOT (NOT Uninitialised_Path_Expression)) AND Uninitialised_L1_Expression)"));
   }
 
   // examples of expressions not supported by the triggerExpression parser
@@ -80,7 +85,6 @@ TEST_CASE("Test TriggerExpressionParser", "[TriggerExpressionParser]") {
     REQUIRE(not testExpression("A && B"));
     REQUIRE(not testExpression("NOT L1_SEED1 ANDD L1_SEED2*"));
     REQUIRE(not testExpression("NOT (NOTHLT_Path OR HLT_Path2))"));
-    REQUIRE(not testExpression("NOT NOT (HLT_Path1 AND L1_Seed_?? OR HLT_Path_*)"));
     REQUIRE(not testExpression("HLT_Path* NOT TRUE"));
     REQUIRE(not testExpression("ThisPath ANDThatPath"));
   }
