@@ -28,8 +28,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
+    dropDescendantsOfDroppedBranches = cms.untracked.bool(False), #to be fixed when the new INPUT is available
     fileNames = cms.untracked.vstring(
         '/store/relval/CMSSW_11_2_0_pre8/RelValSingleMuPt10/GEN-SIM-RECO/112X_mcRun4_realistic_v3_2026D49noPU-v1/00000/007d817e-9c59-4dec-959b-0f227942cdf0.root'
+    ),
+    inputCommands = cms.untracked.vstring( #to be fixed when the new INPUT is available
+        'keep *',
+        'drop l1tTkPrimaryVertexs_*_*_*'
     )
 )
 
