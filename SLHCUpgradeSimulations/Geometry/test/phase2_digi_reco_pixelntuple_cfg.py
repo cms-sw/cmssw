@@ -19,7 +19,6 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('HLTrigger.Configuration.HLT_Fake2_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-#process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -101,7 +100,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', ''
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
-#process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
+#process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger) #needs to be re-inserted
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
@@ -113,7 +112,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 # process.schedule imported from cff in HLTrigger.Configuration
 process.schedule.insert(0, process.digitisation_step)
 process.schedule.insert(1, process.L1simulation_step)
-#process.schedule.insert(2, process.L1TrackTrigger_step)
+#process.schedule.insert(2, process.L1TrackTrigger_step) #needs to be re-inserted
 process.schedule.insert(2, process.digi2raw_step)
 process.schedule.extend([process.raw2digi_step,process.reconstruction_step,process.user_step,process.endjob_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
