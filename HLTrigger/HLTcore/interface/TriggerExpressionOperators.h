@@ -55,8 +55,10 @@ namespace triggerExpression {
     bool operator()(const Data& data) const override { return not(*m_arg)(data); }
 
     void dump(std::ostream& out) const override {
+      out << '(';
       out << "NOT ";
       m_arg->dump(out);
+      out << ')';
     }
   };
 
@@ -72,9 +74,11 @@ namespace triggerExpression {
     }
 
     void dump(std::ostream& out) const override {
+      out << '(';
       m_arg1->dump(out);
       out << " AND ";
       m_arg2->dump(out);
+      out << ')';
     }
   };
 
@@ -90,9 +94,11 @@ namespace triggerExpression {
     }
 
     void dump(std::ostream& out) const override {
+      out << '(';
       m_arg1->dump(out);
       out << " OR ";
       m_arg2->dump(out);
+      out << ')';
     }
   };
 
