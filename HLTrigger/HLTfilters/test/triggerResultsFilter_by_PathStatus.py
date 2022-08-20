@@ -114,7 +114,7 @@ process.filter_any_pre = triggerResultsFilter.clone(
 
 # equivalent of filter_any_pre using NOT operator twice
 process.filter_any_pre_doubleNOT = triggerResultsFilter.clone(
-    triggerConditions = ( 'NOT (NOT (Path_1 / 15 OR Path_2 / 10 OR Path_3 / 6))', ),
+    triggerConditions = ( 'NOT NOT (Path_1 / 15 OR Path_2 / 10 OR Path_3 / 6)', ),
     l1tResults = '',
     throw = False
 )

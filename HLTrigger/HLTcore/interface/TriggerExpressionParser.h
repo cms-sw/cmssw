@@ -48,7 +48,7 @@ namespace triggerExpression {
 
       operand %= (prescale | element);
 
-      unary = ((operand_not >> operand)[qi::_val = new_<OperatorNot>(qi::_1)] | operand[qi::_val = qi::_1]);
+      unary = ((operand_not >> unary)[qi::_val = new_<OperatorNot>(qi::_1)] | operand[qi::_val = qi::_1]);
 
       expression =
           unary[qi::_val = qi::_1] >> *((operand_and >> unary)[qi::_val = new_<OperatorAnd>(qi::_val, qi::_1)] |
