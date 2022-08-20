@@ -2304,6 +2304,17 @@ steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalib
                            '--conditions':'auto:run3_data_express',
                            '--triggerResultsProcess':'RECO',
                            }
+                           
+steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSAlignment',
+                           '-n':1000,
+                           '--scenario':'pp',
+                           '--data':'',
+                           '--era':'Run3',
+                           '--datatier':'ALCARECO',
+                           '--eventcontent':'ALCARECO',
+                           '--conditions':'auto:run3_data_express',
+                           '--triggerResultsProcess':'ALCARECO',
+                           }
 
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
@@ -2377,6 +2388,13 @@ steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAli
                            '--scenario':'pp',
                            '--data':'',
                            '--era':'Run2_2017',
+                           '--filein':'file:PromptCalibProdPPSAlignment.root'}
+                           
+steps['ALCAHARVDPPSALIGRUN3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlignment']),
+                           '--conditions':'auto:run3_data_express',
+                           '--scenario':'pp',
+                           '--data':'',
+                           '--era':'Run3',
                            '--filein':'file:PromptCalibProdPPSAlignment.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
