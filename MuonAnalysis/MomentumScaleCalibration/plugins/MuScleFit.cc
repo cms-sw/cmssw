@@ -299,6 +299,11 @@ protected:
   // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
   int maxEventsFromRootTree_;
 
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puInfoToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken_;
+
   std::string triggerResultsLabel_;
   std::string triggerResultsProcess_;
   std::vector<std::string> triggerPath_;
@@ -467,13 +472,22 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
 
   triggerResultsLabel_ = pset.getUntrackedParameter<std::string>("TriggerResultsLabel");
   triggerResultsProcess_ = pset.getUntrackedParameter<std::string>("TriggerResultsProcess");
+
+  triggerResultsToken_ =
+      consumes<edm::TriggerResults>(edm::InputTag(triggerResultsLabel_.c_str(), "", triggerResultsProcess_.c_str()));
+
   triggerPath_ = pset.getUntrackedParameter<std::vector<std::string> >("TriggerPath");
   negateTrigger_ = pset.getUntrackedParameter<bool>("NegateTrigger", false);
   saveAllToTree_ = pset.getUntrackedParameter<bool>("SaveAllToTree", false);
 
   // input collections for PU related infos
   puInfoSrc_ = pset.getUntrackedParameter<edm::InputTag>("PileUpSummaryInfo");
+  puInfoToken_ = consumes<std::vector<PileupSummaryInfo> >(puInfoSrc_);
+
   vertexSrc_ = pset.getUntrackedParameter<edm::InputTag>("PrimaryVertexCollection");
+  vertexToken_ = consumes<reco::VertexCollection>(vertexSrc_);
+
+  genEvtInfoToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
   genParticlesName_ = pset.getUntrackedParameter<std::string>("GenParticlesName", "genParticles");
@@ -558,7 +572,9 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
-  muonSelector_ = std::make_unique<MuScleFitMuonSelector>(theMuonLabel_,
+  edm::ConsumesCollector iC = consumesCollector();
+  muonSelector_ = std::make_unique<MuScleFitMuonSelector>(iC,
+                                                          theMuonLabel_,
                                                           theMuonType_,
                                                           PATmuons_,
                                                           MuScleFitUtils::resfind,
@@ -786,9 +802,7 @@ void MuScleFit::endOfFastLoop(const unsigned int iLoop) {
 // Stuff to do during loop
 // -----------------------
 edm::EDLooper::Status MuScleFit::duringLoop(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  edm::Handle<edm::TriggerResults> triggerResults;
-  event.getByLabel(edm::InputTag(triggerResultsLabel_.c_str(), "", triggerResultsProcess_.c_str()), triggerResults);
-  //event.getByLabel(InputTag(triggerResultsLabel_),triggerResults);
+  edm::Handle<edm::TriggerResults> triggerResults = event.getHandle(triggerResultsToken_);
   bool isFired = false;
 
   if (triggerPath_[0].empty())
@@ -917,8 +931,7 @@ void MuScleFit::selectMuons(const edm::Event& event) {
 
   // Fill pile-up related informations
   // --------------------------------
-  edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
-  event.getByLabel(puInfoSrc_, puInfo);
+  edm::Handle<std::vector<PileupSummaryInfo> > puInfo = event.getHandle(puInfoToken_);
   if (puInfo.isValid()) {
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for (PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
@@ -930,8 +943,7 @@ void MuScleFit::selectMuons(const edm::Event& event) {
     }
   }
 
-  edm::Handle<std::vector<reco::Vertex> > vertices;
-  event.getByLabel(vertexSrc_, vertices);
+  edm::Handle<std::vector<reco::Vertex> > vertices = event.getHandle(vertexToken_);
   if (vertices.isValid()) {
     std::vector<reco::Vertex>::const_iterator itv;
     // now, count vertices
@@ -948,8 +960,7 @@ void MuScleFit::selectMuons(const edm::Event& event) {
   }
 
   // get the MC event weight
-  edm::Handle<GenEventInfoProduct> genEvtInfo;
-  event.getByLabel("generator", genEvtInfo);
+  edm::Handle<GenEventInfoProduct> genEvtInfo = event.getHandle(genEvtInfoToken_);
   double the_genEvtweight = 1.;
   if (genEvtInfo.isValid()) {
     the_genEvtweight = genEvtInfo->weight();

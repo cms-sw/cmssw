@@ -64,6 +64,16 @@ ecalPresampleClient = cms.untracked.PSet(
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
+	 MeanMapAll = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 Mean map'),
+            kind = cms.untracked.string('TH2F'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('Mean')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('2D distribution of the presample Mean. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
         RMSMapAllByLumi = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map by lumi'),
             kind = cms.untracked.string('TH2F'),
@@ -107,8 +117,8 @@ ecalPresampleClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('SM'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(230.0),
-                nbins = cms.untracked.int32(120),
+                high = cms.untracked.double(270.0),
+                nbins = cms.untracked.int32(200),
                 low = cms.untracked.double(170.0)
             ),
             btype = cms.untracked.string('User'),

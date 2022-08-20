@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,12 +8,13 @@
 
 #include "OnlineDB/CSCCondDB/interface/CSCAFEBAnalyzer.h"
 
-CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf) {
+CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf)
+    : testname(conf.getParameter<std::string>("TestName")),
+      CSCSrc_(conf.getParameter<edm::InputTag>("CSCSrc")),
+      w_token(consumes<CSCWireDigiCollection>(CSCSrc_)) {
   /// If your module takes parameters, here is where you would define
   /// their names and types, and access them to initialize internal
   /// variables. Example as follows:
-
-  testname = conf.getParameter<std::string>("TestName");
 
   if (testname == "AFEBThresholdScan")
     analysisthr_.setup(conf.getParameter<std::string>("HistogramFile"));
@@ -22,18 +22,11 @@ CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf) {
     analysiscnt_.setup(conf.getParameter<std::string>("HistogramFile"));
 
   /// get labels for input tags
-
-  CSCSrc_ = conf.getParameter<edm::InputTag>("CSCSrc");
 }
 
 void CSCAFEBAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
-  edm::Handle<CSCWireDigiCollection> wire_digis;
-
   /// For CSC unpacker
-
-  //   const char* modtag="cscunpacker";
-  //   e.getByLabel(modtag,"MuonCSCWireDigi",wire_digis);
-  e.getByLabel(CSCSrc_, wire_digis);
+  const edm::Handle<CSCWireDigiCollection>& wire_digis = e.getHandle(w_token);
 
   if (testname == "AFEBThresholdScan")
     analysisthr_.analyze(*wire_digis);

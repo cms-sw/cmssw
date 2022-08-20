@@ -84,17 +84,20 @@ private:
       tree.Branch("run", &m_run, "run/i");
       tree.Branch("luminosityBlock", &m_luminosityBlock, "luminosityBlock/i");
       tree.Branch("event", &m_event, "event/l");
+      tree.Branch("bunchCrossing", &m_bunchCrossing, "bunchCrossing/i");
     }
-    void fill(const edm::EventID& id) {
-      m_run = id.run();
-      m_luminosityBlock = id.luminosityBlock();
-      m_event = id.event();
+    void fill(const edm::EventAuxiliary& aux) {
+      m_run = aux.id().run();
+      m_luminosityBlock = aux.id().luminosityBlock();
+      m_event = aux.id().event();
+      m_bunchCrossing = aux.bunchCrossing();
     }
 
   private:
     UInt_t m_run;
     UInt_t m_luminosityBlock;
     ULong64_t m_event;
+    UInt_t m_bunchCrossing;
   } m_commonBranches;
 
   class CommonLumiBranches {
@@ -198,7 +201,7 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
     m_eventsSinceFlush++;
   }
 
-  m_commonBranches.fill(iEvent.id());
+  m_commonBranches.fill(iEvent.eventAuxiliary());
   // fill all tables, starting from main tables and then doing extension tables
   for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
     for (auto& t : m_tables)

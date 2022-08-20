@@ -727,6 +727,22 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_2(watchPostEventReadFromSource)
 
+    /// signal is emitted before the module starts processing a non-Event stream transition and before prefetching has started
+    typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleStreamPrefetching;
+    PreModuleStreamPrefetching preModuleStreamPrefetchingSignal_;
+    void watchPreModuleStreamPrefetching(PreModuleStreamPrefetching::slot_type const& iSlot) {
+      preModuleStreamPrefetchingSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleStreamPrefetching)
+
+    /// signal is emitted before the module starts processing a non-Event stream transition and after prefetching has finished
+    typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleStreamPrefetching;
+    PostModuleStreamPrefetching postModuleStreamPrefetchingSignal_;
+    void watchPostModuleStreamPrefetching(PostModuleStreamPrefetching::slot_type const& iSlot) {
+      postModuleStreamPrefetchingSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleStreamPrefetching)
+
     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleStreamBeginRun;
     PreModuleStreamBeginRun preModuleStreamBeginRunSignal_;
     void watchPreModuleStreamBeginRun(PreModuleStreamBeginRun::slot_type const& iSlot) {
@@ -825,6 +841,22 @@ namespace edm {
       postModuleEndProcessBlockSignal_.connect_front(iSlot);
     }
     AR_WATCH_USING_METHOD_2(watchPostModuleEndProcessBlock)
+
+    /// signal is emitted before the module starts processing a global transition and before prefetching has started
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleGlobalPrefetching;
+    PreModuleGlobalPrefetching preModuleGlobalPrefetchingSignal_;
+    void watchPreModuleGlobalPrefetching(PreModuleGlobalPrefetching::slot_type const& iSlot) {
+      preModuleGlobalPrefetchingSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleGlobalPrefetching)
+
+    /// signal is emitted before the module starts processing a global transition and after prefetching has finished
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleGlobalPrefetching;
+    PostModuleGlobalPrefetching postModuleGlobalPrefetchingSignal_;
+    void watchPostModuleGlobalPrefetching(PostModuleGlobalPrefetching::slot_type const& iSlot) {
+      postModuleGlobalPrefetchingSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleGlobalPrefetching)
 
     typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleGlobalBeginRun;
     PreModuleGlobalBeginRun preModuleGlobalBeginRunSignal_;

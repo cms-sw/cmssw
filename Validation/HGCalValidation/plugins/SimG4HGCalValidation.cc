@@ -179,13 +179,13 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
       levelT2_ = hdc->levelTop(1);
       if (hdc->tileTrapezoid()) {
         types_[type] = -1;
-        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type], ""));
       } else if (hdc->waferHexagon6()) {
         types_[type] = 1;
         hgcNumbering_.emplace_back(new HGCNumberingScheme(*hdc, nameXs_[type]));
       } else {
         types_[type] = 0;
-        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type], ""));
       }
       layers = hdc->layers(false);
     } else {

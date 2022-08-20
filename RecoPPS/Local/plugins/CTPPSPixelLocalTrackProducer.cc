@@ -38,6 +38,15 @@
 #include "RecoPPS/Local/interface/RPixRoadFinder.h"
 #include "RecoPPS/Local/interface/RPixPlaneCombinatoryTracking.h"
 
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
+
+namespace {
+  constexpr int rocMask = 0xE000;
+  constexpr int rocOffset = 13;
+  constexpr int rocSizeInPixels = 4160;
+}  // namespace
+
 class CTPPSPixelLocalTrackProducer : public edm::stream::EDProducer<> {
 public:
   explicit CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet);
@@ -48,36 +57,37 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  int verbosity_;
-  int maxHitPerPlane_;
-  int maxHitPerRomanPot_;
-  int maxTrackPerRomanPot_;
-  int maxTrackPerPattern_;
+  const int verbosity_;
+  const int maxHitPerPlane_;
+  const int maxHitPerRomanPot_;
+  const int maxTrackPerRomanPot_;
+  const int maxTrackPerPattern_;
 
-  edm::InputTag inputTag_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenCTPPSGeometry_;
+  const edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenCTPPSGeometry_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
-  uint32_t numberOfPlanesPerPot_;
-  std::vector<uint32_t> listOfAllPlanes_;
+
+  const edm::ESGetToken<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd> tokenCTPPSPixelAnalysisMask_;
+
+  const uint32_t numberOfPlanesPerPot_;
 
   std::unique_ptr<RPixDetPatternFinder> patternFinder_;
   std::unique_ptr<RPixDetTrackFinder> trackFinder_;
-
-  void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, edm::DetSetVector<CTPPSPixelLocalTrack> &output);
 };
 
 //------------------------------------------------------------------------------------------------//
 
-CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet) {
-  inputTag_ = parameterSet.getParameter<edm::InputTag>("tag");
-  verbosity_ = parameterSet.getUntrackedParameter<int>("verbosity");
-  maxHitPerRomanPot_ = parameterSet.getParameter<int>("maxHitPerRomanPot");
-  maxHitPerPlane_ = parameterSet.getParameter<int>("maxHitPerPlane");
-  maxTrackPerRomanPot_ = parameterSet.getParameter<int>("maxTrackPerRomanPot");
-  maxTrackPerPattern_ = parameterSet.getParameter<int>("maxTrackPerPattern");
-  numberOfPlanesPerPot_ = parameterSet.getParameter<int>("numberOfPlanesPerPot");
-
+CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet)
+    : verbosity_(parameterSet.getUntrackedParameter<int>("verbosity")),
+      maxHitPerPlane_(parameterSet.getParameter<int>("maxHitPerPlane")),
+      maxHitPerRomanPot_(parameterSet.getParameter<int>("maxHitPerRomanPot")),
+      maxTrackPerRomanPot_(parameterSet.getParameter<int>("maxTrackPerRomanPot")),
+      maxTrackPerPattern_(parameterSet.getParameter<int>("maxTrackPerPattern")),
+      tokenCTPPSPixelRecHit_(
+          consumes<edm::DetSetVector<CTPPSPixelRecHit>>(parameterSet.getParameter<edm::InputTag>("tag"))),
+      tokenCTPPSGeometry_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+      tokenCTPPSPixelAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>()),
+      numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot")) {
   std::string patternFinderAlgorithm = parameterSet.getParameter<std::string>("patternFinderAlgorithm");
   std::string trackFitterAlgorithm = parameterSet.getParameter<std::string>("trackFinderAlgorithm");
 
@@ -89,9 +99,9 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
         << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
   }
 
-  listOfAllPlanes_.reserve(6);
+  std::vector<uint32_t> listOfAllPlanes;
   for (uint32_t i = 0; i < numberOfPlanesPerPot_; ++i) {
-    listOfAllPlanes_.push_back(i);
+    listOfAllPlanes.push_back(i);
   }
 
   //tracking algorithm selector
@@ -101,12 +111,8 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";
   }
-  trackFinder_->setListOfPlanes(listOfAllPlanes_);
+  trackFinder_->setListOfPlanes(listOfAllPlanes);
   trackFinder_->initialize();
-
-  tokenCTPPSPixelRecHit_ = consumes<edm::DetSetVector<CTPPSPixelRecHit>>(inputTag_);
-  tokenCTPPSGeometry_ = esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
-
   produces<edm::DetSetVector<CTPPSPixelLocalTrack>>();
 }
 
@@ -143,6 +149,8 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("roadRadius", 1.0)->setComment("radius of pattern search window");
   desc.add<int>("minRoadSize", 3)->setComment("minimum number of points in a pattern");
   desc.add<int>("maxRoadSize", 20)->setComment("maximum number of points in a pattern");
+  //parameter for bad pot reconstruction patch 45-220-fr 2022
+  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for bad Pot");
 
   descriptions.add("ctppsPixelLocalTracks", desc);
 }
@@ -161,6 +169,32 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   const CTPPSGeometry &geometry = *geometryHandler;
   geometryWatcher_.check(iSetup);
 
+  // get mask
+  bool isBadPot_45_220 = false;
+  if (!recHits->empty()) {
+    const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
+
+    // Read Mask checking if 45-220-far is masked as bad and needs special treatment
+    std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &maschera = mask.analysisMask;
+
+    bool mask_45_220[6][6] = {{false}};
+    for (auto const &det : maschera) {
+      CTPPSPixelDetId detId(det.first);
+      unsigned int rocNum = (det.first & rocMask) >> rocOffset;
+      if (rocNum > 5 || detId.plane() > 5)
+        throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
+
+      if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {  // pot 45-220-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels) {          // roc fully masked
+          mask_45_220[detId.plane()][rocNum] = true;
+        }
+      }
+    }
+
+    // search for specific pattern that requires special reconstruction (isBadPot)
+    isBadPot_45_220 = mask_45_220[1][4] && mask_45_220[1][5] && mask_45_220[2][4] && mask_45_220[2][5] &&
+                      mask_45_220[3][4] && mask_45_220[3][5] && mask_45_220[4][4] && mask_45_220[4][5];
+  }
   std::vector<CTPPSPixelDetId> listOfPotWithHighOccupancyPlanes;
   std::map<CTPPSPixelDetId, uint32_t> mapHitPerPot;
 
@@ -206,7 +240,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   patternFinder_->clear();
   patternFinder_->setHits(&recHitVector);
   patternFinder_->setGeometry(&geometry);
-  patternFinder_->findPattern();
+  patternFinder_->findPattern(isBadPot_45_220);
   std::vector<RPixDetPatternFinder::Road> patternVector = patternFinder_->getPatterns();
 
   //loop on all the patterns

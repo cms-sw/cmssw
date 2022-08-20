@@ -35,6 +35,7 @@ fi
 sort -u < statics-report.txt.unsorted > statics-report.txt
 grep -e "^In call stack " statics-report.txt | awk '{print $0"\n"}' > modules2statics.txt
 grep -e "^Non-const static variable " statics-report.txt | awk '{print $0"\n"}' > statics2modules.txt
+grep -e "^Known thread unsafe function " statics-report.txt | awk '{print $0"\n"}' >> statics2modules.txt
 
 if [ ! -f ./edm-global-class.py ]
 	then

@@ -4,7 +4,8 @@
 #include "boost/algorithm/string/trim_all.hpp"
 
 EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig)
-    : ZPDGID_(iConfig.getParameter<int>("BosonPDGID")) {
+    : ZPDGID_(iConfig.getParameter<int>("BosonPDGID")),
+      includeDY_(iConfig.existsAs<bool>("IncludeDY") ? iConfig.getParameter<bool>("IncludeDY") : false) {
   // Defining standard decay channels
   ee.fill(TauDecayMode::Electron);
   ee.fill(TauDecayMode::Electron);
@@ -63,25 +64,35 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
   // One can stop the loop after the second tau is reached and processed.
   for (HepMC::GenEvent::particle_const_iterator particle = evt->particles_begin(); particle != evt->particles_end();
        ++particle) {
-    int mom_id = 0;                                     // No particle available with PDG ID 0
-    if ((*particle)->production_vertex() != nullptr) {  // search for the mom via the production_vertex
-      if ((*particle)->production_vertex()->particles_in_const_begin() !=
-          (*particle)->production_vertex()->particles_in_const_end()) {
-        mom_id = (*(*particle)->production_vertex()->particles_in_const_begin())->pdg_id();  // mom was found
+    int mom_id = 0;           // no particle available with PDG ID 0
+    bool isHardProc = false;  // mother is ZPDGID_, or is lepton from hard process (DY process qq -> ll)
+    int pdg_id = std::abs((*particle)->pdg_id());
+    HepMC::GenVertex *vertex = (*particle)->production_vertex();
+    if (vertex != nullptr) {  // search for the mom via the production_vertex
+      HepMC::GenVertex::particles_in_const_iterator mom = vertex->particles_in_const_begin();
+      if (mom != vertex->particles_in_const_end()) {
+        mom_id = std::abs((*mom)->pdg_id());  // mom was found
+      }
+      if (mom_id == ZPDGID_) {
+        isHardProc = true;  // intermediate boson
+      } else if (includeDY_ && 11 <= pdg_id && pdg_id <= 16 && mcTruthHelper_.isFirstCopy(**particle) &&
+                 mcTruthHelper_.fromHardProcess(**particle)) {
+        edm::LogInfo("EmbeddingHepMCFilter") << (*particle)->pdg_id() << " with mother " << (*mom)->pdg_id();
+        isHardProc = true;  // assume Drell-Yan qq -> ll without intermediate boson
       }
     }
 
-    if (std::abs((*particle)->pdg_id()) == tauonPDGID_ && mom_id == ZPDGID_) {
+    if (!isHardProc) {
+      continue;
+    } else if (pdg_id == tauonPDGID_) {
       reco::Candidate::LorentzVector p4Vis;
       decay_and_sump4Vis((*particle), p4Vis);  // recursive access to final states.
       p4VisPair_.push_back(p4Vis);
-    } else if (std::abs((*particle)->pdg_id()) == muonPDGID_ &&
-               mom_id == ZPDGID_) {  // Also handle the option when Z-> mumu
+    } else if (pdg_id == muonPDGID_) {  // Also handle the option when Z-> mumu
       reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
       DecayChannel_.fill(TauDecayMode::Muon);  // take the muon cuts
       p4VisPair_.push_back(p4Vis);
-    } else if (std::abs((*particle)->pdg_id()) == electronPDGID_ &&
-               mom_id == ZPDGID_) {  // Also handle the option when Z-> ee
+    } else if (pdg_id == electronPDGID_) {  // Also handle the option when Z-> ee
       reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
       DecayChannel_.fill(TauDecayMode::Electron);  // take the electron cuts
       p4VisPair_.push_back(p4Vis);

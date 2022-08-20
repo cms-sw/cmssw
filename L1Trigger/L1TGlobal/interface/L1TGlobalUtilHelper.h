@@ -62,12 +62,10 @@ namespace l1t {
                         edm::InputTag const& l1tExtBlkInputTag);
 
     // A module defining its fillDescriptions function might want to use this
-    static void fillDescription(edm::ParameterSetDescription& desc);
-
-    // Callback which will be registered with the Framework if the InputTags
-    // are not specified in the configuration or constructor arguments. It
-    // will get called for each product in the ProductRegistry.
-    void operator()(edm::BranchDescription const& branchDescription);
+    static void fillDescription(edm::ParameterSetDescription& desc,
+                                edm::InputTag const& iAlg,
+                                edm::InputTag const& iExt,
+                                bool readPrescalesFromFile);
 
     edm::InputTag const& l1tAlgBlkInputTag() const { return m_l1tAlgBlkInputTag; }
     edm::InputTag const& l1tExtBlkInputTag() const { return m_l1tExtBlkInputTag; }
@@ -78,7 +76,13 @@ namespace l1t {
     edm::EDGetTokenT<GlobalExtBlkBxCollection> const& l1tExtBlkToken() const { return m_l1tExtBlkToken; }
 
   private:
-    edm::ConsumesCollector m_consumesCollector;
+    // Callback which will be registered with the Framework if the InputTags
+    // are not specified in the configuration or constructor arguments. It
+    // will get called for each product in the ProductRegistry.
+    void checkToUpdateTags(edm::BranchDescription const& branchDescription,
+                           edm::ConsumesCollector,
+                           bool findL1TAlgBlk,
+                           bool findL1TExtBlk);
 
     edm::InputTag m_l1tAlgBlkInputTag;
     edm::InputTag m_l1tExtBlkInputTag;
@@ -86,20 +90,7 @@ namespace l1t {
     edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1tAlgBlkToken;
     edm::EDGetTokenT<GlobalExtBlkBxCollection> m_l1tExtBlkToken;
 
-    bool m_findL1TAlgBlk;
-    bool m_findL1TExtBlk;
-
     bool m_readPrescalesFromFile;
-
-    bool m_foundPreferredL1TAlgBlk;
-    bool m_foundPreferredL1TExtBlk;
-
-    bool m_foundMultipleL1TAlgBlk;
-    bool m_foundMultipleL1TExtBlk;
-
-    // use vector here, InputTag has no '<' operator to use std::set
-    std::vector<edm::InputTag> m_inputTagsL1TAlgBlk;
-    std::vector<edm::InputTag> m_inputTagsL1TExtBlk;
   };
 
   template <typename T>
@@ -112,22 +103,10 @@ namespace l1t {
                                            T& module,
                                            edm::InputTag const& l1tAlgBlkInputTag,
                                            edm::InputTag const& l1tExtBlkInputTag)
-      : m_consumesCollector(iC),
-
-        // Set InputTags from arguments
+      :  // Set InputTags from arguments
         m_l1tAlgBlkInputTag(l1tAlgBlkInputTag),
         m_l1tExtBlkInputTag(l1tExtBlkInputTag),
-
-        m_findL1TAlgBlk(false),
-        m_findL1TExtBlk(false),
-
-        m_readPrescalesFromFile(false),
-
-        m_foundPreferredL1TAlgBlk(false),
-        m_foundPreferredL1TExtBlk(false),
-
-        m_foundMultipleL1TAlgBlk(false),
-        m_foundMultipleL1TExtBlk(false) {
+        m_readPrescalesFromFile(false) {
     if (pset.existsAs<bool>("ReadPrescalesFromFile")) {
       m_readPrescalesFromFile = pset.getParameter<bool>("ReadPrescalesFromFile");
     }
@@ -144,18 +123,28 @@ namespace l1t {
     if (!m_l1tAlgBlkInputTag.label().empty()) {
       m_l1tAlgBlkToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tAlgBlkInputTag);
     }
+
     if (!m_l1tExtBlkInputTag.label().empty()) {
       m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
     }
 
     // Do we still need to search for each InputTag?
-    m_findL1TAlgBlk = m_l1tAlgBlkInputTag.label().empty();
-    m_findL1TExtBlk = m_l1tExtBlkInputTag.label().empty();
+    bool findL1TAlgBlk = m_l1tAlgBlkInputTag.label().empty();
+    bool findL1TExtBlk = m_l1tExtBlkInputTag.label().empty();
 
     // Register the callback function with the Framework
     // if any InputTags still need to be found.
-    if (m_findL1TAlgBlk || m_findL1TExtBlk) {
-      module.callWhenNewProductsRegistered(std::ref(*this));
+    if (findL1TAlgBlk || findL1TExtBlk) {
+      auto const* pModule = &module;
+      module.callWhenNewProductsRegistered([this, findL1TAlgBlk, findL1TExtBlk, iC, pModule](auto iBranch) {
+        try {
+          checkToUpdateTags(iBranch, iC, findL1TAlgBlk, findL1TExtBlk);
+        } catch (cms::Exception& iExcept) {
+          auto const& label = pModule->moduleDescription().moduleLabel();
+          iExcept.addContext(std::string("Running 'callWhenNewProductRegistered' for module ") + label);
+          throw;
+        }
+      });
     }
   }
 

@@ -45,8 +45,8 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps)
                                                   consumesCollector())},
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: Constructor" << endl;
-  tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("TMInputTag"));
-  seg_Token_ = consumes<DTRecSegment4DCollection>(ps.getParameter<edm::InputTag>("SEGInputTag"));
+  tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getUntrackedParameter<edm::InputTag>("TMInputTag"));
+  seg_Token_ = consumes<DTRecSegment4DCollection>(ps.getUntrackedParameter<edm::InputTag>("SEGInputTag"));
 
   bxTime = ps.getParameter<double>("bxTimeInterval");  // CB move this to static const or DB
   rangeInBX = ps.getParameter<bool>("rangeWithinBX");

@@ -62,9 +62,10 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   mescode >> code;
 
   // track is killed
-  if (ekin < m_eth && code == "GeomNav0003") {
+  if (ekin < m_eth && (code == "GeomNav0003" || code == "GeomField0003")) {
     localSeverity = JustWarning;
     track->SetTrackStatus(fStopAndKill);
+    ++m_number;
   }
 
   bool res = false;
@@ -79,8 +80,9 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
       break;
 
     case JustWarning:
-      edm::LogWarning("SimG4CoreApplication")
-          << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
+      if (m_number < 20)
+        edm::LogWarning("SimG4CoreApplication")
+            << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
       break;
   }
   return res;

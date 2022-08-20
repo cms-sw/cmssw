@@ -3,19 +3,23 @@
 // Description: Numbering scheme for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/CaloSimUtils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include <array>
+#include <fstream>
 #include <iostream>
 
 //#define EDM_ML_DEBUG
 
 HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                                            const DetId::Detector& det,
-                                           const std::string& name)
+                                           const std::string& name,
+                                           const std::string& fileName)
     : hgcons_(hgc), mode_(hgc.geomMode()), det_(det), name_(name) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
@@ -25,6 +29,28 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                              << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule << ":"
                              << HGCalGeometryMode::TrapezoidCassette;
 #endif
+  firstLayer_ = hgcons_.firstLayer() - 1;
+  if (!fileName.empty()) {
+    edm::FileInPath filetmp1("SimG4CMS/Calo/data/" + fileName);
+    std::string filetmp2 = filetmp1.fullPath();
+    std::ifstream fInput(filetmp2.c_str());
+    if (!fInput.good()) {
+      edm::LogVerbatim("HGCalSim") << "Cannot open file " << filetmp2;
+    } else {
+      char buffer[80];
+      while (fInput.getline(buffer, 80)) {
+        std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
+        if (items.size() > 2) {
+          int layer = std::atoi(items[0].c_str());
+          int waferU = std::atoi(items[1].c_str());
+          int waferV = std::atoi(items[2].c_str());
+          wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+        }
+      }
+      edm::LogVerbatim("HGCalSim") << "Reads in " << wafers_.size() << " wafer information from " << filetmp2;
+      fInput.close();
+    }
+  }
 }
 
 HGCalNumberingScheme::~HGCalNumberingScheme() {
@@ -51,7 +77,13 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       cellV = HGCalTypes::getUnpackedCellV(cell);
     } else if (mode_ != HGCalGeometryMode::Hexagon8) {
       double xx = (pos.z() > 0) ? pos.x() : -pos.x();
-      hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, false);
+      bool debug(false);
+      if (!wafers_.empty()) {
+        int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, waferU, waferV, false);
+        if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+          debug = true;
+      }
+      hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
     }
     if (waferType >= 0) {
       if (hgcons_.waferHexagon8File()) {

@@ -84,7 +84,7 @@ namespace edm {
       }
       //need to check for inheritance match
       std::vector<std::string> missingDictionaries;
-      std::vector<TypeWithDict> baseTypes;
+      std::vector<TypeID> baseTypes;
       if (!public_base_classes(missingDictionaries, elementType, baseTypes)) {
         return false;
       }
@@ -217,7 +217,7 @@ namespace edm {
                                                           char const* instance,
                                                           char const* process,
                                                           TypeID const& containedTypeID,
-                                                          std::vector<TypeWithDict>* baseTypesOfContainedType) {
+                                                          std::vector<TypeID>* baseTypesOfContainedType) {
     if (!items_) {
       throw Exception(errors::LogicError)
           << "ProductResolverIndexHelper::insert - Attempt to insert more elements after frozen.\n";
@@ -274,8 +274,7 @@ namespace edm {
 
       // Repeat this for all public base classes of the contained type
       if (baseTypesOfContainedType) {
-        for (TypeWithDict const& baseType : *baseTypesOfContainedType) {
-          TypeID baseTypeID(baseType.typeInfo());
+        for (TypeID const& baseTypeID : *baseTypesOfContainedType) {
           Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
           iter = items_->find(baseItem);
           if (iter != items_->end()) {
@@ -303,8 +302,8 @@ namespace edm {
                                                           char const* process) {
     TypeID containedTypeID = productholderindexhelper::getContainedType(typeID);
     bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
-    std::vector<TypeWithDict> baseTypes;
-    std::vector<TypeWithDict>* baseTypesOfContainedType = &baseTypes;
+    std::vector<TypeID> baseTypes;
+    std::vector<TypeID>* baseTypesOfContainedType = &baseTypes;
     if (hasContainedType) {
       std::vector<std::string> missingDictionaries;
       public_base_classes(missingDictionaries, containedTypeID, baseTypes);

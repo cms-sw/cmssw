@@ -17,7 +17,7 @@ from CalibPPS.TimingCalibration.PPSTimingCalibrationHarvester_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalibHarvester_cff import *
 from CalibPPS.AlignmentGlobal.PPSAlignmentHarvester_cff import *
 
-from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
+from CommonTools.ConditionDBWriter.PCLMetadataWriter_cfi import *
 
 # common ingredients
 from CondCore.CondDB.CondDB_cfi import CondDB
@@ -248,15 +248,15 @@ if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
 
 # --------------------------------------------------------------------------------------
 # PPS calibration
-ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
-ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
+ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_HPTDC'))
+ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_HPTDC'),
                                                     tag = cms.string('PPSDiamondTimingCalibration_pcl'),
                                                     timetype = cms.untracked.string('runnumber')
                                                     )
 
-ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'))
-ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_Sampic'),
-                                            tag = cms.string('DiamondSampicCalibration'),
+ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_SAMPIC'))
+ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_SAMPIC'),
+                                            tag = cms.string('PPSDiamondSampicCalibration_pcl'),
                                             timetype = cms.untracked.string('runnumber'))
 
 ALCAHARVESTPPSAlignment_metadata = cms.PSet(record = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'))

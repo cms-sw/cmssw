@@ -1,30 +1,21 @@
-#The autoSkim should be reviewed for Run-3 when PDs are available
 autoSkim = {
- 'BTagCSV' : 'LogError+LogErrorMonitor',
  'BTagMu' : 'LogError+LogErrorMonitor',
- 'HTMHT' : 'LogError+LogErrorMonitor',
- 'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
- 'DisplacedJet' : 'LogError+LogErrorMonitor',
- 'MET' : 'HighMET+LogError+LogErrorMonitor',
- 'SingleElectron' : 'LogError+LogErrorMonitor', #to be updated if we will have EGamma as Run-2 (2018), or splitting as 2016,2017
- 'SinglePhoton' : 'SinglePhotonJetPlusHOFilter+EXOMONOPOLE+LogError+LogErrorMonitor', #to be updated if we will have EGamma as Run-2 (2018), or splitting as 2016,2017
- 'DoubleEG' : 'ZElectron+LogError+LogErrorMonitor', #to be updated if we will have EGamma as Run-2 (2018), or splitting as 2016,2017
- 'EGamma':'SinglePhotonJetPlusHOFilter+ZElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
+ 'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+LogError+LogErrorMonitor',
+ 'EGamma':'ZElectron+WElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
- 'SingleMuon' : 'MuonPOGSkim+ZMu+MuTau+LogError+LogErrorMonitor',
- 'DoubleMuon' : 'LogError+LogErrorMonitor',
+ 'Muon' : 'ZMu+LogError+LogErrorMonitor',
  'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
- 'DoubleMuonLowMass' : 'BPHSkim+LogError+LogErrorMonitor',
- 'MuOnia' : 'BPHSkim+LogError+LogErrorMonitor',
- 'Charmonium' : 'MuonPOGJPsiSkim+BPHSkim+LogError+LogErrorMonitor',
  'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
- 'HcalHPDNoise' : 'LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
  'HLTPhysics' : 'LogError+LogErrorMonitor',
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
- 'ParkingBPH':'SkimBPark+LogError+LogErrorMonitor',
+ 'MonteCarlo':'EXODisappTrk+LogError+LogErrorMonitor',
+
+ # Used in unit test scenario ppEra_Run2_2018
+ 'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
 autoSkimRunII = {

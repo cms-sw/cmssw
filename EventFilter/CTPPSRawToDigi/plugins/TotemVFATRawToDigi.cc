@@ -3,6 +3,8 @@
 * This is a part of TOTEM offline software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
+*   Laurent Forthomme
 *
 ****************************************************************************/
 
@@ -33,6 +35,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
 #include <string>
 
@@ -47,7 +50,7 @@ public:
 private:
   std::string subSystemName;
 
-  enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
+  enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming, ssTotemT2 } subSystem;
 
   std::vector<unsigned int> fedIds;
 
@@ -80,6 +83,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     subSystem = ssTimingDiamond;
   else if (subSystemName == "TotemTiming")
     subSystem = ssTotemTiming;
+  else if (subSystemName == "TotemT2")
+    subSystem = ssTotemT2;
 
   if (subSystem == ssUndefined)
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
@@ -97,6 +102,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   else if (subSystem == ssTotemTiming)
     produces<DetSetVector<TotemTimingDigi>>(subSystemName);
+
+  else if (subSystem == ssTotemT2)
+    produces<DetSetVector<TotemT2Digi>>(subSystemName);
 
   // set default IDs
   if (fedIds.empty()) {
@@ -116,6 +124,11 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     else if (subSystem == ssTotemTiming) {
       for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID;
            ++id)
+        fedIds.push_back(id);
+    }
+
+    else if (subSystem == ssTotemT2) {
+      for (int id = FEDNumbering::MINTotemT2FEDID; id < FEDNumbering::MAXTotemT2FEDID; ++id)
         fedIds.push_back(id);
     }
   }
@@ -138,6 +151,9 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 
   else if (subSystem == ssTotemTiming)
     run<DetSetVector<TotemTimingDigi>>(event, es);
+
+  else if (subSystem == ssTotemT2)
+    run<DetSetVector<TotemT2Digi>>(event, es);
 }
 
 template <typename DigiType>

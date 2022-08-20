@@ -31,7 +31,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang and Sven Dildick
+ * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang, Sven Dildick and Giovanni Mocellin
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
@@ -186,17 +186,9 @@ protected:
      match-time window. Valid CLCTs are matched in-time. If a match was found
      for the best ALCT and best CLCT, also the second best ALCT and second
      best CLCT are sent to a correlation function "correlateLCTs" that will
-     make the best-best pair and second-second pair (if applicable). This
-     "matchALCTCLCT" function used to be directly in the "run" function, but
-     was put in a separate procedure so it can be reused for the GEM-CSC
-     motherboards. The argument is a mask, which plays no role for regular
-     CSC motherboards (TMB or OTMB). It does play a role in the GEM-CSC
-     motherboard. Different kinds of LCTs can be made there (see
-     CSCGEMMotherboard class), and the matching follows a sequence of priority
-     (first ALCT-CLCT-(2)GEM, then ALCT-CLCT, then CLCT-2GEM, then ALCT-2GEM).
-     At each step bunch crossings are masked where at least one LCT was found.
+     make the best-best pair and second-second pair (if applicable).
   */
-  void matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]);
+  void matchALCTCLCT();
 
   /*
     This function matches maximum two ALCTs with maximum two CLCTs in
@@ -226,10 +218,11 @@ protected:
       const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
   /*
-    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
-    if present, so that we always construct the maximum number of valid LCts
+    These functions copy valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCTs
   */
-  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
+  void copyValidToInValidALCT(CSCALCTDigi&, CSCALCTDigi&) const;
+  void copyValidToInValidCLCT(CSCCLCTDigi&, CSCCLCTDigi&) const;
 
   bool doesALCTCrossCLCT(const CSCALCTDigi&, const CSCCLCTDigi&) const;
 

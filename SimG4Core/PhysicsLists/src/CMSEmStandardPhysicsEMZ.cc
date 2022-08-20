@@ -60,7 +60,8 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emz") {
+CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver, const edm::ParameterSet& p)
+    : G4VPhysicsConstructor("CMSEmStandard_emz") {
   SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
@@ -81,6 +82,9 @@ CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver) : G4VPhysicsConstruc
   param->SetFluo(true);
   param->SetUseICRU90Data(true);
   param->SetMaxNIELEnergy(1 * CLHEP::MeV);
+  double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
+  param->SetLowestElectronEnergy(tcut);
+  param->SetLowestMuHadEnergy(tcut);
   SetPhysicsType(bElectromagnetic);
 }
 

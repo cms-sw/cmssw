@@ -391,7 +391,7 @@ namespace evf {
     std::unique_lock<std::mutex> lkw(*fileDeleteLockPtr_);
     auto it = filesToDeletePtr_->begin();
     while (it != filesToDeletePtr_->end()) {
-      if (it->second->lumi_ == ls) {
+      if (it->second->lumi_ == ls && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {
         it = filesToDeletePtr_->erase(it);
       } else
         it++;

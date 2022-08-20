@@ -24,6 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -126,16 +128,11 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
-    }
+    task.wait();
   }
 
   class BasicProd : public edm::global::EDProducer<> {
@@ -363,26 +360,34 @@ testGlobalProducer::testGlobalProducer()
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext nullParentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+    edm::ParentContext nullParentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext nullParentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext nullParentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+    edm::ParentContext nullParentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext nullParentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
@@ -398,26 +403,34 @@ testGlobalProducer::testGlobalProducer()
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
-    edm::ParentContext nullParentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext nullParentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+    edm::ParentContext nullParentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
-    edm::ParentContext nullParentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext nullParentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+    edm::ParentContext nullParentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, nullParentContext);
   };
@@ -451,14 +464,16 @@ namespace {
 template <typename T>
 void testGlobalProducer::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
+  oneapi::tbb::task_arena arena(1);
+  arena.execute([&]() {
+    edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
+    h.preallocate(edm::PreallocationConfiguration{});
 
-  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
-
-  edm::WorkerT<edm::global::EDProducerBase> w{iMod, m_desc, nullptr};
-  for (auto& keyVal : m_transToFunc) {
-    testTransition(iMod, &w, keyVal.first, iExpect, keyVal.second);
-  }
+    edm::WorkerT<edm::global::EDProducerBase> w{iMod, m_desc, nullptr};
+    for (auto& keyVal : m_transToFunc) {
+      testTransition(iMod, &w, keyVal.first, iExpect, keyVal.second);
+    }
+  });
 }
 
 void testGlobalProducer::basicTest() {

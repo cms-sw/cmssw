@@ -78,7 +78,9 @@ def customizeHLTIter0ToMkFit(process):
                    process.hltIter0PFlowCkfTrackCandidates)
 
     process.HLTIterativeTrackingIteration0.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
-    process.HLT_IsoTrackHB_v4.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
-    process.HLT_IsoTrackHE_v4.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
+
+    for path in process.paths_().values():
+      if not path.contains(process.HLTIterativeTrackingIteration0) and path.contains(process.hltIter0PFlowCkfTrackCandidates):
+        path.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
 
     return process

@@ -22,10 +22,11 @@
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigiCluster" ClassVersion="12">
+<class name="GEMPadDigiCluster" ClassVersion="13">
  <version ClassVersion="10" checksum="2569340006"/>
  <version ClassVersion="11" checksum="3372991553"/>
  <version ClassVersion="12" checksum="533478463"/>
+ <version ClassVersion="13" checksum="3488459777"/>
 </class>
 <class name="std::vector<GEMPadDigiCluster>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>

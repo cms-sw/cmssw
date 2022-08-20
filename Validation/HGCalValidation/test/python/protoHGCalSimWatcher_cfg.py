@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun protoHGCalSimWatcher_cfg.py geometry=D77
 #
-#   Options for geometry D49, D68, D77, D83, D84, D88, D92
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92")
+                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -67,6 +67,13 @@ elif (options.geometry == "D92"):
     process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     fileCheck = 'testHGCalSimWatcherV17.root'
+    runMode = 1
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('PROD',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV17N.root'
     runMode = 1
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9

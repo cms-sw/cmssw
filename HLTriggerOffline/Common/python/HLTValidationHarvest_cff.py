@@ -35,7 +35,7 @@ hltpostvalidation = cms.Sequence(
     +hltExoticaPostProcessors
     +b2gHLTriggerValidationHarvest
     +HLTSMPPostVal
-    #+HltBTagPostVal
+    +HltBTagPostVal
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 

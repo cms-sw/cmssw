@@ -59,14 +59,12 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),
-                                 ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
-                                 theLayout = cms.untracked.uint32(4)
+                                 ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
                                 )
 
 process.testETL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),
-                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
-                                 theLayout = cms.untracked.uint32(4)
+                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
                                 )
 
 process.Timing = cms.Service("Timing")

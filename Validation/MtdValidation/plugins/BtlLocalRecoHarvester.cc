@@ -58,7 +58,7 @@ void BtlLocalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGette
   }
 
   // --- Get the number of BTL crystals and the number of processed events
-  const float NBtlCrystals = BTLDetId::kCrystalsPerRODBarPhiFlat * BTLDetId::MAX_ROD;
+  const float NBtlCrystals = BTLDetId::kCrystalsBTL;
   const float Nevents = meNevents->getEntries();
   const float scale = (Nevents > 0 ? 1. / (Nevents * NBtlCrystals) : 1.);
 

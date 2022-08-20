@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalDigiStudy_cfg.py geometry=D88
 #
-#   Options for geometry D77, D83, D88, D92
+#   Options for geometry D77, D83, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D88, D92")
+                  "geometry of operations: D77, D83, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -47,6 +47,13 @@ elif (options.geometry == "D92"):
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     fileInput = 'file:step2D92tt.root'
     fileName = 'hgcDigiD92tt.root'
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileInput = 'file:step2D93tt.root'
+    fileName = 'hgcDigiD93tt.root'
 else:
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
