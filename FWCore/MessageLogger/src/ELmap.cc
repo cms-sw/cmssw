@@ -18,6 +18,8 @@
 
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
+#include <ctime>
+
 // Possible traces
 //#include <iostream>
 //#define ELcountTRACE
