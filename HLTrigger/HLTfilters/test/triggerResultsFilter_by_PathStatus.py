@@ -119,6 +119,13 @@ process.filter_any_pre_doubleNOT = triggerResultsFilter.clone(
     throw = False
 )
 
+# opposite of filter_any_pre without whitespaces where possible
+process.filter_not_any_pre = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT(Path_1/15)AND(NOT Path_2/10)AND(NOT Path_3/6)', ),
+    l1tResults = '',
+    throw = False
+)
+
 # accept if any path succeeds (wildcard, '*')
 process.filter_any_star = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_*', ),
@@ -211,6 +218,7 @@ process.Check_NOT_1_Pre = cms.Path( process.filter_not_1_pre )
 process.Check_2_Pre     = cms.Path( process.filter_2_pre )
 process.Check_Any_Pre   = cms.Path( process.filter_any_pre )
 process.Check_Any_Pre_DoubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
+process.Check_Not_Any_Pre = cms.Path( process.filter_not_any_pre )
 
 process.Check_Any_Question        = cms.Path( process.filter_any_question )
 process.Check_Any_StarQuestion    = cms.Path( process.filter_any_starquestion )

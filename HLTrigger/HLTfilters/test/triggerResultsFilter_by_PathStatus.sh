@@ -38,16 +38,17 @@ TrigReport     1   13       1000        967         33          0 Check_NOT_1_Pr
 TrigReport     1   14       1000         33        967          0 Check_2_Pre
 TrigReport     1   15       1000         99        901          0 Check_Any_Pre
 TrigReport     1   16       1000         99        901          0 Check_Any_Pre_DoubleNOT
-TrigReport     1   17       1000        733        267          0 Check_Any_Question
-TrigReport     1   18       1000        733        267          0 Check_Any_StarQuestion
-TrigReport     1   19       1000          0       1000          0 Check_Wrong_Name
-TrigReport     1   20       1000          0       1000          0 Check_Wrong_Pattern
-TrigReport     1   21       1000       1000          0          0 Check_Not_Wrong_Pattern
-TrigReport     1   22       1000          0       1000          0 Check_Empty_Pattern
-TrigReport     1   23       1000          0       1000          0 Check_L1Path_Pattern
-TrigReport     1   24       1000          0       1000          0 Check_L1Singlemuopen_Pattern
-TrigReport     1   25       1000       1000          0          0 Check_True_Pattern
-TrigReport     1   26       1000          0       1000          0 Check_False_Pattern
+TrigReport     1   17       1000        901         99          0 Check_Not_Any_Pre
+TrigReport     1   18       1000        733        267          0 Check_Any_Question
+TrigReport     1   19       1000        733        267          0 Check_Any_StarQuestion
+TrigReport     1   20       1000          0       1000          0 Check_Wrong_Name
+TrigReport     1   21       1000          0       1000          0 Check_Wrong_Pattern
+TrigReport     1   22       1000       1000          0          0 Check_Not_Wrong_Pattern
+TrigReport     1   23       1000          0       1000          0 Check_Empty_Pattern
+TrigReport     1   24       1000          0       1000          0 Check_L1Path_Pattern
+TrigReport     1   25       1000          0       1000          0 Check_L1Singlemuopen_Pattern
+TrigReport     1   26       1000       1000          0          0 Check_True_Pattern
+TrigReport     1   27       1000          0       1000          0 Check_False_Pattern
 @EOF
 
 # compare to expected output of test job
