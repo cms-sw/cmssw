@@ -48,9 +48,10 @@ process.success = cms.EDFilter('HLTBool', result = cms.bool(True))
 process.Path_1  = cms.Path(process.scale_1)
 process.Path_2  = cms.Path(process.scale_2)
 process.Path_3  = cms.Path(process.scale_3)
-process.AlwaysTrue    = cms.Path(process.success)
-process.AlwaysFalse   = cms.Path(process.fail)
 process.L1_Path = cms.Path(process.success)
+# Path names containing a special keyword (TRUE, FALSE, AND, OR, NOT)
+process.AlwaysNOTFalse = cms.Path(process.success)
+process.AlwaysFALSE    = cms.Path(process.fail)
 
 # define the TriggerResultsFilters based on the status of the previous paths
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as _triggerResultsFilter
@@ -203,6 +204,20 @@ process.filter_false_pattern = triggerResultsFilter.clone(
     throw = False
 )
 
+# Path name containing special keyword NOT
+process.filter_AlwaysNOTFalse_pattern = triggerResultsFilter.clone(
+    triggerConditions = ( 'AlwaysNOTFalse', ),
+    l1tResults = '',
+    throw = False
+)
+
+# Path name containing special keyword FALSE
+process.filter_NOTAlwaysFALSE_pattern = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT AlwaysFALSE', ),
+    l1tResults = '',
+    throw = False
+)
+
 
 process.Check_1 = cms.Path( process.filter_1 )
 process.Check_2 = cms.Path( process.filter_2 )
@@ -230,6 +245,8 @@ process.Check_L1Path_Pattern      = cms.Path( process.filter_l1path_pattern )
 process.Check_L1Singlemuopen_Pattern = cms.Path( process.filter_l1singlemuopen_pattern )
 process.Check_True_Pattern        = cms.Path( process.filter_true_pattern )
 process.Check_False_Pattern       = cms.Path( process.filter_false_pattern )
+process.Check_AlwaysNOTFalse_Pattern = cms.Path( process.filter_AlwaysNOTFalse_pattern )
+process.Check_NOTAlwaysFALSE_Pattern = cms.Path( process.filter_NOTAlwaysFALSE_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',

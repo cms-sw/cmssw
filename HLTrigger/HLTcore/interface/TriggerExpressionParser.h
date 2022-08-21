@@ -33,12 +33,12 @@ namespace triggerExpression {
       operand_or = qi::lexeme[qi::lit("OR") >> delimiter];
 
       token_l1algo %= qi::raw[qi::lexeme["L1_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
-      token_path %= qi::raw[qi::lexeme[+(qi::char_("a-zA-Z0-9_*?"))]];
+      token_path %= qi::raw[qi::lexeme[+(qi::char_("a-zA-Z0-9_*?"))] - operand_not - operand_and - operand_or];
 
       token = (token_true[qi::_val = new_<Constant>(true)] |         // TRUE
                token_false[qi::_val = new_<Constant>(false)] |       // FALSE
                token_l1algo[qi::_val = new_<L1uGTReader>(qi::_1)] |  // L1_*
-               token_path[qi::_val = new_<PathReader>(qi::_1)]);     // *
+               token_path[qi::_val = new_<PathReader>(qi::_1)]);     // * (except "NOT", "AND" and "OR")
 
       parenthesis %= ('(' >> expression >> ')');
 

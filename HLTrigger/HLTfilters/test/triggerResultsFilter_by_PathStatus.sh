@@ -24,9 +24,9 @@ TrigReport  Trig Bit#   Executed     Passed     Failed      Error Name
 TrigReport     1    0       1000        500        500          0 Path_1
 TrigReport     1    1       1000        333        667          0 Path_2
 TrigReport     1    2       1000        200        800          0 Path_3
-TrigReport     1    3       1000       1000          0          0 AlwaysTrue
-TrigReport     1    4       1000          0       1000          0 AlwaysFalse
-TrigReport     1    5       1000       1000          0          0 L1_Path
+TrigReport     1    3       1000       1000          0          0 L1_Path
+TrigReport     1    4       1000       1000          0          0 AlwaysNOTFalse
+TrigReport     1    5       1000          0       1000          0 AlwaysFALSE
 TrigReport     1    6       1000        500        500          0 Check_1
 TrigReport     1    7       1000        333        667          0 Check_2
 TrigReport     1    8       1000        200        800          0 Check_3
@@ -49,6 +49,8 @@ TrigReport     1   24       1000          0       1000          0 Check_L1Path_P
 TrigReport     1   25       1000          0       1000          0 Check_L1Singlemuopen_Pattern
 TrigReport     1   26       1000       1000          0          0 Check_True_Pattern
 TrigReport     1   27       1000          0       1000          0 Check_False_Pattern
+TrigReport     1   28       1000       1000          0          0 Check_AlwaysNOTFalse_Pattern
+TrigReport     1   29       1000       1000          0          0 Check_NOTAlwaysFALSE_Pattern
 @EOF
 
 # compare to expected output of test job

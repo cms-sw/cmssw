@@ -80,9 +80,6 @@ TEST_CASE("Test TriggerExpressionParser", "[TriggerExpressionParser]") {
     REQUIRE(testExpression("NOT(THIS OR THAT)AND(L1_THEOTHER)OR(NOTFALSE)",  //
                            "(((NOT (Uninitialised_Path_Expression OR Uninitialised_Path_Expression))"
                            " AND Uninitialised_L1_Expression) OR Uninitialised_Path_Expression)"));
-    REQUIRE(testExpression("TRUE AND L1_FALSE AND AND OR NOT",  //
-                           "(((TRUE AND Uninitialised_L1_Expression) AND Uninitialised_Path_Expression) OR "
-                           "Uninitialised_Path_Expression)"));
   }
 
   // examples of expressions not supported by the triggerExpression parser
@@ -93,5 +90,7 @@ TEST_CASE("Test TriggerExpressionParser", "[TriggerExpressionParser]") {
     REQUIRE(not testExpression("NOT (NOTHLT_Path OR HLT_Path2))"));
     REQUIRE(not testExpression("HLT_Path* NOT TRUE"));
     REQUIRE(not testExpression("ThisPath ANDThatPath"));
+    REQUIRE(not testExpression("ThisPath AND ThatPath AND OR"));
+    REQUIRE(not testExpression("ThisPath AND ThatPath OR NOT"));
   }
 }
