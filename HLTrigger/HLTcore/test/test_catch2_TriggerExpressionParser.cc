@@ -13,7 +13,7 @@ namespace {
     auto const* expr = triggerExpression::parse(expression);
 
     if (not expr) {
-      edm::LogWarning("InvalidInput") << "Couldn't parse trigger results expression \"" << expression << "\"";
+      edm::LogWarning("InvalidInput") << "Couldn't parse trigger-results expression \"" << expression << "\"";
       return false;
     }
 
@@ -77,6 +77,12 @@ TEST_CASE("Test TriggerExpressionParser", "[TriggerExpressionParser]") {
                            "Uninitialised_Path_Expression)))"));
     REQUIRE(testExpression("NOT NOT HLT_Path1 AND L1_Seed_??",  //
                            "((NOT (NOT Uninitialised_Path_Expression)) AND Uninitialised_L1_Expression)"));
+    REQUIRE(testExpression("NOT(THIS OR THAT)AND(L1_THEOTHER)OR(NOTFALSE)",  //
+                           "(((NOT (Uninitialised_Path_Expression OR Uninitialised_Path_Expression))"
+                           " AND Uninitialised_L1_Expression) OR Uninitialised_Path_Expression)"));
+    REQUIRE(testExpression("TRUE AND L1_FALSE AND AND OR NOT",  //
+                           "(((TRUE AND Uninitialised_L1_Expression) AND Uninitialised_Path_Expression) OR "
+                           "Uninitialised_Path_Expression)"));
   }
 
   // examples of expressions not supported by the triggerExpression parser
