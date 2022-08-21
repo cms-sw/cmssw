@@ -1,20 +1,85 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalDetIdToBeRecoveredProducer.h"
+/** \class EcalDetIdToBeRecoveredProducer
+ *   produce ECAL rechits from uncalibrated rechits
+ *
+ *  $Id:
+ *  $Date:
+ *  $Revision:
+ *  \author Federico Ferri, CEA-Saclay IRFU/SPP
+ *
+ **/
 
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
+#include "DataFormats/EcalDigi/interface/EBSrFlag.h"
+#include "DataFormats/EcalDigi/interface/EESrFlag.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include <set>
-
-#include <sys/types.h>
 #include <csignal>
+#include <set>
+#include <sys/types.h>
+
+class EcalDetIdToBeRecoveredProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event& evt, const edm::EventSetup& es) final;
+  void beginRun(edm::Run const& run, const edm::EventSetup& es) final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  //edm::InputTag eeUncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits
+  //std::string eeRechitCollection_; // secondary name to be given to EE collection of hits
+
+  const EcalChannelStatusMap* chStatus_;
+  const EcalElectronicsMapping* ecalMapping_;
+  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+  edm::ESGetToken<EcalChannelStatusMap, EcalChannelStatusRcd> channelStatusToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapToken_;
+  /*
+                 * InputTag for collections
+                 */
+  // SRP collections
+  edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_;
+  edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_;
+
+  // Integrity for xtal data
+  edm::EDGetTokenT<EBDetIdCollection> ebIntegrityGainErrorsToken_;
+  edm::EDGetTokenT<EBDetIdCollection> ebIntegrityGainSwitchErrorsToken_;
+  edm::EDGetTokenT<EBDetIdCollection> ebIntegrityChIdErrorsToken_;
+
+  // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+  edm::EDGetTokenT<EEDetIdCollection> eeIntegrityGainErrorsToken_;
+  edm::EDGetTokenT<EEDetIdCollection> eeIntegrityGainSwitchErrorsToken_;
+  edm::EDGetTokenT<EEDetIdCollection> eeIntegrityChIdErrorsToken_;
+
+  // Integrity Errors
+  edm::EDGetTokenT<EcalElectronicsIdCollection> integrityTTIdErrorsToken_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> integrityBlockSizeErrorsToken_;
+
+  /*
+                 * output collections
+                 */
+  std::string ebDetIdCollection_;
+  std::string eeDetIdCollection_;
+  std::string ttDetIdCollection_;
+  std::string scDetIdCollection_;
+};
 
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps) {
   ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd, edm::Transition::BeginRun>();
@@ -53,8 +118,6 @@ EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::Parame
   produces<std::set<EcalTrigTowerDetId>>(ttDetIdCollection_);
   produces<std::set<EcalScDetId>>(scDetIdCollection_);
 }
-
-EcalDetIdToBeRecoveredProducer::~EcalDetIdToBeRecoveredProducer() {}
 
 void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   edm::ESHandle<EcalElectronicsMapping> pEcalMapping = es.getHandle(ecalMappingToken_);
