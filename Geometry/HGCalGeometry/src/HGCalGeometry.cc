@@ -232,7 +232,8 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
                                       << id.iCell1 << ":" << id.iCell2 << " Global " << glob;
     }
   } else {
-    edm::LogVerbatim("HGCalGeom") << "Cannot recognize " << std::hex << detid.rawId() << " cellIndex " << cellIndex << ":" << maxSize << " Type " << m_topology.tileTrapezoid();
+    edm::LogVerbatim("HGCalGeom") << "Cannot recognize " << std::hex << detid.rawId() << " cellIndex " << cellIndex
+                                  << ":" << maxSize << " Type " << m_topology.tileTrapezoid();
   }
   return glob;
 }
