@@ -85,6 +85,9 @@ public:
   dqm::reco::MonitorElement* h_bySectCovMatrixStatus_;
   dqm::reco::MonitorElement* h_bySectDriftError_;
 
+  // for fit quality
+  dqm::reco::MonitorElement* h_bySectFitQuality_;
+
   // ouput LA maps
   std::vector<dqm::reco::MonitorElement*> h2_byLayerLA_;
   std::vector<dqm::reco::MonitorElement*> h2_byLayerDiff_;
