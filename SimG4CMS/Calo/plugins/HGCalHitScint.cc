@@ -107,26 +107,28 @@ void HGCalHitScint::analyze(const edm::Event& e, const edm::EventSetup& iS) {
       for (auto hit : hits) {
         ++all;
         DetId id(hit.id());
-	HGCScintillatorDetId hid(id);
-	std::pair<int, int> typm = hgc.tileType(hid.layer(), hid.ring(), 0);
-	if (typm.first >= 0) {
-	  hid.setType(typm.first);
-	  hid.setSiPM(typm.second);
-	  id = static_cast<DetId>(hid);
-	}
-	bool toCheck(true);
-	if (!tiles_.empty()) {
-	  int indx = HGCalTileIndex::tileIndex(firstLayer + hid.layer(), hid.ring(), hid.iphi());
-	  if (std::find(tiles_.begin(), tiles_.end(), indx) != tiles_.end())
-	    toCheck = true;
-	}
-	if (toCheck) {
-	  ++good;
-	  GlobalPoint pos = geom->getPosition(id);
-	  bool valid1 = geom->topology().valid(id);
-	  bool valid2 = hgc.isValidTrap(hid.layer(), hid.ring(), hid.iphi());
-	  edm::LogVerbatim("HGCalSim") << "Hit[" << all <<  ":" << good << "]" << hid << " at (" << pos.x() << ", " << pos.y() << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2 << " Energy " << hit.energy() << " Time " << hit.time();
-	}
+        HGCScintillatorDetId hid(id);
+        std::pair<int, int> typm = hgc.tileType(hid.layer(), hid.ring(), 0);
+        if (typm.first >= 0) {
+          hid.setType(typm.first);
+          hid.setSiPM(typm.second);
+          id = static_cast<DetId>(hid);
+        }
+        bool toCheck(true);
+        if (!tiles_.empty()) {
+          int indx = HGCalTileIndex::tileIndex(firstLayer + hid.layer(), hid.ring(), hid.iphi());
+          if (std::find(tiles_.begin(), tiles_.end(), indx) != tiles_.end())
+            toCheck = true;
+        }
+        if (toCheck) {
+          ++good;
+          GlobalPoint pos = geom->getPosition(id);
+          bool valid1 = geom->topology().valid(id);
+          bool valid2 = hgc.isValidTrap(hid.layer(), hid.ring(), hid.iphi());
+          edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << good << "]" << hid << " at (" << pos.x() << ", "
+                                       << pos.y() << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2
+                                       << " Energy " << hit.energy() << " Time " << hit.time();
+        }
       }
     }
   }

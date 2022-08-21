@@ -183,7 +183,8 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   const auto& indx = getIndex(layer, reco);
   if (indx.first < 0)
     return std::array<int, 3>{{irad, iphi, type}};
-  double xx = (reco) ? ((z > 0) ? x : -x) : ((z > 0) ? (HGCalParameters::k_ScaleFromDDD * x) : -(HGCalParameters::k_ScaleFromDDD * x));
+  double xx = (reco) ? ((z > 0) ? x : -x)
+                     : ((z > 0) ? (HGCalParameters::k_ScaleFromDDD * x) : -(HGCalParameters::k_ScaleFromDDD * x));
   double yy = (reco) ? y : HGCalParameters::k_ScaleFromDDD * y;
   int ll = layer - hgpar_->firstLayer_;
   xx -= hgpar_->xLayerHex_[ll];
@@ -208,7 +209,9 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   irad = static_cast<int>(ir - hgpar_->radiusLayer_[type].begin());
   irad = std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco << " x|y|r " << xx << ":" << yy << ":" << r << " phi " << phi << ":" << convertRadToDeg(phi) << " o/p " << irad << ":" << iphi << ":" << type;
+  edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
+                                << " x|y|r " << xx << ":" << yy << ":" << r << " phi " << phi << ":"
+                                << convertRadToDeg(phi) << " o/p " << irad << ":" << iphi << ":" << type;
 #endif
   return std::array<int, 3>{{irad, iphi, type}};
 }
@@ -800,7 +803,8 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad, int
       edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco
                                     << " IR " << ir << ":" << hgpar_->iradMinBH_[indx.first] << ":"
                                     << hgpar_->iradMaxBH_[indx.first] << " Type " << type << " Z " << indx.first << ":"
-                                    << z << " phi " << phi << ":" << convertRadToDeg(phi) << " R " << r << ":" << range.first << ":" << range.second;
+                                    << z << " phi " << phi << ":" << convertRadToDeg(phi) << " R " << r << ":"
+                                    << range.first << ":" << range.second;
     if ((mode_ != HGCalGeometryMode::TrapezoidFile) && (mode_ != HGCalGeometryMode::TrapezoidModule) &&
         (mode_ != HGCalGeometryMode::TrapezoidCassette))
       r = std::max(range.first, std::min(r, range.second));

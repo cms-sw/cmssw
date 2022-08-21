@@ -40,19 +40,19 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
-	if (items.size() > 2) {
-	  if (hgcons_.waferHexagon8File()) {
-	    int layer = std::atoi(items[0].c_str());
-	    int waferU = std::atoi(items[1].c_str());
-	    int waferV = std::atoi(items[2].c_str());
-	    indices_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
-	  } else if (hgcons_.tileTrapezoid()) {
-	    int layer = std::atoi(items[0].c_str());
-	    int ring = std::atoi(items[1].c_str());
-	    int iphi = std::atoi(items[2].c_str());
-	    indices_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, iphi));
-	  }
-	}
+        if (items.size() > 2) {
+          if (hgcons_.waferHexagon8File()) {
+            int layer = std::atoi(items[0].c_str());
+            int waferU = std::atoi(items[1].c_str());
+            int waferV = std::atoi(items[2].c_str());
+            indices_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+          } else if (hgcons_.tileTrapezoid()) {
+            int layer = std::atoi(items[0].c_str());
+            int ring = std::atoi(items[1].c_str());
+            int iphi = std::atoi(items[2].c_str());
+            indices_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, iphi));
+          }
+        }
       }
       edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << " component information from " << filetmp2;
       fInput.close();
@@ -133,9 +133,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
           debug = true;
       }
       if (debug)
-	edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
-				   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
-				   << layer << ":" << lay << " z " << iz << " " << detId << " wt " << wt;
+        edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
+                                   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
+                                   << layer << ":" << lay << " z " << iz << " " << detId << " wt " << wt;
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer

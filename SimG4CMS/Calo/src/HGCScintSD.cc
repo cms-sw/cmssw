@@ -203,7 +203,9 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
       debug = true;
   }
   if (debug)
-    edm::LogVerbatim("HGCSim") << "Layer:module:cell:iz " << layer << ":" << module << ":" << cell << ":" << iz << "  Point (" << hitPoint.x() << ", " << hitPoint.y() << ", " << hitPoint.z() << ") " << HGCScintillatorDetId(id);
+    edm::LogVerbatim("HGCSim") << "Layer:module:cell:iz " << layer << ":" << module << ":" << cell << ":" << iz
+                               << "  Point (" << hitPoint.x() << ", " << hitPoint.y() << ", " << hitPoint.z() << ") "
+                               << HGCScintillatorDetId(id);
 
   if (!isItinFidVolume(hitPoint)) {
 #ifdef EDM_ML_DEBUG
