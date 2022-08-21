@@ -377,8 +377,8 @@ struct HGCalMixLayer {
         double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
-                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
-                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R "
+                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
+                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R "
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);

@@ -448,8 +448,8 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
       double phi2 = dphi * (fimax - fimin + 1);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
-                                    << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
-                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R " << r1 << ":"
+                                    << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
+                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R " << r1 << ":"
                                     << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
                                     << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);
       ;
