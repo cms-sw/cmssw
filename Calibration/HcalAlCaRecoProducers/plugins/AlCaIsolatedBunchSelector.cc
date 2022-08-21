@@ -27,25 +27,25 @@
 
 //#define EDM_ML_DEBUG
 
-namespace AlCaIsolatedBunch {
+namespace alCaIsolatedBunchSelector {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaIsolatedBunch
+}  // namespace alCaIsolatedBunchSelector
 
-class AlCaIsolatedBunchSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsolatedBunch::Counters> > {
+class AlCaIsolatedBunchSelector : public edm::stream::EDFilter<edm::GlobalCache<alCaIsolatedBunchSelector::Counters> > {
 public:
-  explicit AlCaIsolatedBunchSelector(edm::ParameterSet const&, const AlCaIsolatedBunch::Counters* count);
-  ~AlCaIsolatedBunchSelector() override;
+  explicit AlCaIsolatedBunchSelector(edm::ParameterSet const&, const alCaIsolatedBunchSelector::Counters* count);
+  ~AlCaIsolatedBunchSelector() override = default;
 
-  static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsolatedBunch::Counters>();
+  static std::unique_ptr<alCaIsolatedBunchSelector::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsolatedBunchSelector::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsolatedBunch::Counters* counters);
+  static void globalEndJob(const alCaIsolatedBunchSelector::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -65,7 +65,7 @@ private:
 // constructors and destructor
 //
 AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iConfig,
-                                                     const AlCaIsolatedBunch::Counters* count)
+                                                     const alCaIsolatedBunchSelector::Counters* count)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -77,8 +77,6 @@ AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iC
                                    << " with trigger name " << trigName_ << " and process " << processName_
                                    << std::endl;
 }
-
-AlCaIsolatedBunchSelector::~AlCaIsolatedBunchSelector() {}
 
 //
 // member functions
@@ -92,21 +90,25 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent, edm::EventSetup const
   edm::LogVerbatim("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
                                    << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 #endif
-  //Step1: Find if the event passes the chosen trigger
-  auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
-  if (triggerResults.isValid()) {
-    const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-    const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
-    for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
-      int hlt = triggerResults->accept(iHLT);
-      if (triggerNames_[iHLT].find(trigName_) != std::string::npos) {
-        if (hlt > 0) {
-          accept = true;
+  if (trigName_.empty()) {
+    accept = true;
+  } else {
+    //Step1: Find if the event passes the chosen trigger
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
+    if (triggerResults.isValid()) {
+      const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
+      const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
+      for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
+        int hlt = triggerResults->accept(iHLT);
+        if (triggerNames_[iHLT].find(trigName_) != std::string::npos) {
+          if (hlt > 0) {
+            accept = true;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("AlCaIsoBunch")
-              << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept << std::endl;
+            edm::LogVerbatim("AlCaIsoBunch")
+                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept << std::endl;
 #endif
-          break;
+            break;
+          }
         }
       }
     }
@@ -124,7 +126,7 @@ void AlCaIsolatedBunchSelector::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaIsolatedBunchSelector::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
+void AlCaIsolatedBunchSelector::globalEndJob(const alCaIsolatedBunchSelector::Counters* count) {
   edm::LogVerbatim("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
 }
 
@@ -145,7 +147,7 @@ void AlCaIsolatedBunchSelector::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<std::string>("processName", "HLT");
-  desc.add<std::string>("triggerName", "HLT_HcalIsolatedBunch");
+  desc.add<std::string>("triggerName", "");
   descriptions.add("alcaIsolatedBunchSelector", desc);
 }
 

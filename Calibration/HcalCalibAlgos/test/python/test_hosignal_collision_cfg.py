@@ -77,10 +77,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
+#from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
-process = customisePostLS1(process)
+#process = customisePostLS1(process)
 
 # End of customisation functions
 
@@ -92,29 +92,8 @@ process.hofilter = cms.EDFilter("HOCalibFilter",
 hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 )
 
-process.hoCalibc = cms.EDAnalyzer("HOCalibAnalyzer",
-hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection'),
-hoInputTag = cms.InputTag('horeco'),
-# hoInputTag = cms.InputTag('reducedHcalRecHits','hbhereco'),
-allsignal = cms.untracked.bool(True), 
-correl = cms.untracked.bool(False),  
-hoinfo = cms.untracked.bool(False),  
-histFit = cms.untracked.bool(False), ## true   
-cosmic = cms.untracked.bool(False),  
-hbtime = cms.untracked.bool(False),  
-hbinfo = cms.untracked.bool(True),  
-checkmap = cms.untracked.bool(False),  
-noise = cms.untracked.bool(True),  
-psFileName = cms.untracked.string('hocalib_test_collision.ps'),  
-txtFileName = cms.untracked.string('hocalib_test_collision.txt'),  
-RootFileName = cms.untracked.string('hocalib_test_collision.root'),  
-  
-combined = cms.untracked.bool(True),  
-get_constant = cms.untracked.bool(False), #True),  
-pedSuppr = cms.untracked.bool(False), ## true  
-sigma = cms.untracked.double(0.05),  
-get_figure = cms.untracked.bool(False) # True)  
-)  
+process.load('Calibration.HcalCalibAlgos.hoCalibAnalyzer_cfi')
+process.hoCalibAnalyzer.cosmic = False
   
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff")  
 #process.hoCalibProducer.muons = 'cosmicMuons'
@@ -139,9 +118,9 @@ process.oout = cms.OutputModule("PoolOutputModule",
     )
 )  
 
-#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstruction*process.hoCalibProducer*process.hofilter*process.hoCalibc)  
-#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstructionCosmics*process.hoCalibProducer*process.hoCalibc))  
-#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstruction*process.hoCalibProducer*process.hoCalibc))  
-process.p1 = cms.Path((process.hoCalibProducer*process.hoCalibc))  
+#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstruction*process.hoCalibProducer*process.hofilter*process.hoCalibAnalyzer)  
+#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstructionCosmics*process.hoCalibProducer*process.hoCalibAnalyzer))  
+#process.p1 = cms.Path((process.RawToDigi*process.L1Reco*process.reconstruction*process.hoCalibProducer*process.hoCalibAnalyzer))  
+process.p1 = cms.Path((process.hoCalibProducer*process.hoCalibAnalyzer))  
 
 #process.e = cms.EndPath(process.oout)

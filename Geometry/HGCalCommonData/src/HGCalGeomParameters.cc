@@ -1531,7 +1531,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
-    int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
+    int orient =
+        (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)
+            ? HGCalProperty::waferOrient(waferProperties[k])
+            : HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
     php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]),
                                                                   partial,
                                                                   orient,

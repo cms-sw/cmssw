@@ -42,6 +42,8 @@ private:
   const std::string dqmDir_;
   const std::string formula_;
   const unsigned int min_entries_;
+  static constexpr double resolution_ = 0.1;
+  static constexpr double offset_ = 0.;
   TF1 interp_;
 };
 
@@ -96,7 +98,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
 
     calib_params[key] = {0, 0, 0, 0};
-    calib_time[key] = std::make_pair(0.1, 0.);
+    calib_time[key] = std::make_pair(offset_, resolution_);
 
     hists.leadingTime[chid] = iGetter.get(dqmDir_ + "/t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
@@ -134,7 +136,8 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
       if (res == 0) {
         calib_params[key] = {
             interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
-        calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
+        calib_time[key] =
+            std::make_pair(offset_, resolution_);  // hardcoded offset/resolution placeholder for the time being
         // can possibly do something with interp_.GetChiSquare() in the near future
       } else
         edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
