@@ -263,8 +263,10 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
       // }
 
       // If PF candidate pT is nan, leave it out
-      if (edm::isNotFinite(iCand->pt()))
+      if (edm::isNotFinite(iCand->pt())) {
+	edm::LogWarning("PhotonIDValueMapProducer") << "PF candidate pT is NAN, ignoring this candidate from PF isolation computation" << std::endl;
         continue;
+      }
 
       // Check if this candidate is within the isolation cone
       float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
@@ -401,8 +403,8 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
     for (auto const& aCCand : chargedCands) {
       auto iCand = aCCand.candidate;
 
-      //Leave out bizzare PF candidates with nan pT
-      if (edm::isNotFinite(iCand->pt()))
+      //Leave out bizarre PF candidates with nan pT
+      if (edm::isNotFinite(iCand->pt())) 
         continue;
 
       float dR2 = deltaR2(phoWrtVtxEta, phoWrtVtxPhi, iCand->eta(), iCand->phi());
