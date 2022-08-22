@@ -116,7 +116,6 @@ private:
   const double resol_calo_scale_had_;
   const double resol_calo_offset_em_;
   const double resol_calo_scale_em_;
-  const bool debug_;
   const std::string eidInputName_;
   const std::string eidOutputNameEnergy_;
   const std::string eidOutputNameId_;
@@ -173,7 +172,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       resol_calo_scale_had_(ps.getParameter<double>("resol_calo_scale_had")),
       resol_calo_offset_em_(ps.getParameter<double>("resol_calo_offset_em")),
       resol_calo_scale_em_(ps.getParameter<double>("resol_calo_scale_em")),
-      debug_(ps.getParameter<bool>("debug")),
       eidInputName_(ps.getParameter<std::string>("eid_input_name")),
       eidOutputNameEnergy_(ps.getParameter<std::string>("eid_output_name_energy")),
       eidOutputNameId_(ps.getParameter<std::string>("eid_output_name_id")),
@@ -253,21 +251,15 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   tfSession_ = es.getData(tfDnnToken_).getSession();
 
+  edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
+  evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
+
   edm::Handle<std::vector<reco::Track>> track_h;
   evt.getByToken(tracks_token_, track_h);
   const auto &tracks = *track_h;
 
-  edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  evt.getByToken(clusters_token_, cluster_h);
-  const auto &layerClusters = *cluster_h;
-
-  edm::Handle<edm::ValueMap<std::pair<float, float>>> clustersTime_h;
-  evt.getByToken(clustersTime_token_, clustersTime_h);
-  const auto &layerClustersTimes = *clustersTime_h;
-
-  edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
-  evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
-
+  const auto &layerClusters = evt.get(clusters_token_);
+  const auto &layerClustersTimes = evt.get(clustersTime_token_);
   const auto &muons = evt.get(muons_token_);
   const auto &trackTime = evt.get(tracks_time_token_);
   const auto &trackTimeErr = evt.get(tracks_time_err_token_);
@@ -278,34 +270,35 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       track_h, trackTime, trackTimeErr, trackTimeQual, muons, trackstersclue3d_h, *resultCandidates);
 
   // Print debug info
-  if (debug_) {
-    LogDebug("TrackstersMergeProducer") << "Results from the linking step : " << std::endl
-                                        << "No. of Tracks : " << tracks.size()
-                                        << "  No. of Tracksters : " << (*trackstersclue3d_h).size() << std::endl
-                                        << "(neutral candidates have track id -1)" << std::endl;
-  }
+  LogDebug("TrackstersMergeProducer") << "Results from the linking step : " << std::endl
+                                      << "No. of Tracks : " << tracks.size()
+                                      << "  No. of Tracksters : " << (*trackstersclue3d_h).size() << std::endl
+                                      << "(neutral candidates have track id -1)" << std::endl;
+
   std::vector<TICLCandidate> &candidates = *resultCandidates;
   for (const auto &cand : candidates) {
     auto track_ptr = cand.trackPtr();
     auto trackster_ptrs = cand.tracksters();
-    if (debug_) {
-      auto track_idx = track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
-      track_idx = (track_ptr.isNull()) ? -1 : track_idx;
-      LogDebug("TrackstersMergeProducer")
-          << "PDG ID " << cand.pdgId() << " charge " << cand.charge() << " p " << cand.p() << std::endl;
-      LogDebug("TrackstersMergeProducer")
-          << "track id (p) : " << track_idx << " (" << (track_ptr.isNull() ? -1 : track_ptr->p()) << ") "
-          << " trackster ids (E) : ";
-    }
+
+#ifdef EDM_ML_DEBUG
+    auto track_idx = track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
+    track_idx = (track_ptr.isNull()) ? -1 : track_idx;
+    LogDebug("TrackstersMergeProducer") << "PDG ID " << cand.pdgId() << " charge " << cand.charge() << " p " << cand.p()
+                                        << std::endl;
+    LogDebug("TrackstersMergeProducer") << "track id (p) : " << track_idx << " ("
+                                        << (track_ptr.isNull() ? -1 : track_ptr->p()) << ") "
+                                        << " trackster ids (E) : ";
+#endif
 
     // Merge included tracksters
     ticl::Trackster outTrackster;
     auto updated_size = 0;
     for (const auto &ts_ptr : trackster_ptrs) {
-      if (debug_) {
-        auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(trackstersclue3d_h, 0)).get();
-        LogDebug("TrackstersMergeProducer") << ts_idx << " (" << ts_ptr->raw_energy() << ") ";
-      }
+#ifdef EDM_ML_DEBUG
+      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(trackstersclue3d_h, 0)).get();
+      LogDebug("TrackstersMergeProducer") << ts_idx << " (" << ts_ptr->raw_energy() << ") ";
+#endif
+
       auto &thisTrackster = *ts_ptr;
       updated_size += thisTrackster.vertices().size();
       outTrackster.vertices().reserve(updated_size);
@@ -317,8 +310,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                 std::end(thisTrackster.vertex_multiplicity()),
                 std::back_inserter(outTrackster.vertex_multiplicity()));
     }
-    if (debug_)
-      LogDebug("TrackstersMergeProducer") << std::endl;
+
+    LogDebug("TrackstersMergeProducer") << std::endl;
+
     // Find duplicate LCs
     auto &orig_vtx = outTrackster.vertices();
     auto vtx_sorted{orig_vtx};
@@ -534,9 +528,7 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
 }
 
 void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
-  if (!debug_)
-    return;
-
+#ifdef EDM_ML_DEBUG
   int counter = 0;
   for (auto const &t : tracksters) {
     LogDebug("TrackstersMergeProducer")
@@ -558,6 +550,7 @@ void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> 
     }
     LogDebug("TrackstersMergeProducer") << std::endl;
   }
+#endif
 }
 
 void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -594,7 +587,6 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("resol_calo_scale_had", 0.15);
   desc.add<double>("resol_calo_offset_em", 1.5);
   desc.add<double>("resol_calo_scale_em", 0.15);
-  desc.add<bool>("debug", false);
   desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");

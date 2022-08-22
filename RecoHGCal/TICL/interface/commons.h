@@ -37,6 +37,9 @@ namespace ticl {
     }
   }
 
+  // verbosity levels for ticl algorithms
+  enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+
 }  // namespace ticl
 
 #endif

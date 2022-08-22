@@ -59,7 +59,6 @@ public:
     isOuterClusterOfDoublets_.shrink_to_fit();
   }
   void setVerbosity(int level) { verbosity_ = level; }
-  enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
 private:
   std::vector<HGCDoublet> allDoublets_;
