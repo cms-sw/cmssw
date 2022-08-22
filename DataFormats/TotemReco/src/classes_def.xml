@@ -2,11 +2,11 @@
   <class name="TotemT2Digi" ClassVersion="3">
     <version ClassVersion="3" checksum="4024006040"/>
   </class>
-  <class name="edm::DetSet<TotemT2Digi>"/>
-  <class name="edm::DetSetVector<TotemT2Digi>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemT2Digi> >"/>
+  <class name="edmNew::DetSet<TotemT2Digi>"/>
+  <class name="edmNew::DetSetVector<TotemT2Digi>"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<TotemT2Digi> >"/>
   <class name="std::vector<TotemT2Digi>"/>
-  <class name="std::vector<edm::DetSet<TotemT2Digi> >"/>
+  <class name="std::vector<edmNew::DetSet<TotemT2Digi> >"/>
   <class name="TotemT2RecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="969691996"/>
   </class>
