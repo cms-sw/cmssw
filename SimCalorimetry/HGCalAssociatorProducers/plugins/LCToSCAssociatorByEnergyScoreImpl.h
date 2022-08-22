@@ -39,7 +39,7 @@ namespace hgcal {
   //    is not the energy of the LayerCluster, but the energy of the LayerCluster coming from the SimCluster.
   //    So, there will be energy of the LayerCluster that is disregarded here, since there may be LayerCluster's
   //    cells that the SimCluster didn't contribute.
-  struct simClusterOnLayer {
+  struct simClusterOnCLayer {
     unsigned int simClusterId;
     float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
@@ -52,7 +52,7 @@ namespace hgcal {
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
   // This is used to save the simClusterOnLayer structure for all simClusters in each layer.
   // It is not exactly what is returned outside, but out of its entries, the output object is build.
-  typedef std::vector<std::vector<hgcal::simClusterOnLayer>> simClusterToLayerCluster;
+  typedef std::vector<std::vector<hgcal::simClusterOnCLayer>> simClusterToLayerCluster;
   //This is the output of the makeConnections function that contain all the work with SC2LC and LC2SC
   //association. It will be read by the relevant associateSimToReco and associateRecoToSim functions to
   //provide the final product.
