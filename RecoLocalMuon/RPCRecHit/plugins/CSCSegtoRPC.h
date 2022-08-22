@@ -27,7 +27,6 @@ private:
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeoToken_;
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeoToken_;
   edm::ESGetToken<CSCObjectMap, MuonGeometryRecord> cscMapToken_;
-  //by @ahussein
   int minBX;
   int maxBX;
 };

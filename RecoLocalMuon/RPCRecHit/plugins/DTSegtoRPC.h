@@ -34,7 +34,6 @@ private:
   double MaxD;
   double MaxDrb4;
   double MaxDistanceBetweenSegments;
-  //by @ahussein
   int minPhiBX;
   int maxPhiBX;
 };
