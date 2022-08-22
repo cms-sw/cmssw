@@ -42,7 +42,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
+struct MTDHitData {
   float energy;
   float time;
   float x_local;
@@ -237,7 +237,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 #endif
 
   // --- Loop over the BTL SIM hits
-  std::unordered_map<uint32_t, MTDHit> m_btlSimHits;
+  std::unordered_map<uint32_t, MTDHitData> m_btlSimHits;
   for (auto const& simHit : btlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
@@ -245,7 +245,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     DetId id = simHit.detUnitId();
 
-    auto simHitIt = m_btlSimHits.emplace(id.rawId(), MTDHit()).first;
+    auto simHitIt = m_btlSimHits.emplace(id.rawId(), MTDHitData()).first;
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
     (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
