@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 class EmbeddingHepMCFilter : public BaseHepMCFilter {
@@ -15,6 +16,8 @@ private:
   const int electron_neutrino_PDGID_ = 12;
   const int electronPDGID_ = 11;
   int ZPDGID_ = 23;
+  bool includeDY_ = false;
+  MCTruthHelper<HepMC::GenParticle> mcTruthHelper_;
 
   enum class TauDecayMode : int { Unfilled = -1, Muon = 0, Electron = 1, Hadronic = 2 };
 

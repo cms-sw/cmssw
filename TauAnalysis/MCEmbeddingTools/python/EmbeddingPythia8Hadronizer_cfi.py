@@ -19,7 +19,8 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
             MuHadCut = cms.string('Mu.Pt > 18 && Had.Pt > 25 && Mu.Eta < 2.1'),
             MuMuCut = cms.string('Mu1.Pt > 17 && Mu2.Pt > 8'),
             Final_States = cms.vstring('ElEl','ElHad','ElMu','HadHad','MuHad','MuMu'),
-            BosonPDGID = cms.int32(23)
+            BosonPDGID = cms.int32(23),
+            IncludeDY = cms.bool(False)
     ),
   ),
   pythiaPylistVerbosity = cms.untracked.int32(0),
