@@ -29,6 +29,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 
 #include "RecoPPS/Local/interface/TotemTimingRecHitProducerAlgorithm.h"
+#include "RecoPPS/Local/interface/TotemTimingConversions.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
@@ -68,22 +69,16 @@ void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetu
   std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut(new edm::DetSetVector<TotemTimingRecHit>);
 
   // get the digi collection
-  edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
-  iEvent.getByToken(digiToken_, digis);
+  const auto& digis = iEvent.get(digiToken_);
 
   // do not retrieve the calibration parameters if no digis were found
-  if (!digis->empty()) {
+  if (!digis.empty()) {
     // check for timing calibration parameters update
-    if (calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
-      algo_.setCalibration(*hTimingCalib);
-    }
-
-    // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
+    if (calibWatcher_.check(iSetup))
+      algo_.setCalibration(iSetup.getData(timingCalibrationToken_));
 
     // produce the rechits collection
-    algo_.build(*geometry, *digis, *pOut);
+    algo_.build(iSetup.getData(geometryToken_), digis, *pOut);
   }
 
   iEvent.put(std::move(pOut));
@@ -92,6 +87,8 @@ void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetu
 void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("applyCalibration", false);
+  desc.add<double>("timeSliceNs", 0.);
   desc.add<edm::InputTag>("digiTag", edm::InputTag("totemTimingRawToDigi", "TotemTiming"))
       ->setComment("input digis collection to retrieve");
   desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemTimingCalibration")

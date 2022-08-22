@@ -1,9 +1,8 @@
 /****************************************************************************
  *
- * This is a part of PPS offline software.
+ * This is a part of TOTEM offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
- *   Nicola Minafra (nicola.minafra@cern.ch)
  *
  ****************************************************************************/
 
@@ -18,57 +17,55 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
+#include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
-#include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+#include "RecoPPS/Local/interface/TotemT2RecHitProducerAlgorithm.h"
 
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/TotemGeometryRcd.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationLUTRcd.h"
 
-class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<> {
+class TotemT2RecHitProducer : public edm::stream::EDProducer<> {
 public:
-  explicit CTPPSDiamondRecHitProducer(const edm::ParameterSet&);
+  explicit TotemT2RecHitProducer(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
   edm::ESGetToken<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd> timingCalibrationLUTToken_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
-
+  edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
-  bool applyCalib_;
-  CTPPSDiamondRecHitProducerAlgorithm algo_;
+  const bool applyCalib_;
+  TotemT2RecHitProducerAlgorithm algo_;
 };
 
-CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer(const edm::ParameterSet& iConfig)
-    : digiToken_(consumes<edm::DetSetVector<CTPPSDiamondDigi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
+    : digiToken_(consumes<edm::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
+      geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
-  if (applyCalib_) {
+  if (applyCalib_)
     timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
-    timingCalibrationLUTToken_ = esConsumes<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd>();
-  }
-  produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
+  produces<edmNew::DetSetVector<TotemT2RecHit> >();
 }
 
-void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit> >();
+void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  auto pOut = std::make_unique<edmNew::DetSetVector<TotemT2RecHit> >();
 
   // get the digi collection
   const auto& digis = iEvent.get(digiToken_);
@@ -84,18 +81,18 @@ void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.put(std::move(pOut));
 }
 
-void CTPPSDiamondRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
+void TotemT2RecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("digiTag", edm::InputTag("ctppsDiamondRawToDigi", "TimingDiamond"))
+  desc.add<edm::InputTag>("digiTag", edm::InputTag("totemT2Digis", "TotemT2"))
       ->setComment("input digis collection to retrieve");
-  desc.add<std::string>("timingCalibrationTag", "GlobalTag:PPSDiamondTimingCalibration")
+  desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemT2TimingCalibration")
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<double>("timeSliceNs", 25.0 / 1024.0)
-      ->setComment("conversion constant between HPTDC timing bin size and nanoseconds");
-  desc.add<bool>("applyCalibration", true)->setComment("switch on/off the timing calibration");
+      ->setComment("conversion constant between timing bin size and nanoseconds");
+  desc.add<bool>("applyCalibration", false)->setComment("switch on/off the timing calibration");
 
-  descr.add("ctppsDiamondRecHits", desc);
+  descr.add("totemT2RecHits", desc);
 }
 
-DEFINE_FWK_MODULE(CTPPSDiamondRecHitProducer);
+DEFINE_FWK_MODULE(TotemT2RecHitProducer);
