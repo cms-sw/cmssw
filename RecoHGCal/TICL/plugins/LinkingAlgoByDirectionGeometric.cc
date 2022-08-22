@@ -137,7 +137,7 @@ bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(double &total_raw_
     timeCompatible = (std::abs(tsT - tkT) < maxDeltaT_ * sqrt(tsTErr * tsTErr + tkTErr * tkTErr));
   }
 
-  if (LinkingAlgoBase::algo_verbosity_ > LinkingAlgoBase::Advanced) {
+  if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced) {
     if (!(energyCompatible))
       LogDebug("LinkingAlgoByDirectionGeometric")
           << "energy incompatible : track p " << track.p() << " trackster energy " << trackster.raw_energy() << "\n";
@@ -161,10 +161,10 @@ void LinkingAlgoByDirectionGeometric::recordTrackster(const unsigned ts,  //trac
   energy_in_candidate += tracksters[ts].raw_energy();
 }
 
-#ifdef EDM_ML_DEBUG
 void LinkingAlgoByDirectionGeometric::dumpLinksFound(std::vector<std::vector<unsigned>> &resultCollection,
                                                      const char *label) const {
-  if (!(LinkingAlgoBase::algo_verbosity_ > LinkingAlgoBase::Advanced))
+#ifdef EDM_ML_DEBUG
+  if (!(LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced))
     return;
 
   LogDebug("LinkingAlgoByDirectionGeometric") << "All links found - " << label << "\n";
@@ -177,8 +177,8 @@ void LinkingAlgoByDirectionGeometric::dumpLinksFound(std::vector<std::vector<uns
     }
     LogDebug("LinkingAlgoByDirectionGeometric") << "\n";
   }
+#endif  // EDM_ML_DEBUG
 }
-#endif  //EDM_ML_DEBUG
 
 void LinkingAlgoByDirectionGeometric::buildLayers() {
   // build disks at HGCal front & EM-Had interface for track propagation
@@ -244,7 +244,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     return ((cumulative_prob <= pid_threshold_) and (t.raw_em_energy() != t.raw_energy())) or
            (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
   };
-  if (LinkingAlgoBase::algo_verbosity_ > LinkingAlgoBase::Advanced)
+  if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
     LogDebug("LinkingAlgoByDirectionGeometric") << "------- Geometric Linking ------- \n";
 
   // Propagate tracks
@@ -256,7 +256,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     reco::TrackRef trackref = reco::TrackRef(tkH, i);
     // also veto tracks associated to muons
     int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
-    if (LinkingAlgoBase::algo_verbosity_ > LinkingAlgoBase::Advanced)
+    if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
       LogDebug("LinkingAlgoByDirectionGeometric")
           << "track " << i << " - eta " << tk.eta() << " phi " << tk.phi() << " time " << tkTime[reco::TrackRef(tkH, i)]
           << " time qual " << tkTimeQual[reco::TrackRef(tkH, i)] << "  muid " << muId << "\n";
@@ -271,17 +271,17 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
       continue;
 
     int iSide = int(tk.eta() > 0);
-    FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
+    const auto &fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
     // to the HGCal front
-    TrajectoryStateOnSurface tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
+    const auto &tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
       Vector trackP(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
       trackPColl.emplace_back(trackP, i);
     }
     // to lastLayerEE
-    tsos = prop.propagate(fts, interfaceDisk_[iSide]->surface());
-    if (tsos.isValid()) {
-      Vector trackP(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
+    const auto &tsos_int = prop.propagate(fts, interfaceDisk_[iSide]->surface());
+    if (tsos_int.isValid()) {
+      Vector trackP(tsos_int.globalPosition().x(), tsos_int.globalPosition().y(), tsos_int.globalPosition().z());
       tkPropIntColl.emplace_back(trackP, i);
     }
   }  // Tracks
@@ -291,7 +291,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   // Propagate tracksters
   for (unsigned i = 0; i < tracksters.size(); ++i) {
     const auto &t = tracksters[i];
-    if (LinkingAlgoBase::algo_verbosity_ > LinkingAlgoBase::Advanced)
+    if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
       LogDebug("LinkingAlgoByDirectionGeometric")
           << "trackster " << i << " - eta " << t.barycenter().eta() << " phi " << t.barycenter().phi() << " time "
           << t.time() << " energy " << t.raw_energy() << "\n";

@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
+#include "RecoHGCal/TICL/interface/commons.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
@@ -53,8 +54,6 @@ namespace ticl {
     virtual void makeTracksters(const Inputs& input,
                                 std::vector<Trackster>& result,
                                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) = 0;
-
-    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
   protected:
     int algo_verbosity_;
