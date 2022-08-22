@@ -9,6 +9,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring('file:teststreamfile.dat', 'file:teststreamfile_ext.dat', 'file:teststreamfile_ext2.dat', 'file:teststreamfile_ext2.dat'),
+    prefetchMBytes = cms.untracked.uint32(1)
     #firstEvent = cms.untracked.uint64(10123456835)
 )
 
