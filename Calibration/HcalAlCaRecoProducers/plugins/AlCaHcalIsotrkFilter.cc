@@ -23,19 +23,20 @@
 // class declaration
 //
 
-namespace alcaHcalIsoTrk {
+namespace alCaHcalIsoTrkFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nLow_(0), nHigh_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nLow_, nHigh_;
   };
-}  // namespace alcaHcalIsoTrk
+}  // namespace alCaHcalIsoTrkFilter
 
-class AlCaHcalIsotrkFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalIsoTrk::Counters>> {
+class AlCaHcalIsotrkFilter : public edm::global::EDFilter<edm::RunCache<alCaHcalIsoTrkFilter::Counters>> {
 public:
   AlCaHcalIsotrkFilter(edm::ParameterSet const&);
   ~AlCaHcalIsotrkFilter() override = default;
 
-  std::shared_ptr<alcaHcalIsoTrk::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  std::shared_ptr<alCaHcalIsoTrkFilter::Counters> globalBeginRun(edm::Run const&,
+                                                                 edm::EventSetup const&) const override;
 
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override;
@@ -146,10 +147,10 @@ bool AlCaHcalIsotrkFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
 }  // AlCaHcalIsotrkFilter::filter
 
 // ------------ method called when starting to processes a run  ------------
-std::shared_ptr<alcaHcalIsoTrk::Counters> AlCaHcalIsotrkFilter::globalBeginRun(edm::Run const& iRun,
-                                                                               edm::EventSetup const&) const {
+std::shared_ptr<alCaHcalIsoTrkFilter::Counters> AlCaHcalIsotrkFilter::globalBeginRun(edm::Run const& iRun,
+                                                                                     edm::EventSetup const&) const {
   edm::LogVerbatim("HcalIsoTrack") << "Start the Run " << iRun.run();
-  return std::make_shared<alcaHcalIsoTrk::Counters>();
+  return std::make_shared<alCaHcalIsoTrkFilter::Counters>();
 }
 
 // ------------ method called when ending the processing of a run  ------------

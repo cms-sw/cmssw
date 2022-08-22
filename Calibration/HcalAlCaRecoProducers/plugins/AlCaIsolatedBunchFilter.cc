@@ -27,25 +27,25 @@
 
 //#define EDM_ML_DEBUG
 
-namespace AlCaIsolatedBunch {
+namespace alCaIsolatedBunchFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaIsolatedBunch
+}  // namespace alCaIsolatedBunchFilter
 
-class AlCaIsolatedBunchFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsolatedBunch::Counters> > {
+class AlCaIsolatedBunchFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaIsolatedBunchFilter::Counters> > {
 public:
-  explicit AlCaIsolatedBunchFilter(edm::ParameterSet const&, const AlCaIsolatedBunch::Counters* count);
+  explicit AlCaIsolatedBunchFilter(edm::ParameterSet const&, const alCaIsolatedBunchFilter::Counters* count);
   ~AlCaIsolatedBunchFilter() override;
 
-  static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsolatedBunch::Counters>();
+  static std::unique_ptr<alCaIsolatedBunchFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsolatedBunchFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsolatedBunch::Counters* counters);
+  static void globalEndJob(const alCaIsolatedBunchFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -65,7 +65,7 @@ private:
 // constructors and destructor
 //
 AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfig,
-                                                 const AlCaIsolatedBunch::Counters* count)
+                                                 const alCaIsolatedBunchFilter::Counters* count)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -159,7 +159,7 @@ void AlCaIsolatedBunchFilter::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
+void AlCaIsolatedBunchFilter::globalEndJob(const alCaIsolatedBunchFilter::Counters* count) {
   edm::LogVerbatim("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
 }
 
