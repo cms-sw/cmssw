@@ -258,7 +258,8 @@ HLT_TripleMu_10_5_5_DZ_v*	#	CMSHLT-1311
 HLT_TripleMu_12_10_5_v*	#	CMSHLT-1311
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*	#	CMSHLT-1311, CMSHLT-1436
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*	#	CMSHLT-1311, CMSHLT-1436
-DST_Run3_PFScoutingPixelTracking_v* # CMSHLT-2120, CMSHLT-2231
+DST_Run3_PFScoutingPixelTracking_v*         # CMSHLT-2120, CMSHLT-2231
+DST_HLTMuon_Run3_PFScoutingPixelTracking_v* # CMSHLT-2428
 HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	#	CMSHLT-1330
 HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v*	#	CMSHLT-1330
 HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	#	CMSHLT-1330
@@ -623,6 +624,7 @@ HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v*  # CMSHLT-2282
 HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2282
 HLT_Diphoton22_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v*  # CMSHLT-2282
 HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2282
+HLT_Mu50_L1SingleMuShower_v* # CMSHLT-2373
 
 HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 
@@ -638,11 +640,12 @@ DQM_PixelReconstruction_v* # CMSHLT-2287
 
 ## EndPaths / FinalPaths ##
 
-PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
+PhysicsDispJetBTagMuEGTauOutput        # CMSHLT-2431
 PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
+PhysicsJetMETOutput                    # CMSHLT-2431
+PhysicsMuonOutput                      # CMSHLT-2431
+PhysicsReservedDoubleMuonLowMassOutput # CMSHLT-2431
 PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231
 ScoutingPFOutput               # CMSHLT-548, CMSHLT-2231
 DQMOutput
