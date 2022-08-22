@@ -17,6 +17,9 @@
 //
 
 #include "RPCPointProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // system include files
 
@@ -24,6 +27,39 @@
 #include <ctime>
 
 // user include files
+
+void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("incldt", true);
+  desc.addUntracked<bool>("inclcsc", true);
+  desc.addUntracked<bool>("incltrack", false);
+  desc.addUntracked<bool>("debug", false);
+  desc.addUntracked<double>("rangestrips", 4.);
+  desc.addUntracked<double>("rangestripsRB4", 4.);
+  desc.addUntracked<double>("MinCosAng", 0.85);
+  desc.addUntracked<double>("MaxD", 80.0);
+  desc.addUntracked<double>("MaxDrb4", 150.0);
+  desc.addUntracked<double>("ExtrapolatedRegion", 0.6);
+  desc.add<edm::InputTag>("cscSegments",
+                          edm::InputTag("dTandCSCSegmentsinTracks", "SelectedCscSegments", "OwnParticles"));
+  desc.add<edm::InputTag>("dt4DSegments",
+                          edm::InputTag("dTandCSCSegmentsinTracks", "SelectedDtSegments", "OwnParticles"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("standAloneMuons"));
+  desc.addUntracked<int>("minBX", -2);
+  desc.addUntracked<int>("maxBX", 2);
+  edm::ParameterSetDescription descNested;
+  descNested.add<bool>("DoPredictionsOnly", false);
+  descNested.add<std::string>("Fitter", "KFFitterForRefitInsideOut");
+  descNested.add<std::string>("TrackerRecHitBuilder", "WithTrackAngle");
+  descNested.add<std::string>("Smoother", "KFSmootherForRefitInsideOut");
+  descNested.add<std::string>("MuonRecHitBuilder", "MuonRecHitBuilder");
+  descNested.add<std::string>("RefitDirection", "alongMomentum");
+  descNested.add<bool>("RefitRPCHits", false);
+  descNested.add<std::string>("Propagator", "SmartPropagatorAnyRKOpposite");
+  desc.add<edm::ParameterSetDescription>("TrackTransformer", descNested);
+
+  descriptions.add("produceRPCPoints", desc);
+}
 
 RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
     : incldt(iConfig.getUntrackedParameter<bool>("incldt", true)),
@@ -63,7 +99,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                  "RPCDTExtrapolatedPoints");
     } else {
       if (debug)
-        std::cout << "RPCHLT Invalid DTSegments collection" << std::endl;
+        LogDebug("RPCPointProducer") << "RPCHLT Invalid DTSegments collection" << std::endl;
     }
   }
 
@@ -75,7 +111,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                  "RPCCSCExtrapolatedPoints");
     } else {
       if (debug)
-        std::cout << "RPCHLT Invalid CSCSegments collection" << std::endl;
+        LogDebug("RPCPointProducer") << "RPCHLT Invalid CSCSegments collection" << std::endl;
     }
   }
   if (incltrack) {
@@ -85,7 +121,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       iEvent.put(tracktoRPC->thePoints(alltracks.product(), iSetup, debug), "RPCTrackExtrapolatedPoints");
     } else {
       if (debug)
-        std::cout << "RPCHLT Invalid Tracks collection" << std::endl;
+        LogDebug("RPCPointProducer") << "RPCHLT Invalid Tracks collection" << std::endl;
     }
   }
 }
