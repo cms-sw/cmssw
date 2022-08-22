@@ -27,13 +27,10 @@ void TotemGeometry::browseT2(const DetGeomDesc*& parent) {
   else if (parent->name() == "TotemT2Scint") {
     unsigned short plane = 2 * (parent->copyno() / 10);
     unsigned short tile = parent->copyno() % 10;
-    if (tile % 2 != 0)
-      tile += 1;
-    else
+    if (tile % 2 == 0)
       plane += 1;
-    tile = tile / 2 - 1;
+    tile = (tile + 1) / 2 - 1;
     addT2Tile(TotemT2DetId(arm, plane, tile), parent);
-    parent->print();
   }
 }
 
