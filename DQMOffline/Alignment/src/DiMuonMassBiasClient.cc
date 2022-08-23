@@ -1,5 +1,6 @@
 // user includes
 #include "DQMOffline/Alignment/interface/DiMuonMassBiasClient.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -22,6 +23,9 @@ DiMuonMassBiasClient::DiMuonMassBiasClient(edm::ParameterSet const& iConfig)
 //-----------------------------------------------------------------------------------
 {
   edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::Constructing DiMuonMassBiasClient ";
+
+  consumes<DQMToken, edm::InRun>(edm::InputTag("DiMuonMassBiasMonitor", "DQMGenerationDiMuonMassBiasMonitorRun"));
+  consumes<DQMToken, edm::InLumi>(edm::InputTag("DiMuonMassBiasMonitor", "DQMGenerationDiMuonMassBiasMonitorLumi"));
 
   // fill the parameters for the fit
   edm::ParameterSet fit_par = iConfig.getParameter<edm::ParameterSet>("fit_par");

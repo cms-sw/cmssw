@@ -3,6 +3,7 @@ import DQM.TrackingMonitor.TrackingMonitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 import DQMOffline.Alignment.DiMuonVertexMonitor_cfi
 import DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi
+import DQMOffline.Alignment.DiMuonMassBiasClient_cfi
 
 #Below all DQM modules for TrackerAlignment AlCaRecos are instantiated.
 ######################################################
@@ -86,7 +87,11 @@ ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.D
     FolderName = "AlCaReco/"+__selectionName
 )
 
-ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM )
+ALCARECOTkAlDiMuonMassBiasClient = DQMOffline.Alignment.DiMuonMassBiasClient_cfi.DiMuonMassBiasClient.clone(
+    FolderName = "AlCaReco/"+__selectionName
+)
+
+ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM + ALCARECOTkAlDiMuonMassBiasClient)
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
