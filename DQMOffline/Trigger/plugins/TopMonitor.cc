@@ -595,7 +595,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   }
 
   if (nmuons_ > 1) {
-    if(enable2DPlots_){
+    if (enable2DPlots_) {
       histname = "mu1Pt_mu2Pt";
       histtitle = "muon-1 pt vs muon-2 pt";
       bookME(ibooker, mu1Pt_mu2Pt_, histname, histtitle, muPt_variable_binning_2D_, muPt_variable_binning_2D_);
@@ -709,7 +709,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, muPhi_.at(iMu), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(muPhi_.at(iMu), " muon #phi", "events");
 
-    if(enable2DPlots_){
+    if (enable2DPlots_) {
       histname = "muPtEta_";
       histtitle = "muon p_{T} - #eta - ";
       histname.append(index);
@@ -756,7 +756,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, elePhi_.at(iEle), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(elePhi_.at(iEle), " electron #phi", "events");
 
-    if(enable2DPlots_){
+    if (enable2DPlots_) {
       histname = "elePtEta_";
       histtitle = "electron p_{T} - #eta - ";
       histname.append(index);
@@ -845,7 +845,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, jetPhi_.at(iJet), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(jetPhi_.at(iJet), "jet #phi", "events");
 
-    if(enable2DPlots_){
+    if (enable2DPlots_) {
       histname = "jetPtEta_";
       histtitle = "jet p_{T} - #eta - ";
       histname.append(index);
@@ -900,19 +900,21 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, bjetCSV_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
     setMETitle(bjetCSV_.at(iBJet), "b-jet CSV", "events");
 
-    if(enable2DPlots_){
+    if (enable2DPlots_) {
       histname = "bjetPtEta_";
       histtitle = "b-jet p_{T} - #eta - ";
       histname.append(index);
       histtitle.append(index);
-      bookME(ibooker, bjetPtEta_.at(iBJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
+      bookME(
+          ibooker, bjetPtEta_.at(iBJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
       setMETitle(bjetPtEta_.at(iBJet), "b-jet p_{T} [GeV]", "b-jet #eta");
 
       histname = "bjetEtaPhi_";
       histtitle = "b-jet #eta - #phi - ";
       histname.append(index);
       histtitle.append(index);
-      bookME(ibooker, bjetEtaPhi_.at(iBJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
+      bookME(
+          ibooker, bjetEtaPhi_.at(iBJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
       setMETitle(bjetEtaPhi_.at(iBJet), "b-jet #eta", "b-jet #phi");
     }
 
@@ -1384,7 +1386,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/TOP");
 
-  desc.add<bool>("requireValidHLTPaths", false); //switch to true
+  desc.add<bool>("requireValidHLTPaths", false);  //switch to true
 
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
