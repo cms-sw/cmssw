@@ -41,13 +41,20 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
         if (items.size() > 2) {
-          int layer = std::atoi(items[0].c_str());
-          int waferU = std::atoi(items[1].c_str());
-          int waferV = std::atoi(items[2].c_str());
-          wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+          if (hgcons_.waferHexagon8File()) {
+            int layer = std::atoi(items[0].c_str());
+            int waferU = std::atoi(items[1].c_str());
+            int waferV = std::atoi(items[2].c_str());
+            indices_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+          } else if (hgcons_.tileTrapezoid()) {
+            int layer = std::atoi(items[0].c_str());
+            int ring = std::atoi(items[1].c_str());
+            int iphi = std::atoi(items[2].c_str());
+            indices_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, iphi));
+          }
         }
       }
-      edm::LogVerbatim("HGCalSim") << "Reads in " << wafers_.size() << " wafer information from " << filetmp2;
+      edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << " component information from " << filetmp2;
       fInput.close();
     }
   }
@@ -78,9 +85,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     } else if (mode_ != HGCalGeometryMode::Hexagon8) {
       double xx = (pos.z() > 0) ? pos.x() : -pos.x();
       bool debug(false);
-      if (!wafers_.empty()) {
+      if (!indices_.empty()) {
         int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, waferU, waferV, false);
-        if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+        if (std::find(indices_.begin(), indices_.end(), indx) != indices_.end())
           debug = true;
       }
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
@@ -118,11 +125,18 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
         detId.setSiPM(typm.second);
       }
       index = detId.rawId();
-#ifdef EDM_ML_DEBUG
       int lay = layer + hgcons_.getLayerOffset();
-      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
-                                 << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
-                                 << layer << ":" << lay << " z " << iz << " " << detId;
+      bool debug(false);
+      if (!indices_.empty()) {
+        int indx = HGCalWaferIndex::waferIndex(lay, id[0], id[1], false);
+        if (std::find(indices_.begin(), indices_.end(), indx) != indices_.end())
+          debug = true;
+      }
+      if (debug)
+        edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
+                                   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
+                                   << layer << ":" << lay << " z " << iz << " " << detId << " wt " << wt;
+#ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
                                  << ":" << iz << " ERROR";

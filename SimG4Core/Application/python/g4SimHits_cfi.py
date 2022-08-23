@@ -527,6 +527,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
+        TileFileName     = cms.untracked.string("")
     ),
     HFNoseSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),

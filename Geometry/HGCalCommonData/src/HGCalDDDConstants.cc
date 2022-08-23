@@ -183,35 +183,35 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   const auto& indx = getIndex(layer, reco);
   if (indx.first < 0)
     return std::array<int, 3>{{irad, iphi, type}};
-  double xx = (z > 0) ? x : -x;
-  double phi = (((y == 0.0) && (x == 0.0)) ? 0. : std::atan2(y, xx));
-  if (phi < 0)
-    phi += (2.0 * M_PI);
-  if (indx.second != 0)
-    iphi = 1 + static_cast<int>(phi / indx.second);
+  double xx = (reco) ? ((z > 0) ? x : -x)
+                     : ((z > 0) ? (HGCalParameters::k_ScaleFromDDD * x) : -(HGCalParameters::k_ScaleFromDDD * x));
+  double yy = (reco) ? y : HGCalParameters::k_ScaleFromDDD * y;
+  int ll = layer - hgpar_->firstLayer_;
+  xx -= hgpar_->xLayerHex_[ll];
+  yy -= hgpar_->yLayerHex_[ll];
   if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
     auto cshift = hgcassette_.getShift(layer, 1, cassette);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second;
 #endif
-    if (reco) {
-      x -= cshift.first;
-      y -= cshift.second;
-    } else {
-      x = HGCalParameters::k_ScaleFromDDD * x - cshift.first;
-      y = HGCalParameters::k_ScaleFromDDD * y - cshift.second;
-    }
+    xx -= cshift.first;
+    yy -= cshift.second;
   }
+  double phi = (((yy == 0.0) && (xx == 0.0)) ? 0. : std::atan2(yy, xx));
+  if (phi < 0)
+    phi += (2.0 * M_PI);
+  if (indx.second != 0)
+    iphi = 1 + static_cast<int>(phi / indx.second);
   type = hgpar_->scintType(layer);
-  double r = std::sqrt(x * x + y * y);
+  double r = std::sqrt(xx * xx + yy * yy);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   irad = static_cast<int>(ir - hgpar_->radiusLayer_[type].begin());
   irad = std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
-                                << " x|r " << xx << ":" << r << " phi " << phi << " o/p " << irad << ":" << iphi << ":"
-                                << type;
+                                << " x|y|r " << xx << ":" << yy << ":" << r << " phi " << phi << ":"
+                                << convertRadToDeg(phi) << " o/p " << irad << ":" << iphi << ":" << type;
 #endif
   return std::array<int, 3>{{irad, iphi, type}};
 }
@@ -803,12 +803,16 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad, int
       edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco
                                     << " IR " << ir << ":" << hgpar_->iradMinBH_[indx.first] << ":"
                                     << hgpar_->iradMaxBH_[indx.first] << " Type " << type << " Z " << indx.first << ":"
-                                    << z << " phi " << phi << " R " << r << ":" << range.first << ":" << range.second;
+                                    << z << " phi " << phi << ":" << convertRadToDeg(phi) << " R " << r << ":"
+                                    << range.first << ":" << range.second;
     if ((mode_ != HGCalGeometryMode::TrapezoidFile) && (mode_ != HGCalGeometryMode::TrapezoidModule) &&
         (mode_ != HGCalGeometryMode::TrapezoidCassette))
       r = std::max(range.first, std::min(r, range.second));
     x = r * std::cos(phi);
     y = r * std::sin(phi);
+    int ll = lay - hgpar_->firstLayer_;
+    x += hgpar_->xLayerHex_[ll];
+    y += hgpar_->yLayerHex_[ll];
     if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
       int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
       auto cshift = hgcassette_.getShift(lay, 1, cassette);
