@@ -13,7 +13,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -30,17 +29,28 @@ DiMuonVertexMonitor::DiMuonVertexMonitor(const edm::ParameterSet& iConfig)
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
+      useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")) {}
 
 void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor");
   hSVProb_ = iBooker.book1D("VtxProb", ";ZV vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
+  hSVChi2_ =
+      iBooker.book1D("VtxChi2", "#chi^{2} of the Z vertex; #chi^{2} of the Z vertex; N(#mu#mu pairs)", 200, 0., 200.);
+  hSVNormChi2_ = iBooker.book1D(
+      "VtxNormChi2", "#chi^{2}/ndf of the Z vertex; #chi^{2}/ndf of Z vertex; N(#mu#mu pairs)", 100, 0., 20.);
   hSVDist_ = iBooker.book1D("VtxDist", ";PV-ZV xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
   hSVDistErr_ = iBooker.book1D("VtxDistErr", ";PV-ZV xy distance error [#mum];N(#mu#mu pairs)", 100, 0., 1000.);
   hSVDistSig_ = iBooker.book1D("VtxDistSig", ";PV-ZV xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  hSVCompatibility_ = iBooker.book1D(
+      "VtxCompatibility", "compatibility of Z vertex; compatibility of Z vertex; N(#mu#mu pairs)", 100, 0., 100.);
+
   hSVDist3D_ = iBooker.book1D("VtxDist3D", ";PV-ZV 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
   hSVDist3DErr_ = iBooker.book1D("VtxDist3DErr", ";PV-ZV 3D distance error [#mum];N(#mu#mu pairs)", 100, 0., 1000.);
   hSVDist3DSig_ = iBooker.book1D("VtxDist3DSig", ";PV-ZV 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  hSVCompatibility3D_ = iBooker.book1D(
+      "VtxCompatibility3D", "3D compatibility of Z vertex;3D compatibility of Z vertex; N(#mu#mu pairs)", 100, 0., 100.);
+
   hTrackInvMass_ = iBooker.book1D("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., 50., 120.);
   hCosPhi_ = iBooker.book1D("CosPhi", ";cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhi3D_ = iBooker.book1D("CosPhi3D", ";cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
@@ -108,34 +118,37 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   double SVProb = TMath::Prob(mumuTransientVtx.totalChiSquared(), (int)mumuTransientVtx.degreesOfFreedom());
   hSVProb_->Fill(SVProb);
+  hSVChi2_->Fill(mumuTransientVtx.totalChiSquared());
+  hSVNormChi2_->Fill(mumuTransientVtx.totalChiSquared() / (int)mumuTransientVtx.degreesOfFreedom());
 
   if (!mumuTransientVtx.isValid())
     return;
 
+  const reco::Vertex* theClosestVertex;
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
-
-  math::XYZPoint theMainVtxPos(0, 0, 0);
-  reco::Vertex theMainVertex = vertexHandle.product()->front();
-
   if (vertexHandle.isValid()) {
     const reco::VertexCollection* vertices = vertexHandle.product();
-    if ((*vertices)[0].isValid()) {
-      auto theMainVtx = (*vertices)[0];
-      theMainVtxPos.SetXYZ(theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
-    } else {
-      edm::LogWarning("DiMuonVertexMonitor") << "hardest primary vertex in the event is not valid!";
-    }
+    theClosestVertex = this->findClosestVertex(mumuTransientVtx, vertices);
   } else {
-    edm::LogWarning("DiMuonVertexMonitor") << "invalid vertex collection encountered!";
+    edm::LogWarning("DiMuonVertexMonitor") << "invalid vertex collection encountered Skipping event!";
+    return;
   }
 
+  reco::Vertex theMainVtx;
+  if (!useClosestVertex_ || theClosestVertex == nullptr) {
+    theMainVtx = *theClosestVertex;
+  } else {
+    theMainVtx = vertexHandle.product()->front();
+  }
+
+  const math::XYZPoint theMainVtxPos(theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
   const math::XYZPoint myVertex(
       mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
   const math::XYZPoint deltaVtx(
       theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
 
-  if (theMainVertex.isValid()) {
+  if (theMainVtx.isValid()) {
     // fill the impact parameter plots
     for (const auto& track : myTracks) {
       hdxy_->Fill(track->dxy(theMainVtxPos) * cmToum);
@@ -145,8 +158,8 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       const auto& ttrk = theB->build(track);
       Global3DVector dir(track->px(), track->py(), track->pz());
-      const auto& ip2d = IPTools::signedTransverseImpactParameter(ttrk, dir, theMainVertex);
-      const auto& ip3d = IPTools::signedImpactParameter3D(ttrk, dir, theMainVertex);
+      const auto& ip2d = IPTools::signedTransverseImpactParameter(ttrk, dir, theMainVtx);
+      const auto& ip3d = IPTools::signedImpactParameter3D(ttrk, dir, theMainVtx);
 
       hIP2d_->Fill(ip2d.second.value() * cmToum);
       hIP3d_->Fill(ip3d.second.value() * cmToum);
@@ -156,18 +169,22 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     // Z Vertex distance in the xy plane
     VertexDistanceXY vertTool;
-    double distance = vertTool.distance(mumuTransientVtx, theMainVertex).value();
-    double dist_err = vertTool.distance(mumuTransientVtx, theMainVertex).error();
+    double distance = vertTool.distance(mumuTransientVtx, theMainVtx).value();
+    double dist_err = vertTool.distance(mumuTransientVtx, theMainVtx).error();
+    float compatibility = vertTool.compatibility(mumuTransientVtx, theMainVtx);
 
+    hSVCompatibility_->Fill(compatibility);
     hSVDist_->Fill(distance * cmToum);
     hSVDistErr_->Fill(dist_err * cmToum);
     hSVDistSig_->Fill(distance / dist_err);
 
     // Z Vertex distance in 3D
     VertexDistance3D vertTool3D;
-    double distance3D = vertTool3D.distance(mumuTransientVtx, theMainVertex).value();
-    double dist3D_err = vertTool3D.distance(mumuTransientVtx, theMainVertex).error();
+    double distance3D = vertTool3D.distance(mumuTransientVtx, theMainVtx).value();
+    double dist3D_err = vertTool3D.distance(mumuTransientVtx, theMainVtx).error();
+    float compatibility3D = vertTool3D.compatibility(mumuTransientVtx, theMainVtx);
 
+    hSVCompatibility3D_->Fill(compatibility3D);
     hSVDist3D_->Fill(distance3D * cmToum);
     hSVDist3DErr_->Fill(dist3D_err * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
@@ -193,11 +210,41 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 }
 
+// compute the closest vertex to di-lepton ------------------------------------
+const reco::Vertex* DiMuonVertexMonitor::findClosestVertex(const TransientVertex aTransVtx,
+                                                           const reco::VertexCollection* vertices) const {
+  reco::Vertex* defaultVtx = nullptr;
+
+  if (!aTransVtx.isValid())
+    return defaultVtx;
+
+  // find the closest vertex to the secondary vertex in 3D
+  VertexDistance3D vertTool3D;
+  float minD = 9999.;
+  int closestVtxIndex = 0;
+  int counter = 0;
+  for (const auto& vtx : *vertices) {
+    double dist3D = vertTool3D.distance(aTransVtx, vtx).value();
+    if (dist3D < minD) {
+      minD = dist3D;
+      closestVtxIndex = counter;
+    }
+    counter++;
+  }
+
+  if ((*vertices).at(closestVtxIndex).isValid()) {
+    return &(vertices->at(closestVtxIndex));
+  } else {
+    return defaultVtx;
+  }
+}
+
 void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::string>("FolderName", "DiMuonVertexMonitor");
+  desc.add<bool>("useClosestVertex", true);
   desc.add<double>("maxSVdist", 50.);
   descriptions.addWithDefaultLabel(desc);
 }
