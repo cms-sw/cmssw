@@ -18,6 +18,7 @@ namespace ecaldqm {
         minChannelEntries_(0),
         expectedAmplitude_(0),
         toleranceAmplitudeLo_(0.),
+        toleranceAmplitudeFwdLo_(0.),
         toleranceAmplitudeHi_(0.),
         toleranceAmpRMSRatio_(0.),
         expectedTiming_(0),
@@ -31,6 +32,7 @@ namespace ecaldqm {
   void LaserClient::setParams(edm::ParameterSet const& _params) {
     minChannelEntries_ = _params.getUntrackedParameter<int>("minChannelEntries");
     toleranceAmplitudeLo_ = _params.getUntrackedParameter<double>("toleranceAmplitudeLo");
+    toleranceAmplitudeFwdLo_ = _params.getUntrackedParameter<double>("toleranceAmplitudeFwdLo");
     toleranceAmplitudeHi_ = _params.getUntrackedParameter<double>("toleranceAmplitudeHi");
     toleranceAmpRMSRatio_ = _params.getUntrackedParameter<double>("toleranceAmpRMSRatio");
     toleranceTiming_ = _params.getUntrackedParameter<double>("toleranceTiming");
@@ -148,16 +150,20 @@ namespace ecaldqm {
 
         float tMean(tItr->getBinContent());
         float tRms(tItr->getBinError() * sqrt(tEntries));
+        float threshAmplitudeLo_;
 
         meTimingMean.fill(getEcalDQMSetupObjects(), id, tMean);
         meTimingRMS.fill(getEcalDQMSetupObjects(), id, tRms);
         meTimingRMSMap.setBinContent(getEcalDQMSetupObjects(), id, tRms);
 
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
-        if (isForward(id))
+        if (isForward(id)) {
           intensity /= forwardFactor_;
+          threshAmplitudeLo_ = toleranceAmplitudeFwdLo_;
+        } else
+          threshAmplitudeLo_ = toleranceAmplitudeLo_;
 
-        if (intensity < toleranceAmplitudeLo_ || intensity > toleranceAmplitudeHi_ ||
+        if (intensity < threshAmplitudeLo_ || intensity > toleranceAmplitudeHi_ ||
             aRms > aMean * toleranceAmpRMSRatio_ ||
             std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
           qItr->setBinContent(doMask ? kMBad : kBad);
