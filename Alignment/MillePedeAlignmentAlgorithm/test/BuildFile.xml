@@ -2,9 +2,7 @@
   <use name="CondFormats/AlignmentRecord"/>
   <use name="DataFormats/DetId"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
   <use name="CondFormats/Alignment"/>
-  <use name="Alignment/CommonAlignment"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <test name="test_PrepareInputDb" command="mps_prepare_input_db.py -g auto:run2_data -r 1 -o ${LOCALTOP}/tmp/test_input.db"/>

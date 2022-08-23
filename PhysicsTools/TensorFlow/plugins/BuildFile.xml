@@ -1,9 +1,6 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="TrackingTools/Records"/>
 <library file="*.cc" name="PhysicsToolsTensorFlowPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
