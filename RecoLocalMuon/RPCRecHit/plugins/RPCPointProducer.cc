@@ -33,7 +33,7 @@ void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("incldt", true);
   desc.add<bool>("inclcsc", true);
   desc.add<bool>("incltrack", false);
-  desc.add<bool>("debug", false);
+  desc.addUntracked<bool>("debug", false);
   desc.add<double>("rangestrips", 4.);
   desc.add<double>("rangestripsRB4", 4.);
   desc.add<double>("MinCosAng", 0.85);
@@ -58,14 +58,14 @@ void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   descNested.add<std::string>("Propagator", "SmartPropagatorAnyRKOpposite");
   desc.add<edm::ParameterSetDescription>("TrackTransformer", descNested);
 
-  descriptions.add("produceRPCPoints", desc);
+  descriptions.add("rpcPointProducer", desc);
 }
 
 RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
     : incldt(iConfig.getParameter<bool>("incldt")),
       inclcsc(iConfig.getParameter<bool>("inclcsc")),
       incltrack(iConfig.getParameter<bool>("incltrack")),
-      debug(iConfig.getParameter<bool>("debug")),
+      debug(iConfig.getUntrackedParameter<bool>("debug")),
       MinCosAng(iConfig.getParameter<double>("MinCosAng")),
       MaxD(iConfig.getParameter<double>("MaxD")),
       MaxDrb4(iConfig.getParameter<double>("MaxDrb4")),
