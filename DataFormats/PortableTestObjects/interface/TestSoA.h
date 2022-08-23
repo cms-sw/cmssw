@@ -13,7 +13,9 @@ namespace portabletest {
                       SOA_COLUMN(double, x),
                       SOA_COLUMN(double, y),
                       SOA_COLUMN(double, z),
-                      SOA_COLUMN(int32_t, id))
+                      SOA_COLUMN(int32_t, id),
+                      // scalars: one value for the whole structure
+                      SOA_SCALAR(double, r))
 
   using TestSoA = TestSoALayout<>;
 
