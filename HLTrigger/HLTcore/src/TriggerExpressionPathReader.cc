@@ -22,6 +22,10 @@ namespace triggerExpression {
   }
 
   void PathReader::dump(std::ostream& out) const {
+    if (not m_initialised) {
+      out << "Uninitialised_Path_Expression";
+      return;
+    }
     if (m_triggers.empty()) {
       out << "FALSE";
     } else if (m_triggers.size() == 1) {
@@ -84,6 +88,8 @@ namespace triggerExpression {
         }
       }
     }
+
+    m_initialised = true;
   }
 
 }  // namespace triggerExpression

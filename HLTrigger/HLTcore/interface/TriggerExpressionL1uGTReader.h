@@ -10,7 +10,7 @@ namespace triggerExpression {
 
   class L1uGTReader : public Evaluator {
   public:
-    L1uGTReader(const std::string& pattern) : m_pattern(pattern), m_triggers() {}
+    L1uGTReader(const std::string& pattern) : m_pattern{pattern}, m_triggers{}, m_initialised{false} {}
 
     bool operator()(const Data& data) const override;
 
@@ -20,7 +20,8 @@ namespace triggerExpression {
 
   private:
     std::string m_pattern;
-    std::vector<std::pair<std::string, unsigned int> > m_triggers;
+    std::vector<std::pair<std::string, unsigned int>> m_triggers;
+    bool m_initialised;
   };
 
 }  // namespace triggerExpression

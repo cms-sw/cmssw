@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
 
+process.options.wantSummary = True
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # define the Prescaler service, and set the scale factors
@@ -46,9 +48,10 @@ process.success = cms.EDFilter('HLTBool', result = cms.bool(True))
 process.Path_1  = cms.Path(process.scale_1)
 process.Path_2  = cms.Path(process.scale_2)
 process.Path_3  = cms.Path(process.scale_3)
-process.AlwaysTrue    = cms.Path(process.success)
-process.AlwaysFalse   = cms.Path(process.fail)
 process.L1_Path = cms.Path(process.success)
+# Path names containing a special keyword (TRUE, FALSE, AND, OR, NOT)
+process.AlwaysNOTFalse = cms.Path(process.success)
+process.AlwaysFALSE    = cms.Path(process.fail)
 
 # define the TriggerResultsFilters based on the status of the previous paths
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as _triggerResultsFilter
@@ -82,9 +85,16 @@ process.filter_any_or = triggerResultsFilter.clone(
     throw = False
 )
 
-# accept if 'Path_1' succeeds, prescaled by 2
+# accept if 'Path_1' succeeds, prescaled by 15
 process.filter_1_pre = triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', ),
+    l1tResults = '',
+    throw = False
+)
+
+# accept if 'Path_1' prescaled by 15 does not succeed
+process.filter_not_1_pre = triggerResultsFilter.clone(
+    triggerConditions =  ( 'NOT (Path_1 / 15)', ),
     l1tResults = '',
     throw = False
 )
@@ -99,6 +109,20 @@ process.filter_2_pre = triggerResultsFilter.clone(
 # accept if any path succeeds, with different prescales (explicit OR, prescaled)
 process.filter_any_pre = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_1 / 15', 'Path_2 / 10', 'Path_3 / 6', ),
+    l1tResults = '',
+    throw = False
+)
+
+# equivalent of filter_any_pre using NOT operator twice
+process.filter_any_pre_doubleNOT = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT NOT (Path_1 / 15 OR Path_2 / 10 OR Path_3 / 6)', ),
+    l1tResults = '',
+    throw = False
+)
+
+# opposite of filter_any_pre without whitespaces where possible
+process.filter_not_any_pre = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT(Path_1/15)AND(NOT Path_2/10)AND(NOT Path_3/6)', ),
     l1tResults = '',
     throw = False
 )
@@ -180,6 +204,20 @@ process.filter_false_pattern = triggerResultsFilter.clone(
     throw = False
 )
 
+# Path name containing special keyword NOT
+process.filter_AlwaysNOTFalse_pattern = triggerResultsFilter.clone(
+    triggerConditions = ( 'AlwaysNOTFalse', ),
+    l1tResults = '',
+    throw = False
+)
+
+# Path name containing special keyword FALSE
+process.filter_NOTAlwaysFALSE_pattern = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT AlwaysFALSE', ),
+    l1tResults = '',
+    throw = False
+)
+
 
 process.Check_1 = cms.Path( process.filter_1 )
 process.Check_2 = cms.Path( process.filter_2 )
@@ -190,9 +228,12 @@ process.Check_All_Explicit = cms.Path( process.filter_all_explicit )
 process.Check_Any_Or   = cms.Path( process.filter_any_or )
 process.Check_Any_Star = cms.Path( process.filter_any_star )
 
-process.Check_1_Pre    = cms.Path( process.filter_1_pre )
-process.Check_2_Pre    = cms.Path( process.filter_2_pre )
-process.Check_Any_Pre  = cms.Path( process.filter_any_pre ) 
+process.Check_1_Pre     = cms.Path( process.filter_1_pre )
+process.Check_NOT_1_Pre = cms.Path( process.filter_not_1_pre )
+process.Check_2_Pre     = cms.Path( process.filter_2_pre )
+process.Check_Any_Pre   = cms.Path( process.filter_any_pre )
+process.Check_Any_Pre_DoubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
+process.Check_Not_Any_Pre = cms.Path( process.filter_not_any_pre )
 
 process.Check_Any_Question        = cms.Path( process.filter_any_question )
 process.Check_Any_StarQuestion    = cms.Path( process.filter_any_starquestion )
@@ -204,6 +245,8 @@ process.Check_L1Path_Pattern      = cms.Path( process.filter_l1path_pattern )
 process.Check_L1Singlemuopen_Pattern = cms.Path( process.filter_l1singlemuopen_pattern )
 process.Check_True_Pattern        = cms.Path( process.filter_true_pattern )
 process.Check_False_Pattern       = cms.Path( process.filter_false_pattern )
+process.Check_AlwaysNOTFalse_Pattern = cms.Path( process.filter_AlwaysNOTFalse_pattern )
+process.Check_NOTAlwaysFALSE_Pattern = cms.Path( process.filter_NOTAlwaysFALSE_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
