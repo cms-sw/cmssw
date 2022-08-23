@@ -28,6 +28,10 @@ namespace triggerExpression {
   }
 
   void L1uGTReader::dump(std::ostream& out) const {
+    if (not m_initialised) {
+      out << "Uninitialised_L1_Expression";
+      return;
+    }
     if (m_triggers.empty()) {
       out << "FALSE";
     } else if (m_triggers.size() == 1) {
@@ -85,6 +89,8 @@ namespace triggerExpression {
               << "requested pattern \"" << m_pattern << "\" does not match any L1 trigger in the current menu";
       }
     }
+
+    m_initialised = true;
   }
 
 }  // namespace triggerExpression

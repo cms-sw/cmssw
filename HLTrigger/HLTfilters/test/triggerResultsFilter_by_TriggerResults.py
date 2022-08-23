@@ -53,9 +53,16 @@ process.filter_any_or = triggerResultsFilter.clone(
     throw = False
     )
 
-# accept if 'Path_1' succeeds, prescaled by 2
+# accept if 'Path_1' succeeds, prescaled by 15
 process.filter_1_pre = triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', ),
+    l1tResults = '',
+    throw = False
+    )
+
+# accept if 'Path_1' prescaled by 15 does not succeed
+process.filter_not_1_pre = triggerResultsFilter.clone(
+    triggerConditions =  ( 'NOT (Path_1 / 15)', ),
     l1tResults = '',
     throw = False
     )
@@ -74,6 +81,20 @@ process.filter_any_pre = triggerResultsFilter.clone(
     throw = False
     )
 
+# equivalent of filter_any_pre using NOT operator twice
+process.filter_any_pre_doubleNOT = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT NOT (Path_1 / 15 OR Path_2 / 10 OR Path_3 / 6)', ),
+    l1tResults = '',
+    throw = False
+    )
+
+# opposite of filter_any_pre without whitespaces where possible
+process.filter_not_any_pre = triggerResultsFilter.clone(
+    triggerConditions = ( 'NOT(Path_1/15)AND(NOT Path_2/10)AND(NOT Path_3/6)', ),
+    l1tResults = '',
+    throw = False
+    )
+
 # accept if any path succeeds (wildcard, '*')
 process.filter_any_star = triggerResultsFilter.clone(
     triggerConditions = ( '*', ),
@@ -87,7 +108,6 @@ process.filter_any_doublestar = triggerResultsFilter.clone(
     l1tResults = '',
     throw = False
     )
-
 
 # accept if any path succeeds (wildcard, '?')
 process.filter_any_question = triggerResultsFilter.clone(
@@ -162,9 +182,12 @@ process.path_all_explicit = cms.Path( process.filter_all_explicit )
 process.path_any_or   = cms.Path( process.filter_any_or )
 process.path_any_star = cms.Path( process.filter_any_star )
 
-process.path_1_pre    = cms.Path( process.filter_1_pre )
-process.path_2_pre    = cms.Path( process.filter_2_pre )
-process.path_any_pre  = cms.Path( process.filter_any_pre ) 
+process.path_1_pre     = cms.Path( process.filter_1_pre )
+process.path_not_1_pre = cms.Path( process.filter_not_1_pre )
+process.path_2_pre     = cms.Path( process.filter_2_pre )
+process.path_any_pre   = cms.Path( process.filter_any_pre )
+process.path_any_pre_doubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
+process.path_not_any_pre = cms.Path( process.filter_not_any_pre )
 
 process.path_any_doublestar      = cms.Path( process.filter_any_doublestar )
 process.path_any_question        = cms.Path( process.filter_any_question )
