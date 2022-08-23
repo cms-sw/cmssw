@@ -32,7 +32,7 @@ namespace hgcal {
     float fraction;
   };
 
-  struct caloParticleOnLayer {
+  struct caloParticleOnALayer {
     unsigned int caloParticleId;
     float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
@@ -40,7 +40,7 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> multiClusterToCaloParticle;
-  typedef std::vector<std::vector<hgcal::caloParticleOnLayer>> caloParticleToMultiCluster;
+  typedef std::vector<std::vector<hgcal::caloParticleOnALayer>> caloParticleToMultiCluster;
   typedef std::tuple<multiClusterToCaloParticle, caloParticleToMultiCluster> association;
 }  // namespace hgcal
 
