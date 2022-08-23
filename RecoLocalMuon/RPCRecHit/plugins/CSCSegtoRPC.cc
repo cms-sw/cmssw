@@ -15,8 +15,8 @@
 
 CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet& iConfig)
     : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {
-  minBX = iConfig.getUntrackedParameter<int>("minBX");
-  maxBX = iConfig.getUntrackedParameter<int>("maxBX");
+  minBX = iConfig.getParameter<int>("minBX");
+  maxBX = iConfig.getParameter<int>("maxBX");
 }
 
 std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentCollection* allCSCSegments,

@@ -30,23 +30,23 @@
 
 void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<bool>("incldt", true);
-  desc.addUntracked<bool>("inclcsc", true);
-  desc.addUntracked<bool>("incltrack", false);
-  desc.addUntracked<bool>("debug", false);
-  desc.addUntracked<double>("rangestrips", 4.);
-  desc.addUntracked<double>("rangestripsRB4", 4.);
-  desc.addUntracked<double>("MinCosAng", 0.85);
-  desc.addUntracked<double>("MaxD", 80.0);
-  desc.addUntracked<double>("MaxDrb4", 150.0);
-  desc.addUntracked<double>("ExtrapolatedRegion", 0.6);
+  desc.add<bool>("incldt", true);
+  desc.add<bool>("inclcsc", true);
+  desc.add<bool>("incltrack", false);
+  desc.add<bool>("debug", false);
+  desc.add<double>("rangestrips", 4.);
+  desc.add<double>("rangestripsRB4", 4.);
+  desc.add<double>("MinCosAng", 0.85);
+  desc.add<double>("MaxD", 80.0);
+  desc.add<double>("MaxDrb4", 150.0);
+  desc.add<double>("ExtrapolatedRegion", 0.6);
   desc.add<edm::InputTag>("cscSegments",
                           edm::InputTag("dTandCSCSegmentsinTracks", "SelectedCscSegments", "OwnParticles"));
   desc.add<edm::InputTag>("dt4DSegments",
                           edm::InputTag("dTandCSCSegmentsinTracks", "SelectedDtSegments", "OwnParticles"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("standAloneMuons"));
-  desc.addUntracked<int>("minBX", -2);
-  desc.addUntracked<int>("maxBX", 2);
+  desc.add<int>("minBX", -2);
+  desc.add<int>("maxBX", 2);
   edm::ParameterSetDescription descNested;
   descNested.add<bool>("DoPredictionsOnly", false);
   descNested.add<std::string>("Fitter", "KFFitterForRefitInsideOut");
@@ -62,14 +62,14 @@ void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
-    : incldt(iConfig.getUntrackedParameter<bool>("incldt", true)),
-      inclcsc(iConfig.getUntrackedParameter<bool>("inclcsc", true)),
-      incltrack(iConfig.getUntrackedParameter<bool>("incltrack", true)),
-      debug(iConfig.getUntrackedParameter<bool>("debug", false)),
-      MinCosAng(iConfig.getUntrackedParameter<double>("MinCosAng", 0.95)),
-      MaxD(iConfig.getUntrackedParameter<double>("MaxD", 80.)),
-      MaxDrb4(iConfig.getUntrackedParameter<double>("MaxDrb4", 150.)),
-      ExtrapolatedRegion(iConfig.getUntrackedParameter<double>("ExtrapolatedRegion", 0.5)) {
+    : incldt(iConfig.getParameter<bool>("incldt")),
+      inclcsc(iConfig.getParameter<bool>("inclcsc")),
+      incltrack(iConfig.getParameter<bool>("incltrack")),
+      debug(iConfig.getParameter<bool>("debug")),
+      MinCosAng(iConfig.getParameter<double>("MinCosAng")),
+      MaxD(iConfig.getParameter<double>("MaxD")),
+      MaxDrb4(iConfig.getParameter<double>("MaxDrb4")),
+      ExtrapolatedRegion(iConfig.getParameter<double>("ExtrapolatedRegion")) {
   if (incldt) {
     dt4DSegments = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments"));
     dtSegtoRPC = std::make_unique<DTSegtoRPC>(consumesCollector(), iConfig);

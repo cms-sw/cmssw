@@ -39,8 +39,8 @@ int distwheel(int wheel1, int wheel2) {
 
 DTSegtoRPC::DTSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet& iConfig)
     : rpcGeoToken_(iC.esConsumes()), dtGeoToken_(iC.esConsumes()), dtMapToken_(iC.esConsumes()) {
-  minPhiBX = iConfig.getUntrackedParameter<int>("minBX");
-  maxPhiBX = iConfig.getUntrackedParameter<int>("maxBX");
+  minPhiBX = iConfig.getParameter<int>("minBX");
+  maxPhiBX = iConfig.getParameter<int>("maxBX");
   incldt = true;
   incldtMB4 = true;
 
