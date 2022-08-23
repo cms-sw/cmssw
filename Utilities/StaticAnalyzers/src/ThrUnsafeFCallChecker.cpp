@@ -60,8 +60,7 @@ namespace clangcms {
           support::writeLog(ostring, tname);
         }
       }
-    }
-    else if (support::isKnownThrUnsafeFunc(mname)) {
+    } else if (support::isKnownThrUnsafeFunc(mname)) {
       os << "Known thread unsafe function " << mname << " is called in function " << pname;
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
       BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");
