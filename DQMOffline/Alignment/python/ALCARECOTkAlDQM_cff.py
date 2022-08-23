@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 import DQMOffline.Alignment.DiMuonVertexMonitor_cfi
+import DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi
 
 #Below all DQM modules for TrackerAlignment AlCaRecos are instantiated.
 ######################################################
@@ -80,7 +81,12 @@ ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi
     maxSVdist = 50
 )
 
-ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM)
+ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__trackCollName,
+    FolderName = "AlCaReco/"+__selectionName
+)
+
+ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM )
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
