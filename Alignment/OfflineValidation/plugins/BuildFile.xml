@@ -39,13 +39,12 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="MagneticField/Records"/>
+<use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoMuon/TrackingTools"/>
 <use name="RecoVertex/PrimaryVertexProducer"/>
-<use name="RecoEcal/EgammaClusterAlgos"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimTracker/TrackerHitAssociation"/>
-<use name="SimTracker/TrackAssociation"/>
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/TrackAssociator"/>
