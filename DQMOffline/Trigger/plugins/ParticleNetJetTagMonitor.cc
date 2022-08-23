@@ -84,7 +84,6 @@ private:
   // PNET score for offline and online jets
   const edm::EDGetTokenT<reco::JetTagCollection> jetPNETScoreToken_;
   const edm::EDGetTokenT<reco::JetTagCollection> jetPNETScoreHLTToken_;
-  const edm::EDGetTokenT<reco::JetTagCollection> jetPNETScoreHLTDenToken_;
   // Collection and PNET score for ak4 b-tagging and HT if needed
   const edm::EDGetTokenT<reco::PFJetCollection> jetForHTandBTagToken_;
   const edm::EDGetTokenT<reco::JetTagCollection> jetPNETScoreForHTandBTagToken_;
@@ -206,7 +205,6 @@ ParticleNetJetTagMonitor::ParticleNetJetTagMonitor(const edm::ParameterSet& iCon
       jetToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
       jetPNETScoreToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScore"))),
       jetPNETScoreHLTToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreHLT"))),
-      jetPNETScoreHLTDenToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreHLTDen"))),
       jetForHTandBTagToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jetsForHTandBTag"))),
       jetPNETScoreForHTandBTagToken_(
           mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreForHTandBTag"))),
@@ -619,7 +617,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
 
   // primary vertex selection
   const reco::Vertex* pv = nullptr;
-  for (auto const & v : *primaryVertices) {
+  for (auto const& v : *primaryVertices) {
     if (not vertexSelection_(v))
       continue;
     pv = &v;
@@ -680,7 +678,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     return;
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
-  
+
   // Overall number of leptons for flavor composition
   if (ntagleptons_ >= 0 and int(tagElectrons.size() + tagMuons.size()) != ntagleptons_)
     return;
@@ -691,7 +689,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     return;
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
-  
+
   // Dilepton pairs
   std::vector<reco::CompositeCandidate> emuPairs;
   for (auto const& muon : tagMuons) {
@@ -710,7 +708,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     return;
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
-  
+
   // For b-tagging requriements / content used in AK8 PNET efficiency measurement in semi-leptonic ttbar
   float hT = 0;
   std::vector<math::XYZTLorentzVector> jetsBTagged;
@@ -753,7 +751,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     return;
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
-  
+
   // Jet selection
   std::vector<reco::PFJet> selectedJets;
   std::vector<float> jetPtCorrectedValues;
@@ -812,12 +810,12 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
 
   // count number of jets over minPNETScoreCut
   if (std::count_if(jetPNETScoreValues.begin(), jetPNETScoreValues.end(), [&](float score) {
-	return score > minPNETScoreCut_;
+        return score > minPNETScoreCut_;
       }) < njets_)
     return;
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
-  
+
   // sort descending corrected pt order only if jecHandle is valid otherwise keep the current ordering
   std::vector<size_t> jetPtSortedIndices(jetPtCorrectedValues.size());
   std::iota(jetPtSortedIndices.begin(), jetPtSortedIndices.end(), 0);
@@ -833,7 +831,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
   std::sort(jetPNETScoreSortedIndices.begin(),
             jetPNETScoreSortedIndices.end(),
             [&](const size_t& i1, const size_t& i2) { return jetPNETScoreValues[i1] > jetPNETScoreValues[i2]; });
-  
+
   // trigger object matching (for jets)
   if (requireHLTOfflineJetMatching_) {
     edm::Handle<reco::JetTagCollection> jetPNETScoreHLTHandle;
@@ -843,17 +841,11 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
       return;
     }
 
-    edm::Handle<reco::JetTagCollection> jetPNETScoreHLTDenHandle;
-    iEvent.getByToken(jetPNETScoreHLTDenToken_, jetPNETScoreHLTDenHandle);
-
     std::vector<float> jetPNETScoreValuesHLT;
     std::vector<reco::JetBaseRef> jetHLTRefs;
     for (const auto& jtag : *jetPNETScoreHLTHandle) {
-      if(not jetPNETScoreHLTDenHandle.isValid())
-	jetPNETScoreValuesHLT.push_back(jtag.second);
-      else
-	jetPNETScoreValuesHLT.push_back(jtag.second/(jtag.second+(*jetPNETScoreHLTHandle)[jtag.first]));
-      jetHLTRefs.push_back(jtag.first);
+        jetPNETScoreValuesHLT.push_back(jtag.second);
+	jetHLTRefs.push_back(jtag.first);
     }
 
     // sort in PNET score
@@ -867,11 +859,13 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     // match reco and hlt objects considering only the first ntrigobjecttomatch jets for both reco and HLT. Each of them must be matched
     std::vector<int> matched_obj;
     for (size_t jreco = 0; jreco < ntrigobjecttomatch_; jreco++) {
-      if(jreco >= jetPNETScoreSortedIndices.size()) break;
+      if (jreco >= jetPNETScoreSortedIndices.size())
+        break;
       float minDR = 1000;
       int match_index = -1;
       for (size_t jhlt = 0; jhlt < ntrigobjecttomatch_; jhlt++) {
-	if(jhlt >= jetPNETScoreSortedIndicesHLT.size()) break;
+        if (jhlt >= jetPNETScoreSortedIndicesHLT.size())
+          break;
         if (std::find(matched_obj.begin(), matched_obj.end(), jhlt) != matched_obj.end())
           continue;
         float dR = reco::deltaR(selectedJets[jetPNETScoreSortedIndices.at(jreco)].p4(),
@@ -883,7 +877,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
         matched_obj.push_back(match_index);
     }
     if (matched_obj.size() != ntrigobjecttomatch_)
-      return;   
+      return;
   }
   selectionFlowStatus++;
   selectionFlow->Fill(selectionFlowStatus);
@@ -1045,7 +1039,6 @@ void ParticleNetJetTagMonitor::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("jetPNETScore", edm::InputTag("pfParticleNetAK4DiscriminatorsJetTags", "BvsAll"));
   desc.add<edm::InputTag>("jetPNETScoreHLT", edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"));
-  desc.add<edm::InputTag>("jetPNETScoreHLTDen", edm::InputTag(""));
   desc.add<edm::InputTag>("jetsForHTandBTag", edm::InputTag(""));
   desc.add<edm::InputTag>("jetPNETScoreForHTandBTag", edm::InputTag(""));
   desc.add<edm::InputTag>("jetSoftDropMass", edm::InputTag(""));
