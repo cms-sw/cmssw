@@ -171,7 +171,13 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     VertexDistanceXY vertTool;
     double distance = vertTool.distance(mumuTransientVtx, theMainVtx).value();
     double dist_err = vertTool.distance(mumuTransientVtx, theMainVtx).error();
-    float compatibility = vertTool.compatibility(mumuTransientVtx, theMainVtx);
+    float compatibility = 0.;
+
+    try {
+      compatibility = vertTool.compatibility(mumuTransientVtx, theMainVtx);
+    } catch (cms::Exception& er) {
+      LogTrace("DiMuonVertexMonitor") << "caught std::exception " << er.what() << std::endl;
+    }
 
     hSVCompatibility_->Fill(compatibility);
     hSVDist_->Fill(distance * cmToum);
@@ -182,7 +188,13 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     VertexDistance3D vertTool3D;
     double distance3D = vertTool3D.distance(mumuTransientVtx, theMainVtx).value();
     double dist3D_err = vertTool3D.distance(mumuTransientVtx, theMainVtx).error();
-    float compatibility3D = vertTool3D.compatibility(mumuTransientVtx, theMainVtx);
+    float compatibility3D = 0.;
+
+    try {
+      compatibility3D = vertTool3D.compatibility(mumuTransientVtx, theMainVtx);
+    } catch (cms::Exception& er) {
+      LogTrace("DiMuonVertexMonitor") << "caught std::exception " << er.what() << std::endl;
+    }
 
     hSVCompatibility3D_->Fill(compatibility3D);
     hSVDist3D_->Fill(distance3D * cmToum);
