@@ -12,7 +12,8 @@
 namespace ecaldqm {
   TimingClient::TimingClient()
       : DQWorkerClient(),
-        toleranceMean_(0.),
+        EBtoleranceMean_(0.),
+        EEtoleranceMean_(0.),
         toleranceMeanFwd_(0.),
         toleranceRMS_(0.),
         toleranceRMSFwd_(0.),
@@ -26,7 +27,8 @@ namespace ecaldqm {
   }
 
   void TimingClient::setParams(edm::ParameterSet const& _params) {
-    toleranceMean_ = _params.getUntrackedParameter<double>("toleranceMean");
+    EBtoleranceMean_ = _params.getUntrackedParameter<double>("EBtoleranceMean");
+    EEtoleranceMean_ = _params.getUntrackedParameter<double>("EEtoleranceMean");
     toleranceMeanFwd_ = _params.getUntrackedParameter<double>("toleranceMeanFwd");
     toleranceRMS_ = _params.getUntrackedParameter<double>("toleranceRMS");
     toleranceRMSFwd_ = _params.getUntrackedParameter<double>("toleranceRMSFwd");
@@ -73,8 +75,13 @@ namespace ecaldqm {
       DetId id(qItr->getId());
 
       int minChannelEntries(minChannelEntries_);
-      float meanThresh(toleranceMean_);
+      float meanThresh;
       float rmsThresh(toleranceRMS_);
+
+      if (id.subdetId() == EcalBarrel)
+        meanThresh = EBtoleranceMean_;
+      else
+        meanThresh = EEtoleranceMean_;
 
       if (isForward(id)) {
         minChannelEntries = minChannelEntriesFwd_;
@@ -185,8 +192,13 @@ namespace ecaldqm {
         ids = scConstituents(EcalScDetId(tId));
 
       int minTowerEntries(minTowerEntries_);
-      float meanThresh(toleranceMean_);
+      float meanThresh;
       float rmsThresh(toleranceRMS_);
+
+      if (tId.subdetId() == EcalBarrel)
+        meanThresh = EBtoleranceMean_;
+      else
+        meanThresh = EEtoleranceMean_;
 
       if (isForward(tId)) {
         minTowerEntries = minTowerEntriesFwd_;

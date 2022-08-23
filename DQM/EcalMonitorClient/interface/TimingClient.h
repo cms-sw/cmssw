@@ -15,7 +15,8 @@ namespace ecaldqm {
   private:
     void setParams(edm::ParameterSet const&) override;
 
-    float toleranceMean_;
+    float EBtoleranceMean_;
+    float EEtoleranceMean_;
     float toleranceMeanFwd_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
