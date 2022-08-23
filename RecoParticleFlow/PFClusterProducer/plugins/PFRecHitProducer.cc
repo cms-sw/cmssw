@@ -6,6 +6,8 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
+#include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 
 #include <memory>
 
@@ -42,6 +44,10 @@ namespace {
 PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig) {
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
+  if ( iConfig.getParameter<bool>("produceDummyProducts") ) {
+    using OProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
+    produces<OProductType>(iConfig.getParameter<std::string>("PFRecHitsGPUOut"));   
+  }
 
   edm::ConsumesCollector cc = consumesCollector();
 
@@ -106,6 +112,10 @@ void PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  //desc.setUnknown();
+  desc.add<bool>("produceDummyProducts",false);
+  desc.add<std::string>("PFRecHitsGPUOut","");
+  desc.setAllowAnything();
+
   descriptions.addDefault(desc);
 }
