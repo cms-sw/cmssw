@@ -121,19 +121,18 @@ static void SendMonitoringInfo(XrdCl::File &file) {
   }
 }
 
-std::string *GetQueryTransport(const XrdCl::URL &url, uint16_t query){
+std::string *GetQueryTransport(const XrdCl::URL &url, uint16_t query) {
   XrdCl::AnyObject result;
-  XrdCl::DefaultEnv::GetPostMaster()->QueryTransport( url, query, result );
+  XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
   std::string *method;
-  result.Get( method );
+  result.Get(method);
   return method;
 }
 
 static void TracerouteRedirections(const XrdCl::HostList *hostList) {
   int idx_redirection = 1;
   std::string traceroute_str = "-------------------------------\nTraceroute:\n";
-  for( auto itr = hostList->begin(); itr != hostList->end(); ++itr )
-  {
+  for (auto itr = hostList->begin(); itr != hostList->end(); ++itr) {
     // Query info
     std::string *stack_ip_method = GetQueryTransport(itr->url, XrdCl::StreamQuery::IpStack);
     std::string *ip_method = GetQueryTransport(itr->url, XrdCl::StreamQuery::IpAddr);
@@ -142,13 +141,14 @@ static void TracerouteRedirections(const XrdCl::HostList *hostList) {
 
     // Organize redirection info
     std::string redirection = std::to_string(idx_redirection) + ". || ";
-    redirection = redirection + hostname_method->c_str() + " / " + stack_ip_method->c_str() + " / " + ip_method->c_str() + " / " + std::to_string(itr->url.GetPort());
-    if (!auth_method->empty()){
-      redirection = redirection + " / " + auth_method->c_str();
-    } else{
+    redirection = redirection + *hostname_method + " / " + *stack_ip_method + " / " + *ip_method + " / " +
+                  std::to_string(itr->url.GetPort());
+    if (!auth_method->empty()) {
+      redirection = redirection + " / " + *auth_method;
+    } else {
       redirection = redirection + " / " + "no auth";
     };
-    if (itr->loadBalancer == 1){
+    if (itr->loadBalancer == 1) {
       redirection = redirection + " / load balancer";
     } else {
       redirection = redirection + " / " + "endpoint";
@@ -341,20 +341,20 @@ void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const
                                       std::vector<std::shared_ptr<Source>> const &iNew,
                                       std::string orig_site) const {
   auto siteList = formatSites(iNew);
-    if (!(!orig_site.empty() && (orig_site != siteList))) {
+  if (!(!orig_site.empty() && (orig_site != siteList))) {
     auto oldSites = formatSites(iOld);
   }
   std::string all_active_endpoints = "";
   std::string all_active_endpoints_quality = "";
   int size_active_sources = iNew.size();
-  for (int i = 0; i < size_active_sources ; i++){
+  for (int i = 0; i < size_active_sources; i++) {
     std::string quality = std::to_string(iNew[i]->getQuality());
     std::string hostname_a;
     Source::getHostname(iNew[i]->PrettyID(), hostname_a);
 
-    all_active_endpoints.append("   [" + std::to_string(i+1) + "] "+ hostname_a);
-    all_active_endpoints_quality.append("   [" + std::to_string(i+1) + "] " + quality + " for " + hostname_a);    
-    }
+    all_active_endpoints.append("   [" + std::to_string(i + 1) + "] " + hostname_a);
+    all_active_endpoints_quality.append("   [" + std::to_string(i + 1) + "] " + quality + " for " + hostname_a);
+  }
   edm::LogInfo("XrdAdaptorLvl1") << "Serving data from: " << all_active_endpoints;
   edm::LogInfo("XrdAdaptorLvl3") << "The quality of the active sources is: " << all_active_endpoints_quality;
 }
@@ -394,23 +394,27 @@ bool RequestManager::compareSources(const timespec &now,
   Source::getHostname(activeSources[b]->ID(), hostname_b);
 
   bool findNewSource = false;
-  if ((quality_a > 5130) ||
-     ((quality_a > 260) && (quality_b*4 < quality_a)))
-  {
-    if (quality_a > 5130) {edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality (" << quality_a << ") is above 5130 and it is not the only active server";}
-    if ((quality_a > 260) && (quality_b*4 < quality_a)) {edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("<< quality_a <<") is higher than 260 and 4 times larger than the other active server " << hostname_b << " ("  << quality_b <<") ";}
-    edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
-          << hostname_a << " from active sources due to poor quality ("
-          << quality_a << " vs " << quality_b << ")" << std::endl;
-    if (activeSources[a]->getLastDowngrade().tv_sec != 0) 
-    {
+  if ((quality_a > 5130) || ((quality_a > 260) && (quality_b * 4 < quality_a))) {
+    if (quality_a > 5130) {
+      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+                                        << quality_a << ") is above 5130 and it is not the only active server";
+    }
+    if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
+      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+                                        << quality_a
+                                        << ") is higher than 260 and 4 times larger than the other active server "
+                                        << hostname_b << " (" << quality_b << ") ";
+    }
+    edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << hostname_a << " from active sources due to poor quality ("
+                                           << quality_a << " vs " << quality_b << ")" << std::endl;
+    if (activeSources[a]->getLastDowngrade().tv_sec != 0) {
       findNewSource = true;
     }
     activeSources[a]->setLastDowngrade(now);
     inactiveSources.emplace_back(activeSources[a]);
     auto oldSources = activeSources;
-    activeSources.erase(activeSources.begin()+a);
-    reportSiteChange(oldSources,activeSources);
+    activeSources.erase(activeSources.begin() + a);
+    reportSiteChange(oldSources, activeSources);
   }
   return findNewSource;
 }
@@ -422,7 +426,8 @@ void RequestManager::checkSourcesImpl(timespec &now,
   bool findNewSource = false;
   if (activeSources.size() <= 1) {
     findNewSource = true;
-    edm::LogInfo("XrdAdaptorLvl3") << "Looking for an additional source because the number of active sources is smaller than 2";
+    edm::LogInfo("XrdAdaptorLvl3")
+        << "Looking for an additional source because the number of active sources is smaller than 2";
   } else if (activeSources.size() > 1) {
     edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << activeSources[0]->getQuality()
                                            << ", source 1 quality " << activeSources[1]->getQuality() << std::endl;
