@@ -470,8 +470,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
       auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << " iR "
-                                    << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
-                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R " << r1 << ":"
+                                    << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
+                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R " << r1 << ":"
                                     << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
                                     << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette
                                     << " Shift " << cshift.first << ":" << cshift.second;
