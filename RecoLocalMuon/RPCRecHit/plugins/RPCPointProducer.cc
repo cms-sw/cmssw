@@ -39,11 +39,9 @@ void RPCPointProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MinCosAng", 0.85);
   desc.add<double>("MaxD", 80.0);
   desc.add<double>("MaxDrb4", 150.0);
-  desc.add<double>("ExtrapolatedRegion", 0.6);
-  desc.add<edm::InputTag>("cscSegments",
-                          edm::InputTag("dTandCSCSegmentsinTracks", "SelectedCscSegments", "OwnParticles"));
-  desc.add<edm::InputTag>("dt4DSegments",
-                          edm::InputTag("dTandCSCSegmentsinTracks", "SelectedDtSegments", "OwnParticles"));
+  desc.add<double>("ExtrapolatedRegion", 0.5);
+  desc.add<edm::InputTag>("cscSegments", edm::InputTag("hltCscSegments"));
+  desc.add<edm::InputTag>("dt4DSegments", edm::InputTag("hltDt4DSegments"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("standAloneMuons"));
   desc.add<int>("minBX", -2);
   desc.add<int>("maxBX", 2);

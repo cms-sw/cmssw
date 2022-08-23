@@ -22,33 +22,11 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
-process.rpcPointProducer = cms.EDProducer('RPCPointProducer',
-  incldt = cms.bool(True),
-  inclcsc = cms.bool(True),
-  incltrack =  cms.bool(False),
-  debug = cms.untracked.bool(False),
-  rangestrips = cms.double(4.),
-  rangestripsRB4 = cms.double(4.),
-  MinCosAng = cms.double(0.85),
-  MaxD = cms.double(80.0),
-  MaxDrb4 = cms.double(150.0),
-  ExtrapolatedRegion = cms.double(0.6), # in stripl/2 in Y and stripw*nstrips/2 in X
-  cscSegments = cms.InputTag('dTandCSCSegmentsinTracks','SelectedCscSegments','OwnParticles'),
-  dt4DSegments = cms.InputTag('dTandCSCSegmentsinTracks','SelectedDtSegments','OwnParticles'),
-  tracks = cms.InputTag("standAloneMuons"),
-  TrackTransformer = cms.PSet(
-      DoPredictionsOnly = cms.bool(False),
-      Fitter = cms.string('KFFitterForRefitInsideOut'),
-      TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-      Smoother = cms.string('KFSmootherForRefitInsideOut'),
-      MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-      RefitDirection = cms.string('alongMomentum'),
-      RefitRPCHits = cms.bool(False),
-      Propagator = cms.string('SmartPropagatorAnyRKOpposite')
-  ),
-  minBX = cms.int32(-2),
-  maxBX = cms.int32(2)
-)
+process.rpcPointProducer.ExtrapolatedRegion = 0.6 # in stripl/2 in Y and stripw*nstrips/2 in X
+process.rpcPointProducer.cscSegments = ('dTandCSCSegmentsinTracks','SelectedCscSegments','OwnParticles')
+process.rpcPointProducer.dt4DSegments = ('dTandCSCSegmentsinTracks','SelectedDtSegments','OwnParticles')
+process.rpcPointProducer.minBX = -2
+process.rpcPointProducer.maxBX = 2
 
 process.p = cms.Path(process.rpcPointProducer)
 
