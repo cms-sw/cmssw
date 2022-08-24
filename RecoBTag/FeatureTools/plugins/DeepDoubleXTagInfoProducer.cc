@@ -310,14 +310,6 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
                 auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
                 auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
 
-                // need some edm::Ptr or edm::Ref if reco candidates
-                reco::PFCandidatePtr reco_ptr;
-                if (pf_jet) {
-                  reco_ptr = pf_jet->getPFConstituent(i);
-                } else if (pat_jet && reco_cand) {
-                  reco_ptr = pat_jet->getPFConstituent(i);
-                }
-
                 // get PUPPI weight from value map
                 float puppiw = 1.0; // fallback value
 
