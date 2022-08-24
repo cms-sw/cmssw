@@ -468,25 +468,35 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       self.data += text
 
   def overrideOutput(self):
-    # if not runnign on Hilton, override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
-    # note for Run3 ShmStreamConsumer has been replaced with EvFOutputModule and later GlobalEvFOutputModule
-    # so we also do a replace there
+    # if not running on Hilton, override the "online" output modules with the "offline" one (i.e. PoolOutputModule)
+    # in Run 1 and Run 2, the online output modules were instances of ShmStreamConsumer
+    # in Run 3, ShmStreamConsumer has been replaced with EvFOutputModule, and later GlobalEvFOutputModule
     if not self.config.hilton:
       self.data = re.sub(
         r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"(ShmStreamConsumer)" *,',
         r'%(process)s.hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
         self.data
       )
-      self.data = re.sub(
-        r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"EvFOutputModule" *,\n    use_compression = cms.untracked.bool\( True \),\n    compression_algorithm = cms.untracked.string\( "ZLIB" \),\n    compression_level = cms.untracked.int32\( 1 \),\n    lumiSection_interval = cms.untracked.int32\( 0 \),\n(.+?),\n    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)\n',
-        r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
-        self.data,0,re.DOTALL
-      )
-      self.data = re.sub(
-        r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"GlobalEvFOutputModule" *,\n    use_compression = cms.untracked.bool\( True \),\n    compression_algorithm = cms.untracked.string\( "ZLIB" \),\n    compression_level = cms.untracked.int32\( 1 \),\n    lumiSection_interval = cms.untracked.int32\( 0 \),\n(.+?),\n    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)\n',
-        r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
-        self.data,0,re.DOTALL
-      )
+
+      self.data = re.sub("""\
+\\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"(EvFOutputModule|GlobalEvFOutputModule)" *,
+    use_compression = cms.untracked.bool\( (True|False) \),
+    compression_algorithm = cms.untracked.string\( "(.+?)" \),
+    compression_level = cms.untracked.int32\( (-?\d+) \),
+    lumiSection_interval = cms.untracked.int32\( (-?\d+) \),
+(.+?),
+    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)
+""","""\
+\g<1>hltOutput\g<2> = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output\g<2>.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+\g<8>
+""", self.data, 0, re.DOTALL)
+
     if not self.config.fragment and self.config.output == 'minimal':
       # add a single output to keep the TriggerResults and TriggerEvent
       self.data += """
