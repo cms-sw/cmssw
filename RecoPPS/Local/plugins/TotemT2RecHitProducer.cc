@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
@@ -41,7 +40,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<TotemT2Digi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
   edm::ESGetToken<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd> timingCalibrationLUTToken_;
   edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
@@ -53,7 +52,7 @@ private:
 };
 
 TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
-    : digiToken_(consumes<edm::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
+    : digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
       geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
