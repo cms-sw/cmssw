@@ -17,17 +17,17 @@ generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
         processParameters = cms.vstring(
             'SoftQCD:inelastic = on'),
         parameterSets = cms.vstring('pythia8CommonSettings',
-                                    'pythia8CP5Settings', 
+                                    'pythia8CP5Settings',
                                     'processParameters',
                                     )
         )
                          )
 
-XiFilter = cms.EDFilter("PythiaFilter",
-    MinPt = cms.untracked.double(1.0),
-    ParticleID = cms.untracked.int32(3312),
-    MaxEta = cms.untracked.double(2.6),
-    MinEta = cms.untracked.double(-2.6)
+OmegaFilter = cms.EDFilter("PythiaFilter",
+    MinPt = cms.untracked.double(1.),
+    ParticleID = cms.untracked.int32(3334),
+    MaxEta = cms.untracked.double(3.),
+    MinEta = cms.untracked.double(-3.)
 )
 
-ProductionFilterSequence = cms.Sequence(generator*XiFilter)
+ProductionFilterSequence = cms.Sequence(generator*OmegaFilter)
