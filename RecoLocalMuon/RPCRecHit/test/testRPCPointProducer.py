@@ -25,8 +25,6 @@ process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
 process.rpcPointProducer.ExtrapolatedRegion = 0.6 # in stripl/2 in Y and stripw*nstrips/2 in X
 process.rpcPointProducer.cscSegments = ('dTandCSCSegmentsinTracks','SelectedCscSegments','OwnParticles')
 process.rpcPointProducer.dt4DSegments = ('dTandCSCSegmentsinTracks','SelectedDtSegments','OwnParticles')
-process.rpcPointProducer.minBX = -2
-process.rpcPointProducer.maxBX = 2
 
 process.p = cms.Path(process.rpcPointProducer)
 
