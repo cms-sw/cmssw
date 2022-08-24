@@ -48,11 +48,16 @@ namespace triggerExpression {
     if (usePathStatus()) {
       m_pathStatus.clear();
       std::vector<std::string> triggerNames;
+      m_pathStatus.reserve(m_pathStatusTokens.size());
+      triggerNames.reserve(m_pathStatusTokens.size());
       for (auto const& p : m_pathStatusTokens) {
         auto const& handle = event.getHandle(p.second);
         if (handle.isValid()) {
           m_pathStatus.push_back(handle->accept());
           triggerNames.push_back(p.first);
+        } else {
+          edm::LogError("MissingHLTPathStatus")
+              << "invalid handle for requested edm::HLTPathStatus with label \"" << p.first << "\"";
         }
       }
       m_hltUpdated = m_triggerNames != triggerNames;
