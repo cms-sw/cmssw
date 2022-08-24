@@ -10,17 +10,15 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <regex>
-#include <vector>
+#include <algorithm>
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 
@@ -34,27 +32,49 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
   std::vector<std::string> const& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
   parse(expressions);
   if (m_expression and m_eventCache.usePathStatus()) {
-    // if the expression was succesfully parsed, join all the patterns corresponding
-    // to the CMSSW paths in the logical expression into a single regex
-    std::vector<std::string> patterns = m_expression->patterns();
-    if (patterns.empty()) {
+    // if the expression was successfully parsed, store the list of patterns,
+    // each in both std::string and std::regex format
+    // and with a flag for having valid matches
+    hltPathStatusPatterns_ = edm::vector_transform(m_expression->patterns(), [](std::string const& pattern) {
+      return PatternData(pattern, std::regex(edm::glob2reg(pattern), std::regex::extended));
+    });
+
+    if (hltPathStatusPatterns_.empty()) {
       return;
     }
-    std::string str;
-    for (auto const& pattern : patterns) {
-      str += edm::glob2reg(pattern);
-      str += '|';
-    }
-    str.pop_back();
-    std::regex regex(str, std::regex::extended);
 
     // consume all matching paths
-    callWhenNewProductsRegistered([this, regex](edm::BranchDescription const& branch) {
-      if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus" and
-          std::regex_match(branch.moduleLabel(), regex)) {
-        m_eventCache.setPathStatusToken(branch, consumesCollector());
+    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+      if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus") {
+        bool consumeBranch = true;
+        for (auto& pattern : hltPathStatusPatterns_) {
+          if (std::regex_match(branch.moduleLabel(), pattern.regex)) {
+            pattern.matched = true;
+            if (consumeBranch) {
+              consumeBranch = false;
+              m_eventCache.setPathStatusToken(branch, consumesCollector());
+            }
+          }
+        }
       }
     });
+  }
+}
+
+void TriggerResultsFilter::beginStream(edm::StreamID) {
+  // if throw=True, check if any of the input patterns had zero matches (and if so, throw an exception)
+  if (not hltPathStatusPatterns_.empty() and m_eventCache.shouldThrow()) {
+    auto unmatchedPatternsExist = std::any_of(
+        hltPathStatusPatterns_.cbegin(), hltPathStatusPatterns_.cend(), [](auto foo) { return (not foo.matched); });
+    if (unmatchedPatternsExist) {
+      cms::Exception excpt("UnmatchedPatterns");
+      excpt << "the parameter \"triggerConditions\" contains patterns with zero matches"
+            << " for the available edm::HLTPathStatus collections - invalid patterns are:";
+      for (auto const& pattern : hltPathStatusPatterns_)
+        if (not pattern.matched)
+          excpt << "\n\t" << pattern.str;
+      throw excpt;
+    }
   }
 }
 
@@ -107,8 +127,13 @@ void TriggerResultsFilter::parse(const std::string& expression) {
   m_expression.reset(triggerExpression::parse(expression));
 
   // check if the expressions were parsed correctly
-  if (not m_expression)
-    edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"";
+  if (not m_expression) {
+    if (m_eventCache.shouldThrow()) {
+      throw cms::Exception("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+    } else {
+      edm::LogWarning("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+    }
+  }
 }
 
 bool TriggerResultsFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
