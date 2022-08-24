@@ -7,11 +7,9 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
                             PFTauDiscriminatorContainers  = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauDiscriminationByMuonRejection3"),
                                     cms.InputTag("hpsPFTauBasicDiscriminators")
                             ),
                             PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(
-                                "ByLooseMuonRejection3",
                                 "ByMediumCombinedIsolationDBSumPtCorr3Hits"
                             ),
                             PFTauDiscriminators = cms.untracked.VInputTag(
