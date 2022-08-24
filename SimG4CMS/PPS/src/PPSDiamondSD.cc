@@ -44,7 +44,7 @@ PPSDiamondSD::PPSDiamondSD(const std::string& pname,
 
   slave_ = std::make_unique<TrackingSlaveSD>(pname);
 
-  if (pname == "CTPPSDiamandHits") {
+  if (pname == "CTPPSTimingHits") {
     numberingScheme_ = std::make_unique<PPSDiamondOrganization>();
     edm::LogVerbatim("PPSSimDiamond") << "Find CTPPSDiamondHits as name";
   } else {
