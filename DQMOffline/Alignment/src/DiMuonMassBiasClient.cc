@@ -146,6 +146,14 @@ void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
 diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool& fitBackground) const
 //-----------------------------------------------------------------------------------
 {
+  if (hist->GetEntries() < diMuonMassBias::minimumHits) {
+    edm::LogWarning("DiMuonMassBiasClient") << " Input histogram:" << hist->GetName() << " has not enough entries ("
+                                            << hist->GetEntries() << ") for a meaningful Voigtian fit!\n"
+                                            << "Skipping!";
+
+    return diMuonMassBias::fitOutputs(Measurement1D(0., 0.), Measurement1D(0., 0.));
+  }
+
   TCanvas* c1 = new TCanvas();
   if (debugMode_) {
     c1->Clear();
@@ -168,9 +176,9 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   RooDataHist datahist("datahist", "datahist", InvMass, RooFit::Import(*hist));
   datahist.plotOn(frame);
 
-  RooRealVar mean("#mu", "mean", meanConfig_[0], meanConfig_[1], meanConfig_[2]);          //90.0, 60.0, 120.0
-  RooRealVar width("width", "width", widthConfig_[0], widthConfig_[1], widthConfig_[2]);   // 5.0,  0.0, 120.0
-  RooRealVar sigma("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);  // 5.0,  0.0, 120.0
+  RooRealVar mean("#mu", "mean", meanConfig_[0], meanConfig_[1], meanConfig_[2]);          //90.0, 60.0, 120.0 (for Z)
+  RooRealVar width("width", "width", widthConfig_[0], widthConfig_[1], widthConfig_[2]);   // 5.0,  0.0, 120.0 (for Z)
+  RooRealVar sigma("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);  // 5.0,  0.0, 120.0 (for Z)
   RooVoigtian voigt("voigt", "voigt", InvMass, mean, width, sigma);
 
   RooRealVar lambda("#lambda", "slope", -0.01, -100., 1.);
