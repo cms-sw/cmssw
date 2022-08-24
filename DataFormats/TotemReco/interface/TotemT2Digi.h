@@ -11,7 +11,7 @@
 
 class TotemT2Digi {
 public:
-  explicit TotemT2Digi() = default;
+  TotemT2Digi() = default;
   TotemT2Digi(unsigned char geo, unsigned char id, unsigned char marker, unsigned short le, unsigned short te);
 
   void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
@@ -21,15 +21,15 @@ public:
 
 private:
   /// Geo ID
-  unsigned char geo_id_;
+  unsigned char geo_id_{0};
   /// Channel ID
-  unsigned char channel_id_;
+  unsigned char channel_id_{0};
   /// Channel marker
-  unsigned char marker_;
+  unsigned char marker_{0};
   /// Leading edge time
-  unsigned short lead_edge_;
+  unsigned short lead_edge_{0};
   /// Trailing edge time
-  unsigned short trail_edge_;
+  unsigned short trail_edge_{0};
 };
 
 bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs);
