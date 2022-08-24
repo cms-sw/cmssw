@@ -43,7 +43,7 @@ class PixelTrackProducerFromSoAT : public edm::global::EDProducer<> {
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
 
 public:
-  using IndToEdm = std::vector<uint16_t>;
+  using IndToEdm = std::vector<uint32_t>;
 
   explicit PixelTrackProducerFromSoAT(const edm::ParameterSet &iConfig);
   ~PixelTrackProducerFromSoAT() override = default;
@@ -182,9 +182,10 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
     auto nHits = tsoa.nHits(it);
     assert(nHits >= 3);
     auto q = quality[it];
+
     if (q < minQuality_)
       continue;
-    if (nHits < minNumberOfHits_)
+    if (tsoa.nLayers(it) < minNumberOfHits_)
       continue;
     indToEdm[it] = nt;
     ++nt;

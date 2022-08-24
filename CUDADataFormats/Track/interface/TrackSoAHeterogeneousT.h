@@ -59,10 +59,10 @@ public:
 
   constexpr int computeNumberOfLayers(int32_t i) const {
     // layers are in order and we assume tracks are either forward or backward
-    auto pdet = this->detIndices.begin(i);
+    auto pdet = detIndices.begin(i);
     int nl = 1;
     auto ol = pixelTopology::getLayer<TrackerTraits>(*pdet);
-    for (; pdet < this->detIndices.end(i); ++pdet) {
+    for (; pdet < detIndices.end(i); ++pdet) {
       auto il = pixelTopology::getLayer<TrackerTraits>(*pdet);
       if (il != ol)
         ++nl;

@@ -12,7 +12,7 @@
 
 #include "PixelRecHitGPUKernel.h"
 #include "gpuPixelRecHits.h"
-//#define GPU_DEBUG 1
+// #define GPU_DEBUG 1
 
 namespace {
   template <typename TrackerTraits>
@@ -27,7 +27,13 @@ namespace {
     if (i <= m) {
       hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
 #ifdef GPU_DEBUG
-      printf("LayerStart %d/%d at module %d: %d\n", i, m, cpeParams->layerGeometry().layerStart[i], hitsLayerStart[i]);
+      int old = i == 0 ? 0 : hitsModuleStart[cpeParams->layerGeometry().layerStart[i - 1]];
+      printf("LayerStart %d/%d at module %d: %d - %d\n",
+             i,
+             m,
+             cpeParams->layerGeometry().layerStart[i],
+             hitsLayerStart[i],
+             hitsLayerStart[i] - old);
 #endif
     }
   }

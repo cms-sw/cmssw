@@ -26,7 +26,8 @@ pixelVerticesSoA = SwitchProducerCUDA(
 
 phase2_tracker.toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAPhase2.clone(
     pixelTrackSrc = "pixelTracksSoA",
-    onGPU = False
+    onGPU = False,
+    PtMin = 2.0
 ))
 
 # convert the pixel vertices from SoA to legacy format
@@ -55,7 +56,8 @@ pixelVerticesCUDA = _pixelVerticesCUDA.clone(
 
 phase2_tracker.toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAPhase2.clone(
     pixelTrackSrc = "pixelTracksCUDA",
-    onGPU = True
+    onGPU = True,
+    PtMin = 2.0
 ))
 
 # transfer the pixel vertices in SoA format to the CPU

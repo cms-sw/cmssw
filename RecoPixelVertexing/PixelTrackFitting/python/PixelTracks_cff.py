@@ -138,7 +138,6 @@ pixelTracksCUDA = _pixelTracksCUDA.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
     idealConditions = False,
     onGPU = True,
-    fillStatistics = True
 )
 
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
@@ -166,7 +165,6 @@ phase2_tracker.toModify(pixelTracksSoA,cpu = _pixelTracksCUDAPhase2.clone(
 phase2_tracker.toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAPhase2.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
     onGPU = True,
-    fillStatistics = True
 ))
 
 (pixelNtupletFit & gpu).toReplaceWith(pixelTracksTask, cms.Task(

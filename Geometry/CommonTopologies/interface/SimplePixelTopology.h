@@ -344,16 +344,6 @@ namespace pixelTopology {
 
     static constexpr uint16_t numberOfModules = 3892;
 
-    static constexpr uint16_t numRowsInRoc = 80;
-    static constexpr uint16_t numColsInRoc = 52;
-    static constexpr uint16_t lastRowInRoc = numRowsInRoc - 1;
-    static constexpr uint16_t lastColInRoc = numColsInRoc - 1;
-
-    static constexpr uint16_t numRowsInModule = 2 * numRowsInRoc;
-    static constexpr uint16_t numColsInModule = 8 * numColsInRoc;
-    static constexpr uint16_t lastRowInModule = numRowsInModule - 1;
-    static constexpr uint16_t lastColInModule = numColsInModule - 1;
-
     static constexpr uint16_t clusterBinning = 1024;
     static constexpr uint16_t clusterBits = 10;
 
@@ -364,7 +354,7 @@ namespace pixelTopology {
     static constexpr uint16_t firstEndcapPos = 4;
     static constexpr uint16_t firstEndcapNeg = 16;
 
-    static constexpr int16_t xOffset = -81;
+    static constexpr int16_t xOffset = -1e4;  //not used actually, to suppress static analyzer warnings
 
     static constexpr char const *nameModifier = "Phase2";
 

@@ -16,7 +16,7 @@ namespace gpuVertexFinder {
     static constexpr uint32_t MAXVTX = ZVertexSoA::MAXVTX;
 
     uint32_t ntrks;            // number of "selected tracks"
-    uint16_t itrk[MAXTRACKS];  // index of original track
+    uint32_t itrk[MAXTRACKS];  // index of original track
     float zt[MAXTRACKS];       // input track z at bs
     float ezt2[MAXTRACKS];     // input error^2 on the above
     float ptt2[MAXTRACKS];     // input pt^2 on the above
