@@ -13,7 +13,7 @@
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 
 void TotemT2RecHitProducerAlgorithm::build(const TotemGeometry& geom,
-                                           const edm::DetSetVector<TotemT2Digi>& input,
+                                           const edmNew::DetSetVector<TotemT2Digi>& input,
                                            edmNew::DetSetVector<TotemT2RecHit>& output) {
   for (const auto& vec : input) {
     const TotemT2DetId detid(vec.detId());
