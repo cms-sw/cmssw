@@ -72,12 +72,13 @@ HGCalTestPartialWaferHits::HGCalTestPartialWaferHits(const edm::ParameterSet& ps
           int waferV = std::atoi(items[2].c_str());
           wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
         } else if (items.size() == 1) {
-	  int dumpdet = std::atoi(items[0].c_str());
-	  dumpDets_.emplace_back(dumpdet);
-	  edm::LogVerbatim("HGCSim") << nameSense_ << " Dump detector " << dumpdet;
-	}
+          int dumpdet = std::atoi(items[0].c_str());
+          dumpDets_.emplace_back(dumpdet);
+          edm::LogVerbatim("HGCSim") << nameSense_ << " Dump detector " << dumpdet;
+        }
       }
-      edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits::Reads in " << wafers_.size() << ":" << dumpDets_.size() << " wafer|detector information from " << fileName;
+      edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits::Reads in " << wafers_.size() << ":"
+                                   << dumpDets_.size() << " wafer|detector information from " << fileName;
       fInput.close();
     }
   }
@@ -122,9 +123,10 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
             int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
             if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
               toCheck = true;
-	  } else if (!dumpDets_.empty()) {
-	    if ((std::find(dumpDets_.begin(), dumpDets_.end(), static_cast<int>(id.det())) != dumpDets_.end()) && (info.part != HGCalTypes::WaferFull))
-	      toCheck = true;
+          } else if (!dumpDets_.empty()) {
+            if ((std::find(dumpDets_.begin(), dumpDets_.end(), static_cast<int>(id.det())) != dumpDets_.end()) &&
+                (info.part != HGCalTypes::WaferFull))
+              toCheck = true;
           } else {
             // Only partial wafers
             toCheck = (info.part != HGCalTypes::WaferFull);

@@ -595,8 +595,9 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
   const auto& indx = getIndex(layer, true);
   if (indx.first < 0)
     return false;
-  bool ok = ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= (hgpar_->iradMaxBH_[indx.first] + 1)) && (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
-  return ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi): ok);
+  bool ok = ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= (hgpar_->iradMaxBH_[indx.first] + 1)) && (iphi > 0) &&
+             (iphi <= hgpar_->scintCells(layer)));
+  return ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
 }
 
 int HGCalDDDConstants::lastLayer(bool reco) const {
