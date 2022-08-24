@@ -25,20 +25,20 @@ process.maxEvents = cms.untracked.PSet(
 #------------------------------------------
 # Load standard sequences.
 #------------------------------------------
-process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_ALL_V9::All' 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 process.prefer("GlobalTag")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 #------------------------------------------
 # parameters for the CSCSkim module
 #------------------------------------------
-process.load("DPGAnalysis/Skims/CSCSkim_cfi")
+process.load("DPGAnalysis.Skims.CSCSkim_cfi")
 process.cscSkim.typeOfSkim = cms.untracked.int32(9)
 
 #### the path

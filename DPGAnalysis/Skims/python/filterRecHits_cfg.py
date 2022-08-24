@@ -9,7 +9,7 @@ process = cms.Process('FILTER')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 
