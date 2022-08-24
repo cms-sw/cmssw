@@ -13,6 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
@@ -55,7 +56,7 @@ public:
   void run(const VFATFrameCollection &coll,
            const TotemDAQMapping &mapping,
            const TotemAnalysisMask &mask,
-           edm::DetSetVector<TotemT2Digi> &digi,
+           edmNew::DetSetVector<TotemT2Digi> &digi,
            edm::DetSetVector<TotemVFATStatus> &status);
 
   /// Print error summaries.
