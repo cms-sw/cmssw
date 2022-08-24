@@ -91,7 +91,8 @@ ALCARECOTkAlDiMuonMassBiasClient = DQMOffline.Alignment.DiMuonMassBiasClient_cfi
     FolderName = "AlCaReco/"+__selectionName
 )
 
-ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM + ALCARECOTkAlDiMuonMassBiasClient)
+ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM)
+# comment for now, doesn't support concurrent lumis + ALCARECOTkAlDiMuonMassBiasClient)
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
