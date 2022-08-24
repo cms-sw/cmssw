@@ -14,4 +14,5 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="roofit"/>
 <flags EDM_PLUGIN="1"/>
