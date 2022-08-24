@@ -84,6 +84,13 @@ namespace callbacktest {
     std::shared_ptr<Data> ptr_;
   };
 
+  struct OptionalProd : public Base {
+    constexpr OptionalProd() : value_(0) {}
+    std::optional<Data> method(const Record&) { return Data(++value_); }
+
+    int value_;
+  };
+
   struct PtrProductsProd : public Base {
     PtrProductsProd() : data_(), double_() {}
     edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>> method(const Record&) {
@@ -124,11 +131,13 @@ class testCallback : public CppUnit::TestFixture {
 
   CPPUNIT_TEST(uniquePtrTest);
   CPPUNIT_TEST(sharedPtrTest);
+  CPPUNIT_TEST(optionalTest);
   CPPUNIT_TEST(ptrProductsTest);
 
   CPPUNIT_TEST(uniquePtrLambdaTest);
   CPPUNIT_TEST(uniquePtrLambdaCaptureTest);
   CPPUNIT_TEST(sharedPtrLambdaTest);
+  CPPUNIT_TEST(optionalLambdaTest);
   CPPUNIT_TEST(ptrProductsLambdaTest);
 
   CPPUNIT_TEST_SUITE_END();
@@ -139,11 +148,13 @@ public:
 
   void uniquePtrTest();
   void sharedPtrTest();
+  void optionalTest();
   void ptrProductsTest();
 
   void uniquePtrLambdaTest();
   void uniquePtrLambdaCaptureTest();
   void sharedPtrLambdaTest();
+  void optionalLambdaTest();
   void ptrProductsLambdaTest();
 
 private:
@@ -243,6 +254,41 @@ void testCallback::sharedPtrTest() {
   call(callback);
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
+}
+
+template <typename P, typename F>
+using OptionalCallbackT = Callback<P, F, std::optional<Data>, Record>;
+
+void testCallback::optionalTest() {
+  OptionalProd prod;
+
+  auto func = [&prod](Record const& rec) { return prod.method(rec); };
+
+  using OptionalCallback = OptionalCallbackT<OptionalProd, decltype(func)>;
+  OptionalCallback callback(&prod, func, 0);
+  std::optional<Data> handle;
+
+  callback.holdOntoPointer(&handle);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(prod.value_ == 1);
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(prod.value_ == 1);
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  handle.reset();
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(prod.value_ == 2);
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
 }
 
 template <typename P, typename F>
@@ -420,6 +466,39 @@ void testCallback::sharedPtrLambdaTest() {
   call(callback);
   CPPUNIT_ASSERT(handle.get() == ptr.get());
   CPPUNIT_ASSERT(ptr->value_ == 2);
+}
+
+void testCallback::optionalLambdaTest() {
+  Base prod;
+
+  int value = 0;
+  auto func = [&value](Record const& rec) { return std::optional<Data>(++value); };
+
+  using OptionalCallback = OptionalCallbackT<Base, decltype(func)>;
+  OptionalCallback callback(&prod, func, 0);
+  std::optional<Data> handle;
+
+  callback.holdOntoPointer(&handle);
+
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(value == 1);
+  CPPUNIT_ASSERT(value == handle->value_);
+
+  //since haven't cleared, should not have changed
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(value == 1);
+  CPPUNIT_ASSERT(value == handle->value_);
+
+  handle.reset();
+  callback.newRecordComing();
+
+  call(callback);
+  CPPUNIT_ASSERT(handle.has_value());
+  CPPUNIT_ASSERT(value == 2);
+  CPPUNIT_ASSERT(value == handle->value_);
 }
 
 void testCallback::ptrProductsLambdaTest() {
