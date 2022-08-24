@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsGPURcd.h"
+#include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -28,7 +28,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   using ReturnType = std::unique_ptr<SiStripClusterizerConditionsGPU>;
-  ReturnType produce(const SiStripClusterizerConditionsGPURcd&);
+  ReturnType produce(const SiStripClusterizerConditionsRcd&);
 
 private:
   edm::ESGetToken<SiStripGain, SiStripGainRcd> m_gainToken;
@@ -53,7 +53,7 @@ void SiStripClusterizerConditionsGPUESProducer::fillDescriptions(edm::Configurat
 }
 
 SiStripClusterizerConditionsGPUESProducer::ReturnType SiStripClusterizerConditionsGPUESProducer::produce(
-    const SiStripClusterizerConditionsGPURcd& iRecord) {
+    const SiStripClusterizerConditionsRcd& iRecord) {
   auto gainsH = iRecord.getTransientHandle(m_gainToken);
   const auto& noises = iRecord.get(m_noisesToken);
   const auto& quality = iRecord.get(m_qualityToken);

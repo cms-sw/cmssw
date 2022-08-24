@@ -44,9 +44,9 @@ private:
     const auto detIDs = clust_data.clusterDetId().get();
     const auto stripIDs = clust_data.firstStrip().get();
     const auto trueCluster = clust_data.trueCluster().get();
-    //const auto barycenter = clust_data.barycenter.get();
-    //const auto charge = clust_data.charge.get();
-    output->reserve(15000, nSeedStripsNC);
+
+    const unsigned int initSeedStripsSize = 15000;
+    output->reserve(initSeedStripsSize, nSeedStripsNC);
 
     std::vector<uint8_t> adcs;
 

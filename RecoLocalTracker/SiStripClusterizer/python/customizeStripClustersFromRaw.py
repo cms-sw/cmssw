@@ -5,7 +5,7 @@ def customizeStripClustersFromRaw(process):
         process.striptrackerlocalrecoTask.remove(process.siStripClusters)
         process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizerOnDemand_cfi")
         # CPU should emulate the full detector clusterizer
-        process.siStripClusterizerFromRaw.onDemand = cms.bool(False)
+        process.siStripClusters.cpu.onDemand = cms.bool(False)
         process.striptrackerlocalrecoTask.add(process.siStripClustersTask)
 
     return process

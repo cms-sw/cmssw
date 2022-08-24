@@ -11,7 +11,7 @@ from RecoLocalTracker.SiStripClusterizer.siStripClustersSOAtoHost_cfi import siS
 from RecoLocalTracker.SiStripClusterizer.siStripClustersFromSOA_cfi import siStripClustersFromSOA
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizerConditionsGPUESProducer_cfi import SiStripClusterizerConditionsGPUESProducer
 
-siStripClusterizerFromRaw = cms.EDProducer("SiStripClusterizerFromRaw",
+_siStripClusterizerFromRaw = cms.EDProducer("SiStripClusterizerFromRaw",
                                             onDemand = cms.bool(True),
                                             Clusterizer = DefaultClusterizer,
                                             Algorithms = DefaultAlgorithms,
@@ -19,12 +19,12 @@ siStripClusterizerFromRaw = cms.EDProducer("SiStripClusterizerFromRaw",
                                             HybridZeroSuppressed = cms.bool(False),
                                             ProductLabel = cms.InputTag('rawDataCollector'))
 
-siStripClusterizerFromRaw.Clusterizer.MaxClusterSize = cms.uint32(16)
+_siStripClusterizerFromRaw.Clusterizer.MaxClusterSize = cms.uint32(16)
 
 siStripClusterizerFromRawGPU.Clusterizer = DefaultClusterizer
 
 siStripClusters = SwitchProducerCUDA(
-    cpu = siStripClusterizerFromRaw,
+    cpu = _siStripClusterizerFromRaw.clone(),
 )
 
 siStripClustersTask = cms.Task(

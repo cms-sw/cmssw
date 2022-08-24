@@ -1,7 +1,6 @@
 /*
  */
 #include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
-#include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsGPURcd.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 
@@ -80,8 +79,8 @@ private:
   void acquire(edm::Event const& ev,
                edm::EventSetup const& es,
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override {
-    const auto& conditions = es.getData(conditionsToken_);
-    const auto& cpuConditions = es.getData(cpuConditionsToken_);
+    const auto& conditions = es.getData(conditionsToken_);        //these need to be GPU conditions
+    const auto& cpuConditions = es.getData(cpuConditionsToken_);  //CPU conditions
 
     // Sets the current device and creates a CUDA stream
     cms::cuda::ScopedContextAcquire ctx{ev.streamID(), std::move(waitingTaskHolder), ctxState_};
@@ -125,8 +124,7 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
   edm::EDPutTokenT<cms::cuda::Product<SiStripClustersCUDADevice>> outputToken_;
-
-  edm::ESGetToken<stripgpu::SiStripClusterizerConditionsGPU, SiStripClusterizerConditionsGPURcd> conditionsToken_;
+  edm::ESGetToken<stripgpu::SiStripClusterizerConditionsGPU, SiStripClusterizerConditionsRcd> conditionsToken_;
   edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> cpuConditionsToken_;
 };
 
