@@ -33,6 +33,7 @@ namespace l1t {
 
       if ((fed == 1404) || (fed == 1405)) {
         // Use board id 1 for packing
+        //fed id 1404 corresponds to the production crate, 1405 to the test crate
         auto gt_muon_packer =
             static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
         gt_muon_packer->setFed(fed);
@@ -103,6 +104,7 @@ namespace l1t {
 
       if ((fed == 1404) || (fed == 1405)) {
         // From the rx buffers
+        // fed id 1404 corresponds to the production crate, 1405 to the test crate
         res[0] = muon_unp;
         res[2] = muon_unp;
         res[4] = muon_unp;
