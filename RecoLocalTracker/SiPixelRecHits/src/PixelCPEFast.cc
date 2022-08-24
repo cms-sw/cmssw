@@ -224,8 +224,11 @@ void PixelCPEFast<TrackerTraits>::fillParamsForGpu() {
     g.sy1 = std::max(21, toMicron(cp.sy1));  // for some angles sy1 is very small
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
-    // sample xerr as function of position
-    auto const xoff = float(TrackerTraits::xOffset) * commonParamsGPU_.thePitchX;
+    //sample xerr as function of position
+    // moduleOffsetX is the definition of TrackerTraits::xOffset,
+    // needs to be calculated because for Phase2 the modules are not uniform
+    float moduleOffsetX = -(0.5f * float(g.nRows) + TrackerTraits::bigPixXCorrection);
+    auto const xoff = moduleOffsetX * commonParamsGPU_.thePitchX;
 
     for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
@@ -242,7 +245,10 @@ void PixelCPEFast<TrackerTraits>::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto const yoff = float(TrackerTraits::yOffset) * commonParamsGPU_.thePitchY;
+    // moduleOffsetY is the definition of TrackerTraits::yOffset (removed)
+    float moduleOffsetY = 0.5f * float(g.nCols) + TrackerTraits::bigPixYCorrection;
+    auto const yoff = -moduleOffsetY * commonParamsGPU_.thePitchY;
+
     for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;

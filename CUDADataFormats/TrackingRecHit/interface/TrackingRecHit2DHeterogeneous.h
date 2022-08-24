@@ -114,13 +114,6 @@ class TrackingRecHit2DGPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacomp
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
 
-  // explicit TrackingRecHit2DGPUT( uint32_t nHits, int32_t offsetBPIX2, pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
-  //   uint32_t const* hitsModuleStart, cudaStream_t stream = nullptr) :
-  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>(nHits,offsetBPIX2,cpeParams,hitsModuleStart,stream) {}
-  //
-  // explicit TrackingRecHit2DGPUT(float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr) :
-  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>(store32,store16,modules,nHits,stream) {}
-
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
@@ -132,12 +125,6 @@ template <typename TrackerTraits>
 class TrackingRecHit2DCPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
-  // explicit TrackingRecHit2DCPUT( uint32_t nHits, int32_t offsetBPIX2, pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* cpeParams,
-  //   uint32_t const* hitsModuleStart, cudaStream_t stream = nullptr) :
-  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>(nHits,offsetBPIX2,cpeParams,hitsModuleStart,stream) {}
-  //
-  // explicit TrackingRecHit2DCPUT(float* store32, uint16_t* store16, uint32_t* modules, int nHits, cudaStream_t stream = nullptr) :
-  //   TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>(store32,store16,modules,nHits,stream) {}
 
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
@@ -346,11 +333,7 @@ TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>::TrackingRecHit2DHeterogen
   if constexpr (std::is_same_v<Traits, cms::cudacompat::GPUTraits>) {
     cms::cuda::copyAsync(m_store16, store16, static_cast<int>(n16 * nHits), stream);
     cms::cuda::copyAsync(m_store32, store32, static_cast<int>(n32 * nHits), stream);
-    //
-    // cudaCheck(cudaMemcpyAsync(
-    //     m_store16.get(), store16, sizeof(uint16_t) * static_cast<int>(n16 * nHits), cudaMemcpyDefault, stream));
-    // cudaCheck(cudaMemcpyAsync(
-    //     m_store32.get(), store32, sizeof(float) * static_cast<int>(n32 * nHits), cudaMemcpyDefault, stream));
+
   } else {
     std::copy(store32.get(), store32.get() + nHits * n32, m_store32.get());  // want to copy it
     std::copy(store16.get(), store16.get() + nHits * n16, m_store16.get());

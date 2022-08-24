@@ -77,8 +77,7 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
     assert(int(tkid) < foundNtuplets->nOnes());
 
     ptkids[local_idx] = tkid;
-    //    if(local_idx == 10)
-    //    printf("local_idx %d tkid %d ptkids[local_idx] %d \n",local_idx,tkid,ptkids[local_idx]);
+
     auto nHits = foundNtuplets->size(tkid);
 
     assert(nHits >= nHitsL);
