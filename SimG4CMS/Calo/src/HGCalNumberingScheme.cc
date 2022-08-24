@@ -54,12 +54,13 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
             indices_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, iphi));
           }
         } else if (items.size() == 1) {
-	  int dumpdet = std::atoi(items[0].c_str());
-	  dumpDets_.emplace_back(dumpdet);
-	}
+          int dumpdet = std::atoi(items[0].c_str());
+          dumpDets_.emplace_back(dumpdet);
+        }
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << ":" << dumpDets_.size() << " component information from " << filetmp2 << " Layer Offset " << firstLayer_;
+      edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << ":" << dumpDets_.size()
+                                   << " component information from " << filetmp2 << " Layer Offset " << firstLayer_;
 #endif
       fInput.close();
     }
@@ -99,8 +100,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
           debug = true;
       }
       if (!dumpDets_.empty()) {
-	if ((std::find(dumpDets_.begin(), dumpDets_.end(), det_) != dumpDets_.end()) && (hgcons_.waferInfo(layer, wU, wV).part != HGCalTypes::WaferFull))
-	  debug = true;
+        if ((std::find(dumpDets_.begin(), dumpDets_.end(), det_) != dumpDets_.end()) &&
+            (hgcons_.waferInfo(layer, wU, wV).part != HGCalTypes::WaferFull))
+          debug = true;
       }
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
     }
@@ -132,7 +134,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     if (id[2] >= 0) {
       int ring(id[0]);
       if (!(hgcons_.tileExist(iz, layer, ring, id[1])) && ((ring + 1) <= (hgcons_.tileRings(layer)).second))
-	++ring;
+        ++ring;
       std::pair<int, int> typm = hgcons_.tileType(layer, ring, 0);
       HGCScintillatorDetId detId(id[2], layer, iz * ring, id[1], false, 0);
       if (typm.first >= 0) {
@@ -147,9 +149,10 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
           debug = true;
       }
       if (debug)
-        edm::LogVerbatim("HGCSim") << "Radius/Phi " << ring << "(" << id[0] << "):" << id[1] << " Type " << id[2] << ":" << typm.first
-                                   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
-                                   << layer << " z " << iz << " " << detId << " wt " << wt << " position " << pos << " R " << pos.perp();
+        edm::LogVerbatim("HGCSim") << "Radius/Phi " << ring << "(" << id[0] << "):" << id[1] << " Type " << id[2] << ":"
+                                   << typm.first << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second)
+                                   << " Layer " << layer << " z " << iz << " " << detId << " wt " << wt << " position "
+                                   << pos << " R " << pos.perp();
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
