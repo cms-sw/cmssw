@@ -123,8 +123,9 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // reco jet reference (use as much as possible)
     const auto& jet = jets->at(jet_n);
-    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
     const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
+    if (!pat_jet)
+      throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
 
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     if (jet.pt() > min_jet_pt_) {
