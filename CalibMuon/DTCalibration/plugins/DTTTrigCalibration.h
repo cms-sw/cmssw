@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 #include <string>
 #include <map>
@@ -62,8 +63,8 @@ private:
   // Debug flag
   bool debug;
 
-  // The label used to retrieve digis from the event
-  std::string digiLabel;
+  // The token used to retrieve digis from the event
+  edm::EDGetTokenT<DTDigiCollection> digiToken;
 
   // The TDC time-window
   int maxTDCCounts;
