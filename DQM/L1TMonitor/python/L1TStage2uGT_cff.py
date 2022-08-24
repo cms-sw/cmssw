@@ -28,6 +28,13 @@ l1tStage2uGMTOutVsuGTIn = DQMEDAnalyzer(
 # sequences
 l1tStage2uGTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGT +
+#    l1tStage2uGTTiming +
+    l1tStage2uGTCaloLayer2Comp +
+    l1tStage2uGMTOutVsuGTIn
+)
+
+_run3_l1tStage2uGTOnlineDQMSeq = cms.Sequence(
+    l1tStage2uGT +
     l1tStage2uGTTiming +
     l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGMTOutVsuGTIn
@@ -37,3 +44,8 @@ l1tStage2uGTOnlineDQMSeq = cms.Sequence(
 l1tStage2uGTValidationEventOnlineDQMSeq = cms.Sequence(
     l1tStage2uGTBoardCompSeq
 )
+
+
+from Configuration.StandardSequences.Eras import eras
+
+eras.run3_common.toReplaceWith(l1tStage2uGTOnlineDQMSeq, _run3_l1tStage2uGTOnlineDQMSeq)
