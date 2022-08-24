@@ -6,6 +6,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DQMOffline/Alignment/interface/DiMuonMassBiasMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -33,7 +34,10 @@ DiMuonMassBiasMonitor::DiMuonMassBiasMonitor(const edm::ParameterSet& iConfig)
       MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
       decayMotherName_(iConfig.getParameter<std::string>("decayMotherName")),
       distanceScaleFactor_(iConfig.getParameter<double>("distanceScaleFactor")),
-      DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")) {}
+      DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")) {
+  produces<DQMToken, edm::Transition::EndRun>("DQMGenerationDiMuonMassBiasMonitorRun");
+  produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationDiMuonMassBiasMonitorLumi");
+}
 
 void DiMuonMassBiasMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonMassBiasMonitor/MassBias");
