@@ -262,8 +262,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   /// Record the InputTags of those L3 filters and L3 collections
   std::vector<bool> maskFilters;
   maskFilters.resize(nfob);
-  InputTagSet filterTagsEvent(pn_ != "*");
-  InputTagSet collectionTagsEvent(pn_ != "*");
+  InputTagSet filterTagsEvent(pn_ == "*");
+  InputTagSet collectionTagsEvent(pn_ == "*");
 
   unsigned int nf(0);
   for (unsigned int ifob = 0; ifob != nfob; ++ifob) {
