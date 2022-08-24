@@ -12,22 +12,12 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
-#include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
-#include "RecoLocalCalo/HcalRecProducers/src/SimpleAlgoGPU.h"
+#include "DeclsForKernels.h"
+#include "SimplePFGPUAlgos.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1F.h>
-
-#include <iostream>
-#include <functional>
-#include <optional>
-#include <vector>
-#include <array>
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimplePFGPUAlgos.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -42,7 +32,21 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 // Comment out to disable debugging
-//#define DEBUG_ENABLE
+//#define PF_DEBUG_ENABLE
+
+#ifdef PF_DEBUG_ENABLE
+#include <TFile.h>
+#include <TTree.h>
+#include <TH1F.h>
+#endif
+
+#include <iostream>
+#include <functional>
+#include <optional>
+#include <vector>
+#include <array>
+
+
 
 typedef PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> PFRecHitHCALDenseIdNavigator;
 
@@ -59,19 +63,14 @@ private:
 
   unsigned getIdx(const unsigned);
 
-  // Input Product Type
-  using RecHitSoAProductType = cms::cuda::Product<hcal::reconstruction::OutputDataGPU>;
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
-  //Input Token
-  //edm::EDGetTokenT<RecHitSoAProductType> InputRecHitSoA_Token_;
   //Output Token
   using IProductType = cms::cuda::Product<hcal::RecHitCollection<calo::common::DevStoragePolicy>>;
   const edm::EDGetTokenT<IProductType> InputRecHitSoA_Token_; 
 
   using OProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
   edm::EDPutTokenT<OProductType> OutputPFRecHitSoA_Token_;
-  //edm::EDPutTokenT<PFRecHitSoAProductType> OutputPFRecHitSoA_Token_;
 
   PFRecHit::HCAL::OutputPFRecHitDataGPU outputGPU;
   cms::cuda::ContextState cudaState_;
@@ -105,7 +104,7 @@ private:
   uint32_t nPFRHTotal = 0;
   std::array<float,5> GPU_timers;
 
-#ifdef DEBUG_ENABLE
+#ifdef PF_DEBUG_ENABLE
   TTree* tree;
   TFile* f;
   TH1F *hTimers = new TH1F("timers", "GPU kernel timers ", 5, -0.5, 4.5);
@@ -120,10 +119,6 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       geomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    //: InputRecHitSoA_Token_{consumes<IProductType>(ps.getParameter<edm::InputTag>("recHitsM0LabelIn"))} {
-    
-    //: InputRecHitSoA_Token_{consumes<IProductType>(ps.getParameter<edm::InputTag>("recHitsM0LabelIn"))},
-    //OutputPFRecHitSoA_Token_(produces<PFRecHitSoAProductType>(ps.getParameter<std::string>("pfRecHitsLabelCUDAHBHE"))) {
     edm::ConsumesCollector cc = consumesCollector();
 
     produces<reco::PFRecHitCollection>();
@@ -139,7 +134,7 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
     const auto& navSet = ps.getParameterSet("navigator");
     navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
     
-#ifdef DEBUG_ENABLE
+#ifdef PF_DEBUG_ENABLE
     tree = new TTree("tree", "tree");
     tree->Branch("Event", &numEvents);
     tree->Branch("timers", &GPU_timers);
@@ -156,7 +151,7 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
 
 PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
     topology_.release();
-#ifdef DEBUG_ENABLE
+#ifdef PF_DEBUG_ENABLE
     TFile* f = new TFile("gpuPFRecHitTimers.root", "recreate");
     f->cd();
     tree->Write();
@@ -399,7 +394,7 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     else
         pfrhLegacyCleaned->push_back(pfrh);
   }
-//#ifdef DEBUG_ENABLE 
+//#ifdef PF_DEBUG_ENABLE 
 //  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
 //#endif
 
@@ -408,7 +403,7 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 
   tmpPFRecHits.resize(0);
 
-#ifdef DEBUG_ENABLE
+#ifdef PF_DEBUG_ENABLE
   for (int i = 0; i < (int)GPU_timers.size(); i++)
     hTimers->Fill(i, GPU_timers[i]);
   tree->Fill();

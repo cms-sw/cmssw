@@ -12,23 +12,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
-#include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
-#include "RecoLocalCalo/HcalRecProducers/src/SimpleAlgoGPU.h"
+#include "DeclsForKernels.h"
+#include "SimplePFGPUAlgos.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1F.h>
-
-#include <iostream>
-#include <functional>
-#include <optional>
-#include <vector>
-#include <array>
-#include "RecoParticleFlow/PFClusterProducer/plugins/SimplePFGPUAlgos.h"
+#include "SimplePFGPUAlgos.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
@@ -42,7 +33,20 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 // Comment out to disable debugging
-#define DEBUG_ENABLE
+#define PF_DEBUG_ENABLE
+
+#ifdef PF_DEBUG_ENABLE
+#include <TFile.h>
+#include <TTree.h>
+#include <TH1F.h>
+#endif
+
+#include <iostream>
+#include <functional>
+#include <optional>
+#include <vector>
+#include <array>
+
 
 
 class PFHBHERechitProducerCPU : public edm::stream::EDProducer <edm::ExternalWork> {
@@ -234,7 +238,7 @@ void PFHBHERechitProducerCPU::produce(edm::Event& event, edm::EventSetup const& 
             pfrhCleanedLegacy->push_back(pfrh);
       }
 
-    #ifdef DEBUG_ENABLE
+    #ifdef PF_DEBUG_ENABLE
       printf("pfrhLegacy->size() = %d\tpfrhCleanedLegacy->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhCleanedLegacy->size());
     #endif
     if (produceLegacy_)

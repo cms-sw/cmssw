@@ -1,8 +1,8 @@
 #ifndef RecoParticleFlow_PFClusterProducerCUDA_plugins_SimplePFGPUAlgos_h
 #define RecoParticleFlow_PFClusterProducerCUDA_plugins_SimplePFGPUAlgos_h
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/DeclsForKernels.h"
-#include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
+#include "DeclsForKernels.h"
+#include "DeclsForKernels.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 #include <array>
 

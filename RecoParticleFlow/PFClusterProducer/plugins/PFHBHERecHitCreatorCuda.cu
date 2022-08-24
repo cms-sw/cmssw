@@ -3,7 +3,7 @@
 
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/DeclsForKernels.h"
-#include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
+#include "DeclsForKernels.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimplePFGPUAlgos.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"

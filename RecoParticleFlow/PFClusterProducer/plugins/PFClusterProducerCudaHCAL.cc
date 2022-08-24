@@ -1,5 +1,5 @@
 #include "PFClusterProducerCudaHCAL.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterCudaHCAL.h"
+#include "PFClusterCudaHCAL.h"
 #include <TFile.h>
 #include <TH1F.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -466,8 +466,9 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   _initialClustering->updateEvent(event);
 
-
+#ifdef DEBUG_GPU_HCAL
   int numbytes_float = (int)rechits->size()*sizeof(float);
+#endif
   int numbytes_int = (int)rechits->size()*sizeof(int);
   int totalNeighbours = 0;     // Running count of 8 neighbour edges for edgeId, edgeList
   

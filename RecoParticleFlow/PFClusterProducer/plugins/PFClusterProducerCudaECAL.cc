@@ -1,5 +1,5 @@
 #include "PFClusterProducerCudaECAL.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterCudaECAL.h"
+#include "PFClusterCudaECAL.h"
 #include <TFile.h>
 #include <TH1F.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
