@@ -18,7 +18,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
     process.MessageLogger.HGCalSim=dict()
-    process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.CaloSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

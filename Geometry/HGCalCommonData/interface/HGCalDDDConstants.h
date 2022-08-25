@@ -81,7 +81,7 @@ public:
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
   bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart = false) const;
   bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart = false) const;
-  bool isValidTrap(int zside, int lay, int ieta, int iphi) const;
+  bool isValidTrap(int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;
   unsigned int layers(bool reco) const;
