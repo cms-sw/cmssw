@@ -124,7 +124,7 @@ void HGCalTestScintHits::analyze(const edm::Event& e, const edm::EventSetup& iS)
           ++good;
           GlobalPoint pos = geom->getPosition(id);
           bool valid1 = geom->topology().valid(id);
-          bool valid2 = hgc.isValidTrap(hid.layer(), hid.ring(), hid.iphi());
+          bool valid2 = hgc.isValidTrap(hid.zside(), hid.layer(), hid.ring(), hid.iphi());
           edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << good << "]" << hid << " at (" << pos.x() << ", "
                                        << pos.y() << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2
                                        << " Energy " << hit.energy() << " Time " << hit.time();
