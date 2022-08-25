@@ -390,7 +390,8 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
         if (((*genJets)[i].pt() > 30) && (abs((*genJets)[i].eta()) < 2.5))
           HTsum += (*genJets)[i].pt();
       }
-      if(HTsum > 0) objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
+      if (HTsum > 0)
+        objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType_ == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
     const auto& genJets = iEvent.getHandle(ak8genJetToken_);
@@ -400,7 +401,8 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
         if (((*genJets)[i].pt() > 200) && (abs((*genJets)[i].eta()) < 2.5))
           HTsum += (*genJets)[i].pt();
       }
-      if(HTsum > 0) objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
+      if (HTsum > 0)
+        objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType_ == "MET") {  // MET, using genMET
     const auto& genMET = iEvent.getHandle(genMETToken_);
