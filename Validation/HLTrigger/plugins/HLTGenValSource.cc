@@ -18,9 +18,6 @@
 #include <ctime>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -385,10 +382,10 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
   } else if (objType_ == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
     const auto& genJets = iEvent.getHandle(ak4genJetToken_);
     if (!genJets->empty()) {
-      auto HTsum = 0.;
-      for (size_t i = 0; i < genJets->size(); i++) {
-        if (((*genJets)[i].pt() > 30) && (abs((*genJets)[i].eta()) < 2.5))
-          HTsum += (*genJets)[i].pt();
+      double HTsum = 0.;
+      for (const auto& genJet : *genJets) {
+        if (genJet.pt() > 30 && std::abs(genJet.eta()) < 2.5)
+          HTsum += genJet.pt();
       }
       if (HTsum > 0)
         objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
@@ -396,10 +393,10 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
   } else if (objType_ == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
     const auto& genJets = iEvent.getHandle(ak8genJetToken_);
     if (!genJets->empty()) {
-      auto HTsum = 0.;
-      for (size_t i = 0; i < genJets->size(); i++) {
-        if (((*genJets)[i].pt() > 200) && (abs((*genJets)[i].eta()) < 2.5))
-          HTsum += (*genJets)[i].pt();
+      double HTsum = 0.;
+      for (const auto& genJet : *genJets) {
+        if (genJet.pt() > 200 && std::abs(genJet.eta()) < 2.5)
+          HTsum += genJet.pt();
       }
       if (HTsum > 0)
         objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
@@ -439,7 +436,7 @@ std::vector<HLTGenValObject> HLTGenValSource::getGenParticles(const edm::Event& 
     const reco::GenParticle p = (*genParticles)[i];
 
     // only GenParticles with correct ID
-    if (abs(p.pdgId()) != pdgID)
+    if (std::abs(p.pdgId()) != pdgID)
       continue;
 
     // checking if particle comes from "hard process"
