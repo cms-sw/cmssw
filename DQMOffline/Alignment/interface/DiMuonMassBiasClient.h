@@ -48,6 +48,9 @@ namespace diMuonMassBias {
     assert(v.size() == 3);
     std::copy(std::begin(v), std::end(v), x);
   }
+
+  static constexpr int minimumHits = 10;
+
 }  // namespace diMuonMassBias
 
 class DiMuonMassBiasClient : public DQMEDHarvester {
@@ -83,7 +86,7 @@ private:
 
   float meanConfig_[3];  /* parmaeters for the fit: mean */
   float widthConfig_[3]; /* parameters for the fit: width */
-  float sigmaConfig_[3]; /* parmaeters for the fit: sigma */
+  float sigmaConfig_[3]; /* parameters for the fit: sigma */
 
   // list of histograms to harvest
   std::vector<std::string> MEtoHarvest_;
