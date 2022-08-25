@@ -17,7 +17,7 @@ L1TkIsoEmDouble12Filter = cms.EDFilter("L1TTkEmFilter",
         endcap = cms.vdouble(2.11186, 1.15524, 0.0)
     ),
     TrkIsolation = cms.vdouble(0.35, 0.28),
-    inputTag1 = cms.InputTag("hltL1TkPhotonsCrystal","EG"),
-    inputTag2 = cms.InputTag("hltL1TkPhotonsHGC","EG"),
+    inputTag1 = cms.InputTag("l1ctLayer1EG","L1TkEmEB"),
+    inputTag2 = cms.InputTag("l1ctLayer1EG","L1TkEmEE"),
     saveTags = cms.bool(True)
 )

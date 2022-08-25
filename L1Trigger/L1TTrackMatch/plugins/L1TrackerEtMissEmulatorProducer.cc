@@ -42,6 +42,7 @@ class L1TrackerEtMissEmulatorProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
+  typedef edm::RefVector<L1TTTrackCollectionType> L1TTTrackRefCollectionType;
   typedef l1t::VertexWordCollection L1VertexCollectionType;
   typedef l1t::VertexWord L1VertexType;
 
@@ -58,22 +59,8 @@ private:
   // ----------member data ---------------------------
 
   std::vector<l1tmetemu::global_phi_t> cosLUT_;  // Cos LUT array
-  std::vector<l1tmetemu::eta_t> EtaRegionsLUT_;  // Various precomputed LUTs
-  std::vector<l1tmetemu::z_t> DeltaZLUT_;
   std::vector<l1tmetemu::global_phi_t> phiQuadrants_;
   std::vector<l1tmetemu::global_phi_t> phiShifts_;
-
-  l1tmetemu::z_t minZ0_;
-  l1tmetemu::z_t maxZ0_;
-  l1tmetemu::eta_t maxEta_;
-  TTTrack_TrackWord::chi2rphi_t chi2rphiMax_;
-  TTTrack_TrackWord::chi2rz_t chi2rzMax_;
-  TTTrack_TrackWord::bendChi2_t bendChi2Max_;
-  l1tmetemu::pt_t minPt_;
-  l1tmetemu::nstub_t nStubsmin_;
-
-  vector<double> z0Thresholds_;
-  vector<double> etaRegions_;
 
   l1tmetemu::z_t deltaZ0_ = 0;
 
@@ -88,13 +75,16 @@ private:
   std::string L1MetCollectionName_;
 
   const edm::EDGetTokenT<L1VertexCollectionType> pvToken_;
-  const edm::EDGetTokenT<L1TTTrackCollectionType> trackToken_;
+  const edm::EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
+  const edm::EDGetTokenT<L1TTTrackRefCollectionType> vtxAssocTrackToken_;
 };
 
 // constructor//
 L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::ParameterSet& iConfig)
     : pvToken_(consumes<L1VertexCollectionType>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-      trackToken_(consumes<L1TTTrackCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
+      trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+      vtxAssocTrackToken_(
+          consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))) {
   // Setup LUTs
   TrackTransform.generateLUTs();
   phiQuadrants_ = TrackTransform.getPhiQuad();
@@ -111,28 +101,6 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
   // Name of output ED Product
   L1MetCollectionName_ = (std::string)iConfig.getParameter<std::string>("L1MetCollectionName");
 
-  // Input parameter cuts and convert to correct integer representations
-  maxZ0_ = l1tmetemu::digitizeSignedValue<l1tmetemu::z_t>(
-      (double)iConfig.getParameter<double>("maxZ0"), l1tmetemu::kInternalVTXWidth, l1tmetemu::kStepZ0);
-  minZ0_ = (1 << TTTrack_TrackWord::TrackBitWidths::kZ0Size) - maxZ0_;
-
-  maxEta_ = l1tmetemu::digitizeSignedValue<l1tmetemu::eta_t>(
-      (double)iConfig.getParameter<double>("maxEta"), l1tmetemu::kInternalEtaWidth, l1tmetemu::kStepEta);
-
-  chi2rphiMax_ =
-      l1tmetemu::getBin((double)iConfig.getParameter<double>("chi2rphidofMax"), TTTrack_TrackWord::chi2RPhiBins);
-  chi2rzMax_ = l1tmetemu::getBin((double)iConfig.getParameter<double>("chi2rzdofMax"), TTTrack_TrackWord::chi2RZBins);
-  bendChi2Max_ =
-      l1tmetemu::getBin((double)iConfig.getParameter<double>("bendChi2Max"), TTTrack_TrackWord::bendChi2Bins);
-
-  minPt_ = l1tmetemu::digitizeSignedValue<l1tmetemu::pt_t>(
-      (double)iConfig.getParameter<double>("minPt"), l1tmetemu::kInternalPtWidth, l1tmetemu::kStepPt);
-
-  nStubsmin_ = (l1tmetemu::nstub_t)iConfig.getParameter<int>("nStubsmin");
-
-  z0Thresholds_ = iConfig.getParameter<std::vector<double>>("z0Thresholds");
-  etaRegions_ = iConfig.getParameter<std::vector<double>>("etaRegions");
-
   if (debug_ == 5) {
     cordicDebug_ = true;
   }
@@ -143,8 +111,6 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
 
   // Compute LUTs
   cosLUT_ = l1tmetemu::generateCosLUT(cosLUTbins);
-  EtaRegionsLUT_ = l1tmetemu::generateEtaRegionLUT(etaRegions_);
-  DeltaZLUT_ = l1tmetemu::generateDeltaZLUT(z0Thresholds_);
 
   produces<std::vector<EtSum>>(L1MetCollectionName_);
 }
@@ -159,8 +125,11 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   edm::Handle<L1VertexCollectionType> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
 
-  edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
+  edm::Handle<L1TTTrackRefCollectionType> L1TTTrackHandle;
   iEvent.getByToken(trackToken_, L1TTTrackHandle);
+
+  edm::Handle<L1TTTrackRefCollectionType> L1TTTrackAssociatedHandle;
+  iEvent.getByToken(vtxAssocTrackToken_, L1TTTrackAssociatedHandle);
 
   // Initialize cordic class
   Cordic cordicSqrt(l1tmetemu::kMETPhiBins, l1tmetemu::kMETSize, cordicSteps_, cordicDebug_);
@@ -175,6 +144,12 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     return;
   }
 
+  if (!L1TTTrackAssociatedHandle.isValid()) {
+    LogError("L1TrackerEtMissEmulatorProducer")
+        << "\nWarning: L1TTTrackAssociatedCollection not found in the event. Exit\n";
+    return;
+  }
+
   // Initialize sector sums, need 0 initialization in case a sector has no
   // tracks
   l1tmetemu::Et_t sumPx[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -182,70 +157,25 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   int sector_totals[l1tmetemu::kNSector] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   // Track counters
-  int num_tracks{0};
-  int num_assoc_tracks{0};
   int num_quality_tracks{0};
+  int num_assoc_tracks{0};
 
   // Get reference to first vertex in event vertex collection
   L1VertexType& vtx = const_cast<L1VertexType&>(L1VertexHandle->at(0));
 
   for (const auto& track : *L1TTTrackHandle) {
-    num_tracks++;
-    L1TTTrackType& track_ref = const_cast<L1TTTrackType&>(track);  // Get Reference to track to pass to TrackTransform
+    num_quality_tracks++;
+    L1TTTrackType& track_ref = const_cast<L1TTTrackType&>(*track);  // Get Reference to track to pass to TrackTransform
 
     // Convert to internal track representation
     InternalEtWord EtTrack = TrackTransform.transformTrack<L1TTTrackType, L1VertexType>(track_ref, vtx);
 
-    // Parameter cuts
-    if (EtTrack.pt < minPt_)
-      continue;
-
-    // Z signed so double bound
-    if (EtTrack.z0 & (1 << (l1tmetemu::kInternalVTXWidth - 1))) {
-      // if negative
-      if (EtTrack.z0 <= maxZ0_)
-        continue;
-    } else {
-      if (EtTrack.z0 > minZ0_)
-        continue;
-    }
-    if (EtTrack.eta > maxEta_)
-      continue;
-
-    // Quality Cuts
-    if (EtTrack.chi2rphidof >= chi2rphiMax_)
-      continue;
-
-    if (EtTrack.chi2rzdof >= chi2rzMax_)
-      continue;
-
-    if (EtTrack.bendChi2 >= bendChi2Max_)
-      continue;
-
-    if (EtTrack.nstubs < nStubsmin_)
-      continue;
-
-    num_quality_tracks++;
-
-    // Temporary int representation to get the difference
-    int tempz = l1tmetemu::unpackSignedValue(EtTrack.z0, l1tmetemu::kInternalVTXWidth);
-    int temppv = l1tmetemu::unpackSignedValue(EtTrack.pV, l1tmetemu::kInternalVTXWidth);
-
-    l1tmetemu::z_t z_diff = abs(tempz - temppv);
-
-    // Track to vertex association, adaptive z window based on eta region
-    for (unsigned int reg = 0; reg < l1tmetemu::kNEtaRegion; reg++) {
-      if (EtTrack.eta >= EtaRegionsLUT_[reg] && EtTrack.eta < EtaRegionsLUT_[reg + 1]) {
-        deltaZ0_ = DeltaZLUT_[reg];
-        break;
-      }
-    }
-
-    if (z_diff <= deltaZ0_) {
+    if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) !=
+        L1TTTrackAssociatedHandle->end()) {
       num_assoc_tracks++;
       if (debug_ == 7) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-            << "Track to Vertex ID: " << num_tracks << "\n"
+            << "Track to Vertex ID: " << num_quality_tracks << "\n"
             << "Phi Sector: " << EtTrack.Sector << " pT: " << EtTrack.pt << " Phi: " << EtTrack.globalPhi
             << " TanL: " << EtTrack.eta << " Z0: " << EtTrack.z0 << " Nstub: " << EtTrack.nstubs
             << " Chi2rphi: " << EtTrack.chi2rphidof << " Chi2rz: " << EtTrack.chi2rzdof
@@ -410,7 +340,6 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         << "Integer MET: " << EtMiss.Et << "| Integer MET phi: " << EtMiss.Phi << "\n"
         << "Float MET: " << (EtMiss.Et) * l1tmetemu::kStepMET
         << "| Float MET phi: " << (float)tempPhi * l1tmetemu::kStepMETPhi - M_PI << "\n"
-        << "# Intial Tracks: " << num_tracks << "\n"
         << "# Tracks after Quality Cuts: " << num_quality_tracks << "\n"
         << "# Tracks Associated to Vertex: " << num_assoc_tracks << "\n"
         << "========================================================\n";

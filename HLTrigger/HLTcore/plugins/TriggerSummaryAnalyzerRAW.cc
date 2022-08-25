@@ -164,7 +164,7 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
       /* Phase-2 */
       const unsigned int nL1TTkMuon(handle->l1ttkmuonSlice(iFO).second - handle->l1ttkmuonSlice(iFO).first);
       if (nL1TTkMuon > 0)
-        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkMuon: " << nL1TTkMuon;
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTrackerMuon: " << nL1TTkMuon;
 
       const unsigned int nL1TTkEle(handle->l1ttkeleSlice(iFO).second - handle->l1ttkeleSlice(iFO).first);
       if (nL1TTkEle > 0)
@@ -216,7 +216,7 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:        " << handle->l1ttauSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:      " << handle->l1tetsumSize() << endl;
     /* Phase-2 */
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkMuon:    " << handle->l1ttkmuonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTrackerMuon:" << handle->l1ttkmuonSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEle:     " << handle->l1ttkeleSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEm:      " << handle->l1ttkemSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFJet:     " << handle->l1tpfjetSize() << endl;

@@ -9,6 +9,7 @@
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/RecoCandidate"/>
   <use name="DataFormats/TauReco"/>
+  <use name="DataFormats/L1TMuonPhase2"/>
   <use name="HLTrigger/HLTcore"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>

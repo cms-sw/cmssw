@@ -14,7 +14,6 @@
 
 // includes needed for the L1TrackTriggerObjects
 
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMiss.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMissFwd.h"
 
