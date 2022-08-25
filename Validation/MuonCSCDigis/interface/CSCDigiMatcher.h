@@ -59,9 +59,9 @@ public:
   const CSCWireDigiContainer& wireDigisInChamber(unsigned int) const;
 
   //total digis, no match required
-  int getTotalComparators(unsigned int) const;
-  int getTotalStrips(unsigned int) const;
-  int getTotalWires(unsigned int) const;
+  int totalComparators(unsigned int) const;
+  int totalStrips(unsigned int) const;
+  int totalWires(unsigned int) const;
 
   // #layers with hits
   int nLayersWithComparatorInChamber(unsigned int) const;
