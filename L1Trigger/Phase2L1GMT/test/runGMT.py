@@ -127,7 +127,6 @@ process.gmtMuons.trackConverter.verbose=0
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
-#process.pL1TkPrimaryVertex = cms.Path(process.L1TkPrimaryVertex)
 #process.pL1TkPhotonsCrystal = cms.Path(process.L1TkPhotonsCrystal)
 #process.pL1TkIsoElectronsCrystal = cms.Path(process.L1TkIsoElectronsCrystal)
 #process.pL1TkElectronsLooseCrystal = cms.Path(process.L1TkElectronsLooseCrystal)

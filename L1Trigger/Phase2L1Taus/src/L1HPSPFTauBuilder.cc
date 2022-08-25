@@ -50,7 +50,7 @@ void L1HPSPFTauBuilder::reset() {
   l1PFTauSeedPhi_ = 0.;
   l1PFTauSeedZVtx_ = 0.;
   sumAllL1PFCandidatesPt_ = 0.;
-  primaryVertex_ = l1t::TkPrimaryVertexRef();
+  primaryVertex_ = l1t::VertexWordRef();
   l1PFTau_ = l1t::HPSPFTau();
 
   stripP4_ = reco::Particle::LorentzVector(0., 0., 0., 0.);
@@ -87,7 +87,7 @@ void L1HPSPFTauBuilder::setL1PFCandProductID(const edm::ProductID& l1PFCandProdu
   l1PFCandProductID_ = l1PFCandProductID;
 }
 
-void L1HPSPFTauBuilder::setVertex(const l1t::TkPrimaryVertexRef& primaryVertex) { primaryVertex_ = primaryVertex; }
+void L1HPSPFTauBuilder::setVertex(const l1t::VertexWordRef& primaryVertex) { primaryVertex_ = primaryVertex; }
 
 void L1HPSPFTauBuilder::setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed) {
   if (debug_) {

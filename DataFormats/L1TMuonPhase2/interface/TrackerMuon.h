@@ -9,6 +9,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
 
 namespace l1t {
 
@@ -43,6 +44,14 @@ namespace l1t {
     void setMuonRef(const edm::Ref<l1t::RegionalMuonCandBxCollection>& p) { muRef_ = p; }
     void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; }
     void setHwIsoSumAp(int isoSum) { hwIsoSumAp_ = isoSum; }
+
+    // For HLT
+    const double phZ0() const { return Phase2L1GMT::LSBGTz0 * hwZ0(); }
+    const double phD0() const { return Phase2L1GMT::LSBGTd0 * hwD0(); }
+    const double phPt() const { return Phase2L1GMT::LSBpt * hwPt(); }
+    const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
+    const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
+    const int phCharge() const { return pow(-1, hwCharge()); }
 
     const std::array<uint64_t, 2> word() const { return word_; }
     void setWord(std::array<uint64_t, 2> word) { word_ = word; }

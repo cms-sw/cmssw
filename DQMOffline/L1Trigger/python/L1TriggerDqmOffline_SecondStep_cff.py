@@ -16,6 +16,7 @@ from DQMOffline.L1Trigger.L1TTauEfficiency_cfi import *
 from DQMOffline.L1Trigger.L1TTauDiff_cfi import *
 
 from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
+from DQMOffline.L1Trigger.L1TPhase2MuonDQMEfficiency_cfi import *
 
 # harvesting sequence for all datasets
 DQMHarvestL1TMon = cms.Sequence(
@@ -52,6 +53,6 @@ DQMHarvestL1TMuon = cms.Sequence(
 
 # harvesting sequence for phase 2
 DQMHarvestL1TPhase2 = cms.Sequence(
-    
+    l1tPhase2MuonEfficiency
 )
 
