@@ -96,7 +96,7 @@ private:
   // HiggsTo2photons anaysis code. Template is introduced to handle reco/pat
   // photons and aod/miniAOD PF candidates collections
   float computeWorstPFChargedIsolation(const reco::Photon& photon,
-                                       const std::vector<edm::Ptr<reco::Candidate>> pfCands,
+                                       const std::vector<edm::Ptr<reco::Candidate>>& pfCands,
                                        const reco::VertexCollection& vertices,
                                        const reco::Vertex& pv,
                                        unsigned char options,
@@ -367,7 +367,7 @@ void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 // Charged isolation with respect to the worst vertex. See more
 // comments above at the function declaration.
 float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photon& photon,
-                                                               const std::vector<edm::Ptr<reco::Candidate>> pfCands,
+                                                               const std::vector<edm::Ptr<reco::Candidate>>& pfCands,
                                                                const reco::VertexCollection& vertices,
                                                                const reco::Vertex& pv,
                                                                unsigned char options,
