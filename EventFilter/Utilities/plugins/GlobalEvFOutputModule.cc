@@ -100,17 +100,21 @@ namespace evf {
 
   class GlobalEvFOutputJSONDef {
   public:
-    GlobalEvFOutputJSONDef();
+    GlobalEvFOutputJSONDef(std::string const& streamLabel);
 
     jsoncollector::DataPointDefinition outJsonDef_;
     std::string outJsonDefName_;
+    jsoncollector::StringJ transferDestination_;
+    jsoncollector::StringJ mergeType_;
   };
 
   class GlobalEvFOutputJSONWriter {
   public:
     GlobalEvFOutputJSONWriter(std::string const& streamLabel,
                               jsoncollector::DataPointDefinition const&,
-                              std::string const& outJsonDefName);
+                              std::string const& outJsonDefName,
+                              jsoncollector::StringJ const& transferDestination,
+                              jsoncollector::StringJ const& mergeType);
 
     jsoncollector::IntJ processed_;
     jsoncollector::IntJ accepted_;
@@ -166,7 +170,7 @@ namespace evf {
 
   };  //end-of-class-def
 
-  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef() {
+  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef(std::string const& streamLabel) {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("GlobalEvFOutputModule") << "writing .dat files to -: " << baseRunDir;
 
@@ -203,10 +207,16 @@ namespace evf {
       std::filesystem::rename(outTmpJsonDefName, outJsonDefName_);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
+
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel, evf::MergeTypeDAT);
   }
+
   GlobalEvFOutputJSONWriter::GlobalEvFOutputJSONWriter(std::string const& streamLabel,
                                                        jsoncollector::DataPointDefinition const& outJsonDef,
-                                                       std::string const& outJsonDefName)
+                                                       std::string const& outJsonDefName,
+                                                       jsoncollector::StringJ const& transferDestination,
+                                                       jsoncollector::StringJ const& mergeType)
       : processed_(0),
         accepted_(0),
         errorEvents_(0),
@@ -215,10 +225,9 @@ namespace evf {
         filesize_(0),
         inputFiles_(),
         fileAdler32_(1),
+        transferDestination_(transferDestination),
+        mergeType_(mergeType),
         hltErrorEvents_(0) {
-    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel);
-    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel, evf::MergeTypeDAT);
-
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     errorEvents_.setName("ErrorEvents");
@@ -296,7 +305,7 @@ namespace evf {
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
     //create run Cache holding JSON file writer and variables
-    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>();
+    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_);
 
     edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
@@ -398,7 +407,11 @@ namespace evf {
 
     //auto jsonWriter = const_cast<GlobalEvFOutputJSONWriter*>(runCache(iLB.getRun().index()));
     auto jsonDef = runCache(iLB.getRun().index());
-    GlobalEvFOutputJSONWriter jsonWriter(streamLabel_, jsonDef->outJsonDef_, jsonDef->outJsonDefName_);
+    GlobalEvFOutputJSONWriter jsonWriter(streamLabel_,
+                                         jsonDef->outJsonDef_,
+                                         jsonDef->outJsonDefName_,
+                                         jsonDef->transferDestination_,
+                                         jsonDef->mergeType_);
 
     jsonWriter.fileAdler32_.value() = lumiWriter->get_adler32();
     jsonWriter.accepted_.value() = lumiWriter->getAccepted();

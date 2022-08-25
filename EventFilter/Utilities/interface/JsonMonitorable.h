@@ -142,6 +142,7 @@ namespace jsoncollector {
   class StringJ : public JsonMonitorable {
   public:
     StringJ() : JsonMonitorable() {}
+    StringJ(StringJ const& sJ) : JsonMonitorable() { theVar_ = sJ.value(); }
 
     ~StringJ() override {}
 

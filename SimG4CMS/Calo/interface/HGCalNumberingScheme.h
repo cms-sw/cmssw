@@ -38,7 +38,6 @@ private:
   const DetId::Detector det_;
   const std::string name_;
   int firstLayer_;
-  std::vector<int> dumpDets_;
   std::vector<int> indices_;
 };
 
