@@ -235,6 +235,7 @@ private:
 
   bool enablePhotonPlot_;
   bool enableMETPlot_;
+  bool enable2DPlots_;
 };
 
 TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
@@ -341,7 +342,8 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       MHTcut_(iConfig.getParameter<double>("MHTcut")),
       invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
       enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
-      enableMETPlot_(iConfig.getParameter<bool>("enableMETPlot")) {
+      enableMETPlot_(iConfig.getParameter<bool>("enableMETPlot")),
+      enable2DPlots_(iConfig.getParameter<bool>("enable2DPlots")) {
   ObjME empty;
 
   muPhi_ = std::vector<ObjME>(nmuons_, empty);
@@ -521,14 +523,14 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, eleMulti_, histname, histtitle, 6, -.5, 5.5);
     setMETitle(eleMulti_, "electron multiplicity", "events");
 
-    if (njets_ > 0) {
+    if (njets_ > 0 && enable2DPlots_) {
       histname = "elePt_jetPt";
       histtitle = "electron pt vs jet pt";
       bookME(ibooker, elePt_jetPt_, histname, histtitle, elePt_variable_binning_2D_, jetPt_variable_binning_2D_);
       setMETitle(elePt_jetPt_, "leading electron pt", "leading jet pt");
     }
 
-    if (nmuons_ > 0) {
+    if (nmuons_ > 0 && enable2DPlots_) {
       histname = "elePt_muPt";
       histtitle = "electron pt vs muon pt";
       bookME(ibooker, elePt_muPt_, histname, histtitle, elePt_variable_binning_2D_, muPt_variable_binning_2D_);
@@ -580,7 +582,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     setMETitle(bjetMulti_, "b-jet multiplicity", "events");
   }
 
-  if (nelectrons_ > 1) {
+  if (nelectrons_ > 1 && enable2DPlots_) {
     histname = "ele1Pt_ele2Pt";
     histtitle = "electron-1 pt vs electron-2 pt";
     bookME(ibooker, ele1Pt_ele2Pt_, histname, histtitle, elePt_variable_binning_2D_, elePt_variable_binning_2D_);
@@ -593,15 +595,17 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   }
 
   if (nmuons_ > 1) {
-    histname = "mu1Pt_mu2Pt";
-    histtitle = "muon-1 pt vs muon-2 pt";
-    bookME(ibooker, mu1Pt_mu2Pt_, histname, histtitle, muPt_variable_binning_2D_, muPt_variable_binning_2D_);
-    setMETitle(mu1Pt_mu2Pt_, "muon-1 pt [GeV]", "muon-2 pt [GeV]");
+    if (enable2DPlots_) {
+      histname = "mu1Pt_mu2Pt";
+      histtitle = "muon-1 pt vs muon-2 pt";
+      bookME(ibooker, mu1Pt_mu2Pt_, histname, histtitle, muPt_variable_binning_2D_, muPt_variable_binning_2D_);
+      setMETitle(mu1Pt_mu2Pt_, "muon-1 pt [GeV]", "muon-2 pt [GeV]");
 
-    histname = "mu1Eta_mu2Eta";
-    histtitle = "muon-1 #eta vs muon-2 #eta";
-    bookME(ibooker, mu1Eta_mu2Eta_, histname, histtitle, muEta_variable_binning_2D_, muEta_variable_binning_2D_);
-    setMETitle(mu1Eta_mu2Eta_, "muon-1 #eta", "muon-2 #eta");
+      histname = "mu1Eta_mu2Eta";
+      histtitle = "muon-1 #eta vs muon-2 #eta";
+      bookME(ibooker, mu1Eta_mu2Eta_, histname, histtitle, muEta_variable_binning_2D_, muEta_variable_binning_2D_);
+      setMETitle(mu1Eta_mu2Eta_, "muon-1 #eta", "muon-2 #eta");
+    }
     //george
     histname = "invMass";
     histtitle = "M mu1 mu2";
@@ -641,7 +645,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, eventHT_variableBinning_, histname, histtitle, HT_variable_binning_);
     setMETitle(eventHT_variableBinning_, "event HT [GeV]", "events");
 
-    if (nelectrons_ > 0) {
+    if (nelectrons_ > 0 && enable2DPlots_) {
       histname = "elePt_eventHT";
       histtitle = "electron pt vs event HT";
       bookME(ibooker, elePt_eventHT_, histname, histtitle, elePt_variable_binning_2D_, HT_variable_binning_2D_);
@@ -705,19 +709,21 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, muPhi_.at(iMu), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(muPhi_.at(iMu), " muon #phi", "events");
 
-    histname = "muPtEta_";
-    histtitle = "muon p_{T} - #eta - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, muPtEta_.at(iMu), histname, histtitle, muPt_variable_binning_2D_, muEta_variable_binning_2D_);
-    setMETitle(muPtEta_.at(iMu), "muon p_{T} [GeV]", "muon #eta");
+    if (enable2DPlots_) {
+      histname = "muPtEta_";
+      histtitle = "muon p_{T} - #eta - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, muPtEta_.at(iMu), histname, histtitle, muPt_variable_binning_2D_, muEta_variable_binning_2D_);
+      setMETitle(muPtEta_.at(iMu), "muon p_{T} [GeV]", "muon #eta");
 
-    histname = "muEtaPhi_";
-    histtitle = "muon #eta - #phi - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, muEtaPhi_.at(iMu), histname, histtitle, muEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(muEtaPhi_.at(iMu), "muon #eta", "muon #phi");
+      histname = "muEtaPhi_";
+      histtitle = "muon #eta - #phi - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, muEtaPhi_.at(iMu), histname, histtitle, muEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(muEtaPhi_.at(iMu), "muon #eta", "muon #phi");
+    }
   }
 
   for (unsigned int iEle = 0; iEle < nelectrons_; ++iEle) {
@@ -750,19 +756,21 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, elePhi_.at(iEle), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(elePhi_.at(iEle), " electron #phi", "events");
 
-    histname = "elePtEta_";
-    histtitle = "electron p_{T} - #eta - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, elePtEta_.at(iEle), histname, histtitle, elePt_variable_binning_2D_, eleEta_variable_binning_2D_);
-    setMETitle(elePtEta_.at(iEle), "electron p_{T} [GeV]", "electron #eta");
+    if (enable2DPlots_) {
+      histname = "elePtEta_";
+      histtitle = "electron p_{T} - #eta - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, elePtEta_.at(iEle), histname, histtitle, elePt_variable_binning_2D_, eleEta_variable_binning_2D_);
+      setMETitle(elePtEta_.at(iEle), "electron p_{T} [GeV]", "electron #eta");
 
-    histname = "eleEtaPhi_";
-    histtitle = "electron #eta - #phi - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, eleEtaPhi_.at(iEle), histname, histtitle, eleEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(eleEtaPhi_.at(iEle), "electron #eta", "electron #phi");
+      histname = "eleEtaPhi_";
+      histtitle = "electron #eta - #phi - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, eleEtaPhi_.at(iEle), histname, histtitle, eleEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(eleEtaPhi_.at(iEle), "electron #eta", "electron #phi");
+    }
   }
 
   //Menglei
@@ -837,19 +845,21 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, jetPhi_.at(iJet), histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(jetPhi_.at(iJet), "jet #phi", "events");
 
-    histname = "jetPtEta_";
-    histtitle = "jet p_{T} - #eta - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, jetPtEta_.at(iJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
-    setMETitle(jetPtEta_.at(iJet), "jet p_{T} [GeV]", "jet #eta");
+    if (enable2DPlots_) {
+      histname = "jetPtEta_";
+      histtitle = "jet p_{T} - #eta - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, jetPtEta_.at(iJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
+      setMETitle(jetPtEta_.at(iJet), "jet p_{T} [GeV]", "jet #eta");
 
-    histname = "jetEtaPhi_";
-    histtitle = "jet #eta - #phi - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, jetEtaPhi_.at(iJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(jetEtaPhi_.at(iJet), "jet #eta", "jet #phi");
+      histname = "jetEtaPhi_";
+      histtitle = "jet #eta - #phi - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(ibooker, jetEtaPhi_.at(iJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(jetEtaPhi_.at(iJet), "jet #eta", "jet #phi");
+    }
   }
 
   // Marina
@@ -890,19 +900,23 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, bjetCSV_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
     setMETitle(bjetCSV_.at(iBJet), "b-jet CSV", "events");
 
-    histname = "bjetPtEta_";
-    histtitle = "b-jet p_{T} - #eta - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, bjetPtEta_.at(iBJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
-    setMETitle(bjetPtEta_.at(iBJet), "b-jet p_{T} [GeV]", "b-jet #eta");
+    if (enable2DPlots_) {
+      histname = "bjetPtEta_";
+      histtitle = "b-jet p_{T} - #eta - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(
+          ibooker, bjetPtEta_.at(iBJet), histname, histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
+      setMETitle(bjetPtEta_.at(iBJet), "b-jet p_{T} [GeV]", "b-jet #eta");
 
-    histname = "bjetEtaPhi_";
-    histtitle = "b-jet #eta - #phi - ";
-    histname.append(index);
-    histtitle.append(index);
-    bookME(ibooker, bjetEtaPhi_.at(iBJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(bjetEtaPhi_.at(iBJet), "b-jet #eta", "b-jet #phi");
+      histname = "bjetEtaPhi_";
+      histtitle = "b-jet #eta - #phi - ";
+      histname.append(index);
+      histtitle.append(index);
+      bookME(
+          ibooker, bjetEtaPhi_.at(iBJet), histname, histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(bjetEtaPhi_.at(iBJet), "b-jet #eta", "b-jet #phi");
+    }
 
     histname = "bjetCSVHT_";
     histtitle = "HT - b-jet CSV - ";
@@ -1412,6 +1426,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("invMassCutInAllMuPairs", false);
   desc.add<bool>("enablePhotonPlot", false);
   desc.add<bool>("enableMETPlot", false);
+  desc.add<bool>("enable2DPlots", true);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
