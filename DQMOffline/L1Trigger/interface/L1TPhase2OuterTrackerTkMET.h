@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 // #include "DataFormats/L1TVertex/interface/Vertex.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 class DQMStore;
 class L1TPhase2OuterTrackerTkMET : public DQMEDAnalyzer {
@@ -39,7 +39,7 @@ public:
 private:
   edm::ParameterSet conf_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
-  edm::EDGetTokenT<l1t::TkPrimaryVertexCollection> pvToken;
+  edm::EDGetTokenT<l1t::VertexWordCollection> pvToken;
   edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > ttTrackToken_;
 
   float maxZ0;   // in cm

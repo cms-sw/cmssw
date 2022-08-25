@@ -14,6 +14,7 @@
 
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <string>
 #include <vector>
@@ -53,11 +54,11 @@ private:
   void fillHistos(DTLayerId slId, float distance, float residualOnDistance);
 
   DTSegmentSelector* select_;
-  double histRange_;
-  edm::InputTag segment4DLabel_;
-  std::string rootBaseDir_;
+  const double histRange_;
+  const edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
+  const std::string rootBaseDir_;
 
-  bool detailedAnalysis_;
+  const bool detailedAnalysis_;
   TFile* rootFile_;
   // Geometry
   const DTGeometry* dtGeom_;
