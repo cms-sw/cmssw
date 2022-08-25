@@ -28,7 +28,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(50)
 )
 
 process.source = cms.Source("EmptySource",
@@ -55,8 +55,8 @@ process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('hgcV16.root')
 )
 
-#process.hgcalHitScintillator.tileFileName = "scintillatorTiles.txt"
-#process.g4SimHits.HGCScintSD.TileFileName = "scintillatorTiles.txt"
+process.hgcalHitScintillator.tileFileName = "extraTiles.txt"
+process.g4SimHits.HGCScintSD.TileFileName = "extraTiles.txt"
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)

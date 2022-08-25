@@ -590,13 +590,14 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
   return isValidCell8(layer, modU, modV, cellU, cellV, type);
 }
 
-bool HGCalDDDConstants::isValidTrap(int layer, int irad, int iphi) const {
+bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);
   if (indx.first < 0)
     return false;
-  return ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= (hgpar_->iradMaxBH_[indx.first] + 1)) && (iphi > 0) &&
-          (iphi <= hgpar_->scintCells(layer)));
+  bool ok = ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= (hgpar_->iradMaxBH_[indx.first] + 1)) && (iphi > 0) &&
+             (iphi <= hgpar_->scintCells(layer)));
+  return ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
 }
 
 int HGCalDDDConstants::lastLayer(bool reco) const {
