@@ -50,6 +50,8 @@ namespace cms {
     explicit SiPixelCondObjReader(const edm::ParameterSet &iConfig);
 
     ~SiPixelCondObjReader() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
     void analyze(const edm::Event &, const edm::EventSetup &) override;
     void endJob() override;
 
@@ -262,6 +264,14 @@ namespace cms {
 
   // ------------ method called once each job just after ending the event loop  ------------
   void SiPixelCondObjReader::endJob() { edm::LogPrint("SiPixelCondObjReader") << " ---> End job " << std::endl; }
+
+  void SiPixelCondObjReader::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("EDAnalyzer to read per-module SiPixelGainCalibration payloads in the EventSetup");
+    desc.addUntracked<double>("maxRangeDeadPixHist", 0.001);
+    descriptions.addWithDefaultLabel(desc);
+  }
+
 }  // namespace cms
 using namespace cms;
 DEFINE_FWK_MODULE(SiPixelCondObjReader);
