@@ -35,7 +35,7 @@ step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Default
 # step1 gensim: for 2018 HI prod
 step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
 # step1 gensim: for 2021 HI prod
-step1Up2021HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Run3RoundOptics25ns13TeVLowSigmaZ','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2021HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic25ns13p6TeVEarly2022Collision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 
 steps = Steps()
 
@@ -3728,11 +3728,11 @@ defaultDataSets['2017']='CMSSW_12_0_0_pre4-113X_mc2017_realistic_v5-v'
 defaultDataSets['2017Design']='CMSSW_12_0_0_pre4-113X_mc2017_design_v5-v'
 defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
 defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
-defaultDataSets['2021']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_realistic_v2-v'
-defaultDataSets['2021Design']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_design_v2-v'
-defaultDataSets['2021FS']='CMSSW_12_4_0_pre4-124X_mcRun3_2021_realistic_v1_Run3FastSim_FastSim-v'
-defaultDataSets['2023']='CMSSW_12_0_0_pre4-120X_mcRun3_2023_realistic_v2-v'
-defaultDataSets['2024']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
+defaultDataSets['2021']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_realistic_v10_BS2022-v'
+defaultDataSets['2021Design']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_design_v7_design_BS2022-v'
+defaultDataSets['2021FS']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_realistic_v10_BS2022_FastSim-v'
+defaultDataSets['2023']='CMSSW_12_5_0_pre4-124X_mcRun3_2023_realistic_v11_BS2022-v'
+defaultDataSets['2024']='CMSSW_12_5_0_pre4-124X_mcRun3_2024_realistic_v11_BS2022-v'
 defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
 defaultDataSets['2026D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
 defaultDataSets['2026D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'
