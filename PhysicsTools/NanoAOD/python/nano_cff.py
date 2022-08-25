@@ -123,7 +123,7 @@ nanoSequenceOnlyData = cms.Sequence(protonTables + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
-( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(nanoSequence, nanoSequence.copyAndExclude([nanoSequenceOnlyData]))
+(run2_nanoAOD_106X2015|(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel)).toReplaceWith(nanoSequence, nanoSequence.copyAndExclude([nanoSequenceOnlyData]))
 
 nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + lowPtElectronMC + photonMC + tauMC + boostedTauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
