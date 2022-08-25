@@ -17,7 +17,6 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
@@ -35,7 +34,7 @@ using namespace std;
 using namespace edm;
 
 DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset)
-    : theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
+    : theRecHits4DToken_(consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"))),
       doTTrigCorrection_(pset.getUntrackedParameter<bool>("doT0SegCorrection", false)),
       theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
       ttrigToken_(
@@ -84,8 +83,7 @@ void DTTTrigOffsetCalibration::analyze(const Event& event, const EventSetup& eve
   dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Get the rechit collection from the event
-  Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel_, all4DSegments);
+  const Handle<DTRecSegment4DCollection>& all4DSegments = event.getHandle(theRecHits4DToken_);
 
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;

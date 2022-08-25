@@ -7,12 +7,12 @@
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 
 #include "TH1I.h"
@@ -28,10 +28,10 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomTo
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
-    cout << "[DTT0CalibrationRMS]Constructor called!" << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS]Constructor called!";
 
-  // Get the label to retrieve digis from the event
-  digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+  // Get the token to retrieve digis from the event
+  digiToken = consumes<DTDigiCollection>(pset.getUntrackedParameter<string>("digiLabel"));
 
   // The root file which contain the histos per layer
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTT0PerLayer.root");
@@ -44,7 +44,7 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomTo
     int selWheel;
     linestr << theCalibWheel;
     linestr >> selWheel;
-    cout << "[DTT0CalibrationRMSPerLayer] chosen wheel " << selWheel << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMSPerLayer] chosen wheel " << selWheel;
   }
 
   // Sector/s to calibrate
@@ -55,7 +55,7 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomTo
     int selSector;
     linestr << theCalibSector;
     linestr >> selSector;
-    cout << "[DTT0CalibrationRMSPerLayer] chosen sector " << selSector << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMSPerLayer] chosen sector " << selSector;
   }
 
   vector<string> defaultCell;
@@ -85,7 +85,7 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomTo
 // Destructor
 DTT0CalibrationRMS::~DTT0CalibrationRMS() {
   if (debug)
-    cout << "[DTT0CalibrationRMS]Destructor called!" << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS]Destructor called!";
 
   theFile->Close();
 }
@@ -93,13 +93,12 @@ DTT0CalibrationRMS::~DTT0CalibrationRMS() {
 /// Perform the real analysis
 void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   if (debug || event.id().event() % 500 == 0)
-    cout << "--- [DTT0CalibrationRMS] Analysing Event: #Run: " << event.id().run() << " #Event: " << event.id().event()
-         << endl;
+    edm::LogVerbatim("DTCalibration") << "--- [DTT0CalibrationRMS] Analysing Event: #Run: " << event.id().run()
+                                      << " #Event: " << event.id().event();
   nevents++;
 
   // Get the digis from the event
-  Handle<DTDigiCollection> digis;
-  event.getByLabel(digiLabel, digis);
+  const Handle<DTDigiCollection>& digis = event.getHandle(digiToken);
 
   // Get the DT Geometry
   dtGeom = eventSetup.getHandle(dtGeomToken_);
@@ -118,10 +117,6 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
     if ((theCalibSector != "All") && (layerId.superlayerId().chamberId().sector() != selSector))
       continue;
 
-    //if(debug) {
-    //  cout << "Layer " << layerId<<" with "<<distance(digiRange.first, digiRange.second)<<" digi"<<endl;
-    //}
-
     // Loop over all digis in the given layer
     for (DTDigiCollection::const_iterator digi = digiRange.first; digi != digiRange.second; ++digi) {
       double t0 = (*digi).countsTDC();
@@ -139,15 +134,13 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
                                    t0 - 100,
                                    t0 + 100);
           if (debug)
-            cout << "  New T0 per Layer Histo: " << hT0LayerHisto->GetName() << endl;
+            edm::LogVerbatim("DTCalibration") << "  New T0 per Layer Histo: " << hT0LayerHisto->GetName();
           theHistoLayerMap[layerId] = hT0LayerHisto;
         }
 
         //Fill the histos
         theFile->cd();
         if (hT0LayerHisto != nullptr) {
-          //  if(debug)
-          // cout<<"Filling histo "<<hT0LayerHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
           hT0LayerHisto->Fill(t0);
         }
       }
@@ -157,7 +150,8 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
         // Get the wireId
         const DTWireId wireId(layerId, (*digi).wire());
         if (debug) {
-          cout << "   Wire: " << wireId << endl << "       time (TDC counts): " << (*digi).countsTDC() << endl;
+          edm::LogVerbatim("DTCalibration")
+              << "   Wire: " << wireId << "\n       time (TDC counts): " << (*digi).countsTDC();
         }
 
         //Fill the histos per wire for the chosen cells
@@ -170,7 +164,7 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
                                                0,
                                                7000);
             if (debug)
-              cout << "  New T0 per wire Histo: " << (theHistoWireMap[wireId])->GetName() << endl;
+              edm::LogVerbatim("DTCalibration") << "  New T0 per wire Histo: " << (theHistoWireMap[wireId])->GetName();
           }
           if (theHistoWireMap_ref.find(wireId) == theHistoWireMap_ref.end()) {
             theHistoWireMap_ref[wireId] = new TH1I((getHistoName(wireId) + "_ref").c_str(),
@@ -179,7 +173,8 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
                                                    0,
                                                    7000);
             if (debug)
-              cout << "  New T0 per wire Histo: " << (theHistoWireMap_ref[wireId])->GetName() << endl;
+              edm::LogVerbatim("DTCalibration")
+                  << "  New T0 per wire Histo: " << (theHistoWireMap_ref[wireId])->GetName();
           }
 
           TH1I* hT0WireHisto = theHistoWireMap[wireId];
@@ -192,8 +187,8 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
         //Check the tzero has reasonable value
         if (abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > rejectDigiFromPeak) {
           if (debug)
-            cout << "digi skipped because t0 per sector "
-                 << hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) << endl;
+            edm::LogVerbatim("DTCalibration") << "digi skipped because t0 per sector "
+                                              << hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin());
           continue;
         }
 
@@ -237,8 +232,8 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
     for (map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin(); lHisto != theHistoLayerMap.end();
          ++lHisto) {
       if (debug)
-        cout << "Reading histogram " << (*lHisto).second->GetName() << " with mean " << (*lHisto).second->GetMean()
-             << " and RMS " << (*lHisto).second->GetRMS();
+        edm::LogVerbatim("DTCalibration") << "Reading histogram " << (*lHisto).second->GetName() << " with mean "
+                                          << (*lHisto).second->GetMean() << " and RMS " << (*lHisto).second->GetRMS();
 
       //Take the mean as a first t0 estimation
       if ((*lHisto).second->GetRMS() < 5.0) {
@@ -251,7 +246,7 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
                                     7000);
         }
         if (debug)
-          cout << " accepted" << endl;
+          edm::LogVerbatim("DTCalibration") << " accepted";
         hT0SectorHisto->Fill((*lHisto).second->GetMean());
       }
       //Take the mean of noise + 400ns as a first t0 estimation
@@ -263,24 +258,24 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
       // 				    700, 0, 7000);
       // 	}
       // 	if(debug)
-      // 	  cout<<" accepted + 400ns"<<endl;
+      // 	  edm::LogVerbatim("DTCalibration")<<" accepted + 400ns";
       // 	hT0SectorHisto->Fill((*lHisto).second->GetMean() + 400);
       //       }
-      if (debug)
-        cout << endl;
+      //if (debug)
+      //  edm::LogVerbatim("DTCalibration");
 
       theT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetMean();
       theSigmaT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetRMS();
     }
     if (!hT0SectorHisto) {
-      cout << "[DTT0CalibrationRMS]: All the t0 per layer are still uncorrect: trying with greater number of events"
-           << endl;
+      edm::LogVerbatim("DTCalibration")
+          << "[DTT0CalibrationRMS]: All the t0 per layer are still uncorrect: trying with greater number of events";
       eventsForLayerT0 = eventsForLayerT0 * 2;
       return;
     }
     if (debug)
-      cout << "[DTT0CalibrationRMS] t0 reference for this sector "
-           << hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) << endl;
+      edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] t0 reference for this sector "
+                                        << hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin());
   }
 }
 
@@ -290,7 +285,7 @@ void DTT0CalibrationRMS::endJob() {
   DTT0* t0sWRTChamber = new DTT0();
 
   //if(debug)
-  cout << "[DTT0CalibrationRMSPerLayer]Writing histos to file!" << endl;
+  edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMSPerLayer]Writing histos to file!";
 
   theFile->cd();
   theFile->WriteTObject(hT0SectorHisto);
@@ -309,7 +304,7 @@ void DTT0CalibrationRMS::endJob() {
   }
 
   //if(debug)
-  cout << "[DTT0CalibrationRMS] Compute and store t0 and sigma per wire" << endl;
+  edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Compute and store t0 and sigma per wire";
 
   for (map<DTWireId, double>::const_iterator wiret0 = theAbsoluteT0PerWire.begin();
        wiret0 != theAbsoluteT0PerWire.end();
@@ -322,13 +317,13 @@ void DTT0CalibrationRMS::endJob() {
       //theSigmaT0PerWire[(*wiret0).first] = sqrt((theSigmaT0PerWire[(*wiret0).first] / nDigiPerWire[(*wiret0).first]) - t0*t0);
       theSigmaT0PerWire[(*wiret0).first] = sqrt(qK[(*wiret0).first] / nDigiPerWire[(*wiret0).first]);
 
-      cout << "Wire " << (*wiret0).first << " has t0 " << t0 << "(absolute) " << theRelativeT0PerWire[(*wiret0).first]
-           << "(relative)"
-           << "    sigma " << theSigmaT0PerWire[(*wiret0).first] << endl;
+      edm::LogVerbatim("DTCalibration") << "Wire " << (*wiret0).first << " has t0 " << t0 << "(absolute) "
+                                        << theRelativeT0PerWire[(*wiret0).first] << "(relative)"
+                                        << "    sigma " << theSigmaT0PerWire[(*wiret0).first];
 
       t0sAbsolute->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first], DTTimeUnits::counts);
     } else {
-      cout << "[DTT0CalibrationRMS] ERROR: no digis in wire " << (*wiret0).first << endl;
+      edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] ERROR: no digis in wire " << (*wiret0).first;
       abort();
     }
   }
@@ -349,8 +344,8 @@ void DTT0CalibrationRMS::endJob() {
            ++wiret0) {
         if ((*wiret0).first.layerId().superlayerId() == (*sl)->id()) {
           if (debug)
-            cout << "[DTT0CalibrationRMS] Superlayer " << (*sl)->id() << "layer " << (*wiret0).first.layerId().layer()
-                 << " with " << (*wiret0).second << endl;
+            edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Superlayer " << (*sl)->id() << "layer "
+                                              << (*wiret0).first.layerId().layer() << " with " << (*wiret0).second;
           if (((*wiret0).first.layerId().layer()) % 2) {
             oddLayersMean = oddLayersMean + (*wiret0).second;
             oddLayersDen++;
@@ -363,8 +358,8 @@ void DTT0CalibrationRMS::endJob() {
       oddLayersMean = oddLayersMean / oddLayersDen;
       evenLayersMean = evenLayersMean / evenLayersDen;
       //if(debug && oddLayersMean)
-      cout << "[DTT0CalibrationRMS] Relative T0 mean for  odd layers " << oddLayersMean << "  even layers"
-           << evenLayersMean << endl;
+      edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Relative T0 mean for  odd layers " << oddLayersMean
+                                        << "  even layers" << evenLayersMean;
 
       //Compute sigma for odd and even superlayers
       double oddLayersSigma = 0;
@@ -387,8 +382,8 @@ void DTT0CalibrationRMS::endJob() {
       evenLayersSigma = sqrt(evenLayersSigma);
 
       //if(debug && oddLayersMean)
-      cout << "[DTT0CalibrationRMS] Relative T0 sigma for  odd layers " << oddLayersSigma << "  even layers"
-           << evenLayersSigma << endl;
+      edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Relative T0 sigma for  odd layers " << oddLayersSigma
+                                        << "  even layers" << evenLayersSigma;
 
       //Recompute the mean for odd and even superlayers discarding fluctations
       double oddLayersFinalMean = 0;
@@ -409,8 +404,8 @@ void DTT0CalibrationRMS::endJob() {
       oddLayersFinalMean = oddLayersFinalMean / oddLayersDen;
       evenLayersFinalMean = evenLayersFinalMean / evenLayersDen;
       //if(debug && oddLayersMean)
-      cout << "[DTT0CalibrationRMS] Final relative T0 mean for  odd layers " << oddLayersFinalMean << "  even layers"
-           << evenLayersFinalMean << endl;
+      edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Final relative T0 mean for  odd layers "
+                                        << oddLayersFinalMean << "  even layers" << evenLayersFinalMean;
 
       for (map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
            wiret0 != theRelativeT0PerWire.end();
@@ -422,9 +417,9 @@ void DTT0CalibrationRMS::endJob() {
           else
             t0 = (*wiret0).second;
 
-          cout << "[DTT0CalibrationRMS] Wire " << (*wiret0).first << " has t0 " << (*wiret0).second
-               << " (relative, after even-odd layer corrections)  "
-               << "    sigma " << theSigmaT0PerWire[(*wiret0).first] << endl;
+          edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS] Wire " << (*wiret0).first << " has t0 "
+                                            << (*wiret0).second << " (relative, after even-odd layer corrections)  "
+                                            << "    sigma " << theSigmaT0PerWire[(*wiret0).first];
 
           //Store the results into DB
           t0sRelative->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first], DTTimeUnits::counts);
@@ -433,8 +428,7 @@ void DTT0CalibrationRMS::endJob() {
     }
 
     ///Change t0 absolute reference -> from sector peak to chamber average
-    //if(debug)
-    cout << "[DTT0CalibrationRMS]Computing relative t0 wrt to chamber average" << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS]Computing relative t0 wrt to chamber average";
     //Compute the reference for each chamber
     map<DTChamberId, double> sumT0ByChamber;
     map<DTChamberId, int> countT0ByChamber;
@@ -471,15 +465,13 @@ void DTT0CalibrationRMS::endJob() {
       double t0rms = t0rms_f;
       // @@@ NEW DTT0 END
       t0sWRTChamber->set(wireId, t0mean, t0rms, DTTimeUnits::counts);
-      //if(debug)
-      //cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-      cout << "Changing t0 of wire " << wireId << " from " << t0mean_f << " to " << t0mean << endl;
+      edm::LogVerbatim("DTCalibration") << "Changing t0 of wire " << wireId << " from " << t0mean_f << " to " << t0mean;
     }
   }
 
   ///Write the t0 map into DB
   if (debug)
-    cout << "[DTT0CalibrationRMS]Writing values in DB!" << endl;
+    edm::LogVerbatim("DTCalibration") << "[DTT0CalibrationRMS]Writing values in DB!";
   // FIXME: to be read from cfg?
   string t0Record = "DTT0Rcd";
   // Write the t0 map to DB
