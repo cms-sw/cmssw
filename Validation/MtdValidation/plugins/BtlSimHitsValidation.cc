@@ -39,13 +39,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
+#include "MTDHit.h"
 
 class BtlSimHitsValidation : public DQMEDAnalyzer {
 public:
