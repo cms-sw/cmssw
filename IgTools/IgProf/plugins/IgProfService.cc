@@ -66,7 +66,13 @@ IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
   atPostModuleEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostModuleEvent", atPostModuleEvent_);
 
   atPostEndLumi_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndLumi", atPostEndLumi_);
+  atPreEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndRun", atPreEndRun_);
   atPostEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndRun", atPostEndRun_);
+  atPreEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPreEndProcessBlock", atPreEndProcessBlock_);
+  atPostEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPostEndProcessBlock", atPostEndProcessBlock_);
+  atPreEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndJob", atPreEndJob_);
   atPostEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndJob", atPostEndJob_);
 
   atPostOpenFile_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostOpenFile", atPostOpenFile_);
@@ -86,7 +92,11 @@ IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
   }
 
   iRegistry.watchPostGlobalEndLumi(this, &IgProfService::postEndLumi);
+  iRegistry.watchPreGlobalEndRun(this, &IgProfService::preEndRun);
   iRegistry.watchPostGlobalEndRun(this, &IgProfService::postEndRun);
+  iRegistry.watchPreEndProcessBlock(this, &IgProfService::preEndProcessBlock);
+  iRegistry.watchPostEndProcessBlock(this, &IgProfService::postEndProcessBlock);
+  iRegistry.watchPreEndJob(this, &IgProfService::preEndJob);
   iRegistry.watchPostEndJob(this, &IgProfService::postEndJob);
 
   iRegistry.watchPostOpenFile(this, &IgProfService::postOpenFile);
@@ -147,10 +157,21 @@ void IgProfService::postEndLumi(GlobalContext const &gc) {
   makeDump(atPostEndLumi_);
 }
 
+void IgProfService::preEndRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPreEndRun_);
+}
+
 void IgProfService::postEndRun(GlobalContext const &gc) {
   nrun_ = gc.luminosityBlockID().run();
   makeDump(atPostEndRun_);
 }
+
+void IgProfService::preEndProcessBlock(GlobalContext const &gc) { makeDump(atPreEndProcessBlock_); }
+
+void IgProfService::postEndProcessBlock(GlobalContext const &gc) { makeDump(atPostEndProcessBlock_); }
+
+void IgProfService::preEndJob() { makeDump(atPreEndJob_); }
 
 void IgProfService::postEndJob() { makeDump(atPostEndJob_); }
 

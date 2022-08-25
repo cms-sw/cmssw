@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <cassert>
 #include <sstream>
@@ -367,4 +368,14 @@ unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& 
                                                               const std::string& trigger) {
   const int set(prescaleSet(iEvent, iSetup));
   return set < 0 ? 1 : hltConfigProvider_.prescaleValue<unsigned int>(static_cast<unsigned int>(set), trigger);
+}
+
+void HLTPrescaleProvider::fillPSetDescription(edm::ParameterSetDescription& desc,
+                                              unsigned int stageL1Trigger,
+                                              edm::InputTag const& l1tAlgBlkInputTag,
+                                              edm::InputTag const& l1tExtBlkInputTag,
+                                              bool readPrescalesFromFile) {
+  desc.add<unsigned int>("stageL1Trigger", stageL1Trigger);
+  L1GtUtils::fillDescription(desc);
+  l1t::L1TGlobalUtil::fillDescription(desc, l1tAlgBlkInputTag, l1tExtBlkInputTag, readPrescalesFromFile);
 }

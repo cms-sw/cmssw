@@ -20,19 +20,18 @@ process.source = cms.Source("PoolSource",
 #
 
 process.load("Configuration.EventContent.EventContent_cff")
-process.load('Configuration/StandardSequences/Geometry_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.load('Configuration/StandardSequences/Reconstruction_cff')
-process.load('Configuration/EventContent/EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 
 
 process.AOD1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('btag001.root')
 )
 
-process.GlobalTag.globaltag = 'POSTLS162_V1::All'
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.unpackTV = cms.EDProducer('PATTrackAndVertexUnpacker',
  slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
  additionalTracks= cms.InputTag("lostTracks"),

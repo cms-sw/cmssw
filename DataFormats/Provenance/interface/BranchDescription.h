@@ -158,9 +158,11 @@ namespace edm {
       BranchID switchAliasForBranchID_;
 
       // A TypeWithDict object for the wrapped object
+      // This is set if and only if the dropped_ is false
       TypeWithDict wrappedType_;
 
       // A TypeWithDict object for the unwrapped object
+      // This is set if and only if the dropped_ is false
       TypeWithDict unwrappedType_;
 
       // The split level of the branch, as marked

@@ -51,7 +51,7 @@ if unitTest:
 
   # Set the process source
   process.source = cms.Source("DQMStreamerReader",
-      runNumber = cms.untracked.uint32(346373),
+      runNumber = cms.untracked.uint32(356383),
       runInputDir = cms.untracked.string(dqm_integration_data),
       SelectEvents = cms.untracked.vstring('*'),
       streamLabel = cms.untracked.string('streamDQMOnlineBeamspot'),
@@ -150,9 +150,6 @@ process.tcdsDigis = tcdsRawToDigi.clone()
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
-elif unitTest:
-    # This is needed until we update the streamer files used for the unitTest
-    rawDataInputTag = "rawDataCollector"
 else:
     # Use raw data from selected TCDS FEDs (1024, 1025)
     rawDataInputTag = "hltFEDSelectorTCDS"

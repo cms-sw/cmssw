@@ -15,7 +15,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,7 +40,7 @@
 // class declaration
 //
 
-class L1ElectronRecoTreeProducer : public edm::EDAnalyzer {
+class L1ElectronRecoTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1ElectronRecoTreeProducer(const edm::ParameterSet&);
   ~L1ElectronRecoTreeProducer() override;
@@ -99,6 +99,7 @@ L1ElectronRecoTreeProducer::L1ElectronRecoTreeProducer(const edm::ParameterSet& 
   electron = new L1Analysis::L1AnalysisRecoElectron();
   electron_data = electron->getData();
 
+  usesResource(TFileService::kSharedResource);
   tree_ = fs_->make<TTree>("ElectronRecoTree", "ElectronRecoTree");
   tree_->Branch("Electron", "L1Analysis::L1AnalysisRecoElectronDataFormat", &electron_data, 32000, 3);
 }

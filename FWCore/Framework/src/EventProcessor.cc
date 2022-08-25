@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -121,7 +122,8 @@ namespace edm {
   namespace chain = waiting_task::chain;
 
   // ---------------------------------------------------------------
-  std::unique_ptr<InputSource> makeInput(ParameterSet& params,
+  std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
+                                         ParameterSet& params,
                                          CommonParams const& common,
                                          std::shared_ptr<ProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
@@ -165,7 +167,7 @@ namespace edm {
                          main_input->getParameter<std::string>("@module_type"),
                          "source",
                          processConfiguration.get(),
-                         ModuleDescription::getUniqueID());
+                         moduleIndex);
 
     InputSourceDescription isdesc(md,
                                   preg,
@@ -489,20 +491,52 @@ namespace edm {
 
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-      // initialize the input source
-      input_ = makeInput(*parameterSet,
-                         *common,
-                         items.preg(),
-                         items.branchIDListHelper(),
-                         get_underlying_safe(processBlockHelper_),
-                         items.thinnedAssociationsHelper(),
-                         items.actReg_,
-                         items.processConfiguration(),
-                         preallocations_);
+      {
+        std::optional<ScheduleItems::MadeModules> madeModules;
 
-      // initialize the Schedule
-      schedule_ =
-          items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
+        //setup input and modules concurrently
+        tbb::task_group group;
+
+        // initialize the input source
+        auto tempReg = std::make_shared<ProductRegistry>();
+        auto sourceID = ModuleDescription::getUniqueID();
+
+        group.run([&, this]() {
+          // initialize the Schedule
+          ServiceRegistry::Operate operate(serviceToken_);
+          auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+          madeModules = items.initModules(*parameterSet, tns, preallocations_, &processContext_);
+        });
+
+        group.run([&, this, tempReg]() {
+          ServiceRegistry::Operate operate(serviceToken_);
+          input_ = makeInput(sourceID,
+                             *parameterSet,
+                             *common,
+                             /*items.preg(),*/ tempReg,
+                             items.branchIDListHelper(),
+                             get_underlying_safe(processBlockHelper_),
+                             items.thinnedAssociationsHelper(),
+                             items.actReg_,
+                             items.processConfiguration(),
+                             preallocations_);
+        });
+
+        group.wait();
+        items.preg()->addFromInput(*tempReg);
+        input_->switchTo(items.preg());
+
+        {
+          auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+          schedule_ = items.finishSchedule(std::move(*madeModules),
+                                           *parameterSet,
+                                           tns,
+                                           hasSubProcesses,
+                                           preallocations_,
+                                           &processContext_,
+                                           *processBlockHelper_);
+        }
+      }
 
       // set the data members
       act_table_ = std::move(items.act_table_);

@@ -43,6 +43,9 @@ namespace {
 }  // namespace
 
 void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool iFromListener) {
+  // Call only for present branches (part of avoiding adding type information for dropped branches)
+  if (iProd.dropped())
+    return;
   StackGuard guard(iProd.className(), typeAddedStack_, iFromListener);
   if (guard.numType_ > 2) {
     throw cms::Exception("CircularReference")

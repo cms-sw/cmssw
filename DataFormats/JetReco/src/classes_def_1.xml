@@ -47,7 +47,8 @@
    <version ClassVersion="11" checksum="2945806860"/>
    <version ClassVersion="10" checksum="456342263"/>
   </class>
-  <class name="reco::JPTJet::Specific" ClassVersion="10">
+  <class name="reco::JPTJet::Specific" ClassVersion="11">
+   <version ClassVersion="11" checksum="3661452230"/>
    <version ClassVersion="10" checksum="3095396018"/>
   </class>
   <class name="std::vector<reco::JPTJet>"/>

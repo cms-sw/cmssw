@@ -9,10 +9,13 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 ##################### User floats producers, selectors ##########################
 
+# Original DeepTau v2p5 in 12_4_X doesn't include WPs in MINIAOD
+# Import thresholds here to define WPs manually from raw scores
+from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
-    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
+    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))")
 )
 
 for era in [run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
@@ -30,23 +33,22 @@ run2_miniAOD_80XLegacy.toModify(finalTaus,
     )
 
 ##################### Tables for final output and docs ##########################
-def _tauIdWPMask(pattern, choices, doc=""):
-    return Var(" + ".join(["%d * tauID('%s')" % (pow(2,i), pattern % c) for (i,c) in enumerate(choices)]), "uint8", 
-               doc=doc+": bitmask "+", ".join(["%d = %s" % (pow(2,i),c) for (i,c) in enumerate(choices)]))
-def _tauId2WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("Loose","Tight"),doc=doc)
-def _tauId3WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("Loose","Medium","Tight"),doc=doc)
-def _tauId4WPMask(pattern,doc):
-    return _tauIdWPMask(pattern, choices=("VLoose", "Loose", "Medium", "Tight"), doc=doc)
-def _tauId5WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight"),doc=doc)
-def _tauId6WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
-def _tauId7WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
-def _tauId8WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
+def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
+    if from_raw:
+        assert wp_thrs is not None, "wp_thrs argument in _tauIdWPMask() is None, expect it to be dict-like"
+        
+        var_definition = []
+        for wp_name in choices:
+            if not isinstance(wp_thrs[wp_name], float):
+                raise TypeError("Threshold for WP=%s is not a float number." % wp_name)
+            wp_definition = "test_bit(tauID('{}')-{}+1,0)".format(pattern, wp_thrs[wp_name])
+            var_definition.append(wp_definition)
+        var_definition = " + ".join(var_definition)
+    else:
+        var_definition = " + ".join(["tauID('%s')" % (pattern % c) for c in choices])
+    
+    doc = doc + ": "+", ".join(["%d = %s" % (i,c) for (i,c) in enumerate(choices, start=1)])
+    return Var(var_definition, "uint8", doc=doc)
 
 tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","taus"),
@@ -78,7 +80,7 @@ _tauVarsBase = cms.PSet(P4Vars,
        puCorr = Var( "tauID('puCorrPtSum')", float, doc = "pileup correction", precision=10),
        photonsOutsideSignalCone = Var( "tauID('photonPtSumOutsideSignalCone')", float, doc = "sum of photons outside signal cone", precision=10),
 
-       idAntiMu = _tauId2WPMask("againstMuon%s3", doc= "Anti-muon discriminator V3: "),
+       idAntiMu = _tauIdWPMask("againstMuon%s3", choices=("Loose","Tight"), doc= "Anti-muon discriminator V3: "),
        idAntiEleDeadECal = Var("tauID('againstElectronDeadECAL')", bool, doc = "Anti-electron dead-ECal discriminator"),
 
 #   isoCI3hit = Var(  "tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")" doc="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
@@ -90,43 +92,70 @@ _mvaIsoVars2015 = cms.PSet(
     rawMVAnewDM = Var( "tauID('byIsolationMVArun2v1DBnewDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10),
     rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10),
     rawMVAoldDMdR03 = Var( "tauID('byIsolationMVArun2v1DBdR03oldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10),
-    idMVAnewDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBnewDMwLT", doc="IsolationMVArun2v1DBnewDMwLT ID working point (2015)"),
-    idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)"),
-    idMVAoldDMdR03 = _tauId6WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2015)")
+    idMVAnewDM = _tauIdWPMask( "by%sIsolationMVArun2v1DBnewDMwLT", choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2v1DBnewDMwLT ID working point (2015)"),
+    idMVAoldDM = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT", choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)"),
+    idMVAoldDMdR03 = _tauIdWPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT", choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2015)")
 )
 _mvaIsoVars2015Reduced = cms.PSet(
     rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw2015')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10),
-    idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2015", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)"),
+    idMVAoldDM = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT2015", choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)"),
 )
 _mvaIsoVars2017v1 = cms.PSet(
     rawMVAoldDM2017v1 = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2017v1)",precision=10),
-    idMVAoldDM2017v1 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
+    idMVAoldDM2017v1 = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
 )
 _mvaIsoVars2017v2 = cms.PSet(
     rawMVAnewDM2017v2 = Var( "tauID('byIsolationMVArun2v1DBnewDMwLTraw2017v2')",float, doc="byIsolationMVArun2v1DBnewDMwLT raw output discriminator (2017v2)",precision=10),
     rawMVAoldDM2017v2 = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw2017v2')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2017v2)",precision=10),
     rawMVAoldDMdR032017v2 = Var( "tauID('byIsolationMVArun2v1DBdR03oldDMwLTraw2017v2')",float, doc="byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator (2017v2)",precision=10),
-    idMVAnewDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBnewDMwLT2017v2", doc="IsolationMVArun2v1DBnewDMwLT ID working point (2017v2)"),
-    idMVAoldDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
-    idMVAoldDMdR032017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
+    idMVAnewDM2017v2 = _tauIdWPMask( "by%sIsolationMVArun2v1DBnewDMwLT2017v2", 
+                                        choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                        doc="IsolationMVArun2v1DBnewDMwLT ID working point (2017v2)"),
+    idMVAoldDM2017v2 = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", 
+                                        choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                        doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
+    idMVAoldDMdR032017v2 = _tauIdWPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", 
+                                            choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                            doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
 )
 _mvaAntiEVars2015 = cms.PSet(
        rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
        rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
-       idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)"),
+       idAntiEle = _tauIdWPMask("againstElectron%sMVA6", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2015)"),
 )
 _deepTauVars2017v2p1 = cms.PSet(
     rawDeepTau2017v2p1VSe = Var("tauID('byDeepTau2017v2p1VSeraw')", float, doc="byDeepTau2017v2p1VSe raw output discriminator (deepTau2017v2p1)", precision=10),
     rawDeepTau2017v2p1VSmu = Var("tauID('byDeepTau2017v2p1VSmuraw')", float, doc="byDeepTau2017v2p1VSmu raw output discriminator (deepTau2017v2p1)", precision=10),
     rawDeepTau2017v2p1VSjet = Var("tauID('byDeepTau2017v2p1VSjetraw')", float, doc="byDeepTau2017v2p1VSjet raw output discriminator (deepTau2017v2p1)", precision=10),
-    idDeepTau2017v2p1VSe = _tauId8WPMask("by%sDeepTau2017v2p1VSe", doc="byDeepTau2017v2p1VSe ID working points (deepTau2017v2p1)"),
-    idDeepTau2017v2p1VSmu = _tauId4WPMask("by%sDeepTau2017v2p1VSmu", doc="byDeepTau2017v2p1VSmu ID working points (deepTau2017v2p1)"),
-    idDeepTau2017v2p1VSjet = _tauId8WPMask("by%sDeepTau2017v2p1VSjet", doc="byDeepTau2017v2p1VSjet ID working points (deepTau2017v2p1)"),
+    idDeepTau2017v2p1VSe = _tauIdWPMask("by%sDeepTau2017v2p1VSe", 
+                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                            doc="byDeepTau2017v2p1VSe ID working points (deepTau2017v2p1)"),
+    idDeepTau2017v2p1VSmu = _tauIdWPMask("by%sDeepTau2017v2p1VSmu", 
+                                            choices=("VLoose", "Loose", "Medium", "Tight"),
+                                            doc="byDeepTau2017v2p1VSmu ID working points (deepTau2017v2p1)"),
+    idDeepTau2017v2p1VSjet = _tauIdWPMask("by%sDeepTau2017v2p1VSjet", 
+                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                            doc="byDeepTau2017v2p1VSjet ID working points (deepTau2017v2p1)"),
+)
+_deepTauVars2018v2p5 = cms.PSet(
+    rawDeepTau2018v2p5VSe = Var("tauID('byDeepTau2018v2p5VSeraw')", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
+    rawDeepTau2018v2p5VSmu = Var("tauID('byDeepTau2018v2p5VSmuraw')", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
+    rawDeepTau2018v2p5VSjet = Var("tauID('byDeepTau2018v2p5VSjetraw')", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10),
+    idDeepTau2018v2p5VSe = _tauIdWPMask("by%sDeepTau2018v2p5VSe", 
+                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                            doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)"),
+    idDeepTau2018v2p5VSmu = _tauIdWPMask("by%sDeepTau2018v2p5VSmu", 
+                                            choices=("VLoose", "Loose", "Medium", "Tight"),
+                                            doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)"),
+    idDeepTau2018v2p5VSjet = _tauIdWPMask("by%sDeepTau2018v2p5VSjet", 
+                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                            doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)"),
 )
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
-    _deepTauVars2017v2p1
+    _deepTauVars2017v2p1,
+    _deepTauVars2018v2p5
 )
 _variablesMiniV1 = cms.PSet(
     _variablesMiniV2,
@@ -134,8 +163,12 @@ _variablesMiniV1 = cms.PSet(
 )
 _variablesMiniV1.rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10)
 _variablesMiniV1.rawMVAoldDM2017v1 = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw2017v1')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2017v1)",precision=10)
-_variablesMiniV1.idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)")
-_variablesMiniV1.idMVAoldDM2017v1 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v1", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
+_variablesMiniV1.idMVAoldDM = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT", 
+                                                choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                                doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)")
+_variablesMiniV1.idMVAoldDM2017v1 = _tauIdWPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v1", 
+                                                    choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
+                                                    doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
 _variables80X =  cms.PSet(
     _tauVarsBase,
     _mvaAntiEVars2015,
@@ -159,10 +192,10 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
     era.toModify(tauTable.variables,
                  rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
                  rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
-                 idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
+                 idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA62018", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)"),
                  rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
                  rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
-                 idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)")
+                 idAntiEle = _tauIdWPMask("againstElectron%sMVA6", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2015)")
     )
 
 for era in [run2_miniAOD_80XLegacy, run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
@@ -178,6 +211,16 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
             run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(tauTable.variables,
                  idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
+    )
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1| run2_nanoAOD_94XMiniAODv2 | \
+ run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1
+).toModify(tauTable.variables,
+           rawDeepTau2018v2p5VSe = None,
+           rawDeepTau2018v2p5VSmu = None,
+           rawDeepTau2018v2p5VSjet = None,
+           idDeepTau2018v2p5VSe = None,
+           idDeepTau2018v2p5VSmu = None,
+           idDeepTau2018v2p5VSjet = None
     )
 
 tauGenJetsForNano = tauGenJets.clone(

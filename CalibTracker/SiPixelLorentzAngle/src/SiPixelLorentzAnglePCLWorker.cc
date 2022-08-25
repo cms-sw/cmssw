@@ -309,8 +309,6 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
 // ------------ method called for each event  ------------
 
 void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  static constexpr float cmToum = 10000.;
-
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(topoPerEventEsToken_);
 
@@ -525,8 +523,8 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
               }
               float ypixavg = 0.5f * (ypixlow + ypixhigh);
 
-              float dx = (pixinfo_.x[j] - xlim1) * cmToum;  // dx: in the unit of micrometer
-              float dy = (ypixavg - ylim1) * cmToum;        // dy: in the unit of micrometer
+              float dx = (pixinfo_.x[j] - xlim1) * siPixelLACalibration::cmToum;  // dx: in the unit of micrometer
+              float dy = (ypixavg - ylim1) * siPixelLACalibration::cmToum;        // dy: in the unit of micrometer
               float depth = dy * tan(trackhit_.beta);
               float drift = dx - dy * tan(trackhit_.gamma);
 

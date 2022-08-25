@@ -26,8 +26,8 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(
         cms.PSet(
-            record = cms.string('PPSTimingCalibrationRcd'),
-            tag = cms.string('DiamondSampicCalibration'),
+            record = cms.string('PPSTimingCalibrationRcd_SAMPIC'),
+            tag = cms.string('PPSDiamondSampicCalibration_pcl'),
         )
     )
 )

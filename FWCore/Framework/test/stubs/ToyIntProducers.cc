@@ -352,6 +352,46 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces a TransientIntParent instance.
+  //
+  class TransientIntParentProducer : public edm::global::EDProducer<> {
+  public:
+    explicit TransientIntParentProducer(edm::ParameterSet const& p)
+        : token_{produces<TransientIntParent>()}, value_(p.getParameter<int>("ivalue")) {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    const edm::EDPutTokenT<TransientIntParent> token_;
+    const int value_;
+  };
+
+  void TransientIntParentProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    // EventSetup is not used.
+    e.emplace(token_, value_);
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces a IntProduct instance from a TransientIntParent
+  //
+  class IntProducerFromTransientParent : public edm::global::EDProducer<> {
+  public:
+    explicit IntProducerFromTransientParent(edm::ParameterSet const& p)
+        : putToken_{produces<IntProduct>()}, getToken_{consumes(p.getParameter<edm::InputTag>("src"))} {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    const edm::EDPutTokenT<IntProduct> putToken_;
+    const edm::EDGetTokenT<TransientIntParent> getToken_;
+  };
+
+  void IntProducerFromTransientParent::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    // EventSetup is not used.
+    e.emplace(putToken_, e.get(getToken_).value);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an Int16_tProduct instance.
   //
   class Int16_tProducer : public edm::global::EDProducer<> {
@@ -907,6 +947,8 @@ DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
+DEFINE_FWK_MODULE(edmtest::TransientIntParentProducer);
+DEFINE_FWK_MODULE(edmtest::IntProducerFromTransientParent);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
 DEFINE_FWK_MODULE(AddAllIntsProducer);

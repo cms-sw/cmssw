@@ -34,6 +34,7 @@ public:
 
 private:
   double m_eth;
+  int m_number{0};
   bool m_trace;
 };
 

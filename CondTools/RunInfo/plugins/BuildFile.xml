@@ -46,3 +46,7 @@
 <library file="XangleBetaStarFilter.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="L1TriggerScalerESAnalyzer.cc" name="CondToolsL1TriggerScalerESAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>

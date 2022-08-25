@@ -20,7 +20,7 @@
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); default (2)
+//                           5 (Run 4; post LS3); default (3)
 //   maxDHB     int          Maximum number of depths for HB (4)
 //   maxDHE     int          Maximum number of depths for HE (7)
 //   runLO      int          Minimum run number (1)
@@ -331,7 +331,7 @@ public:
                           const char *outfile = "dyll_PU20_25_output_10.root",
                           const char *rcorFileName = "",
                           int flag = 0,
-                          int mode = 2,
+                          int mode = 3,
                           int maxDHB = 4,
                           int maxDHE = 7,
                           int runLo = 1,
@@ -343,7 +343,7 @@ public:
                           const char *outfile = "dyll_PU20_25_output_10.root",
                           const char *rcorFileName = "",
                           int flag = 0,
-                          int mode = 2,
+                          int mode = 3,
                           int maxDHB = 4,
                           int maxDHE = 7,
                           int runLo = 1,
@@ -352,7 +352,7 @@ public:
                           int etaMax = 29,
                           bool debug = false);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
-  // mode of LHC is 0 for 2021
+  // mode of LHC is 3 for 2021
   virtual ~HBHEMuonOfflineAnalyzer();
 
   virtual Int_t Cut(Long64_t entry);

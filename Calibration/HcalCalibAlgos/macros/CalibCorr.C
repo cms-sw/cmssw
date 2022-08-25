@@ -7,8 +7,16 @@
 //      Defines depth of the DetId guided by the value of truncateFlag
 // double puFactor(type, ieta, pmom, eHcal, ediff, debug)
 //      Returns a multiplicative factor to the energy as PU correction
+//        int type = The type of data being considered
+//                   (1: Run 1 old; 2: Run1 new; 3: Run2 2016;
+//                    4: Run 2 2017; 5: Run2 2018; 6: Run3 Old;
+//                    7: Run 3 June 2021; 97: dlphin Try 3;
+//                    98: dlphin Try 2; 99: dlphin Try 1)
 // double puFactorRho(type, ieta, rho, double eHcal)
 //      Returns a multiplicative factor as PU correction evaluated from rho
+//        int type = The type of data being considered
+//                   (1: 2017 Data;  2: 2017 MC; 3: 2018 MC; 4: 2018AB;
+//                    5: 2018BC; 6: 2016 MC)
 // double puweight(vtx)
 //      Return PU weight for QCD PU sample
 // bool fillChain(chain, inputFileList)

@@ -35,8 +35,8 @@ G4muDarkBremsstrahlungModel::G4muDarkBremsstrahlungModel(const G4String& scalefi
     SetParticle(p);
   }  //Verify that the particle is a muon.
   theAPrime = G4APrime::APrime();
-  MA = G4APrime::APrime()->GetPDGMass() / CLHEP::GeV;  //Get the A' mass.
-
+  MA = G4APrime::APrime()->GetPDGMass() / CLHEP::GeV;                        //Get the A' mass.
+  muonMass = G4MuonMinus::MuonMinusDefinition()->GetPDGMass() / CLHEP::GeV;  //Get the muon mass
   highKinEnergy = HighEnergyLimit();
   lowKinEnergy = LowEnergyLimit();
   fParticleChange = nullptr;
@@ -186,12 +186,9 @@ frame G4muDarkBremsstrahlungModel::GetMadgraphData(double E0)
 G4double G4muDarkBremsstrahlungModel::DsigmaDx(double x, void* pp) {
   ParamsForChi* params = (ParamsForChi*)pp;
 
-  //G4double Mel = 5.1E-04;
-  G4double Mmu = 0.106;
-
   G4double beta = sqrt(1 - (params->MMA) * (params->MMA) / (params->EE0) / (params->EE0));
   G4double num = 1. - x + x * x / 3.;
-  G4double denom = (params->MMA) * (params->MMA) * (1. - x) / x + Mmu * Mmu * x;
+  G4double denom = (params->MMA) * (params->MMA) * (1. - x) / x + (params->MMu) * (params->MMu) * x;
   G4double DsDx = beta * num / denom;
 
   return DsDx;
@@ -203,12 +200,12 @@ G4double G4muDarkBremsstrahlungModel::chi(double t, void* pp) {
  * params->AA;
  * params->ZZ;
  * params->MMA;
+ * params->MMu;
  * params->EE0;
  */
   G4double Mel = 5.1E-04;
   G4double MUp = 2.79;
   G4double Mpr = 0.938;
-
   G4double d = 0.164 / pow((params->AA), 2. / 3.);
   G4double ap = 773.0 / Mel / pow((params->ZZ), 2. / 3.);
   G4double a = 111.0 / Mel / pow((params->ZZ), 1. / 3.);
@@ -236,8 +233,6 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   }
 
   E0 = E0 / CLHEP::GeV;  //Change energy to GeV.
-  //G4double Mel = 5.1E-04;
-  G4double Mmu = 0.106;
   if (E0 < 2. * MA)
     return 0.;
 
@@ -249,12 +244,13 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   G4double tmax = MA * MA;
 
   gsl_function F;
-  ParamsForChi alpha = {1.0, 1.0, 1.0, 1.0};
+  ParamsForChi alpha = {1.0, 1.0, 1.0, 1.0, 1.0};
   F.function = &G4muDarkBremsstrahlungModel::chi;
   F.params = &alpha;
   alpha.AA = A;
   alpha.ZZ = Z;
   alpha.MMA = MA;
+  alpha.MMu = muonMass;
   alpha.EE0 = E0;
 
   //Integrate over chi.
@@ -270,8 +266,8 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   G.params = &alpha;
   G4double xmin = 0;
   G4double xmax = 1;
-  if ((Mmu / E0) > (MA / E0))
-    xmax = 1 - Mmu / E0;
+  if ((muonMass / E0) > (MA / E0))
+    xmax = 1 - muonMass / E0;
   else
     xmax = 1 - MA / E0;
   G4double res, err;
@@ -312,7 +308,7 @@ G4DataVector* G4muDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Materi
   for (G4int i = 0; i < nElements; i++) {
     cross += theAtomNumDensityVector[i] *
              ComputeCrossSectionPerAtom(
-                 particle, kineticEnergy, (*theElementVector)[i]->GetZ(), (*theElementVector)[i]->GetA(), cut);
+                 particle, kineticEnergy, (*theElementVector)[i]->GetZ(), (*theElementVector)[i]->GetN(), cut);
     dv->push_back(cross);
   }
   return dv;
@@ -340,26 +336,26 @@ void G4muDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticl
   if (tmin >= tmax) {
     return;
   }  // limits of the energy sampling
-  G4double Mmu = 0.106;
+
   E0 = E0 / CLHEP::GeV;  //Convert the energy to GeV, the units used in the sampling files.
 
   frame data = GetMadgraphData(E0);
   double EAcc, Pt, P, PhiAcc;
   if (method == "forward_only") {
-    EAcc = (data.fEl->E() - Mmu) / (data.E - Mmu - MA) * (E0 - Mmu - MA);
-    EAcc = Mmu + EAcc;
+    EAcc = (data.fEl->E() - muonMass) / (data.E - muonMass - MA) * (E0 - muonMass - MA);
+    EAcc = muonMass + EAcc;
     Pt = data.fEl->Pt();
-    P = sqrt(EAcc * EAcc - Mmu * Mmu);
+    P = sqrt(EAcc * EAcc - muonMass * muonMass);
     PhiAcc = data.fEl->Phi();
     int i = 0;
-    while (Pt * Pt + Mmu * Mmu > EAcc * EAcc)  //Skip events until the Pt is less than the energy.
+    while (Pt * Pt + muonMass * muonMass > EAcc * EAcc)  //Skip events until the Pt is less than the energy.
     {
       i++;
       data = GetMadgraphData(E0);
-      EAcc = (data.fEl->E() - Mmu) / (data.E - Mmu - MA) * (E0 - Mmu - MA);
-      EAcc = Mmu + EAcc;
+      EAcc = (data.fEl->E() - muonMass) / (data.E - muonMass - MA) * (E0 - muonMass - MA);
+      EAcc = muonMass + EAcc;
       Pt = data.fEl->Pt();
-      P = sqrt(EAcc * EAcc - Mmu * Mmu);
+      P = sqrt(EAcc * EAcc - muonMass * muonMass);
       PhiAcc = data.fEl->Phi();
 
       if (i > 10000) {
@@ -372,7 +368,7 @@ void G4muDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticl
     TLorentzVector* newcm = new TLorentzVector(data.cm->X(), data.cm->Y(), data.cm->Z() - ediff, data.cm->E() - ediff);
     el->Boost(-1. * data.cm->BoostVector());
     el->Boost(newcm->BoostVector());
-    double newE = (data.fEl->E() - Mmu) / (data.E - Mmu - MA) * (E0 - Mmu - MA);
+    double newE = (data.fEl->E() - muonMass) / (data.E - muonMass - MA) * (E0 - muonMass - MA);
     el->SetE(newE);
     EAcc = el->E();
     Pt = el->Pt();
@@ -387,7 +383,7 @@ void G4muDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticl
 
   EAcc = EAcc * CLHEP::GeV;  //Change the energy back to MeV, the internal GEANT unit.
 
-  G4double muon_mass_mev = 105.6;
+  G4double muon_mass_mev = muonMass * CLHEP::GeV;
   G4double momentum = sqrt(EAcc * EAcc - muon_mass_mev * muon_mass_mev);  //Muon momentum in MeV.
   G4ThreeVector newDirection;
   double ThetaAcc = std::asin(Pt / P);

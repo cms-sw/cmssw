@@ -121,7 +121,7 @@ namespace mkfit {
       return !(
           ((nLyrs <= 3 || nHits <= 3)) ||
           ((nLyrs <= 4 || nHits <= 4) && (invpt < invptmin || (thetasym > thetasymmin_l && std::abs(d0BS) > d0_max))) ||
-          ((nLyrs <= 6 || nHits <= 6) && (invpt > invptmin && thetasym > thetasymmin_h && std::abs(d0BS) > d0_max)));
+          ((nLyrs <= 5 || nHits <= 5) && (invpt > invptmin && thetasym > thetasymmin_h && std::abs(d0BS) > d0_max)));
     }
 
     template <class TRACK>

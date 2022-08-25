@@ -43,6 +43,7 @@
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 
@@ -186,10 +187,10 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   int phi_8 = static_cast<int>(floor(phi_f * k));
 
   if (second == nullptr && first) {
-    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((first->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0, bend_angle);
   } else if (second == nullptr && forth) {
-    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((forth->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1, bend_angle);
   }
 
@@ -757,7 +758,7 @@ int L1MuDTAssignmentUnit::phiDiff(int stat1, int stat2) const {
   //  assert( abs(sectordiff) <= 1 );
 
   int offset = (2144 >> sh_phi) * sectordiff;
-  int bendangle = (phi2 - phi1 + offset) << sh_phi;
+  int bendangle = l1t::bitShift((phi2 - phi1 + offset), sh_phi);
 
   return bendangle;
 }

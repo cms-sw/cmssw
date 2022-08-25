@@ -15,7 +15,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,7 +59,7 @@
 // class declaration
 //
 
-class L1TauRecoTreeProducer : public edm::EDAnalyzer {
+class L1TauRecoTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1TauRecoTreeProducer(const edm::ParameterSet&);
   ~L1TauRecoTreeProducer() override;
@@ -173,6 +173,7 @@ L1TauRecoTreeProducer::L1TauRecoTreeProducer(const edm::ParameterSet& iConfig) :
   tau = new L1Analysis::L1AnalysisRecoTau();
   tau_data = tau->getData();
 
+  usesResource(TFileService::kSharedResource);
   /*
   // set up output
   */

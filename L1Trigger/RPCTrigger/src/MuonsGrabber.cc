@@ -23,11 +23,11 @@
 
 XERCES_CPP_NAMESPACE_USE
 
-class XStr {
+class XStrPrivate {
 public:
-  XStr(const char* const toTranscode) { fUnicodeForm = XMLString::transcode(toTranscode); }
+  XStrPrivate(const char* const toTranscode) { fUnicodeForm = XMLString::transcode(toTranscode); }
 
-  ~XStr() { XMLString::release(&fUnicodeForm); }
+  ~XStrPrivate() { XMLString::release(&fUnicodeForm); }
 
   const XMLCh* unicodeForm() const { return fUnicodeForm; }
 
@@ -35,7 +35,7 @@ private:
   XMLCh* fUnicodeForm;
 };
 
-#define X(str) XStr(str).unicodeForm()
+#define X(str) XStrPrivate(str).unicodeForm()
 
 //
 // constants, enums and typedefs

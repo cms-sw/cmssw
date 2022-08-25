@@ -30,7 +30,7 @@ namespace edm {
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration> processConfiguration,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       ProcessContext const* processContext)
       : actReg_(areg), processContext_(processContext) {
     workerManagers_.reserve(prealloc.numberOfLuminosityBlocks());

@@ -319,6 +319,9 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
       evt(0) {
   //now do what ever initialization is needed
   usesResource(TFileService::kSharedResource);
+  edm::LogVerbatim("ValidHGCal") << "HGCalCellHitSum::Initialize for " << name_ << " using " << geometryFileName_
+                                 << " and collections for simTrack:" << iConfig.getParameter<edm::InputTag>("simtrack")
+                                 << "; and for hits " << iConfig.getParameter<edm::InputTag>("simhits");
   edm::Service<TFileService> fs;
 
   hCharge = fs->make<TH1D>("charge", "Charges", 200, -20, 20);
@@ -1157,7 +1160,7 @@ void HGCalCellHitSum::fillDescriptions(edm::ConfigurationDescriptions &descripti
   desc.add<edm::InputTag>("simhits", edm::InputTag("g4SimHits", "HGCHitsEE"));
   desc.add<std::string>("detector", "HGCalEESensitive");
   desc.add<edm::FileInPath>("geometryFileName", edm::FileInPath("Validation/HGCalValidation/data/wafer_v17.csv"));
-  descriptions.add("hgcalCellHitSumEE", desc);
+  descriptions.add("hgcalCellHitSum", desc);
 }
 
 //define this as a plug-in

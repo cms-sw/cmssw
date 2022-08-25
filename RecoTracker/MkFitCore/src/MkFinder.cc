@@ -110,6 +110,38 @@ namespace mkfit {
     }
   }
 
+  void MkFinder::inputTracksAndHits(const std::vector<CombCandidate> &tracks,
+                                    const LayerOfHits &layer_of_hits,
+                                    const std::vector<UpdateIndices> &idxs,
+                                    int beg,
+                                    int end,
+                                    bool inputProp) {
+    // Assign track parameters to initial state and copy hit values in.
+
+    // This might not be true for the last chunk!
+    // assert(end - beg == NN);
+
+    const int iI = inputProp ? iP : iC;
+
+    for (int i = beg, imp = 0; i < end; ++i, ++imp) {
+      const TrackCand &trk = tracks[idxs[i].seed_idx][idxs[i].cand_idx];
+
+      copy_in(trk, imp, iI);
+
+#ifdef DUMPHITWINDOW
+      m_SeedAlgo(imp, 0, 0) = tracks[idxs[i].seed_idx].seed_algo();
+      m_SeedLabel(imp, 0, 0) = tracks[idxs[i].seed_idx.seed_label();
+#endif
+
+      m_SeedIdx(imp, 0, 0) = idxs[i].seed_idx;
+      m_CandIdx(imp, 0, 0) = idxs[i].cand_idx;
+
+      const Hit &hit = layer_of_hits.refHit(idxs[i].hit_idx);
+      m_msErr.copyIn(imp, hit.errArray());
+      m_msPar.copyIn(imp, hit.posArray());
+    }
+  }
+
   void MkFinder::inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                                       const std::vector<std::pair<int, IdxChi2List>> &idxs,
                                       int beg,
@@ -316,6 +348,9 @@ namespace mkfit {
       }
     } else  // endcap
     {
+      //layer half-thikness for dphi spread calculation; only for very restrictive iters
+      const float layerD = std::abs(L.layer_info()->zmax() - L.layer_info()->zmin()) * 0.5f *
+                           (m_iteration_params->maxConsecHoles == 0 || m_iteration_params->maxHolesPerCand == 0);
       // Pull out the part of the loop that vectorizes
 #pragma omp simd
       for (int itrack = 0; itrack < NN; ++itrack) {
@@ -333,13 +368,18 @@ namespace mkfit {
         const float x = m_Par[iI].constAt(itrack, 0, 0);
         const float y = m_Par[iI].constAt(itrack, 1, 0);
         const float r2 = x * x + y * y;
-        const float dphidx = -y / r2, dphidy = x / r2;
-        const float dphi2 = calcdphi2(itrack, dphidx, dphidy);
+        const float r2Inv = 1.f / r2;
+        const float dphidx = -y * r2Inv, dphidy = x * r2Inv;
+        const float phi = getPhi(x, y);
+        const float dphi2 =
+            calcdphi2(itrack, dphidx, dphidy)
+            //range from finite layer thickness
+            + std::pow(layerD * std::tan(m_Par[iI].At(itrack, 5, 0)) * std::sin(m_Par[iI].At(itrack, 4, 0) - phi), 2) *
+                  r2Inv;
 #ifdef HARD_CHECK
         assert(dphi2 >= 0);
 #endif
 
-        const float phi = getPhi(x, y);
         float dphi = calcdphi(dphi2, min_dphi);
 
         const float r = std::sqrt(r2);
@@ -1288,16 +1328,7 @@ namespace mkfit {
   // UpdateWithLastHit
   //==============================================================================
 
-  void MkFinder::updateWithLastHit(const LayerOfHits &layer_of_hits, int N_proc, const FindingFoos &fnd_foos) {
-    for (int i = 0; i < N_proc; ++i) {
-      const HitOnTrack &hot = m_LastHoT[i];
-
-      const Hit &hit = layer_of_hits.refHit(hot.index);
-
-      m_msErr.copyIn(i, hit.errArray());
-      m_msPar.copyIn(i, hit.posArray());
-    }
-
+  void MkFinder::updateWithLoadedHit(int N_proc, const FindingFoos &fnd_foos) {
     // See comment in MkBuilder::find_tracks_in_layer() about intra / inter flags used here
     // for propagation to the hit.
     (*fnd_foos.m_update_param_foo)(m_Err[iP],
@@ -1497,7 +1528,7 @@ namespace mkfit {
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,
@@ -1659,7 +1690,7 @@ namespace mkfit {
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags, &no_mat_effs);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,

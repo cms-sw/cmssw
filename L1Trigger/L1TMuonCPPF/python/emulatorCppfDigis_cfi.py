@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 emulatorCppfDigis = cms.EDProducer("L1TMuonCPPFDigiProducer",                                   
                                    ## Input collection
                                    recHitLabel = cms.InputTag("rpcRecHits"),
-                                   rpcDigiLabel = cms.InputTag("simMuonRPCDigis"),
+                                   rpcDigiLabel = cms.InputTag("muonRPCDigis"),
                                    rpcDigiSimLinkLabel = cms.InputTag("simMuonRPCDigis", "RPCDigiSimLink"),
 				   MaxClusterSize = cms.int32(3),
                                    #  cppfSource = cms.string('Geo'), #'File' for Look up table and 'Geo' for CMSSW Geometry 

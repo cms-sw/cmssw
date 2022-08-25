@@ -76,8 +76,7 @@ double L1JPTOffsetCorrectorImpl::correction(const LorentzVector& fJet) const {
 double L1JPTOffsetCorrectorImpl::correction(const reco::Jet& fJet) const {
   double result = 1.;
   const reco::JPTJet& jptjet = dynamic_cast<const reco::JPTJet&>(fJet);
-  const edm::RefToBase<reco::Jet>& jptjetRef = jptjet.getCaloJetRef();
-  reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
+  const edm::RefToBase<reco::Jet>& rawcalojet = jptjet.getCaloJetRef();
   //------ access the offset correction service ----------------
   double offset = 1.0;
   if (offsetService_) {

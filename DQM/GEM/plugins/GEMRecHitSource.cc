@@ -187,13 +187,12 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
   std::map<ME3IdsKey, Int_t> total_rechit_iEta;
   std::map<ME4IdsKey, std::map<Int_t, Bool_t>> mapCLSOver5;
 
-  for (const auto& ch : gemChambers_) {
-    GEMDetId gid = ch.id();
+  for (auto gid : listChamberId_) {
     auto chamber = gid.chamber();
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
     MEStationInfo& stationInfo = mapStationInfo_[key3];
-    for (auto iEta : ch.etaPartitions()) {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
       ME3IdsKey key3AbsReIEta{std::abs(gid.region()), gid.station(), eId.ieta()};

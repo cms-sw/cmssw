@@ -21,7 +21,10 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescri
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
-  m_i = 0;
+  m_i = m_skip;
+
+  if (m_skip != 0)
+    edm::LogWarning("HcalTBSource") << "skipEvents != 0 works only for the first input file";
 
   unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams", std::vector<std::string>()));
   produces<FEDRawDataCollection>();
@@ -105,7 +108,8 @@ void HcalTBSource::openFile(const std::string& filename) {
       n_chunks++;
     }
   }
-  m_i = 0;
+  if (!((m_skip != 0) & (m_i == m_skip)))
+    m_i = 0;
 }
 
 bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
@@ -140,7 +144,7 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
     // ZERO is unacceptable for a run number from a technical point of view
     id = EventID((m_eventInfo->getRunNumber() == 0 ? 1 : m_eventInfo->getRunNumber()),
                  id.luminosityBlock(),
-                 m_eventInfo->getEventNumber() + m_eventNumberOffset + m_skip);
+                 m_eventInfo->getEventNumber() + m_eventNumberOffset);
   } else {
     id = EventID(m_fileCounter + 10, id.luminosityBlock(), m_i + 1);
   }

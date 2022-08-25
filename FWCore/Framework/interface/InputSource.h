@@ -134,7 +134,6 @@ namespace edm {
 
     /// Accessors for product registry
     std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
-    std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
 
     /// Accessors for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const { return *processHistoryRegistry_; }
@@ -168,6 +167,9 @@ namespace edm {
 
     /// Returns nullptr if no resource shared between the Source and a DelayedReader
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader();
+
+    /// switch to a different ProductRegistry.
+    void switchTo(std::shared_ptr<ProductRegistry> iOther) { productRegistry_ = iOther; }
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.

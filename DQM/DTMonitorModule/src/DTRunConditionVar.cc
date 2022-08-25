@@ -44,7 +44,7 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
       debug(pSet.getUntrackedParameter<bool>("debug", false)),
       nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
       maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
-      dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))),
+      dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getUntrackedParameter<InputTag>("recoSegments"))),
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       readLegacyVDriftDB(pSet.getParameter<bool>("readLegacyVDriftDB")) {
   if (readLegacyVDriftDB) {

@@ -105,11 +105,11 @@ namespace Json {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
-#include "EventFilter/Utilities/interface/json_internalarray.inl"
-#include "EventFilter/Utilities/interface/json_internalmap.inl"
+#include "json_internalarray.icc"
+#include "json_internalmap.icc"
 #endif  // JSON_VALUE_USE_INTERNAL_MAP
 
-#include "EventFilter/Utilities/interface/json_valueiterator.inl"
+#include "json_valueiterator.icc"
 
   // //////////////////////////////////////////////////////////////////
   // //////////////////////////////////////////////////////////////////

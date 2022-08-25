@@ -35,6 +35,7 @@
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 
@@ -156,7 +157,7 @@ void L1MuDTEUX::run(const L1MuDTExtLut& extLUTs, const L1MuDTTFParameters& pars)
 
   int phi_target = m_target->phi() >> sh_phi;
   int phi_start = m_start->phi() >> sh_phi;
-  int phib_start = (m_start->phib() >> sh_phib) << sh_phib;
+  int phib_start = l1t::bitShift((m_start->phib() >> sh_phib), sh_phib);
   if (phib_start < 0)
     phib_start += (1 << sh_phib) - 1;
 

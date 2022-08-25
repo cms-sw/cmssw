@@ -65,12 +65,13 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
-                                                        PreallocationConfiguration const& iPrealloc,
-                                                        ProductRegistry& preg,
-                                                        ExceptionToActionTable const& actions,
-                                                        std::shared_ptr<ActivityRegistry> areg,
-                                                        std::shared_ptr<ProcessConfiguration> processConfiguration) {
+    std::shared_ptr<TriggerResultInserter> makeInserter(
+        ParameterSet& proc_pset,
+        PreallocationConfiguration const& iPrealloc,
+        ProductRegistry& preg,
+        ExceptionToActionTable const& actions,
+        std::shared_ptr<ActivityRegistry> areg,
+        std::shared_ptr<ProcessConfiguration const> processConfiguration) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
@@ -112,7 +113,7 @@ namespace edm {
                                  PreallocationConfiguration const& iPrealloc,
                                  ProductRegistry& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string const& moduleTypeName) {
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", moduleTypeName);
@@ -478,14 +479,9 @@ namespace edm {
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
-                     BranchIDListHelper& branchIDListHelper,
-                     ProcessBlockHelperBase& processBlockHelper,
-                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                     SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
-                     std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool hasSubprocesses,
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext)
       :  //Only create a resultsInserter if there is a trigger path
@@ -525,7 +521,6 @@ namespace edm {
                                                                                tns,
                                                                                prealloc,
                                                                                preg,
-                                                                               branchIDListHelper,
                                                                                actions,
                                                                                areg,
                                                                                processConfiguration,
@@ -567,9 +562,24 @@ namespace edm {
                                                        areg,
                                                        processConfiguration,
                                                        processContext);
+  }
 
+  void Schedule::finishSetup(ParameterSet& proc_pset,
+                             service::TriggerNamesService const& tns,
+                             ProductRegistry& preg,
+                             BranchIDListHelper& branchIDListHelper,
+                             ProcessBlockHelperBase& processBlockHelper,
+                             ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                             SubProcessParentageHelper const* subProcessParentageHelper,
+                             std::shared_ptr<ActivityRegistry> areg,
+                             std::shared_ptr<ProcessConfiguration> processConfiguration,
+                             bool hasSubprocesses,
+                             PreallocationConfiguration const& prealloc,
+                             ProcessContext const* processContext) {
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
+    const std::string kTriggerResults("TriggerResults");
+
     std::set<std::string> usedModuleLabels;
     for (auto const& worker : allWorkers()) {
       if (worker->description()->moduleLabel() != kTriggerResults) {
@@ -586,9 +596,16 @@ namespace edm {
 
     // At this point all BranchDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
-    if (nUnscheduledModules > 0) {
-      std::set<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin() + nUnscheduledModules);
-      preg.setUnscheduledProducts(unscheduledModules);
+    {
+      auto const& unsched = streamSchedules_[0]->unscheduledWorkers();
+      if (not unsched.empty()) {
+        std::set<std::string> unscheduledModules;
+        std::transform(unsched.begin(),
+                       unsched.end(),
+                       std::insert_iterator<std::set<std::string>>(unscheduledModules, unscheduledModules.begin()),
+                       [](auto worker) { return worker->description()->moduleLabel(); });
+        preg.setUnscheduledProducts(unscheduledModules);
+      }
     }
 
     processSwitchProducers(proc_pset, processConfiguration->processName(), preg);

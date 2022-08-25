@@ -21,7 +21,7 @@
 #include <iostream>
 #include <memory>
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -50,7 +50,7 @@
 // class declaration
 //
 
-class L1RCTTestAnalyzer : public edm::EDAnalyzer {
+class L1RCTTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1RCTTestAnalyzer(const edm::ParameterSet &);
   ~L1RCTTestAnalyzer() override;

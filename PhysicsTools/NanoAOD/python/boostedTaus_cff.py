@@ -3,7 +3,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 ##################### Import reusable funtions and objects from std taus ########
-from PhysicsTools.NanoAOD.taus_cff import _tauId2WPMask,_tauId5WPMask,_tauId7WPMask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable
+from PhysicsTools.NanoAOD.taus_cff import _tauIdWPMask, tausMCMatchLepTauForTable, tausMCMatchHadTauForTable,tauMCTable
 
 ##################### User floats producers, selectors ##########################
 
@@ -39,25 +39,25 @@ _boostedTauVarsBase = cms.PSet(P4Vars,
        neutralIso = Var( "tauID('neutralIsoPtSum')", float, doc = "neutral (photon) isolation", precision=10),
        puCorr = Var( "tauID('puCorrPtSum')", float, doc = "pileup correction", precision=10),
        photonsOutsideSignalCone = Var( "tauID('photonPtSumOutsideSignalCone')", float, doc = "sum of photons outside signal cone", precision=10),
-       idAntiMu = _tauId2WPMask("againstMuon%s3", doc= "Anti-muon discriminator V3: ")
+       idAntiMu = _tauIdWPMask("againstMuon%s3", choices=("Loose","Tight"), doc= "Anti-muon discriminator V3: ")
 )
 #MVA 2017 v2 variables
 _boostedTauVarsMVAIso = cms.PSet(
        rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2DBoldDMwLTraw')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
        rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2DBnewDMwLTraw')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
-       idMVAnewDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2DBnewDMwLT", doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
-       idMVAoldDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2DBoldDMwLT",doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
+       idMVAnewDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2DBnewDMwLT", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
+       idMVAoldDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2DBoldDMwLT",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
 )
 #MVA 2017 v2 dR<0.3 variables
 _boostedTauVarsMVAIsoDr03 = cms.PSet(
        rawMVAoldDMdR032017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017')",float,doc='byIsolationMVArun2DBoldDMdR0p3wLT raw output discriminator (2017v2)'),
-       idMVAoldDMdR032017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBoldDMdR0p3wLT2017",doc="IsolationMVArun2DBoldDMdR0p3wLT ID working point (2017v2)")
+       idMVAoldDMdR032017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBoldDMdR0p3wLT2017",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBoldDMdR0p3wLT ID working point (2017v2)")
 )
 #AntiEle MVA 2018 variables
 _boostedTauVarsAntiEleMVA = cms.PSet(
        rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
        rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
-       idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2018)")
+       idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA6", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 
 boostedTauTable.variables = cms.PSet(
@@ -77,11 +77,11 @@ run2_nanoAOD_106Xv2.toModify(boostedTauTable,
 run2_nanoAOD_106Xv2.toModify(boostedTauTable.variables,
                              rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
                              rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBnewDMwLTraw2017')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
-                             idMVAnewDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
-                             idMVAoldDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
+                             idMVAnewDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
+                             idMVAoldDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
                              rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
                              rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
-                             idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)")
+                             idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA62018", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 
 boostedTausMCMatchLepTauForTable = tausMCMatchLepTauForTable.clone(

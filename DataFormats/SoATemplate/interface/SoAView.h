@@ -93,12 +93,18 @@ namespace cms::soa {
   constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) =                                   \
       BOOST_PP_CAT(TypeOf_, LAYOUT_NAME)::Metadata::BOOST_PP_CAT(ColumnTypeOf_, LAYOUT_MEMBER);                        \
   SOA_HOST_DEVICE SOA_INLINE                                                                                           \
-  const BOOST_PP_CAT(ParametersTypeOf_, LOCAL_NAME) BOOST_PP_CAT(parametersOf_, LOCAL_NAME)() const {                  \
+  const auto BOOST_PP_CAT(parametersOf_, LOCAL_NAME)() const {                                                         \
     return CAST(parent_.BOOST_PP_CAT(LOCAL_NAME, Parameters_));                                                        \
   };
 // clang-format on
 
-// DATA should be a function used to convert parent_.LOCAL_NAME ## Parameters_ to ParametersTypeOf_ ## LOCAL_NAME, or empty
+// DATA should be a function used to convert
+//   parent_.LOCAL_NAME ## Parameters_
+// to
+//   ParametersTypeOf_ ## LOCAL_NAME                (for a View)
+// or
+//   ParametersTypeOf_ ## LOCAL_NAME :: ConstType   (for a ConstView)
+// or empty, if no conversion is necessary.
 #define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL BOOST_PP_TUPLE_PUSH_BACK(LAYOUT_MEMBER_NAME, DATA))
 
@@ -496,7 +502,7 @@ namespace cms::soa {
      */                                                                                                                \
     struct Metadata {                                                                                                  \
       friend VIEW;                                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.nElements_; }                                 \
+      SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                  \
       /* Alias layout or view types to name-derived identifyer to allow simpler definitions */                         \
       _ITERATE_ON_ALL(_DECLARE_VIEW_LAYOUT_TYPE_ALIAS, ~, LAYOUTS_LIST)                                                \
                                                                                                                        \
@@ -526,11 +532,11 @@ namespace cms::soa {
         : base_type{_ITERATE_ON_ALL_COMMA(_DECLARE_LAYOUT_LIST, BOOST_PP_EMPTY(), LAYOUTS_LIST)} {}                    \
                                                                                                                        \
     /* Constructor relying on individually provided column addresses */                                                \
-    SOA_HOST_ONLY VIEW(size_type nElements,                                                                            \
+    SOA_HOST_ONLY VIEW(size_type elements,                                                                             \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS,                          \
                                               BOOST_PP_EMPTY(),                                                        \
                                               VALUE_LIST))                                                             \
-        : base_type{nElements, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)} {}      \
+        : base_type{elements, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)} {}       \
                                                                                                                        \
     /* Copiable */                                                                                                     \
     VIEW(VIEW const&) = default;                                                                                       \
@@ -569,7 +575,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     element operator[](size_type index) {                                                                              \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (index >= base_type::nElements_)                                                                            \
+        if (index >= base_type::elements_)                                                                             \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]")                                        \
       }                                                                                                                \
       return element{index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};                  \
@@ -645,7 +651,7 @@ namespace cms::soa {
      */                                                                                                                \
     struct Metadata {                                                                                                  \
       friend CONST_VIEW;                                                                                               \
-      SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.nElements_; }                                 \
+      SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                  \
       /* Alias layout or view types to name-derived identifyer to allow simpler definitions */                         \
       _ITERATE_ON_ALL(_DECLARE_VIEW_LAYOUT_TYPE_ALIAS, ~, LAYOUTS_LIST)                                                \
                                                                                                                        \
@@ -670,7 +676,7 @@ namespace cms::soa {
                                                                                                                        \
     /* Constructor relying on user provided layouts or views */                                                        \
     SOA_HOST_ONLY CONST_VIEW(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS, const, LAYOUTS_LIST))        \
-        : nElements_([&]() -> size_type {                                                                              \
+        : elements_([&]() -> size_type {                                                                               \
             bool set = false;                                                                                          \
             size_type ret = 0;                                                                                         \
             _ITERATE_ON_ALL(_UPDATE_SIZE_OF_VIEW, BOOST_PP_EMPTY(), LAYOUTS_LIST)                                      \
@@ -679,9 +685,9 @@ namespace cms::soa {
           _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                   \
                                                                                                                        \
     /* Constructor relying on individually provided column addresses */                                                \
-    SOA_HOST_ONLY CONST_VIEW(size_type nElements,                                                                      \
+    SOA_HOST_ONLY CONST_VIEW(size_type elements,                                                                       \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS, const, VALUE_LIST))      \
-        : nElements_(nElements), _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}   \
+        : elements_(elements), _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}     \
                                                                                                                        \
     /* Copiable */                                                                                                     \
     CONST_VIEW(CONST_VIEW const&) = default;                                                                           \
@@ -709,7 +715,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     const_element operator[](size_type index) const {                                                                  \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (index >= nElements_)                                                                                       \
+        if (index >= elements_)                                                                                        \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]")                                  \
       }                                                                                                                \
       return const_element{index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};      \
@@ -723,7 +729,7 @@ namespace cms::soa {
     SOA_HOST_ONLY friend void dump();                                                                                  \
                                                                                                                        \
   private:                                                                                                             \
-    size_type nElements_ = 0;                                                                                          \
+    size_type elements_ = 0;                                                                                           \
     _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, const, VALUE_LIST)                                                 \
 };
 // clang-format on

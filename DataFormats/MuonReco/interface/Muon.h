@@ -191,7 +191,8 @@ namespace reco {
       SegmentAndTrackArbitrationCleaned,
       RPCHitAndTrackArbitration,
       GEMSegmentAndTrackArbitration,
-      ME0SegmentAndTrackArbitration
+      ME0SegmentAndTrackArbitration,
+      GEMHitAndTrackArbitration
     };
 
     ///
@@ -199,53 +200,54 @@ namespace reco {
     ///
     // When adding new selectors, also update DataFormats/MuonReco/interface/MuonSelectors.h string to enum map
     enum Selector {
-      CutBasedIdLoose = 1UL << 0,
-      CutBasedIdMedium = 1UL << 1,
-      CutBasedIdMediumPrompt = 1UL << 2,  // medium with IP cuts
-      CutBasedIdTight = 1UL << 3,
-      CutBasedIdGlobalHighPt = 1UL << 4,  // high pt muon for Z',W' (better momentum resolution)
-      CutBasedIdTrkHighPt = 1UL << 5,     // high pt muon for boosted Z (better efficiency)
-      PFIsoVeryLoose = 1UL << 6,          // reliso<0.40
-      PFIsoLoose = 1UL << 7,              // reliso<0.25
-      PFIsoMedium = 1UL << 8,             // reliso<0.20
-      PFIsoTight = 1UL << 9,              // reliso<0.15
-      PFIsoVeryTight = 1UL << 10,         // reliso<0.10
-      TkIsoLoose = 1UL << 11,             // reliso<0.10
-      TkIsoTight = 1UL << 12,             // reliso<0.05
-      SoftCutBasedId = 1UL << 13,
-      SoftMvaId = 1UL << 14,
-      MvaLoose = 1UL << 15,
-      MvaMedium = 1UL << 16,
-      MvaTight = 1UL << 17,
-      MiniIsoLoose = 1UL << 18,      // reliso<0.40
-      MiniIsoMedium = 1UL << 19,     // reliso<0.20
-      MiniIsoTight = 1UL << 20,      // reliso<0.10
-      MiniIsoVeryTight = 1UL << 21,  // reliso<0.05
-      TriggerIdLoose = 1UL << 22,    // robust selector for HLT
-      InTimeMuon = 1UL << 23,
-      PFIsoVeryVeryTight = 1UL << 24,  // reliso<0.05
-      MultiIsoLoose = 1UL << 25,       // miniIso with ptRatio and ptRel
-      MultiIsoMedium = 1UL << 26,      // miniIso with ptRatio and ptRel
-      PuppiIsoLoose = 1UL << 27,
-      PuppiIsoMedium = 1UL << 28,
-      PuppiIsoTight = 1UL << 29,
-      MvaVTight = 1UL << 30,
-      MvaVVTight = 1UL << 31,
-      LowPtMvaLoose = 1UL << 32,
-      LowPtMvaMedium = 1UL << 33,
-      MvaIDwpMedium = 1UL << 34,
-      MvaIDwpTight = 1UL << 35,
+      CutBasedIdLoose = 0,
+      CutBasedIdMedium = 1,
+      CutBasedIdMediumPrompt = 2,  // medium with IP cuts
+      CutBasedIdTight = 3,
+      CutBasedIdGlobalHighPt = 4,  // high pt muon for Z',W' (better momentum resolution)
+      CutBasedIdTrkHighPt = 5,     // high pt muon for boosted Z (better efficiency)
+      PFIsoVeryLoose = 6,          // reliso<0.40
+      PFIsoLoose = 7,              // reliso<0.25
+      PFIsoMedium = 8,             // reliso<0.20
+      PFIsoTight = 9,              // reliso<0.15
+      PFIsoVeryTight = 10,         // reliso<0.10
+      TkIsoLoose = 11,             // reliso<0.10
+      TkIsoTight = 12,             // reliso<0.05
+      SoftCutBasedId = 13,
+      SoftMvaId = 14,
+      MvaLoose = 15,
+      MvaMedium = 16,
+      MvaTight = 17,
+      MiniIsoLoose = 18,      // reliso<0.40
+      MiniIsoMedium = 19,     // reliso<0.20
+      MiniIsoTight = 20,      // reliso<0.10
+      MiniIsoVeryTight = 21,  // reliso<0.05
+      TriggerIdLoose = 22,    // robust selector for HLT
+      InTimeMuon = 23,
+      PFIsoVeryVeryTight = 24,  // reliso<0.05
+      MultiIsoLoose = 25,       // miniIso with ptRatio and ptRel
+      MultiIsoMedium = 26,      // miniIso with ptRatio and ptRel
+      PuppiIsoLoose = 27,
+      PuppiIsoMedium = 28,
+      PuppiIsoTight = 29,
+      MvaVTight = 30,
+      MvaVVTight = 31,
+      LowPtMvaLoose = 32,
+      LowPtMvaMedium = 33,
+      MvaIDwpMedium = 34,
+      MvaIDwpTight = 35,
     };
 
     bool passed(uint64_t selection) const { return (selectors_ & selection) == selection; }
-    bool passed(Selector selection) const { return passed(static_cast<uint64_t>(selection)); }
+    bool passed(Selector selection) const { return passed(static_cast<uint64_t>(1UL << selection)); }
     uint64_t selectors() const { return selectors_; }
     void setSelectors(uint64_t selectors) { selectors_ = selectors; }
     void setSelector(Selector selector, bool passed) {
+      auto selector64 = 1UL << selector;
       if (passed)
-        selectors_ |= selector;
+        selectors_ |= selector64;
       else
-        selectors_ &= ~selector;
+        selectors_ &= ~selector64;
     }
 
     ///

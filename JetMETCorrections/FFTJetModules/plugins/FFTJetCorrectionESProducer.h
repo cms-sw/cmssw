@@ -119,6 +119,8 @@ private:
 
   using HostType = edm::ESProductHost<CorrectorSequence, ParentRecord>;
   edm::ReusableObjectHolder<HostType> holder_;
+
+  edm::ESGetToken<FFTJetCorrectorParameters, ParentRecord> token_;
 };
 
 //
@@ -131,7 +133,8 @@ FFTJetCorrectionESProducer<CT>::FFTJetCorrectionESProducer(const edm::ParameterS
       verbose(psIn.getUntrackedParameter<bool>("verbose", false)) {
   // The following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  token_ = cc.consumes();
 }
 
 // ------------ method called to produce the data  ------------
@@ -140,8 +143,7 @@ typename FFTJetCorrectionESProducer<CT>::ReturnType FFTJetCorrectionESProducer<C
   auto host = holder_.makeOrGet([]() { return new HostType; });
 
   host->template ifRecordChanges<ParentRecord>(iRecord, [this, product = host.get()](auto const& rec) {
-    edm::ESTransientHandle<FFTJetCorrectorParameters> parHandle;
-    rec.get(parHandle);
+    auto parHandle = rec.getTransientHandle(token_);
     buildCorrectorSequence<CorrectorSequence>(*parHandle, sequence, isArchiveCompressed, verbose, product);
   });
 

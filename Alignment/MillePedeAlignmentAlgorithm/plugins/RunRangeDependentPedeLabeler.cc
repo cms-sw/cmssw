@@ -49,7 +49,7 @@ RunRangeDependentPedeLabeler::~RunRangeDependentPedeLabeler() {}
 
 //___________________________________________________________________________
 /// Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int RunRangeDependentPedeLabeler::alignableLabel(Alignable* alignable) const {
+unsigned int RunRangeDependentPedeLabeler::alignableLabel(const Alignable* alignable) const {
   if (!alignable)
     return 0;
 
@@ -69,7 +69,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabel(Alignable* alignable) 
 
 //___________________________________________________________________________
 // Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(Alignable* alignable,
+unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(const Alignable* alignable,
                                                                               unsigned int param,
                                                                               unsigned int instance) const {
   if (!alignable)

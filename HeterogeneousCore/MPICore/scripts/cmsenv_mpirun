@@ -2,25 +2,42 @@
 
 VERBOSE=false
 RELEASE=false
+MCA_PREFIX=cmsenv
 
 for ARG in "$@"; do
   case "$ARG" in
     -v|--verbose)
       VERBOSE=true
       ;;
-    cmsenv_release)
+    ${MCA_PREFIX}_release)
       RELEASE=true
       ;;
   esac
 done
 
-# additional options oassed to cmsenv_orted
+# full path to cmsenv_orted
+RELEASE_BASE=
+for VAR in CMSSW_BASE CMSSW_RELEASE_BASE CMSSW_FULL_RELEASE_BASE; do
+  TEST_PATH=${!VAR}
+  if [ -x $TEST_PATH/bin/$SCRAM_ARCH/cmsenv_orted ]; then
+    RELEASE_BASE=$TEST_PATH
+    break
+  fi
+done
+if [ -z "$RELEASE_BASE" ]; then
+  echo "Error: cannot find cmsenv_orted in the \$PATH."
+  exit 1
+fi
+
+# additional options passed to cmsenv_orted
 EXTRA_OPTIONS=""
 
 # if "-v" or "--verbose" are specified, add "-mca cmsenv_verbose true"
-$VERBOSE && EXTRA_OPTIONS="$EXTRA_OPTIONS -mca cmsenv_verbose true"
+$VERBOSE && EXTRA_OPTIONS="$EXTRA_OPTIONS -mca ${MCA_PREFIX}_verbose true"
 
 # if "-mca cmsenv_release" is not specified, add "-mca cmsenv_release $CMSSW_BASE"
-$RELEASE || EXTRA_OPTIONS="$EXTRA_OPTIONS -mca cmsenv_release $CMSSW_BASE"
+$RELEASE || EXTRA_OPTIONS="$EXTRA_OPTIONS -mca ${MCA_PREFIX}_release $CMSSW_BASE"
 
-exec mpirun --launch-agent $CMSSW_BASE/bin/$SCRAM_ARCH/cmsenv_orted $EXTRA_OPTIONS "$@"
+# if "-v" or "--verbose" are specified, print the command that will be executed
+$VERBOSE && echo mpirun --launch-agent $RELEASE_BASE/bin/$SCRAM_ARCH/cmsenv_orted $EXTRA_OPTIONS "$@"
+exec mpirun --launch-agent $RELEASE_BASE/bin/$SCRAM_ARCH/cmsenv_orted $EXTRA_OPTIONS "$@"

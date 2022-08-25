@@ -23,7 +23,7 @@ def extractBlock(config, blocks, target):
 
 def extractBlocks(config):
   outputA        = [ 'hltOutputA', 'hltOutputPhysicsCommissioning' ]
-  outputALCA     = [ 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCAPPS', 'hltOutputALCALumiPixelsCountsExpress', 'hltOutputALCALumiPixelsCountsPrompt', 'hltOutputRPCMON' ]
+  outputALCA     = [ 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCAPPSExpress', 'hltOutputALCAPPSPrompt', 'hltOutputALCALumiPixelsCountsExpress', 'hltOutputALCALumiPixelsCountsPrompt', 'hltOutputRPCMON' ]
   outputMON      = [ 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputDQMGPUvsCPU', 'hltOutputHLTMonitor', 'hltOutputReleaseValidation' ]
   outputScouting = [ 'hltOutputScoutingPF' ]
   extractBlock(config, outputA,         'hltOutputA_cff.py')
@@ -115,8 +115,10 @@ if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
   hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
   hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPS'):
-  hltOutputALCA_cff.block_hltOutputALCAPPS = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSExpress'):
+  hltOutputALCA_cff.block_hltOutputALCAPPSExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSPrompt'):
+  hltOutputALCA_cff.block_hltOutputALCAPPSPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsExpress'):
   hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsPrompt'):
@@ -133,7 +135,8 @@ hltDebugWithAlCaOutputBlocks = (
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
-  hltOutputALCA_cff.block_hltOutputALCAPPS.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCAPPSExpress.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt.outputCommands,
   hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,

@@ -531,14 +531,16 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
               lut[adc];  // used for bits 12, 13, 14, 15 for Group 0 LUT for LLP time and depth bits that rely on linearized energies
 
           if (qieType == QIE11) {
-            if ((linearizedADC < bit12_energy and cell.depth() <= 2) or (cell.depth() >= 3))
-              lut[adc] |= 1 << 12;
-            if (linearizedADC >= bit13_energy and cell.depth() >= 3)
-              lut[adc] |= 1 << 13;
-            if (linearizedADC >= bit14_energy)
-              lut[adc] |= 1 << 14;
-            if (linearizedADC >= bit15_energy)
-              lut[adc] |= 1 << 15;
+            if (subdet == HcalBarrel) {  // edit since bits 12-15 not supported in HE yet
+              if ((linearizedADC < bit12_energy and cell.depth() <= 2) or (cell.depth() >= 3))
+                lut[adc] |= 1 << 12;
+              if (linearizedADC >= bit13_energy and cell.depth() >= 3)
+                lut[adc] |= 1 << 13;
+              if (linearizedADC >= bit14_energy)
+                lut[adc] |= 1 << 14;
+              if (linearizedADC >= bit15_energy)
+                lut[adc] |= 1 << 15;
+            }
             if (adc >= mipMin and adc < mipMax)
               lut[adc] |= QIE11_LUT_MSB0;
             else if (adc >= mipMax)

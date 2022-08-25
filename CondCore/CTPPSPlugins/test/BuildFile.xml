@@ -1,0 +1,4 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<bin file="testPPSTimingCalibration.cpp" name="testPPSTimingCalibration">
+</bin>

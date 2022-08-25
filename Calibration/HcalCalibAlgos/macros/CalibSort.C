@@ -1635,6 +1635,11 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
     }  //End of Event Loop to extract PU correction parameters
 
+    for (int k = 0; k < n; k++)
+      std::cout << "Bin " << k << " for 2D Hist " << vec_h2[k] << ":" << vec_h2[k]->GetEntries() << " Graph "
+                << vec_gr[k] << ":" << points[k] << " Profile " << vec_hp[k] << ":" << vec_hp[k]->GetEntries()
+                << std::endl;
+
     std::ofstream myfile0, myfile1, myfile2;
     sprintf(filename, "%s_par2d.txt", fileName.c_str());
     myfile0.open(filename);
@@ -1677,7 +1682,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       sprintf(namepng, "%s.png", pad1->GetName());
       pad1->Print(namepng);
 
-      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f2", "[0]+[1]*x+[2]*x*x", 0, 5)));
       sprintf(name, "c_ieta%dPr", k);
       TCanvas *pad2 = new TCanvas(name, name, 500, 500);
       pad2->SetLeftMargin(0.10);
@@ -1706,7 +1711,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       sprintf(namepng, "%s.png", pad2->GetName());
       pad2->Print(namepng);
 
-      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f3", "[0]+[1]*x+[2]*x*x", 0, 5)));
       sprintf(name, "c_ieta%dGr", k);
       TCanvas *pad3 = new TCanvas(name, name, 500, 500);
       pad3->SetLeftMargin(0.10);

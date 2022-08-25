@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 diamondSampicDQMSourceOnline = DQMEDAnalyzer('DiamondSampicDQMSource',
-    tagDigi = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagRecHits = cms.InputTag("totemTimingRecHits"),
-    tagTracks = cms.InputTag("diamondSampicLocalTracks"),
-    tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
+    tagDigi = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagRecHits = cms.untracked.InputTag("totemTimingRecHits"),
+    tagTracks = cms.untracked.InputTag("diamondSampicLocalTracks"),
+    tagLocalTrack = cms.untracked.InputTag("totemRPLocalTrackFitter"),
 
     samplesForNoise = cms.untracked.uint32(6),
 
@@ -15,11 +15,11 @@ diamondSampicDQMSourceOnline = DQMEDAnalyzer('DiamondSampicDQMSource',
 )
 
 diamondSampicDQMSourceOffline = DQMEDAnalyzer('DiamondSampicDQMSource',
-    tagDigi = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagRecHits = cms.InputTag("totemTimingRecHits"),
-    tagTracks = cms.InputTag("diamondSampicLocalTracks"),
-    tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
+    tagDigi = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.untracked.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagRecHits = cms.untracked.InputTag("totemTimingRecHits"),
+    tagTracks = cms.untracked.InputTag("diamondSampicLocalTracks"),
+    tagLocalTrack = cms.untracked.InputTag("totemRPLocalTrackFitter"),
 
     samplesForNoise = cms.untracked.uint32(6),
 

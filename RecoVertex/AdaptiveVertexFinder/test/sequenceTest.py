@@ -7,11 +7,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 # import of standard configurations
 
-process.load('Configuration/StandardSequences/Geometry_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.load('Configuration/StandardSequences/Reconstruction_cff')
-process.load('Configuration/EventContent/EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 
 #process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 
@@ -45,8 +45,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'POSTLS172_V4::All'
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.p = cms.Path(process.inclusiveVertexing*process.inclusiveCandidateVertexing)
 
 process.out_step = cms.EndPath(process.FEVT)

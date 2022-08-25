@@ -148,7 +148,7 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
 ###################################################################
 from CommonTools.RecoAlgos.ptMaxTrackCountFilter_cfi import ptMaxTrackCountFilter
 process.myfilter = ptMaxTrackCountFilter.clone(src = cms.InputTag(options.trackCollection),
-                                               ptMax = cms.double(3.))
+                                               ptMax = cms.double(10.))
 
 process.preAnaSeq = cms.Sequence()
 if(options.unitTest):

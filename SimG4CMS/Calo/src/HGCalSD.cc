@@ -54,6 +54,7 @@ HGCalSD::HGCalSD(const std::string& name,
   waferRot_ = m_HGC.getParameter<bool>("RotatedWafer");
   cornerMinMask_ = m_HGC.getParameter<int>("CornerMinMask");
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
+  missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -222,7 +223,7 @@ void HGCalSD::update(const BeginOfJob* job) {
                                << waferSize << ":" << mouseBite;
 #endif
 
-    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {

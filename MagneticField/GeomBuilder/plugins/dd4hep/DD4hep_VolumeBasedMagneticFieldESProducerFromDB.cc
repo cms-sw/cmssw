@@ -75,6 +75,7 @@ namespace magneticfield {
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
     cms::DDDetector* detector_{nullptr};
+    int cachedGeometryVersion_{-1};
 
     const bool debug_;
     const bool useMergeFileIfAvailable_;
@@ -183,19 +184,26 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
     builder.setGridFiles(conf->gridFiles);
   }
 
-  // Build the geometry from the DB blob
+  // Build the geometry from the DB blob and cache it
+  if (cachedGeometryVersion_ != conf->geometryVersion) {
+    if (nullptr != detector_) {
+      edm::LogError("MagneticField") << "MF Geometry needs to be re-created since current changed (cached: "
+                                     << cachedGeometryVersion_ << " requested: " << conf->geometryVersion
+                                     << "), which is not supported by dd4hep" << endl;
+    }
 
-  auto const& blob = iRecord.getTransientHandle(mayConsumeBlobToken_);
-  std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
+    auto const& blob = iRecord.getTransientHandle(mayConsumeBlobToken_);
+    std::unique_ptr<std::vector<unsigned char> > tb = blob->getUncompressedBlob();
 
-  string sblob(tb->begin(), tb->end());
-  sblob.insert(
-      sblob.rfind("</DDDefinition>"),
-      "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
-      "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
+    string sblob(tb->begin(), tb->end());
+    sblob.insert(sblob.rfind("</DDDefinition>"),
+                 "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" "
+                 "density=\"1e-13*mg/cm3\" "
+                 "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  if (nullptr == detector_)
     detector_ = new cms::DDDetector("cmsMagneticField:MAGF", sblob, true);
+    cachedGeometryVersion_ = conf->geometryVersion;
+  }
 
   builder.build(detector_);
 

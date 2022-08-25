@@ -626,6 +626,12 @@ bool SiPixelTemplate2D::getid(int id) {
 bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
   // Interpolate for a new set of track angles
 
+  //check for nan's
+  if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+    success_ = false;
+    return success_;
+  }
+
   // Local variables
 
   float acotb, dcota, dcotb;
@@ -680,12 +686,6 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
-
-      //check for nan's
-      if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
-        success_ = false;
-        return success_;
-      }
 #else
       std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #endif

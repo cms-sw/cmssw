@@ -501,7 +501,6 @@ void MillePedeFileReader::initializeIndexHelper() {
   indexHelper[PclHLS::TPEPanelDisk2] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(2));
   currentSum += pixelTopologyMap_->getPXFBlades(2) * 2;
   indexHelper[PclHLS::TPEPanelDisk3] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(3));
-  currentSum += pixelTopologyMap_->getPXFBlades(3) * 2;
 }
 
 int MillePedeFileReader::getIndexForHG(align::ID id, PclHLS HLS) {

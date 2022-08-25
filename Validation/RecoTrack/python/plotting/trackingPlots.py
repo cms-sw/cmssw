@@ -1810,7 +1810,7 @@ class TrackingTimingTable:
         return self._section
 
     def _getValues(self, tdirectory, histo):
-        h = tdirectory.Get(histo)
+        h = tdirectory.Get(histo._timeHisto)
         totalReco = None
         if h:
             totalReco = "%.1f" % h.Integral()

@@ -970,6 +970,19 @@ Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(1.3577)
 )
 
+# Guess for 2022 PbPb beam conditions, which takes the 2018 PbPb beam width parameters from RealisticPbPbCollision2018VtxSmearingParameters with the current pp MC beam centroid from Realistic25ns13p6TeVEarly2022Collision
+Nominal2022PbPbCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(3.36e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.97),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.100629),
+    Y0 = cms.double(-0.014995),
+    Z0 = cms.double(1.298155)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),

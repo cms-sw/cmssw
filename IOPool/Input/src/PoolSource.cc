@@ -121,6 +121,10 @@ namespace edm {
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           auto itFound = fullList.find(item.first);
           if (itFound != fullList.end()) {
+            // If the branch in primary file was dropped, need to initilize the dictionary information
+            if (itFound->second.dropped()) {
+              itFound->second.initFromDictionary();
+            }
             itFound->second.setDropped(false);
           }
         }

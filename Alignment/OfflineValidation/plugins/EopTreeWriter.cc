@@ -340,7 +340,7 @@ void EopTreeWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   psd0.add<bool>("useCalo", false);
   psd0.add<bool>("useEcal", true);
   psd0.add<bool>("useGEM", false);
-  psd0.add<bool>("useHO", true);
+  psd0.add<bool>("useHO", false);
   psd0.add<bool>("useHcal", true);
   psd0.add<bool>("useME0", false);
   psd0.add<bool>("useMuon", true);

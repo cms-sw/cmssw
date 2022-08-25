@@ -972,7 +972,8 @@ namespace mkfit {
 
     const int n_seeds = end_seed - start_seed;
 
-    std::vector<std::pair<int, int>> seed_cand_idx, seed_cand_update_idx;
+    std::vector<std::pair<int, int>> seed_cand_idx;
+    std::vector<UpdateIndices> seed_cand_update_idx;
     seed_cand_idx.reserve(n_seeds * params.maxCandsPerSeed);
     seed_cand_update_idx.reserve(n_seeds * params.maxCandsPerSeed);
 
@@ -1108,9 +1109,9 @@ namespace mkfit {
       for (int itrack = 0; itrack < theEndUpdater; itrack += NN) {
         const int end = std::min(itrack + NN, theEndUpdater);
 
-        mkfndr->inputTracksAndHitIdx(eoccs.refCandidates(), seed_cand_update_idx, itrack, end, true);
+        mkfndr->inputTracksAndHits(eoccs.refCandidates(), layer_of_hits, seed_cand_update_idx, itrack, end, true);
 
-        mkfndr->updateWithLastHit(layer_of_hits, end - itrack, fnd_foos);
+        mkfndr->updateWithLoadedHit(end - itrack, fnd_foos);
 
         // copy_out the updated track params, errors only (hit-idcs and chi2 already set)
         mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, false);

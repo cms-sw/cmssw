@@ -24,4 +24,9 @@
   <test name="EcalTPGTowerStatus_O2O_test" command="EcalTPGTowerStatus_O2O_test.sh"/>
   <test name="EcalADCToGeV_update_test" command="EcalADCToGeV_update_test.sh"/>
   <test name="EcalIntercalibConstants_O2O_test" command="EcalIntercalibConstants_O2O_test.sh"/>
+  <test name="EcalTPG_updateWeightGroup_test" command="EcalTPG_updateWeightGroup_test.sh"/>
+  <test name="EcalTPG_updateWeightIdMap_test" command="EcalTPG_updateWeightIdMap_test.sh"/>
+  <test name="EcalTPG_updateOddWeightGroup_test" command="EcalTPG_updateOddWeightGroup_test.sh"/>
+  <test name="EcalTPG_updateOddWeightIdMap_test" command="EcalTPG_updateOddWeightIdMap_test.sh"/>
+  
 </ifarch>

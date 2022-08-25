@@ -8,10 +8,16 @@ from Configuration.ProcessModifiers.particleNetSonicTriton_cff import particleNe
 from Configuration.ProcessModifiers.particleNetPTSonicTriton_cff import particleNetPTSonicTriton
 
 pfParticleNetAK4TagInfos = pfDeepBoostedJetTagInfos.clone(
+    jets = "ak4PFJetsCHS",
     jet_radius = 0.4,
     min_jet_pt = 15,
     min_puppi_wgt = -1,
     use_puppiP4 = False,
+)
+
+pfParticleNetAK4TagInfosForRECO = pfParticleNetAK4TagInfos.clone(
+    min_jet_pt = 25,
+    max_jet_eta = 2.5,
 )
 
 pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
@@ -20,6 +26,17 @@ pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
     model_path = 'RecoBTag/Combined/data/ParticleNetAK4/CHS/V00/modelfile/model.onnx',
     flav_names = ["probb",  "probbb",  "probc",   "probcc",  "probuds", "probg", "probundef", "probpu"],
 )
+
+pfParticleNetAK4JetTagsForRECO = pfParticleNetAK4JetTags.clone(
+    src = 'pfParticleNetAK4TagInfosForRECO',
+)
+
+pfParticleNetAK4DiscriminatorsJetTagsForRECO = pfParticleNetAK4DiscriminatorsJetTags.clone()
+for discriminator in pfParticleNetAK4DiscriminatorsJetTagsForRECO.discriminators:
+    for num in discriminator.numerator:
+        num.setModuleLabel("pfParticleNetAK4JetTagsForRECO");
+    for den in discriminator.denominator:
+        den.setModuleLabel("pfParticleNetAK4JetTagsForRECO");
 
 particleNetSonicTriton.toReplaceWith(pfParticleNetAK4JetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetAK4TagInfos',
@@ -52,16 +69,16 @@ from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import primaryVertexAsso
 # This task is not used, useful only if we run it from RECO jets (RECO/AOD)
 pfParticleNetAK4Task = cms.Task(puppi, primaryVertexAssociation, pfParticleNetAK4TagInfos,
                                 pfParticleNetAK4JetTags, pfParticleNetAK4DiscriminatorsJetTags)
+pfParticleNetAK4TaskForRECO = cms.Task(puppi, primaryVertexAssociation, pfParticleNetAK4TagInfosForRECO,
+                                pfParticleNetAK4JetTagsForRECO, pfParticleNetAK4DiscriminatorsJetTagsForRECO)
 
 # declare all the discriminators
 # probs
 _pfParticleNetAK4JetTagsProbs = ['pfParticleNetAK4JetTags:' + flav_name
                                  for flav_name in pfParticleNetAK4JetTags.flav_names]
-
 # meta-taggers
 _pfParticleNetAK4JetTagsMetaDiscrs = ['pfParticleNetAK4DiscriminatorsJetTags:' + disc.name.value()
                                       for disc in pfParticleNetAK4DiscriminatorsJetTags.discriminators]
-
 _pfParticleNetAK4JetTagsAll = _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs
 
 

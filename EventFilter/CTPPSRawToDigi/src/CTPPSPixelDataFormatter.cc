@@ -238,7 +238,7 @@ void CTPPSPixelDataFormatter::formatRawData(const bool& isRun3,
 
       m_Indices.transformToROC(modulePixelColumn, modulePixelRow, rocID, rocPixelColumn, rocPixelRow);
       const int dcol = m_Indices.DColumn(rocPixelColumn);
-      const int pxid = 2 * (ROCSizeInX - rocPixelRow) + (rocPixelColumn % 2);
+      const int pxid = 2 * (rpixValues::ROCSizeInX - rocPixelRow) + (rocPixelColumn % 2);
 
       unsigned int urocID = rocID;
       PPSPixelIndex myTest = {rawId, urocID, 0, 0, 0};

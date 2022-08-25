@@ -4,12 +4,12 @@
 #include <optional>
 #include <type_traits>
 
-#include <alpaka/alpaka.hpp>
-
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 // generic SoA-based product in device memory
-template <typename T, typename TDev>
+template <typename T, typename TDev, typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev>>>
 class PortableDeviceCollection {
   static_assert(not std::is_same_v<TDev, alpaka_common::DevHost>,
                 "Use PortableHostCollection<T> instead of PortableDeviceCollection<T, DevHost>");
@@ -18,14 +18,22 @@ public:
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
-  using Buffer = alpaka::Buf<TDev, std::byte, alpaka::DimInt<1u>, uint32_t>;
-  using ConstBuffer = alpaka::ViewConst<Buffer>;
+  using Buffer = cms::alpakatools::device_buffer<TDev, std::byte[]>;
+  using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, std::byte[]>;
 
   PortableDeviceCollection() = default;
 
   PortableDeviceCollection(int32_t elements, TDev const &device)
-      : buffer_{alpaka::allocBuf<std::byte, uint32_t>(
-            device, alpaka::Vec<alpaka::DimInt<1u>, uint32_t>{Layout::computeDataSize(elements)})},
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(elements))},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+  }
+
+  template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  PortableDeviceCollection(int32_t elements, TQueue const &queue)
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
         view_{layout_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128

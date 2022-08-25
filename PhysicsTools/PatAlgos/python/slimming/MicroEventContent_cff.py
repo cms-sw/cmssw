@@ -13,6 +13,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
+        'keep *_slimmedJPTJets_*_*',
         'keep *_slimmedJets_*_*',
         # keep slimmedJets TagInfos, currently only PixelClusterTagInfo
         'keep recoBaseTagInfosOwned_slimmedJets_*_*',

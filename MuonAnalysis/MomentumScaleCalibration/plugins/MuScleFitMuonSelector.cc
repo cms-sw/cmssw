@@ -87,8 +87,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
                                         std::vector<GenMuonPair>& genPair,
                                         std::vector<std::pair<lorentzVector, lorentzVector> >& simPair,
                                         MuScleFitPlotter* plotter) {
-  edm::Handle<pat::CompositeCandidateCollection> collAll;
-  event.getByLabel("onia2MuMuPatTrkTrk", collAll);
+  edm::Handle<pat::CompositeCandidateCollection> collAll = event.getHandle(onia2MuMuToken_);
   if (!collAll.isValid()) {
     edm::LogWarning("MuScleFitUtils") << "J/psi not present in event!";
   }
@@ -179,8 +178,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
   } else if ((muonType_ < 4 && muonType_ >= 0) || muonType_ >= 10) {  // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if (PATmuons_ == true) {
-      edm::Handle<pat::MuonCollection> allMuons;
-      event.getByLabel(muonLabel_, allMuons);
+      edm::Handle<pat::MuonCollection> allMuons = event.getHandle(patMuonToken_);
       if (muonType_ == 0) {
         // Take directly the muon
         muons = fillMuonCollection(*allMuons);
@@ -192,8 +190,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
         muons = fillMuonCollection(tracks);
       }
     } else {
-      edm::Handle<reco::MuonCollection> allMuons;
-      event.getByLabel(muonLabel_, allMuons);
+      edm::Handle<reco::MuonCollection> allMuons = event.getHandle(recoMuonToken_);
       if (muonType_ == 0) {
         // Take directly the muon
         muons = fillMuonCollection(*allMuons);
@@ -205,8 +202,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
       }
     }
   } else if (muonType_ == 4) {  //CaloMuons
-    edm::Handle<reco::CaloMuonCollection> caloMuons;
-    event.getByLabel(muonLabel_, caloMuons);
+    edm::Handle<reco::CaloMuonCollection> caloMuons = event.getHandle(caloMuonToken_);
     std::vector<reco::Track> tracks;
     for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon) {
       tracks.push_back(*(muon->track()));
@@ -215,8 +211,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
   }
 
   else if (muonType_ == 5) {  // Inner tracker tracks
-    edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel(muonLabel_, tracks);
+    edm::Handle<reco::TrackCollection> tracks = event.getHandle(trackCollectionToken_);
     muons = fillMuonCollection(*tracks);
   }
   plotter->fillRec(muons);
@@ -296,14 +291,11 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event& event,
                                               MuScleFitPlotter* plotter) {
   // Find and store in histograms the generated and simulated resonance and muons
   // ----------------------------------------------------------------------------
-  edm::Handle<edm::HepMCProduct> evtMC;
-  edm::Handle<reco::GenParticleCollection> genParticles;
+  edm::Handle<edm::HepMCProduct> evtMC = event.getHandle(evtMCToken_);
+  edm::Handle<reco::GenParticleCollection> genParticles = event.getHandle(genParticleToken_);
 
   // Fill gen information only in the first loop
   bool ifHepMC = false;
-
-  event.getByLabel(genParticlesName_, evtMC);
-  event.getByLabel(genParticlesName_, genParticles);
   if (evtMC.isValid()) {
     genPair.push_back(findGenMuFromRes(evtMC.product()));
     plotter->fillGen(*evtMC, sherpa_);
@@ -334,9 +326,8 @@ void MuScleFitMuonSelector::selectSimulatedMuons(const edm::Event& event,
                                                  edm::Handle<edm::HepMCProduct> evtMC,
                                                  std::vector<std::pair<lorentzVector, lorentzVector> >& simPair,
                                                  MuScleFitPlotter* plotter) {
-  edm::Handle<edm::SimTrackContainer> simTracks;
+  edm::Handle<edm::SimTrackContainer> simTracks = event.getHandle(simTrackToken_);
   bool simTracksFound = false;
-  event.getByLabel(simTracksCollectionName_, simTracks);
   if (simTracks.isValid()) {
     plotter->fillSim(simTracks);
     if (ifHepMC) {

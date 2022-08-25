@@ -49,7 +49,7 @@ namespace edm {
     void addToUnscheduledWorkers(ParameterSet& pset,
                                  ProductRegistry& preg,
                                  PreallocationConfiguration const* prealloc,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string label,
                                  std::set<std::string>& unscheduledLabels,
                                  std::vector<std::string>& shouldBeUsedLabels);
@@ -83,6 +83,7 @@ namespace edm {
     void endStream(StreamID iID, StreamContext& streamContext);
 
     AllWorkers const& allWorkers() const { return allWorkers_; }
+    AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
 
     void addToAllWorkers(Worker* w);
 

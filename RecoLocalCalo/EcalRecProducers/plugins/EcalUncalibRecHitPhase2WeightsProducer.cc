@@ -33,6 +33,7 @@ void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::Configuration
   desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
   desc.add<double>("tRise", 0.2);
   desc.add<double>("tFall", 2.);
+  // The below weights values should be kept up to date with GPU version of this module
   desc.add<std::vector<double>>("weights",
                                 {-0.121016,
                                  -0.119899,

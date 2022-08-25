@@ -9,7 +9,7 @@
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); (default: 0)
+//                           5 (Run 4; post LS3); (default: 3)
 //   debug      bool         Debug flag (default: false)
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 
 class HBHEMuonHighEta {
 public:
-  HBHEMuonHighEta(const char *infile, const char *outfile, const int mode = 0, const bool debug = false);
+  HBHEMuonHighEta(const char *infile, const char *outfile, const int mode = 3, const bool debug = false);
   virtual ~HBHEMuonHighEta();
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);

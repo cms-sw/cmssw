@@ -21,6 +21,7 @@ struct ParamsForChi {
   double AA;
   double ZZ;
   double MMA;
+  double MMu;
   double EE0;
 };
 struct frame {
@@ -81,6 +82,7 @@ protected:
   G4ParticleDefinition* theAPrime;
   G4ParticleChangeForLoss* fParticleChange;
   G4double MA;
+  G4double muonMass;
   G4bool isMuon;
 
 private:

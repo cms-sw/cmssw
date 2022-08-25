@@ -545,4 +545,12 @@
   </test>
   <test name="TestIntegrationFinalPath" command="test_finalpath.sh"/>
 
+  <library file="TestGetByLabelAnalyzer.cc" name ="TestGetByLabelAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/MessageLogger"/>
+  </library>
+  <test name="TestIntegrationGetByLabel" command="run_TestGetByLabel.sh"/>
+
 </environment>

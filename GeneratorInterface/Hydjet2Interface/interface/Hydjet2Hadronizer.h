@@ -4,7 +4,7 @@
 /**
  *    \class HydjetHadronizer
  *    \brief Interface to the HYDJET++ (Hydjet2) generator (since core v. 2.4.2), produces HepMC events
- *    \version 1.0
+ *    \version 1.1
  *    \author Andrey Belyaev
  */
 
@@ -74,7 +74,7 @@ namespace gen {
 
     inline double nuclear_radius() const;
 
-    int convertStatusForComponents(int, int);
+    int convertStatusForComponents(int, int, int);
     int convertStatus(int);
 
     InitialParamsHydjet_t fParams;

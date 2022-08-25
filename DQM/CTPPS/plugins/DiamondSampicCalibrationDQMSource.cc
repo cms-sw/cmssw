@@ -174,8 +174,9 @@ DiamondSampicCalibrationDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker 
 
 DiamondSampicCalibrationDQMSource::DiamondSampicCalibrationDQMSource(const edm::ParameterSet &ps)
     : totemTimingDigiToken_(
-          consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getParameter<edm::InputTag>("totemTimingDigiTag"))),
-      tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
+          consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getUntrackedParameter<edm::InputTag>("totemTimingDigiTag"))),
+      tokenRecHit_(
+          consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getUntrackedParameter<edm::InputTag>("tagRecHits"))),
       timingCalibrationToken_(esConsumes<edm::Transition::BeginRun>()),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),

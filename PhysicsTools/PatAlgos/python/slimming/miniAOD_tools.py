@@ -378,6 +378,7 @@ def miniAOD_customizeCommon(process):
         process, debug = False,
         originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauName,
+        postfix = 'ForMini',
         toKeep = ['deepTau2017v2p1','deepTau2018v2p5']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
@@ -387,8 +388,8 @@ def miniAOD_customizeCommon(process):
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
     process.slimmedTaus = getattr(process, _updatedTauName).clone()
-    process.rerunMvaIsolationTask.add(process.slimmedTaus)
-    task.add(process.rerunMvaIsolationTask)
+    process.rerunMvaIsolationTaskForMini.add(process.slimmedTaus)
+    task.add(process.rerunMvaIsolationTaskForMini)
 
     #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
     # to enable default behoviour with leading track extrapolation to ECAL

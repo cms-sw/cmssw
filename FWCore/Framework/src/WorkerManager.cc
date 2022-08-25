@@ -52,7 +52,7 @@ namespace edm {
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
                                               ProductRegistry& preg,
                                               PreallocationConfiguration const* prealloc,
-                                              std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                              std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                               std::string label,
                                               std::set<std::string>& unscheduledLabels,
                                               std::vector<std::string>& shouldBeUsedLabels) {

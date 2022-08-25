@@ -92,6 +92,23 @@ namespace edm {
     static std::regex const reToRefsAssoc(
         "edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
 
+    // type aliases for Alpaka internals
+    static std::regex const reAlpakaDevCpu("alpaka::DevCpu");                                     // alpakaDevCpu
+    static std::regex const reAlpakaDevCudaRt("alpaka::DevUniformCudaHipRt<alpaka::ApiCudaRt>");  // alpakaDevCudaRt
+    static std::regex const reAlpakaDevHipRt("alpaka::DevUniformCudaHipRt<alpaka::ApiHipRt>");    // alpakaDevHipRt
+    static std::regex const reAlpakaQueueCpuBlocking(
+        "alpaka::QueueGenericThreadsBlocking<alpaka::DevCpu>");  // alpakaQueueCpuBlocking
+    static std::regex const reAlpakaQueueCpuNonBlocking(
+        "alpaka::QueueGenericThreadsNonBlocking<alpaka::DevCpu>");  // alpakaQueueCpuNonBlocking
+    static std::regex const reAlpakaQueueCudaRtBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiCudaRt,true>");  // alpakaQueueCudaRtBlocking
+    static std::regex const reAlpakaQueueCudaRtNonBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiCudaRt,false>");  // alpakaQueueCudaRtNonBlocking
+    static std::regex const reAlpakaQueueHipRtBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiHipRt,true>");  // alpakaQueueHipRtBlocking
+    static std::regex const reAlpakaQueueHipRtNonBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiHipRt,false>");  // alpakaQueueHipRtNonBlocking
+
     std::string standardRenames(std::string const& iIn) {
       using std::regex;
       using std::regex_replace;
@@ -121,7 +138,22 @@ namespace edm {
       name = regex_replace(name, reToRefs1, "Refs<$1<$2>>");
       name = regex_replace(name, reToRefs2, "Refs<$1,$2>");
       name = regex_replace(name, reToRefsAssoc, "Refs<Association$1>");
-      //std::cout <<"standardRenames '"<<name<<"'"<<std::endl;
+
+      // Alpaka types
+      name = regex_replace(name, reAlpakaQueueCpuBlocking, "alpakaQueueCpuBlocking");
+      name = regex_replace(name, reAlpakaQueueCpuNonBlocking, "alpakaQueueCpuNonBlocking");
+      name = regex_replace(name, reAlpakaQueueCudaRtBlocking, "alpakaQueueCudaRtBlocking");
+      name = regex_replace(name, reAlpakaQueueCudaRtNonBlocking, "alpakaQueueCudaRtNonBlocking");
+      name = regex_replace(name, reAlpakaQueueHipRtBlocking, "alpakaQueueHipRtBlocking");
+      name = regex_replace(name, reAlpakaQueueHipRtNonBlocking, "alpakaQueueHipRtNonBlocking");
+      // devices should be last, as they can appear as template arguments in other types
+      name = regex_replace(name, reAlpakaDevCpu, "alpakaDevCpu");
+      name = regex_replace(name, reAlpakaDevCudaRt, "alpakaDevCudaRt");
+      name = regex_replace(name, reAlpakaDevHipRt, "alpakaDevHipRt");
+
+      if constexpr (debug) {
+        std::cout << prefix << "standardRenames iIn " << iIn << " result " << name << std::endl;
+      }
       return name;
     }
 

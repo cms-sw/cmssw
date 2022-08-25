@@ -381,11 +381,14 @@ DiamondSampicDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, u
 //----------------------------------------------------------------------------------------------------
 
 DiamondSampicDQMSource::DiamondSampicDQMSource(const edm::ParameterSet &ps)
-    : tokenLocalTrack_(consumes<edm::DetSetVector<TotemRPLocalTrack>>(ps.getParameter<edm::InputTag>("tagLocalTrack"))),
-      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getParameter<edm::InputTag>("tagDigi"))),
-      tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
-      tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(ps.getParameter<edm::InputTag>("tagTracks"))),
-      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+    : tokenLocalTrack_(
+          consumes<edm::DetSetVector<TotemRPLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagLocalTrack"))),
+      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagDigi"))),
+      tokenRecHit_(
+          consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getUntrackedParameter<edm::InputTag>("tagRecHits"))),
+      tokenTrack_(
+          consumes<edm::DetSetVector<TotemTimingLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagTracks"))),
+      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getUntrackedParameter<edm::InputTag>("tagFEDInfo"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),

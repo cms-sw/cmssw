@@ -55,12 +55,12 @@ public:
   /// uniqueId of Alignable, 0 if alignable not known
   /// between this ID and the next there is enough 'space' to add parameter
   /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
-  virtual unsigned int alignableLabel(Alignable *alignable) const = 0;
+  virtual unsigned int alignableLabel(const Alignable *alignable) const = 0;
   /// uniqueId of Alignable for a given parameter index and instance,
   /// 0 if alignable not known between this ID and the next there is enough
   /// 'space' to add parameter numbers 0...nPar-1 to make unique IDs for the
   /// labels of active parameters
-  virtual unsigned int alignableLabelFromParamAndInstance(Alignable *alignable,
+  virtual unsigned int alignableLabelFromParamAndInstance(const Alignable *alignable,
                                                           unsigned int param,
                                                           unsigned int instance) const = 0;
   virtual unsigned int lasBeamLabel(unsigned int lasBeamId) const = 0;
@@ -126,6 +126,13 @@ private:
 
   /// pairs of calibrations and their first label
   std::vector<std::pair<IntegratedCalibrationBase *, unsigned int> > theCalibrationLabels;
+};
+
+struct AlignableComparator {
+  using is_transparent = void;  // needs to be defined, actual type is not relevant
+  bool operator()(Alignable *a, Alignable *b) const { return a < b; }
+  bool operator()(Alignable *a, const Alignable *b) const { return a < b; }
+  bool operator()(const Alignable *a, Alignable *b) const { return a < b; }
 };
 
 #endif

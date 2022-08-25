@@ -1,4 +1,7 @@
 <lcgdict>
   <class name="alpaka_cuda_async::portabletest::TestDeviceCollection" persistent="false"/>
   <class name="edm::Wrapper<alpaka_cuda_async::portabletest::TestDeviceCollection>" persistent="false"/>
+
+  <class name="cms::alpakatools::Product<alpaka_cuda_async::Queue, alpaka_cuda_async::portabletest::TestDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<cms::alpakatools::Product<alpaka_cuda_async::Queue, alpaka_cuda_async::portabletest::TestDeviceCollection>>" persistent="false"/>
 </lcgdict>

@@ -6,33 +6,20 @@ from TrackPropagation.Geant4e.Geant4ePropagator_cfi import *
 
 from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 
+from SimG4Core.Application.g4SimHits_cfi import g4SimHits as _g4SimHits
+
+
 ## Set up geometry
 geopro = cms.EDProducer("GeometryProducer",
+     GeoFromDD4hep = cms.bool(False),
      UseMagneticField = cms.bool(True),
      UseSensitiveDetectors = cms.bool(False),
-     MagneticField = cms.PSet(
-         UseLocalMagFieldManager = cms.bool(False),
-         Verbosity = cms.untracked.bool(False),
-         ConfGlobalMFM = cms.PSet(
-             Volume = cms.string('OCMS'),
-             OCMS = cms.PSet(
-                 Stepper = cms.string('G4ClassicalRK4'),
-                 Type = cms.string('CMSIMField'),
-                 StepperParam = cms.PSet(
-                     MaximumEpsilonStep = cms.untracked.double(0.01), ## in mm
-                     DeltaOneStep = cms.double(1e-4),## in mm
-                     MaximumLoopCounts = cms.untracked.double(1000.0),
-                     DeltaChord = cms.double(0.001), ## in mm
-                     MinStep = cms.double(0.1), ## in mm
-                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
-                     DeltaIntersection = cms.double(1e-6), ## in mm
-                     MinimumEpsilonStep = cms.untracked.double(1e-05) ## in mm
-                 )
-             )
-         ),
-         delta = cms.double(1.0)
-     )
-   )
+     MagneticField =  _g4SimHits.MagneticField.clone()
+)
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+dd4hep.toModify(geopro, GeoFromDD4hep = True )
+
 
 # load this to do a track refit
 from RecoTracker.TrackProducer.TrackRefitters_cff import *

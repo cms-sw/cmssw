@@ -55,28 +55,28 @@
 // JPTJet is omitted for now: there is no reco::writeSpecific method
 // for it (see header JetSpecific.h in the JetProducers package)
 //
-#define jet_type_switch(method, arg1, arg2)                    \
-  do {                                                         \
-    switch (jetType) {                                         \
-      case CALOJET:                                            \
-        method<reco::CaloJet>(arg1, arg2);                     \
-        break;                                                 \
-      case PFJET:                                              \
-        method<reco::PFJet>(arg1, arg2);                       \
-        break;                                                 \
-      case GENJET:                                             \
-        method<reco::GenJet>(arg1, arg2);                      \
-        break;                                                 \
-      case TRACKJET:                                           \
-        method<reco::TrackJet>(arg1, arg2);                    \
-        break;                                                 \
-      case BASICJET:                                           \
-        method<reco::BasicJet>(arg1, arg2);                    \
-        break;                                                 \
-      default:                                                 \
-        assert(!"ERROR in FFTJetProducer : invalid jet type."\
+#define jet_type_switch(method, arg1, arg2)                      \
+  do {                                                           \
+    switch (jetType) {                                           \
+      case CALOJET:                                              \
+        method<reco::CaloJet>(arg1, arg2);                       \
+        break;                                                   \
+      case PFJET:                                                \
+        method<reco::PFJet>(arg1, arg2);                         \
+        break;                                                   \
+      case GENJET:                                               \
+        method<reco::GenJet>(arg1, arg2);                        \
+        break;                                                   \
+      case TRACKJET:                                             \
+        method<reco::TrackJet>(arg1, arg2);                      \
+        break;                                                   \
+      case BASICJET:                                             \
+        method<reco::BasicJet>(arg1, arg2);                      \
+        break;                                                   \
+      default:                                                   \
+        assert(!"ERROR in FFTJetProducer : invalid jet type."  \
                " This is a bug. Please report."); \
-    }                                                          \
+    }                                                            \
   } while (0);
 
 namespace {
@@ -180,6 +180,8 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   input_genjet_token_ = consumes<std::vector<reco::FFTAnyJet<reco::GenJet> > >(genJetsLabel);
   input_energyflow_token_ = consumes<reco::DiscretizedEnergyFlow>(treeLabel);
   input_pusummary_token_ = consumes<reco::FFTJetPileupSummary>(pileupLabel);
+
+  esLoader_.acquireToken(pileupTableRecord, consumesCollector());
 
   // Most of the configuration has to be performed inside
   // the "beginStream" method. This is because chaining of the
@@ -964,8 +966,7 @@ void FFTJetProducer::determinePileupDensityFromConfig(const edm::Event& iEvent,
 void FFTJetProducer::determinePileupDensityFromDB(const edm::Event& iEvent,
                                                   const edm::EventSetup& iSetup,
                                                   std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density) {
-  edm::ESHandle<FFTJetLookupTableSequence> h;
-  StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, pileupTableRecord, h);
+  edm::ESHandle<FFTJetLookupTableSequence> h = esLoader_.load(pileupTableRecord, iSetup);
   std::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[pileupTableCategory][pileupTableName];
 
   edm::Handle<reco::FFTJetPileupSummary> summary;

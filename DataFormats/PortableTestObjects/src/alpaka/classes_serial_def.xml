@@ -11,6 +11,8 @@
     portabletest::TestHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
   ]]>
   </read>
-
   <class name="edm::Wrapper<portabletest::TestHostCollection>" splitLevel="0"/>
+
+  <class name="cms::alpakatools::Product<alpaka_serial_sync::Queue, portabletest::TestHostCollection>" persistent="false"/>
+  <class name="edm::Wrapper<cms::alpakatools::Product<alpaka_serial_sync::Queue, portabletest::TestHostCollection>>" persistent="false"/>
 </lcgdict>

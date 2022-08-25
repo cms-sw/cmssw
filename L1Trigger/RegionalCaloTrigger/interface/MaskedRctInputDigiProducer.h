@@ -26,7 +26,7 @@ RCT.
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,21 +42,20 @@ RCT.
 // class declaration
 //
 
-class MaskedRctInputDigiProducer : public edm::EDProducer {
+class MaskedRctInputDigiProducer : public edm::global::EDProducer<> {
 public:
   explicit MaskedRctInputDigiProducer(const edm::ParameterSet &);
   ~MaskedRctInputDigiProducer() override;
 
 private:
-  void produce(edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   // ----------member data ---------------------------
 
   bool useEcal_;
   bool useHcal_;
-  edm::InputTag ecalDigisLabel_;
-  edm::InputTag hcalDigisLabel_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalDigisToken_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalDigisToken_;
   edm::FileInPath maskFile_;
 };
 #endif

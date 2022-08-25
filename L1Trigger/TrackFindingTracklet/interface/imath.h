@@ -127,6 +127,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 #ifdef IMATH_ROOT
 #include <TH2F.h>
@@ -1012,11 +1013,11 @@ namespace trklet {
     int addr_to_ival(int addr) {
       switch (m_) {
         case mode::pos:
-          return addr << shift_;
+          return l1t::bitShift(addr, shift_);
         case mode::neg:
-          return (addr - Nelements_) << shift_;
+          return l1t::bitShift((addr - Nelements_), shift_);
         case mode::both:
-          return (addr << ashift_) >> (ashift_ - shift_);
+          return l1t::bitShift(addr, ashift_) >> (ashift_ - shift_);
       }
       assert(0);
     }

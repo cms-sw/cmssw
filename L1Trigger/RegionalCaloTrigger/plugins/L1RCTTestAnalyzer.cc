@@ -32,6 +32,7 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet &iConfig)
       rctDigisLabel(iConfig.getParameter<edm::InputTag>("rctDigisLabel")) {
   // now do what ever initialization is needed
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
 
   emTree = fs->make<TTree>("emTree", "L1 RCT EM tree");

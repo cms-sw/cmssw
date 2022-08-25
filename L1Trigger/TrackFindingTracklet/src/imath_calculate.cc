@@ -47,7 +47,7 @@ bool VarBase::calculate(int debug_level) {
   int nmax = sizeof(long int) * 8;
   int ns = nmax - nbits_;
   long int itest = ival_;
-  itest = itest << ns;
+  itest = l1t::bitShift(itest, ns);
   itest = itest >> ns;
   if (itest != ival_) {
     if (debug_level == 3 || (ival_ != ival_prev && all_ok)) {
@@ -99,7 +99,7 @@ void VarAdjustK::local_calculate() {
   if (lr_ > 0)
     ival_ = ival_ >> lr_;
   else if (lr_ < 0)
-    ival_ = ival_ << (-lr_);
+    ival_ = l1t::bitShift(ival_, (-lr_));
 }
 
 void VarAdjustKR::local_calculate() {
@@ -108,7 +108,7 @@ void VarAdjustKR::local_calculate() {
   if (lr_ > 0)
     ival_ = ((ival_ >> (lr_ - 1)) + 1) >> 1;  //rounding
   else if (lr_ < 0)
-    ival_ = ival_ << (-lr_);
+    ival_ = l1t::bitShift(ival_, (-lr_));
 }
 
 void VarAdd::local_calculate() {
@@ -116,9 +116,9 @@ void VarAdd::local_calculate() {
   long int i1 = p1_->ival();
   long int i2 = p2_->ival();
   if (shift1 > 0)
-    i1 = i1 << shift1;
+    i1 = l1t::bitShift(i1, shift1);
   if (shift2 > 0)
-    i2 = i2 << shift2;
+    i2 = l1t::bitShift(i2, shift2);
   ival_ = i1 + i2;
   if (ps_ > 0)
     ival_ = ival_ >> ps_;
@@ -129,9 +129,9 @@ void VarSubtract::local_calculate() {
   long int i1 = p1_->ival();
   long int i2 = p2_->ival();
   if (shift1 > 0)
-    i1 = i1 << shift1;
+    i1 = l1t::bitShift(i1, shift1);
   if (shift2 > 0)
-    i2 = i2 << shift2;
+    i2 = l1t::bitShift(i2, shift2);
   ival_ = i1 - i2;
   if (ps_ > 0)
     ival_ = ival_ >> ps_;
@@ -158,7 +158,7 @@ void VarShift::local_calculate() {
   if (shift_ > 0)
     ival_ = ival_ >> shift_;
   if (shift_ < 0)
-    ival_ = ival_ << (-shift_);
+    ival_ = l1t::bitShift(ival_, (-shift_));
 }
 
 void VarShiftround::local_calculate() {
@@ -167,7 +167,7 @@ void VarShiftround::local_calculate() {
   if (shift_ > 0)
     ival_ = ((ival_ >> (shift_ - 1)) + 1) >> 1;
   if (shift_ < 0)
-    ival_ = ival_ << (-shift_);
+    ival_ = l1t::bitShift(ival_, (-shift_));
 }
 
 void VarMult::local_calculate() {
@@ -179,7 +179,7 @@ void VarDSPPostadd::local_calculate() {
   fval_ = p1_->fval() * p2_->fval() + p3_->fval();
   ival_ = p3_->ival();
   if (shift3_ > 0)
-    ival_ = ival_ << shift3_;
+    ival_ = l1t::bitShift(ival_, shift3_);
   if (shift3_ < 0)
     ival_ = ival_ >> (-shift3_);
   ival_ += p1_->ival() * p2_->ival();

@@ -227,6 +227,15 @@ namespace l1t {
           }
         }  // End loop: for (auto const & iHit : *res_hit)
 
+        // Reject TPs with out-of-range BX values. This needs to be adjusted if we increase l1a_window parameter in EMTF config - EY 03.08.2022
+        if (Hit_.BX() > 3 or Hit_.BX() < -3) {
+          edm::LogWarning("L1T|EMTF") << "EMTF unpacked  GEM digis with out-of-range BX! BX " << Hit_.BX()
+                                      << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station() << ", neighbor "
+                                      << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+                                      << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad() << std::endl;
+          return true;
+        }
+
         // TODO: Re-enable once GEM TP data format is fixed
         // if (exact_duplicate)
         //   edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate GEM digis: BX " << Hit_.BX() << ", endcap "

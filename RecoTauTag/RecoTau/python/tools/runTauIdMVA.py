@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
 from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
+from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p1, WORKING_POINTS_v2p5
+
 import os
 import re
 
@@ -58,7 +60,6 @@ class TauIDEmbedder(object):
             if discr not in TauIDEmbedder.availableDiscriminators:
                 raise RuntimeError('TauIDEmbedder: discriminator "{}" is not supported'.format(discr))
         self.toKeep = toKeep
-
     
     @staticmethod
     def get_cmssw_version(debug = False):
@@ -562,34 +563,7 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2017v2"
-            workingPoints_ = {
-                "e": {
-                    "VVVLoose": 0.0630386,
-                    "VVLoose": 0.1686942,
-                    "VLoose": 0.3628130,
-                    "Loose": 0.6815435,
-                    "Medium": 0.8847544,
-                    "Tight": 0.9675541,
-                    "VTight": 0.9859251,
-                    "VVTight": 0.9928449,
-                },
-                "mu": {
-                    "VLoose": 0.1058354,
-                    "Loose": 0.2158633,
-                    "Medium": 0.5551894,
-                    "Tight": 0.8754835,
-                },
-                "jet": {
-                    "VVVLoose": 0.2599605,
-                    "VVLoose": 0.4249705,
-                    "VLoose": 0.5983682,
-                    "Loose": 0.7848675,
-                    "Medium": 0.8834768,
-                    "Tight": 0.9308689,
-                    "VTight": 0.9573137,
-                    "VVTight": 0.9733927,
-                },
-            }
+            workingPoints_ = WORKING_POINTS_v2p1
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
@@ -602,7 +576,7 @@ class TauIDEmbedder(object):
                 taus             = self.originalTauName,
                 graph_file       = file_names,
                 version          = full_version[1],
-                sub_version      = 0 #MB: subversion cannot be properly deduced from file names
+                sub_version      = 1 #MB: subversion cannot be properly deduced from file names; it should be 1 also for v2
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -616,34 +590,7 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2017v2p1"
-            workingPoints_ = {
-                "e": {
-                    "VVVLoose": 0.0630386,
-                    "VVLoose": 0.1686942,
-                    "VLoose": 0.3628130,
-                    "Loose": 0.6815435,
-                    "Medium": 0.8847544,
-                    "Tight": 0.9675541,
-                    "VTight": 0.9859251,
-                    "VVTight": 0.9928449,
-                },
-                "mu": {
-                    "VLoose": 0.1058354,
-                    "Loose": 0.2158633,
-                    "Medium": 0.5551894,
-                    "Tight": 0.8754835,
-                },
-                "jet": {
-                    "VVVLoose": 0.2599605,
-                    "VVLoose": 0.4249705,
-                    "VLoose": 0.5983682,
-                    "Loose": 0.7848675,
-                    "Medium": 0.8834768,
-                    "Tight": 0.9308689,
-                    "VTight": 0.9573137,
-                    "VVTight": 0.9733927,
-                },
-            }
+            workingPoints_ = WORKING_POINTS_v2p1
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
@@ -670,11 +617,7 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2018v2p5"
-            workingPoints_ = {
-                "e": {},
-                "mu": {},
-                "jet": {},
-            }
+            workingPoints_ = WORKING_POINTS_v2p5
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',

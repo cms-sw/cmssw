@@ -24,7 +24,7 @@ ALCARECOSiPixelCalSingleMuonLoose.etaMax = 3.5
 # Prescale events
 ##################################################################
 import CalibTracker.SiStripCommon.prescaleEvent_cfi
-scalerForSiPixelCalSingleMuonLoose = CalibTracker.SiStripCommon.prescaleEvent_cfi.prescaleEvent.clone(prescale = 100)
+scalerForSiPixelCalSingleMuonLoose = CalibTracker.SiStripCommon.prescaleEvent_cfi.prescaleEvent.clone(prescale = 10)
 
 ##################################################################
 # Loose Sequence

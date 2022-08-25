@@ -7,6 +7,7 @@
 
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 #include "TestAlgo.h"
 
@@ -14,11 +15,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    template <typename TAcc>
+    template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, int32_t size) const {
       // this example accepts an arbitrary number of blocks and threads, and always uses 1 element per thread
       const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const int32_t stride = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
+      if (thread == 0) {
+        view.r() = 1.;
+      }
       for (auto i = thread; i < size; i += stride) {
         view[i] = {0., 0., 0., i};
       }

@@ -148,6 +148,8 @@ class UpgradeWorkflow(object):
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName:
             stepDict[stepName][k] = None
+        if "Gen" in stepName:
+            stepDict[stepName][k] = None
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
@@ -163,6 +165,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -396,44 +399,6 @@ upgradeWFs['trackingMkFit'].step2 = {
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
 }
-
-class UpgradeWorkflow_trackingRun3CkfPixelLessStep(UpgradeWorkflowTracking):
-    def setup__(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
-            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, stepDict[step][k]])
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and 'FS' not in key
-upgradeWFs['trackingRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingRun3CkfPixelLessStep(
-    steps = [
-        'Reco',
-        'RecoNano',
-        'RecoGlobal',
-        'RecoFakeHLT',
-    ],
-    suffix = '_trackingRun3CkfPixelLessStep',
-    offset = 0.71,
-)
-
-class UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(UpgradeWorkflowTracking):
-    def setup__(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
-            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and 'FS' not in key
-upgradeWFs['trackingOnlyRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoNano',
-        'HARVESTNano',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-    ],
-    suffix = '_trackingOnlyRun3CkfPixelLessStep',
-    offset = 0.72,
-)
-upgradeWFs['trackingOnlyRun3CkfPixelLessStep'].step3 = upgradeWFs['trackingOnly'].step3
 
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
@@ -1504,10 +1469,11 @@ class UpgradeWorkflow_JMENano(UpgradeWorkflow):
         if 'Nano' in step:
             stepDict[stepName][k] = merge([{'--customise': 'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_MC'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_13" and ('2017' in key or '2018' in key)
+        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key) and ('FS' not in key)
 upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
     steps = [
         'Nano',
+        'RecoNano',
     ],
     PU = [],
     suffix = '_JMENano',
@@ -1826,6 +1792,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         return '2021FS' in key
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
+        'Gen',
         'FastSimRun3',
         'HARVESTFastRun3'
     ],
@@ -1839,7 +1806,7 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
 
 class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'FastSimRun3' in step:
+        if 'Gen' in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
@@ -1852,6 +1819,7 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         return '2021FS' in key and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
+        'Gen',
         'FastSimRun3',
         'HARVESTFastRun3'
     ],
@@ -2069,7 +2037,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_FastSim',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['FastSimRun3','HARVESTFastRun3'],
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
 }
 
@@ -2081,7 +2049,7 @@ for key in list(upgradeProperties[2017].keys()):
                                                          (['RecoNanoPU','HARVESTNanoPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
                                                          (['Nano'] if 'Nano' in upgradeProperties[2017][key]['ScenToRun'] else [])
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['FastSimRun3PU','HARVESTFastRun3PU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties[2026] = {
     '2026D49' : {
@@ -2207,7 +2175,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D94',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C18I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }

@@ -22,7 +22,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,7 +52,7 @@ Implementation:
 // class declaration
 //
 
-class L1ExtraTreeProducer : public edm::EDAnalyzer {
+class L1ExtraTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1ExtraTreeProducer(const edm::ParameterSet&);
   ~L1ExtraTreeProducer() override;
@@ -115,6 +115,7 @@ L1ExtraTreeProducer::L1ExtraTreeProducer(const edm::ParameterSet& iConfig) {
   l1Extra = new L1Analysis::L1AnalysisL1Extra();
   l1ExtraData = l1Extra->getData();
 
+  usesResource(TFileService::kSharedResource);
   // set up output
   tree_ = fs_->make<TTree>("L1ExtraTree", "L1ExtraTree");
   tree_->Branch("L1Extra", "L1Analysis::L1AnalysisL1ExtraDataFormat", &l1ExtraData, 32000, 3);

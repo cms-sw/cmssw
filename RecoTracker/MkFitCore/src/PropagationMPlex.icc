@@ -249,7 +249,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 #pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         oor0[n - nmin] =
-            (r0[n - nmin] > 0.f && std::abs(r[n - nmin] - r0[n - nmin]) < 0.0001f) ? 1.f / r0[n - nmin] : 0.f;
+            (r0[n - nmin] > 0.f && std::abs(r[n - nmin] - r0[n - nmin]) > 0.0001f) ? 1.f / r0[n - nmin] : 0.f;
       }
 #pragma omp simd
       for (int n = nmin; n < nmax; ++n) {

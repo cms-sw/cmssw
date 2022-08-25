@@ -56,17 +56,17 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet) {
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
-  theTracksLabel_ = pSet.getParameter<InputTag>("TrackCollection");
+  theTracksLabel_ = pSet.getUntrackedParameter<InputTag>("TrackCollection");
   theTracksToken_ = consumes<reco::TrackCollection>(theTracksLabel_);
 
   theMaxChi2 = static_cast<unsigned int>(pSet.getParameter<double>("theMaxChi2"));
   theNSigma = pSet.getParameter<double>("theNSigma");
   theMinNrec = static_cast<int>(pSet.getParameter<double>("theMinNrec"));
 
-  labelRPCRecHits = pSet.getParameter<InputTag>("theRPCRecHits");
+  labelRPCRecHits = pSet.getUntrackedParameter<InputTag>("theRPCRecHits");
 
-  thedt4DSegments = pSet.getParameter<InputTag>("dt4DSegments");
-  thecscSegments = pSet.getParameter<InputTag>("cscSegments");
+  thedt4DSegments = pSet.getUntrackedParameter<InputTag>("dt4DSegments");
+  thecscSegments = pSet.getUntrackedParameter<InputTag>("cscSegments");
 
   edm::ConsumesCollector iC = consumesCollector();
 
