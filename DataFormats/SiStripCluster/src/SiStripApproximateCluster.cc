@@ -1,7 +1,10 @@
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include <algorithm>
+#include <cmath>
 
 SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& cluster, unsigned int maxNSat) {
-  barycenter_ = cluster.barycenter();
+  barycenter_ = std::round(cluster.barycenter() * 10);
   width_ = cluster.size();
   avgCharge_ = cluster.charge() / cluster.size();
   isSaturated_ = false;
