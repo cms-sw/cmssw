@@ -12,6 +12,11 @@ namespace l1t {
   typedef edm::Ref<EtSumBxCollection> EtSumRef;
   typedef edm::RefVector<EtSumBxCollection> EtSumRefVector;
   typedef std::vector<EtSumRef> EtSumVectorRef;
+  // Phase-2
+  typedef std::vector<EtSum> EtSumP2Collection;
+  typedef edm::Ref<EtSumP2Collection> EtSumP2Ref;
+  typedef edm::RefVector<EtSumP2Collection> EtSumP2RefVector;
+  typedef std::vector<EtSumP2Ref> EtSumVectorP2Ref;
 
   typedef ObjectRefBxCollection<EtSum> EtSumRefBxCollection;
   typedef ObjectRefPair<EtSum> EtSumRefPair;

@@ -12,8 +12,6 @@ from ..modules.particleFlowClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.particleFlowRecHitHGC_cfi import *
 from ..modules.particleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.ticlLayerTileProducer_cfi import *
-#from ..modules.ticlMultiClustersFromTrackstersEMForEgamma_cfi import *
-#from ..modules.ticlMultiClustersFromTrackstersHADForEgamma_cfi import *
 from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersEMForEgamma_cfi import *
 from ..modules.ticlTrackstersHADForEgamma_cfi import *
@@ -31,8 +29,6 @@ HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
     particleFlowRecHitHGC,
     particleFlowSuperClusterHGCalFromTICLUnseeded,
     ticlLayerTileProducer,
-#    ticlMultiClustersFromTrackstersEMForEgamma,
-#    ticlMultiClustersFromTrackstersHADForEgamma,
     ticlSeedingGlobal,
     ticlTrackstersEMForEgamma,
     ticlTrackstersHADForEgamma

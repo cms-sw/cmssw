@@ -13,7 +13,7 @@
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"      // l1t::HPSPFTauCollection
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 #include <string>
 #include <vector>
@@ -37,7 +37,7 @@ private:
   edm::InputTag srcL1Jets_;
   edm::EDGetTokenT<std::vector<reco::CaloJet>> tokenL1Jets_;
   edm::InputTag srcL1Vertices_;
-  edm::EDGetTokenT<std::vector<l1t::TkPrimaryVertex>> tokenL1Vertices_;
+  edm::EDGetTokenT<l1t::VertexWordCollection> tokenL1Vertices_;
 
   std::vector<L1HPSPFTauQualityCut> signalQualityCutsDzCutDisabled_;
   std::vector<L1HPSPFTauQualityCut> isolationQualityCutsDzCutDisabled_;

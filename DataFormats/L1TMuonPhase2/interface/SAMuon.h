@@ -8,6 +8,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
 
 namespace l1t {
 
@@ -30,6 +31,14 @@ namespace l1t {
     const int hwD0() const { return hwD0_; }
     const uint hwBeta() const { return hwBeta_; }
     void setBeta(uint beta) { hwBeta_ = beta; }
+
+    // For HLT
+    const double phZ0() const { return Phase2L1GMT::LSBSAz0 * hwZ0(); }
+    const double phD0() const { return Phase2L1GMT::LSBSAd0 * hwD0(); }
+    const double phPt() const { return Phase2L1GMT::LSBpt * hwPt(); }
+    const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
+    const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
+    const int phCharge() const { return pow(-1, hwCharge()); }
 
     const uint64_t word() const { return word_; }
     void setWord(uint64_t word) { word_ = word; }
