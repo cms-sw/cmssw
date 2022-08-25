@@ -36,10 +36,13 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig)
   //   string a = alias_;
   //   a.erase(a.size()-6,a.size());
   //register your products
-  produces<reco::GsfTrackCollection>().setBranchAlias(alias_ + "GsfTracks");
   produces<reco::TrackExtraCollection>().setBranchAlias(alias_ + "TrackExtras");
   produces<reco::GsfTrackExtraCollection>().setBranchAlias(alias_ + "GsfTrackExtras");
   produces<TrackingRecHitCollection>().setBranchAlias(alias_ + "RecHits");
+  // GsfTrackCollection refers to TrackingRechit, TrackExtra, and
+  // GsfTrackExtra collections, need to declare its production after
+  // them to work around a rare race condition in framework scheduling
+  produces<reco::GsfTrackCollection>().setBranchAlias(alias_ + "GsfTracks");
   produces<std::vector<Trajectory> >();
   produces<TrajGsfTrackAssociationCollection>();
 }
