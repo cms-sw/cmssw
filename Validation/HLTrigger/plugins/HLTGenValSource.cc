@@ -385,22 +385,22 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
   } else if (objType_ == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
     const auto& genJets = iEvent.getHandle(ak4genJetToken_);
     if (!genJets->empty()) {
-      auto HTsum = (*genJets)[0].pt();
-      for (size_t i = 1; i < genJets->size(); i++) {
+      auto HTsum = 0.;
+      for (size_t i = 0; i < genJets->size(); i++) {
         if (((*genJets)[i].pt() > 30) && (abs((*genJets)[i].eta()) < 2.5))
           HTsum += (*genJets)[i].pt();
       }
-      objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
+      if(HTsum > 0) objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType_ == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
     const auto& genJets = iEvent.getHandle(ak8genJetToken_);
     if (!genJets->empty()) {
-      auto HTsum = (*genJets)[0].pt();
-      for (size_t i = 1; i < genJets->size(); i++) {
+      auto HTsum = 0.;
+      for (size_t i = 0; i < genJets->size(); i++) {
         if (((*genJets)[i].pt() > 200) && (abs((*genJets)[i].eta()) < 2.5))
           HTsum += (*genJets)[i].pt();
       }
-      objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
+      if(HTsum > 0) objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType_ == "MET") {  // MET, using genMET
     const auto& genMET = iEvent.getHandle(genMETToken_);

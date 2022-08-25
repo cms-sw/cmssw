@@ -9,7 +9,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(6000) )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
@@ -88,7 +88,7 @@ process.HLTGenValSourceMU = cms.EDProducer('HLTGenValSource',
     # these are the only one the user needs to specify
     objType = cms.string("mu"),
     hltPathsToCheck = cms.vstring(
-      "HLT_Mu50_v",
+      "HLT_Mu50_v:absEtaCut=1.2",
       "HLT_IsoMu24_v"
     ),
     doOnlyLastFilter = cms.bool(False),
