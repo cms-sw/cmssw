@@ -19,36 +19,39 @@ namespace ecal {
                                         double const* __restrict__ weights,
                                         uint32_t* __restrict__ flags) {
       constexpr int nsamples = EcalDataFrame_Ph2::MAXSAMPLES;
-      int const tx = threadIdx.x + blockIdx.x * blockDim.x;
       unsigned int nchannels_per_block = blockDim.x;
+
+      // copy data from global to shared memory
+      extern __shared__ char shared_mem[];
+      double* shr_weights = reinterpret_cast<double*>(shared_mem);                       // nsamples elements
+      float* shr_amp = reinterpret_cast<float*>(shr_weights + nsamples);                 // nchannels_per_block elements
+      uint16_t* shr_digis = reinterpret_cast<uint16_t*>(shr_amp + nchannels_per_block);  // nchannels_per_block elements
+      for (int i = 0; i < nsamples; ++i)
+        shr_weights[i] = weights[i];
+
       unsigned int const threadx = threadIdx.x;
+      unsigned int const blockx = blockIdx.x;
 
-      if (tx < nchannels) {
-        extern __shared__ char shared_mem[];
-        double* shr_weights = (double*)&shared_mem[0];
-        float* shr_amp = (float*)&shared_mem[nsamples * sizeof(double)];
-        uint16_t* shr_digis = (uint16_t*)&shared_mem[nsamples * sizeof(double) + nchannels_per_block * sizeof(float)];
-        for (int i = 0; i < nsamples; ++i)
-          shr_weights[i] = weights[i];
+      for (int sample = 0; sample < nsamples; ++sample) {
+        int const idx = threadx * nsamples + sample;
+        shr_digis[idx] = digis_in[blockx * nchannels_per_block * nsamples + idx];
+      }
+      shr_amp[threadx] = 0.;
 
-        unsigned int const bx = blockIdx.x;  //block index
+      __syncthreads();
 
-        for (int sample = 0; sample < nsamples; ++sample) {
-          int const idx = threadx * nsamples + sample;
-          shr_digis[idx] = digis_in[bx * nchannels_per_block * nsamples + idx];
-        }
-        shr_amp[threadx] = 0.0;
-        __syncthreads();
-
+      const auto first = threadIdx.x + blockIdx.x * blockDim.x;
+      const auto stride = blockDim.x * gridDim.x;
+      for (auto tx = first; tx < nchannels; tx += stride) {
         auto const did = DetId{dids[tx]};
         CMS_UNROLL_LOOP
         for (int sample = 0; sample < nsamples; ++sample) {
-          const unsigned int idx = threadIdx.x * nsamples + sample;
+          const unsigned int idx = threadx * nsamples + sample;
           const auto shr_digi = shr_digis[idx];
           shr_amp[threadx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) *
                                ecalPh2::gains[ecalLiteDTU::gainId(shr_digi)] * shr_weights[sample]);
         }
-        const unsigned int tdx = threadIdx.x * nsamples;
+        const unsigned int tdx = threadx * nsamples;
         amplitude[tx] = shr_amp[threadx];
         amplitudeError[tx] = 1.0f;
         dids_out[tx] = did.rawId();
