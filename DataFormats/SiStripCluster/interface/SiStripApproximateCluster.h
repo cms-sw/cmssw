@@ -1,12 +1,7 @@
-#ifndef DATAFORMATS_SISTRIPAPPROXIMATECLUSTER_H
-#define DATAFORMATS_SISTRIPAPPROXIMATECLUSTER_H
+#ifndef DataFormats_SiStripCluster_SiStripApproximateCluster_h
+#define DataFormats_SiStripCluster_SiStripApproximateCluster_h
 
-#include <numeric>
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
 class SiStripCluster;
 class SiStripApproximateCluster {
@@ -33,4 +28,4 @@ private:
   float avgCharge_ = 0;
   bool isSaturated_ = false;
 };
-#endif  // DATAFORMATS_SiStripApproximateCluster_H
+#endif  // DataFormats_SiStripCluster_SiStripApproximateCluster_h
