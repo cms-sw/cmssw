@@ -392,19 +392,19 @@ std::set<int> CSCDigiMatcher::wiregroupsInChamber(unsigned int detid, int max_ga
   return result;
 }
 
-int CSCDigiMatcher::getTotalComparators(unsigned int detid) const {
+int CSCDigiMatcher::totalComparators(unsigned int detid) const {
   if (detid_to_totalcomparators_.find(detid) == detid_to_totalcomparators_.end())
     return 0;
   return detid_to_totalcomparators_.at(detid);
 }
 
-int CSCDigiMatcher::getTotalStrips(unsigned int detid) const {
+int CSCDigiMatcher::totalStrips(unsigned int detid) const {
   if (detid_to_totalstrips_.find(detid) == detid_to_totalstrips_.end())
     return 0;
   return detid_to_totalstrips_.at(detid);
 }
 
-int CSCDigiMatcher::getTotalWires(unsigned int detid) const {
+int CSCDigiMatcher::totalWires(unsigned int detid) const {
   if (detid_to_totalwires_.find(detid) == detid_to_totalwires_.end())
     return 0;
   return detid_to_totalwires_.at(detid);
