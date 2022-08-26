@@ -471,7 +471,7 @@ bool HGCalTopology::valid(const DetId& idin) const {
     if (flag)
       flag = hdcons_.isValidHex(id.iLay, id.iSec1, id.iCell1, true);
   } else if (tileTrapezoid()) {
-    flag = ((idin.det() == det_) && hdcons_.isValidTrap(id.iLay, id.iSec1, id.iCell1));
+    flag = ((idin.det() == det_) && hdcons_.isValidTrap(id.zSide, id.iLay, id.iSec1, id.iCell1));
   } else {
     flag = ((idin.det() == det_) && hdcons_.isValidHex8(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2));
   }
@@ -566,9 +566,9 @@ void HGCalTopology::addHGCSCintillatorId(
     std::vector<DetId>& ids, int zside, int type, int lay, int iradius, int iphi) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "addHGCSCintillatorId " << zside << ":" << type << ":" << lay << ":" << iradius
-                                << ":" << iphi << " ==> Validity " << hdcons_.isValidTrap(lay, iradius, iphi);
+                                << ":" << iphi << " ==> Validity " << hdcons_.isValidTrap(zside, lay, iradius, iphi);
 #endif
-  if (hdcons_.isValidTrap(lay, iradius, iphi)) {
+  if (hdcons_.isValidTrap(zside, lay, iradius, iphi)) {
     HGCScintillatorDetId id(type, lay, zside * iradius, iphi);
     ids.emplace_back(DetId(id));
   }
