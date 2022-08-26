@@ -44,6 +44,7 @@ private:
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   std::vector<int> wafers_;
+  std::vector<int> dumpDets_;
 };
 
 HGCalTestPartialWaferHits::HGCalTestPartialWaferHits(const edm::ParameterSet& ps)
@@ -70,9 +71,14 @@ HGCalTestPartialWaferHits::HGCalTestPartialWaferHits(const edm::ParameterSet& ps
           int waferU = std::atoi(items[1].c_str());
           int waferV = std::atoi(items[2].c_str());
           wafers_.emplace_back(HGCalWaferIndex::waferIndex(layer, waferU, waferV, false));
+        } else if (items.size() == 1) {
+          int dumpdet = std::atoi(items[0].c_str());
+          dumpDets_.emplace_back(dumpdet);
+          edm::LogVerbatim("HGCSim") << nameSense_ << " Dump detector " << dumpdet;
         }
       }
-      edm::LogVerbatim("HGCalSim") << "Reads in " << wafers_.size() << " wafer information from " << fileName;
+      edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits::Reads in " << wafers_.size() << ":"
+                                   << dumpDets_.size() << " wafer|detector information from " << fileName;
       fInput.close();
     }
   }
@@ -91,14 +97,14 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
   // get hcalGeometry
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
-  int firstLayer = hgc.firstLayer() - 1;
+  int firstLayer = hgc.getLayerOffset();
   // get the hit collection
   const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), allSi(0), all(0);
   edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits: Input flags Hits " << getHits << " with " << nhits
-                               << " hits first Layer " << firstLayer;
+                               << " hits: Layer Offset " << firstLayer;
 
   if (getHits) {
     std::vector<PCaloHit> hits;
@@ -116,6 +122,10 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
           if (!wafers_.empty()) {
             int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
             if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+              toCheck = true;
+          } else if (!dumpDets_.empty()) {
+            if ((std::find(dumpDets_.begin(), dumpDets_.end(), static_cast<int>(id.det())) != dumpDets_.end()) &&
+                (info.part != HGCalTypes::WaferFull))
               toCheck = true;
           } else {
             // Only partial wafers
