@@ -136,7 +136,7 @@ void DeepCombinedONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::vector<std::string>>("flav_names", std::vector<std::string>{"probb", "probc", "probuds", "probg"});
   desc.add<double>("min_jet_pt", 15.0);
   desc.add<double>("max_jet_eta", 2.5);
-  desc.add<std::string>("onnx_backend","cpu");
+  desc.add<std::string>("onnx_backend","default");
 
   descriptions.add("pfDeepCombinedJetTags", desc);
 }

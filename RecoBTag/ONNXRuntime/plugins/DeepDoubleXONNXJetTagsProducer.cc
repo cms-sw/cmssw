@@ -121,7 +121,7 @@ void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
            "CvB" >> (PDPSD("flav_names", std::vector<std::string>{"probHbb", "probHcc"}, true) and
                      PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.onnx"), true));
   };
-  desc.add<std::string>("onnx_backend","cpu");
+  desc.add<std::string>("onnx_backend","default");
 
   auto descBvL(desc);
   descBvL.ifValue(edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());

@@ -85,7 +85,7 @@ void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>("output_names", {"ID_pred/Softmax:0"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
-  desc.add<std::string>("onnx_backend","cpu");
+  desc.add<std::string>("onnx_backend","default");
 
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
