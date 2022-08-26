@@ -94,9 +94,9 @@ L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
 
   m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions - 1;
 
+  tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
   // Note that the tcdsRecord input tag should be used as InputTag("unpackTcds","tcdsRecord") only for data
   if (!(tcdsInputTag_ == edm::InputTag(""))) {
-    tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
     makeTriggerRulePrefireVetoBit_ = true;
   }
 
