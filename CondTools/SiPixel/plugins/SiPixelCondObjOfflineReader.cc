@@ -49,6 +49,9 @@ namespace cms {
   class SiPixelCondObjOfflineReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit SiPixelCondObjOfflineReader(const edm::ParameterSet &iConfig);
+    ~SiPixelCondObjOfflineReader() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
     void analyze(const edm::Event &, const edm::EventSetup &) override;
     void endJob() override;
 
@@ -275,6 +278,15 @@ namespace cms {
   void SiPixelCondObjOfflineReader::endJob() {
     edm::LogPrint("SiPixelCondObjOfflineReader") << " ---> End job " << std::endl;
   }
+
+  void SiPixelCondObjOfflineReader::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("EDAnalyzer to read per-module SiPixelGainCalibrationForOffline payloads in the EventSetup");
+    desc.add<bool>("useSimRcd", false);
+    desc.addUntracked<double>("maxRangeDeadPixHist", 0.001);
+    descriptions.addWithDefaultLabel(desc);
+  }
+
 }  // namespace cms
 using namespace cms;
 DEFINE_FWK_MODULE(SiPixelCondObjOfflineReader);
