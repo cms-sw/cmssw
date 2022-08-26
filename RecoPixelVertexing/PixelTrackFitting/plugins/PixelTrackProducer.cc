@@ -38,9 +38,12 @@ public:
   explicit PixelTrackProducer(const edm::ParameterSet& cfg)
       : theReconstruction(cfg, consumesCollector()), htTopoToken_(esConsumes()) {
     edm::LogInfo("PixelTrackProducer") << " construction...";
-    produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
     produces<reco::TrackExtraCollection>();
+    // TrackCollection refers to TrackingRechit and TrackExtra
+    // collections, need to declare its production after them to work
+    // around a rare race condition in framework scheduling
+    produces<reco::TrackCollection>();
   }
 
   ~PixelTrackProducer() override = default;
