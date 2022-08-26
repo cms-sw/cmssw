@@ -42,11 +42,8 @@ void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const
     out->emplace_back(srcjet.p4());
     auto& jet = out->back();
     // copy daughters
-    bool copyDaughters_ = true;
-    if (copyDaughters_) {
-      for (const auto& dau : srcjet.constituents()) {
-        jet.addConstituent(dau);
-      }
+    for (const auto& dau : srcjet.constituents()) {
+      jet.addConstituent(dau);
     }
     // apply corrections
     jet.calibratePt(corrector_.correctedPt(jet.pt(), jet.eta()));

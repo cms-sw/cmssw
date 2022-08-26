@@ -34,7 +34,7 @@ L1TPFJetsTask = cms.Task(
     l1tLayer2Deregionizer, l1tSCPFL1PF, l1tSCPFL1Puppi, l1tSCPFL1PuppiEmulator, l1tSCPFL1PuppiCorrectedEmulator, l1tSCPFL1PuppiCorrectedEmulatorMHT
 )
 
-l1PFJetsExtendedTask = cms.Task(
+L1PFJetsExtendedTask = cms.Task(
     l1tLayer2DeregionizerExtended, l1tSCPFL1PuppiExtended, l1tSCPFL1PuppiExtendedEmulator, l1tSCPFL1PuppiExtendedCorrectedEmulator
 )
 
