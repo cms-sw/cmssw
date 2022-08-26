@@ -19,12 +19,12 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  edm::EDGetTokenT<edm::View<reco::Candidate>> jets_;
+  edm::EDGetTokenT<edm::View<l1t::PFJet>> jets_;
   l1tpf::corrector corrector_;
 };
 
 L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iConfig)
-    : jets_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("jets"))),
+    : jets_(consumes<edm::View<l1t::PFJet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       corrector_(iConfig.getParameter<std::string>("correctorFile"),
                  iConfig.getParameter<std::string>("correctorDir")) {
   produces<std::vector<l1t::PFJet>>();
@@ -33,7 +33,7 @@ L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iC
 L1TCorrectedPFJetProducer::~L1TCorrectedPFJetProducer() {}
 
 void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  edm::Handle<edm::View<reco::Candidate>> jets;
+  edm::Handle<edm::View<l1t::PFJet>> jets;
   iEvent.getByToken(jets_, jets);
   auto out = std::make_unique<std::vector<l1t::PFJet>>();
 
@@ -41,6 +41,13 @@ void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const
     // start out as copy
     out->emplace_back(srcjet.p4());
     auto& jet = out->back();
+    // copy daughters
+    bool copyDaughters_ = true;
+    if (copyDaughters_) {
+      for (const auto& dau : srcjet.constituents()) {
+        jet.addConstituent(dau);
+      }
+    }
     // apply corrections
     jet.calibratePt(corrector_.correctedPt(jet.pt(), jet.eta()));
   }
