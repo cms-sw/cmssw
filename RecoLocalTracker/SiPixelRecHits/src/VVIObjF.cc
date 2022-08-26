@@ -44,7 +44,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
   float h_[7];
-  float q, u, h4, h5, h6, d, ll, ul, rv;
+  float q, u, h4, h5, h6, q2, d, ll, ul, rv;
   int lp, lq, k, l, n;
 
   // Make sure that the inputs are reasonable
@@ -105,15 +105,9 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   if (mode_ == 0) {
     a_[n - 1] = omega_ * .31830988654751274f;
   }
+  q = -1.;
+  q2 = 2.;
 
-  float q1[n];
-  float q2[n];
-  q1[0] = 1.f;
-  q2[0] = -2.f;
-  for (k = 1; k < n; ++k) {
-    q1[k] = -q1[k - 1];
-    q2[k] = -q2[k - 1];
-  }
   float x[n];
   x[0] = 0.f;
   float x1[n];
@@ -142,7 +136,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    c1[k] = vdt::fast_logf(x[k]) - c1[k - 1];
+    c1[k] = vdt::fast_logf(x[k]) - c1[k];
   }
   for (k = 1; k < n; ++k) {
     vdt::fast_sincosf(x1[k], c3[k], c4[k]);
@@ -156,7 +150,8 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   d1[0] = 0.f;
   if (mode_ == 0) {
     for (k = 1; k < n; ++k) {
-      d1[k] = q1[k] * d * omega_ * vdt::fast_expf(xf1[k]);
+      d1[k] = q * d * omega_ * vdt::fast_expf(xf1[k]);
+      q = -q;
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
@@ -165,7 +160,8 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     }
   } else {
     for (k = 1; k < n; ++k) {
-      d1[k] = q1[k] * d * vdt::fast_expf(xf1[k]) / k;
+      d1[k] = q * d * vdt::fast_expf(xf1[k]) / k;
+      q = -q;
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
@@ -177,7 +173,8 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
-      a_[n - 1] += q2[k] * a_[l - 1];
+      a_[n - 1] += q2 * a_[l - 1];
+      q2 = -q2;
     }
   }
 }  // VVIObjF
@@ -193,7 +190,7 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
   float h_[5];
-  float q, u, h4, h5, h6, d, ll, ul, rv;
+  float q, u, h4, h5, h6, q2, d, ll, ul, rv;
   int lp, lq, k, l, n;
 
   // Make sure that the inputs are reasonable
@@ -242,14 +239,9 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
   n = x0_ + 1.;
   d = vdt::fast_expf(kappa * ((0.57721566f - h5) + 1.f)) * .31830988654751274f;
   a_[n - 1] = 0.f;
-  float q1[n];
-  float q2[n];
-  q1[0] = 1.f;
-  q2[0] = -2.f;
-  for (k = 1; k < n; ++k) {
-    q1[k] = -q1[k - 1];
-    q2[k] = -q2[k - 1];
-  }
+  q = -1.;
+  q2 = 2.;
+
   float x[n];
   x[0] = 0.f;
   float x1[n];
@@ -278,7 +270,7 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
     VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    c1[k] = vdt::fast_logf(x[k]) - c1[k - 1];
+    c1[k] = vdt::fast_logf(x[k]) - c1[k];
   }
   for (k = 1; k < n; ++k) {
     vdt::fast_sincosf(x1[k], c3[k], c4[k]);
@@ -291,7 +283,8 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
   float d1[n];
   d1[0] = 0.f;
   for (k = 1; k < n; ++k) {
-    d1[k] = q1[k] * d * vdt::fast_expf(xf1[k]) / k;
+    d1[k] = q * d * vdt::fast_expf(xf1[k]) / k;
+    q = -q;
   }
   for (k = 1; k < n; ++k) {
     l = n - k;
@@ -303,7 +296,8 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
   }
   for (k = 1; k < n; ++k) {
     l = n - k;
-    a_[n - 1] += q2[k] * a_[l - 1];
+    a_[n - 1] += q2 * a_[l - 1];
+    q2 = -q2;
   }
 
 }  // VVIObjF with kappa only
