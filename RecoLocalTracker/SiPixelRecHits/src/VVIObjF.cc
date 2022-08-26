@@ -44,7 +44,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
   float h_[7];
-  float q, u, d, h4, h5, h6, ll, ul, rv;
+  float q, u, h4, h5, h6, d, ll, ul, rv;
   int lp, lq, k, l, n;
 
   // Make sure that the inputs are reasonable
@@ -106,78 +106,78 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     a_[n - 1] = omega_ * .31830988654751274f;
   }
 
-  float q_[n];
-  float q2_[n];
-  q_[0] = 1.f;
-  q2_[0] = -2.f;
+  float q1[n];
+  float q2[n];
+  q1[0] = 1.f;
+  q2[0] = -2.f;
   for (k = 1; k < n; ++k) {
-    q_[k] = -q_[k - 1];
-    q2_[k] = -q2_[k - 1];
+    q1[k] = -q1[k - 1];
+    q2[k] = -q2[k - 1];
   }
-  float x_[n];
-  x_[0] = 0.f;
-  float x1_[n];
-  x1_[0] = 0.f;
-  float c1_[n];
-  c1_[0] = 0.f;
-  float c2_[n];
-  c2_[0] = 0.f;
-  float c3_[n];
-  c3_[0] = 0.f;
-  float c4_[n];
-  c4_[0] = 0.f;
-  float s_[n];
-  s_[0] = 0.f;
-  float c_[n];
-  c_[0] = 0.f;
-  float xf1_[n];
-  xf1_[0] = 0.f;
-  float xf2_[n];
-  xf2_[0] = 0.f;
+  float x[n];
+  x[0] = 0.f;
+  float x1[n];
+  x1[0] = 0.f;
+  float c1[n];
+  c1[0] = 0.f;
+  float c2[n];
+  c2[0] = 0.f;
+  float c3[n];
+  c3[0] = 0.f;
+  float c4[n];
+  c4[0] = 0.f;
+  float s[n];
+  s[0] = 0.f;
+  float c[n];
+  c[0] = 0.f;
+  float xf1[n];
+  xf1[0] = 0.f;
+  float xf2[n];
+  xf2[0] = 0.f;
   for (k = 1; k < n; ++k) {
-    x_[k] = omega_ * k;
-    x1_[k] = h6 * x_[k];
-  }
-  for (k = 1; k < n; ++k) {
-    VVIObjFDetails::sincosint(x1_[k], c2_[k], c1_[k]);
+    x[k] = omega_ * k;
+    x1[k] = h6 * x[k];
   }
   for (k = 1; k < n; ++k) {
-    c1_[k] = vdt::fast_logf(x_[k]) - c1_[k - 1];
+    VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    vdt::fast_sincosf(x1_[k], c3_[k], c4_[k]);
-    xf1_[k] = kappa * (beta2 * c1_[k] - c4_[k]) - x_[k] * c2_[k];
-    xf2_[k] = x_[k] * c1_[k] + kappa * (c3_[k] + beta2 * c2_[k]) + t0_ * x_[k];
+    c1_[k] = vdt::fast_logf(x[k]) - c1_[k - 1];
   }
   for (k = 1; k < n; ++k) {
-    vdt::fast_sincosf(xf2_[k], s_[k], c_[k]);
+    vdt::fast_sincosf(x1[k], c3[k], c4[k]);
+    xf1[k] = kappa * (beta2 * c1[k] - c4[k]) - x[k] * c2[k];
+    xf2[k] = x[k] * c1[k] + kappa * (c3[k] + beta2 * c2[k]) + t0_ * x[k];
   }
-  float d1_[n];
-  d1_[0] = 0.f;
+  for (k = 1; k < n; ++k) {
+    vdt::fast_sincosf(xf2[k], s[k], c[k]);
+  }
+  float d1[n];
+  d1[0] = 0.f;
   if (mode_ == 0) {
     for (k = 1; k < n; ++k) {
-      d1_[k] = q_[k] * d * omega_ * vdt::fast_expf(xf1_[k]);
+      d1[k] = q1[k] * d * omega_ * vdt::fast_expf(xf1[k]);
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
-      a_[l - 1] = d1_[k] * c_[k];
-      b_[l - 1] = -d1_[k] * s_[k];
+      a_[l - 1] = d1[k] * c[k];
+      b_[l - 1] = -d1[k] * s[k];
     }
   } else {
     for (k = 1; k < n; ++k) {
-      d1_[k] = q_[k] * d * vdt::fast_expf(xf1_[k]) / k;
+      d1[k] = q1[k] * d * vdt::fast_expf(xf1[k]) / k;
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
-      a_[l - 1] = d1_[k] * s_[k];
+      a_[l - 1] = d1[k] * s[k];
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
-      b_[l - 1] = d1_[k] * c_[k];
+      b_[l - 1] = d1[k] * c[k];
     }
     for (k = 1; k < n; ++k) {
       l = n - k;
-      a_[n - 1] += q2_[k] * a_[l - 1];
+      a_[n - 1] += q2[k] * a_[l - 1];
     }
   }
 }  // VVIObjF
@@ -242,68 +242,68 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
   n = x0_ + 1.;
   d = vdt::fast_expf(kappa * ((0.57721566f - h5) + 1.f)) * .31830988654751274f;
   a_[n - 1] = 0.f;
-  float q_[n];
-  float q2_[n];
-  q_[0] = 1.f;
-  q2_[0] = -2.f;
+  float q1[n];
+  float q2[n];
+  q1[0] = 1.f;
+  q2[0] = -2.f;
   for (k = 1; k < n; ++k) {
-    q_[k] = -q_[k - 1];
-    q2_[k] = -q2_[k - 1];
+    q1[k] = -q1[k - 1];
+    q2[k] = -q2[k - 1];
   }
-  float x_[n];
-  x_[0] = 0.f;
-  float x1_[n];
-  x1_[0] = 0.f;
-  float c1_[n];
-  c1_[0] = 0.f;
-  float c2_[n];
-  c2_[0] = 0.f;
-  float c3_[n];
-  c3_[0] = 0.f;
-  float c4_[n];
-  c4_[0] = 0.f;
-  float s_[n];
-  s_[0] = 0.f;
-  float c_[n];
-  c_[0] = 0.f;
-  float xf1_[n];
-  xf1_[0] = 0.f;
-  float xf2_[n];
-  xf2_[0] = 0.f;
+  float x[n];
+  x[0] = 0.f;
+  float x1[n];
+  x1[0] = 0.f;
+  float c1[n];
+  c1[0] = 0.f;
+  float c2[n];
+  c2[0] = 0.f;
+  float c3[n];
+  c3[0] = 0.f;
+  float c4[n];
+  c4[0] = 0.f;
+  float s[n];
+  s[0] = 0.f;
+  float c[n];
+  c[0] = 0.f;
+  float xf1[n];
+  xf1[0] = 0.f;
+  float xf2[n];
+  xf2[0] = 0.f;
   for (k = 1; k < n; ++k) {
-    x_[k] = omega_ * k;
-    x1_[k] = h6 * x_[k];
-  }
-  for (k = 1; k < n; ++k) {
-    VVIObjFDetails::sincosint(x1_[k], c2_[k], c1_[k]);
+    x[k] = omega_ * k;
+    x1[k] = h6 * x[k];
   }
   for (k = 1; k < n; ++k) {
-    c1_[k] = vdt::fast_logf(x_[k]) - c1_[k - 1];
+    VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    vdt::fast_sincosf(x1_[k], c3_[k], c4_[k]);
-    xf1_[k] = kappa * (c1_[k] - c4_[k]) - x_[k] * c2_[k];
-    xf2_[k] = x_[k] * c1_[k] + kappa * (c3_[k] + c2_[k]) + t0_ * x_[k];
+    c1_[k] = vdt::fast_logf(x[k]) - c1[k - 1];
   }
   for (k = 1; k < n; ++k) {
-    vdt::fast_sincosf(xf2_[k], s_[k], c_[k]);
-  }
-  float d1_[n];
-  d1_[0] = 0.f;
-  for (k = 1; k < n; ++k) {
-    d1_[k] = q_[k] * d * vdt::fast_expf(xf1_[k]) / k;
+    vdt::fast_sincosf(x1[k], c3[k], c4[k]);
+    xf1[k] = kappa * (c1[k] - c4[k]) - x[k] * c2[k];
+    xf2[k] = x[k] * c1[k] + kappa * (c3[k] + c2[k]) + t0_ * x[k];
   }
   for (k = 1; k < n; ++k) {
-    l = n - k;
-    a_[l - 1] = d1_[k] * s_[k];
+    vdt::fast_sincosf(xf2[k], s[k], c[k]);
+  }
+  float d1[n];
+  d1[0] = 0.f;
+  for (k = 1; k < n; ++k) {
+    d1[k] = q1[k] * d * vdt::fast_expf(xf1[k]) / k;
   }
   for (k = 1; k < n; ++k) {
     l = n - k;
-    b_[l - 1] = d1_[k] * c_[k];
+    a_[l - 1] = d1[k] * s[k];
   }
   for (k = 1; k < n; ++k) {
     l = n - k;
-    a_[n - 1] += q2_[k] * a_[l - 1];
+    b_[l - 1] = d1[k] * c[k];
+  }
+  for (k = 1; k < n; ++k) {
+    l = n - k;
+    a_[n - 1] += q2[k] * a_[l - 1];
   }
 
 }  // VVIObjF with kappa only
