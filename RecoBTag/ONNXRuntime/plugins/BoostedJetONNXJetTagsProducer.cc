@@ -14,7 +14,7 @@
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
+#include "PhysicsTools/ONNXRuntime/interface/ONNXSessionOptions.h"
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 
 #include <iostream>
@@ -126,12 +126,14 @@ void BoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescripti
                                          "probQCDothers",
                                      });
   desc.addOptionalUntracked<bool>("debugMode", false);
+  desc.add<std::string>("onnx_backend","default");
 
   descriptions.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<ONNXRuntime> BoostedJetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
+  auto session_options = cms::Ort::getSessionOptions(iConfig.getParameter<std::string>("onnx_backend"));
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),&session_options);
 }
 
 void BoostedJetONNXJetTagsProducer::globalEndJob(const ONNXRuntime *cache) {}
