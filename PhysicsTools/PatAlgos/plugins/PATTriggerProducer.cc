@@ -558,7 +558,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       if (hltConfig.prescaleSize() > 0) {
         if (hltPrescaleProvider_.prescaleSet(iEvent, iSetup) != -1) {
           hltPrescaleTable = trigger::HLTPrescaleTable(
-              hltPrescaleProvider_.prescaleSet(iEvent, iSetup), hltConfig.prescaleLabels(), hltConfig.prescaleTable());
+              hltPrescaleProvider_.prescaleSet(iEvent, iSetup), hltConfig.prescaleLabels(), {});
           LogDebug("hltPrescaleTable") << "HLT prescale table found in event setup";
         } else {
           LogWarning("hltPrescaleSet") << "HLTPrescaleTable from event setup has error";
@@ -620,7 +620,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         }
         TriggerPath triggerPath(namePath,
                                 indexPath,
-                                hltConfig.prescaleValue(set, namePath),
+                                hltConfig.prescaleValue<double>(set, namePath),
                                 handleTriggerResults->wasrun(indexPath),
                                 handleTriggerResults->accept(indexPath),
                                 handleTriggerResults->error(indexPath),
@@ -786,15 +786,13 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       packedPrescalesL1min = std::make_unique<PackedTriggerPrescales>(handleTriggerResults);
       packedPrescalesL1max = std::make_unique<PackedTriggerPrescales>(handleTriggerResults);
       const edm::TriggerNames& names = iEvent.triggerNames(*handleTriggerResults);
-      //std::cout << "Run " << iEvent.id().run() << ", LS " << iEvent.id().luminosityBlock() << ": pset " << set << std::endl;
       for (unsigned int i = 0, n = names.size(); i < n; ++i) {
-        auto pvdet = hltPrescaleProvider_.prescaleValuesInDetail(iEvent, iSetup, names.triggerName(i));
-        //int hltprescale = hltConfig_.prescaleValue(set, names.triggerName(i));
+        auto pvdet = hltPrescaleProvider_.prescaleValuesInDetail<double, double>(iEvent, iSetup, names.triggerName(i));
         if (pvdet.first.empty()) {
           packedPrescalesL1max->addPrescaledTrigger(i, 1);
           packedPrescalesL1min->addPrescaledTrigger(i, 1);
         } else {
-          int pmin = -1, pmax = -1;
+          double pmin = -1, pmax = -1;
           for (const auto& p : pvdet.first) {
             pmax = std::max(pmax, p.second);
             if (p.second > 0 && (pmin == -1 || pmin > p.second))
@@ -802,10 +800,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           }
           packedPrescalesL1max->addPrescaledTrigger(i, pmax);
           packedPrescalesL1min->addPrescaledTrigger(i, pmin);
-          //std::cout << "\tTrigger " << names.triggerName(i) << ", L1 ps " << pmin << "-" << pmax << ", HLT ps " << hltprescale << std::endl;
         }
         packedPrescales->addPrescaledTrigger(i, pvdet.second);
-        //assert( hltprescale == pvdet.second );
       }
       iEvent.put(std::move(packedPrescales));
       iEvent.put(std::move(packedPrescalesL1max), "l1max");
