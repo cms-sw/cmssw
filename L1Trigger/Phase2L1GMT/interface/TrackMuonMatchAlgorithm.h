@@ -12,7 +12,7 @@
 #include "L1Trigger/Phase2L1GMT/interface/TrackConverter.h"
 #include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "L1Trigger/Phase2L1GMT/interface/MuonROI.h"
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include <fstream>

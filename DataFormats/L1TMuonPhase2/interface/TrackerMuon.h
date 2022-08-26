@@ -9,7 +9,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 namespace l1t {
 
