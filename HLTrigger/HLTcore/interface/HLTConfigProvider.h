@@ -21,6 +21,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 //
 // class declaration
@@ -120,21 +121,21 @@ public:
 
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
-  const std::vector<std::vector<std::pair<bool, std::string> > >& hltL1GTSeeds() const {
+  const std::vector<std::vector<std::pair<bool, std::string>>>& hltL1GTSeeds() const {
     return hltConfigData_->hltL1GTSeeds();
   }
   /// HLTLevel1GTSeed modules for trigger path with name
-  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(const std::string& trigger) const {
+  const std::vector<std::pair<bool, std::string>>& hltL1GTSeeds(const std::string& trigger) const {
     return hltConfigData_->hltL1GTSeeds(trigger);
   }
   /// HLTLevel1GTSeed modules for trigger path with index i
-  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(unsigned int trigger) const {
+  const std::vector<std::pair<bool, std::string>>& hltL1GTSeeds(unsigned int trigger) const {
     return hltConfigData_->hltL1GTSeeds(trigger);
   }
 
   /// HLTL1TSeed module
   /// HLTL1TSeed modules for all trigger paths
-  const std::vector<std::vector<std::string> >& hltL1TSeeds() const { return hltConfigData_->hltL1TSeeds(); }
+  const std::vector<std::vector<std::string>>& hltL1TSeeds() const { return hltConfigData_->hltL1TSeeds(); }
   /// HLTL1TSeed modules for trigger path with name
   const std::vector<std::string>& hltL1TSeeds(const std::string& trigger) const {
     return hltConfigData_->hltL1TSeeds(trigger);
@@ -152,7 +153,7 @@ public:
   /// index of stream with name
   unsigned int streamIndex(const std::string& stream) const { return hltConfigData_->streamIndex(stream); }
   /// names of datasets for all streams
-  const std::vector<std::vector<std::string> >& streamContents() const { return hltConfigData_->streamContents(); }
+  const std::vector<std::vector<std::string>>& streamContents() const { return hltConfigData_->streamContents(); }
   /// names of datasets in stream with index i
   const std::vector<std::string>& streamContent(unsigned int stream) const {
     return hltConfigData_->streamContent(stream);
@@ -170,7 +171,7 @@ public:
   /// index of dataset with name
   unsigned int datasetIndex(const std::string& dataset) const { return hltConfigData_->datasetIndex(dataset); }
   /// names of trigger paths for all datasets
-  const std::vector<std::vector<std::string> >& datasetContents() const { return hltConfigData_->datasetContents(); }
+  const std::vector<std::vector<std::string>>& datasetContents() const { return hltConfigData_->datasetContents(); }
   /// names of trigger paths in dataset with index i
   const std::vector<std::string>& datasetContent(unsigned int dataset) const {
     return hltConfigData_->datasetContent(dataset);
@@ -186,18 +187,21 @@ public:
   /// HLT prescale value in specific prescale set for a specific trigger path
   template <typename T = unsigned int>
   T prescaleValue(unsigned int set, const std::string& trigger) const {
-    //limit to only 4 allowed types
-    static_assert(std::is_same_v<T, unsigned int> or std::is_same_v<T, FractionalPrescale> or std::is_same_v<T, int> or
-                      std::is_same_v<T, double>,
-                  "Please use prescaleValue<unsigned int>, prescaleValue<int>, prescaleValue<double>, or "
-                  "prescaleValue<FractionalPrescale>,\n note int and unsigned int will be depreated soon");
-    return hltConfigData_->prescaleValue(set, trigger);
+    static_assert(std::is_same_v<T, double> or std::is_same_v<T, FractionalPrescale>,
+                  "\n\tPlease use prescaleValue<double> or prescaleValue<FractionalPrescale>"
+                  "\n\t(other types for HLT prescales are not supported anymore by HLTConfigProvider)");
+    return hltConfigData_->prescaleValue<T>(set, trigger);
   }
 
   /// low-level data member access
   const std::vector<std::string>& prescaleLabels() const { return hltConfigData_->prescaleLabels(); }
-  const std::map<std::string, std::vector<unsigned int> >& prescaleTable() const {
-    return hltConfigData_->prescaleTable();
+
+  template <typename T = unsigned int>
+  std::map<std::string, std::vector<T>> const& prescaleTable() const {
+    static_assert(std::is_same_v<T, double> or std::is_same_v<T, FractionalPrescale>,
+                  "\n\tPlease use prescaleTable<double> or prescaleTable<FractionalPrescale>"
+                  "\n\t(other types for HLT prescales are not supported anymore by HLTConfigProvider)");
+    return hltConfigData_->prescaleTable<T>();
   }
 
   /// regexp processing
