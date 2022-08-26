@@ -142,7 +142,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    c1_[k] = vdt::fast_logf(x[k]) - c1_[k - 1];
+    c1[k] = vdt::fast_logf(x[k]) - c1[k - 1];
   }
   for (k = 1; k < n; ++k) {
     vdt::fast_sincosf(x1[k], c3[k], c4[k]);
@@ -278,7 +278,7 @@ VVIObjF::VVIObjF(float kappa) : mode_(1) {
     VVIObjFDetails::sincosint(x1[k], c2[k], c1[k]);
   }
   for (k = 1; k < n; ++k) {
-    c1_[k] = vdt::fast_logf(x[k]) - c1[k - 1];
+    c1[k] = vdt::fast_logf(x[k]) - c1[k - 1];
   }
   for (k = 1; k < n; ++k) {
     vdt::fast_sincosf(x1[k], c3[k], c4[k]);
