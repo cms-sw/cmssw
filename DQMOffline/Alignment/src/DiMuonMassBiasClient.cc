@@ -24,9 +24,6 @@ DiMuonMassBiasClient::DiMuonMassBiasClient(edm::ParameterSet const& iConfig)
 {
   edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::Constructing DiMuonMassBiasClient ";
 
-  consumes<DQMToken, edm::InRun>(edm::InputTag("DiMuonMassBiasMonitor", "DQMGenerationDiMuonMassBiasMonitorRun"));
-  consumes<DQMToken, edm::InLumi>(edm::InputTag("DiMuonMassBiasMonitor", "DQMGenerationDiMuonMassBiasMonitorLumi"));
-
   // fill the parameters for the fit
   edm::ParameterSet fit_par = iConfig.getParameter<edm::ParameterSet>("fit_par");
   diMuonMassBias::fillArrayF(meanConfig_, fit_par, "mean_par");

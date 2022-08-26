@@ -34,10 +34,7 @@ DiMuonMassBiasMonitor::DiMuonMassBiasMonitor(const edm::ParameterSet& iConfig)
       MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
       decayMotherName_(iConfig.getParameter<std::string>("decayMotherName")),
       distanceScaleFactor_(iConfig.getParameter<double>("distanceScaleFactor")),
-      DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")) {
-  produces<DQMToken, edm::Transition::EndRun>("DQMGenerationDiMuonMassBiasMonitorRun");
-  produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationDiMuonMassBiasMonitorLumi");
-}
+      DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")) {}
 
 void DiMuonMassBiasMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonMassBiasMonitor/MassBias");
