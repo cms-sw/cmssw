@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import math
 
-from L1Trigger.Phase2L1ParticleFlow.l1tPFTracksFromL1Tracks_cfi import l1tPFTracksFromL1Tracks
+from L1Trigger.Phase2L1ParticleFlow.l1tPFTracksFromL1Tracks_cfi import l1tPFTracksFromL1Tracks, l1tPFTracksFromL1TracksExtended
 from L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromL1EGClusters_cfi import l1tPFClustersFromL1EGClusters
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromCombinedCalo_cff import l1tPFClustersFromCombinedCaloHCal, l1tPFClustersFromCombinedCaloHF
 from L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromHGC3DClusters_cfi import l1tPFClustersFromHGC3DClusters
@@ -136,6 +136,8 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
             # regions=cms.vuint32(range(36, 54))), # eta splitting
     )
 )
+
+l1tLayer1BarrelExtended = l1tLayer1Barrel.clone(tracks = cms.InputTag('l1tPFTracksFromL1TracksExtended'))
 
 _hgcalSectors = cms.VPSet(
     cms.PSet( 
@@ -286,6 +288,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     writeRawHgcalCluster = cms.untracked.bool(True)
 )
 
+l1tLayer1HGCalExtended = l1tLayer1HGCal.clone(tracks = cms.InputTag('l1tPFTracksFromL1TracksExtended'))
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
@@ -469,6 +472,16 @@ l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     regionalLabelsToMerge = cms.vstring("Puppi"),
 )
 
+
+l1tLayer1Extended = l1tLayer1.clone(
+    pfProducers = cms.VInputTag(
+        cms.InputTag("l1tLayer1BarrelExtended"),
+        cms.InputTag("l1tLayer1HGCalExtended"),
+        cms.InputTag("l1tLayer1HGCalNoTK"),
+        cms.InputTag("l1tLayer1HF")
+    )
+)
+
 l1tLayer1EG = cms.EDProducer(
     "L1TEGMultiMerger",
     tkElectrons=cms.VPSet(
@@ -516,7 +529,8 @@ L1TLayer1TaskInputsTask = cms.Task(
     l1tPFClustersFromCombinedCaloHCal,
     l1tPFClustersFromCombinedCaloHF,
     l1tPFClustersFromHGC3DClusters,
-    l1tPFTracksFromL1Tracks
+    l1tPFTracksFromL1Tracks,
+    l1tPFTracksFromL1TracksExtended
 )
 
 L1TLayer1Task = cms.Task(
@@ -525,5 +539,6 @@ L1TLayer1Task = cms.Task(
      l1tLayer1HGCalNoTK,
      l1tLayer1HF,
      l1tLayer1,
+     l1tLayer1Extended,
      l1tLayer1EG
 )

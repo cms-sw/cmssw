@@ -8,3 +8,5 @@ l1tDeregionizerProducer = cms.EDProducer("DeregionizerProducer",
                            nPuppiSecondBuffers = cms.uint32(32),
                            nPuppiThirdBuffers  = cms.uint32(64)
                          )
+
+l1tDeregionizerProducerExtended = l1tDeregionizerProducer.clone(RegionalPuppiCands  = cms.InputTag("l1tLayer1Extended","PuppiRegional"))
