@@ -8,7 +8,7 @@
 #include "DQMOffline/L1Trigger/interface/L1TPhase2MuonOffline.h"
 
 // To convert from HW to Physical coordinates
-#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 using namespace reco;
 using namespace trigger;

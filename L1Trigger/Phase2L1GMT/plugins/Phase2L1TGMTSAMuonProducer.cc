@@ -37,7 +37,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
-#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 //
 // class declaration
