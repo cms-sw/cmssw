@@ -96,6 +96,9 @@ private:
   double tsDelay1GeV_ = 0;
 
   bool calculateArrivalTime_;
+  int timeAlgo_;
+  float cond1_;
+  float cond3_;
   float meanTime_;
   float timeSigmaHPD_;
   float timeSigmaSiPM_;
@@ -174,6 +177,9 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
       chiSqSwitch_(iConfig.getParameter<double>("chiSqSwitch")),
       applyTimeSlew_(iConfig.getParameter<bool>("applyTimeSlew")),
       calculateArrivalTime_(iConfig.getParameter<bool>("calculateArrivalTime")),
+      timeAlgo_(iConfig.getParameter<int>("timeAlgo")),
+      cond1_(iConfig.getParameter<double>("cond1")),
+      cond3_(iConfig.getParameter<double>("cond3")),
       meanTime_(iConfig.getParameter<double>("meanTime")),
       timeSigmaHPD_(iConfig.getParameter<double>("timeSigmaHPD")),
       timeSigmaSiPM_(iConfig.getParameter<double>("timeSigmaSiPM")),
@@ -193,6 +199,9 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
                        applyTimeSlew_,
                        HcalTimeSlew::Medium,
                        calculateArrivalTime_,
+                       timeAlgo_,
+                       cond1_,
+                       cond3_,
                        meanTime_,
                        timeSigmaHPD_,
                        timeSigmaSiPM_,
@@ -358,6 +367,9 @@ void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("recoLabel");
   desc.add<bool>("dynamicPed");
   desc.add<bool>("calculateArrivalTime");
+  desc.add<int>("timeAlgo");
+  desc.add<double>("cond1");
+  desc.add<double>("cond2");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
   desc.add<bool>("applyTimeSlew");
