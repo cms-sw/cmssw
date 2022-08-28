@@ -104,6 +104,9 @@ public:
                      bool iApplyTimeSlew,
                      HcalTimeSlew::BiasSetting slewFlavor,
                      bool iCalculateArrivalTime,
+                     int iTimeAlgo,
+                     double iThEnergeticPulses,
+                     double iThLowPUOOT,
                      double iMeanTime,
                      double iTimeSigmaHPD,
                      double iTimeSigmaSiPM,
@@ -132,6 +135,9 @@ public:
 
   typedef BXVector::Index Index;
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
+
+  mutable float thEnergeticPulses_;
+  mutable float thLowPUOOT_;
 
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
@@ -167,6 +173,8 @@ private:
   static constexpr float timeLimit_ = 12.5f;
 
   // Python-configurables
+  int timeAlgo_;
+
   bool dynamicPed_;
   float ts4Thresh_;
   float chiSqSwitch_;

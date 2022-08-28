@@ -10,6 +10,9 @@ void MahiFit::setParameters(bool iDynamicPed,
                             bool iApplyTimeSlew,
                             HcalTimeSlew::BiasSetting slewFlavor,
                             bool iCalculateArrivalTime,
+                            int timeAlgo,
+                            double thEnergeticPulses,
+                            double thLowPUOOT,
                             double iMeanTime,
                             double iTimeSigmaHPD,
                             double iTimeSigmaSiPM,
@@ -27,6 +30,9 @@ void MahiFit::setParameters(bool iDynamicPed,
   slewFlavor_ = slewFlavor;
 
   calculateArrivalTime_ = iCalculateArrivalTime;
+  timeAlgo_ = timeAlgo;
+  thEnergeticPulses_ = thEnergeticPulses;
+  thLowPUOOT_ = thLowPUOOT;
   meanTime_ = iMeanTime;
   timeSigmaHPD_ = iTimeSigmaHPD;
   timeSigmaSiPM_ = iTimeSigmaSiPM;
@@ -94,6 +100,9 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   const float gain0 = channelData.tsGain(0);
   tsTOT *= gain0;
   tstrig *= gain0;
+
+  thEnergeticPulses_ *= (1.f/gain0);
+  thLowPUOOT_ *= (1.f/gain0);
 
   useTriple = false;
   if (tstrig > ts4Thresh_ && tsTOT > 0) {
@@ -210,8 +219,10 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
     if (correctedOutput.at(0) != 0) {
       // fixME store the timeslew
       float arrivalTime = 0.f;
-      if (calculateArrivalTime_)
+      if (calculateArrivalTime_ && timeAlgo_==1)
         arrivalTime = calculateArrivalTime(ipulseintime);
+      else if (calculateArrivalTime_ && timeAlgo_==2)
+        arrivalTime = ccTime();
       correctedOutput.at(1) = arrivalTime;  //time
     } else
       correctedOutput.at(1) = -9999.f;  //time
@@ -219,22 +230,6 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
     correctedOutput.at(2) = chiSq;  //chi2
   }
 
-  if (foundintime) {
-
-    // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(ipulseintime);
-    // FIME: need to multiply amplitudes with gain to get the energy
-    // FIXME: remove hardcoded TS3, TS4, TS5 (soi is nnlsWork_.tsOffset)
-
-    // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
-    bool cond1 = (nnlsWork_.amplitudes.coeffRef(3)+nnlsWork_.amplitudes.coeffRef(4) > 20 );
-    // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
-    bool cond2 = (nnlsWork_.amplitudes.coeffRef(3)>(nnlsWork_.amplitudes.coeffRef(4)+nnlsWork_.amplitudes.coeffRef(5)));
-    // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
-    bool cond3 = ((nnlsWork_.amplitudes.coeffRef(0)+nnlsWork_.amplitudes.coeffRef(1)+nnlsWork_.amplitudes.coeffRef(2))<5 );
-
-    if (cond1 && cond2 && cond3) correctedOutput.at(1) = ccTime();
-
-  }
 }
 
 const float MahiFit::minimize() const {
@@ -364,6 +359,21 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
 
 float MahiFit::ccTime() const {
 
+  float ccTime_ = 0.;
+
+  // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
+
+  const int soi = nnlsWork_.tsOffset;
+
+  // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
+  const bool cond1 = (nnlsWork_.amplitudes.coeffRef(soi)+nnlsWork_.amplitudes.coeffRef(soi+1U) > thEnergeticPulses_ );
+  // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
+  const bool cond2 = (nnlsWork_.amplitudes.coeffRef(soi)>(nnlsWork_.amplitudes.coeffRef(soi+1U)+nnlsWork_.amplitudes.coeffRef(soi+2U)));
+  // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
+  const bool cond3 = ((nnlsWork_.amplitudes.coeffRef(soi-3U)+nnlsWork_.amplitudes.coeffRef(soi-1U)+nnlsWork_.amplitudes.coeffRef(soi-1U))< thLowPUOOT_ );
+
+  if (!(cond1 && cond2 && cond3)) return ccTime_;
+
   // To speed up check around the fitted time (? to be checked with LLP)
 
   // distanze as in formula of page 6
@@ -379,7 +389,6 @@ float MahiFit::ccTime() const {
   //  }
 
   float distance_delta_max = 0.f;
-  float ccTime_ = 0.;
 
   std::array<double, hcal::constants::maxSamples> pulseN;
 
@@ -401,7 +410,7 @@ float MahiFit::ccTime() const {
     for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
 
       //pulseN[iTS] is the area of the template
-      float norm = nnlsWork_.amplitudes.coeffRef(iTS);// * gains[iTS]; // normalization to energy of the data (full pulse or each time slide ?) + need to bring gain here 
+      float norm = nnlsWork_.amplitudes.coeffRef(iTS);
 
       //  Finding the distance after each iteration.
       numerator += norm * pulseN[iTS];
