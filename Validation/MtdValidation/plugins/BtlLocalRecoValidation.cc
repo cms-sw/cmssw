@@ -42,13 +42,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHitData {
-  float energy;
-  float time;
-  float x_local;
-  float y_local;
-  float z_local;
-};
+#include "MTDHit.h"
 
 class BtlLocalRecoValidation : public DQMEDAnalyzer {
 public:
@@ -237,7 +231,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 #endif
 
   // --- Loop over the BTL SIM hits
-  std::unordered_map<uint32_t, MTDHitData> m_btlSimHits;
+  std::unordered_map<uint32_t, MTDHit> m_btlSimHits;
   for (auto const& simHit : btlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
@@ -245,7 +239,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     DetId id = simHit.detUnitId();
 
-    auto simHitIt = m_btlSimHits.emplace(id.rawId(), MTDHitData()).first;
+    auto simHitIt = m_btlSimHits.emplace(id.rawId(), MTDHit()).first;
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
     (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
@@ -255,9 +249,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       (simHitIt->second).time = simHit.tof();
 
       auto hit_pos = simHit.entryPoint();
-      (simHitIt->second).x_local = hit_pos.x();
-      (simHitIt->second).y_local = hit_pos.y();
-      (simHitIt->second).z_local = hit_pos.z();
+      (simHitIt->second).x = hit_pos.x();
+      (simHitIt->second).y = hit_pos.y();
+      (simHitIt->second).z = hit_pos.z();
     }
 
   }  // simHit loop
@@ -309,13 +303,13 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     // Resolution histograms
     if (m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_) {
-      float longpos_res = recHit.position() - convertMmToCm(m_btlSimHits[detId.rawId()].x_local);
+      float longpos_res = recHit.position() - convertMmToCm(m_btlSimHits[detId.rawId()].x);
       float time_res = recHit.time() - m_btlSimHits[detId.rawId()].time;
       float energy_res = recHit.energy() - m_btlSimHits[detId.rawId()].energy;
 
-      Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[detId.rawId()].x_local),
-                                   convertMmToCm(m_btlSimHits[detId.rawId()].y_local),
-                                   convertMmToCm(m_btlSimHits[detId.rawId()].z_local));
+      Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[detId.rawId()].x),
+                                   convertMmToCm(m_btlSimHits[detId.rawId()].y),
+                                   convertMmToCm(m_btlSimHits[detId.rawId()].z));
       local_point_sim =
           topo.pixelToModuleLocalPoint(local_point_sim, detId.row(topo.nrows()), detId.column(topo.nrows()));
       const auto& global_point_sim = thedet->toGlobal(local_point_sim);
@@ -398,9 +392,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             continue;
 
           // SIM hit's position in the module reference frame
-          Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[recHit.id().rawId()].x_local),
-                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].y_local),
-                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].z_local));
+          Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[recHit.id().rawId()].x),
+                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].y),
+                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].z));
           local_point_sim =
               topo.pixelToModuleLocalPoint(local_point_sim, hitId.row(topo.nrows()), hitId.column(topo.nrows()));
 

@@ -39,13 +39,7 @@
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x_local;
-  float y_local;
-  float z_local;
-};
+#include "MTDHit.h"
 
 class EtlLocalRecoValidation : public DQMEDAnalyzer {
 public:
@@ -246,9 +240,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       (simHitIt->second).time = simHit.tof();
 
       auto hit_pos = simHit.entryPoint();
-      (simHitIt->second).x_local = hit_pos.x();
-      (simHitIt->second).y_local = hit_pos.y();
-      (simHitIt->second).z_local = hit_pos.z();
+      (simHitIt->second).x = hit_pos.x();
+      (simHitIt->second).y = hit_pos.y();
+      (simHitIt->second).z = hit_pos.z();
     }
 
   }  // simHit loop
@@ -450,9 +444,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             continue;
 
           // SIM hit's position in the module reference frame
-          Local3DPoint local_point_sim(convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].x_local),
-                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].y_local),
-                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].z_local));
+          Local3DPoint local_point_sim(convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].x),
+                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].y),
+                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].z));
 
           // Calculate the SIM cluster's position in the module reference frame
           cluLocXSIM += local_point_sim.x() * m_etlSimHits[idet][recHit.id().rawId()].energy;

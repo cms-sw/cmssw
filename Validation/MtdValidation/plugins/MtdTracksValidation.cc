@@ -44,18 +44,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "HepMC/GenRanges.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-
-namespace {
-
-  struct MTDHit {
-    float energy;
-    float time;
-    float x;
-    float y;
-    float z;
-  };
-
-}  // namespace
+#include "MTDHit.h"
 
 class MtdTracksValidation : public DQMEDAnalyzer {
 public:
