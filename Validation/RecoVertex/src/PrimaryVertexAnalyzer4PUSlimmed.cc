@@ -95,7 +95,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
 
   i.setCurrentFolder(root_folder_);
   if (do_generic_sim_plots_) {
-    mes_["root_folder"]["GenVtx_vs_BX"] = i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 16, -12.5, 3.5, 200, 0., 200.);
+    mes_["root_folder"]["GenVtx_vs_BX"] = i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 16, -12.5, 3.5, 250, 0., 250.);
     // Generated Primary Vertex Plots
     mes_["root_folder"]["GenPV_X"] = i.book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
     mes_["root_folder"]["GenPV_Y"] = i.book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
@@ -109,7 +109,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
 
     // All Generated Vertices, used for efficiency plots
     mes_["root_folder"]["GenAllV_NumVertices"] =
-        i.book1D("GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
+        i.book1D("GenAllV_NumVertices", "GeneratedAllV_NumVertices", 125, 0., 250.);
     mes_["root_folder"]["GenAllV_X"] = i.book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
     mes_["root_folder"]["GenAllV_Y"] = i.book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
     mes_["root_folder"]["GenAllV_Z"] = i.book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
@@ -164,7 +164,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     mes_[label]["MisTagRate_vs_Z"] = i.bookProfile("MisTagRate_vs_Z", "MisTagRate_vs_Z", 120, -60., 60., 2, 0., 1.);
     mes_[label]["MisTagRate_vs_R"] = i.bookProfile("MisTagRate_vs_R", "MisTagRate_vs_R", 120, 0., 0.6, 2, 0., 1.);
     mes_[label]["MisTagRate_vs_NumTracks"] =
-        i.bookProfile("MisTagRate_vs_NumTracks", "MisTagRate_vs_NumTracks", 100, 0., 200, 2, 0., 1.);
+        i.bookProfile("MisTagRate_vs_NumTracks", "MisTagRate_vs_NumTracks", 125, 0., 250, 2, 0., 1.);
     mes_[label]["MisTagRateSignalIsHighest"] =
         i.book1D("MisTagRateSignalIsHighest", "MisTagRateSignalIsHighest", 2, -0.5, 1.5);
     mes_[label]["MisTagRateSignalIsHighest_vs_PU"] =
@@ -181,7 +181,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     mes_[label]["MisTagRateSignalIsHighest_vs_R"] =
         i.bookProfile("MisTagRateSignalIsHighest_vs_R", "MisTagRateSignalIsHighest_vs_R", 120, 0., 0.6, 2, 0., 1.);
     mes_[label]["MisTagRateSignalIsHighest_vs_NumTracks"] = i.bookProfile(
-        "MisTagRateSignalIsHighest_vs_NumTracks", "MisTagRateSignalIsHighest_vs_NumTracks", 100, 0., 200, 2, 0., 1.);
+        "MisTagRateSignalIsHighest_vs_NumTracks", "MisTagRateSignalIsHighest_vs_NumTracks", 125, 0., 250, 2, 0., 1.);
     mes_[label]["MisTagRateSignalIsNotHighest"] =
         i.book1D("MisTagRateSignalIsNotHighest", "MisTagRateSignalIsNotHighest", 2, -0.5, 1.5);
     mes_[label]["MisTagRateSignalIsNotHighest_vs_PU"] = i.bookProfile(
@@ -200,9 +200,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     mes_[label]["MisTagRateSignalIsNotHighest_vs_NumTracks"] =
         i.bookProfile("MisTagRateSignalIsNotHighest_vs_NumTracks",
                       "MisTagRateSignalIsNotHighest_vs_NumTracks",
-                      100,
+                      125,
                       0.,
-                      200,
+                      250,
                       2,
                       0.,
                       1.);
@@ -226,7 +226,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // duplicate plots here in case we want to perform more detailed
     // studies on a selection of generated vertices, not on all of them.
     mes_[label]["GenAllAssoc2Reco_NumVertices"] =
-        i.book1D("GenAllAssoc2Reco_NumVertices", "GeneratedAllAssoc2Reco_NumVertices", 100, 0., 200.);
+        i.book1D("GenAllAssoc2Reco_NumVertices", "GeneratedAllAssoc2Reco_NumVertices", 125, 0., 250.);
     mes_[label]["GenAllAssoc2Reco_X"] = i.book1D("GenAllAssoc2Reco_X", "GeneratedAllAssoc2Reco_X", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2Reco_Y"] = i.book1D("GenAllAssoc2Reco_Y", "GeneratedAllAssoc2Reco_Y", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2Reco_Z"] = i.book1D("GenAllAssoc2Reco_Z", "GeneratedAllAssoc2Reco_Z", 120, -60, 60);
@@ -244,7 +244,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // All Generated Vertices Matched to a Reconstructed vertex. Used
     // for Efficiency plots
     mes_[label]["GenAllAssoc2RecoMatched_NumVertices"] =
-        i.book1D("GenAllAssoc2RecoMatched_NumVertices", "GeneratedAllAssoc2RecoMatched_NumVertices", 100, 0., 200.);
+        i.book1D("GenAllAssoc2RecoMatched_NumVertices", "GeneratedAllAssoc2RecoMatched_NumVertices", 125, 0., 250.);
     mes_[label]["GenAllAssoc2RecoMatched_X"] =
         i.book1D("GenAllAssoc2RecoMatched_X", "GeneratedAllAssoc2RecoMatched_X", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMatched_Y"] =
@@ -266,7 +266,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // All Generated Vertices Multi-Matched to a Reconstructed vertex. Used
     // for Duplicate rate plots
     mes_[label]["GenAllAssoc2RecoMultiMatched_NumVertices"] = i.book1D(
-        "GenAllAssoc2RecoMultiMatched_NumVertices", "GeneratedAllAssoc2RecoMultiMatched_NumVertices", 100, 0., 200.);
+        "GenAllAssoc2RecoMultiMatched_NumVertices", "GeneratedAllAssoc2RecoMultiMatched_NumVertices", 125, 0., 250.);
     mes_[label]["GenAllAssoc2RecoMultiMatched_X"] =
         i.book1D("GenAllAssoc2RecoMultiMatched_X", "GeneratedAllAssoc2RecoMultiMatched_X", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMultiMatched_Y"] =
@@ -289,7 +289,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
 
     // All Reco Vertices. Used for {Fake,Duplicate}-Rate plots
     mes_[label]["RecoAllAssoc2Gen_NumVertices"] =
-        i.book1D("RecoAllAssoc2Gen_NumVertices", "ReconstructedAllAssoc2Gen_NumVertices", 100, 0., 200.);
+        i.book1D("RecoAllAssoc2Gen_NumVertices", "ReconstructedAllAssoc2Gen_NumVertices", 125, 0., 250.);
     mes_[label]["RecoAllAssoc2Gen_X"] = i.book1D("RecoAllAssoc2Gen_X", "ReconstructedAllAssoc2Gen_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2Gen_Y"] = i.book1D("RecoAllAssoc2Gen_Y", "ReconstructedAllAssoc2Gen_Y", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2Gen_Z"] = i.book1D("RecoAllAssoc2Gen_Z", "ReconstructedAllAssoc2Gen_Z", 120, -60, 60);
@@ -311,7 +311,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // All Reconstructed Vertices Matched to a Generated vertex. Used
     // for Fake-Rate plots
     mes_[label]["RecoAllAssoc2GenMatched_NumVertices"] =
-        i.book1D("RecoAllAssoc2GenMatched_NumVertices", "ReconstructedAllAssoc2GenMatched_NumVertices", 100, 0., 200.);
+        i.book1D("RecoAllAssoc2GenMatched_NumVertices", "ReconstructedAllAssoc2GenMatched_NumVertices", 125, 0., 250.);
     mes_[label]["RecoAllAssoc2GenMatched_X"] =
         i.book1D("RecoAllAssoc2GenMatched_X", "ReconstructedAllAssoc2GenMatched_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMatched_Y"] =
@@ -337,7 +337,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // All Reconstructed Vertices  Multi-Matched to a Generated vertex. Used
     // for Merge-Rate plots
     mes_[label]["RecoAllAssoc2GenMultiMatched_NumVertices"] = i.book1D(
-        "RecoAllAssoc2GenMultiMatched_NumVertices", "ReconstructedAllAssoc2GenMultiMatched_NumVertices", 100, 0., 200.);
+        "RecoAllAssoc2GenMultiMatched_NumVertices", "ReconstructedAllAssoc2GenMultiMatched_NumVertices", 125, 0., 250.);
     mes_[label]["RecoAllAssoc2GenMultiMatched_X"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_X", "ReconstructedAllAssoc2GenMultiMatched_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Y"] =
@@ -367,7 +367,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // has been linked to at least another RecoVTX. In this sense this
     // RecoVTX is a duplicate of the same, real GenVTX.
     mes_[label]["RecoAllAssoc2MultiMatchedGen_NumVertices"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_NumVertices", "RecoAllAssoc2MultiMatchedGen_NumVertices", 100, 0., 200.);
+        i.book1D("RecoAllAssoc2MultiMatchedGen_NumVertices", "RecoAllAssoc2MultiMatchedGen_NumVertices", 125, 0., 250.);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_X"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_X", "RecoAllAssoc2MultiMatchedGen_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Y"] =
