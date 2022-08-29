@@ -136,7 +136,6 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) 
   }
   minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
   maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
-  assert(minbx_readout_ > 0);
 }
 
 void CSCAnodeLCTProcessor::checkConfigParameters() {
@@ -174,8 +173,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
   CSCBaseboard::checkConfigParameters(accel_mode, max_accel_mode, def_accel_mode, "accel_mode");
   CSCBaseboard::checkConfigParameters(l1a_window_width, max_l1a_window_width, def_l1a_window_width, "l1a_window_width");
 
-  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
-  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
+  assert(l1a_window_width / 2 <= CSCConstants::LCT_CENTRAL_BX);
 }
 
 void CSCAnodeLCTProcessor::clear() {
