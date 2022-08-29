@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TowerCalibrationProducer = cms.EDProducer("L1TowerCalibrator",
+l1tTowerCalibrationProducer = cms.EDProducer("L1TowerCalibrator",
     # Choosen settings 6 March 2019, 10_3_X MTD samples
     HcalTpEtMin = cms.double(0.5),
     EcalTpEtMin = cms.double(0.5),
@@ -28,8 +28,8 @@ L1TowerCalibrationProducer = cms.EDProducer("L1TowerCalibrator",
     hfSF = cms.double(1.0),
     debug = cms.bool(False),
     skipCalibrations = cms.bool(False),
-    l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProducer","L1CaloTowerCollection",""),
-    L1HgcalTowersInputTag = cms.InputTag("hgcalTowerProducer:HGCalTowerProcessor"),
+    l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection",""),
+    L1HgcalTowersInputTag = cms.InputTag("l1tHGCalTowerProducer:HGCalTowerProcessor"),
     hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 	nHits_to_nvtx_params = cms.VPSet( # Parameters derived on 6 March 2019 on 10_3_X MTD samples
 		cms.PSet(

@@ -7,7 +7,7 @@ class CreateGenMatch(object):
         self.dR = distance
 
     def __call__(self, process, inputs):
-        producer = process.hgc3DClusterGenMatchSelector.clone(
+        producer = process.l1tHGCal3DClusterGenMatchSelector.clone(
                 dR = cms.double(self.dR),
                 src = cms.InputTag(inputs)
                 )

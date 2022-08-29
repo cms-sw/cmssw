@@ -173,20 +173,20 @@ be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer2Processor3DClu
                    energy_interpretations = energy_interpretations
                    )
 
-hgcalBackEndLayer2Producer = cms.EDProducer(
+l1tHGCalBackEndLayer2Producer = cms.EDProducer(
     "HGCalBackendLayer2Producer",
-    InputCluster = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
+    InputCluster = cms.InputTag('l1tHGCalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = be_proc.clone()
     )
 
-hgcalBackEndStage2Producer = cms.EDProducer(
+l1tHGCalBackEndStage2Producer = cms.EDProducer(
     "HGCalBackendLayer2Producer",
-    InputCluster = cms.InputTag('hgcalBackEndStage1Producer:HGCalBackendStage1Processor'),
+    InputCluster = cms.InputTag('l1tHGCalBackEndStage1Producer:HGCalBackendStage1Processor'),
     ProcessorParameters = be_proc.clone()
     )
 
-hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
-    InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
+l1tHGCalBackEndLayer2ProducerHFNose = l1tHGCalBackEndLayer2Producer.clone(
+    InputCluster = cms.InputTag('l1tHGCalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = dict(
         C3d_parameters = dict(
             histoMax_C3d_seeding_parameters = dict(

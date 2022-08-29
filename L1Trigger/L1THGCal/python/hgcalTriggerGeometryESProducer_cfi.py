@@ -28,7 +28,7 @@ geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp
                      DisconnectedLayers = cms.vuint32(disconnectedTriggerLayers)
                    )
 
-hgcalTriggerGeometryESProducer = cms.ESProducer(
+l1tHGCalTriggerGeometryESProducer = cms.ESProducer(
     'HGCalTriggerGeometryESProducer',
     TriggerGeometry = geometry
 )

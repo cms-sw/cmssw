@@ -37,10 +37,10 @@ process.load("L1Trigger.TrackerDTC.ProducerES_cff")
 process.load("L1Trigger.TrackerDTC.ProducerED_cff") 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-process.l1ctLayer1Barrel9 = process.l1ctLayer1Barrel.clone()
-process.l1ctLayer1Barrel9.puAlgo.nFinalSort = 32
-process.l1ctLayer1Barrel9.regions[0].etaBoundaries = [ -1.5, -0.5, 0.5, 1.5 ] 
-process.l1ctLayer1Barrel9.boards=cms.VPSet(
+process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
+process.l1tLayer1Barrel9.puAlgo.nFinalSort = 32
+process.l1tLayer1Barrel9.regions[0].etaBoundaries = [ -1.5, -0.5, 0.5, 1.5 ] 
+process.l1tLayer1Barrel9.boards=cms.VPSet(
         cms.PSet(
             regions=cms.vuint32(*[0+9*ie+i for ie in range(3) for i in range(3)])),
         cms.PSet(
@@ -49,25 +49,25 @@ process.l1ctLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
-process.pfInputsTask = cms.Task(
+process.PFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
     process.TrackerDTCProducer,
     process.offlineBeamSpot,
-    process.TTTracksFromTrackletEmulation,
+    process.l1tTTTracksFromTrackletEmulation,
     process.SimL1EmulatorTask
 )
-process.runPF = cms.Path( 
-        process.l1ctLayer1Barrel +
-        process.l1ctLayer1Barrel9 +
-        process.l1ctLayer1HGCal +
-        process.l1ctLayer1HGCalNoTK +
-        process.l1ctLayer1HF
+process.RunPF = cms.Path( 
+        process.l1tLayer1Barrel +
+        process.l1tLayer1Barrel9 +
+        process.l1tLayer1HGCal +
+        process.l1tLayer1HGCalNoTK +
+        process.l1tLayer1HF
 )
 
-process.runPF.associate(process.pfInputsTask)
-process.schedule = cms.Schedule(process.runPF)
+process.RunPF.associate(process.PFInputsTask)
+process.schedule = cms.Schedule(process.RunPF)
 
 for det in "Barrel", "Barrel9", "HGCal", "HGCalNoTK", "HF":
-    l1pf = getattr(process, 'l1ctLayer1'+det)
+    l1pf = getattr(process, 'l1tLayer1'+det)
     l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_123X_"+det+".dump")

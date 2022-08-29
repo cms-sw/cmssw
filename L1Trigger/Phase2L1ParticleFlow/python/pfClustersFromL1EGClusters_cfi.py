@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pfClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
-    src = cms.InputTag("L1EGammaClusterEmuProducer",),
+l1tPFClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
+    src = cms.InputTag("l1tEGammaClusterEmuProducer",),
     etMin = cms.double(0.5),
     corrector  = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
     resol = cms.PSet(
@@ -15,7 +15,7 @@ pfClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
 # use phase2_hgcalV10 to customize for 106X L1TDR MC even in the barrel, since there's no other modifier for it
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-phase2_hgcalV10.toModify(pfClustersFromL1EGClusters,
+phase2_hgcalV10.toModify(l1tPFClustersFromL1EGClusters,
     corrector  = "", # In this setup, TP's are already calibrated correctly :-) 
                      # L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel_106X.root",
     resol = cms.PSet(
@@ -25,7 +25,7 @@ phase2_hgcalV10.toModify(pfClustersFromL1EGClusters,
         kind    = cms.string('calo')
     )
 )
-phase2_hgcalV11.toModify(pfClustersFromL1EGClusters,
+phase2_hgcalV11.toModify(l1tPFClustersFromL1EGClusters,
     corrector  = "", # In this setup, TP's are already calibrated correctly :-) 
                      # L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel_110X.root",
     resol = cms.PSet(

@@ -239,16 +239,16 @@ phase2_hgcalV10.toModify(threshold_conc_proc,
                         )
 
 
-hgcalConcentratorProducer = cms.EDProducer(
+l1tHGCalConcentratorProducer = cms.EDProducer(
     "HGCalConcentratorProducer",
-    InputTriggerCells = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
-    InputTriggerSums = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
+    InputTriggerCells = cms.InputTag('l1tHGCalVFEProducer:HGCalVFEProcessorSums'),
+    InputTriggerSums = cms.InputTag('l1tHGCalVFEProducer:HGCalVFEProcessorSums'),
     ProcessorParameters = threshold_conc_proc.clone()
     )
 
 
-hgcalConcentratorProducerHFNose = hgcalConcentratorProducer.clone(
-    InputTriggerCells = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums'),
-    InputTriggerSums = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
+l1tHGCalConcentratorProducerHFNose = l1tHGCalConcentratorProducer.clone(
+    InputTriggerCells = cms.InputTag('l1tHFnoseVFEProducer:HGCalVFEProcessorSums'),
+    InputTriggerSums = cms.InputTag('l1tHFnoseVFEProducer:HGCalVFEProcessorSums')
 )
 
