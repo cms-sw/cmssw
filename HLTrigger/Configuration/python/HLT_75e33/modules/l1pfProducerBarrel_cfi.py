@@ -63,7 +63,7 @@ l1pfProducerBarrel = cms.EDProducer("L1TPFProducer",
         phiExtra = cms.double(0.0),
         phiSlices = cms.uint32(1)
     )),
-    tkMuons = cms.InputTag("L1TkMuonsGmt"),
+    tkMuons = cms.InputTag("l1tTkMuonsGmt"),
     trackRegionMode = cms.string('atCalo'),
     tracks = cms.InputTag("pfTracksFromL1TracksBarrel"),
     trkMaxChi2 = cms.double(15),
@@ -74,7 +74,7 @@ l1pfProducerBarrel = cms.EDProducer("L1TPFProducer",
     useTrackerMuons = cms.bool(False),
     vtxAdaptiveCut = cms.bool(True),
     vtxAlgo = cms.string('external'),
-    vtxCollection = cms.InputTag("L1TkPrimaryVertex"),
+    vtxCollection = cms.InputTag("l1tTkPrimaryVertex"),
     vtxFormat = cms.string('TkPrimaryVertex'),
     vtxRes = cms.double(0.333)
 )
