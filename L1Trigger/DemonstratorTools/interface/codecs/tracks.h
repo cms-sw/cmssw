@@ -31,7 +31,7 @@ namespace l1t::demo::codecs {
       const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>&,
       const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>&);
 
-  // Encodes track collection onto 18 'logical' output links (2x9 eta-phi sectors; first 9 negative eta)
+  // Encodes track collection onto 18 'logical' output links (2x9 eta-phi sectors; -/+ eta pairs)
   std::array<std::vector<ap_uint<64>>, 18> encodeTracks(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>&,
                                                         int debug = 0);
 
@@ -45,7 +45,7 @@ namespace l1t::demo::codecs {
   // Decodes the tracks for a single link
   std::vector<TTTrack_TrackWord> decodeTracks(const std::vector<ap_uint<64>>&);
 
-  // Decodes the tracks from 18 'logical' output links (2x9 eta-phi sectors; first 9 negative eta)
+  // Decodes the tracks from 18 'logical' output links (2x9 eta-phi sectors; , -/+ eta pairs)
   std::array<std::vector<TTTrack_TrackWord>, 18> decodeTracks(const std::array<std::vector<ap_uint<64>>, 18>&);
 
 }  // namespace l1t::demo::codecs
