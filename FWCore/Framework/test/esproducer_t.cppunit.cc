@@ -87,6 +87,7 @@ class testEsproducer : public CppUnit::TestFixture {
 
   CPPUNIT_TEST(registerTest);
   CPPUNIT_TEST(getFromTest);
+  CPPUNIT_TEST(getFromLambdaTest);
   CPPUNIT_TEST(getfromShareTest);
   CPPUNIT_TEST(getfromUniqueTest);
   CPPUNIT_TEST(getfromOptionalTest);
@@ -105,6 +106,7 @@ public:
 
   void registerTest();
   void getFromTest();
+  void getFromLambdaTest();
   void getfromShareTest();
   void getfromUniqueTest();
   void getfromOptionalTest();
@@ -128,6 +130,16 @@ private:
 
   private:
     DummyData data_{0};
+  };
+
+  class LambdaProducer : public ESProducer {
+  public:
+    LambdaProducer() {
+      setWhatProduced([data_ = DummyData()](const DummyRecord& /*iRecord*/) mutable {
+        ++data_.value_;
+        return std::shared_ptr<DummyData>(&data_, edm::do_nothing_deleter{});
+      });
+    }
   };
 
   class OptionalProducer : public ESProducer {
@@ -236,6 +248,34 @@ void testEsproducer::getFromTest() {
   // Then there would be addition work to do to get things setup properly for the
   // functions that check for module sharing between EventSetupProviders.
   provider.add(std::make_shared<Test1Producer>());
+
+  auto pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+
+  edm::ESParentContext parentC;
+  for (int iTime = 1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
+    CPPUNIT_ASSERT(0 != pDummy.product());
+    CPPUNIT_ASSERT(iTime == pDummy->value_);
+  }
+}
+
+void testEsproducer::getFromLambdaTest() {
+  SynchronousEventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+  provider.add(std::make_shared<LambdaProducer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
