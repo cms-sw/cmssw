@@ -121,21 +121,21 @@ static void SendMonitoringInfo(XrdCl::File &file) {
   }
 }
 
-namespace{ 
-    std::unique_ptr<std::string> getQueryTransport(const XrdCl::URL &url, uint16_t query) {
-      XrdCl::AnyObject result;
-      XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
-      std::string *tmp;
-      result.Get(tmp);
-      std::unique_ptr<std::string> method(tmp);
-      return method;
-    }
+namespace {
+  std::unique_ptr<std::string> getQueryTransport(const XrdCl::URL &url, uint16_t query) {
+    XrdCl::AnyObject result;
+    XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
+    std::string *tmp;
+    result.Get(tmp);
+    std::unique_ptr<std::string> method(tmp);
+    return method;
+  }
 
   void tracerouteRedirections(const XrdCl::HostList *hostList) {
-    edm::LogInfo("XrdAdaptorLvl2").log([hostList](auto& li) {
+    edm::LogInfo("XrdAdaptorLvl2").log([hostList](auto &li) {
       int idx_redirection = 1;
       std::string all_redirections;
-      for (auto const& host : *hostList) {
+      for (auto const &host : *hostList) {
         // Query info
         std::unique_ptr<std::string> stack_ip_method = getQueryTransport(host.url, XrdCl::StreamQuery::IpStack);
         std::unique_ptr<std::string> ip_method = getQueryTransport(host.url, XrdCl::StreamQuery::IpAddr);
@@ -152,8 +152,14 @@ namespace{
         if (host.loadBalancer == 1) {
           type_resource = "load balancer";
         };
-        std::string redirection = fmt::format("{}. || {} / {} / {} / {} / {} / {} ||\n", idx_redirection, *hostname_method, 
-          *stack_ip_method, *ip_method, host.url.GetPort(), authentication, type_resource);
+        std::string redirection = fmt::format("{}. || {} / {} / {} / {} / {} / {} ||\n",
+                                              idx_redirection,
+                                              *hostname_method,
+                                              *stack_ip_method,
+                                              *ip_method,
+                                              host.url.GetPort(),
+                                              authentication,
+                                              type_resource);
 
         all_redirections = all_redirections + redirection;
         ++idx_redirection;
@@ -161,7 +167,7 @@ namespace{
       li.format("-------------------------------\nTraceroute:\n{}-------------------------------", all_redirections);
     });
   }
-}
+}  // namespace
 
 RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
     : m_serverToAdvertise(nullptr),
@@ -343,23 +349,23 @@ void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const
     auto oldSites = formatSites(iOld);
   }
 
-  edm::LogInfo("XrdAdaptorLvl1").log([&](auto& li) {
+  edm::LogInfo("XrdAdaptorLvl1").log([&](auto &li) {
     li << "Serving data from: ";
     int size_active_sources = iNew.size();
     for (int i = 0; i < size_active_sources; ++i) {
       std::string hostname_a;
       Source::getHostname(iNew[i]->PrettyID(), hostname_a);
-      li.format("   [{}] {}", i+1, hostname_a);
+      li.format("   [{}] {}", i + 1, hostname_a);
     }
   });
 
-  edm::LogInfo("XrdAdaptorLvl3").log([&](auto& li) {
+  edm::LogInfo("XrdAdaptorLvl3").log([&](auto &li) {
     li << "The quality of the active sources is: ";
     int size_active_sources = iNew.size();
     for (int i = 0; i < size_active_sources; ++i) {
       std::string hostname_a;
       std::string quality = std::to_string(iNew[i]->getQuality());
-      li.format("   [{}] {} for {}", i+1, quality, hostname_a);
+      li.format("   [{}] {} for {}", i + 1, quality, hostname_a);
     }
   });
 }
@@ -395,7 +401,6 @@ bool RequestManager::compareSources(const timespec &now,
   std::string hostname_b;
   unsigned quality_a = activeSources[a]->getQuality();
   unsigned quality_b = activeSources[b]->getQuality();
-  
 
   bool findNewSource = false;
   if ((quality_a > 5130) || ((quality_a > 260) && (quality_b * 4 < quality_a))) {
