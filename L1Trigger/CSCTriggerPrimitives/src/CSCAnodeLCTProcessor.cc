@@ -86,6 +86,9 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
+  assert(minbx_readout_ > 0);
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
@@ -1281,12 +1284,10 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const {
 
 /** Returns shower bits */
 std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const {
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
   unsigned minBXdiff = 2 * l1a_window_width;  //impossible value
   unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++) {
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++) {
     unsigned bx_diff = (bx > bx - CSCConstants::LCT_CENTRAL_BX) ? bx - CSCConstants::LCT_CENTRAL_BX
                                                                 : CSCConstants::LCT_CENTRAL_BX - bx;
     if (anode_showers_[bx].isValid() and bx_diff < minBXdiff) {
@@ -1295,7 +1296,7 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const {
     }
   }
 
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++)
     if (bx == minBX)
       showerOut.push_back(anode_showers_[bx]);
   return showerOut;
@@ -1404,9 +1405,12 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits() {
     // do nothing if there are not enough layers with hits
     if (layersWithHits[bx].size() >= minLayersCentralTBin_) {
       // assign the bits
-      for (unsigned i = 0; i < station_thresholds.size(); i++) {
-        if (this_hitsInTime >= station_thresholds[i]) {
-          this_inTimeHMT = i + 1;
+      if (!station_thresholds.empty()) {
+        for (int i = station_thresholds.size() - 1; i >= 0; i--) {
+          if (this_hitsInTime >= station_thresholds[i]) {
+            this_inTimeHMT = i + 1;
+            break;
+          }
         }
       }
     }

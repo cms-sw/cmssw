@@ -293,10 +293,9 @@ void CSCTMBHeader2020_CCLUT::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi)
 }
 
 void CSCTMBHeader2020_CCLUT::addShower(const CSCShowerDigi& digi) {
-  uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
-  //not valid LCT shower, then in-time bits must be 0. keep out-of-time HMT
-  if (not digi.isValid())
-    hmt_bits = ((digi.bitsOutOfTime() & 0x3) << 2);
+  uint16_t hmt_bits = digi.isValid() ? (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2)
+                                     //if not valid LCT shower, then in-time bits must be 0. keep out-of-time HMT:
+                                     : ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
   //to keep pop_l1a_match_win

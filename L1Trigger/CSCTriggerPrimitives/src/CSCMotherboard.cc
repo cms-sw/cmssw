@@ -66,6 +66,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   // shower-trigger source
   showerSource_ = showerParams_.getParameter<std::vector<unsigned>>("source");
 
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(minbx_readout_ > 0);
+
   unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
   thisShowerSource_ = showerSource_[csc_idx];
 
@@ -370,12 +374,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
 }
 
 std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
   unsigned minBXdiff = 2 * tmb_l1a_window_size;  //impossible value
   unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++) {
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++) {
     unsigned bx_diff = (bx > bx - CSCConstants::LCT_CENTRAL_BX) ? bx - CSCConstants::LCT_CENTRAL_BX
                                                                 : CSCConstants::LCT_CENTRAL_BX - bx;
     if (showers_[bx].isValid() and bx_diff < minBXdiff) {
@@ -384,7 +386,7 @@ std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
     }
   }
 
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++)
     if (bx == minBX)
       showerOut.push_back(showers_[bx]);
   return showerOut;

@@ -195,6 +195,8 @@ protected:
   std::vector<unsigned> thresholds_;
   unsigned showerNumTBins_;
   unsigned minLayersCentralTBin_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
   /** check the peak of total hits and single bx hits for cathode HMT */
   bool peakCheck_;
 
