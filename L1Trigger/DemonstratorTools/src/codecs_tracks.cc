@@ -24,7 +24,7 @@ namespace l1t::demo::codecs {
   std::array<std::vector<ap_uint<96>>, 18> getTrackWords(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>& tracks) {
     std::array<std::vector<ap_uint<96>>, 18> trackWords;
     for (const auto& track : tracks) {
-      trackWords.at((track.eta() >= 0 ? 9 : 0) + track.phiSector()).push_back(encodeTrack(track));
+      trackWords.at((track.eta() >= 0 ? 1 : 0) + (2 * track.phiSector())).push_back(encodeTrack(track));
     }
     return trackWords;
   }
@@ -39,10 +39,10 @@ namespace l1t::demo::codecs {
       edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> referenceTrackRef(referenceTracks, itrack);
 
       if (trackInCollection(referenceTrackRef, tracks)) {
-        trackWords.at((referenceTrack.eta() >= 0 ? 9 : 0) + referenceTrack.phiSector())
+        trackWords.at((referenceTrack.eta() >= 0 ? 1 : 0) + (2 * referenceTrack.phiSector()))
             .push_back(encodeTrack(referenceTrack));
       } else {
-        trackWords.at((referenceTrack.eta() >= 0 ? 9 : 0) + referenceTrack.phiSector()).push_back(ap_uint<96>(0));
+        trackWords.at((referenceTrack.eta() >= 0 ? 1 : 0) + (2 * referenceTrack.phiSector())).push_back(ap_uint<96>(0));
       }
     }
     return trackWords;
@@ -68,7 +68,7 @@ namespace l1t::demo::codecs {
     return counter;
   }
 
-  // Encodes track collection onto 18 output links (2x9 eta-phi sectors; first 9 negative eta)
+  // Encodes track collection onto 18 output links (2x9 eta-phi sectors; , -/+ eta pairs)
   std::array<std::vector<ap_uint<64>>, 18> encodeTracks(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>& tracks,
                                                         int debug) {
     if (debug > 0) {
@@ -157,6 +157,7 @@ namespace l1t::demo::codecs {
     return tracks;
   }
 
+  // Decodes the tracks from 18 'logical' output links (2x9 eta-phi sectors; , -/+ eta pairs)
   std::array<std::vector<TTTrack_TrackWord>, 18> decodeTracks(const std::array<std::vector<ap_uint<64>>, 18>& frames) {
     std::array<std::vector<TTTrack_TrackWord>, 18> tracks;
 

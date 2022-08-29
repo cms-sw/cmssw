@@ -79,6 +79,7 @@ process.L1TrackSelectionProducer.processSimulatedTracks = cms.bool(False)
 process.L1TrackSelectionProducer.l1VerticesEmulationInputTag = cms.InputTag("VertexProducer", "l1verticesEmulation")
 process.L1TrackJetsEmulation.VertexInputTag = cms.InputTag("VertexProducer", "l1verticesEmulation")
 process.L1TrackerEmuEtMiss.L1VertexInputTag = cms.InputTag("VertexProducer", "l1verticesEmulation")
+process.L1TrackerEmuEtMiss.debug = options.debug
 
 if options.debug:
     process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000000000)

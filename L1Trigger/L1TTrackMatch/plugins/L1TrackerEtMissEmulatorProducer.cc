@@ -19,6 +19,7 @@
 // system include files
 #include <memory>
 #include <numeric>
+#include <sstream>
 // user include files
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -154,6 +155,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   // tracks
   l1tmetemu::Et_t sumPx[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   l1tmetemu::Et_t sumPy[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int link_totals[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int sector_totals[l1tmetemu::kNSector] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   // Track counters
@@ -263,12 +265,18 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         temppx = 0;
         temppy = 0;
       }
-      if (EtTrack.EtaSector) {
-        sumPx[EtTrack.Sector] = sumPx[EtTrack.Sector] + temppx;
-        sumPy[EtTrack.Sector] = sumPy[EtTrack.Sector] + temppy;
-      } else {
-        sumPx[l1tmetemu::kNSector + EtTrack.Sector] = sumPx[l1tmetemu::kNSector + EtTrack.Sector] + temppx;
-        sumPy[l1tmetemu::kNSector + EtTrack.Sector] = sumPy[l1tmetemu::kNSector + EtTrack.Sector] + temppy;
+
+      int link_number = (EtTrack.Sector * 2) + ((EtTrack.EtaSector) ? 0 : 1);
+      link_totals[link_number] += 1;
+      sumPx[link_number] += temppx;
+      sumPy[link_number] += temppy;
+      if (debug_ == 4) {
+        edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
+              << "Sector: " << EtTrack.Sector << " Eta: " << EtTrack.EtaSector << "\n"
+              << "Int Track Px: " << temppx << " Int Track Py: " << temppy << "\n"
+              << "Float Track Px: " << (float)temppx * l1tmetemu::kStepPt << " Float Track Py:" << (float)temppy * l1tmetemu::kStepPt << "\n"
+              << "Int Sector Sum Px: " << sumPx[link_number] << " Int Sector Sum Py: " << sumPy[link_number] << "\n"
+              << "Float Sector Sum Px: " << (float)sumPx[link_number] * l1tmetemu::kStepPt << " Float Sector Sum Py: " << (float) sumPy[link_number] * l1tmetemu::kStepPt << "\n";
       }
     }
 
@@ -306,27 +314,31 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   else if ((GlobalPx < 0) && (GlobalPy >= 0))
     tempPhi = EtMiss.Phi - 3 * l1tmetemu::kMETPhiBins / 2;
 
-  if (debug_ == 6) {
-    std::string flpxarray[l1tmetemu::kNSector * 2];
-    std::string flpyarray[l1tmetemu::kNSector * 2];
+  if (debug_ == 4 || debug_ == 6) {
+    std::stringstream flpxarray;
+    std::stringstream flpyarray;
 
-    std::string intpxarray[l1tmetemu::kNSector * 2];
-    std::string intpyarray[l1tmetemu::kNSector * 2];
+    std::stringstream intpxarray;
+    std::stringstream intpyarray;
 
-    std::string totalsarray[l1tmetemu::kNSector * 2];
+    std::stringstream totalsarray;
+    std::stringstream linksarray;
 
     for (unsigned int i = 0; i < l1tmetemu::kNSector * 2; i++) {
-      flpxarray[i] = to_string(sumPx[i] * l1tmetemu::kStepPt) + "|";
-      flpyarray[i] = to_string(sumPy[i] * l1tmetemu::kStepPt) + "|";
-      intpxarray[i] = to_string(floor((float)sumPx[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
-      intpyarray[i] = to_string(floor((float)sumPy[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
-      totalsarray[i] = to_string(sector_totals[i]) + "|";
+      flpxarray << to_string(sumPx[i] * l1tmetemu::kStepPt) + "|";
+      flpyarray << to_string(sumPy[i] * l1tmetemu::kStepPt) + "|";
+      intpxarray << to_string(floor((float)sumPx[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
+      intpyarray << to_string(floor((float)sumPy[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
+      linksarray << to_string(link_totals[i]) + "|";
+      if (i < l1tmetemu::kNSector) {
+        totalsarray << to_string(sector_totals[i]) + "|";
+      }
     }
 
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====Sector Pt====\n"
-        << "Float Px: " << flpxarray << "Float Py: " << flpyarray << "Integer Px: " << intpyarray
-        << "Integer Px: " << intpyarray << "Sector Totals: " << totalsarray
+        << "Float Px: " << flpxarray.str() << "\nFloat Py: " << flpyarray.str() << "\nInteger Px: " << intpyarray.str()
+        << "\nInteger Px: " << intpyarray.str() << "\nLink Totals: " << linksarray.str() << "\nSector Totals: " << totalsarray.str() << "\n"
 
         << "====Global Pt====\n"
         << "Integer Global Px: " << GlobalPx << "| Integer Global Py: " << GlobalPy << "\n"
@@ -334,7 +346,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         << "| Float Global Py: " << GlobalPy * l1tmetemu::kStepPt << "\n";
   }
 
-  if (debug_ == 6) {
+  if (debug_ == 4 || debug_ == 6) {
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====MET===\n"
         << "Integer MET: " << EtMiss.Et << "| Integer MET phi: " << EtMiss.Phi << "\n"
