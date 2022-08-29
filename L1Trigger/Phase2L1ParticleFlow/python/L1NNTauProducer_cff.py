@@ -9,7 +9,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff import l1ctLayer1Barrel,l1ctL
 #                                )
 
 
-L1NNTauProducerPuppi = cms.EDProducer("L1NNTauProducer",
+l1tNNTauProducerPuppi = cms.EDProducer("L1NNTauProducer",
                                       seedpt          = cms.double(10),
                                       conesize        = cms.double(0.4),
                                       tausize         = cms.double(0.1),
@@ -19,7 +19,7 @@ L1NNTauProducerPuppi = cms.EDProducer("L1NNTauProducer",
                                       NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer_puppi.pb")
 )
 
-L1NNTauProducerPF = cms.EDProducer("L1NNTauProducer",
+l1tNNTauProducerPF = cms.EDProducer("L1NNTauProducer",
                                       seedpt          = cms.double(10),
                                       conesize        = cms.double(0.4),
                                       tausize         = cms.double(0.1),

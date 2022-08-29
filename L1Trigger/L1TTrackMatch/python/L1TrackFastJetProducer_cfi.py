@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-L1TrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
+l1tTrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
     L1PrimaryVertexTag=cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
     trk_zMax = cms.double(15.),       # max track z0 [cm]
@@ -19,7 +19,7 @@ L1TrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
     displaced = cms.bool(False)       # use prompt/displaced tracks
 )
 
-L1TrackFastJetsExtended = cms.EDProducer("L1TrackFastJetProducer",
+l1tTrackFastJetsExtended = cms.EDProducer("L1TrackFastJetProducer",
     L1TrackInputTag = cms.InputTag("TTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
     L1PrimaryVertexTag=cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
     trk_zMax = cms.double(15.),       # max track z0 [cm]

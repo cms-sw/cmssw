@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DeregionizerProducer = cms.EDProducer("DeregionizerProducer",
+l1tDeregionizerProducer = cms.EDProducer("DeregionizerProducer",
                            RegionalPuppiCands  = cms.InputTag("l1ctLayer1","PuppiRegional"),
                            nPuppiFinalBuffer   = cms.uint32(128),
                            nPuppiPerClk        = cms.uint32(6),

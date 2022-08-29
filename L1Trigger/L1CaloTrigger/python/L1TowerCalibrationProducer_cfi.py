@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TowerCalibrationProducer = cms.EDProducer("L1TowerCalibrator",
+l1tTowerCalibrationProducer = cms.EDProducer("L1TowerCalibrator",
     # Choosen settings 6 March 2019, 10_3_X MTD samples
     HcalTpEtMin = cms.double(0.5),
     EcalTpEtMin = cms.double(0.5),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-VertexProducer = cms.EDProducer('VertexProducer',
+l1tVertexProducer = cms.EDProducer('VertexProducer',
 
   l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
 

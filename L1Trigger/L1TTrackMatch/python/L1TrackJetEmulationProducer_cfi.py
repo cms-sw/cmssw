@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-L1TrackJetsEmulation = cms.EDProducer('L1TrackJetEmulationProducer',
+l1tTrackJetsEmulation = cms.EDProducer('L1TrackJetEmulationProducer',
 	L1TrackInputTag= cms.InputTag("L1GTTInputProducer", "Level1TTTracksConverted"),
         VertexInputTag=cms.InputTag("L1VertexFinderEmulator", "l1verticesEmulation"),
 	MaxDzTrackPV = cms.double(0.5),
@@ -30,7 +30,7 @@ L1TrackJetsEmulation = cms.EDProducer('L1TrackJetEmulationProducer',
 	nDisplacedTracks=cms.int32(2) #Number of displaced tracks required per jet
 )
 
-L1TrackJetsExtendedEmulation = cms.EDProducer('L1TrackJetEmulationProducer',
+l1tTrackJetsExtendedEmulation = cms.EDProducer('L1TrackJetEmulationProducer',
 	L1TrackInputTag= cms.InputTag("L1GTTInputProducerExtended", "Level1TTTracksExtendedConverted"),
         VertexInputTag=cms.InputTag("L1VertexFinderEmulator", "l1verticesEmulation"),
 	MaxDzTrackPV = cms.double(4.0),

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
+l1tTkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
      L1TkJetInputTag = cms.InputTag("L1TkCaloJets", "L1TkCaloJets"),
      L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
      jet_maxEta = cms.double(2.2),          # maximum eta of jets for HT
@@ -17,10 +17,10 @@ L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
      displaced = cms.bool(False) #Run with prompt/displaced jets - only useful for track jets
 )
 
-L1TkCaloHTMissVtx = L1TkCaloHTMiss.clone()
-L1TkCaloHTMiss.doVtxConstrain = cms.bool(True)
+l1tTkCaloHTMissVtx = l1tTkCaloHTMiss.clone()
+l1tTkCaloHTMiss.doVtxConstrain = cms.bool(True)
 
-L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
+l1tTrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
     L1TkJetInputTag = cms.InputTag("L1TrackJets", "L1TrackJets"),
     L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
     jet_maxEta = cms.double(2.4),
@@ -36,7 +36,7 @@ L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
     displaced = cms.bool(False) # Run with prompt/displaced jets
 )
 
-L1TrackerHTMissExtended = cms.EDProducer("L1TkHTMissProducer",
+l1tTrackerHTMissExtended = cms.EDProducer("L1TkHTMissProducer",
     L1TkJetInputTag = cms.InputTag("L1TrackJetsExtended", "L1TrackJetsExtended"),
     L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
     jet_maxEta = cms.double(2.4),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1CaloJetHTTProducer = cms.EDProducer("L1CaloJetHTTProducer",
+l1tCaloJetHTTProducer = cms.EDProducer("L1CaloJetHTTProducer",
     EtaMax = cms.double(2.4),
     PtMin = cms.double(30.0),
     BXVCaloJetsInputTag = cms.InputTag("L1CaloJetProducer","L1CaloJetCollectionBXV"),

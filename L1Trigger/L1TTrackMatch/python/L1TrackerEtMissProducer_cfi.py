@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 from L1Trigger.L1TTrackMatch.L1TrackSelectionProducer_cfi import L1TrackSelectionProducer, L1TrackSelectionProducerExtended
 
-L1TrackerEtMiss = cms.EDProducer('L1TrackerEtMissProducer',
+l1tTrackerEtMiss = cms.EDProducer('L1TrackerEtMissProducer',
     L1TrackInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value()),
     L1TrackAssociatedInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value() + "Associated"),
     L1MetCollectionName = cms.string("L1TrackerEtMiss"),
@@ -15,7 +15,7 @@ L1TrackerEtMiss = cms.EDProducer('L1TrackerEtMissProducer',
     debug     = cms.bool(False)
 )
 
-L1TrackerEtMissExtended = L1TrackerEtMiss.clone( #NOT OPTIMIZED, STUDIED, OR USED
+l1tTrackerEtMissExtended = L1TrackerEtMiss.clone( #NOT OPTIMIZED, STUDIED, OR USED
     L1TrackInputTag = ("L1TrackSelectionProducerExtended", L1TrackSelectionProducerExtended.outputCollectionName.value()),
     L1TrackAssociatedInputTag = ("L1TrackSelectionProducerExtended", L1TrackSelectionProducerExtended.outputCollectionName.value() + "Associated"),
     L1MetCollectionName = "L1TrackerExtendedEtMiss",

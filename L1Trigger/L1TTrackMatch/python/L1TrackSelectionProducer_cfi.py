@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
+l1tTrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
   l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted"),
   # If no vertex collection is provided, then the DeltaZ cuts will not be run
   l1VerticesInputTag = cms.InputTag("L1VertexFinder", "l1vertices"),
@@ -26,7 +26,7 @@ L1TrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
   debug = cms.int32(0) # Verbosity levels: 0, 1, 2, 3, 4
 )
 
-L1TrackSelectionProducerExtended = L1TrackSelectionProducer.clone(
+l1tTrackSelectionProducerExtended = L1TrackSelectionProducer.clone(
   l1TracksInputTag = ("L1GTTInputProducerExtended","Level1TTTracksExtendedConverted"),
   outputCollectionName = "Level1TTTracksExtendedSelected",
   cutSet = cms.PSet(
