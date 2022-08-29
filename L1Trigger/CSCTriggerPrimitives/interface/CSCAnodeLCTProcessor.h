@@ -130,6 +130,8 @@ protected:
   std::vector<unsigned> thresholds_;
   unsigned showerNumTBins_;
   unsigned minLayersCentralTBin_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

@@ -149,6 +149,8 @@ protected:
   // encode special bits for high-multiplicity triggers
   std::vector<unsigned> showerSource_;
   unsigned thisShowerSource_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
 
   bool ignoreAlctCrossClct_;
 
