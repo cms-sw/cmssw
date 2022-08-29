@@ -22,6 +22,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   const auto& cscLCT = pSet.getParameter<edm::ParameterSet>("cscLCT");
   minBXLCT_ = cscLCT.getParameter<int>("minBX");
   maxBXLCT_ = cscLCT.getParameter<int>("maxBX");
+  matchTypeTightLCT_ = cscLCT.getParameter<bool>("matchTypeTight");
   verboseLCT_ = cscLCT.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
   addGhostLCTs_ = cscLCT.getParameter<bool>("addGhosts");
@@ -377,7 +378,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
 
       bool lct_tight_matched = alct_clct or alct_gem or clct_gem;
       bool lct_loose_matched = lct_clct_match or lct_alct_match;
-      bool lct_matched = lct_loose_matched or lct_tight_matched;
+      bool lct_matched = matchTypeTightLCT_ ? lct_tight_matched : lct_loose_matched;
 
       if (lct_matched) {
         if (verboseLCT_)
