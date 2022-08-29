@@ -127,7 +127,6 @@ void CSCMotherboard::setConfigParameters(const CSCDBL1TPParameters* conf) {
   }
   minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
   maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
-  assert(minbx_readout_ > 0);
 }
 
 void CSCMotherboard::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { lookupTableCCLUT_ = conf; }
@@ -572,8 +571,7 @@ void CSCMotherboard::checkConfigParameters() {
       match_trig_window_size, max_match_trig_window_size, def_match_trig_window_size, "match_trig_window_size");
   CSCBaseboard::checkConfigParameters(
       tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
-  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
-  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(tmb_l1a_window_size / 2 <= CSCConstants::LCT_CENTRAL_BX);
 }
 
 void CSCMotherboard::dumpConfigParams() const {
