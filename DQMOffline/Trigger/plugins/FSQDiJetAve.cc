@@ -540,7 +540,7 @@ namespace FSQ {
 
     // take first vertex passing the criteria
     bool vtxfound = false;
-    for (const auto & vertex : *vertices) {
+    for (const auto& vertex : *vertices) {
       if (vertex.ndof() < lMinNDOF)
         continue;
       if (fabs(vertex.z()) > lMaxZ)
