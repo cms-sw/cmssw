@@ -169,20 +169,21 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         TriggerRulePrefireVetoBit = true;
 
       // No more than 3 L1As in 100 BX
-      if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] < 100ull) {
-        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
+      if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] <= 100ull) {
+        if (eventHistory[2] == 100ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
       }
-      if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] == 100ull)
-        TriggerRulePrefireVetoBit = true;
 
       // No more than 4 L1As in 240 BX
       if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
-          eventHistory[3] < 240ull) {
-        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
+          eventHistory[3] <= 240ull) {
+        if (eventHistory[3] == 240ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
       }
-      if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
-          eventHistory[3] == 240ull)
-        TriggerRulePrefireVetoBit = true;
     }
   }
   // Setup vectors
