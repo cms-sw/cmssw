@@ -222,7 +222,7 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
       if (calculateArrivalTime_ && timeAlgo_ == 1)
         arrivalTime = calculateArrivalTime(ipulseintime);
       else if (calculateArrivalTime_ && timeAlgo_ == 2)
-        arrivalTime = ccTime();
+        arrivalTime = ccTime(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset));
       correctedOutput.at(1) = arrivalTime;  //time
     } else
       correctedOutput.at(1) = -9999.f;  //time
@@ -356,7 +356,7 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
   nnlsWork_.covDecomp.compute(invCovMat);
 }
 
-float MahiFit::ccTime() const {
+float MahiFit::ccTime(const float itQ) const {
   float ccTime_ = 0.;
 
   // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
@@ -383,12 +383,12 @@ float MahiFit::ccTime() const {
 
   float t0 = meanTime_;
 
-  //  if (applyTimeSlew_) {
-  //    if (itQ <= 1.f)
-  //      t0 += tsDelay1GeV_;
-  //    else
-  //      t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
-  //  }
+  if (applyTimeSlew_) {
+    if (itQ <= 1.f)
+      t0 += tsDelay1GeV_;
+    else
+      t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
+  }
 
   float distance_delta_max = 0.f;
 
