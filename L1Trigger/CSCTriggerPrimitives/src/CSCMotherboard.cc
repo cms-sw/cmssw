@@ -66,10 +66,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   // shower-trigger source
   showerSource_ = showerParams_.getParameter<std::vector<unsigned>>("source");
 
-  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
-  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
-  assert(minbx_readout_ > 0);
-
   unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
   thisShowerSource_ = showerSource_[csc_idx];
 
@@ -129,6 +125,9 @@ void CSCMotherboard::setConfigParameters(const CSCDBL1TPParameters* conf) {
     dumpConfigParams();
     config_dumped = true;
   }
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(minbx_readout_ > 0);
 }
 
 void CSCMotherboard::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { lookupTableCCLUT_ = conf; }
@@ -573,6 +572,8 @@ void CSCMotherboard::checkConfigParameters() {
       match_trig_window_size, max_match_trig_window_size, def_match_trig_window_size, "match_trig_window_size");
   CSCBaseboard::checkConfigParameters(
       tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
 void CSCMotherboard::dumpConfigParams() const {

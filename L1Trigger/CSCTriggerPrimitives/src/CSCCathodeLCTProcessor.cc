@@ -98,9 +98,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
   peakCheck_ = shower.getParameter<bool>("peakCheck");
-  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
-  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
-  assert(minbx_readout_ > 0);
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -118,6 +115,8 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   pid_thresh_pretrig = def_pid_thresh_pretrig;
   min_separation = def_min_separation;
   tmb_l1a_window_size = def_tmb_l1a_window_size;
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -139,6 +138,9 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
     dumpConfigParams();
     config_dumped = true;
   }
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(minbx_readout_ > 0);
 }
 
 void CSCCathodeLCTProcessor::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { cclut_->setESLookupTables(conf); }
@@ -171,6 +173,8 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
   CSCBaseboard::checkConfigParameters(min_separation, max_min_separation, def_min_separation, "min_separation");
   CSCBaseboard::checkConfigParameters(
       tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
 void CSCCathodeLCTProcessor::clear() {
