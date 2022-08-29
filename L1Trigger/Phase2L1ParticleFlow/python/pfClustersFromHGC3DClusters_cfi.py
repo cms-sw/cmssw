@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pfClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClusters",
-    src = cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
+l1tPFClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClusters",
+    src = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
     correctorEmfMax = cms.double(1.125),
     preEmId  = cms.string("hOverE < 0.3 && hOverE >= 0"),
@@ -48,7 +48,7 @@ pfClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClusters
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-phase2_hgcalV10.toModify(pfClustersFromHGC3DClusters,
+phase2_hgcalV10.toModify(l1tPFClustersFromHGC3DClusters,
     corrector = "L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC_106X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 1.700,  1.900,  2.200,  2.500,  2.800,  2.900),
@@ -57,7 +57,7 @@ phase2_hgcalV10.toModify(pfClustersFromHGC3DClusters,
         kind    = cms.string('calo')
     ),
 ) 
-phase2_hgcalV11.toModify(pfClustersFromHGC3DClusters,
+phase2_hgcalV11.toModify(l1tPFClustersFromHGC3DClusters,
     corrector = "L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC_110X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 1.700,  1.900,  2.200,  2.500,  2.800,  2.900),

@@ -58,7 +58,7 @@ void EgammaHLTEleL1TrackIsolProducer::fillDescriptions(edm::ConfigurationDescrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("ecalCands", edm::InputTag("hltEgammaCandidates"));
   desc.add<edm::InputTag>("eles", edm::InputTag("hltEgammaGsfElectrons"));
-  desc.add<edm::InputTag>("l1Tracks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("l1Tracks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add("isolCfg", EgammaL1TkIsolation::makePSetDescription());
   descriptions.add("hltEgammaHLTEleL1TrackIsolProducer", desc);
 }

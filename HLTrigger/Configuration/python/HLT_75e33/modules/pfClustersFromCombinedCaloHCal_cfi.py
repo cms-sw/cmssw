@@ -43,7 +43,7 @@ pfClustersFromCombinedCaloHCal = cms.EDProducer("L1TPFCaloProducer",
         seedEt = cms.double(1.0),
         zsEt = cms.double(0.0)
     ),
-    phase2barrelCaloTowers = cms.VInputTag(cms.InputTag("L1EGammaClusterEmuProducer")),
+    phase2barrelCaloTowers = cms.VInputTag(cms.InputTag("l1tEGammaClusterEmuProducer")),
     resol = cms.PSet(
         etaBins = cms.vdouble(0.7, 1.2, 1.6),
         kind = cms.string('calo'),

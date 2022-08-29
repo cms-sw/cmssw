@@ -169,7 +169,7 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
 void Phase1L1TJetCalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputCollectionTag",
-                          edm::InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
+                          edm::InputTag("l1tPhase1JetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
   desc.add<std::vector<double>>("absEtaBinning");
   std::vector<edm::ParameterSet> vDefaults;
   edm::ParameterSetDescription validator;

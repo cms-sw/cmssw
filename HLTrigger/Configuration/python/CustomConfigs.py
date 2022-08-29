@@ -202,7 +202,7 @@ def L1REPACK(process, sequence="Full"):
 
     # special L1T cleanup
     for obj in [
-      'hgcalTriggerGeometryESProducer',
+      'l1tHGCalTriggerGeometryESProducer',
     ]:
         if hasattr(process, obj):
             delattr(process, obj)

@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-
-L1FastTrackingJets = cms.EDProducer("L1FastTrackingJetProducer",
-    L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-    L1PrimaryVertexTag=cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tFastTrackingJets = cms.EDProducer("L1FastTrackingJetProducer",
+    L1TrackInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
+    L1PrimaryVertexTag=cms.InputTag("l1tVertexProducer", "l1vertices"),
     GenInfo = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
     trk_zMax = cms.double(15.),       # max track z0 [cm]
     trk_chi2dofMax = cms.double(10.), # max track chi2/dof
@@ -24,9 +22,9 @@ L1FastTrackingJets = cms.EDProducer("L1FastTrackingJetProducer",
     selectTrkMatchGenOrPU=cms.bool(False)
 )
 
-L1FastTrackingJetsExtended = cms.EDProducer("L1FastTrackingJetProducer",
-    L1TrackInputTag = cms.InputTag("TTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
-    L1PrimaryVertexTag=cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tFastTrackingJetsExtended = cms.EDProducer("L1FastTrackingJetProducer",
+    L1TrackInputTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+    L1PrimaryVertexTag=cms.InputTag("l1tVertexProducer", "l1vertices"),
     GenInfo = cms.InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"),
     trk_zMax = cms.double(15.),       # max track z0 [cm]
     trk_chi2dofMax = cms.double(40.),    # max track chi2 for extended tracks

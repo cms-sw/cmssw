@@ -21,7 +21,7 @@ class CreateSuperTriggerCell(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -40,7 +40,7 @@ class CreateThreshold(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -61,7 +61,7 @@ class CreateBestChoice(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -102,7 +102,7 @@ class CreateAutoencoder(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -121,7 +121,7 @@ class CreateOneBitFraction(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -145,7 +145,7 @@ class CreateMixedFeOptions(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
@@ -178,7 +178,7 @@ class CreateCustom(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalConcentratorProducer.clone(
+        producer = process.l1tHGCalConcentratorProducer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 InputTriggerSums = cms.InputTag(inputs),
                 ProcessorParameters = self.processor

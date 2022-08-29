@@ -10,6 +10,6 @@ hltL1SingleNNTau150 = cms.EDFilter("L1TPFTauFilter",
         barrel = cms.vdouble(-9.54135, 1.73403, 0),
         endcap = cms.vdouble(-36.157, 3.83749, 0)
     ),
-    inputTag = cms.InputTag("l1NNTauProducerPuppi","L1PFTausNN"),
+    inputTag = cms.InputTag("l1tNNTauProducerPuppi","L1PFTausNN"),
     saveTags = cms.bool(True)
 )

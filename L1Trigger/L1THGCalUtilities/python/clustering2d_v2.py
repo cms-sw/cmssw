@@ -15,7 +15,7 @@ class RozBinTruncation(object):
         )
 
     def __call__(self,process,inputs):
-        producer = process.hgcalBackEndStage1Producer.clone(
+        producer = process.l1tHGCalBackEndStage1Producer.clone(
             InputTriggerCells = cms.InputTag(inputs),
             C2d_parameters = dummy_C2d_params.clone(),
             ProcessorParameters = self.processor
