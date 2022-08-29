@@ -125,8 +125,9 @@ namespace{
     std::unique_ptr<std::string> getQueryTransport(const XrdCl::URL &url, uint16_t query) {
       XrdCl::AnyObject result;
       XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
-      std::unique_ptr<std::string>method;
-      result.Get(method.get());
+      std::string *tmp;
+      result.Get(tmp);
+      std::unique_ptr<std::string> method(tmp);
       return method;
     }
 
