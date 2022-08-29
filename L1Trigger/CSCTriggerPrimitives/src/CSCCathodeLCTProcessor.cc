@@ -98,6 +98,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
   peakCheck_ = shower.getParameter<bool>("peakCheck");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(minbx_readout_ > 0);
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -1207,10 +1210,8 @@ std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::getAllShower() const {
 
 /** Returns shower bits */
 std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::readoutShower() const {
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++)
     if (cathode_showers_[bx].isValid())
       showerOut.push_back(cathode_showers_[bx]);
   return showerOut;
@@ -1257,7 +1258,6 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits() {
   unsigned int deadtime =
       showerNumTBins_ - 1;  // firmware hard coded dead time as 2Bx, since showerNumTBins = 3 in firmware
   unsigned int dead_count = 0;
-  bool dead_status = false;
 
   for (unsigned bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     unsigned minbx = bx >= showerNumTBins_ / 2 ? bx - showerNumTBins_ / 2 : bx;
@@ -1275,21 +1275,22 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits() {
           (hitsInTime[minbx] == hitsInTime[maxbx + 1] and hitsInTime[bx] < hitsInTime[bx + 1]))
         isPeak = false;  //next bx would have more hits or in the center
     }
-    if (dead_count > 0) {
+    bool dead_status = dead_count > 0;
+    if (dead_status)
       dead_count--;
-      dead_status = true;
-    } else
-      dead_status = false;
 
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
     if (layersWithHits[bx].size() >= minLayersCentralTBin_ and !dead_status and isPeak) {
       // assign the bits
-      for (unsigned i = 0; i < station_thresholds.size(); i++) {
-        if (this_hitsInTime >= station_thresholds[i]) {
-          this_inTimeHMT = i + 1;
-          dead_count = deadtime;
+      if (!station_thresholds.empty()) {
+        for (int i = station_thresholds.size() - 1; i >= 0; i--) {
+          if (this_hitsInTime >= station_thresholds[i]) {
+            this_inTimeHMT = i + 1;
+            dead_count = deadtime;
+            break;
+          }
         }
       }
     }
