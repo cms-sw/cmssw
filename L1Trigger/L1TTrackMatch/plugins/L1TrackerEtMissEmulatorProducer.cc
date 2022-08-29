@@ -272,11 +272,13 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
       sumPy[link_number] += temppy;
       if (debug_ == 4) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-              << "Sector: " << EtTrack.Sector << " Eta: " << EtTrack.EtaSector << "\n"
-              << "Int Track Px: " << temppx << " Int Track Py: " << temppy << "\n"
-              << "Float Track Px: " << (float)temppx * l1tmetemu::kStepPt << " Float Track Py:" << (float)temppy * l1tmetemu::kStepPt << "\n"
-              << "Int Sector Sum Px: " << sumPx[link_number] << " Int Sector Sum Py: " << sumPy[link_number] << "\n"
-              << "Float Sector Sum Px: " << (float)sumPx[link_number] * l1tmetemu::kStepPt << " Float Sector Sum Py: " << (float) sumPy[link_number] * l1tmetemu::kStepPt << "\n";
+            << "Sector: " << EtTrack.Sector << " Eta: " << EtTrack.EtaSector << "\n"
+            << "Int Track Px: " << temppx << " Int Track Py: " << temppy << "\n"
+            << "Float Track Px: " << (float)temppx * l1tmetemu::kStepPt
+            << " Float Track Py:" << (float)temppy * l1tmetemu::kStepPt << "\n"
+            << "Int Sector Sum Px: " << sumPx[link_number] << " Int Sector Sum Py: " << sumPy[link_number] << "\n"
+            << "Float Sector Sum Px: " << (float)sumPx[link_number] * l1tmetemu::kStepPt
+            << " Float Sector Sum Py: " << (float)sumPy[link_number] * l1tmetemu::kStepPt << "\n";
       }
     }
 
@@ -338,7 +340,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====Sector Pt====\n"
         << "Float Px: " << flpxarray.str() << "\nFloat Py: " << flpyarray.str() << "\nInteger Px: " << intpyarray.str()
-        << "\nInteger Px: " << intpyarray.str() << "\nLink Totals: " << linksarray.str() << "\nSector Totals: " << totalsarray.str() << "\n"
+        << "\nInteger Px: " << intpyarray.str() << "\nLink Totals: " << linksarray.str()
+        << "\nSector Totals: " << totalsarray.str() << "\n"
 
         << "====Global Pt====\n"
         << "Integer Global Px: " << GlobalPx << "| Integer Global Py: " << GlobalPy << "\n"
