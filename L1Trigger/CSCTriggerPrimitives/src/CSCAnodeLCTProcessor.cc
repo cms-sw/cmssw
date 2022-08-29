@@ -86,9 +86,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
-  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
-  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
-  assert(minbx_readout_ > 0);
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
@@ -112,6 +109,8 @@ void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
   trig_mode = def_trig_mode;
   accel_mode = def_accel_mode;
   l1a_window_width = def_l1a_window_width;
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -135,6 +134,9 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) 
     dumpConfigParams();
     config_dumped = true;
   }
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
+  assert(minbx_readout_ > 0);
 }
 
 void CSCAnodeLCTProcessor::checkConfigParameters() {
@@ -171,6 +173,9 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
   CSCBaseboard::checkConfigParameters(trig_mode, max_trig_mode, def_trig_mode, "trig_mode");
   CSCBaseboard::checkConfigParameters(accel_mode, max_accel_mode, def_accel_mode, "accel_mode");
   CSCBaseboard::checkConfigParameters(l1a_window_width, max_l1a_window_width, def_l1a_window_width, "l1a_window_width");
+
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
 }
 
 void CSCAnodeLCTProcessor::clear() {
