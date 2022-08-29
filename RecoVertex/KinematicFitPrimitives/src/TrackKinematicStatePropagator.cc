@@ -26,7 +26,12 @@ namespace {
     GlobalPoint inPos = state.position();
     GlobalVector inMom = state.momentum();
     double kappa = state.transverseCurvature();
-    double fac = state.charge() / state.parameters().magneticFieldInInverseGeV(point).z();
+    auto bz = state.parameters().magneticFieldInInverseGeV(point).z();
+    if (std::abs(bz) < 1e-6) {
+      LogDebug("RecoVertex/TrackKinematicStatePropagator") << "planeCrossing is not possible";
+      return {HelixBarrelPlaneCrossingByCircle(inPos, inMom, kappa), BoundPlane::BoundPlanePointer()};
+    }
+    double fac = state.charge() / bz;
 
     GlobalVectorDouble xOrig2Centre(fac * inMom.y(), -fac * inMom.x(), 0.);
     GlobalVectorDouble xOrigProj(inPos.x(), inPos.y(), 0.);
@@ -58,6 +63,8 @@ bool TrackKinematicStatePropagator::willPropagateToTheTransversePCA(const Kinema
   // copied from below...
   FreeTrajectoryState const& fState = state.freeTrajectoryState();
   std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState, point);
+  if (cros.second == nullptr)
+    return false;
 
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first;
   BoundPlane::BoundPlanePointer plane = cros.second;
@@ -78,6 +85,8 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   FreeTrajectoryState const& fState = state.freeTrajectoryState();
   const GlobalPoint& iP = referencePoint;
   std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState, iP);
+  if (cros.second == nullptr)
+    return KinematicState();
 
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first;
   BoundPlane::BoundPlanePointer plane = cros.second;
