@@ -101,8 +101,8 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   tsTOT *= gain0;
   tstrig *= gain0;
 
-  thEnergeticPulses_ *= (1.f/gain0);
-  thLowPUOOT_ *= (1.f/gain0);
+  thEnergeticPulses_ *= (1.f / gain0);
+  thLowPUOOT_ *= (1.f / gain0);
 
   useTriple = false;
   if (tstrig > ts4Thresh_ && tsTOT > 0) {
@@ -219,9 +219,9 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
     if (correctedOutput.at(0) != 0) {
       // fixME store the timeslew
       float arrivalTime = 0.f;
-      if (calculateArrivalTime_ && timeAlgo_==1)
+      if (calculateArrivalTime_ && timeAlgo_ == 1)
         arrivalTime = calculateArrivalTime(ipulseintime);
-      else if (calculateArrivalTime_ && timeAlgo_==2)
+      else if (calculateArrivalTime_ && timeAlgo_ == 2)
         arrivalTime = ccTime();
       correctedOutput.at(1) = arrivalTime;  //time
     } else
@@ -229,7 +229,6 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
 
     correctedOutput.at(2) = chiSq;  //chi2
   }
-
 }
 
 const float MahiFit::minimize() const {
@@ -358,7 +357,6 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
 }
 
 float MahiFit::ccTime() const {
-
   float ccTime_ = 0.;
 
   // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
@@ -366,13 +364,17 @@ float MahiFit::ccTime() const {
   const int soi = nnlsWork_.tsOffset;
 
   // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
-  const bool cond1 = (nnlsWork_.amplitudes.coeffRef(soi)+nnlsWork_.amplitudes.coeffRef(soi+1U) > thEnergeticPulses_ );
+  const bool cond1 =
+      (nnlsWork_.amplitudes.coeffRef(soi) + nnlsWork_.amplitudes.coeffRef(soi + 1U) > thEnergeticPulses_);
   // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
-  const bool cond2 = (nnlsWork_.amplitudes.coeffRef(soi)>(nnlsWork_.amplitudes.coeffRef(soi+1U)+nnlsWork_.amplitudes.coeffRef(soi+2U)));
+  const bool cond2 = (nnlsWork_.amplitudes.coeffRef(soi) >
+                      (nnlsWork_.amplitudes.coeffRef(soi + 1U) + nnlsWork_.amplitudes.coeffRef(soi + 2U)));
   // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
-  const bool cond3 = ((nnlsWork_.amplitudes.coeffRef(soi-3U)+nnlsWork_.amplitudes.coeffRef(soi-1U)+nnlsWork_.amplitudes.coeffRef(soi-1U))< thLowPUOOT_ );
+  const bool cond3 = ((nnlsWork_.amplitudes.coeffRef(soi - 3U) + nnlsWork_.amplitudes.coeffRef(soi - 1U) +
+                       nnlsWork_.amplitudes.coeffRef(soi - 1U)) < thLowPUOOT_);
 
-  if (!(cond1 && cond2 && cond3)) return ccTime_;
+  if (!(cond1 && cond2 && cond3))
+    return ccTime_;
 
   // To speed up check around the fitted time (? to be checked with LLP)
 
@@ -392,12 +394,11 @@ float MahiFit::ccTime() const {
 
   std::array<double, hcal::constants::maxSamples> pulseN;
 
-  int TS_afterSOI = 25 * ( nnlsWork_.tsSize - nnlsWork_.tsOffset );
-  int TS_beforeSOI = - 25 * nnlsWork_.tsOffset;
+  int TS_afterSOI = 25 * (nnlsWork_.tsSize - nnlsWork_.tsOffset);
+  int TS_beforeSOI = -25 * nnlsWork_.tsOffset;
 
-  for (int deltaNS = TS_beforeSOI; deltaNS < TS_afterSOI; ++deltaNS ) {
-
-    const float xx = t0+deltaNS;
+  for (int deltaNS = TS_beforeSOI; deltaNS < TS_afterSOI; ++deltaNS) {
+    const float xx = t0 + deltaNS;
 
     psfPtr_->singlePulseShapeFuncMahi(&xx);
     psfPtr_->getPulseShape(pulseN);
@@ -408,24 +409,23 @@ float MahiFit::ccTime() const {
     //
 
     for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-
       //pulseN[iTS] is the area of the template
       float norm = nnlsWork_.amplitudes.coeffRef(iTS);
 
       //  Finding the distance after each iteration.
       numerator += norm * pulseN[iTS];
-      pulse2 += pulseN[iTS]*pulseN[iTS];
+      pulse2 += pulseN[iTS] * pulseN[iTS];
       norm2 += norm * norm;
-
     }
 
     float distance = numerator / sqrt(pulse2 * norm2);
-    if(distance > distance_delta_max ) { distance_delta_max = distance; ccTime_ = deltaNS; }
-
+    if (distance > distance_delta_max) {
+      distance_delta_max = distance;
+      ccTime_ = deltaNS;
+    }
   }
 
   return ccTime_;
-
 }
 
 float MahiFit::calculateArrivalTime(const unsigned int itIndex) const {
