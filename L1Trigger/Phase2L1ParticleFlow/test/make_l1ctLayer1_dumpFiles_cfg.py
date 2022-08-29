@@ -71,7 +71,7 @@ if produceEGStage2Pattern:
     process.l1ctLayer2EG.writeOutPattern = True
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/11_1_0/NewInputs110X/110121.done/TTbar_PU200/inputs110X_%d.root' % i for i in (1,3,7,8,9) ]
-process.pfClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("L1EGammaClusterEmuProducer",)]
+process.pfClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("l1tEGammaClusterEmuProducer",)]
 
 
 for det in "Barrel", "Barrel9", "HGCal", "HGCalNoTK", "HF":

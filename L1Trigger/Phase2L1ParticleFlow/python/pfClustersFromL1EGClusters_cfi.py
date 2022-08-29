@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
-    src = cms.InputTag("L1EGammaClusterEmuProducer",),
+    src = cms.InputTag("l1tEGammaClusterEmuProducer",),
     etMin = cms.double(0.5),
     corrector  = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
     resol = cms.PSet(

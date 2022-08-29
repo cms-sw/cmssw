@@ -8,5 +8,5 @@ l1tSeedConePFJetProducer = cms.EDProducer("L1SeedConePFJetProducer",
                            debug       = cms.bool(False)
                          )
 
-L1SeedConePFJetEmulatorProducer = L1SeedConePFJetProducer.clone(HW = True)
+l1tSeedConePFJetEmulatorProducer = l1tSeedConePFJetProducer.clone(HW = True)
 

@@ -104,7 +104,7 @@ for algo in additionalProducerAlgorithms:
     if "Emulation" in algo:
         if "L1GTTInputProducer" not in process.producerNames():
             process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
-            producer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+            producer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
             producerSum = process.L1GTTInputProducer + producerSum
 
         process.L1TVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )

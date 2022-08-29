@@ -40,8 +40,8 @@ l1tPhase2MuonOffline = DQMEDAnalyzer('L1TPhase2MuonOffline',
     useL1AtVtxCoord = cms.untracked.bool(False),
     
     genParticlesInputTag = cms.untracked.InputTag("genParticles"),
-    gmtMuonToken  = cms.InputTag("L1SAMuonsGmt", "promptSAMuons"),
-    gmtTkMuonToken  = cms.InputTag("L1TkMuonsGmt",""),
+    gmtMuonToken  = cms.InputTag("l1tSAMuonsGmt", "promptSAMuons"),
+    gmtTkMuonToken  = cms.InputTag("l1tTkMuonsGmt",""),
 
     efficiencyVsPtBins = cms.untracked.vdouble(effVsPtBins),
     efficiencyVsPhiBins = cms.untracked.vdouble(effVsPhiBins),

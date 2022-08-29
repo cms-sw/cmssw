@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 # ----    Produce the L1EGCrystal clusters using Emulator
 
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
-L1EGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","")
+l1tEGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","")
 
 
 # --------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ L1EGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDig
 
 from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
 L1TowerCalibrationProducer.L1HgcalTowersInputTag = cms.InputTag("hgcalTowerProducer","HGCalTowerProcessor","")
-L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProducer","L1CaloTowerCollection","")
+L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")
 
 
 
@@ -28,7 +28,7 @@ L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProduc
 
 from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
 L1CaloJetProducer.l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1CaloTowerCalibratedCollection","")
-L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator","")
+L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("l1tEGammaClusterEmuProducer", "L1EGXtalClusterEmulator","")
 
 
 
@@ -41,7 +41,7 @@ from L1Trigger.L1CaloTrigger.L1CaloJetHTTProducer_cfi import *
 
 
 l1CaloJetsSequence = cms.Sequence( 
-        L1EGammaClusterEmuProducer *
+        l1tEGammaClusterEmuProducer *
         L1TowerCalibrationProducer *
         L1CaloJetProducer *
         L1CaloJetHTTProducer

@@ -11,7 +11,7 @@ l1tCaloJetProducer = cms.EDProducer("L1CaloJetProducer",
     EtMinForCollection = cms.double(10),
     EtMinForTauCollection = cms.double(10),
     l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1CaloTowerCalibratedCollection"),
-    L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator"),
+    L1CrystalClustersInputTag = cms.InputTag("l1tEGammaClusterEmuProducer", "L1EGXtalClusterEmulator"),
     #L1HgcalTowersInputTag = cms.InputTag("hgcalTriggerPrimitiveDigiProducer","tower"),
     #hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 

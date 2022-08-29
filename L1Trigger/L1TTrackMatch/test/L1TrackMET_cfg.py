@@ -91,7 +91,7 @@ producerSum += process.L1TrackerEtMiss
 process.L1TrackerEmuEtMiss.useGTTinput = GTTInput
 
 if GTTInput:
-  process.L1TrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+  process.L1TrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
 else:
   process.L1TrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
 
@@ -102,7 +102,7 @@ Emuproducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
 process.L1TrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"l1verticesEmulation")
 
 if GTTInput:
-  Emuproducer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+  Emuproducer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
 else:
   Emuproducer.l1TracksInputTag =  cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
 

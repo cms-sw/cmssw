@@ -183,7 +183,7 @@ calibration = cms.VPSet(
 )
 
 l1tPhase1JetCalibrator = cms.EDProducer('Phase1L1TJetCalibrator',
-  inputCollectionTag = cms.InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidates", ""),
+  inputCollectionTag = cms.InputTag("l1tPhase1JetProducer", "UncalibratedPhase1L1TJetFromPfCandidates", ""),
   absEtaBinning = cms.vdouble([p.etaMin.value() for p in calibration] + [calibration[-1].etaMax.value()]),
   calibration = calibration,
   outputCollectionName = cms.string("Phase1L1TJetFromPfCandidates")

@@ -14,12 +14,12 @@ muonInputConversionParameters = cms.PSet(
     dxyScale = cms.double(3.85)
 )
 
-l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('pfTracksFromL1Tracks'),
-    muons = cms.InputTag('L1SAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromL1EGClusters')),
     hadClusters = cms.VInputTag(cms.InputTag('pfClustersFromCombinedCaloHCal:calibrated')),
-    vtxCollection = cms.InputTag("L1VertexFinderEmulator","l1verticesEmulation"),
+    vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
     vtxCollectionEmulation = cms.bool(True),
     emPtCut  = cms.double(0.5),
     hadPtCut = cms.double(1.0),
@@ -151,12 +151,12 @@ _hgcalSectors = cms.VPSet(
 
 )
 
-l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('pfTracksFromL1Tracks'),
-    muons = cms.InputTag('L1SAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters:egamma')), # used only for E/gamma
     hadClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters')),
-    vtxCollection = cms.InputTag("L1VertexFinderEmulator","l1verticesEmulation"),
+    vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
     vtxCollectionEmulation = cms.bool(True),
     nVtx        = cms.int32(1),    
     emPtCut  = cms.double(0.5),
@@ -286,12 +286,12 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
 )
 
 
-l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
-    muons = cms.InputTag('L1SAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters:egamma')), # used only for E/gamma
     hadClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters')),
-    vtxCollection = cms.InputTag("L1VertexFinderEmulator","l1verticesEmulation"),
+    vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
     vtxCollectionEmulation = cms.bool(True),
     nVtx        = cms.int32(1),        
     emPtCut  = cms.double(0.5),
@@ -368,14 +368,14 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     writeRawHgcalCluster = cms.untracked.bool(True)
 )
 
-l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
-    muons = cms.InputTag('L1SAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     useStandaloneMuons = cms.bool(False),
     useTrackerMuons = cms.bool(False),
     emClusters = cms.VInputTag(),
     hadClusters = cms.VInputTag(cms.InputTag('pfClustersFromCombinedCaloHF:calibrated')),
-    vtxCollection = cms.InputTag("L1VertexFinderEmulator","l1verticesEmulation"),
+    vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
     vtxCollectionEmulation = cms.bool(True),
     nVtx        = cms.int32(1),    
     emPtCut  = cms.double(0.5),
@@ -456,7 +456,7 @@ l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
 )
 
 
-l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
+l1ctLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     pfProducers = cms.VInputTag(
         cms.InputTag("l1ctLayer1Barrel"),
         cms.InputTag("l1ctLayer1HGCal"),
@@ -467,7 +467,7 @@ l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     regionalLabelsToMerge = cms.vstring("Puppi"),
 )
 
-l1tLayer1EG = cms.EDProducer(
+l1ctLayer1EG = cms.EDProducer(
     "L1TEGMultiMerger",
     tkElectrons=cms.VPSet(
         cms.PSet(
@@ -509,7 +509,7 @@ l1tLayer1EG = cms.EDProducer(
     )
 )
 
-l1tLayer1TaskInputsTask = cms.Task(
+l1ctLayer1TaskInputsTask = cms.Task(
     pfClustersFromL1EGClusters,
     pfClustersFromCombinedCaloHCal,
     pfClustersFromCombinedCaloHF,
@@ -517,11 +517,11 @@ l1tLayer1TaskInputsTask = cms.Task(
     pfTracksFromL1Tracks
 )
 
-l1tLayer1Task = cms.Task(
-     l1tLayer1Barrel,
-     l1tLayer1HGCal,
-     l1tLayer1HGCalNoTK,
-     l1tLayer1HF,
-     l1tLayer1,
-     l1tLayer1EG
+l1ctLayer1Task = cms.Task(
+     l1ctLayer1Barrel,
+     l1ctLayer1HGCal,
+     l1ctLayer1HGCalNoTK,
+     l1ctLayer1HF,
+     l1ctLayer1,
+     l1ctLayer1EG
 )

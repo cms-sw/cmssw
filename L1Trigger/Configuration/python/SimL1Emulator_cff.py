@@ -98,13 +98,13 @@ _phase2_siml1emulator.add(l1tEGammaClusterEmuProducer)
 from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
 l1tTowerCalibration = l1tTowerCalibrationProducer.clone(
   L1HgcalTowersInputTag = ("hgcalTowerProducer","HGCalTowerProcessor",""),
-  l1CaloTowers = ("L1EGammaClusterEmuProducer","L1CaloTowerCollection","")
+  l1CaloTowers = ("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")
 )
 # ----    Produce the L1CaloJets
 from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
 l1tCaloJet = l1tCaloJetProducer.clone (
-    l1CaloTowers = ("L1TowerCalibration","L1CaloTowerCalibratedCollection",""),
-    L1CrystalClustersInputTag = ("L1EGammaClusterEmuProducer", "","")
+    l1CaloTowers = ("l1tTowerCalibration","L1CaloTowerCalibratedCollection",""),
+    L1CrystalClustersInputTag = ("l1tEGammaClusterEmuProducer", "","")
 )
 # ----    Produce the CaloJet HTT Sums
 from L1Trigger.L1CaloTrigger.L1CaloJetHTTProducer_cfi import *
@@ -125,7 +125,7 @@ from L1Trigger.VertexFinder.VertexProducer_cff import *
 l1tVertexFinder = l1tVertexProducer.clone()
 l1tVertexFinderEmulator = l1tVertexProducer.clone()
 l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
-l1tVertexFinderEmulator.l1TracksInputTag = ("L1GTTInputProducer","Level1TTTracksConverted")
+l1tVertexFinderEmulator.l1TracksInputTag = ("l1tGTTInputProducer","Level1TTTracksConverted")
 _phase2_siml1emulator.add(l1tVertexFinder)
 _phase2_siml1emulator.add(l1tGTTInputProducer)
 _phase2_siml1emulator.add(l1tGTTInputProducerExtended)
@@ -136,7 +136,7 @@ _phase2_siml1emulator.add(l1tVertexFinderEmulator)
 from L1Trigger.Phase2L1GMT.gmt_cfi  import *
 l1tTkStubsGmt = l1tGMTStubs.clone()
 l1tTkMuonsGmt = l1tGMTMuons.clone(
-    srcStubs  = 'L1TkStubsGmt'
+    srcStubs  = 'l1tTkStubsGmt'
 )
 l1tSAMuonsGmt = l1tStandaloneMuons.clone()
 _phase2_siml1emulator.add( l1tTkStubsGmt )
@@ -150,8 +150,8 @@ from L1Trigger.L1TTrackMatch.L1TrackFastJetProducer_cfi import *
 from L1Trigger.L1TTrackMatch.L1TrackerEtMissProducer_cfi import *
 from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import *
 # make the input tags consistent with the choice L1VertexFinder above
-l1tTrackJets.L1PVertexCollection  = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
-l1tTrackJetsExtended.L1PVertexCollection  = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
+l1tTrackJets.L1PVertexCollection  = ("L1VertexFinder", l1tVertexFinder.l1VertexCollectionName.value())
+l1tTrackJetsExtended.L1PVertexCollection  = ("L1VertexFinder", l1tVertexFinder.l1VertexCollectionName.value())
 #L1TrackerEtMiss.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
 #L1TrackerEtMissExtended.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
 _phase2_siml1emulator.add(l1tTrackJets)
@@ -178,7 +178,7 @@ _phase2_siml1emulator.add(l1tTrackerEmuHTMissExtended)
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff import *
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff import *
-_phase2_siml1emulator.add(l1tLayer1TaskInputsTask, l1tLayer1Task, l1tLayer2EGTask)
+_phase2_siml1emulator.add(l1ctLayer1TaskInputsTask, l1ctLayer1Task, l1ctLayer2EGTask)
 
 # PF Jet
 # ########################################################################
@@ -195,7 +195,7 @@ from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
 _phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
-l1tPFJetsPhase1Task_9x9 = cms.Task(  Phase1L1TJetProducer9x9, Phase1L1TJetCalibrator9x9, Phase1L1TJetSumsProducer9x9)
+l1tPFJetsPhase1Task_9x9 = cms.Task(  l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
 _phase2_siml1emulator.add(l1tPFJetsPhase1Task_9x9)
 
 

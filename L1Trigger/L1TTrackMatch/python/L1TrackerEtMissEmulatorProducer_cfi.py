@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
-from L1Trigger.L1TTrackMatch.L1TrackSelectionProducer_cfi import L1TrackSelectionProducer
+from L1Trigger.VertexFinder.VertexProducer_cff import l1tVertexProducer
+from L1Trigger.L1TTrackMatch.L1TrackSelectionProducer_cfi import l1tTrackSelectionProducer
 
 l1tTrackerEmuEtMiss = cms.EDProducer('L1TrackerEtMissEmulatorProducer',
-    L1TrackInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value() + "Emulation"),
-    L1TrackAssociatedInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value() + "AssociatedEmulation"),
+    L1TrackInputTag = cms.InputTag("L1TrackSelectionProducer", l1tTrackSelectionProducer.outputCollectionName.value() + "Emulation"),
+    L1TrackAssociatedInputTag = cms.InputTag("L1TrackSelectionProducer", l1tTrackSelectionProducer.outputCollectionName.value() + "AssociatedEmulation"),
     # To bypass GTT input module use  cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
     # and set useGTTinput to false
-    L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+    L1VertexInputTag = cms.InputTag("VertexProducer", l1tVertexProducer.l1VertexCollectionName.value()),
     # This will use the vertex algorithm as specified in VertexProducer_cff, if using emulated vertex
     # set useVertexEmulator to true
     L1MetCollectionName = cms.string("L1TrackerEmuEtMiss"),

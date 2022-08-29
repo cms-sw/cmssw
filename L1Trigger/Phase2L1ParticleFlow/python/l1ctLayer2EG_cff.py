@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tLayer2EG = cms.EDProducer(
+l1ctLayer2EG = cms.EDProducer(
     "L1TCtL2EgProducer",
     tkElectrons=cms.VPSet(
         cms.PSet(
@@ -132,6 +132,6 @@ l1tLayer2EG = cms.EDProducer(
 )
 
 
-l1tLayer2EGTask = cms.Task(
-     l1tLayer2EG
+l1ctLayer2EGTask = cms.Task(
+     l1ctLayer2EG
 )
