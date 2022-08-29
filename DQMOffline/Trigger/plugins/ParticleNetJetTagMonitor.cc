@@ -870,8 +870,10 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
           continue;
         float dR = reco::deltaR(selectedJets[jetPNETScoreSortedIndices.at(jreco)].p4(),
                                 jetHLTRefs.at(jetPNETScoreSortedIndicesHLT.at(jhlt))->p4());
-        if (dR < hltRecoDeltaRmax_ and dR < minDR)
+        if (dR < hltRecoDeltaRmax_ and dR < minDR){
           match_index = jhlt;
+	  minDR = dR;
+	}
       }
       if (match_index >= 0)
         matched_obj.push_back(match_index);
