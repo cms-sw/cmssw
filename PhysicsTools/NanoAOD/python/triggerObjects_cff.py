@@ -77,10 +77,10 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
-                            "filter('*RelTrkIsoVVLFiltered0p4') + " \
-                            "2*max(filter('hltL3crIso*Filtered0p07'),filter('hltL3crIso*Filtered0p08')) + " \
+                            "max(filter('*RelTrkIsoVVLFiltered0p4'),filter('*RelTrkIsoVVLFiltered')) + " \
+                            "2*max(filter('hltL3crIso*IsoFiltered0p07'),filter('hltL3crIso*IsoFiltered0p08'),filter('hltL3crIso*IsoFiltered')) + " \
                             "4*filter('*OverlapFilterIsoMu*PFTau*') + " \
-                            "8*max(max(filter('hltL3crIsoL1*SingleMu*Filtered0p07'),filter('hltL3crIsoL1sMu*Filtered0p07')),max(filter('hltL3crIsoL1*SingleMu*Filtered0p08'),filter('hltL3crIsoL1sMu*Filtered0p08'))) + " \
+                            "8*max(max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p07'),filter('hltL3crIsoL1sMu*IsoFiltered0p07')),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p08'),filter('hltL3crIsoL1sMu*IsoFiltered0p08')),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered'),filter('hltL3crIsoL1sMu*IsoFiltered'))) + " \
                             "16*filter('hltDiMuon*Filtered*') + " \
                             "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*') + " \
                             "64*filter('hlt*OverlapFilterIsoMu*PFTau*') + " \
