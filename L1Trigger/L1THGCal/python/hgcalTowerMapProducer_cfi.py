@@ -22,9 +22,9 @@ tower_map = cms.PSet( ProcessorName  = cms.string('HGCalTowerMapProcessor'),
                       towermap_parameters = towerMap2D_parValues.clone()
                   )
 
-hgcalTowerMapProducer = cms.EDProducer(
+l1tHGCalTowerMapProducer = cms.EDProducer(
     "HGCalTowerMapProducer",
-    InputTriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    InputTriggerSums = cms.InputTag('l1tHGCalConcentratorProducer:HGCalConcentratorProcessorSelection'),
     ProcessorParameters = tower_map.clone()
     )
 
@@ -42,7 +42,7 @@ towerHFNose_map = cms.PSet( ProcessorName  = cms.string('HGCalTowerMapProcessor'
                       towermap_parameters = towerMap2DHFNose_parValues.clone()
                   )
 
-hgcalTowerMapProducerHFNose = hgcalTowerMapProducer.clone(
-    InputTriggerSums = cms.InputTag('hgcalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection'),
+l1tHGCalTowerMapProducerHFNose = l1tHGCalTowerMapProducer.clone(
+    InputTriggerSums = cms.InputTag('l1tHGCalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection'),
     ProcessorParameters = towerHFNose_map.clone()
 )

@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
-     L1TkJetInputTag = cms.InputTag("L1TkCaloJets", "L1TkCaloJets"),
-     L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tTkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
+     L1TkJetInputTag = cms.InputTag("l1tTkCaloJets", "L1TkCaloJets"),
+     L1VertexInputTag = cms.InputTag("l1tVertexProducer", "l1vertices"),
      jet_maxEta = cms.double(2.2),          # maximum eta of jets for HT
      jet_minPt = cms.double(15.0),          # minimum pt of jets for HT [GeV]
      jet_minNtracksHighPt=cms.int32(0),     #Add track jet quality criteria pT>100
@@ -17,12 +16,11 @@ L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
      displaced = cms.bool(False) #Run with prompt/displaced jets - only useful for track jets
 )
 
-L1TkCaloHTMissVtx = L1TkCaloHTMiss.clone()
-L1TkCaloHTMiss.doVtxConstrain = cms.bool(True)
+l1tTkCaloHTMissVtx = l1tTkCaloHTMiss.clone(doVtxConstrain = True)
 
-L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
-    L1TkJetInputTag = cms.InputTag("L1TrackJets", "L1TrackJets"),
-    L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tTrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
+    L1TkJetInputTag = cms.InputTag("l1tTrackJets", "L1TrackJets"),
+    L1VertexInputTag = cms.InputTag("l1tVertexProducer", "l1vertices"),
     jet_maxEta = cms.double(2.4),
     jet_minPt = cms.double(5.0),
     jet_minNtracksLowPt=cms.int32(2),
@@ -36,9 +34,9 @@ L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
     displaced = cms.bool(False) # Run with prompt/displaced jets
 )
 
-L1TrackerHTMissExtended = cms.EDProducer("L1TkHTMissProducer",
-    L1TkJetInputTag = cms.InputTag("L1TrackJetsExtended", "L1TrackJetsExtended"),
-    L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tTrackerHTMissExtended = cms.EDProducer("L1TkHTMissProducer",
+    L1TkJetInputTag = cms.InputTag("l1tTrackJetsExtended", "L1TrackJetsExtended"),
+    L1VertexInputTag = cms.InputTag("l1tVertexProducer", "l1vertices"),
     jet_maxEta = cms.double(2.4),
     jet_minPt = cms.double(5.0),
     jet_minNtracksLowPt=cms.int32(2),

@@ -21,4 +21,4 @@ onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
     tag = cms.untracked.string('validation_HGCAL_TPG')
 )
 
-hgcalTPGRunEmulatorValidation = cms.Sequence(hgcalTriggerPrimitives*hgcalTrigPrimValidation*onlineSaver)
+hgcalTPGRunEmulatorValidation = cms.Sequence(L1THGCalTriggerPrimitives*L1THGCalTrigPrimValidation*onlineSaver)

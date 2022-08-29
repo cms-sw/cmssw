@@ -87,11 +87,11 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('reprocess.root'),
     outputCommands = cms.untracked.vstring(
         "drop *_*_*_*",
-        "keep *_gmtMuons_*_*",
-        "keep *_gmtStubs_*_*",
+        "keep *_l1tGMTMuons_*_*",
+        "keep *_l1tGMTStubs_*_*",
         "keep *_genParticles_*_*",
-        "keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*",
-        "keep *_L1TkMuons_*_*"
+        "keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*",
+        "keep *_l1tTkMuons_*_*"
     ),
     splitLevel = cms.untracked.int32(0)
 )
@@ -115,9 +115,9 @@ process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
 process.load("L1Trigger.Phase2L1GMT.gmt_cff")
-process.gmtMuons.trackMatching.verbose=1
-process.gmtMuons.verbose=0
-process.gmtMuons.trackConverter.verbose=0
+process.l1tGMTMuons.trackMatching.verbose=1
+process.l1tGMTMuons.verbose=0
+process.l1tGMTMuons.trackConverter.verbose=0
 
 
 
@@ -144,7 +144,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1TrackTrigger_step,process.testpath,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1TTrackTrigger_step,process.testpath,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 

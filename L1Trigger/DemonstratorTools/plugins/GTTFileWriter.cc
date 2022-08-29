@@ -176,9 +176,9 @@ void GTTFileWriter::endJob() {
 void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // GTTFileWriter
   edm::ParameterSetDescription desc;
-  desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
-  desc.addUntracked<edm::InputTag>("convertedTracks", edm::InputTag("L1GTTInputProducer", "Level1TTTracksConverted"));
-  desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("VertexProducer", "l1verticesEmulation"));
+  desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.addUntracked<edm::InputTag>("convertedTracks", edm::InputTag("l1tGTTInputProducer", "Level1TTTracksConverted"));
+  desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "l1verticesEmulation"));
   desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");
   desc.addUntracked<std::string>("inputConvertedFilename", "L1GTTInputConvertedFile");
   desc.addUntracked<std::string>("outputFilename", "L1GTTOutputToCorrelatorFile");

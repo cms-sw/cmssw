@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TrackerEmuHTMiss = cms.EDProducer("L1TkHTMissEmulatorProducer",
-    L1TkJetEmulationInputTag = cms.InputTag("L1TrackJetsEmulation", "L1TrackJets"),
+l1tTrackerEmuHTMiss = cms.EDProducer("L1TkHTMissEmulatorProducer",
+    L1TkJetEmulationInputTag = cms.InputTag("l1tTrackJetsEmulation", "L1TrackJets"),
     L1MHTCollectionName = cms.string("L1TrackerEmuHTMiss"),
     jet_maxEta = cms.double(2.4),
     jet_minPt = cms.double(5.0),
@@ -11,8 +11,8 @@ L1TrackerEmuHTMiss = cms.EDProducer("L1TkHTMissEmulatorProducer",
     displaced = cms.bool(False)
 )
 
-L1TrackerEmuHTMissExtended = cms.EDProducer("L1TkHTMissEmulatorProducer",
-    L1TkJetEmulationInputTag = cms.InputTag("L1TrackJetsExtendedEmulation", "L1TrackJetsExtended"),
+l1tTrackerEmuHTMissExtended = cms.EDProducer("L1TkHTMissEmulatorProducer",
+    L1TkJetEmulationInputTag = cms.InputTag("l1tTrackJetsExtendedEmulation", "L1TrackJetsExtended"),
     L1MHTCollectionName = cms.string("L1TrackerEmuHTMissExtended"),
     jet_maxEta = cms.double(2.4),
     jet_minPt = cms.double(5.0),
