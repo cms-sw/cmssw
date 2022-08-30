@@ -31,6 +31,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/Tools/interface/CalibrationCluster.h"
@@ -56,8 +58,8 @@ private:
 
   // ----------member data ---------------------------
   std::string rootfile_;
-  edm::InputTag recHitLabel_;
-  edm::InputTag electronLabel_;
+  edm::EDGetTokenT<EBRecHitCollection> recHitToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
   edm::InputTag trackLabel_;
   std::string calibAlgo_;
   std::string miscalibfile_;
