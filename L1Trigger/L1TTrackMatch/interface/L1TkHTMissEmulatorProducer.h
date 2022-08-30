@@ -26,10 +26,10 @@ namespace l1tmhtemu {
 
   // extra room for sumPx, sumPy
   const unsigned int kEtExtra{10};
-
   const unsigned int kValidSize{1};
-  const unsigned int kMHTSize{15};     // For output Magnitude default 15
-  const unsigned int kMHTPhiSize{14};  // For output Phi default 14
+  const unsigned int kMHTSize{16};     // For output Magnitude default 15
+  const unsigned int kMHTIntSize{11};
+  const unsigned int kMHTPhiSize{13};  // For output Phi default 14
   const unsigned int kHTSize{kInternalPtWidth + kEtExtra};
   const unsigned int kUnassignedSize{64 - (kHTSize + kMHTSize + kMHTPhiSize + kValidSize)};
 
@@ -47,7 +47,7 @@ namespace l1tmhtemu {
     kUnassignedMSB = kUnassignedLSB + kUnassignedSize - 1
   };
 
-  const float kMaxMHT{4096};  // 4 TeV
+  const float kMaxMHT{2048};  // 4 TeV
   const float kMaxMHTPhi{2 * M_PI};
 
   typedef ap_uint<5> ntracks_t;
@@ -56,7 +56,7 @@ namespace l1tmhtemu {
   typedef ap_int<kInternalPhiWidth> phi_t;
 
   typedef ap_int<kHTSize> Et_t;
-  typedef ap_uint<kMHTSize> MHT_t;
+  typedef ap_ufixed<kMHTSize,kMHTIntSize> MHT_t;
   typedef ap_uint<kMHTPhiSize> MHTphi_t;
 
   const unsigned int kMHTBins = 1 << kMHTSize;
@@ -175,9 +175,8 @@ namespace l1tmhtemu {
       phi = new_phi;
     }
 
-    float sqrtval = (float(x * magNormalisationLUT[cordicSteps - 1]) / float(kMHTBins)) * float(kStepPt * kStepPhi);
-
-    ret_etmiss.Et = std::floor(sqrtval / l1tmhtemu::kStepMHT);
+    float sqrtval = (float(x * magNormalisationLUT[cordicSteps - 1]) / (float)kMHTBins) * float(kStepPt * kStepPhi);
+    ret_etmiss.Et = sqrtval;
     ret_etmiss.Phi = phi;
 
     return ret_etmiss;
