@@ -127,14 +127,13 @@ namespace {
     XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
     std::string *tmp;
     result.Get(tmp);
-    std::unique_ptr<std::string> method(tmp);
-    return method;
+    return std::unique_ptr<std::string>(tmp);
   }
 
   void tracerouteRedirections(const XrdCl::HostList *hostList) {
     edm::LogInfo("XrdAdaptorLvl2").log([hostList](auto &li) {
       int idx_redirection = 1;
-      std::string all_redirections;
+      li << "-------------------------------\nTraceroute:\n";
       for (auto const &host : *hostList) {
         // Query info
         std::unique_ptr<std::string> stack_ip_method = getQueryTransport(host.url, XrdCl::StreamQuery::IpStack);
@@ -152,19 +151,17 @@ namespace {
         if (host.loadBalancer == 1) {
           type_resource = "load balancer";
         };
-        std::string redirection = fmt::format("{}. || {} / {} / {} / {} / {} / {} ||\n",
-                                              idx_redirection,
-                                              *hostname_method,
-                                              *stack_ip_method,
-                                              *ip_method,
-                                              host.url.GetPort(),
-                                              authentication,
-                                              type_resource);
-
-        all_redirections = all_redirections + redirection;
+        li.format("{}. || {} / {} / {} / {} / {} / {} ||\n",
+                  idx_redirection,
+                  *hostname_method,
+                  *stack_ip_method,
+                  *ip_method,
+                  host.url.GetPort(),
+                  authentication,
+                  type_resource);
         ++idx_redirection;
       }
-      li.format("-------------------------------\nTraceroute:\n{}-------------------------------", all_redirections);
+      li.format("-------------------------------");
     });
   }
 }  // namespace
@@ -364,6 +361,7 @@ void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const
     int size_active_sources = iNew.size();
     for (int i = 0; i < size_active_sources; ++i) {
       std::string hostname_a;
+      Source::getHostname(iNew[i]->PrettyID(), hostname_a);
       std::string quality = std::to_string(iNew[i]->getQuality());
       li.format("   [{}] {} for {}", i + 1, quality, hostname_a);
     }
@@ -396,20 +394,18 @@ bool RequestManager::compareSources(const timespec &now,
   if (activeSources.size() < std::max(a, b) + 1) {
     return false;
   }
-
-  std::string hostname_a;
-  std::string hostname_b;
   unsigned quality_a = activeSources[a]->getQuality();
   unsigned quality_b = activeSources[b]->getQuality();
-
   bool findNewSource = false;
   if ((quality_a > 5130) || ((quality_a > 260) && (quality_b * 4 < quality_a))) {
+    std::string hostname_a;
     Source::getHostname(activeSources[a]->ID(), hostname_a);
     if (quality_a > 5130) {
       edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
                                         << quality_a << ") is above 5130 and it is not the only active server";
     }
     if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
+      std::string hostname_b;
       Source::getHostname(activeSources[b]->ID(), hostname_b);
       edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
                                         << quality_a
