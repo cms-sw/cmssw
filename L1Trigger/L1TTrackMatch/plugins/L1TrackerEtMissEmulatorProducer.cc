@@ -62,8 +62,6 @@ private:
   std::vector<l1tmetemu::global_phi_t> phiQuadrants_;
   std::vector<l1tmetemu::global_phi_t> phiShifts_;
 
-  l1tmetemu::z_t deltaZ0_ = 0;
-
   int cordicSteps_;
   int debug_;
   bool cordicDebug_ = false;
@@ -307,38 +305,30 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     tempPhi = EtMiss.Phi - 3 * l1tmetemu::kMETPhiBins / 2;
 
   if (debug_ == 6) {
-    std::string flpxarray[l1tmetemu::kNSector * 2];
-    std::string flpyarray[l1tmetemu::kNSector * 2];
 
-    std::string intpxarray[l1tmetemu::kNSector * 2];
-    std::string intpyarray[l1tmetemu::kNSector * 2];
-
-    std::string totalsarray[l1tmetemu::kNSector * 2];
+    edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
+        << "====Sector Pt====\n";
 
     for (unsigned int i = 0; i < l1tmetemu::kNSector * 2; i++) {
-      flpxarray[i] = to_string(sumPx[i] * l1tmetemu::kStepPt) + "|";
-      flpyarray[i] = to_string(sumPy[i] * l1tmetemu::kStepPt) + "|";
-      intpxarray[i] = to_string(floor((float)sumPx[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
-      intpyarray[i] = to_string(floor((float)sumPy[i] / (float)l1tmetemu::kGlobalPhiBins)) + "|";
-      totalsarray[i] = to_string(sector_totals[i]) + "|";
+
+      edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
+        << "Sector " << i << "\n"
+        << "Float Px: " << sumPx[i] * l1tmetemu::kStepPt << " | Float Py: " << sumPy[i] * l1tmetemu::kStepPt 
+        << " | Integer Px: " << floor((float)sumPx[i] / (float)l1tmetemu::kGlobalPhiBins)
+        << " | Integer Py: " << floor((float)sumPy[i] / (float)l1tmetemu::kGlobalPhiBins) 
+        << " | Sector Totals: " << sector_totals[(int)(i/2)] << "\n";
     }
 
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-        << "====Sector Pt====\n"
-        << "Float Px: " << flpxarray << "Float Py: " << flpyarray << "Integer Px: " << intpyarray
-        << "Integer Px: " << intpyarray << "Sector Totals: " << totalsarray
-
         << "====Global Pt====\n"
         << "Integer Global Px: " << GlobalPx << "| Integer Global Py: " << GlobalPy << "\n"
         << "Float Global Px: " << GlobalPx * l1tmetemu::kStepPt
         << "| Float Global Py: " << GlobalPy * l1tmetemu::kStepPt << "\n";
-  }
 
-  if (debug_ == 6) {
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====MET===\n"
         << "Integer MET: " << EtMiss.Et << "| Integer MET phi: " << EtMiss.Phi << "\n"
-        << "Float MET: " << (EtMiss.Et) * l1tmetemu::kStepMET
+        << "Float MET: " << EtMiss.Et.to_double() 
         << "| Float MET phi: " << (float)tempPhi * l1tmetemu::kStepMETPhi - M_PI << "\n"
         << "# Tracks after Quality Cuts: " << num_quality_tracks << "\n"
         << "# Tracks Associated to Vertex: " << num_assoc_tracks << "\n"
@@ -346,7 +336,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   }
 
   math::XYZTLorentzVector missingEt(-GlobalPx, -GlobalPy, 0, EtMiss.Et);
-  EtSum L1EtSum(missingEt, EtSum::EtSumType::kMissingEt, (int)EtMiss.Et, 0, (int)tempPhi, (int)num_assoc_tracks);
+  EtSum L1EtSum(missingEt, EtSum::EtSumType::kMissingEt, (int)EtMiss.Et.range(), 0, (int)tempPhi, (int)num_assoc_tracks);
 
   METCollection->push_back(L1EtSum);
 

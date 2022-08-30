@@ -126,7 +126,7 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   l1tmhtemu::Et_t sumPx = 0;
   l1tmhtemu::Et_t sumPy = 0;
-  l1tmhtemu::Et_t HT = 0;
+  l1tmhtemu::MHT_t HT = 0;
 
   // loop over jets
   int jetn = 0;
@@ -250,12 +250,14 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
         << "====MHT AP_INTS TO FLOATS====\n"
         << "sumPx: " << (float)sumPx * l1tmhtemu::kStepPt * l1tmhtemu::kStepPhi
         << "| sumPy: " << (float)sumPy * l1tmhtemu::kStepPt * l1tmhtemu::kStepPhi
-        << "| ET: " << (float)EtMiss.Et * l1tmhtemu::kStepMHT << "| HT: " << (float)HT * l1tmhtemu::kStepPt
+        << "| ET: " << EtMiss.Et.to_double() << "| HT: " << (float)HT * l1tmhtemu::kStepPt
         << "| PHI: " << (float)phi * l1tmhtemu::kStepMHTPhi - M_PI << "\n"
         << "-------------------------------------------------------------------------\n";
   }
+  //rescale HT to correct output range
+  HT = HT / (int)(1/l1tmhtemu::kStepPt);
 
-  EtSum L1HTSum(missingEt, EtSum::EtSumType::kMissingHt, (int)HT, 0, (int)phi, (int)jetn);
+  EtSum L1HTSum(missingEt, EtSum::EtSumType::kMissingHt, (int)HT.range(), 0, (int)phi, (int)jetn);
 
   MHTCollection->push_back(L1HTSum);
   iEvent.put(std::move(MHTCollection), L1MHTCollectionName_);

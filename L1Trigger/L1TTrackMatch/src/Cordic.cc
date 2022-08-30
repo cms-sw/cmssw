@@ -104,7 +104,7 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
 
   // emulate fw rounding with float division then floor
   float tempMET = (float)(x * magNormalisationLUT[cordicSteps - 1] * kMaxTrackPt) / ((float)kMaxMET);
-  ret_etmiss.Et = (int)floor(tempMET) >> (mMagnitudeBits + TTTrack_TrackWord::TrackBitWidths::kRinvSize - kMETSize);
+  ret_etmiss.Et = tempMET / pow(2,(mMagnitudeBits + TTTrack_TrackWord::TrackBitWidths::kRinvSize - kMETIntSize ));
   ret_etmiss.Phi = phi;
   return ret_etmiss;
 }

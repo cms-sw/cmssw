@@ -40,12 +40,14 @@ namespace l1tmetemu {
   typedef ap_int<kInternalPtWidth + kEtExtra> Et_t;
 
   //Output format
-  const float kMaxMET{4096};  // 4 TeV
+  const float kMaxMET{2048};  // 2 TeV
   const float kMaxMETPhi{2 * M_PI};
-  const unsigned int kMETSize{15};     // For output Magnitude default 15
-  const unsigned int kMETPhiSize{14};  // For Output Phi default 14
+  const unsigned int kMETSize{16};     // For output Magnitude default 16
+  const unsigned int kMETPhiSize{13};  // For Output Phi default 13
+  // Output definition as per interface document, only used when creating output format
+  const unsigned int kMETIntSize{11};
 
-  typedef ap_uint<kMETSize> MET_t;
+  typedef ap_ufixed<kMETSize,kMETIntSize> MET_t;
   // Cordic means this is evaluated between 0 and 2Pi rather than -pi to pi so
   // unsigned
   typedef ap_uint<kMETPhiSize> METphi_t;
