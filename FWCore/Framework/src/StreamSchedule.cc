@@ -877,6 +877,12 @@ namespace edm {
       ServiceRegistry::Operate guard(serviceToken);
       Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
+      // Data dependencies need to be set up before marking empty
+      // (End)Paths complete in case something consumes the status of
+      // the empty (EndPath)
+      workerManager_.setupResolvers(ep);
+      workerManager_.setupOnDemandSystem(info);
+
       HLTPathStatus hltPathStatus(hlt::Pass, 0);
       for (int empty_trig_path : empty_trig_paths_) {
         results_->at(empty_trig_path) = hltPathStatus;
@@ -898,9 +904,6 @@ namespace edm {
           return;
         }
       }
-
-      workerManager_.setupResolvers(ep);
-      workerManager_.setupOnDemandSystem(info);
 
       ++total_events_;
 
