@@ -8,9 +8,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -22,7 +20,7 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 
 // constructor ----------------------------------------------------------------
 
-CalibrationTrackSelector::CalibrationTrackSelector(const edm::ParameterSet &cfg)
+CalibrationTrackSelector::CalibrationTrackSelector(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : applyBasicCuts_(cfg.getParameter<bool>("applyBasicCuts")),
       applyNHighestPt_(cfg.getParameter<bool>("applyNHighestPt")),
       applyMultiplicityFilter_(cfg.getParameter<bool>("applyMultiplicityFilter")),
@@ -54,7 +52,9 @@ CalibrationTrackSelector::CalibrationTrackSelector(const edm::ParameterSet &cfg)
       minHitsinTID_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inTID")),
       minHitsinTEC_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inTEC")),
       minHitsinBPIX_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inBPIX")),
-      minHitsinFPIX_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inFPIX")) {
+      minHitsinFPIX_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inFPIX")),
+      rphirecHitsToken_(iC.consumes<SiStripRecHit2DCollection>(rphirecHitsTag_)),
+      matchedrecHitsToken_(iC.consumes<SiStripMatchedRecHit2DCollection>(matchedrecHitsTag_)) {
   if (applyBasicCuts_)
     edm::LogInfo("CalibrationTrackSelector")
         << "applying basic track cuts ..."
@@ -113,9 +113,6 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::select(const Tracks &
     }
   }
 
-  // edm::LogDebug("CalibrationTrackSelector") << "tracks all,kept: " <<
-  // tracks.size() << "," << result.size();
-
   return result;
 }
 
@@ -132,9 +129,6 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::basicCuts(const Track
     float phi = trackp->phi();
     int nhit = trackp->numberOfValidHits();
     float chi2n = trackp->normalizedChi2();
-
-    // edm::LogDebug("CalibrationTrackSelector") << " pt,eta,phi,nhit: "
-    //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
     if (pt > ptMin_ && pt < ptMax_ && eta > etaMin_ && eta < etaMax_ && phi > phiMin_ && phi < phiMax_ &&
         nhit >= nHitMin_ && nhit <= nHitMax_ && chi2n < chi2nMax_) {
@@ -267,8 +261,6 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
     for (size_t ia = 0; ia < amplitudesstereo.size(); ++ia) {
       charge2 += amplitudesstereo[ia];
     }
-    // std::cout << "charge1 = " << charge1 << "\n";
-    // std::cout << "charge2 = " << charge2 << "\n";
     if (charge1 < minHitChargeStrip_ || charge2 < minHitChargeStrip_)
       return false;
   } else if (hit) {
@@ -277,7 +269,6 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
     for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
       charge1 += amplitudes[ia];
     }
-    // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_)
       return false;
   } else if (unmatchedhit) {
@@ -287,7 +278,6 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
     for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
       charge1 += amplitudes[ia];
     }
-    // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_)
       return false;
   }
@@ -297,12 +287,8 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
 //-----------------------------------------------------------------------------
 
 bool CalibrationTrackSelector::isIsolated(const TrackingRecHit *therechit, const edm::Event &evt) const {
-  // edm::ESHandle<TrackerGeometry> tracker;
-  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-  // es.get<TrackerDigiGeometryRecord>().get(tracker);
-  evt.getByLabel(rphirecHitsTag_, rphirecHits);
-  evt.getByLabel(matchedrecHitsTag_, matchedrecHits);
+  const edm::Handle<SiStripRecHit2DCollection> &rphirecHits = evt.getHandle(rphirecHitsToken_);
+  const edm::Handle<SiStripMatchedRecHit2DCollection> &matchedrecHits = evt.getHandle(matchedrecHitsToken_);
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istripSt;
   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripStm;
@@ -320,7 +306,6 @@ bool CalibrationTrackSelector::isIsolated(const TrackingRecHit *therechit, const
     if (idet.rawId() != mydet1.rawId())
       continue;
     float theDistance = (therechit->localPosition() - aHit->localPosition()).mag();
-    // std::cout << "theDistance1 = " << theDistance << "\n";
     if (theDistance > 0.001 && theDistance < minHitIsolation_)
       return false;
   }
@@ -332,7 +317,6 @@ bool CalibrationTrackSelector::isIsolated(const TrackingRecHit *therechit, const
     if (idet.rawId() != mydet2.rawId())
       continue;
     float theDistance = (therechit->localPosition() - aHit->localPosition()).mag();
-    // std::cout << "theDistance1 = " << theDistance << "\n";
     if (theDistance > 0.001 && theDistance < minHitIsolation_)
       return false;
   }
