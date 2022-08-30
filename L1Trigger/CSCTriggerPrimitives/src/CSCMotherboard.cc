@@ -69,6 +69,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
   thisShowerSource_ = showerSource_[csc_idx];
 
+  // shower readout window
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(tmb_l1a_window_size / 2 <= CSCConstants::LCT_CENTRAL_BX);
+
   // enable the upgrade processors for ring 1 stations
   if (runPhase2_ and theRing == 1) {
     clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);

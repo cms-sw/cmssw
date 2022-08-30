@@ -98,6 +98,10 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
   peakCheck_ = shower.getParameter<bool>("peakCheck");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(tmb_l1a_window_size / 2 <= CSCConstants::LCT_CENTRAL_BX);
+
   thePreTriggerDigis.clear();
 
   // quality control of stubs
