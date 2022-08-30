@@ -21,10 +21,10 @@ Implementation:
 //
 // constructors and destructor
 //
-EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      dataToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))) {
   //now do what ever initialization is needed
-
-  DataLabel_ = iConfig.getParameter<edm::InputTag>("InputLabel");
   fedUnpackList_ = iConfig.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>());
   if (fedUnpackList_.empty())
     for (int i = FEDNumbering::MINECALFEDID; i <= FEDNumbering::MAXECALFEDID; i++)
@@ -46,8 +46,7 @@ bool EcalFEDErrorFilter::hltFilter(edm::Event& iEvent,
                                    trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace edm;
 
-  edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(DataLabel_, rawdata);
+  const edm::Handle<FEDRawDataCollection>& rawdata = iEvent.getHandle(dataToken_);
 
   // get fed raw data and SM id
 
@@ -65,8 +64,8 @@ bool EcalFEDErrorFilter::hltFilter(edm::Event& iEvent,
       uint64_t* fedTrailer = pData + (length - 1);
       bool crcError = (*fedTrailer >> 2) & 0x1;
       if (crcError) {
-        std::cout << "CRCERROR in FED " << *i << " trailer is " << std::setw(8) << std::hex << (*fedTrailer)
-                  << std::endl;
+        edm::LogVerbatim("EcalTools") << "CRCERROR in FED " << *i << " trailer is " << std::setw(8) << std::hex
+                                      << (*fedTrailer) << std::dec;
         return true;
       }
     }

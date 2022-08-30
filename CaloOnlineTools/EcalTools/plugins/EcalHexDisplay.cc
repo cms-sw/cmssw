@@ -15,15 +15,15 @@ EcalHexDisplay::EcalHexDisplay(const edm::ParameterSet& ps)
       event_(0),
       writeDcc_(ps.getUntrackedParameter<bool>("writeDCC", false)),
       filename_(ps.getUntrackedParameter<std::string>("filename", "dump.bin")),
-      fedRawDataCollectionTag_(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {}
+      fedRawDataCollectionToken_(
+          consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag"))) {}
 
 void EcalHexDisplay::analyze(const edm::Event& e, const edm::EventSetup& c) {
   event_++;
   if (event_ < first_event_ || last_event_ < event_)
     return;
 
-  edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(fedRawDataCollectionTag_, rawdata);
+  const edm::Handle<FEDRawDataCollection>& rawdata = e.getHandle(fedRawDataCollectionToken_);
 
   std::ofstream dumpFile(filename_.c_str(), std::ios::app);
 
@@ -34,25 +34,24 @@ void EcalHexDisplay::analyze(const edm::Event& e, const edm::EventSetup& c) {
     const FEDRawData& data = rawdata->FEDData(id);
 
     if (data.size() > 4) {
-      std::cout << "\n\n\n[EcalHexDumperModule] Event: " << std::dec << event_ << " fed_id: " << id
-                << " size_fed: " << data.size() << "\n"
-                << std::endl;
+      edm::LogVerbatim("EcalTools") << "\n\n\n[EcalHexDumperModule] Event: " << std::dec << event_ << " fed_id: " << id
+                                    << " size_fed: " << data.size() << "\n";
 
       if ((data.size() % 16) != 0) {
-        std::cout << "***********************************************" << std::endl;
-        std::cout << "Fed size in bits not multiple of 64, strange." << std::endl;
-        std::cout << "***********************************************" << std::endl;
+        edm::LogVerbatim("EcalTools") << "***********************************************";
+        edm::LogVerbatim("EcalTools") << "Fed size in bits not multiple of 64, strange.";
+        edm::LogVerbatim("EcalTools") << "***********************************************";
       }
 
       int length = data.size();
       const unsigned long* pData = (reinterpret_cast<unsigned long*>(const_cast<unsigned char*>(data.data())));
-      std::cout << std::setfill('0');
+      edm::LogVerbatim("EcalTools") << std::setfill('0');
       for (int words = 0; words < length / 4; (words += 2)) {
-        std::cout << std::setw(8) << std::hex << pData[words + 1] << " ";
-        std::cout << std::setw(8) << std::hex << pData[words] << std::endl;
+        edm::LogVerbatim("EcalTools") << std::setw(8) << std::hex << pData[words + 1] << " " << std::setw(8) << std::hex
+                                      << pData[words];
       }
 
-      std::cout << "\n";
+      edm::LogVerbatim("EcalTools") << "\n";
 
       if (beg_fed_id_ <= id && id <= end_fed_id_ && writeDcc_) {
         dumpFile.write(reinterpret_cast<const char*>(pData), length);
