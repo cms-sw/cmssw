@@ -42,7 +42,7 @@ from L1Trigger.L1CaloTrigger.L1CaloJetHTTProducer_cfi import *
 
 l1CaloJetsSequence = cms.Sequence( 
         l1tEGammaClusterEmuProducer *
-        L1TowerCalibrationProducer *
-        L1CaloJetProducer *
-        L1CaloJetHTTProducer
+        l1tTowerCalibrationProducer *
+        l1tCaloJetProducer *
+        l1tCaloJetHTTProducer
 )

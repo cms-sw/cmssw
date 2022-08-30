@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1ctSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
+l1tSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
   jets = cms.InputTag("scPFL1PuppiEmulator"),
   nJets = cms.uint32(12),
   nFramesPerBX = cms.uint32(9), # 360 MHz clock or 25 Gb/s link

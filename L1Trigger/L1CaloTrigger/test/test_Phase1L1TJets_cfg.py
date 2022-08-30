@@ -36,16 +36,16 @@ process.out = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string('myOutputFile.root'),
   outputCommands = cms.untracked.vstring(
     "drop *",
-    "keep *_Phase1L1TJetProducer*_*_*",
-    "keep *_Phase1L1TJetSumsProducer*_*_*",
+    "keep *_l1tPhase1JetProducer*_*_*",
+    "keep *_l1tPhase1JetSumsProducer*_*_*",
     "keep *_ak4GenJetsNoNu_*_*",
-    "keep *_Phase1L1TJetCalibrator*_*_*",
+    "keep *_l1tPhase1JetCalibrator*_*_*",
     "keep *_ak4PFL1Puppi*_*_*",
     "keep *_l1PFMetPuppi*_*_*",
     "keep *_genMetTrue_*_*"
   ),
 )
 
-process.p = cms.Path(process.Phase1L1TJetsSequence * process.Phase1L1TJetsSequence9x9 * process.Phase1L1TJetsSequence9x9trimmed * process.l1PFJets * process.l1PFMetPuppi )
+process.p = cms.Path(process.l1tPhase1JetsSequence * process.l1tPhase1JetsSequence9x9 * process.l1tPhase1JetsSequence9x9trimmed * process.l1PFJets * process.l1PFMetPuppi )
 
 process.e = cms.EndPath(process.out)

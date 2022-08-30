@@ -25,7 +25,7 @@ TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAM
 l1emulator += TrackTriggerAssociatorTracks
 
 from L1Trigger.VertexFinder.VertexProducer_cff import *
-l1emulator += VertexProducer
+l1emulator += l1tVertexProducer
 
 from Configuration.StandardSequences.SimL1Emulator_cff import *
 l1emulator += SimL1Emulator
@@ -34,14 +34,8 @@ from L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi import *
 l1emulator += pfTracksFromL1Tracks
 
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
-l1emulator += l1ParticleFlow
+l1emulator += l1tParticleFlow
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import *
-l1emulator += Phase1L1TJetsSequence
-
-
-
-
-
-
+l1emulator += l1tPhase1JetsSequence
 

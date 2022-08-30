@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexNTupler_cff import L1TVertexNTupler
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
+from L1Trigger.VertexFinder.VertexNTupler_cff import l1tVertexNTupler
+from L1Trigger.VertexFinder.VertexProducer_cff import l1tVertexProducer
 
 InputDataProducer = cms.EDProducer('InputDataProducer',
   #=== The name of the output collection
   outputCollectionName = cms.string("InputData"),
   
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
-  GenCuts = L1TVertexNTupler.GenCuts,
+  GenCuts = l1tVertexNTupler.GenCuts,
 
   #=== Rules for deciding when the track finding has found an L1 track candidate
-  L1TrackDef = L1TVertexNTupler.L1TrackDef,
+  L1TrackDef = l1tVertexNTupler.L1TrackDef,
 
   #=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
-  TrackMatchDef = L1TVertexNTupler.TrackMatchDef,
+  TrackMatchDef = l1tVertexNTupler.TrackMatchDef,
 
   #=== Vertex Reconstruction configuration
-  VertexReconstruction = VertexProducer.VertexReconstruction,
+  VertexReconstruction = l1tVertexProducer.VertexReconstruction,
 
   #=== Input collections
   hepMCInputTag = cms.InputTag("generatorSmeared","","SIM"),
@@ -26,5 +26,5 @@ InputDataProducer = cms.EDProducer('InputDataProducer',
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
 
   #=== Debug printout
-  debug = L1TVertexNTupler.debug,
+  debug = l1tVertexNTupler.debug,
 )

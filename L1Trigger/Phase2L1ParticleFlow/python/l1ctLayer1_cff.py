@@ -14,7 +14,7 @@ muonInputConversionParameters = cms.PSet(
     dxyScale = cms.double(3.85)
 )
 
-l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('pfTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromL1EGClusters')),
@@ -151,7 +151,7 @@ _hgcalSectors = cms.VPSet(
 
 )
 
-l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('pfTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters:egamma')), # used only for E/gamma
@@ -286,7 +286,7 @@ l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
 )
 
 
-l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
     muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     emClusters = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClusters:egamma')), # used only for E/gamma
@@ -368,7 +368,7 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     writeRawHgcalCluster = cms.untracked.bool(True)
 )
 
-l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
+l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
     muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
     useStandaloneMuons = cms.bool(False),
@@ -456,30 +456,30 @@ l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
 )
 
 
-l1ctLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
+l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     pfProducers = cms.VInputTag(
-        cms.InputTag("l1ctLayer1Barrel"),
-        cms.InputTag("l1ctLayer1HGCal"),
-        cms.InputTag("l1ctLayer1HGCalNoTK"),
-        cms.InputTag("l1ctLayer1HF")
+        cms.InputTag("l1tLayer1Barrel"),
+        cms.InputTag("l1tLayer1HGCal"),
+        cms.InputTag("l1tLayer1HGCalNoTK"),
+        cms.InputTag("l1tLayer1HF")
     ),
     labelsToMerge = cms.vstring("PF", "Puppi", "Calo", "TK"),
     regionalLabelsToMerge = cms.vstring("Puppi"),
 )
 
-l1ctLayer1EG = cms.EDProducer(
+l1tLayer1EG = cms.EDProducer(
     "L1TEGMultiMerger",
     tkElectrons=cms.VPSet(
         cms.PSet(
             instance=cms.string("L1TkEleEE"),
             pfProducers=cms.VInputTag(
-                cms.InputTag("l1ctLayer1HGCal", 'L1TkEle')
+                cms.InputTag("l1tLayer1HGCal", 'L1TkEle')
             )
         ),
         cms.PSet(
             instance=cms.string("L1TkEleEB"),
             pfProducers=cms.VInputTag(
-                cms.InputTag("l1ctLayer1Barrel", 'L1TkEle')
+                cms.InputTag("l1tLayer1Barrel", 'L1TkEle')
             )
         )
     ),
@@ -487,14 +487,14 @@ l1ctLayer1EG = cms.EDProducer(
         cms.PSet(
             instance=cms.string("L1TkEmEE"),
             pfProducers=cms.VInputTag(
-                cms.InputTag("l1ctLayer1HGCal", 'L1TkEm'),
-                cms.InputTag("l1ctLayer1HGCalNoTK", 'L1TkEm')
+                cms.InputTag("l1tLayer1HGCal", 'L1TkEm'),
+                cms.InputTag("l1tLayer1HGCalNoTK", 'L1TkEm')
             )
         ),
         cms.PSet(
             instance=cms.string("L1TkEmEB"),
             pfProducers=cms.VInputTag(
-                cms.InputTag("l1ctLayer1Barrel", 'L1TkEm')
+                cms.InputTag("l1tLayer1Barrel", 'L1TkEm')
             )
         )
     ),
@@ -502,14 +502,14 @@ l1ctLayer1EG = cms.EDProducer(
         cms.PSet(
             instance=cms.string("L1EgEE"),
             pfProducers=cms.VInputTag(
-                cms.InputTag("l1ctLayer1HGCal", 'L1Eg'),
-                cms.InputTag("l1ctLayer1HGCalNoTK", 'L1Eg')
+                cms.InputTag("l1tLayer1HGCal", 'L1Eg'),
+                cms.InputTag("l1tLayer1HGCalNoTK", 'L1Eg')
             )
         )    
     )
 )
 
-l1ctLayer1TaskInputsTask = cms.Task(
+L1TLayer1TaskInputsTask = cms.Task(
     pfClustersFromL1EGClusters,
     pfClustersFromCombinedCaloHCal,
     pfClustersFromCombinedCaloHF,
@@ -517,11 +517,11 @@ l1ctLayer1TaskInputsTask = cms.Task(
     pfTracksFromL1Tracks
 )
 
-l1ctLayer1Task = cms.Task(
-     l1ctLayer1Barrel,
-     l1ctLayer1HGCal,
-     l1ctLayer1HGCalNoTK,
-     l1ctLayer1HF,
-     l1ctLayer1,
-     l1ctLayer1EG
+L1TLayer1Task = cms.Task(
+     l1tLayer1Barrel,
+     l1tLayer1HGCal,
+     l1tLayer1HGCalNoTK,
+     l1tLayer1HF,
+     l1tLayer1,
+     l1tLayer1EG
 )

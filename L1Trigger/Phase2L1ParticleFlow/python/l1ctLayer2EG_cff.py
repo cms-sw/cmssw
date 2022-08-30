@@ -1,38 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
-l1ctLayer2EG = cms.EDProducer(
+l1tLayer2EG = cms.EDProducer(
     "L1TCtL2EgProducer",
     tkElectrons=cms.VPSet(
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1HGCal", 'L1TkElePerBoard'),
+            pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1TkElePerBoard'),
             channels=cms.vint32(3, 4)
         ),
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1Barrel", 'L1TkElePerBoard'),
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkElePerBoard'),
             channels=cms.vint32(0, 1, 2)
         ),
     ),
     tkEms=cms.VPSet(
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1HGCal", 'L1TkEmPerBoard'),
+            pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1TkEmPerBoard'),
             channels=cms.vint32(3, 4)
         ),
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1HGCalNoTK", 'L1TkEmPerBoard'),
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1TkEmPerBoard'),
             channels=cms.vint32(-1)
         ),
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1Barrel", 'L1TkEmPerBoard'),
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkEmPerBoard'),
             channels=cms.vint32(0, 1, 2)
         ),
     ),
     tkEgs=cms.VPSet(
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1HGCal", 'L1Eg'),
+            pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1Eg'),
             channels=cms.vint32(-1)
         ),
         cms.PSet(
-            pfProducer=cms.InputTag("l1ctLayer1HGCalNoTK", 'L1Eg'),
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1Eg'),
             channels=cms.vint32(-1)
         ),
     ),
@@ -132,6 +132,6 @@ l1ctLayer2EG = cms.EDProducer(
 )
 
 
-l1ctLayer2EGTask = cms.Task(
-     l1ctLayer2EG
+L1TLayer2EGTask = cms.Task(
+     l1tLayer2EG
 )

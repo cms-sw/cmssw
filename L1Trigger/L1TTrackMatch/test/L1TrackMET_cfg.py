@@ -72,14 +72,14 @@ process.load("L1Trigger.L1TTrackMatch.L1TkMETAnalyser_cfi")
 ############################################################
 
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.VertexProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
+process.l1tVertexProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
 
 
-producerSum += process.VertexProducer
+producerSum += process.l1tVertexProducer
 
 producerName = 'VertexProducer{0}'.format("fastHisto")
 producerName = producerName.replace(".","p") # legalize the name
-producer = process.VertexProducer.clone()
+producer = process.l1tVertexProducer.clone()
 producer.VertexReconstruction.Algorithm = cms.string("fastHisto")
 process.L1TrackerEtMiss.L1VertexInputTag = cms.InputTag(producerName,"l1vertices")
 
@@ -97,7 +97,7 @@ else:
 
 EmuproducerName = 'VertexProducer{0}'.format("fastHistoEmulation")
 EmuproducerName = EmuproducerName.replace(".","p") # legalize the name
-Emuproducer = process.VertexProducer.clone()
+Emuproducer = process.l1tVertexProducer.clone()
 Emuproducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
 process.L1TrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"l1verticesEmulation")
 

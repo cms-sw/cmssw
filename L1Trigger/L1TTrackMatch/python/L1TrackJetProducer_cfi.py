@@ -4,7 +4,7 @@ from L1Trigger.VertexFinder.VertexProducer_cff import l1tVertexProducer
 
 l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
 	L1TrackInputTag= cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("VertexProducer", l1tVertexProducer.l1VertexCollectionName.value()),
+	L1PVertexCollection = cms.InputTag("l1tVertexProducer", l1tVertexProducer.l1VertexCollectionName.value()),
 	MaxDzTrackPV = cms.double( 0.5 ),
 	trk_zMax = cms.double (15.) ,    # maximum track z
 	trk_ptMax = cms.double(200.),    # maximumum track pT before saturation [GeV]
@@ -33,7 +33,7 @@ l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
 
 l1tTrackJetsExtended = cms.EDProducer('L1TrackJetProducer',
 	L1TrackInputTag= cms.InputTag("TTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("VertexProducer", l1tVertexProducer.l1VertexCollectionName.value()),
+	L1PVertexCollection = cms.InputTag("l1tVertexProducer", l1tVertexProducer.l1VertexCollectionName.value()),
 	MaxDzTrackPV = cms.double( 4.0 ), # tracks with dz(trk,PV)>cut excluded
 	trk_zMax = cms.double (15.) ,    # max track z
 	trk_ptMax = cms.double(200.),    # maxi track pT before saturation

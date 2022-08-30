@@ -80,7 +80,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.VertexProducer.l1TracksInputTag = l1TracksTag
+process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 
 process.load('L1Trigger.VertexFinder.TPStubValueMapProducer_cff')
 process.load('L1Trigger.VertexFinder.InputDataProducer_cff')
@@ -92,13 +92,13 @@ if process.L1TVertexNTupler.debug == 0:
     process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-producerSum = process.VertexProducer
+producerSum = process.l1tVertexProducer
 additionalProducerAlgorithms = ["fastHistoEmulation", "fastHistoLooseAssociation", "DBSCAN"]
 for algo in additionalProducerAlgorithms:
     producerName = 'VertexProducer{0}'.format(algo)
     producerName = producerName.replace(".","p") # legalize the name
 
-    producer = process.VertexProducer.clone()
+    producer = process.l1tVertexProducer.clone()
     producer.VertexReconstruction.Algorithm = cms.string(algo)
 
     if "Emulation" in algo:
@@ -134,7 +134,7 @@ if options.runVariations:
                     print "minDensity =", minDensity
                     print "seedTrkPt  =", seedTrackPt
 
-                    producer = process.VertexProducer.clone()
+                    producer = process.l1tVertexProducer.clone()
                     producer.VertexReconstruction.VertexDistance = cms.double(dist)
                     producer.VertexReconstruction.VxMinTrackPt = cms.double(minPt)
                     producer.VertexReconstruction.DBSCANMinDensityTracks = cms.uint32(minDensity)
