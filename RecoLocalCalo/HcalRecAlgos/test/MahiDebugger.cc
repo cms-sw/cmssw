@@ -97,8 +97,8 @@ private:
 
   bool calculateArrivalTime_;
   int timeAlgo_;
-  float cond1_;
-  float cond3_;
+  float thEnergeticPulses_;
+  float thLowPUOOT_;
   float meanTime_;
   float timeSigmaHPD_;
   float timeSigmaSiPM_;
@@ -178,8 +178,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
       applyTimeSlew_(iConfig.getParameter<bool>("applyTimeSlew")),
       calculateArrivalTime_(iConfig.getParameter<bool>("calculateArrivalTime")),
       timeAlgo_(iConfig.getParameter<int>("timeAlgo")),
-      cond1_(iConfig.getParameter<double>("cond1")),
-      cond3_(iConfig.getParameter<double>("cond3")),
+      thEnergeticPulses_(iConfig.getParameter<double>("thEnergeticPulses")),
+      thLowPUOOT_(iConfig.getParameter<double>("thLowPUOOT")),
       meanTime_(iConfig.getParameter<double>("meanTime")),
       timeSigmaHPD_(iConfig.getParameter<double>("timeSigmaHPD")),
       timeSigmaSiPM_(iConfig.getParameter<double>("timeSigmaSiPM")),
@@ -200,8 +200,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
                        HcalTimeSlew::Medium,
                        calculateArrivalTime_,
                        timeAlgo_,
-                       cond1_,
-                       cond3_,
+                       thEnergeticPulses_,
+                       thLowPUOOT_,
                        meanTime_,
                        timeSigmaHPD_,
                        timeSigmaSiPM_,
@@ -368,8 +368,8 @@ void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<bool>("dynamicPed");
   desc.add<bool>("calculateArrivalTime");
   desc.add<int>("timeAlgo");
-  desc.add<double>("cond1");
-  desc.add<double>("cond2");
+  desc.add<double>("thEnergeticPulse");
+  desc.add<double>("thLowPUOOT");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
   desc.add<bool>("applyTimeSlew");
