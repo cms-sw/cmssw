@@ -238,7 +238,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
 
 fragment.schedule = cms.Schedule(*[
-    fragment.l1tReconstructionPath,
+    fragment.L1TReconstructionPath,
 
     fragment.L1T_SinglePFPuppiJet230off,
     fragment.L1T_PFPuppiHT450off,

@@ -29,7 +29,7 @@ process.load('L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff')
 
 # AK4 PF jets
 process.load('L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff')
-process.l1PFJets = cms.Sequence( process.ak4PFL1Puppi + process.ak4PFL1PuppiCorrected )
+process.L1TPFJets = cms.Sequence( process.ak4PFL1Puppi + process.ak4PFL1PuppiCorrected )
 
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -46,6 +46,6 @@ process.out = cms.OutputModule("PoolOutputModule",
   ),
 )
 
-process.p = cms.Path(process.l1tPhase1JetsSequence * process.l1tPhase1JetsSequence9x9 * process.l1tPhase1JetsSequence9x9trimmed * process.l1PFJets * process.l1PFMetPuppi )
+process.p = cms.Path(process.L1TPhase1JetsSequence * process.L1TPhase1JetsSequence9x9 * process.L1TPhase1JetsSequence9x9trimmed * process.L1TPFJets * process.l1PFMetPuppi )
 
 process.e = cms.EndPath(process.out)

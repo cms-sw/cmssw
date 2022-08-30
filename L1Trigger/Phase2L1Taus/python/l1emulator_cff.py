@@ -37,5 +37,5 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 l1emulator += l1tParticleFlow
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import *
-l1emulator += l1tPhase1JetsSequence
+l1emulator += L1TPhase1JetsSequence
 
