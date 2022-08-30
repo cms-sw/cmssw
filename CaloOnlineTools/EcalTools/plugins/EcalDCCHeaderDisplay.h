@@ -23,5 +23,5 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::InputTag EcalDCCHeaderCollection_;
+  const edm::EDGetTokenT<EcalRawDataCollection> EcalDCCHeaderCollection_;
 };
