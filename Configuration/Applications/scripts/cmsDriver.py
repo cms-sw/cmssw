@@ -33,7 +33,8 @@ def run():
 
         # handle different dump options
         if options.dump_python:
-            os.system('edmConfigDump -o {f} {f}'.format(f=options.python_filename))
+            status_code = os.system('edmConfigDump -o {f} {f}'.format(f=options.python_filename))
+            if status_code: exit()
             print("Expanded config file", options.python_filename, "created")
             sys.exit(0)           
   
