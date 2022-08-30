@@ -56,7 +56,7 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string digiProducer_;
+  const edm::EDGetTokenT<EcalRawDataCollection> digiProducer_;
   int runNum_;
   std::string fileName_;
 
