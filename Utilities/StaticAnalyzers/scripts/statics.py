@@ -72,10 +72,11 @@ for tfunc in sorted(toplevelfuncs):
                         print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
                               re.sub(farg, "()", key)+"'", end=' ')
                         print()
+
             else:
                 for key in G[tfunc].keys():
                     if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ' and not (key.startswith('edm::one') and 'TFileService::' in static):
-                        print("Known thread unsafe function \'"+re.sub(farg, "()",
+                        print("Known thread unsafe function '"+re.sub(farg, "()",
                                                                        static)+"' is called in call stack '", end=' ')
                         for i in range(0, len(path)-1):
                             print(re.sub(farg, "()", path[i]) +
@@ -89,7 +90,7 @@ for tfunc in sorted(toplevelfuncs):
                         for i in range(0, len(path)-1):
                             print(re.sub(farg, "()", path[i]) +
                                   G[path[i]][path[i+1]]['kind'], end=' ')
-                        print(G[path[len(path)-2]][path[len(path)-1]]['kind']+" "+re.sub(farg, "()", static)+"' is called ,", end=' ')
+                        print(re.sub(farg, "()", path[i+1])+"' known thread unsafe function '"+re.sub(farg, "()", static)+"' is called, ", end=' ')
                         print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
                                       re.sub(farg, "()", key)+"'", end=' ')
                         print()

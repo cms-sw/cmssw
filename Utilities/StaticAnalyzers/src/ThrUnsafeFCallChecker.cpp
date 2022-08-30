@@ -42,7 +42,25 @@ namespace clangcms {
     std::string pname = support::getQualifiedName(*PD);
     llvm::SmallString<100> buf;
     llvm::raw_svector_ostream os(buf);
-    if (support::isKnownThrUnsafeFunc(mname)) {
+    const std::string tfname = "TFileService::";
+    const std::string eoname = "edm::one";
+    if (mname.substr(0, tfname.length()) == tfname) {
+      for (auto I = PD->begin_overridden_methods(), E = PD->end_overridden_methods(); I != E; ++I) {
+        std::string oname = support::getQualifiedName(*(*I));
+        if (oname.substr(0, eoname.length()) != eoname) {
+          os << "TFileService function " << mname << " is called in function " << pname;
+          PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
+          BugType *BT = new BugType(Checker, "TFileService function called ", "ThreadSafety");
+          std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
+          R->setDeclWithIssue(AC->getDecl());
+          R->addRange(CE->getSourceRange());
+          BR.emitReport(std::move(R));
+          std::string tname = "function-checker.txt.unsorted";
+          std::string ostring = "function '" + pname + "' known thread unsafe function '" + mname + "'.\n";
+          support::writeLog(ostring, tname);
+        }
+      }
+    } else if (support::isKnownThrUnsafeFunc(mname)) {
       os << "Known thread unsafe function " << mname << " is called in function " << pname;
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
       BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");

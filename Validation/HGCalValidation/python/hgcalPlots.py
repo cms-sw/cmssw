@@ -2495,7 +2495,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               loopSubFolders=False,
               purpose=PlotPurpose.Timing
               #,page=tsToCP_linking.replace('TSToCP_','TICL-')
-              ,page=tsToCP_linking.replace('TSToCP_','Test-TICL').replace('linking','')
+              ,page=tsToCP_linking.replace('TSToCP_','TICL-linking').replace('linking','')
               ,section=name_collection)
               )
 

@@ -20,8 +20,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
@@ -104,7 +102,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     produces<DetSetVector<TotemTimingDigi>>(subSystemName);
 
   else if (subSystem == ssTotemT2)
-    produces<DetSetVector<TotemT2Digi>>(subSystemName);
+    produces<edmNew::DetSetVector<TotemT2Digi>>(subSystemName);
 
   // set default IDs
   if (fedIds.empty()) {
@@ -153,7 +151,7 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
     run<DetSetVector<TotemTimingDigi>>(event, es);
 
   else if (subSystem == ssTotemT2)
-    run<DetSetVector<TotemT2Digi>>(event, es);
+    run<edmNew::DetSetVector<TotemT2Digi>>(event, es);
 }
 
 template <typename DigiType>

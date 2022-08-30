@@ -18,7 +18,7 @@ BaseDir=${FullPath#${CMSSW_BASE}/src/}
 CondDir=conditions
 templatefile=template.py
 
-inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals RespCorrs L1TriggerObjects)
+inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals PedestalWidths RespCorrs L1TriggerObjects)
 
 
 
@@ -173,17 +173,36 @@ then
     HcalInput=( "${inputConditions[@]/#/Hcal}" )
     declare -A tagMap
     eval $(conddb list $GlobalTag | grep -E "$(export IFS="|"; echo "${HcalInput[*]}")" | \
-	awk '{if($2=="-" || $2=="effective") if(!($1~/^HcalPed/ && $2=="-")) print "tagMap["$1"]="$3}')
+	awk '{if($1~/^HcalPed/ && $2=="effective") print "tagMap["$1"+"$2"]="$3; else print "tagMap["$1"]="$3}')
 
+    PedSTR='Pedestal'
     individualInputTags=""
     for i in ${inputConditions[@]}; do
 	t=$i
 	v=${!t}
 	if [[ -z $v ]]; then
-	    v=${tagMap[Hcal${i}Rcd]}
+	    if [[ ${i} == *"$PedSTR"* ]]; then
+	        v=${tagMap[Hcal${i}Rcd]}
+		l=""
+		individualInputTags="""$individualInputTags
+    <Parameter type=\"string\" name=\"$t\" label=\"$l\">$v</Parameter>"""
+		v=${tagMap[Hcal${i}Rcd+effective]}
+		l="effective"
+	    else
+                v=${tagMap[Hcal${i}Rcd]}
+		l=""
+	    fi
+	else
+            if [[ ${i} == *"$PedSTR"* ]]; then
+		l=""
+                individualInputTags="""$individualInputTags
+    <Parameter type=\"string\" name=\"$t\" label=\"$l\">$v</Parameter>"""
+                v="${v}_effective"
+                l="effective"
+	    fi
 	fi
 	individualInputTags="""$individualInputTags
-    <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
+    <Parameter type=\"string\" name=\"$t\" label=\"$l\">$v</Parameter>"""
     done
 
     dd=$(date +"%Y-%m-%d %H:%M:%S")

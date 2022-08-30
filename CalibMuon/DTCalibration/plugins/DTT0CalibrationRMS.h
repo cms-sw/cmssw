@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -49,8 +50,8 @@ private:
   // Debug flag
   bool debug;
 
-  // The label used to retrieve digis from the event
-  std::string digiLabel;
+  // The token used to retrieve digis from the event
+  edm::EDGetTokenT<DTDigiCollection> digiToken;
 
   // The root file which contain the histos per layer
   TFile* theFile;

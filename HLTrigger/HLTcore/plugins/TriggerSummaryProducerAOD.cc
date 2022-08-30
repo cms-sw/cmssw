@@ -48,7 +48,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
@@ -147,7 +147,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getL1TTauParticleCollection_ = edm::GetterOfProducts<l1t::TauBxCollection>(productMatch, this);
   getL1TEtSumParticleCollection_ = edm::GetterOfProducts<l1t::EtSumBxCollection>(productMatch, this);
 
-  getL1TTkMuonCollection_ = edm::GetterOfProducts<l1t::TkMuonCollection>(productMatch, this);
+  getL1TTkMuonCollection_ = edm::GetterOfProducts<l1t::TrackerMuonCollection>(productMatch, this);
   getL1TTkElectronCollection_ = edm::GetterOfProducts<l1t::TkElectronCollection>(productMatch, this);
   getL1TTkEmCollection_ = edm::GetterOfProducts<l1t::TkEmCollection>(productMatch, this);
   getL1TPFJetCollection_ = edm::GetterOfProducts<l1t::PFJetCollection>(productMatch, this);
@@ -262,8 +262,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   /// Record the InputTags of those L3 filters and L3 collections
   std::vector<bool> maskFilters;
   maskFilters.resize(nfob);
-  InputTagSet filterTagsEvent(pn_ != "*");
-  InputTagSet collectionTagsEvent(pn_ != "*");
+  InputTagSet filterTagsEvent(pn_ == "*");
+  InputTagSet collectionTagsEvent(pn_ == "*");
 
   unsigned int nf(0);
   for (unsigned int ifob = 0; ifob != nfob; ++ifob) {
@@ -363,7 +363,7 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   fillTriggerObjectCollections<EtSumBxCollection>(
       toc, offset, tags, keys, iEvent, getL1TEtSumParticleCollection_, collectionTagsEvent);
   ///
-  fillTriggerObjectCollections<l1t::TkMuonCollection>(
+  fillTriggerObjectCollections<l1t::TrackerMuonCollection>(
       toc, offset, tags, keys, iEvent, getL1TTkMuonCollection_, collectionTagsEvent);
   fillTriggerObjectCollections<l1t::TkElectronCollection>(
       toc, offset, tags, keys, iEvent, getL1TTkElectronCollection_, collectionTagsEvent);

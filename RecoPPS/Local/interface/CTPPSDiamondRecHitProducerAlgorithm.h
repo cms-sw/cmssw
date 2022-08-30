@@ -9,37 +9,26 @@
 #ifndef RecoPPS_Local_CTPPSDiamondRecHitProducerAlgorithm
 #define RecoPPS_Local_CTPPSDiamondRecHitProducerAlgorithm
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+#include "RecoPPS/Local/interface/TimingRecHitProducerAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
-#include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
-#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-#include "CondFormats/PPSObjects/interface/PPSTimingCalibrationLUT.h"
-
-class CTPPSDiamondRecHitProducerAlgorithm {
+class CTPPSDiamondRecHitProducerAlgorithm
+    : public TimingRecHitProducerAlgorithm<CTPPSGeometry,
+                                           edm::DetSetVector<CTPPSDiamondDigi>,
+                                           edm::DetSetVector<CTPPSDiamondRecHit> > {
 public:
-  CTPPSDiamondRecHitProducerAlgorithm(const edm::ParameterSet& conf);
-
-  void setCalibration(const PPSTimingCalibration&, const PPSTimingCalibrationLUT&);
-  void build(const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>&);
+  using TimingRecHitProducerAlgorithm::TimingRecHitProducerAlgorithm;
+  void build(const CTPPSGeometry&,
+             const edm::DetSetVector<CTPPSDiamondDigi>&,
+             edm::DetSetVector<CTPPSDiamondRecHit>&) override;
 
 private:
   static constexpr unsigned short MAX_CHANNEL = 20;
-  /// Conversion constant between HPTDC time slice and absolute time (in ns)
-  double ts_to_ns_;
-  /// Switch on/off the timing calibration
-  bool apply_calib_;
-  PPSTimingCalibration calib_;
-  PPSTimingCalibrationLUT calibLUT_;
-  std::unique_ptr<reco::FormulaEvaluator> calib_fct_;
 };
 
 #endif

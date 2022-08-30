@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaLowPUHBHEMuons {
+namespace alCaLowPUHBHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaLowPUHBHEMuons
+}  // namespace alCaLowPUHBHEMuonFilter
 
-class AlCaLowPUHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaLowPUHBHEMuons::Counters> > {
+class AlCaLowPUHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaLowPUHBHEMuonFilter::Counters> > {
 public:
-  explicit AlCaLowPUHBHEMuonFilter(edm::ParameterSet const&, const AlCaLowPUHBHEMuons::Counters* count);
+  explicit AlCaLowPUHBHEMuonFilter(edm::ParameterSet const&, const alCaLowPUHBHEMuonFilter::Counters* count);
   ~AlCaLowPUHBHEMuonFilter() override;
 
-  static std::unique_ptr<AlCaLowPUHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaLowPUHBHEMuons::Counters>();
+  static std::unique_ptr<alCaLowPUHBHEMuonFilter::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaLowPUHBHEMuonFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaLowPUHBHEMuons::Counters* counters);
+  static void globalEndJob(const alCaLowPUHBHEMuonFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -91,7 +91,7 @@ private:
 // constructors and destructor
 //
 AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter(edm::ParameterSet const& iConfig,
-                                                 const AlCaLowPUHBHEMuons::Counters* count)
+                                                 const alCaLowPUHBHEMuonFilter::Counters* count)
     : nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
   trigNames_ = iConfig.getParameter<std::vector<std::string> >("triggers");
@@ -218,7 +218,7 @@ void AlCaLowPUHBHEMuonFilter::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaLowPUHBHEMuonFilter::globalEndJob(const AlCaLowPUHBHEMuons::Counters* count) {
+void AlCaLowPUHBHEMuonFilter::globalEndJob(const alCaLowPUHBHEMuonFilter::Counters* count) {
   edm::LogVerbatim("LowPUHBHEMuon") << "Selects " << count->nGood_ << " good events out of " << count->nAll_
                                     << " total # of events";
 }
