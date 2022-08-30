@@ -205,7 +205,9 @@ DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *
                                muonQualityTests *
-                               alcaTkAlZMuMuBiasClients
+                               alcaTkAlZMuMuBiasClients *
+                               alcaTkAlJpsiMuMuBiasClients *
+                               alcaTkAlUpsilonMuMuBiasClients
                                )
 
 _run3_GEM_DQMHarvestMuon = DQMHarvestMuon.copy()
