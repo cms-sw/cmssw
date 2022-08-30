@@ -1394,39 +1394,39 @@ HcalCalibDetId HcalTopology::denseId2detIdCALIB(const unsigned int& hid) const {
   unsigned int hid0(hid);
   if (hid0 < kOffCalibHOX_) {
     HcalSubdetector subdet(HcalEmpty);
-    int id0, keta, ieta, iphi, ichan, ctype;
+    int ieta(0), iphi(0), ichan(0), ctype(0);
     if (hid0 < kOffCalibHE1_) {
-      id0 = static_cast<int>(hid0);
+      int id0 = static_cast<int>(hid0);
       subdet = HcalBarrel;
       iphi = hid0 % kPhiCalibHB_;
-      keta = (hid0 < kchanCalibHB_) ? 0 : 1;
+      int keta = (hid0 < kchanCalibHB_) ? 0 : 1;
       ieta = etaCalibHB_[keta];
       ichan = (id0 - iphi - keta * kchanCalibHB_) / kPhiCalibHB_;
       iphi = mPhiCalibHB_ * (iphi + 1) - 1;
       ctype = chanCalibHB_[ichan];
     } else if (hid0 < kOffCalibHF1_) {
       hid0 -= kOffCalibHE1_;
-      id0 = static_cast<int>(hid0);
+      int id0 = static_cast<int>(hid0);
       subdet = HcalEndcap;
       iphi = hid0 % kPhiCalibHE_;
-      keta = (hid0 < kchanCalibHE1_) ? 0 : 1;
+      int keta = (hid0 < kchanCalibHE1_) ? 0 : 1;
       ieta = etaCalibHE_[keta];
       ichan = (id0 - iphi - keta * kchanCalibHE1_) / kPhiCalibHE_;
       iphi = mPhiCalibHE_ * (iphi + 1) - 1;
       ctype = chanCalibHE1_[ichan];
     } else if (hid0 < kOffCalibHO1_) {
       hid0 -= kOffCalibHF1_;
-      id0 = static_cast<int>(hid0);
+      int id0 = static_cast<int>(hid0);
       subdet = HcalForward;
       iphi = hid0 % kPhiCalibHF1_;
-      keta = (hid0 < kchanCalibHF1_) ? 0 : 1;
+      int keta = (hid0 < kchanCalibHF1_) ? 0 : 1;
       ieta = etaCalibHF_[keta];
       ichan = (id0 - iphi - keta * kchanCalibHF1_) / kPhiCalibHF1_;
       iphi = mPhiCalibHF1_ * iphi + 1;
       ctype = chanCalibHF1_[ichan];
     } else if (hid0 < kOffCalibHO2_) {
       hid0 -= kOffCalibHO1_;
-      id0 = static_cast<int>(hid0);
+      int id0 = static_cast<int>(hid0);
       subdet = HcalOuter;
       unsigned int kphi = hid0 % kPhiCalibHO2_;
       if (kphi < 2 * kPhiCalibHO1_) {
@@ -1454,18 +1454,16 @@ HcalCalibDetId HcalTopology::denseId2detIdCALIB(const unsigned int& hid) const {
       ieta = etaCalibHO_[hid0];
     } else if (hid0 < kOffCalibHF2_) {
       hid0 -= kOffCalibHE2_;
-      id0 = static_cast<int>(hid0);
       subdet = HcalEndcap;
       iphi = hid0 % kPhiCalibHE_;
-      keta = (hid0 < kchanCalibHE2_) ? 0 : 1;
+      int keta = (hid0 < kchanCalibHE2_) ? 0 : 1;
       ieta = etaCalibHE_[keta];
       iphi = mPhiCalibHE_ * (iphi + 1) - 1;
       ctype = chanCalibHE2_;
     } else {
       hid0 -= kOffCalibHF2_;
-      id0 = static_cast<int>(hid0);
       subdet = HcalForward;
-      keta = (hid0 < kchanCalibHF2_) ? 0 : 1;
+      int keta = (hid0 < kchanCalibHF2_) ? 0 : 1;
       ieta = etaCalibHF_[keta];
       iphi = phiCalibHF2_;
       ctype = chanCalibHF2_;

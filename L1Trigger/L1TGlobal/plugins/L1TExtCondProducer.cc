@@ -94,9 +94,9 @@ L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
 
   m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions - 1;
 
+  tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
   // Note that the tcdsRecord input tag should be used as InputTag("unpackTcds","tcdsRecord") only for data
   if (!(tcdsInputTag_ == edm::InputTag(""))) {
-    tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
     makeTriggerRulePrefireVetoBit_ = true;
   }
 
@@ -134,12 +134,14 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     m_extBitMap = extBitMap;
   }
 
+  edm::Handle<TCDSRecord> tcdsRecordH;
+  iEvent.getByToken(tcdsRecordToken_, tcdsRecordH);
+  makeTriggerRulePrefireVetoBit_ = makeTriggerRulePrefireVetoBit_ && tcdsRecordH.isValid();
+
   bool TriggerRulePrefireVetoBit(false);
   // The following list of checks on the tcdsRecord is relevant only for data;
   // code taken from Nick Smith's EventFilter/L1TRawToDigi/plugins/TriggerRulePrefireVetoFilter.cc
   if (iEvent.isRealData() && makeTriggerRulePrefireVetoBit_) {
-    edm::Handle<TCDSRecord> tcdsRecordH;
-    iEvent.getByToken(tcdsRecordToken_, tcdsRecordH);
     const auto& tcdsRecord = *tcdsRecordH.product();
 
     uint64_t thisEvent = (tcdsRecord.getBXID() - 1) + tcdsRecord.getOrbitNr() * 3564ull;
@@ -150,43 +152,40 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     }
 
     // It should be 16 according to TCDSRecord.h, we only care about the last 4
-    if (eventHistory.size() < 4) {
-      throw cms::Exception("L1TExtCondProducer")
-          << "Unexpectedly small L1A history from TCDSRecord: (size = " << eventHistory.size() << " < 4)";
-    }
+    if (eventHistory.size() >= 4) {
+      // No more than 1 L1A in 3 BX
+      if (eventHistory[0] < 3ull) {
+        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (1 in 3)";
+      }
 
-    // No more than 1 L1A in 3 BX
-    if (eventHistory[0] < 3ull) {
-      edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (1 in 3)";
-    }
+      if (eventHistory[0] == 3ull)
+        TriggerRulePrefireVetoBit = true;
 
-    if (eventHistory[0] == 3ull)
-      TriggerRulePrefireVetoBit = true;
+      // No more than 2 L1As in 25 BX
+      if (eventHistory[0] < 25ull and eventHistory[1] < 25ull) {
+        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (2 in 25)";
+      }
+      if (eventHistory[0] < 25ull and eventHistory[1] == 25ull)
+        TriggerRulePrefireVetoBit = true;
 
-    // No more than 2 L1As in 25 BX
-    if (eventHistory[0] < 25ull and eventHistory[1] < 25ull) {
-      edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (2 in 25)";
-    }
-    if (eventHistory[0] < 25ull and eventHistory[1] == 25ull)
-      TriggerRulePrefireVetoBit = true;
+      // No more than 3 L1As in 100 BX
+      if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] <= 100ull) {
+        if (eventHistory[2] == 100ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
+      }
 
-    // No more than 3 L1As in 100 BX
-    if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] < 100ull) {
-      edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
+      // No more than 4 L1As in 240 BX
+      if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
+          eventHistory[3] <= 240ull) {
+        if (eventHistory[3] == 240ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
+      }
     }
-    if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] == 100ull)
-      TriggerRulePrefireVetoBit = true;
-
-    // No more than 4 L1As in 240 BX
-    if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
-        eventHistory[3] < 240ull) {
-      edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
-    }
-    if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
-        eventHistory[3] == 240ull)
-      TriggerRulePrefireVetoBit = true;
   }
-
   // Setup vectors
   GlobalExtBlk extCond_bx;
 

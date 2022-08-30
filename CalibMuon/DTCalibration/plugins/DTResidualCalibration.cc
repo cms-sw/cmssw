@@ -33,7 +33,7 @@
 
 DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
     : histRange_(pset.getParameter<double>("histogramRange")),
-      segment4DLabel_(pset.getParameter<edm::InputTag>("segment4DLabel")),
+      segment4DToken_(consumes<DTRecSegment4DCollection>(pset.getParameter<edm::InputTag>("segment4DLabel"))),
       rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir", "DT/Residuals")),
       detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis", false)),
       dtGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
@@ -41,7 +41,6 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
   select_ = new DTSegmentSelector(pset, collector);
 
   LogDebug("Calibration") << "[DTResidualCalibration] Constructor called.";
-  consumes<DTRecSegment4DCollection>(edm::InputTag(segment4DLabel_));
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName", "residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
@@ -90,8 +89,7 @@ void DTResidualCalibration::analyze(const edm::Event& event, const edm::EventSet
   ++nevent;
 
   // Get the 4D rechits from the event
-  edm::Handle<DTRecSegment4DCollection> segments4D;
-  event.getByLabel(segment4DLabel_, segments4D);
+  const edm::Handle<DTRecSegment4DCollection>& segments4D = event.getHandle(segment4DToken_);
 
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;

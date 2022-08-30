@@ -126,6 +126,7 @@ from DQM.CTPPS.ctppsDQM_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
 from DQM.TrackingMonitorClient.pixelVertexResolutionClient_cfi import *
+from DQMOffline.Alignment.DiMuonMassBiasHarvesting_cff import *
 
 DQMHarvestTrackerStrip = cms.Sequence ( SiStripOfflineDQMClient )
 
@@ -203,7 +204,8 @@ DQMHarvestCTPPS = cms.Sequence( ctppsDQMOfflineHarvest )
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *
-                               muonQualityTests
+                               muonQualityTests *
+                               alcaTkAlZMuMuBiasClients
                                )
 
 _run3_GEM_DQMHarvestMuon = DQMHarvestMuon.copy()

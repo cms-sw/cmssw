@@ -41,7 +41,7 @@ void SiStripApprox2Clusters::produce(edm::StreamID id, edm::Event& event, const 
   const auto& clusterCollection = event.get(clusterToken_);
 
   const auto& tkGeom = &iSetup.getData(tkGeomToken_);
-  const auto tkDets = tkGeom->dets();
+  const auto& tkDets = tkGeom->dets();
 
   for (const auto& detClusters : clusterCollection) {
     edmNew::DetSetVector<SiStripCluster>::FastFiller ff{*result, detClusters.id()};

@@ -58,6 +58,11 @@ public:
   const CSCWireDigiContainer& wireDigisInDetId(unsigned int) const;
   const CSCWireDigiContainer& wireDigisInChamber(unsigned int) const;
 
+  //total digis, no match required
+  int totalComparators(unsigned int) const;
+  int totalStrips(unsigned int) const;
+  int totalWires(unsigned int) const;
+
   // #layers with hits
   int nLayersWithComparatorInChamber(unsigned int) const;
   int nLayersWithStripInChamber(unsigned int) const;
@@ -117,12 +122,15 @@ private:
 
   std::map<unsigned int, CSCComparatorDigiContainer> detid_to_comparators_;
   std::map<unsigned int, CSCComparatorDigiContainer> chamber_to_comparators_;
+  std::map<unsigned int, int> detid_to_totalcomparators_;
 
   std::map<unsigned int, CSCStripDigiContainer> detid_to_strips_;
   std::map<unsigned int, CSCStripDigiContainer> chamber_to_strips_;
+  std::map<unsigned int, int> detid_to_totalstrips_;
 
   std::map<unsigned int, CSCWireDigiContainer> detid_to_wires_;
   std::map<unsigned int, CSCWireDigiContainer> chamber_to_wires_;
+  std::map<unsigned int, int> detid_to_totalwires_;
 
   CSCComparatorDigiContainer no_comparators_;
   CSCStripDigiContainer no_strips_;

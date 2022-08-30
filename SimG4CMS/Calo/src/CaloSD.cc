@@ -177,7 +177,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     if (getFromLibrary(aStep)) {
       // for parameterized showers the primary track should be killed
       // secondary tracks should be killed if they are in the same volume
-      const_cast<G4Track*>(aStep->GetTrack())->SetTrackStatus(fStopAndKill);
+      (aStep->GetTrack())->SetTrackStatus(fStopAndKill);
       if (0 < aStep->GetNumberOfSecondariesInCurrentStep()) {
         auto tv = aStep->GetSecondaryInCurrentStep();
         auto vol = aStep->GetPreStepPoint()->GetPhysicalVolume();
@@ -234,7 +234,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     edepositHAD = energy;
   }
 #ifdef EDM_ML_DEBUG
-  G4TouchableHistory* touch = (G4TouchableHistory*)(theTrack->GetTouchable());
+  const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
   edm::LogVerbatim("CaloSim") << "CaloSD::" << GetName() << " PV:" << touch->GetVolume(0)->GetName()
                               << " PVid=" << touch->GetReplicaNumber(0) << " MVid=" << touch->GetReplicaNumber(1)
                               << " Unit:" << std::hex << unitID << std::dec << " Edep=" << edepositEM << " "

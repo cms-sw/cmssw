@@ -93,6 +93,32 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
+# the module to harvest
+process.DiMuonMassBiasClient = cms.EDProducer("DiMuonMassBiasClient",
+                                              FolderName = cms.string('AlCaReco/TkAlDiMuonAndVertex'),
+                                              fitBackground = cms.bool(False),
+                                              debugMode = cms.bool(True),
+                                              fit_par = cms.PSet(
+                                                  mean_par = cms.vdouble(90.,60.,120.),
+                                                  width_par = cms.vdouble(5.0,0.0,120.0),
+                                                  sigma_par = cms.vdouble(5.0,0.0,120.0)
+                                              ),
+                                              MEtoHarvest = cms.vstring(
+                                                  'DiMuMassVsMuMuPhi',
+                                                  'DiMuMassVsMuMuEta',
+                                                  'DiMuMassVsMuPlusPhi',
+                                                  'DiMuMassVsMuPlusEta',
+                                                  'DiMuMassVsMuMinusPhi',
+                                                  'DiMuMassVsMuMinusEta',
+                                                  'DiMuMassVsMuMuDeltaEta',
+                                                  'DiMuMassVsCosThetaCS'
+                                              )
+                                          )
+
+process.diMuonBiasClient = cms.Sequence(process.DiMuonMassBiasClient)
+# trick to run the harvester module
+process.alcaHarvesting.insert(1,process.diMuonBiasClient)
+
 # Schedule definition
 process.schedule = cms.Schedule(process.alcaHarvesting,process.dqmsave_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask

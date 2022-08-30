@@ -193,7 +193,7 @@ namespace l1t {
   };
 
   typedef std::vector<VertexWord> VertexWordCollection;
-
+  typedef edm::Ref<VertexWordCollection> VertexWordRef;
 }  // namespace l1t
 
 #endif

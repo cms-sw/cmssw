@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltL1TkMuons_cfi import *
 from ..modules.hltL1TkSingleMuFiltered22_cfi import *
 from ..modules.hltL3fL1TkSingleMu22L3Filtered50Q_cfi import *
 from ..modules.hltCsc2DRecHits_cfi import *
@@ -72,7 +71,6 @@ HLT_Mu50_FromL1TkMuon = cms.Path(
     hltL3fL1TkSingleMu22L3Filtered50Q +
     HLTEndSequence,
     cms.Task(
-        hltL1TkMuons,
         MeasurementTrackerEvent,
         hltCsc2DRecHits,
         hltCscSegments,

@@ -66,7 +66,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::None) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::None) {
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
@@ -119,7 +119,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
 
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size()
                                        << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
                                        << " " << input.layerClusters[innerCluster].y() << " "
@@ -214,7 +214,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     const auto &t = tmpTracksters[selectedTrackstersIds[i]];
     for (auto const lcId : t.vertices()) {
       layer_cluster_usage[lcId]++;
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId]
                                        << std::endl;
     }
@@ -228,7 +228,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
     for (size_t i = 0; i < trackster.vertices().size(); ++i) {
       trackster.vertex_multiplicity()[i] = layer_cluster_usage[trackster.vertices(i)];
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices(i)
                                        << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
     }
@@ -254,7 +254,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
   }
 
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
       LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices().size() << std::endl;
@@ -285,7 +285,7 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
       for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
         auto &thisTrackster = input[tracksters[j]];
         updated_size += thisTrackster.vertices().size();
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
           LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
         }
         outTrackster.vertices().reserve(updated_size);

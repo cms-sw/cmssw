@@ -42,13 +42,13 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
                                                                std::vector<ticl::Trackster> &result) {
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     edm::LogVerbatim("PatternRecogntionbyFastJet")
         << "Creating FastJet with " << fjInputs.size() << " LayerClusters in input";
   }
   fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, antikt_radius_));
   auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced " << jets.size() << " jets/trackster";
   }
 
@@ -63,14 +63,14 @@ void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<Pseud
       for (const auto &component : pj.constituents()) {
         result[trackster_idx].vertices().push_back(component.user_index());
         result[trackster_idx].vertex_multiplicity().push_back(1);
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
           edm::LogVerbatim("PatternRecogntionbyFastJet")
               << "Jet has " << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
         }
       }
       trackster_idx++;
     } else {
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyFastJet")
             << "Jet with " << pj.constituents().size() << " constituents discarded since too small wrt "
             << minNumLayerCluster_;
@@ -109,18 +109,18 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
     const auto &tileOnLayer = input.tiles[currentLayer];
     for (int ieta = 0; ieta <= nEtaBin; ++ieta) {
       auto offset = ieta * nPhiBin;
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyFastJet") << "offset: " << offset;
       }
       for (int iphi = 0; iphi <= nPhiBin; ++iphi) {
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "iphi: " << iphi;
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
         }
         for (auto clusterIdx : tileOnLayer[offset + iphi]) {
           // Skip masked layer clusters
           if (input.mask[clusterIdx] == 0.) {
-            if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+            if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
               edm::LogVerbatim("PatternRecogntionbyFastJet") << "Skipping masked layerIdx " << clusterIdx;
             }
             continue;
@@ -148,7 +148,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     for (auto const &t : result) {
       edm::LogVerbatim("PatternRecogntionbyFastJet") << "Barycenter: " << t.barycenter();
       edm::LogVerbatim("PatternRecogntionbyFastJet") << "LCs: " << t.vertices().size();

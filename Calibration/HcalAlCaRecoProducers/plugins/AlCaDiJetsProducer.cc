@@ -33,24 +33,25 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
-namespace alcaHcalDiJet {
+namespace alCaHcalDiJetsProducer {
   struct Counters {
     Counters() : nAll_(0), nSelect_(0) {}
     mutable std::atomic<unsigned int> nAll_, nSelect_;
   };
-}  // namespace alcaHcalDiJet
+}  // namespace alCaHcalDiJetsProducer
 
 //
 // class declaration
 //
 
-class AlCaDiJetsProducer : public edm::global::EDProducer<edm::RunCache<alcaHcalDiJet::Counters>> {
+class AlCaDiJetsProducer : public edm::global::EDProducer<edm::RunCache<alCaHcalDiJetsProducer::Counters>> {
 public:
   explicit AlCaDiJetsProducer(const edm::ParameterSet&);
   ~AlCaDiJetsProducer() override = default;
 
-  std::shared_ptr<alcaHcalDiJet::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
-    return std::make_shared<alcaHcalDiJet::Counters>();
+  std::shared_ptr<alCaHcalDiJetsProducer::Counters> globalBeginRun(edm::Run const&,
+                                                                   edm::EventSetup const&) const override {
+    return std::make_shared<alCaHcalDiJetsProducer::Counters>();
   }
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override;

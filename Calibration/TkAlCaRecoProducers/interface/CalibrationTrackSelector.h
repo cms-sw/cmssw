@@ -2,6 +2,9 @@
 #define Calibration_TkAlCaRecoProducers_CalibrationTrackSelector_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 
@@ -17,7 +20,7 @@ public:
   typedef std::vector<const reco::Track *> Tracks;
 
   /// constructor
-  CalibrationTrackSelector(const edm::ParameterSet &cfg);
+  CalibrationTrackSelector(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// destructor
   ~CalibrationTrackSelector();
@@ -55,6 +58,8 @@ private:
   const edm::InputTag matchedrecHitsTag_;
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
+  const edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+  const edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
 };
 
 #endif

@@ -16,7 +16,8 @@ namespace edm {
       : StreamerInputSource(pset, desc),
         streamReader_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
-        initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
+        initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
+        prefetchMBytes_(pset.getUntrackedParameter<unsigned int>("prefetchMBytes")) {
     InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
                              pset.getUntrackedParameter<std::string>("overrideCatalog"));
     streamerNames_ = catalog.fileCatalogItems();
@@ -27,10 +28,12 @@ namespace edm {
 
   void StreamerFileReader::reset_() {
     if (streamerNames_.size() > 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID());
+      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID(), prefetchMBytes_);
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(
-          streamerNames_.at(0).fileNames()[0], streamerNames_.at(0).logicalFileName(), eventSkipperByID());
+      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_.at(0).fileNames()[0],
+                                                          streamerNames_.at(0).logicalFileName(),
+                                                          eventSkipperByID(),
+                                                          prefetchMBytes_);
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
           << "No fileNames were specified\n";
@@ -116,6 +119,7 @@ namespace edm {
     desc.addUntracked<std::string>("overrideCatalog", std::string());
     //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
+    desc.addUntracked<unsigned int>("prefetchMBytes", 0);
     StreamerInputSource::fillDescription(desc);
     EventSkipperByID::fillDescription(desc);
     descriptions.add("source", desc);

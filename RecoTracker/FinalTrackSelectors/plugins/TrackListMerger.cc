@@ -276,8 +276,6 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     produces<edm::ValueMap<int>>();
     produces<QualityMaskCollection>("QualityMasks");
   } else {
-    produces<reco::TrackCollection>();
-
     makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds", false);
     if (makeReKeyedSeeds_) {
       copyExtras_ = true;
@@ -288,6 +286,12 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
       produces<reco::TrackExtraCollection>();
       produces<TrackingRecHitCollection>();
     }
+
+    // TrackCollection refers to TrackingRechit and TrackExtra
+    // collections, need to declare its production after them to work
+    // around a rare race condition in framework scheduling
+    produces<reco::TrackCollection>();
+
     produces<std::vector<Trajectory>>();
     produces<TrajTrackAssociationCollection>();
   }

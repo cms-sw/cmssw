@@ -498,6 +498,30 @@ upgradeWFs['ticl_FastJet'] = UpgradeWorkflow_ticl_FastJet(
 upgradeWFs['ticl_FastJet'].step3 = {'--procModifiers': 'fastJetTICL'}
 upgradeWFs['ticl_FastJet'].step4 = {'--procModifiers': 'fastJetTICL'}
 
+class UpgradeWorkflow_ticl_v3(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and '2026' in key
+upgradeWFs['ticl_v3'] = UpgradeWorkflow_ticl_v3(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_v3',
+    offset = 0.203,
+)
+upgradeWFs['ticl_v3'].step3 = {'--procModifiers': 'ticl_v3'}
+upgradeWFs['ticl_v3'].step4 = {'--procModifiers': 'ticl_v3'}
+
+
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -2004,7 +2028,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2021Design' : {
@@ -2020,7 +2044,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2024' : {
@@ -2028,7 +2052,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2021FS' : {
@@ -2036,7 +2060,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_FastSim',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
 }

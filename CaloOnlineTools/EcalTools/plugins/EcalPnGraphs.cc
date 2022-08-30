@@ -29,7 +29,7 @@
 EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps) {
   //=============================================================================
 
-  digiProducer_ = ps.getParameter<std::string>("digiProducer");
+  digiProducer_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<std::string>("digiProducer"));
   fileName = ps.getUntrackedParameter<std::string>("fileName", std::string("toto"));
 
   first_Pn = 0;
@@ -74,8 +74,8 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps) {
     std::vector<int>::iterator fedIter;
     for (fedIter = feds_.begin(); fedIter != feds_.end(); ++fedIter) {
       if ((*fedIter) < 601 || (*fedIter) > 654) {
-        std::cout << "[EcalPnGraphs] pn number : " << (*fedIter) << " found in listFeds. "
-                  << " Valid range is [601-654]. Returning." << std::endl;
+        edm::LogVerbatim("EcalTools") << "[EcalPnGraphs] pn number : " << (*fedIter)
+                                      << " found in listFeds.  Valid range is [601-654]. Returning.";
         inputIsOk = false;
         return;
       }
@@ -87,8 +87,8 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps) {
     std::vector<int>::iterator intIter;
     for (intIter = listPns.begin(); intIter != listPns.end(); intIter++) {
       if (((*intIter) < 1) || (10 < (*intIter))) {
-        std::cout << "[EcalPnGraphs] pn number : " << (*intIter) << " found in listPns. "
-                  << " Valid range is 1-10. Returning." << std::endl;
+        edm::LogVerbatim("EcalTools") << "[EcalPnGraphs] pn number : " << (*intIter)
+                                      << " found in listPns.  Valid range is 1-10. Returning.";
         inputIsOk = false;
         return;
       }
@@ -130,10 +130,8 @@ void EcalPnGraphs::analyze(const edm::Event& e, const edm::EventSetup& c) {
     return;
 
   // retrieving crystal PN diodes from Event
-  edm::Handle<EcalPnDiodeDigiCollection> pn_digis;
-  try {
-    e.getByLabel(digiProducer_, pn_digis);
-  } catch (cms::Exception& ex) {
+  const edm::Handle<EcalPnDiodeDigiCollection>& pn_digis = e.getHandle(digiProducer_);
+  if (!pn_digis.isValid()) {
     edm::LogError("EcalPnGraphs") << "PNs were not found!";
   }
 

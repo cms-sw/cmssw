@@ -7,8 +7,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 #include <string>
 #include <vector>
@@ -29,11 +28,10 @@ public:
                  const edm::EventSetup&,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
   bool getCollections(edm::Event& iEvent,
-                      std::vector<l1t::TkMuonRef>& coll1,
-                      std::vector<l1t::TkMuonRef>& coll2,
+                      std::vector<l1t::TrackerMuonRef>& coll1,
+                      std::vector<l1t::TrackerMuonRef>& coll2,
                       trigger::TriggerFilterObjectWithRefs& filterproduct) const;
-  bool computeDR(edm::Event& iEvent, l1t::TkMuonRef& c1, l1t::TkMuonRef& c2) const;
-  std::pair<float, float> convertEtaPhi(l1t::TkMuonRef& tkmu) const;
+  bool computeDR(edm::Event& iEvent, l1t::TrackerMuonRef& c1, l1t::TrackerMuonRef& c2) const;
 
 private:
   // configuration
