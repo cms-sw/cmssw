@@ -86,6 +86,9 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + l1a_window_width / 2;
+  assert(l1a_window_width / 2 <= CSCConstants::LCT_CENTRAL_BX);
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
