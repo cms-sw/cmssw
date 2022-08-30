@@ -5,11 +5,11 @@ namespace l1t::demo::codecs {
 
   ap_uint<64> encodeEtSum(const l1t::EtSum& etSum) {
     l1tmetemu::EtMiss etMiss;
-    etMiss.Et = etSum.hwPt();
+    ap_uint<l1tmetemu::kMETSize> ET = etSum.hwPt();
     etMiss.Phi = etSum.hwPhi();
     ap_uint<1> valid = (etSum.hwQual() > 0);
     ap_uint<64 - (l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize + 1)> unassigned = 0;
-    ap_uint<64> etSumWord = (unassigned, etMiss.Phi, etMiss.Et, valid);
+    ap_uint<64> etSumWord = (unassigned, etMiss.Phi, ET, valid);
     return etSumWord;
   }
 
