@@ -131,13 +131,17 @@ public:
                              const HcalPulseShapes& ps,
                              bool hasTimeInfo,
                              const HcalTimeSlew* hcalTimeSlewDelay,
-                             unsigned int nSamples);
+                             unsigned int nSamples,
+                             const float gain);
 
   typedef BXVector::Index Index;
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
-  mutable float thEnergeticPulses_;
-  mutable float thLowPUOOT_;
+  float thEnergeticPulses_;
+  float thLowPUoot_;
+
+  float thEnergeticPulsesFC_;
+  float thLowPUootFC_;
 
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
