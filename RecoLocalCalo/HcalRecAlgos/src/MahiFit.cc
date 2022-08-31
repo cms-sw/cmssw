@@ -11,8 +11,8 @@ void MahiFit::setParameters(bool iDynamicPed,
                             HcalTimeSlew::BiasSetting slewFlavor,
                             bool iCalculateArrivalTime,
                             int timeAlgo,
-                            double thEnergeticPulses,
-                            double thLowPUOOT,
+                            double iThEnergeticPulses,
+                            double iThLowPUOOT,
                             double iMeanTime,
                             double iTimeSigmaHPD,
                             double iTimeSigmaSiPM,
@@ -31,8 +31,8 @@ void MahiFit::setParameters(bool iDynamicPed,
 
   calculateArrivalTime_ = iCalculateArrivalTime;
   timeAlgo_ = timeAlgo;
-  thEnergeticPulses_ = thEnergeticPulses;
-  thLowPUOOT_ = thLowPUOOT;
+  thEnergeticPulses_ = iThEnergeticPulses;
+  thLowPUoot_ = iThLowPUOOT;
   meanTime_ = iMeanTime;
   timeSigmaHPD_ = iTimeSigmaHPD;
   timeSigmaSiPM_ = iTimeSigmaSiPM;
@@ -100,9 +100,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   const float gain0 = channelData.tsGain(0);
   tsTOT *= gain0;
   tstrig *= gain0;
-
-  thEnergeticPulses_ *= (1.f / gain0);
-  thLowPUOOT_ *= (1.f / gain0);
 
   useTriple = false;
   if (tstrig > ts4Thresh_ && tsTOT > 0) {
@@ -359,18 +356,18 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
 float MahiFit::ccTime(const float itQ) const {
   // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
 
-  const int soi = nnlsWork_.tsOffset;
+  unsigned int soi = nnlsWork_.tsOffset;
 
   // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
-  if ((nnlsWork_.amplitudes.coeffRef(soi) + nnlsWork_.amplitudes.coeffRef(soi + 1U)) < thEnergeticPulses_)
+  if ((nnlsWork_.amplitudes.coeffRef(soi) + nnlsWork_.amplitudes.coeffRef(soi + 1U)) < thEnergeticPulsesFC_)
     return 0.f;
   // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
   if (nnlsWork_.amplitudes.coeffRef(soi) <
       (nnlsWork_.amplitudes.coeffRef(soi + 1U) + nnlsWork_.amplitudes.coeffRef(soi + 2U)))
     return 0.f;
   // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
-  if ((nnlsWork_.amplitudes.coeffRef(soi - 3U) + nnlsWork_.amplitudes.coeffRef(soi - 1U) +
-       nnlsWork_.amplitudes.coeffRef(soi - 1U)) < thLowPUOOT_)
+  if ((nnlsWork_.amplitudes.coeffRef(soi - 3U) + nnlsWork_.amplitudes.coeffRef(soi - 2U) +
+       nnlsWork_.amplitudes.coeffRef(soi - 1U)) > thLowPUootFC_)
     return 0.f;
   // To speed up check around the fitted time (? to be checked with LLP)
 
@@ -558,7 +555,8 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
                                     const HcalPulseShapes& ps,
                                     const bool hasTimeInfo,
                                     const HcalTimeSlew* hcalTimeSlewDelay,
-                                    const unsigned int nSamples) {
+                                    const unsigned int nSamples,
+                                    const float gain0) {
   if (hcalTimeSlewDelay != hcalTimeSlewDelay_) {
     assert(hcalTimeSlewDelay);
     hcalTimeSlewDelay_ = hcalTimeSlewDelay;
@@ -578,6 +576,10 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
     nnlsWork_.noiseTerms.resize(nSamples);
     nnlsWork_.pedVals.resize(nSamples);
   }
+
+  // threshold in GeV for ccTime
+  thEnergeticPulsesFC_ = thEnergeticPulses_/gain0;
+  thLowPUootFC_ = thLowPUoot_/gain0;
 }
 
 void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
