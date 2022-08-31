@@ -202,7 +202,8 @@ bool TritonClient::setBatchSize(unsigned bsize) {
       return false;
     } else {
       outerDim_ = bsize;
-      resizeEntries(1);
+      //take min to allow resizing to 0
+      resizeEntries(std::min(outerDim_,1u));
       return true;
     }
   } else {
@@ -214,7 +215,8 @@ bool TritonClient::setBatchSize(unsigned bsize) {
 
 void TritonClient::resizeEntries(unsigned entry) {
   if (entry > nEntries())
-    addEntry(entry);
+    //addEntry(entry) extends the vector to size entry+1
+    addEntry(entry-1);
   else if (entry < nEntries()) {
     for (auto& element : input_) {
       element.second.entries_.resize(entry);
