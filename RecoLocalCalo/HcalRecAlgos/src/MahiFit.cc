@@ -578,8 +578,8 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
   }
 
   // threshold in GeV for ccTime
-  thEnergeticPulsesFC_ = thEnergeticPulses_/gain0;
-  thLowPUootFC_ = thLowPUoot_/gain0;
+  thEnergeticPulsesFC_ = thEnergeticPulses_ / gain0;
+  thLowPUootFC_ = thLowPUoot_ / gain0;
 }
 
 void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
