@@ -187,7 +187,7 @@ bool MergedGenParticleProducer::isLeptonFromPrunedPhoton(const reco::GenParticle
   if ((abs(pk.pdgId()) == 11 or abs(pk.pdgId()) == 13) and
       not(pk.statusFlags().fromHardProcess() or pk.statusFlags().isDirectTauDecayProduct())) {
     // this is probably not a prompt lepton but from pair production via a pruned photon
-    if (pk.mother(0)->pdgId() != 22) {
+    if (pk.numberOfMothers() > 0 and pk.mother(0)->pdgId() != 22) {
       return true;
     }
   }
