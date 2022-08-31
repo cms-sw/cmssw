@@ -844,8 +844,8 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     std::vector<float> jetPNETScoreValuesHLT;
     std::vector<reco::JetBaseRef> jetHLTRefs;
     for (const auto& jtag : *jetPNETScoreHLTHandle) {
-        jetPNETScoreValuesHLT.push_back(jtag.second);
-	jetHLTRefs.push_back(jtag.first);
+      jetPNETScoreValuesHLT.push_back(jtag.second);
+      jetHLTRefs.push_back(jtag.first);
     }
 
     // sort in PNET score
@@ -870,10 +870,10 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
           continue;
         float dR = reco::deltaR(selectedJets[jetPNETScoreSortedIndices.at(jreco)].p4(),
                                 jetHLTRefs.at(jetPNETScoreSortedIndicesHLT.at(jhlt))->p4());
-        if (dR < hltRecoDeltaRmax_ and dR < minDR){
+        if (dR < hltRecoDeltaRmax_ and dR < minDR) {
           match_index = jhlt;
-	  minDR = dR;
-	}
+          minDR = dR;
+        }
       }
       if (match_index >= 0)
         matched_obj.push_back(match_index);
