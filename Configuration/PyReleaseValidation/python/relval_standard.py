@@ -457,8 +457,8 @@ workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2021','RECODR3_AlCaTkCosmics_O
 workflows[139.005] = ['',['AlCaPhiSym2021','RECOALCAECALPHISYMDR3','ALCAECALPHISYM']]
 
 ### run3 (2022) ###
-workflows[140.001] = ['',['RunZeroBias2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
-workflows[140.002] = ['',['RunMinimumBias2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
+workflows[140.001] = ['',['RunMinimumBias2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
+workflows[140.002] = ['',['RunZeroBias2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
 workflows[140.003] = ['',['RunJetHT2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
 workflows[140.004] = ['',['RunEGamma2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
 workflows[140.005] = ['',['RunSingleMuon2022B','HLTRUN3','RECONANORUN3','HARVESTRUN3']]
