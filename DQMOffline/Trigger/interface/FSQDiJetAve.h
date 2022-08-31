@@ -1,5 +1,5 @@
-#ifndef FSQDiJetAve_H
-#define FSQDiJetAve_H
+#ifndef DQMOffline_Trigger_FSQDiJetAve_H
+#define DQMOffline_Trigger_FSQDiJetAve_H
 
 // -*- C++ -*-
 //
