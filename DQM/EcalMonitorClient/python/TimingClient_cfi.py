@@ -5,7 +5,8 @@ from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
 minChannelEntries = 1
 minTowerEntries = 3
-toleranceMean = 2.
+ebtoleranceMean = 2.
+eetoleranceMean = 3.
 toleranceRMS = 6.
 minChannelEntriesFwd = 8
 minTowerEntriesFwd = 24
@@ -18,7 +19,8 @@ ecalTimingClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
         minChannelEntries = cms.untracked.int32(minChannelEntries),
         minTowerEntries = cms.untracked.int32(minTowerEntries),
-        toleranceMean = cms.untracked.double(toleranceMean),
+        ebtoleranceMean = cms.untracked.double(ebtoleranceMean),
+	eetoleranceMean = cms.untracked.double(eetoleranceMean),
         toleranceRMS = cms.untracked.double(toleranceRMS),
         minChannelEntriesFwd = cms.untracked.int32(minChannelEntriesFwd),
         minTowerEntriesFwd = cms.untracked.int32(minTowerEntriesFwd),
@@ -127,14 +129,14 @@ ecalTimingClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('Summary of the timing data quality. A 5x5 tower is red if the mean timing of the tower is off by more than ' + str(toleranceMean) + ' or RMS is greater than ' + str(toleranceRMS) + ' (' + str(toleranceMeanFwd) + ' and ' + str(toleranceRMSFwd) + ' in forward region). Towers with total entries less than ' + str(minTowerEntries) + ' are not subject to this evaluation. Since 5x5 tower timings are calculated with a tighter time-window than per-channel timings, a tower can additionally become red if its the sum of per-channel timing histogram entries is greater than per-tower histogram entries by factor ' + str(1. / (1. - tailPopulThreshold)) + ' (significant fraction of events fall outside the tight time-window).')
+            description = cms.untracked.string('Summary of the timing data quality. A 5x5 tower is red if the mean timing of the tower is off by more than ' + str(ebtoleranceMean) + 'for EB and ' + str(eetoleranceMean) + 'for EE, or RMS is greater than ' + str(toleranceRMS) + ' (' + str(toleranceMeanFwd) + ' and ' + str(toleranceRMSFwd) + ' in forward region). Towers with total entries less than ' + str(minTowerEntries) + ' are not subject to this evaluation. Since 5x5 tower timings are calculated with a tighter time-window than per-channel timings, a tower can additionally become red if its the sum of per-channel timing histogram entries is greater than per-tower histogram entries by factor ' + str(1. / (1. - tailPopulThreshold)) + ' (significant fraction of events fall outside the tight time-window).')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingClient/%(prefix)sTMT timing quality %(sm)s'),
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the timing data quality. A channel is red if its mean timing is off by more than ' + str(toleranceMean) + ' or RMS is greater than ' + str(toleranceRMS) + '. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the timing data quality. A channel is red if its mean timing is off by more than ' + str(ebtoleranceMean) + 'for EB and' + str(eetoleranceMean) + 'for EE, or RMS is greater than ' + str(toleranceRMS) + '. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         MeanAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTMT%(suffix)s timing mean 1D summary'),
