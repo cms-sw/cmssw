@@ -180,7 +180,7 @@ private:
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 
   std::vector<bool> errorPrintedForColl_;
-  
+
   int nPUbins_;
 };
 
