@@ -39,7 +39,8 @@
    <class name="CSCALCTPreTriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2925979693"/>
    </class>
-   <class name="CSCShowerDigi" ClassVersion="11">
+   <class name="CSCShowerDigi" ClassVersion="12">
+    <version ClassVersion="12" checksum="2873709471"/>
     <version ClassVersion="11" checksum="3092485146"/>
     <version ClassVersion="10" checksum="3566030124"/>
    </class>

@@ -54,6 +54,7 @@ public:
 
   uint16_t sizeInBytes() const { return theHeaderFormat->sizeInWords() * 2; }
 
+  uint16_t L1AMatchTime() const { return theHeaderFormat->L1AMatchTime(); }
   /// will throw if the cast fails
   CSCTMBHeader2007 tmbHeader2007() const;
   CSCTMBHeader2007_rev0x50c3 tmbHeader2007_rev0x50c3() const;
