@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalCellHitSum_cfg.py geometry=D92
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D49, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,29 +16,39 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D49, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('HGCalCellHit',Phase2C11I13M9)
 
 print(options)
 
 ####################################################################
 # Use the options
 
-if (options.geometry == "D88"):
+if (options.geometry == "D49"):
+    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+    process = cms.Process('SingleMuon',Phase2C9)
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    geomFile = 'Validation/HGCalValidation/data/wafer_v16.csv'
+    outputFile = 'file:geantoutputD49.root'
+elif (options.geometry == "D88"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('HGCalCellHit',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
     geomFile = 'Validation/HGCalValidation/data/wafer_v16.csv'
     outputFile = 'file:geantoutputD88.root'
 elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('HGCalCellHit',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
     outputFile = 'file:geantoutputD93.root'
 else:
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('HGCalCellHit',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
     outputFile = 'file:geantoutputD92.root'
