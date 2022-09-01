@@ -132,6 +132,9 @@ private:
   /** Phase2: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
 
+  /** Selected chambers to run */
+  std::vector<std::string> selectedChambers_;
+
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<CSCMotherboard> tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
 
