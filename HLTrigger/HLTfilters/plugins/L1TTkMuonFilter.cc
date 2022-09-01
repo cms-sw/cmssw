@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <algorithm>
 //
 // constructors and destructor
 //
@@ -46,7 +47,7 @@ namespace {
 L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-      tkMuonToken_(consumes<l1t::TrackerMuonCollection>(l1TkMuonTag_)) {
+      tkMuonToken_(consumes(l1TkMuonTag_)) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
   min_Eta_ = iConfig.getParameter<double>("MinEta");
@@ -58,6 +59,8 @@ L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
   barrelScalings_ = scalings_.getParameter<std::vector<double>>("barrel");
   overlapScalings_ = scalings_.getParameter<std::vector<double>>("overlap");
   endcapScalings_ = scalings_.getParameter<std::vector<double>>("endcap");
+
+  std::sort(qualities_.begin(), qualities_.end());
 
   if (applyQuality_ && qualities_.empty()) {
     throw cms::Exception("InvalidConfiguration")
