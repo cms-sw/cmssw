@@ -175,9 +175,6 @@ void L1TPhase2MuonOffline::analyze(const Event& iEvent, const EventSetup& eventS
   }
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::analyze() N of genmus: " << genmus.size() << endl;
 
-  if (genmus.empty())
-    return;
-
   // Collect both muon collection:
   iEvent.getByToken(gmtMuonToken_, gmtSAMuon_);
   iEvent.getByToken(gmtTkMuonToken_, gmtTkMuon_);
@@ -187,6 +184,8 @@ void L1TPhase2MuonOffline::analyze(const Event& iEvent, const EventSetup& eventS
   fillControlHistos();
 
   // Match each muon to a gen muon, if possible.
+  if (genmus.empty())
+    return;
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::analyze() calling matchMuonsToGen() " << endl;
   matchMuonsToGen(genmus);
 
@@ -210,6 +209,7 @@ void L1TPhase2MuonOffline::bookControlHistos(DQMStore::IBooker& ibooker, MuType 
   controlHistos_[mutype][kZ0] = ibooker.book1D(muonNames_[mutype] + "Z0", "MuonZ0; Z_{0}", 50, 0, 50.0);
   controlHistos_[mutype][kD0] = ibooker.book1D(muonNames_[mutype] + "D0", "MuonD0; D_{0}", 50, 0, 200.);
 }
+
 void L1TPhase2MuonOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType mutype) {
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookEfficiencyHistos()" << endl;
 
@@ -240,6 +240,7 @@ void L1TPhase2MuonOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuTy
     }
   }
 }
+
 void L1TPhase2MuonOffline::bookResolutionHistos(DQMStore::IBooker& ibooker, MuType mutype) {
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookResolutionHistos()" << endl;
 
@@ -281,6 +282,7 @@ void L1TPhase2MuonOffline::fillControlHistos() {
     controlHistos_[kTkMuon][kD0]->Fill(lsb_d0 * muIt.hwD0());
   }
 }
+
 void L1TPhase2MuonOffline::fillEfficiencyHistos() {
   for (const auto& muIt : gmtSAMuonPairs_) {
     auto eta = muIt.etaRegion();
@@ -315,7 +317,6 @@ void L1TPhase2MuonOffline::fillEfficiencyHistos() {
         efficiencyDen_[kTkMuon][eta][q][var]->Fill(varToFill);
         if (muIt.gmtPt() < 0)
           continue;  // gmt muon does not exits
-
         if (muIt.gmtQual() < q * 4)
           continue;  //quality requirements
         if (var != kEffPt && muIt.gmtPt() < gmtPtCut)
@@ -326,6 +327,7 @@ void L1TPhase2MuonOffline::fillEfficiencyHistos() {
     }
   }
 }
+
 void L1TPhase2MuonOffline::fillResolutionHistos() {
   for (const auto& muIt : gmtSAMuonPairs_) {
     if (muIt.gmtPt() < 0)
@@ -359,6 +361,7 @@ void L1TPhase2MuonOffline::fillResolutionHistos() {
     }
   }
 }
+
 //_____________________________________________________________________
 void L1TPhase2MuonOffline::matchMuonsToGen(std::vector<const reco::GenParticle*> genmus) {
   gmtSAMuonPairs_.clear();
