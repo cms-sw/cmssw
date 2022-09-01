@@ -31,7 +31,8 @@
 
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 
-#include "L1TrackJetProducer.h"
+#include "L1Trigger/L1TTrackMatch/interface/L1TrackJetProducer.h"
+
 #include "TH1D.h"
 #include "TH2D.h"
 #include <TMath.h>
@@ -165,6 +166,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     float trk_chi2dof = trkPtr->chi2Red();
     float trk_d0 = trkPtr->d0();
     float trk_bendchi2 = trkPtr->stubPtConsistency();
+    float trk_z0 = trkPtr->z0();
 
     int trk_nPS = 0;
     for (int istub = 0; istub < trk_nstubs; istub++) {  // loop over the stubs
@@ -180,9 +182,9 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       continue;
     if (!trackQualityCuts(trk_nstubs, trk_chi2dof, trk_bendchi2))
       continue;
-    if (std::abs(PVz - trkPtr->z0()) > dzPVTrk_ && dzPVTrk_ > 0)
+    if (std::abs(PVz - trk_z0) > dzPVTrk_ && dzPVTrk_ > 0)
       continue;
-    if (std::abs(trkPtr->z0()) > trkZMax_)
+    if (std::abs(trk_z0) > trkZMax_)
       continue;
     if (std::abs(trkPtr->momentum().eta()) > trkEtaMax_)
       continue;
@@ -226,18 +228,6 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     std::vector<std::vector<EtaPhiBin>> L1clusters;
     L1clusters.reserve(phiBins_);
     std::vector<EtaPhiBin> L2clusters;
-
-    for (int i = 0; i < phiBins_; ++i) {
-      for (int j = 0; j < etaBins_; ++j) {
-        epbins_default[i][j].pTtot = 0;
-        epbins_default[i][j].used = false;
-        epbins_default[i][j].numtracks = 0;
-        epbins_default[i][j].numttrks = 0;
-        epbins_default[i][j].numtdtrks = 0;
-        epbins_default[i][j].numttdtrks = 0;
-        epbins_default[i][j].trackidx.clear();
-      }
-    }
 
     for (unsigned int zbin = 0; zbin < zmins.size(); ++zbin) {
       // initialize matrices
