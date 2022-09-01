@@ -139,7 +139,7 @@ public:
   GenMuonGMTPair(const GenMuonGMTPair& muongmtPair);
   ~GenMuonGMTPair(){};
 
-  float dR();
+  float dR2();
   float pt() const { return mu_->pt(); };
   float eta() const { return mu_->eta(); };
   float phi() const { return mu_->phi(); };
