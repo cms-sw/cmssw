@@ -33,7 +33,7 @@ private:
 };
 
 HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params)
-  : hepMCProduct_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("hepMCProduct"))) {}
+    : hepMCProduct_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("hepMCProduct"))) {}
 
 void HepMCEventWriter::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   _output = new HepMC::IO_GenEvent("GenEvent_ASCII.dat", std::ios::out);
@@ -45,7 +45,7 @@ void HepMCEventWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &es) {
-  const edm::Handle<edm::HepMCProduct>& product = event.getHandle(hepMCProduct_);
+  const edm::Handle<edm::HepMCProduct> &product = event.getHandle(hepMCProduct_);
 
   const HepMC::GenEvent *evt = product->GetEvent();
 
