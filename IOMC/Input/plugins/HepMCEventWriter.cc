@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -17,10 +17,10 @@
 
 #include "HepMC/IO_GenEvent.h"
 
-class HepMCEventWriter : public edm::EDAnalyzer {
+class HepMCEventWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit HepMCEventWriter(const edm::ParameterSet &params);
-  ~HepMCEventWriter() override;
+  ~HepMCEventWriter() override = default;
 
 protected:
   void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
@@ -29,13 +29,11 @@ protected:
 
 private:
   edm::propagate_const<HepMC::IO_GenEvent *> _output;
-  edm::InputTag hepMCProduct_;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepMCProduct_;
 };
 
 HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params)
-    : hepMCProduct_(params.getParameter<edm::InputTag>("hepMCProduct")) {}
-
-HepMCEventWriter::~HepMCEventWriter() {}
+  : hepMCProduct_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("hepMCProduct"))) {}
 
 void HepMCEventWriter::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   _output = new HepMC::IO_GenEvent("GenEvent_ASCII.dat", std::ios::out);
@@ -47,8 +45,7 @@ void HepMCEventWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &es) {
-  edm::Handle<edm::HepMCProduct> product;
-  event.getByLabel(hepMCProduct_, product);
+  const edm::Handle<edm::HepMCProduct>& product = event.getHandle(hepMCProduct_);
 
   const HepMC::GenEvent *evt = product->GetEvent();
 
