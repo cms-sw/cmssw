@@ -500,6 +500,25 @@ steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/
 steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 #steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
+Run2022C={356531: [[1, 56]]}
+steps['RunMinimumBias2022C']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunZeroBias2022C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunJetMET2022C']={'INPUT':InputInfo(dataSet='/JetMET/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunEGamma2022C']={'INPUT':InputInfo(dataSet='/EGamma/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunMuon2022C']={'INPUT':InputInfo(dataSet='/Muon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunTau2022C']={'INPUT':InputInfo(dataSet='/Tau/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunBTagMu2022C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+
+
+Run2022D={357538: [[39, 63]]}
+steps['RunMinimumBias2022D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunZeroBias2022D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunJetMET2022D']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunMuon2022D']={'INPUT':InputInfo(dataSet='/Muon/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunBTagMu2022D']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='2015DHS',events=100000,location='STD', ls=Run2015DHS)}
