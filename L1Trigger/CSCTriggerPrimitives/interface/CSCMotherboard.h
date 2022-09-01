@@ -88,7 +88,7 @@ public:
   void selectLCTs();
 
   /** Returns shower bits */
-  CSCShowerDigi readoutShower() const;
+  std::vector<CSCShowerDigi> readoutShower() const;
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
@@ -123,7 +123,7 @@ protected:
   /* Container with sorted and selected LCTs */
   std::vector<CSCCorrelatedLCTDigi> lctV;
 
-  CSCShowerDigi shower_;
+  CSCShowerDigi showers_[CSCConstants::MAX_LCT_TBINS];
 
   // helper function to return ALCT/CLCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
@@ -147,7 +147,10 @@ protected:
   bool match_earliest_clct_only_;
 
   // encode special bits for high-multiplicity triggers
-  unsigned showerSource_;
+  std::vector<unsigned> showerSource_;
+  unsigned thisShowerSource_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
 
   bool ignoreAlctCrossClct_;
 
@@ -231,6 +234,9 @@ protected:
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
+
+  /* match cathode shower and anode shower with and/or logic */
+  void matchShowers(CSCShowerDigi* anode_showers, CSCShowerDigi* cathode_showers, bool andlogic);
 
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits();

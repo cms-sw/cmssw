@@ -161,20 +161,42 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_CCLUT::CorrelatedLCTDigis(uin
 
 CSCShowerDigi CSCTMBHeader2020_CCLUT::showerDigi(uint32_t idlayer) const {
   unsigned hmt_bits = bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1);  // HighMultiplicityTrigger bits
-  uint16_t cscid = 0;                                                  // ??? What is 4-bits CSC Id in CSshowerDigi
-  CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid);  // 2-bits intime, 2-bits out of time
+  uint16_t cscid = bits.cscID;  // ??? What is 4-bits CSC Id in CSshowerDigi
+  //L1A_TMB_WINDOW is not included in below formula
+  //correct version:  CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + L1A_TMB_WINDOW/2;
+  // same for anode HMT and cathode HMT
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  //LCTshower with showerType = 3.  comparatorNHits from hmt_nhits() and wireNHit is not available
+  CSCShowerDigi result(hmt_bits & 0x3,
+                       (hmt_bits >> 2) & 0x3,
+                       cscid,
+                       bx,
+                       CSCShowerDigi::ShowerType::kLCTShower,
+                       0,
+                       hmt_nhits());  // 2-bits intime, 2-bits out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_CCLUT::anodeShowerDigi(uint32_t idlayer) const {
-  uint16_t cscid = 0;
-  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  uint16_t cscid = bits.cscID;
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  //ALCT shower with showerType = 1. nhits_ is not available from unpack data
+  CSCShowerDigi result(
+      bits.anode_hmt & 0x3, 0, cscid, bx, CSCShowerDigi::ShowerType::kALCTShower, 0, 0);  // 2-bits intime, no out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_CCLUT::cathodeShowerDigi(uint32_t idlayer) const {
-  uint16_t cscid = 0;
-  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  uint16_t cscid = bits.cscID;
+  uint16_t bx = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win - bits.hmt_match_win + 3;
+  //CLCT shower with showerType = 2.
+  CSCShowerDigi result(bits.cathode_hmt & 0x3,
+                       0,
+                       cscid,
+                       bx,
+                       CSCShowerDigi::ShowerType::kCLCTShower,
+                       0,
+                       hmt_nhits());  // 2-bits intime, no out of time
   return result;
 }
 
@@ -271,19 +293,47 @@ void CSCTMBHeader2020_CCLUT::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi)
 }
 
 void CSCTMBHeader2020_CCLUT::addShower(const CSCShowerDigi& digi) {
-  uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
+  uint16_t hmt_bits = digi.isValid() ? (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2)
+                                     //if not valid LCT shower, then in-time bits must be 0. keep out-of-time HMT:
+                                     : ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
+  //to keep pop_l1a_match_win
+  if (digi.isValid())
+    bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else
+    bits.pop_l1a_match_win = 3;  //default value
 }
 
 void CSCTMBHeader2020_CCLUT::addAnodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  if (not digi.isValid())
+    hmt_bits = 0;
   bits.anode_hmt = hmt_bits;
+  if (not(bits.MPC_Muon_HMT_bit0 or bits.MPC_Muon_HMT_high) and digi.isValid())
+    bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else if (not(digi.isValid()))
+    bits.pop_l1a_match_win = 3;  //default value
 }
 
 void CSCTMBHeader2020_CCLUT::addCathodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  if (not digi.isValid())
+    hmt_bits = 0;
   bits.cathode_hmt = hmt_bits;
+  bits.hmt_nhits_bit0 = digi.getComparatorNHits() & 0x1;
+  bits.hmt_nhits_bit1 = (digi.getComparatorNHits() >> 1) & 0x1;
+  bits.hmt_nhits_bits_high = (digi.getComparatorNHits() >> 2) & 0x1F;
+  if (bits.MPC_Muon_HMT_bit0 or bits.MPC_Muon_HMT_high or bits.anode_hmt) {
+    //matched HMT is found, then pop_l1a_match_win is assigned
+    bits.hmt_match_win = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + 3 - digi.getBX();
+  } else if (digi.isValid()) {
+    bits.pop_l1a_match_win = 3;  //default value
+    bits.hmt_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  } else {
+    bits.pop_l1a_match_win = 3;  //default value
+    bits.hmt_match_win = 0;      //no HMT case
+  }
 }
 
 void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
@@ -298,6 +348,8 @@ void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
      << std::hex << (bits.activeCFEBs | (bits.activeCFEBs_2 << 5)) << ", readCFEBs = 0x" << std::hex
      << (bits.readCFEBs | (bits.readCFEBs_2 << 5)) << std::dec << "\n";
   os << "bxnPreTrigger = " << bits.bxnPreTrigger << "\n";
+  os << "ALCT location in CLCT window " << bits.matchWin << " L1A location in TMB window " << bits.pop_l1a_match_win
+     << " ALCT in cathde HMT window " << bits.hmt_match_win << "\n";
   os << "tmbMatch = " << bits.tmbMatch << " alctOnly = " << bits.alctOnly << " clctOnly = " << bits.clctOnly << "\n";
 
   os << "readoutCounter: " << std::dec << bits.readoutCounter << ", buf_q_ovf: " << bits.stackOvf
@@ -341,5 +393,5 @@ void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
 
   os << " clct_5bit_pattern_id = " << (bits.MPC_Muon_clct_pattern_low | (bits.MPC_Muon_clct_pattern_bit5 << 4))
      << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << ", alctHMT = " << bits.anode_hmt
-     << ", clctHMT = " << bits.cathode_hmt << "\n";
+     << ", clctHMT = " << bits.cathode_hmt << " cathode nhits " << hmt_nhits() << "\n";
 }
