@@ -7,6 +7,7 @@
 
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraintT.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertexFactory.h"
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraintT.h"
