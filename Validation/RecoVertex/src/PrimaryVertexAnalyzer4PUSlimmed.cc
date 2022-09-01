@@ -56,7 +56,7 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::Para
           consumes<reco::RecoToSimCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
       vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator>(
           iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))),
-      nPUbins_(iConfig.getParameter<int>("nPUbins")) {
+      nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag>>("vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(

@@ -181,7 +181,7 @@ private:
 
   std::vector<bool> errorPrintedForColl_;
 
-  int nPUbins_;
+  unsigned int nPUbins_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
