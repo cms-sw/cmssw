@@ -45,12 +45,12 @@ GenMuonGMTPair::GenMuonGMTPair(const GenMuonGMTPair& muonGmtPair) {
   muPhi_ = muonGmtPair.muPhi_;
 }
 
-float GenMuonGMTPair::dR() {
+float GenMuonGMTPair::dR2() {
   if (!gmtmu_)
-    return 9999.;
+    return 999.;
   float dEta = gmtEta_ - muEta_;
   float dPhi = reco::deltaPhi(gmtPhi_, muPhi_);
-  return std::sqrt(dEta * dEta + dPhi * dPhi);
+  return dEta * dEta + dPhi * dPhi;
 }
 
 L1TPhase2MuonOffline::EtaRegion GenMuonGMTPair::etaRegion() const {
@@ -372,22 +372,34 @@ void L1TPhase2MuonOffline::matchMuonsToGen(std::vector<const reco::GenParticle*>
   for (const reco::GenParticle* gen : genmus) {
     edm::LogInfo("L1TPhase2MuonOffline") << "Looping on genmus: " << gen << endl;
     GenMuonGMTPair pairBestCand(&(*gen), nullptr);
+    float dr2Best = maxGmtMuonDR_ * maxGmtMuonDR_;
+    bool matchFound = false;
     for (auto& muIt : *gmtSAMuon_) {
       GenMuonGMTPair pairTmpCand(&(*gen), &(muIt));
-      if ((pairTmpCand.dR() < maxGmtMuonDR_) && (pairTmpCand.dR() < pairBestCand.dR())) {
+      float dr2Tmp = pairTmpCand.dR2();
+      if (dr2Tmp < dr2Best) {
+        dr2Best = dr2Tmp;
         pairBestCand = pairTmpCand;
+        matchFound = true;
       }
     }
-    gmtSAMuonPairs_.emplace_back(pairBestCand);
+    if (matchFound)
+      gmtSAMuonPairs_.emplace_back(pairBestCand);
 
     GenMuonGMTPair pairBestCand2(&(*gen), nullptr);
+    dr2Best = maxGmtMuonDR_ * maxGmtMuonDR_;
+    matchFound = false;
     for (auto& tkmuIt : *gmtTkMuon_) {
       GenMuonGMTPair pairTmpCand(&(*gen), &(tkmuIt));
-      if ((pairTmpCand.dR() < maxGmtMuonDR_) && (pairTmpCand.dR() < pairBestCand2.dR())) {
+      float dr2Tmp = pairTmpCand.dR2();
+      if (dr2Tmp < dr2Best) {
+        dr2Best = dr2Tmp;
         pairBestCand2 = pairTmpCand;
+        matchFound = true;
       }
     }
-    gmtTkMuonPairs_.emplace_back(pairBestCand2);
+    if (matchFound)
+      gmtTkMuonPairs_.emplace_back(pairBestCand2);
   }
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() gmtSAMuons: "
                                        << gmtSAMuonPairs_.size() << endl;
