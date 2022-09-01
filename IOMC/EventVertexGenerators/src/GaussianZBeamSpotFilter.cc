@@ -51,7 +51,8 @@ bool GaussianZBeamSpotFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     if (engine.flat() > gaussRatio) {
       pass = false;
     }
-    edm::LogVerbatim("GaussianZBeam") << "base sigmaZ = " << baseSZ_ << " new sigmaZ = " << newSZ_ << " vtxZ = " << vtxZ << " gaussian ratio = " << gaussRatio << " pass = " << pass;
+    edm::LogVerbatim("GaussianZBeam") << "base sigmaZ = " << baseSZ_ << " new sigmaZ = " << newSZ_ << " vtxZ = " << vtxZ
+                                      << " gaussian ratio = " << gaussRatio << " pass = " << pass;
   }
 
   return pass;

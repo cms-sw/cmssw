@@ -15,7 +15,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 class BoostTester : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-
 public:
   explicit BoostTester(const edm::ParameterSet&);
   ~BoostTester() override = default;
@@ -30,7 +29,6 @@ private:
 
   double fvx, fvy, fvz;
   double fpx, fpy, fpz, fpt, fp, fe, feta, fphi;
-
 };
 
 BoostTester::BoostTester(const edm::ParameterSet&) {
@@ -67,7 +65,7 @@ void BoostTester::analyze(const edm::Event& e, const edm::EventSetup&) {
   edm::LogVerbatim("BoostTest") << "evthandles= " << EvtHandles.size();
 
   for (unsigned int i = 0; i < EvtHandles.size(); i++) {
-    edm::LogVerbatim("BoostTest") << " i=" << i <<  " name: "<< EvtHandles[i].provenance()->moduleLabel();
+    edm::LogVerbatim("BoostTest") << " i=" << i << " name: " << EvtHandles[i].provenance()->moduleLabel();
 
     if (EvtHandles[i].isValid()) {
       const HepMC::GenEvent* Evt = EvtHandles[i]->GetEvent();
@@ -82,21 +80,23 @@ void BoostTester::analyze(const edm::Event& e, const edm::EventSetup&) {
 
         ftreevtx->Fill();
 
-	edm::LogVerbatim("BoostTest") << " vertex (x,y,z)= " << (*Vtx)->position().x() <<" " << (*Vtx)->position().y() << " " << (*Vtx)->position().z();
+        edm::LogVerbatim("BoostTest") << " vertex (x,y,z)= " << (*Vtx)->position().x() << " " << (*Vtx)->position().y()
+                                      << " " << (*Vtx)->position().z();
       }
 
       for (HepMC::GenEvent::particle_const_iterator Part = Evt->particles_begin(); Part != Evt->particles_end();
            ++Part) {
         if ((*Part)->status() != 1)
           continue;
-     
-	HepMC::FourVector Mon = (*Part)->momentum();
+
+        HepMC::FourVector Mon = (*Part)->momentum();
 
         fpx += Mon.px();
         fpy += Mon.py();
         fpz += Mon.pz();
 
-        edm::LogVerbatim("BoostTest") << "particle: p=(" << Mon.px() << ", " << Mon.py() << ", " << Mon.pz() << ") status=" << (*Part)->status() << " pdgid=" << (*Part)->pdg_id();
+        edm::LogVerbatim("BoostTest") << "particle: p=(" << Mon.px() << ", " << Mon.py() << ", " << Mon.pz()
+                                      << ") status=" << (*Part)->status() << " pdgid=" << (*Part)->pdg_id();
       }
     }
   }
