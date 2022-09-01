@@ -133,7 +133,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         int sl1 = 0;
         int sl3 = 0;
         for (auto SL1metaPrimitive = SL1metaPrimitives.begin(); SL1metaPrimitive != SL1metaPrimitives.end();
-             ++SL1metaPrimitive, sl1++, sl3 = -1) {
+             ++SL1metaPrimitive, sl1++, sl3 = 0) {
           if (clean_chi2_correlation_)
             at_least_one_correlation = false;
           for (auto SL3metaPrimitive = SL3metaPrimitives.begin(); SL3metaPrimitive != SL3metaPrimitives.end();
