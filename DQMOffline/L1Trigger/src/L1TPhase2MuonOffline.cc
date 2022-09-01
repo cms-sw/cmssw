@@ -11,7 +11,6 @@
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 using namespace reco;
-using namespace trigger;
 using namespace edm;
 using namespace std;
 using namespace l1t;
@@ -47,9 +46,11 @@ GenMuonGMTPair::GenMuonGMTPair(const GenMuonGMTPair& muonGmtPair) {
 }
 
 float GenMuonGMTPair::dR() {
-  float dEta = gmtmu_ ? (gmtEta_ - muEta_) : 999.;
-  float dPhi = gmtmu_ ? reco::deltaPhi(gmtPhi_, muPhi_) : 999.;
-  return sqrt(dEta * dEta + dPhi * dPhi);
+  if (!gmtmu_)
+    return 9999.;
+  float dEta = gmtEta_ - muEta_;
+  float dPhi = reco::deltaPhi(gmtPhi_, muPhi_);
+  return std::sqrt(dEta * dEta + dPhi * dPhi);
 }
 
 L1TPhase2MuonOffline::EtaRegion GenMuonGMTPair::etaRegion() const {
@@ -140,8 +141,6 @@ L1TPhase2MuonOffline::L1TPhase2MuonOffline(const ParameterSet& ps)
   }
 }
 
-//_____________________________________________________________________
-L1TPhase2MuonOffline::~L1TPhase2MuonOffline() {}
 //----------------------------------------------------------------------
 void L1TPhase2MuonOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   edm::LogInfo("L1TPhase2MuonOFfline") << "L1TPhase2MuonOffline::dqmBeginRun" << endl;
@@ -175,6 +174,9 @@ void L1TPhase2MuonOffline::analyze(const Event& iEvent, const EventSetup& eventS
     genmus.push_back(&gen);
   }
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::analyze() N of genmus: " << genmus.size() << endl;
+
+  if (genmus.empty())
+    return;
 
   // Collect both muon collection:
   iEvent.getByToken(gmtMuonToken_, gmtSAMuon_);
@@ -291,7 +293,6 @@ void L1TPhase2MuonOffline::fillEfficiencyHistos() {
         efficiencyDen_[kSAMuon][eta][q][var]->Fill(varToFill);
         if (muIt.gmtPt() < 0)
           continue;  // gmt muon does not exits
-
         if (muIt.gmtQual() < q * 4)
           continue;  //quality requirements
         if (var != kEffPt && muIt.gmtPt() < gmtPtCut)
