@@ -168,7 +168,9 @@ namespace cond {
     static constexpr const char* const NEQ = "NEQ";
     static constexpr const char* const EQ = "EQ";
     static constexpr const char* const LT = "LT";
+    static constexpr const char* const LE = "LE";
     static constexpr const char* const GT = "GT";
+    static constexpr const char* const GE = "GE";
     static constexpr const char* const SNULL = "null";
 
   public:
@@ -206,8 +208,16 @@ namespace cond {
       return filter<T>(GT, varName, value);
     }
     template <typename T>
+    inline OMSServiceQuery& filterGE(const std::string& varName, const T& value) {
+      return filter<T>(GE, varName, value);
+    }
+    template <typename T>
     inline OMSServiceQuery& filterLT(const std::string& varName, const T& value) {
       return filter<T>(LT, varName, value);
+    }
+    template <typename T>
+    inline OMSServiceQuery& filterLE(const std::string& varName, const T& value) {
+      return filter<T>(LE, varName, value);
     }
     // not null filter
     inline OMSServiceQuery& filterNotNull(const std::string& varName) { return filterNEQ(varName, SNULL); }
