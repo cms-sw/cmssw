@@ -452,8 +452,8 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
   std::vector<std::vector<IHit>> rh1(ngood);  // "not an array" of vectors!
   //const TrackingRecHit*  fh1[ngood];  // first hit...
-  reco::TrackBase::TrackAlgorithm algo[ngood];
-  float score[ngood];
+  reco::TrackBase::TrackAlgorithm algo[std::max(1, ngood)];
+  float score[std::max(1, ngood)];
 
   for (unsigned int j = 0; j < rSize; j++) {
     if (selected[j] == 0)
