@@ -138,6 +138,11 @@ RefCountedKinematicVertex KinematicConstrainedVertexUpdatorT<nTrk, nConstraint>:
   //full math case now!
   val += g * delta_alpha;
   lambda = v_g_sym * val;
+  if (! edm::isFinite(lambda[0])) {
+    edm::LogWarning("KinematicConstrainedVertexUpdatorFailed") << "infinite lamba[0] \n";
+    LogDebug("KinematicConstrainedVertexUpdatorFailed") << "infinite lambda[0] \n";
+    return RefCountedKinematicVertex();
+  }
 
   //final parameters
   finPar = inPar - inCov * (ROOT::Math::Transpose(g) * lambda);
