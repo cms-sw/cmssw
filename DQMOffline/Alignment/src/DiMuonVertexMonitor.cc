@@ -3,6 +3,8 @@
  *
  */
 
+#include <fmt/printf.h>
+
 #include "DQMOffline/Alignment/interface/DiMuonVertexMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -28,43 +30,77 @@ DiMuonVertexMonitor::DiMuonVertexMonitor(const edm::ParameterSet& iConfig)
     : ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      motherName_(iConfig.getParameter<std::string>("decayMotherName")),
       MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
       useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
-      maxSVdist_(iConfig.getParameter<double>("maxSVdist")) {}
+      maxSVdist_(iConfig.getParameter<double>("maxSVdist")) {
+  if (motherName_.find('Z') != std::string::npos) {
+    massLimits_ = std::make_pair(50., 120);
+  } else if (motherName_.find("J/#psi") != std::string::npos) {
+    massLimits_ = std::make_pair(2.7, 3.4);
+  } else if (motherName_.find("#Upsilon") != std::string::npos) {
+    massLimits_ = std::make_pair(8.9, 9.9);
+  } else {
+    edm::LogError("DiMuonVertexMonitor") << " unrecognized decay mother particle: " << motherName_
+                                         << " setting the default for the Z->mm (50.,120.)" << std::endl;
+    massLimits_ = std::make_pair(50., 120);
+  }
+}
 
 void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor");
-  hSVProb_ = iBooker.book1D("VtxProb", ";ZV vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
-  hSVChi2_ =
-      iBooker.book1D("VtxChi2", "#chi^{2} of the Z vertex; #chi^{2} of the Z vertex; N(#mu#mu pairs)", 200, 0., 200.);
-  hSVNormChi2_ = iBooker.book1D(
-      "VtxNormChi2", "#chi^{2}/ndf of the Z vertex; #chi^{2}/ndf of Z vertex; N(#mu#mu pairs)", 100, 0., 20.);
-  hSVDist_ = iBooker.book1D("VtxDist", ";PV-ZV xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDistErr_ = iBooker.book1D("VtxDistErr", ";PV-ZV xy distance error [#mum];N(#mu#mu pairs)", 100, 0., 1000.);
-  hSVDistSig_ = iBooker.book1D("VtxDistSig", ";PV-ZV xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
-  hSVCompatibility_ = iBooker.book1D(
-      "VtxCompatibility", "compatibility of Z vertex; compatibility of Z vertex; N(#mu#mu pairs)", 100, 0., 100.);
 
-  hSVDist3D_ = iBooker.book1D("VtxDist3D", ";PV-ZV 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDist3DErr_ = iBooker.book1D("VtxDist3DErr", ";PV-ZV 3D distance error [#mum];N(#mu#mu pairs)", 100, 0., 1000.);
-  hSVDist3DSig_ = iBooker.book1D("VtxDist3DSig", ";PV-ZV 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
-  hSVCompatibility3D_ = iBooker.book1D(
-      "VtxCompatibility3D", "3D compatibility of Z vertex;3D compatibility of Z vertex; N(#mu#mu pairs)", 100, 0., 100.);
+  // clang-format off
+  std::string ts = fmt::sprintf(";%s vertex probability;N(#mu#mu pairs)", motherName_);
+  std::string ps = "N(#mu#mu pairs)";
+  hSVProb_ = iBooker.book1D("VtxProb", ts, 100, 0., 1.);
 
-  hTrackInvMass_ = iBooker.book1D("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., 50., 120.);
-  hCosPhi_ = iBooker.book1D("CosPhi", ";cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
-  hCosPhi3D_ = iBooker.book1D("CosPhi3D", ";cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
-  hCosPhiInv_ = iBooker.book1D("CosPhiInv", ";inverted cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
-  hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", ";inverted cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
+  ts = fmt::sprintf("#chi^{2} of the %s vertex; #chi^{2} of the %s vertex; %s", motherName_, motherName_, ps);
+  hSVChi2_ = iBooker.book1D("VtxChi2", ts, 200, 0., 200.);
 
-  hdxy_ = iBooker.book1D("dxy", ";muon track d_{xy}(PV) [#mum];muon tracks", 150, -300, 300);
-  hdz_ = iBooker.book1D("dz", ";muon track d_{z}(PV) [#mum];muon tracks", 150, -300, 300);
-  hdxyErr_ = iBooker.book1D("dxyErr", ";muon track err_{dxy} [#mum];muon tracks", 250, 0., 500.);
-  hdzErr_ = iBooker.book1D("dzErr", ";muon track err_{dz} [#mum];muon tracks", 250, 0., 500.);
-  hIP2d_ = iBooker.book1D("IP2d", ";muon track IP_{2D} [#mum];muon tracks", 150, -300, 300);
-  hIP3d_ = iBooker.book1D("IP3d", ";muon track IP_{3D} [#mum];muon tracks", 150, -300, 300);
-  hIP2dsig_ = iBooker.book1D("IP2Dsig", ";muon track IP_{2D} significance;muon tracks", 100, 0., 5.);
-  hIP3dsig_ = iBooker.book1D("IP3Dsig", ";muon track IP_{3D} significance;muon tracks", 100, 0., 5.);
+  ts = fmt::sprintf("#chi^{2}/ndf of the %s vertex; #chi^{2}/ndf of %s vertex; %s", motherName_, motherName_, ps);
+  hSVNormChi2_ = iBooker.book1D("VtxNormChi2", ts, 100, 0., 20.);
+
+  std::string histTit = motherName_ + " #rightarrow #mu^{+}#mu^{-}";
+  ts = fmt::sprintf("%s;PV- %sV xy distance [#mum];%s", histTit, motherName_, ps);
+  hSVDist_ = iBooker.book1D("VtxDist", ts, 100, 0., 300.);
+
+  ts = fmt::sprintf("%s;PV-%sV xy distance error [#mum];%s", histTit, motherName_, ps);
+  hSVDistErr_ = iBooker.book1D("VtxDistErr", ts, 100, 0., 1000.);
+
+  ts = fmt::sprintf("%s;PV-%sV xy distance signficance;%s", histTit, motherName_, ps);
+  hSVDistSig_ = iBooker.book1D("VtxDistSig", ts, 100, 0., 5.);
+
+  ts = fmt::sprintf("compatibility of %s vertex; compatibility of %s vertex; %s", motherName_, motherName_, ps);
+  hSVCompatibility_ = iBooker.book1D("VtxCompatibility", ts, 100, 0., 100.);
+
+  ts = fmt::sprintf("%s;PV-%sV 3D distance [#mum];%s", histTit, motherName_, ps);
+  hSVDist3D_ = iBooker.book1D("VtxDist3D", ts, 100, 0., 300.);
+
+  ts = fmt::sprintf("%s;PV-%sV 3D distance error [#mum];%s", histTit, motherName_, ps);
+  hSVDist3DErr_ = iBooker.book1D("VtxDist3DErr", ts, 100, 0., 1000.);
+
+  ts = fmt::sprintf("%s;PV-%sV 3D distance signficance;%s", histTit, motherName_, ps);
+  hSVDist3DSig_ = iBooker.book1D("VtxDist3DSig", ts, 100, 0., 5.);
+
+  ts = fmt::sprintf("3D compatibility of %s vertex;3D compatibility of %s vertex; %s", motherName_, motherName_, ps);
+  hSVCompatibility3D_ = iBooker.book1D("VtxCompatibility3D", ts, 100, 0., 100.);
+
+  hInvMass_ = iBooker.book1D("InvMass", fmt::sprintf("%s;M(#mu,#mu) [GeV];%s", histTit, ps), 70., massLimits_.first, massLimits_.second);
+  hCosPhi_ = iBooker.book1D("CosPhi", fmt::sprintf("%s;cos(#phi_{xy});%s", histTit, ps), 50, -1., 1.);
+  hCosPhi3D_ = iBooker.book1D("CosPhi3D", fmt::sprintf("%s;cos(#phi_{3D});%s", histTit, ps), 50, -1., 1.);
+  hCosPhiInv_ = iBooker.book1D("CosPhiInv", fmt::sprintf("%s;inverted cos(#phi_{xy});%s", histTit, ps), 50, -1., 1.);
+  hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", fmt::sprintf("%s;inverted cos(#phi_{3D});%s", histTit, ps), 50, -1., 1.);
+
+  hdxy_ = iBooker.book1D("dxy", fmt::sprintf("%s;muon track d_{xy}(PV) [#mum];muon tracks", histTit), 150, -300, 300);
+  hdz_ = iBooker.book1D("dz", fmt::sprintf("%s;muon track d_{z}(PV) [#mum];muon tracks", histTit), 150, -300, 300);
+  hdxyErr_ = iBooker.book1D("dxyErr", fmt::sprintf("%s;muon track err_{dxy} [#mum];muon tracks", histTit), 250, 0., 500.);
+  hdzErr_ = iBooker.book1D("dzErr", fmt::sprintf("%s;muon track err_{dz} [#mum];muon tracks", histTit), 250, 0., 500.);
+  hIP2d_ = iBooker.book1D("IP2d", fmt::sprintf("%s;muon track IP_{2D} [#mum];muon tracks", histTit), 150, -300, 300);
+  hIP3d_ = iBooker.book1D("IP3d", fmt::sprintf("%s;muon track IP_{3D} [#mum];muon tracks", histTit), 150, -300, 300);
+  hIP2dsig_ = iBooker.book1D("IP2Dsig", fmt::sprintf("%s;muon track IP_{2D} significance;muon tracks", histTit), 100, 0., 5.);
+  hIP3dsig_ = iBooker.book1D("IP3Dsig", fmt::sprintf("%s;muon track IP_{3D} significance;muon tracks", histTit), 100, 0., 5.);
+  // clang-format on
 }
 
 void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -100,7 +136,7 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
-  hTrackInvMass_->Fill(track_invMass);
+  hInvMass_->Fill(track_invMass);
 
   // creat the pair of TLorentVectors used to make the plos
   std::pair<TLorentzVector, TLorentzVector> tktk_p4 = std::make_pair(p4_tplus, p4_tminus);
@@ -256,6 +292,7 @@ void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::string>("FolderName", "DiMuonVertexMonitor");
+  desc.add<std::string>("decayMotherName", "Z");
   desc.add<bool>("useClosestVertex", true);
   desc.add<double>("maxSVdist", 50.);
   descriptions.addWithDefaultLabel(desc);

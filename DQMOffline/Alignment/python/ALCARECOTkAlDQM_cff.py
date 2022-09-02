@@ -160,6 +160,7 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 
 ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
     muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "J/#psi",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50
@@ -229,6 +230,7 @@ ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 
 ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
     muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "#Upsilon",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50
