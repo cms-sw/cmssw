@@ -10,6 +10,7 @@
 //         Created:  Sun Apr 16 20:32:20 EDT 2006
 //
 
+
 // system include files
 #include <sys/resource.h>
 #include <cerrno>
@@ -74,9 +75,8 @@ void CPUTimer::start() {
     gettimeofday(&startRealTime_, 0);
 
     rusage theUsage;
-    if (0 != getrusage(RUSAGE_SELF, &theUsage))
-    {
-             throw cms::Exception("CPUTimerFailed") << errno;
+    if (0 != getrusage(RUSAGE_SELF, &theUsage)) {
+      throw cms::Exception("CPUTimerFailed") << errno;
     }
     startCPUTime_.tv_sec = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec;
     startCPUTime_.tv_usec = theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec;
@@ -128,7 +128,8 @@ CPUTimer::Times CPUTimer::calculateDeltaTime() const {
   struct timeval tp;
   gettimeofday(&tp, 0);
 
-  returnValue.cpu_ = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec + microsecToSec * (theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec - startCPUTime_.tv_usec);
+  returnValue.cpu_ = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec +
+                     microsecToSec * (theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec - startCPUTime_.tv_usec);
   returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + microsecToSec * (tp.tv_usec - startRealTime_.tv_usec);
 #endif
   return returnValue;
@@ -145,7 +146,7 @@ double CPUTimer::realTime() const {
 
 double CPUTimer::cpuTime() const {
   if (kStopped == state_) {
-         return accumulatedCPUTime_;
+    return accumulatedCPUTime_;
   }
   return accumulatedCPUTime_ + calculateDeltaTime().cpu_;
 }
