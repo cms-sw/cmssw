@@ -12,8 +12,10 @@ namespace edm {
       : label_(),
         instance_(),
         process_(),
-        typeID_(), productRegistry_(0),
-        index_(ProductResolverIndexInvalid), branchType_(NumBranchTypes),
+        typeID_(),
+        productRegistry_(nullptr),
+        index_(ProductResolverIndexInvalid),
+        branchType_(NumBranchTypes),
         skipCurrentProcess_(false) {}
 
   InputTag::InputTag(std::string const& label, std::string const& instance, std::string const& processName)
