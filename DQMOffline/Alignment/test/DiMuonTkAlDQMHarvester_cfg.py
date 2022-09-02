@@ -22,6 +22,11 @@ options.register('globalTag',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "conditions")
+options.register('resonance',
+                 'Z',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "resonance type")
 options.parseArguments()
 
 # import of standard configurations
@@ -43,7 +48,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:step3_inDQM.root')
+    fileNames = cms.untracked.vstring('file:step3_inDQM_'+options.resonance+'.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -93,16 +98,34 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
+if (options.resonance == 'Z'):
+    print('',30*"#",'\n # will harvest Z file \n',30*"#")
+    _folderName = cms.string('AlCaReco/TkAlDiMuonAndVertex')
+    _doBkgFit = cms.bool(False)
+    _fitPar =  cms.PSet(mean_par = cms.vdouble(90.,60.,120.),
+                        width_par = cms.vdouble(5.0,0.0,120.0),
+                        sigma_par = cms.vdouble(5.0,0.0,120.0))
+elif (options.resonance == 'Jpsi'):
+    print('',30*"#",'\n # will harvest J/psi file \n',30*"#")
+    _folderName =  cms.string('AlCaReco/TkAlJpsiMuMu')
+    _doBkgFit = cms.bool(True)
+    _fitPar =  cms.PSet(mean_par = cms.vdouble(3.09, 2.7, 3.4),
+                        width_par = cms.vdouble(1.0, 0.0, 5.0),
+                        sigma_par = cms.vdouble(1.0, 0.0, 5.0))
+elif (options.resonance == 'Upsilon'):
+    print('',30*"#",'\n # will harvest Upsilon file \n',30*"#")
+    _folderName =  cms.string('AlCaReco/TkAlUpsilonMuMu')
+    _doBkgFit = cms.bool(True)
+    _fitPar =  cms.PSet(mean_par = cms.vdouble(9.46, 8.9, 9.9),
+                        width_par = cms.vdouble(1.0, 0.0, 5.0),
+                        sigma_par = cms.vdouble(1.0, 0.0, 5.0))
+
 # the module to harvest
 process.DiMuonMassBiasClient = cms.EDProducer("DiMuonMassBiasClient",
-                                              FolderName = cms.string('AlCaReco/TkAlDiMuonAndVertex'),
-                                              fitBackground = cms.bool(False),
+                                              FolderName = _folderName,
+                                              fitBackground = _doBkgFit,
                                               debugMode = cms.bool(True),
-                                              fit_par = cms.PSet(
-                                                  mean_par = cms.vdouble(90.,60.,120.),
-                                                  width_par = cms.vdouble(5.0,0.0,120.0),
-                                                  sigma_par = cms.vdouble(5.0,0.0,120.0)
-                                              ),
+                                              fit_par = _fitPar,
                                               MEtoHarvest = cms.vstring(
                                                   'DiMuMassVsMuMuPhi',
                                                   'DiMuMassVsMuMuEta',
