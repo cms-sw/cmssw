@@ -291,8 +291,9 @@ bool PFCandidate::overlap(const reco::Candidate& other) const {
 }
 
 void PFCandidate::rescaleMomentum(double rescaleFactor) {
-  LorentzVector rescaledp4 = p4();
-  rescaledp4 *= rescaleFactor;
+  // Rescale three-momentum, preserving mass
+  float rescaleE = std::sqrt(p()*p()*(rescaleFactor*rescaleFactor-1)/(energy()*energy()) + 1);
+  LorentzVector rescaledp4(rescaleFactor*px(), rescaleFactor*py(), rescaleFactor*pz(), rescaleE*energy());
   setP4(rescaledp4);
 }
 
