@@ -10,7 +10,6 @@
 //         Created:  Sun Apr 16 20:32:20 EDT 2006
 //
 
-
 // system include files
 #include <sys/resource.h>
 #include <cerrno>
