@@ -139,10 +139,13 @@ RefCountedKinematicVertex KinematicConstrainedVertexUpdatorT<nTrk, nConstraint>:
   //full math case now!
   val += g * delta_alpha;
   lambda = v_g_sym * val;
-  if (!edm::isFinite(lambda[0])) {
-    edm::LogWarning("KinematicConstrainedVertexUpdatorFailed") << "infinite lamba[0] \n";
-    LogDebug("KinematicConstrainedVertexUpdatorFailed") << "infinite lambda[0] \n";
-    return RefCountedKinematicVertex();
+  
+  for (auto lambda_element : lambda){
+    if (!edm::isFinite(lambda_element)) {
+      edm::LogWarning("KinematicConstrainedVertexUpdatorFailed") << "caught nan in lamba \n";
+      LogDebug("KinematicConstrainedVertexUpdatorFailed") << "caught nan in lambda \n";
+      return RefCountedKinematicVertex();
+    }
   }
 
   //final parameters
