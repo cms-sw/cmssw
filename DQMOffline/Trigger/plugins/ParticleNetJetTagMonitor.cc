@@ -668,6 +668,7 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
         std::fabs(e.gsfTrack()->dz(pv->position())) <= maxLeptonDzCut_)
       vetoElectrons.push_back(e);
   }
+
   if (ntagelectrons_ >= 0 and int(tagElectrons.size()) != ntagelectrons_)
     return;
   selectionFlowStatus++;
@@ -858,15 +859,21 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     // match reco and hlt objects considering only the first ntrigobjecttomatch jets for both reco and HLT. Each of them must be matched
     std::vector<int> matched_obj;
     for (size_t jreco = 0; jreco < ntrigobjecttomatch_; jreco++) {
+      if (jreco >= jetPNETScoreSortedIndices.size())
+        break;
       float minDR = 1000;
       int match_index = -1;
       for (size_t jhlt = 0; jhlt < ntrigobjecttomatch_; jhlt++) {
+        if (jhlt >= jetPNETScoreSortedIndicesHLT.size())
+          break;
         if (std::find(matched_obj.begin(), matched_obj.end(), jhlt) != matched_obj.end())
           continue;
         float dR = reco::deltaR(selectedJets[jetPNETScoreSortedIndices.at(jreco)].p4(),
                                 jetHLTRefs.at(jetPNETScoreSortedIndicesHLT.at(jhlt))->p4());
-        if (dR < hltRecoDeltaRmax_ and dR < minDR)
+        if (dR < hltRecoDeltaRmax_ and dR < minDR) {
           match_index = jhlt;
+          minDR = dR;
+        }
       }
       if (match_index >= 0)
         matched_obj.push_back(match_index);

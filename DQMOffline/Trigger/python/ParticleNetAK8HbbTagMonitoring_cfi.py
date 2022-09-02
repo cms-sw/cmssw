@@ -72,7 +72,7 @@ particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
     jet2EtaBinning = [],
     jet1PNETscoreBinning = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.925,0.95,0.975,1],
     jet2PNETscoreBinning = [],
-    jet1PNETscoreTransBinning = [0,0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.25,1.50,1.75,2.25,2.75,4],
+    jet1PNETscoreTransBinning = [0,0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.25,1.50,1.75,2.25,2.75,3.5,6],
     jet2PNETscoreTransBinning = [],
     jet1PtBinning2d = [180,220,260,300,340,400,500,750,1250],
     jet2PtBinning2d = [],
@@ -80,7 +80,7 @@ particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
     jet2EtaBinning2d = [],
     jet1PNETscoreBinning2d = [0,0.15,0.30,0.45,0.60,0.75,0.85,0.90,0.95,0.975,1],
     jet2PNETscoreBinning2d = [],
-    jet1PNETscoreTransBinning2d = [0,0.15,0.30,0.45,0.60,0.75,1,1.5,2,2.5,4],
+    jet1PNETscoreTransBinning2d = [0,0.15,0.30,0.45,0.60,0.75,1,1.5,2,2.5,3.25,6],
     jet2PNETscoreTransBinning2d = [],
     ## trigger for numerator and denominator
     numGenericTriggerEvent = dict(
