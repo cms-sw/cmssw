@@ -199,6 +199,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import ALCARECOT
 
 ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
     muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "J/#psi",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50
@@ -287,6 +288,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import ALCARE
 
 ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
     muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "#Upsilon",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50
