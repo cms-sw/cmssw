@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D49, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D49, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,18 +26,32 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('PROD',Phase2C11I13M9)
-
-if (options.geometry == "D88"):
+if (options.geometry == "D49"):
+    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+    process = cms.Process('SingleMuon',Phase2C9)
+    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    globalTag = "auto:phase2_realistic_T15"
+elif (options.geometry == "D88"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
 elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
 else:
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
+
+print("Global Tag: ", globalTag)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -111,7 +125,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 
 process.generator = cms.EDFilter("Pythia8PtGun",
     PGunParameters = cms.PSet(
