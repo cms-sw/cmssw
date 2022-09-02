@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat << EOF | gdb --args $@
+set pagination off
+catch throw
+command
+where
+continue
+end
+run
+quit
+EOF
