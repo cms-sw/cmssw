@@ -2808,7 +2808,7 @@ steps['RECOHI2021PPRECOMBAPPROXCLUSTERS']=merge([hiDefaults2021_ppReco_approxClu
                                                         },step3Up2015Defaults])
 
 steps['RECOHI2022PROD']=merge([hiDefaults2021_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO',
-                                                                     '--datatier':'AOSSIM',
+                                                                     '--datatier':'AODSIM',
                                                                      '--eventcontent':'AODSIM',
                                                                      '--era':'Run3_pp_on_PbPb',
                                                         },step3Up2015Defaults])
