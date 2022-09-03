@@ -46,7 +46,7 @@ void VertexKinematicConstraintT::fillValue() const {
       double pt2Inverse = 1. / mom[j].perp2();
       super::vl(j * 2) = dpos[j].y() * mom[j].x() - dpos[j].x() * mom[j].y();
       super::vl(j * 2 + 1) =
-          dpos[j].z() - mom[j].z() * (dpos[j].x() * mom[j].x() + dpos[j].y() * mom[j].y()) * pt2Inverse;
+          dpos[j].z() - mom[j].z() * ((dpos[j].x() * mom[j].x() + dpos[j].y() * mom[j].y()) * pt2Inverse);
     }
   }
 }
