@@ -6,8 +6,8 @@ from PhysicsTools.NanoAOD.nano_eras_cff import *
 singleRPProtons = True
 
 protonTable = cms.EDProducer("ProtonProducer",
-                             tagRecoProtonsSingle = cms.InputTag("filteredProctppsProtonstons", "singleRP"),
-                             tagRecoProtonsMulti  = cms.InputTag("filteredProctppsProtonstons", "multiRP"),
+                             tagRecoProtonsSingle = cms.InputTag("ctppsProtons", "singleRP"),
+                             tagRecoProtonsMulti  = cms.InputTag("ctppsProtons", "multiRP"),
                              tagTrackLite         = cms.InputTag("ctppsLocalTrackLiteProducer"),
                              storeSingleRPProtons = cms.bool(singleRPProtons)
 )
