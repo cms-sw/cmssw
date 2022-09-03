@@ -289,17 +289,15 @@ void L1TPhase2MuonOffline::fillEfficiencyHistos() {
     for (const auto var : effTypes_) {
       auto varToFill = muIt.getVar(var);
       for (const auto& cut : cuts_) {
-        const auto gmtPtCut = cut.first;
         const auto q = cut.second;
-
         efficiencyDen_[kSAMuon][eta][q][var]->Fill(varToFill);
         if (muIt.gmtPt() < 0)
-          continue;  // gmt muon does not exits
+          continue;  // there is not an assciated gmt muon
         if (muIt.gmtQual() < q * 4)
           continue;  //quality requirements
+        const auto gmtPtCut = cut.first;
         if (var != kEffPt && muIt.gmtPt() < gmtPtCut)
           continue;  // pt requirement
-
         efficiencyNum_[kSAMuon][eta][q][var]->Fill(varToFill);
       }
     }
@@ -311,17 +309,15 @@ void L1TPhase2MuonOffline::fillEfficiencyHistos() {
     for (const auto var : effTypes_) {
       auto varToFill = muIt.getVar(var);
       for (const auto& cut : cuts_) {
-        const auto gmtPtCut = cut.first;
         const auto q = cut.second;
-
         efficiencyDen_[kTkMuon][eta][q][var]->Fill(varToFill);
         if (muIt.gmtPt() < 0)
-          continue;  // gmt muon does not exits
+          continue;  // there is not an assciated gmt muon
         if (muIt.gmtQual() < q * 4)
           continue;  //quality requirements
+        const auto gmtPtCut = cut.first;
         if (var != kEffPt && muIt.gmtPt() < gmtPtCut)
           continue;  // pt requirement
-
         efficiencyNum_[kTkMuon][eta][q][var]->Fill(varToFill);
       }
     }
@@ -373,33 +369,27 @@ void L1TPhase2MuonOffline::matchMuonsToGen(std::vector<const reco::GenParticle*>
     edm::LogInfo("L1TPhase2MuonOffline") << "Looping on genmus: " << gen << endl;
     GenMuonGMTPair pairBestCand(&(*gen), nullptr);
     float dr2Best = maxGmtMuonDR_ * maxGmtMuonDR_;
-    bool matchFound = false;
     for (auto& muIt : *gmtSAMuon_) {
       GenMuonGMTPair pairTmpCand(&(*gen), &(muIt));
       float dr2Tmp = pairTmpCand.dR2();
       if (dr2Tmp < dr2Best) {
         dr2Best = dr2Tmp;
         pairBestCand = pairTmpCand;
-        matchFound = true;
       }
     }
-    if (matchFound)
-      gmtSAMuonPairs_.emplace_back(pairBestCand);
+    gmtSAMuonPairs_.emplace_back(pairBestCand);
 
     GenMuonGMTPair pairBestCand2(&(*gen), nullptr);
     dr2Best = maxGmtMuonDR_ * maxGmtMuonDR_;
-    matchFound = false;
     for (auto& tkmuIt : *gmtTkMuon_) {
       GenMuonGMTPair pairTmpCand(&(*gen), &(tkmuIt));
       float dr2Tmp = pairTmpCand.dR2();
       if (dr2Tmp < dr2Best) {
         dr2Best = dr2Tmp;
         pairBestCand2 = pairTmpCand;
-        matchFound = true;
       }
     }
-    if (matchFound)
-      gmtTkMuonPairs_.emplace_back(pairBestCand2);
+    gmtTkMuonPairs_.emplace_back(pairBestCand2);
   }
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() gmtSAMuons: "
                                        << gmtSAMuonPairs_.size() << endl;
