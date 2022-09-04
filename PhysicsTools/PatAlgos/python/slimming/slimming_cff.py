@@ -107,7 +107,7 @@ run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexWith
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
-pp_on_AA.toReplaceWith(
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
 
