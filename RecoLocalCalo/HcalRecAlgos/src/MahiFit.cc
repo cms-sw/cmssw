@@ -360,15 +360,15 @@ float MahiFit::ccTime(const float itQ) const {
 
   // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
   if ((nnlsWork_.amplitudes.coeffRef(soi) + nnlsWork_.amplitudes.coeffRef(soi + 1U)) < thEnergeticPulsesFC_)
-    return 0.f;
+    return -999.f;
   // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
   if (nnlsWork_.amplitudes.coeffRef(soi) <
       (nnlsWork_.amplitudes.coeffRef(soi + 1U) + nnlsWork_.amplitudes.coeffRef(soi + 2U)))
-    return 0.f;
+    return -999.f;
   // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
   if ((nnlsWork_.amplitudes.coeffRef(soi - 3U) + nnlsWork_.amplitudes.coeffRef(soi - 2U) +
        nnlsWork_.amplitudes.coeffRef(soi - 1U)) > thLowPUootFC_)
-    return 0.f;
+    return -999.f;
   // To speed up check around the fitted time (? to be checked with LLP)
 
   // distanze as in formula of page 6
