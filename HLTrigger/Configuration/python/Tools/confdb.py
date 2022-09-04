@@ -479,16 +479,18 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       )
 
       self.data = re.sub("""\
-\\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"(EvFOutputModule|GlobalEvFOutputModule)" *,
+\\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *['"](EvFOutputModule|GlobalEvFOutputModule)['"] *,
     use_compression = cms.untracked.bool\( (True|False) \),
-    compression_algorithm = cms.untracked.string\( "(.+?)" \),
+    compression_algorithm = cms.untracked.string\( ['"](.+?)['"] \),
     compression_level = cms.untracked.int32\( (-?\d+) \),
     lumiSection_interval = cms.untracked.int32\( (-?\d+) \),
 (.+?),
-    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)
+    psetMap = cms.untracked.InputTag\( ['"]hltPSetMap['"] \)
 ""","""\
-\g<1>hltOutput\g<2> = cms.OutputModule( "PoolOutputModule",
+%(process)s.hltOutput\g<2> = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "output\g<2>.root" ),
+    compressionAlgorithm = cms.untracked.string( "\g<5>" ),
+    compressionLevel = cms.untracked.int32( \g<6> ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
