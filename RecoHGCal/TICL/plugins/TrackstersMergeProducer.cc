@@ -248,7 +248,7 @@ void TrackstersMergeProducer::dumpTrackster(const Trackster &t) const {
 void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
   auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
-
+  auto resultFromTracks = std::make_unique<std::vector<TICLCandidate>>();
   tfSession_ = es.getData(tfDnnToken_).getSession();
 
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
@@ -267,7 +267,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   // Linking
   linkingAlgo_->linkTracksters(
-      track_h, trackTime, trackTimeErr, trackTimeQual, muons, trackstersclue3d_h, *resultCandidates);
+      track_h, trackTime, trackTimeErr, trackTimeQual, muons, trackstersclue3d_h, *resultCandidates, *resultFromTracks);
 
   // Print debug info
   LogDebug("TrackstersMergeProducer") << "Results from the linking step : " << std::endl
@@ -335,18 +335,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     }
 
     outTrackster.zeroProbabilities();
-    if (!track_ptr.isNull()) {
+    if (!track_ptr.isNull())
       outTrackster.setSeed(track_h.id(), track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get());
-      if (std::abs(cand.pdgId()) == 11)
-        outTrackster.setIdProbability(ticl::Trackster::ParticleType::electron, 1.f);
-      else
-        outTrackster.setIdProbability(ticl::Trackster::ParticleType::charged_hadron, 1.f);
-    } else {
-      if (cand.pdgId() == 22)
-        outTrackster.setIdProbability(ticl::Trackster::ParticleType::photon, 1.f);
-      else
-        outTrackster.setIdProbability(ticl::Trackster::ParticleType::neutral_hadron, 1.f);
-    }
     if (!outTrackster.vertices().empty())
       resultTrackstersMerged->push_back(outTrackster);
   }
@@ -355,8 +345,58 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                         layerClusters,
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
 
+  //filling the TICLCandidates information
+  assert(resultTrackstersMerged->size() == resultCandidates->size());
+
+  auto isHad = [](const Trackster &tracksterMerge) {
+    return tracksterMerge.id_probability(Trackster::ParticleType::photon) +
+               tracksterMerge.id_probability(Trackster::ParticleType::electron) <
+           0.5;
+  };
+  for (size_t i = 0; i < resultTrackstersMerged->size(); i++) {
+    auto const &tm = (*resultTrackstersMerged)[i];
+    auto &cand = (*resultCandidates)[i];
+    //common properties
+    cand.setIdProbabilities(tm.id_probabilities());
+    //charged candidates
+    if (!cand.trackPtr().isNull()) {
+      auto pdgId = isHad(tm) ? 211 : 11;
+      auto const &tk = cand.trackPtr().get();
+      cand.setPdgId(pdgId * tk->charge());
+      cand.setCharge(tk->charge());
+      cand.setRawEnergy(tm.raw_energy());
+      auto const &regrE = tm.regressed_energy();
+      math::XYZTLorentzVector p4(regrE * tk->momentum().unit().x(),
+                                 regrE * tk->momentum().unit().y(),
+                                 regrE * tk->momentum().unit().z(),
+                                 regrE);
+      cand.setP4(p4);
+    } else {  // neutral candidates
+      auto pdgId = isHad(tm) ? 130 : 22;
+      cand.setPdgId(pdgId);
+      cand.setCharge(0);
+      cand.setRawEnergy(tm.raw_energy());
+      const float &regrE = tm.regressed_energy();
+      math::XYZTLorentzVector p4(regrE * tm.barycenter().unit().x(),
+                                 regrE * tm.barycenter().unit().y(),
+                                 regrE * tm.barycenter().unit().z(),
+                                 regrE);
+      cand.setP4(p4);
+    }
+  }
+  for (auto &cand : *resultFromTracks) {  //Tracks with no linked tracksters are promoted to charged hadron candidates
+    auto const &tk = cand.trackPtr().get();
+    cand.setPdgId(211 * tk->charge());
+    cand.setCharge(tk->charge());
+    const float energy = std::sqrt(tk->p() * tk->p() + ticl::mpion2);
+    cand.setRawEnergy(energy);
+    math::PtEtaPhiMLorentzVector p4Polar(tk->pt(), tk->eta(), tk->phi(), ticl::mpion);
+    cand.setP4(p4Polar);
+  }
   // Compute timing
+  resultCandidates->insert(resultCandidates->end(), resultFromTracks->begin(), resultFromTracks->end());
   assignTimeToCandidates(*resultCandidates);
 
   evt.put(std::move(resultTrackstersMerged));

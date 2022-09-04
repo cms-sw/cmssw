@@ -38,7 +38,8 @@ namespace ticl {
                                 const edm::ValueMap<float>& tkTimeQual,
                                 const std::vector<reco::Muon>& muons,
                                 const edm::Handle<std::vector<Trackster>> tsH,
-                                std::vector<TICLCandidate>& resultTracksters) = 0;
+                                std::vector<TICLCandidate>& resultTracksters,
+                                std::vector<TICLCandidate>& resultFromTracks) = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); };
 
