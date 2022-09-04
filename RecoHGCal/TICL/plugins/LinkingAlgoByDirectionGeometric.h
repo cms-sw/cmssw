@@ -38,6 +38,7 @@ namespace ticl {
                         const edm::ValueMap<float> &,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription &desc);
@@ -54,6 +55,7 @@ namespace ticl {
 
     void findTrackstersInWindow(const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                 const std::array<TICLLayerTile, 2> &tracksterTiles,
+                                const std::vector<Vector> &tracksterPropPoints,
                                 double delta,
                                 unsigned trackstersSize,
                                 std::vector<std::vector<unsigned>> &resultCollection,
@@ -72,19 +74,6 @@ namespace ticl {
                          std::vector<unsigned> &ts_mask,
                          double &energy_in_candidate,
                          TICLCandidate &candidate);
-
-    void addTracksterIfCompatible(const unsigned ts,
-                                  const edm::Handle<std::vector<Trackster>> tsH,
-                                  const unsigned tk,
-                                  const reco::TrackRef &tkRef,
-                                  const std::vector<Trackster> &tracksters,
-                                  const std::vector<reco::Track> &tracks,
-                                  std::vector<unsigned> &ts_mask,
-                                  double &energy_in_candidate,
-                                  TICLCandidate &candidate,
-                                  const edm::ValueMap<float> &tkTime,
-                                  const edm::ValueMap<float> &tkTimeErr,
-                                  const edm::ValueMap<float> &tkTimeQual);
 
     void dumpLinksFound(std::vector<std::vector<unsigned>> &resultCollection, const char *label) const;
 

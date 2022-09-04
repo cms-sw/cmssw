@@ -29,7 +29,7 @@ private:
   const bool useMTDTiming_;
   const bool useTimingAverage_;
   const float timingQualityThreshold_;
-
+  const bool energy_from_regression_;
   // inputs
   const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
@@ -44,6 +44,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
     : useMTDTiming_(conf.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
       timingQualityThreshold_(conf.getParameter<double>("timingQualityThreshold")),
+      energy_from_regression_(conf.getParameter<bool>("energyFromRegression")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
       srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
       srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
@@ -60,6 +61,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("trackTimeValueMap", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
+  desc.add<bool>("energyFromRegression", true);
   desc.add<double>("timingQualityThreshold", 0.5);
   desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", false);
@@ -90,13 +92,15 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     const auto abs_pdg_id = std::abs(ticl_cand.pdgId());
     const auto charge = ticl_cand.charge();
     const auto& four_mom = ticl_cand.p4();
-    double ecal_energy = 0.;
-
+    double ecal_energy_fraction = 0.;
     for (const auto& t : ticl_cand.tracksters()) {
-      double ecal_energy_fraction = t->raw_em_pt() / t->raw_pt();
-      ecal_energy += t->raw_energy() * ecal_energy_fraction;
+      ecal_energy_fraction = t->raw_em_pt() / t->raw_pt();
     }
-    double hcal_energy = ticl_cand.rawEnergy() - ecal_energy;
+
+    double ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
+                                                 : ticl_cand.rawEnergy() * ecal_energy_fraction;
+    double hcal_energy =
+        energy_from_regression_ ? ticl_cand.p4().energy() - ecal_energy : ticl_cand.rawEnergy() - ecal_energy;
     // fix for floating point rounding could go slightly below 0
     hcal_energy = hcal_energy < 0 ? 0 : hcal_energy;
 
