@@ -103,21 +103,17 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring(
-        'keep *_*hbhe*_*_*',
-	'keep *_g4SimHits_*_*',
-	'keep *_*HGC*_*_*',
-        ),
-    fileName = cms.untracked.string('step1.root'),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
     ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
+    fileName = cms.untracked.string('step1.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
@@ -152,14 +148,27 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.endjob_step = cms.EndPath(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
+                                process.genfiltersummary_step,
 				process.simulation_step,
+                                process.endjob_step,
 				process.out_step
 				)
 
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
 # filter all path with the production filter sequence
 for path in process.paths:
-        if getattr(process,path)._seq is not None: getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
+        getattr(process,path).insert(0, process.ProductionFilterSequence)
+
+
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
