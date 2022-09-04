@@ -388,10 +388,11 @@ float MahiFit::ccTime(const float itQ) const {
 
   std::array<double, hcal::constants::maxSamples> pulseN;
 
-  int TS_afterSOI = 25 * (nnlsWork_.tsSize - nnlsWork_.tsOffset);
+  // making 8 TS out of the template i.e. 200 points
+  int TS_SOIandAfter = 25 * (nnlsWork_.tsSize - nnlsWork_.tsOffset);
   int TS_beforeSOI = -25 * nnlsWork_.tsOffset;
 
-  for (int deltaNS = TS_beforeSOI; deltaNS < TS_afterSOI; ++deltaNS) {
+  for (int deltaNS = TS_beforeSOI; deltaNS < TS_SOIandAfter; ++deltaNS) { // from -75ns and + 125ns
     const float xx = t0 + deltaNS;
 
     psfPtr_->singlePulseShapeFuncMahi(&xx);
@@ -401,14 +402,16 @@ float MahiFit::ccTime(const float itQ) const {
     float norm2 = 0;
     float numerator = 0;
     //
+    int delta = 4 - nnlsWork_.tsOffset; // like in updatePulseShape
 
-    for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
+    // rm TS0 and TS7, to speed up and reduce noise
+    for (unsigned int iTS = 1; iTS < (nnlsWork_.tsSize - 1); ++iTS) {
       //pulseN[iTS] is the area of the template
       float norm = nnlsWork_.amplitudes.coeffRef(iTS);
 
       //  Finding the distance after each iteration.
-      numerator += norm * pulseN[iTS];
-      pulse2 += pulseN[iTS] * pulseN[iTS];
+      numerator += norm * pulseN[iTS + delta];
+      pulse2 += pulseN[iTS + delta] * pulseN[iTS + delta];
       norm2 += norm * norm;
     }
 
