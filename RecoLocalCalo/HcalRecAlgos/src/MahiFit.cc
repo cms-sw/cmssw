@@ -392,7 +392,7 @@ float MahiFit::ccTime(const float itQ) const {
   int TS_SOIandAfter = 25 * (nnlsWork_.tsSize - nnlsWork_.tsOffset);
   int TS_beforeSOI = -25 * nnlsWork_.tsOffset;
 
-  for (int deltaNS = TS_beforeSOI; deltaNS < TS_SOIandAfter; ++deltaNS) { // from -75ns and + 125ns
+  for (int deltaNS = TS_beforeSOI; deltaNS < TS_SOIandAfter; ++deltaNS) {  // from -75ns and + 125ns
     const float xx = t0 + deltaNS;
 
     psfPtr_->singlePulseShapeFuncMahi(&xx);
@@ -402,7 +402,7 @@ float MahiFit::ccTime(const float itQ) const {
     float norm2 = 0;
     float numerator = 0;
     //
-    int delta = 4 - nnlsWork_.tsOffset; // like in updatePulseShape
+    int delta = 4 - nnlsWork_.tsOffset;  // like in updatePulseShape
 
     // rm TS0 and TS7, to speed up and reduce noise
     for (unsigned int iTS = 1; iTS < (nnlsWork_.tsSize - 1); ++iTS) {
