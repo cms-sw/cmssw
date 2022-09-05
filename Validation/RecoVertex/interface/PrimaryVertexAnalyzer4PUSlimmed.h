@@ -180,6 +180,8 @@ private:
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 
   std::vector<bool> errorPrintedForColl_;
+
+  unsigned int nPUbins_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
