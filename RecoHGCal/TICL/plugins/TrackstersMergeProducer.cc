@@ -338,7 +338,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     if (!track_ptr.isNull())
       outTrackster.setSeed(track_h.id(), track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get());
     if (!outTrackster.vertices().empty())
-      resultTrackstersMerged->push_back(outTrackster);
+    {
+        resultTrackstersMerged->push_back(outTrackster);
+    }
+
+    
   }
 
   assignPCAtoTracksters(*resultTrackstersMerged,
@@ -431,6 +435,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   // and store indices of hard tracksters
   std::vector<int> tracksterIndices;
   for (int i = 0; i < (int)tracksters.size(); i++) {
+    tracksters[i].setRegressedEnergy(tracksters[i].raw_energy());
     // calculate the cluster energy sum (2)
     // note: after the loop, sumClusterEnergy might be just above the threshold
     // which is enough to decide whether to run inference for the trackster or
@@ -441,7 +446,6 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
       // there might be many clusters, so try to stop early
       if (sumClusterEnergy >= eidMinClusterEnergy_) {
         // set default values (1)
-        tracksters[i].setRegressedEnergy(0.f);
         tracksters[i].zeroProbabilities();
         tracksterIndices.push_back(i);
         break;
