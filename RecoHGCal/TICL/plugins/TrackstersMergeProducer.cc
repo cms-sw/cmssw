@@ -337,12 +337,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     outTrackster.zeroProbabilities();
     if (!track_ptr.isNull())
       outTrackster.setSeed(track_h.id(), track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get());
-    if (!outTrackster.vertices().empty())
-    {
-        resultTrackstersMerged->push_back(outTrackster);
+    if (!outTrackster.vertices().empty()) {
+      resultTrackstersMerged->push_back(outTrackster);
     }
-
-    
   }
 
   assignPCAtoTracksters(*resultTrackstersMerged,
