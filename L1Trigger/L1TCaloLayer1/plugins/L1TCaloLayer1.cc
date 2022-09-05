@@ -223,7 +223,7 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             // fg2 should only be set for HF
             if (fg2)
               featureBits |= 0b10;
-          } else
+          } else if (absCaloEta < 16)
             featureBits |= (fg | ((!fg2) & (fg3 | fg4)));  // depth | (!prompt & (delay1 | delay2))
           if (!layer1->setHCALData(t, featureBits, et)) {
             LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
