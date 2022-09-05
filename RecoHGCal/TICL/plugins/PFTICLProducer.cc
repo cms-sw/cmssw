@@ -94,7 +94,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     const auto& four_mom = ticl_cand.p4();
     double ecal_energy_fraction = 0.;
     for (const auto& t : ticl_cand.tracksters()) {
-      ecal_energy_fraction = t->raw_em_pt() / t->raw_pt();
+      ecal_energy_fraction = t->raw_em_energy() / t->raw_energy();
     }
 
     double ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
