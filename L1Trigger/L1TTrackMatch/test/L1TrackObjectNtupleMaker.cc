@@ -2150,7 +2150,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         tmp_matchtrk_chi2rz = matchedTracks.at(i_track)->chi2ZRed();
         tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
         tmp_matchtrk_MVA1 = matchedTracks.at(i_track)->trkMVA1();
-	tmp_matchtrk_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
+        tmp_matchtrk_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
         tmp_matchtrk_seed = (int)matchedTracks.at(i_track)->trackSeedType();
         tmp_matchtrk_hitpattern = (int)matchedTracks.at(i_track)->hitPattern();
 
@@ -2322,7 +2322,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         tmp_matchtrkExt_chi2rz = matchedTracks.at(i_track)->chi2ZRed();
         tmp_matchtrkExt_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
         tmp_matchtrkExt_MVA = matchedTracks.at(i_track)->trkMVA1();
-	tmp_matchtrkExt_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
+        tmp_matchtrkExt_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
         tmp_matchtrkExt_seed = (int)matchedTracks.at(i_track)->trackSeedType();
         tmp_matchtrkExt_hitpattern = (int)matchedTracks.at(i_track)->hitPattern();
 
