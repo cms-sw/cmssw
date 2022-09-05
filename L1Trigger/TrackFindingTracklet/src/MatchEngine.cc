@@ -224,7 +224,7 @@ void MatchEngine::execute(unsigned int iSector) {
 
       int stubfinerz = vmstub.finerz().value();
 
-      bool isPSmodule = false;
+      bool isPSmodule;
 
       if (barrel_) {
         isPSmodule = layerdisk_ < N_PSLAYER;

@@ -28,7 +28,7 @@ namespace hph {
     // Converting tmtt::KFbase::layerMap_ to a format that is acceptatble by HitPatternHelper
     for (int i = 0; i < nEtaRegions_; i++) {
       for (int j = 0; j < (int)layerIds_.size(); j++) {
-        int layer = nKalmanLayers_;
+        int layer;
         if (layerIds_[j].second) {
           layer = tmtt::KFbase::layerMap_[i][tmtt::TrackerModule::calcLayerIdReduced(layerIds_[j].first)].first;
         } else {

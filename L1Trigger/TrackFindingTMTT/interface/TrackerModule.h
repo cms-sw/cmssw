@@ -104,11 +104,11 @@ namespace tmtt {
       // No genuine track can have stubs in both barrel layer 6 and endcap disk 11 etc., so merge their layer IDs.
       if (lay == 6)
         lay = 11;
-      if (lay == 5)
+      else if (lay == 5)
         lay = 12;
-      if (lay == 4)
+      else if (lay == 4)
         lay = 13;
-      if (lay == 3)
+      else if (lay == 3)
         lay = 15;
       // At this point, the reduced layer ID can have values of 1, 2, 11, 12, 13, 14, 15. So correct to put in range 1-7.
       if (lay > 10)
