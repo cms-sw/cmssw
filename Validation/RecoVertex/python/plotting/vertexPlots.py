@@ -34,18 +34,18 @@ _recovsgen = PlotGroup("recovsgen", [
 _pvtagging = PlotGroup("pvtagging", [
     Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3, ratioCoverageXrange=[-0.5, 0.5]),
     Plot("TruePVLocationIndex", xtitle="Index of signal PV in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, ylog=True, ymin=1e-5),
-    Plot("MisTagRate_vs_PU", xtitle="PU", ytitle="Mistag rate vs. PU", title="", xmax=_maxPU, ymax=_maxFake),
-    Plot("MisTagRate_vs_sum-pt2", xtitle="#Sigmap_{T}^{2}", ytitle="Mistag rate vs. #Sigmap_{T}^{2}", title="", xlog=True, ymax=_maxFake),
+    Plot("MisTagRate_vs_PU", xtitle="Number of simulated interactions", ytitle="Mistag rate", title="", xmax=_maxPU, ymax=_maxFake),
+    Plot("MisTagRate_vs_sum-pt2", xtitle="#Sigmap_{T}^{2} (GeV^{2})", ytitle="Mistag rate", title="", xlog=True, ymax=_maxFake),
 ],
                        legendDy=_legendDy_2rows
 )
 _effandfake = PlotGroup("effandfake", [
-    Plot("effic_vs_NumVertices", xtitle="Simulated interactions", ytitle="Efficiency vs. N sim vertices", xmin=_minPU, xmax=_maxPU, ymax=_maxEff),
-    Plot("fakerate_vs_PU", xtitle="Simulated interactions", ytitle="Fake rate vs. N sim vertices", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
-    Plot("effic_vs_NumTracks", xtitle="Tracks", ytitle="Efficiency vs. N tracks", title="", ymax=_maxEff),
-    Plot("fakerate_vs_NumTracks", xtitle="Tracks", ytitle="Fake rate vs. N tracks", title="", ymax=_maxFake),
-    Plot("effic_vs_Pt2", xtitle="Sum p_{T}^{2}    ", ytitle="Efficiency vs. sum p_{T}^{2}", xlog=True, ymax=_maxEff),
-    Plot("fakerate_vs_Pt2", xtitle="Sum p_{T}^{2}    ", ytitle="Fake rate vs. sum p_{T}^{2}", xlog=True, ymax=_maxFake),
+    Plot("effic_vs_NumVertices", xtitle="Number of simulated interactions", ytitle="Efficiency", xmin=_minPU, xmax=_maxPU, ymax=_maxEff),
+    Plot("fakerate_vs_PU", xtitle="Number of simulated interactions", ytitle="Fake rate", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
+    Plot("effic_vs_NumTracks", xtitle="Tracks", ytitle="Efficiency", title="", ymax=_maxEff),
+    Plot("fakerate_vs_NumTracks", xtitle="Tracks", ytitle="Fake rate", title="", ymax=_maxFake),
+    Plot("effic_vs_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Efficiency", xlog=True, ymax=_maxEff),
+    Plot("fakerate_vs_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Fake rate", xlog=True, ymax=_maxFake),
 ])
 _common = {"title": "", "stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "ylog": True, "ymin": [5e-7, 5e-6, 5e-5, 5e-4]}
 _resolution = PlotGroup("resolution", [
@@ -76,7 +76,7 @@ _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Sigma", ytitle="#sigma(#delta z) for merged vertices (#mum)", **_commonNumTracks),
 ], ncols=3)
 _commonPt = copy.copy(_commonNumTracks)
-_commonPt.update(dict(xtitle= "Sum of track p_{T} (GeV)", xlog=True, xmin=_minMaxPt, xmax=_minMaxPt))
+_commonPt.update(dict(xtitle= "#sum^{}p_{T} (GeV)", xlog=True, xmin=_minMaxPt, xmax=_minMaxPt))
 _resolutionPt = PlotGroup("resolutionPt", [
     Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Pt_Sigma", ytitle="#sigma(#delta x) (#mum) for PV", **_commonPt),
     Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Sigma", ytitle="#sigma(#delta x) (#mum)", **_commonPt),
@@ -144,10 +144,10 @@ _puritymissing = PlotGroup("puritymissing", [
 # "xgrid": False, "ygrid": False,
 _common={"drawStyle": "HIST", "xlog": True, "ylog": True, "ymin": 0.5}
 _sumpt2 = PlotGroup("sumpt2", [
-    Plot("RecoAssoc2GenPVMatched_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Reco vertices matched to gen PV", **_common),
-    Plot("RecoAssoc2GenPVMatchedNotHighest_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Reco non-PV-vertices matched to gen PV", **_common),
-    Plot("RecoAssoc2GenPVNotMatched_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Reco vertices not matched to gen PV", **_common),
-    Plot("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", xtitle="#sum^{}p_{T}^{2}, gen PV tracks removed", ytitle="Reco vertices not matched to gen PV", **_common),
+    Plot("RecoAssoc2GenPVMatched_Pt2", xtitle="#sum^{}p_{T}^{2} (GeV^{2})", ytitle="Reco vertices matched to gen PV", **_common),
+    Plot("RecoAssoc2GenPVMatchedNotHighest_Pt2", xtitle="#sum^{}p_{T}^{2} (GeV^{2})", ytitle="Reco non-PV-vertices matched to gen PV", **_common),
+    Plot("RecoAssoc2GenPVNotMatched_Pt2", xtitle="#sum^{}p_{T}^{2} (GeV^{2})", ytitle="Reco vertices not matched to gen PV", **_common),
+    Plot("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", xtitle="#sum^{}p_{T}^{2} (GeV^{2}), gen PV tracks removed", ytitle="Reco vertices not matched to gen PV", **_common),
 ],
                     legendDy=_legendDy_2rows, onlyForPileup=True,
 )
