@@ -23,7 +23,7 @@ public:
 
   PortableDeviceCollection() = default;
 
-  PortableDeviceCollection(int32_t elements, TDev const &device)
+  PortableDeviceCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
         view_{layout_} {
@@ -32,7 +32,7 @@ public:
   }
 
   template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
-  PortableDeviceCollection(int32_t elements, TQueue const &queue)
+  PortableDeviceCollection(int32_t elements, TQueue const& queue)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
         view_{layout_} {
@@ -40,26 +40,29 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  ~PortableDeviceCollection() = default;
-
   // non-copyable
-  PortableDeviceCollection(PortableDeviceCollection const &) = delete;
-  PortableDeviceCollection &operator=(PortableDeviceCollection const &) = delete;
+  PortableDeviceCollection(PortableDeviceCollection const&) = delete;
+  PortableDeviceCollection& operator=(PortableDeviceCollection const&) = delete;
 
   // movable
-  PortableDeviceCollection(PortableDeviceCollection &&other) = default;
-  PortableDeviceCollection &operator=(PortableDeviceCollection &&other) = default;
+  PortableDeviceCollection(PortableDeviceCollection&&) = default;
+  PortableDeviceCollection& operator=(PortableDeviceCollection&&) = default;
 
-  View &view() { return view_; }
-  ConstView const &view() const { return view_; }
-  ConstView const &const_view() const { return view_; }
+  // default destructor
+  ~PortableDeviceCollection() = default;
 
-  View &operator*() { return view_; }
-  ConstView const &operator*() const { return view_; }
+  // access the View
+  View& view() { return view_; }
+  ConstView const& view() const { return view_; }
+  ConstView const& const_view() const { return view_; }
 
-  View *operator->() { return &view_; }
-  ConstView const *operator->() const { return &view_; }
+  View& operator*() { return view_; }
+  ConstView const& operator*() const { return view_; }
 
+  View* operator->() { return &view_; }
+  ConstView const* operator->() const { return &view_; }
+
+  // access the Buffer
   Buffer buffer() { return *buffer_; }
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }

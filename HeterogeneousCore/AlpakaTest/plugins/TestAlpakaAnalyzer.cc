@@ -1,5 +1,4 @@
 #include <cassert>
-#include <string>
 
 #include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
 #include "FWCore/Framework/interface/Event.h"
