@@ -146,6 +146,8 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
   LogDebug("RPCCPPFRawToDigi") << "RXRecord " << std::hex << record.getRecord() << std::dec << std::endl;
   unsigned int fed(link.getFED());
   unsigned int amc_number(link.getAMCNumber());
+  if (record.getLink() > 80)
+    return;
   link.setAMCInput(record.getLink());
 
   int bx_offset = (int)(record.getBXCounterMod() + 31 - bx_counter_mod) % 27 - 4;
