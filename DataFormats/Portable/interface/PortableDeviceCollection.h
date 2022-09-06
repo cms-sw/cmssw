@@ -1,6 +1,7 @@
 #ifndef DataFormats_Portable_interface_PortableDeviceCollection_h
 #define DataFormats_Portable_interface_PortableDeviceCollection_h
 
+#include <cassert>
 #include <optional>
 #include <type_traits>
 
