@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D49, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D49, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,18 +26,32 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('PROD',Phase2C11I13M9)
-
-if (options.geometry == "D88"):
+if (options.geometry == "D49"):
+    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+    process = cms.Process('SingleMuon',Phase2C9)
+    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    globalTag = "auto:phase2_realistic_T15"
+elif (options.geometry == "D88"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
 elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
 else:
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('SingleMuon',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    globalTag = "auto:phase2_realistic_T21"
+
+print("Global Tag: ", globalTag)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -89,21 +103,17 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring(
-        'keep *_*hbhe*_*_*',
-	'keep *_g4SimHits_*_*',
-	'keep *_*HGC*_*_*',
-        ),
-    fileName = cms.untracked.string('step1.root'),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
     ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
+    fileName = cms.untracked.string('step1.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
@@ -111,7 +121,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 
 process.generator = cms.EDFilter("Pythia8PtGun",
     PGunParameters = cms.PSet(
@@ -138,14 +148,27 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.endjob_step = cms.EndPath(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
+                                process.genfiltersummary_step,
 				process.simulation_step,
+                                process.endjob_step,
 				process.out_step
 				)
 
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
 # filter all path with the production filter sequence
 for path in process.paths:
-        if getattr(process,path)._seq is not None: getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
+        getattr(process,path).insert(0, process.ProductionFilterSequence)
+
+
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
