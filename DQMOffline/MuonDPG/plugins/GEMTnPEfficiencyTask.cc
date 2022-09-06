@@ -296,6 +296,11 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   m_histos["GEMhit_dphi"] = iBooker.book1D("GEMhit_dphi", "GEMhit_dphi;probe dphi;Events", 100, -3.15, 3.15);
   m_histos["GEMhit_deta"] = iBooker.book1D("GEMhit_deta", "GEMhit_deta;probe deta;Events", 100, -10., 10.);
 
+  m_histos["GEMhit_x"] = iBooker.book1D("GEMhit_x", "GEMhit_x;probe x [cm];Events", 100, -10., 10.);
+  m_histos["GEMhit_x_GE2"] = iBooker.book1D("GEMhit_x_GE2", "GEMhit_x;probe x [cm];Events", 100, -10., 10.);
+  m_histos["Cham_x"] = iBooker.book1D("Cham_x", "Cham_x;probe x [cm];Events", 100, -10., 10.);
+  m_histos["Cham_x_GE2"] = iBooker.book1D("Cham_x_GE2", "Cham_x;probe x [cm];Events", 100, -10., 10.);
+
   m_histos["GEMhit_dx_GE2"] = iBooker.book1D("GEMhit_dx_GE2", "GEMhit_dx;probe dx [cm];Events", 100, 0., 10.);
   m_histos["GEMhit_dy_GE2"] = iBooker.book1D("GEMhit_dy_GE2", "GEMhit_dy;probe dy [cm];Events", 100, 0., 10.);
   m_histos["GEMhit_dphi_GE2"] = iBooker.book1D("GEMhit_dphi_GE2", "GEMhit_dphi;probe dphi;Events", 100, -3.15, 3.15);
@@ -387,6 +392,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           //reco::MuonSegmentMatch closest_matchedSegment;
           reco::MuonGEMHitMatch closest_matchedHit;
           double smallestDx = 99999.;
+          double matched_GEMHit_x = 99999.;
 
           //for (auto& seg : chambMatch.gemMatches) { 
           for (auto& gemHit : chambMatch.gemHitMatches) { 
@@ -394,6 +400,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
             if (dx < smallestDx) {
               smallestDx = dx;
               closest_matchedHit = gemHit;
+              matched_GEMHit_x = gemHit.x;
             }
           }
 
@@ -434,12 +441,16 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           }
           if (m_detailedAnalysis && gem_matched) {
             m_histos.find("GEMhit_dx")->second->Fill(smallestDx);
+            m_histos.find("GEMhit_x")->second->Fill(matched_GEMHit_x);
+            m_histos.find("Cham_x")->second->Fill(chambMatch.x);
             m_histos.find("GEMseg_dx")->second->Fill(smallestDx_seg);
             m_histos.find("GEMhit_dy")->second->Fill(smallestDy);
             m_histos.find("GEMhit_dphi")->second->Fill(smallestDphi);
             m_histos.find("GEMhit_deta")->second->Fill(smallestDeta);
             if (station==2) {
               m_histos.find("GEMhit_dx_GE2")->second->Fill(smallestDx);
+              m_histos.find("GEMhit_x_GE2")->second->Fill(matched_GEMHit_x);
+              m_histos.find("Cham_x_GE2")->second->Fill(chambMatch.x);
               m_histos.find("GEMhit_dy_GE2")->second->Fill(smallestDy);
               m_histos.find("GEMhit_dphi_GE2")->second->Fill(smallestDphi);
               m_histos.find("GEMhit_deta_GE2")->second->Fill(smallestDeta);
