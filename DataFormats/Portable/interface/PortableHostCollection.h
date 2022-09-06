@@ -1,6 +1,7 @@
 #ifndef DataFormats_Portable_interface_PortableHostCollection_h
 #define DataFormats_Portable_interface_PortableHostCollection_h
 
+#include <cassert>
 #include <optional>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"

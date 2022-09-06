@@ -1,6 +1,7 @@
 #ifndef HeterogeneousCore_AlpakaInterface_interface_getDeviceCachingAllocator_h
 #define HeterogeneousCore_AlpakaInterface_interface_getDeviceCachingAllocator_h
 
+#include <cassert>
 #include <memory>
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
