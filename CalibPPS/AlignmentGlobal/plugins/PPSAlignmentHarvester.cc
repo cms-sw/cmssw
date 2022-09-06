@@ -16,6 +16,8 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "CondFormats/DataRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
@@ -109,6 +111,8 @@ private:
                                                        double binWidth = -1.,
                                                        double min = -1.);
 
+  CTPPSRPAlignmentCorrectionsData getLongIdResults(CTPPSRPAlignmentCorrectionsData finalResults);
+
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenTest_;
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenReference_;
 
@@ -121,6 +125,8 @@ private:
   const bool yAliFinalSlopeFixed_;
   const std::pair<double, double> xCorrRange_;
   const std::pair<double, double> yCorrRange_;
+  const unsigned int detectorId_;
+  const unsigned int subdetectorId_;
   const bool debug_;
 
   // other class variables
@@ -154,6 +160,8 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
                                  iConfig.getParameter<double>("x_corr_max") / 1000.)),  // um -> mm
       yCorrRange_(std::make_pair(iConfig.getParameter<double>("y_corr_min") / 1000.,
                                  iConfig.getParameter<double>("y_corr_max") / 1000.)),  // um -> mm
+      detectorId_(iConfig.getParameter<unsigned int>("detector_id")),
+      subdetectorId_(iConfig.getParameter<unsigned int>("subdetector_id")),
       debug_(iConfig.getParameter<bool>("debug")) {
   auto textResultsPath = iConfig.getParameter<std::string>("text_results_path");
   if (!textResultsPath.empty()) {
@@ -179,8 +187,11 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
     li << "* x_corr_min: " << std::fixed << xCorrRange_.first * 1000. << ", x_corr_max: " << xCorrRange_.second * 1000.
        << "\n";
     // print in um
-    li << "* y_corr_min: " << std::fixed << yCorrRange_.first * 1000. << ", y_corr_max: " << yCorrRange_.second * 1000.;
-    li << "* debug: " << std::boolalpha << debug_ << "\n";
+    li << "* y_corr_min: " << std::fixed << yCorrRange_.first * 1000. << ", y_corr_max: " << yCorrRange_.second * 1000.
+       << "\n";
+    li << "* detector_id: " << detectorId_ << "\n";
+    li << "* subdetector_id: " << subdetectorId_ << "\n";
+    li << "* debug: " << std::boolalpha << debug_;
   });
 }
 
@@ -204,6 +215,8 @@ void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("x_corr_max", 1'000'000.);
   desc.add<double>("y_corr_min", -1'000'000.);
   desc.add<double>("y_corr_max", 1'000'000.);
+  desc.add<unsigned int>("detector_id", 7);
+  desc.add<unsigned int>("subdetector_id", 4);
   desc.add<bool>("debug", false);
 
   descriptions.addWithDefaultLabel(desc);
@@ -322,9 +335,14 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
 
   // if requested, store the results in a DB object
   if (writeSQLiteResults_) {
+    CTPPSRPAlignmentCorrectionsData longIdFinalResults = getLongIdResults(finalResults);
+    edm::LogInfo("PPSAlignmentHarvester") << "trying to store final merged results with long ids:\n"
+                                          << longIdFinalResults;
+
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOneIOV(finalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
+      poolDbService->writeOneIOV(
+          longIdFinalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
     } else {
       edm::LogWarning("PPSAlignmentHarvester")
           << "Could not store the results in a DB object. PoolDBService not available.";
@@ -1043,6 +1061,22 @@ std::unique_ptr<TH1D> PPSAlignmentHarvester::getTH1DFromTGraphErrors(
     hist->SetBinError(hist->GetXaxis()->FindBin(x), graph->GetErrorY(i));
   }
   return hist;
+}
+
+// Get Long 32-bit detector ID from short 3-digit ID
+CTPPSRPAlignmentCorrectionsData PPSAlignmentHarvester::getLongIdResults(CTPPSRPAlignmentCorrectionsData shortIdResults) {
+  CTPPSRPAlignmentCorrectionsData longIdResults;
+  for (const auto& [shortId, correction] : shortIdResults.getRPMap()) {
+    unsigned int arm = shortId / 100;
+    unsigned int station = (shortId / 10) % 10;
+    unsigned int rp = shortId % 10;
+
+    uint32_t longDetId = detectorId_ << 28 | subdetectorId_ << 25 | arm << 24 | station << 22 | rp << 19;
+
+    longIdResults.addRPCorrection(longDetId, correction);
+  }
+
+  return longIdResults;
 }
 
 DEFINE_FWK_MODULE(PPSAlignmentHarvester);
