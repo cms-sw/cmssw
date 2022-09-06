@@ -152,8 +152,8 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   dqmLabel = TopFolderName_ + "/" + beamSpotInputTag_.label();
   iBooker.setCurrentFolder(dqmLabel);
 
-  bsX = iBooker.book1D("bsX", "BeamSpot x0", 100, -0.1, 0.1);
-  bsY = iBooker.book1D("bsY", "BeamSpot y0", 100, -0.1, 0.1);
+  bsX = iBooker.book1D("bsX", "BeamSpot x0", 100, vposx - 0.1, vposx + 0.1);
+  bsY = iBooker.book1D("bsY", "BeamSpot y0", 100, vposy - 0.1, vposy + 0.1);
   bsZ = iBooker.book1D("bsZ", "BeamSpot z0", 100, -2., 2.);
   bsSigmaZ = iBooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
   bsDxdz = iBooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
@@ -454,7 +454,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   bsDydz->Fill(beamSpot.dydz());
   bsBeamWidthX->Fill(beamSpot.BeamWidthX() * cmToUm);
   bsBeamWidthY->Fill(beamSpot.BeamWidthY() * cmToUm);
-  // bsType->Fill(beamSpot.type());
+  bsType->Fill(beamSpot.type());
 }
 
 void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
