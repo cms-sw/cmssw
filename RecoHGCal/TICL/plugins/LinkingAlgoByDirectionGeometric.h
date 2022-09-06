@@ -85,9 +85,6 @@ namespace ticl {
     const double del_ts_had_had_;
 
     const double timing_quality_threshold_;
-    const double pid_threshold_;
-    const double energy_em_over_total_threshold_;
-    const std::vector<int> filter_on_categories_;
 
     const StringCutObjectSelector<reco::Track> cutTk_;
     std::once_flag initializeGeometry_;
