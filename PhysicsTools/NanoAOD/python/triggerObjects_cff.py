@@ -78,9 +78,9 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
                             "max(filter('*RelTrkIsoVVLFiltered0p4'),filter('*RelTrkIsoVVLFiltered')) + " \
-                            "2*max(filter('hltL3crIso*IsoFiltered0p07'),filter('hltL3crIso*IsoFiltered0p08'),filter('hltL3crIso*IsoFiltered')) + " \
+                            "2*max(max(filter('hltL3crIso*IsoFiltered0p07'),filter('hltL3crIso*IsoFiltered0p08')),filter('hltL3crIso*IsoFiltered')) + " \
                             "4*filter('*OverlapFilterIsoMu*PFTau*') + " \
-                            "8*max(max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p07'),filter('hltL3crIsoL1sMu*IsoFiltered0p07')),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p08'),filter('hltL3crIsoL1sMu*IsoFiltered0p08')),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered'),filter('hltL3crIsoL1sMu*IsoFiltered'))) + " \
+                            "8*max(max(max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p07'),filter('hltL3crIsoL1sMu*IsoFiltered0p07')),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered0p08'),filter('hltL3crIsoL1sMu*IsoFiltered0p08'))),max(filter('hltL3crIsoL1*SingleMu*IsoFiltered'),filter('hltL3crIsoL1sMu*IsoFiltered'))) + " \
                             "16*filter('hltDiMuon*Filtered*') + " \
                             "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*') + " \
                             "64*filter('hlt*OverlapFilterIsoMu*PFTau*') + " \
