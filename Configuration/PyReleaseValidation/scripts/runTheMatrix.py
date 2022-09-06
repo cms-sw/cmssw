@@ -399,6 +399,7 @@ if __name__ == '__main__':
         if os.path.exists(cmssw_base):
           os.environ["PATH"]=cmssw_base+":"+os.getenv("PATH")
           os.environ["CMS_PATH"]="/cvmfs/cms-ib.cern.ch"
+          os.environ["SITECONFIG_PATH"]="/cvmfs/cms-ib.cern.ch/SITECONF/local"
           os.environ["CMSSW_USE_IBEOS"]="true"
           print(">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch")
           break
