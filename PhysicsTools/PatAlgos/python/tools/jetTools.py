@@ -626,6 +626,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
                 
             if btagInfo == 'pfDeepDoubleXTagInfos':
+                # can only run on PAT jets, so the updater needs to be used
+                if 'updated' not in jetSource.value().lower():
+                    raise ValueError("Invalid jet collection: %s. pfDeepDoubleXTagInfos only supports running via updateJetCollection." % jetSource.value())
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepDoubleXTagInfos.clone(
                                       jets = jetSource,
