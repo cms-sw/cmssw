@@ -9,7 +9,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace portabletest {
 
-    // import the top-level portabletest namespace
+    // make the names from the top-level portabletest namespace visible for unqualified lookup
+    // inside the ALPAKA_ACCELERATOR_NAMESPACE::portabletest namespace
     using namespace ::portabletest;
 
     // SoA with x, y, z, id fields in device global memory
