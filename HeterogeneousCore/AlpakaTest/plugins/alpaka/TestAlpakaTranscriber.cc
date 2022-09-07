@@ -1,6 +1,3 @@
-#include <optional>
-#include <string>
-
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/Product.h"
