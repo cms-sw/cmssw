@@ -6,7 +6,6 @@ mahiParameters = cms.PSet(
     calculateArrivalTime  = cms.bool(True),
     timeAlgo          = cms.int32(2), # 1=MahiTime, 2=ccTime
     thEnergeticPulses = cms.double(5.),
-    thLowPUOOT        = cms.double(5.),
     dynamicPed        = cms.bool(False),
     ts4Thresh         = cms.double(0.0),
     chiSqSwitch       = cms.double(15.0),
