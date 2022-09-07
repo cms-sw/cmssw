@@ -1406,14 +1406,14 @@ class ConfigBuilder(object):
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjets+=','+name
 
-            if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+            if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
                     self.productionFilterstepSpec = 'ProductionFilterSequence'
                 elif 'generator' in genModules:
                     self.productionFilterstepSpec = 'generator'
 
         """ Enrich the schedule with the rest of the generation step """
-        _,_genSeqName,_=self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
+        _,_genSeqName,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.GENDefaultCFF)
 
         if True:
             try:
@@ -1449,7 +1449,7 @@ class ConfigBuilder(object):
 
     def prepare_SIM(self, stepSpec = None):
         """ Enrich the schedule with the simulation step"""
-        _,_simSeq,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.SIMDefaultCFF)
+        _,_simSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SIMDefaultCFF)
         if not self._options.fast:
             if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
@@ -1465,15 +1465,15 @@ class ConfigBuilder(object):
 
     def prepare_DIGI(self, stepSpec = None):
         """ Enrich the schedule with the digitisation step"""
-        _,_digiSeq,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+        _,_digiSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DIGIDefaultCFF)
 
         if self._options.gflash==True:
             self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if sequence == 'pdigi_valid' or sequence == 'pdigi_hi':
+        if _digiSeq == 'pdigi_valid' or _digiSeq == 'pdigi_hi':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
-        if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and sequence != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource' and not self._options.filetype == "LHE":
+        if _digiSeq != 'pdigi_nogen' and _digiSeq != 'pdigi_valid_nogen' and _digiSeq != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource' and not self._options.filetype == "LHE":
             if self._options.inputEventContent=='':
                 self._options.inputEventContent='REGEN'
             else:
@@ -1508,18 +1508,18 @@ class ConfigBuilder(object):
         return
 
     def prepare_DIGI2RAW(self, stepSpec = None):
-        _,_digi2rawSeq,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
+        _,_digi2rawSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DIGI2RAWDefaultCFF)
         self.scheduleSequence(_digi2rawSeq,'digi2raw_step')
         return
 
     def prepare_REPACK(self, stepSpec = None):
-        _,_repackSeq,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.REPACKDefaultCFF)
+        _,_repackSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.REPACKDefaultCFF)
         self.scheduleSequence(_repackSeq,'digi2repack_step')
         return
 
     def prepare_L1(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step"""
-        assert(sequence == None)
+        assert(stepSpec == None)
         self.loadAndRemember(self.L1EMDefaultCFF)
         self.scheduleSequence('SimL1Emulator','L1simulation_step')
         return
@@ -1527,7 +1527,7 @@ class ConfigBuilder(object):
     def prepare_L1REPACK(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
         supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
-        if sequence in supported:
+        if stepSpec in supported:
             self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
             if self._options.scenario == 'HeavyIons':
                 self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
