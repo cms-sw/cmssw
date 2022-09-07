@@ -11,8 +11,5 @@
     <test name="TestCUDATest" command="runtests.sh cpu"/>
   </ifrelease>
 
-  <test
-    name="testHeterogeneousCoreCUDATestWriteRead"
-    command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/CUDATest/test/writer.py; cmsRun ${LOCALTOP}/src/HeterogeneousCore/CUDATest/test/reader.py"
-  />
+  <test name="testHeterogeneousCoreCUDATestWriteRead" command="testHeterogeneousCoreCUDATestWriteRead.sh"/>
 </iftool>
