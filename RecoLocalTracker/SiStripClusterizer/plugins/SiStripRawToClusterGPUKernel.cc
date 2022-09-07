@@ -133,6 +133,7 @@ namespace stripgpu {
     cms::cuda::copyAsync(outdata, stripdata_->alldataGPU_, max_strips, stream);
     cudaCheck(cudaStreamSynchronize(stream));
 
+    constexpr int xor3bits = 7;
     for (size_t i = 0; i < chanlocs_->size(); ++i) {
       const auto data = chanlocs_->input(i);
       const auto len = chanlocs_->length(i);
@@ -143,14 +144,14 @@ namespace stripgpu {
         const auto end = choff + len;
 
         while (choff < end) {
-          const auto stripIndex = data[choff++ ^ 7];
-          const auto groupLength = data[choff++ ^ 7];
+          const auto stripIndex = data[choff++ ^ xor3bits];
+          const auto groupLength = data[choff++ ^ xor3bits];
           aoff += 2;
           for (auto k = 0; k < groupLength; ++k, ++choff, ++aoff) {
-            if (data[choff ^ 7] != outdata[aoff]) {
+            if (data[choff ^ xor3bits] != outdata[aoff]) {
               LogDebug("SiStripRawToClusterGPUKernel")
-                  << "Strip mismatch " << stripIndex << " i:k " << i << ":" << k << " " << (uint32_t)data[choff ^ 7]
-                  << " != " << (uint32_t)outdata[aoff] << std::endl;
+                  << "Strip mismatch " << stripIndex << " i:k " << i << ":" << k << " "
+                  << (uint32_t)data[choff ^ xor3bits] << " != " << (uint32_t)outdata[aoff] << std::endl;
             }
           }
         }

@@ -327,8 +327,14 @@ namespace stripgpu {
               uint8_t adc_j = adc[index];
               const int charge = static_cast<int>(static_cast<float>(adc_j) / gain_j + 0.5f);
 
-              if (adc_j < 254) {
-                adc_j = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
+              constexpr uint8_t adc_low_saturation = 254;
+              constexpr uint8_t adc_high_saturation = 255;
+              constexpr int charge_low_saturation = 253;
+              constexpr int charge_high_saturation = 1022;
+              if (adc_j < adc_low_saturation) {
+                adc_j =
+                    (charge > charge_high_saturation ? adc_high_saturation
+                                                     : (charge > charge_low_saturation ? adc_low_saturation : charge));
               }
               clusterADCs[j * nSeedStripsNC + i] = adc_j;
 
