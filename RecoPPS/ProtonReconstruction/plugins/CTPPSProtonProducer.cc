@@ -25,6 +25,11 @@
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfoCombined.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
+#include "CondFormats/DataRecord/interface/LHCInfoPerLSRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
+#include "CondFormats/DataRecord/interface/LHCInfoPerFillRcd.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
@@ -51,6 +56,8 @@ private:
 
   bool pixelDiscardBXShiftedTracks_;
 
+  std::string lhcInfoPerLSLabel_;
+  std::string lhcInfoPerFillLabel_;
   std::string lhcInfoLabel_;
   std::string opticsLabel_;
   std::string ppsAssociationCutsLabel_;
@@ -73,6 +80,8 @@ private:
   bool opticsValid_;
   edm::ESWatcher<CTPPSInterpolatedOpticsRcd> opticsWatcher_;
 
+  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticalFunctionsToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
@@ -86,6 +95,8 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
 
       pixelDiscardBXShiftedTracks_(iConfig.getParameter<bool>("pixelDiscardBXShiftedTracks")),
 
+      lhcInfoPerLSLabel_(iConfig.getParameter<std::string>("lhcInfoPerLSLabel")),
+      lhcInfoPerFillLabel_(iConfig.getParameter<std::string>("lhcInfoPerFillLabel")),
       lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
       opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
       ppsAssociationCutsLabel_(iConfig.getParameter<std::string>("ppsAssociationCutsLabel")),
@@ -108,6 +119,8 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
                  iConfig.getParameter<std::string>("multiRPAlgorithm"),
                  verbosity_),
       opticsValid_(false),
+      lhcInfoPerLSToken_(esConsumes<LHCInfoPerLS, LHCInfoPerLSRcd>(edm::ESInputTag("", lhcInfoPerLSLabel_))),
+      lhcInfoPerFillToken_(esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd>(edm::ESInputTag("", lhcInfoPerFillLabel_))),
       lhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag("", lhcInfoLabel_))),
       opticalFunctionsToken_(esConsumes<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd>(
           edm::ESInputTag("", opticsLabel_))),
@@ -132,6 +145,8 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   desc.add<bool>("pixelDiscardBXShiftedTracks", false)
       ->setComment("whether to discard pixel tracks built from BX-shifted planes");
 
+  desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
+  desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
   desc.add<std::string>("ppsAssociationCutsLabel", "")->setComment("label of the association cuts record");
@@ -188,7 +203,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   // NB: this avoids loading (possibly non-existing) conditions in workflows without proton data
   if (!hTracks->empty()) {
     // get conditions
-    edm::ESHandle<LHCInfo> hLHCInfo = iSetup.getHandle(lhcInfoToken_);
+    LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_);
 
     edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions =
         iSetup.getHandle(opticalFunctionsToken_);
@@ -264,7 +279,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               ssLog << std::endl << "* reconstruction from track " << idx << std::endl;
 
             singleRPResultsIndexed[idx] =
-                algorithm_.reconstructFromSingleRP(CTPPSLocalTrackLiteRef(hTracks, idx), *hLHCInfo, ssLog);
+                algorithm_.reconstructFromSingleRP(CTPPSLocalTrackLiteRef(hTracks, idx), lhcInfoCombined.energy, ssLog);
           }
         }
 
@@ -299,14 +314,18 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
               bool matching = true;
 
-              if (!ac.isSatisfied(ac.qX, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.x() - tr_j.x()))
+              if (!ac.isSatisfied(ac.qX, tr_i.x(), tr_i.y(), lhcInfoCombined.crossingAngleX, tr_i.x() - tr_j.x()))
                 matching = false;
-              else if (!ac.isSatisfied(ac.qY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.y() - tr_j.y()))
-                matching = false;
-              else if (!ac.isSatisfied(ac.qXi, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.xi() - pr_j.xi()))
+              else if (!ac.isSatisfied(ac.qY, tr_i.x(), tr_i.y(), lhcInfoCombined.crossingAngleX, tr_i.y() - tr_j.y()))
                 matching = false;
               else if (!ac.isSatisfied(
-                           ac.qThetaY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.thetaY() - pr_j.thetaY()))
+                           ac.qXi, tr_i.x(), tr_i.y(), lhcInfoCombined.crossingAngleX, pr_i.xi() - pr_j.xi()))
+                matching = false;
+              else if (!ac.isSatisfied(ac.qThetaY,
+                                       tr_i.x(),
+                                       tr_i.y(),
+                                       lhcInfoCombined.crossingAngleX,
+                                       pr_i.thetaY() - pr_j.thetaY()))
                 matching = false;
 
               if (!matching)
@@ -424,7 +443,8 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               ssLog << std::endl << "    time = " << time << " +- " << time_unc << std::endl;
 
             // process tracking-RP data
-            reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_track_for_kin_reco, *hLHCInfo, ssLog);
+            reco::ForwardProton proton =
+                algorithm_.reconstructFromMultiRP(sel_track_for_kin_reco, lhcInfoCombined.energy, ssLog);
 
             // save combined output
             proton.setContributingLocalTracks(sel_tracks);

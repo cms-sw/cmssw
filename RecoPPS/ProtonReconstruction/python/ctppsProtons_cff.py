@@ -10,6 +10,8 @@ from CalibPPS.ESProducers.ctppsOpticalFunctions_cff import *
 from RecoPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
 ctppsProtons.lhcInfoLabel = ctppsLHCInfoLabel
+ctppsProtons.lhcInfoPerLSLabel =   ctppsLHCInfoPerLSLabel
+ctppsProtons.lhcInfoPerFillLabel = ctppsLHCInfoPerFillLabel
 
 ctppsProtons.pixelDiscardBXShiftedTracks = True
 ctppsProtons.default_time = -999.

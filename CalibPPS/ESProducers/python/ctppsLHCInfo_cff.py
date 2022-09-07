@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # by default, LHCInfo is now loaded from CondDB using a GT
 ctppsLHCInfoLabel = cms.string("")
+ctppsLHCInfoPerLSLabel = cms.string("")
+ctppsLHCInfoPerFillLabel = cms.string("")
 
 ## minimal LHCInfo for 2016 data
 #ctppsLHCInfoLabel = cms.string("ctpps_minimal")
