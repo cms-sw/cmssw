@@ -188,10 +188,10 @@ namespace l1tpf_calo {
     SingleCaloClusterer(const edm::ParameterSet &pset);
     ~SingleCaloClusterer();
     void clear();
-    void add(const reco::Candidate &c, bool updateEtaPhi = false) { add(c.pt(), c.eta(), c.phi(), updateEtaPhi); }
-    void add(float pt, float eta, float phi, bool updateEtaPhi = false) { 
+    void add(const reco::Candidate &c) { add(c.pt(), c.eta(), c.phi()); }
+    void add(float pt, float eta, float phi) { 
       rawet_(eta, phi) += pt; 
-      if (updateEtaPhi) {
+      if (preciseEtaPhi_) {
         float newet = rawet_(eta, phi);
         float prevw = (newet-pt)/newet;
         float nextw = pt/newet;
@@ -246,11 +246,16 @@ namespace l1tpf_calo {
     EtaPhiCenterGrid phi_center_;
     PreClusterGrid precluster_;
     IndexGrid clusterIndex_, cellKey_;
+    bool preciseEtaPhi_;
+    std::vector<double> etaBounds_;
+    std::vector<double> phiBounds_;
+    std::vector<unsigned int> maxClustersEtaPhi_;//eta x phi
     std::vector<Cluster> clusters_;
     const Cluster nullCluster_;
     float zsEt_, seedEt_, minClusterEt_, minEtToGrow_;
     EnergyShareAlgo energyShareAlgo_;
     bool energyWeightedPosition_;  // do the energy-weighted cluster position instead of the cell center
+    std::vector<int> neighborCells_;
   };
 
   class SimpleCaloLinkerBase {
@@ -283,6 +288,9 @@ namespace l1tpf_calo {
     const SingleCaloClusterer &ecal_, &hcal_;
     IndexGrid clusterIndex_;
     std::vector<CombinedCluster> clusters_;
+    std::vector<double> etaBounds_;
+    std::vector<double> phiBounds_;
+    std::vector<unsigned int> maxClustersEtaPhi_;//eta x phi
     float hoeCut_, minPhotonEt_, minHadronRawEt_, minHadronEt_;
     bool noEmInHGC_;
   };
