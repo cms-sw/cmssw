@@ -20,9 +20,6 @@ LinkingAlgoByDirectionGeometric::LinkingAlgoByDirectionGeometric(const edm::Para
       del_ts_em_had_(conf.getParameter<double>("delta_ts_em_had")),
       del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")),
       timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
-      pid_threshold_(conf.getParameter<double>("pid_threshold")),
-      energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
-      filter_on_categories_(conf.getParameter<std::vector<int>>("filter_hadronic_on_categories")),
       cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByDirectionGeometric::~LinkingAlgoByDirectionGeometric() {}
@@ -257,14 +254,10 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   std::array<TICLLayerTile, 2> tsPropIntTiles = {};      // all Tracksters, propagated to lastLayerEE
   std::array<TICLLayerTile, 2> tsHadPropIntTiles = {};   // Tracksters in CE-H, propagated to lastLayerEE
 
-  // filters (true for) anything but EM
+  // linking : trackster is hadronic if its barycenter is in CE-H
   auto isHadron = [&](const Trackster &t) -> bool {
-    auto cumulative_prob = 0.;
-    for (const auto index : filter_on_categories_) {
-      cumulative_prob += t.id_probabilities(index);
-    }
-    return ((cumulative_prob <= pid_threshold_) and (t.raw_em_energy() != t.raw_energy())) or
-           (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
+    auto boundary_z = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
+    return (std::abs(t.barycenter().Z()) > boundary_z);
   };
 
   if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
@@ -522,8 +515,5 @@ void LinkingAlgoByDirectionGeometric::fillPSetDescription(edm::ParameterSetDescr
   desc.add<double>("delta_ts_em_had", 0.03);
   desc.add<double>("delta_ts_had_had", 0.03);
   desc.add<double>("track_time_quality_threshold", 0.5);
-  desc.add<double>("pid_threshold", 0.5);
-  desc.add<double>("energy_em_over_total_threshold", 0.9);
-  desc.add<std::vector<int>>("filter_hadronic_on_categories", {0, 1});
   LinkingAlgoBase::fillPSetDescription(desc);
 }
