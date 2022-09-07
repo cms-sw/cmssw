@@ -15,7 +15,7 @@
 #include "G4Version.hh"
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
-  : CMSHadronPhysicsFTFP_BERT(3 * CLHEP::GeV, 6 * CLHEP::GeV, 12 * CLHEP::GeV, 3 * CLHEP::GeV, 6 * CLHEP::GeV) {}
+    : CMSHadronPhysicsFTFP_BERT(3 * CLHEP::GeV, 6 * CLHEP::GeV, 12 * CLHEP::GeV, 3 * CLHEP::GeV, 6 * CLHEP::GeV) {}
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3, G4double e4, G4double e5)
     : G4HadronPhysicsFTFP_BERT("hInelastic FTFP_BERT", false) {
@@ -40,22 +40,20 @@ void CMSHadronPhysicsFTFP_BERT::ConstructProcess() {
 
 void CMSHadronPhysicsFTFP_BERT::Neutron() {
 #if G4VERSION_NUMBER >= 1100
-  G4bool useNGeneral =
-    G4HadronicParameters::Instance()->EnableNeutronGeneralProcess();
+  G4bool useNGeneral = G4HadronicParameters::Instance()->EnableNeutronGeneralProcess();
   if (useNGeneral) {
     auto theFTFP = new G4TheoFSGenerator("FTFP");
     auto theStringModel = new G4FTFModel();
     theStringModel->SetFragmentationModel(new G4ExcitedStringDecay());
-    theFTFP->SetHighEnergyGenerator( theStringModel );
-    theFTFP->SetTransport( new G4GeneratorPrecompoundInterface() );
-    theFTFP->SetMinEnergy( minFTFP_neutron );
-    theFTFP->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
+    theFTFP->SetHighEnergyGenerator(theStringModel);
+    theFTFP->SetTransport(new G4GeneratorPrecompoundInterface());
+    theFTFP->SetMinEnergy(minFTFP_neutron);
+    theFTFP->SetMaxEnergy(G4HadronicParameters::Instance()->GetMaxEnergy());
 
     auto theBERT = new G4CascadeInterface();
-    theBERT->SetMaxEnergy( maxBERT_neutron );
+    theBERT->SetMaxEnergy(maxBERT_neutron);
 
-    G4HadronicProcess* ni = 
-      new G4HadronInelasticProcess( "neutronInelastic", G4Neutron::Neutron() );
+    G4HadronicProcess* ni = new G4HadronInelasticProcess("neutronInelastic", G4Neutron::Neutron());
     ni->RegisterMe(theFTFP);
     ni->RegisterMe(theBERT);
     G4HadProcesses::BuildNeutronInelasticAndCapture(ni);
