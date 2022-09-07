@@ -83,6 +83,18 @@ namespace cond {
     return *this;
   }
 
+  OMSServiceQuery& OMSServiceQuery::limit(int value) {
+    std::stringstream pageLimit;
+    if (m_filter.empty()) {
+      pageLimit << "?";
+    } else {
+      pageLimit << "&";
+    }
+    pageLimit << "page[limit]=" << value;
+    m_limit = pageLimit.str();
+    return *this;
+  }
+
   bool OMSServiceQuery::execute() {
     bool ret = false;
     std::string out;
@@ -99,7 +111,7 @@ namespace cond {
 
   OMSServiceResult& OMSServiceQuery::result() { return *m_result; }
 
-  std::string OMSServiceQuery::url() { return m_url + m_filter + m_varList; }
+  std::string OMSServiceQuery::url() { return m_url + m_filter + m_limit + m_varList; }
 
   OMSService::OMSService() : m_baseUrl() {}
 
