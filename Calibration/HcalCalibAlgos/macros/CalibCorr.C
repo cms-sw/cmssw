@@ -40,6 +40,8 @@
 // void CalibCorrTest(infile, flag)
 //      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
+#ifndef CalibrationHcalCalibAlgosCalibCorr_h
+#define CalibrationHcalCalibAlgosCalibCorr_h
 
 #include <algorithm>
 #include <iomanip>
@@ -349,7 +351,7 @@ bool fillChain(TChain* chain, const char* inputFileList) {
   if (fname.substr(fname.size() - 5, 5) == ".root") {
     chain->Add(fname.c_str());
   } else {
-    ifstream infile(inputFileList);
+    std::ifstream infile(inputFileList);
     if (!infile.is_open()) {
       std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
       return false;
@@ -903,3 +905,4 @@ unsigned int stringTest(const std::string& str) {
   std::cout << str << " has " << str.size() << " characters\n";
   return str.size();
 }
+#endif
