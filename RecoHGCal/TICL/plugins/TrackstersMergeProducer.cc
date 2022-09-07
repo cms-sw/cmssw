@@ -428,32 +428,15 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   // k -> cluster
   // l -> feature
 
-  // set default values per trackster, determine if the cluster energy threshold is passed,
-  // and store indices of hard tracksters
-  std::vector<int> tracksterIndices;
-  for (int i = 0; i < (int)tracksters.size(); i++) {
-    tracksters[i].setRegressedEnergy(tracksters[i].raw_energy());
-    // calculate the cluster energy sum (2)
-    // note: after the loop, sumClusterEnergy might be just above the threshold
-    // which is enough to decide whether to run inference for the trackster or
-    // not
-    float sumClusterEnergy = 0.;
-    for (const unsigned int &vertex : tracksters[i].vertices()) {
-      sumClusterEnergy += (float)layerClusters[vertex].energy();
-      // there might be many clusters, so try to stop early
-      if (sumClusterEnergy >= eidMinClusterEnergy_) {
-        // set default values (1)
-        tracksters[i].zeroProbabilities();
-        tracksterIndices.push_back(i);
-        break;
-      }
-    }
-  }
-
   // do nothing when no trackster passes the selection (3)
-  int batchSize = (int)tracksterIndices.size();
+  int batchSize = (int)tracksters.size();
   if (batchSize == 0) {
     return;
+  }
+
+  for (auto &t : tracksters) {
+    t.setRegressedEnergy(0.f);
+    t.zeroProbabilities();
   }
 
   // create input and output tensors (4)
@@ -473,7 +456,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
 
   // fill input tensor (5)
   for (int i = 0; i < batchSize; i++) {
-    const Trackster &trackster = tracksters[tracksterIndices[i]];
+    const Trackster &trackster = tracksters[i];
 
     // per layer, we only consider the first eidNClusters_ clusters in terms of
     // energy, so in order to avoid creating large / nested structures to do
@@ -528,8 +511,10 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
     // get the pointer to the energy tensor, dimension is batch x 1
     float *energy = outputs[0].flat<float>().data();
 
-    for (const int &i : tracksterIndices) {
-      tracksters[i].setRegressedEnergy(*(energy++));
+    for (int i = 0; i < batchSize; ++i) {
+      float regressedEnergy =
+          tracksters[i].raw_energy() > eidMinClusterEnergy_ ? energy[i] : tracksters[i].raw_energy();
+      tracksters[i].setRegressedEnergy(regressedEnergy);
     }
   }
 
@@ -538,10 +523,9 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
     // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
     int probsIdx = !eidOutputNameEnergy_.empty();
     float *probs = outputs[probsIdx].flat<float>().data();
-
-    for (const int &i : tracksterIndices) {
-      tracksters[i].setProbabilities(probs);
-      probs += tracksters[i].id_probabilities().size();
+    int probsNumber = tracksters[0].id_probabilities().size();
+    for (int i = 0; i < batchSize; ++i) {
+      tracksters[i].setProbabilities(&probs[i * probsNumber]);
     }
   }
 }
@@ -632,7 +616,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
-  desc.add<double>("eid_min_cluster_energy", 1.);
+  desc.add<double>("eid_min_cluster_energy", 2.5);
   desc.add<int>("eid_n_layers", 50);
   desc.add<int>("eid_n_clusters", 10);
   descriptions.add("trackstersMergeProducer", desc);
