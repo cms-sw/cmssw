@@ -158,7 +158,8 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
 
   math::XYZTLorentzVectorD momentumSec;
 
-  momentumSec = momentumPrim / momentumPrim.E() * (primaryCand.ecalEnergy() + primaryCand.hcalEnergy());
+  if (momentumPrim.E() > 0)
+    momentumSec = momentumPrim / momentumPrim.E() * (primaryCand.ecalEnergy() + primaryCand.hcalEnergy());
 
   map<double, math::XYZTLorentzVectorD> candidatesWithTrackExcess;
   map<double, math::XYZTLorentzVectorD> candidatesWithoutCalo;
