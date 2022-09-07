@@ -1,8 +1,7 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
-#define HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
+#ifndef HLTrigger_HLTcore_TriggerExpressionPrescaler_h
+#define HLTrigger_HLTcore_TriggerExpressionPrescaler_h
 
 #include "HLTrigger/HLTcore/interface/TriggerExpressionOperators.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
 
@@ -14,7 +13,11 @@ namespace triggerExpression {
 
     void init(const Data& data) override;
 
-    void dump(std::ostream& out) const override { out << "(" << (*m_arg) << " / " << m_prescale << ")"; }
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
+      m_arg->dump(out, ignoreMasks);
+      out << " / " << m_prescale << ')';
+    }
 
   private:
     unsigned int m_prescale;
@@ -23,4 +26,4 @@ namespace triggerExpression {
 
 }  // namespace triggerExpression
 
-#endif  // HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
+#endif  // HLTrigger_HLTcore_TriggerExpressionPrescaler_h

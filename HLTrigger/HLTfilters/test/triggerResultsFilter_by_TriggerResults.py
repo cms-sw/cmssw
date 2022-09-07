@@ -47,6 +47,18 @@ process.filter_1_pre = _triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', )
 )
 
+# accept if 'Path_1' succeeds, prescaled by 15
+# masking Path_2 (equivalent to filter_1_pre)
+process.filter_1_pre_with_masks1 = _triggerResultsFilter.clone(
+    triggerConditions =  ( '(Path_1 / 15 OR Path_2) MASKING Path_2', )
+)
+
+# accept if 'Path_1' succeeds, prescaled by 15
+# masking Path_2 and Path_3 (equivalent to filter_1_pre)
+process.filter_1_pre_with_masks2 = _triggerResultsFilter.clone(
+    triggerConditions =  ( '(Path_? / 15) MASKING Path_2 MASKING Path_3', )
+)
+
 # accept if 'Path_1' prescaled by 15 does not succeed
 process.filter_not_1_pre = _triggerResultsFilter.clone(
     triggerConditions =  ( 'NOT (Path_1 / 15)', )
@@ -146,6 +158,8 @@ process.path_any_or   = cms.Path( process.filter_any_or )
 process.path_any_star = cms.Path( process.filter_any_star )
 
 process.path_1_pre     = cms.Path( process.filter_1_pre )
+process.path_1_pre_with_masks1 = cms.Path( process.filter_1_pre_with_masks1 )
+process.path_1_pre_with_masks2 = cms.Path( process.filter_1_pre_with_masks2 )
 process.path_not_1_pre = cms.Path( process.filter_not_1_pre )
 process.path_2_pre     = cms.Path( process.filter_2_pre )
 process.path_any_pre   = cms.Path( process.filter_any_pre )
