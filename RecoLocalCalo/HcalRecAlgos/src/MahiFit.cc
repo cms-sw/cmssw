@@ -357,7 +357,8 @@ float MahiFit::ccTime(const float itQ) const {
   unsigned int soi = nnlsWork_.tsOffset;
 
   // Selecting energetic hits - Fitted Energy > 20 GeV
-  if (itQ < thEnergeticPulsesFC_) return HcalSpecialTimes::DEFAULT_ccTIME;
+  if (itQ < thEnergeticPulsesFC_)
+    return HcalSpecialTimes::DEFAULT_ccTIME;
 
   // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
   // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
