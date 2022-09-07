@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexNTupler_cff import l1tVertexNTupler
+from L1Trigger.VertexFinder.VertexNTupler_cfi import l1tVertexNTupler
 from L1Trigger.VertexFinder.VertexProducer_cfi import l1tVertexProducer
 
 TPStubValueMapProducer = cms.EDProducer('TPStubValueMapProducer',

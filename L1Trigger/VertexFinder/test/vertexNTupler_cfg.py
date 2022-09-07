@@ -85,7 +85,7 @@ process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 process.load('L1Trigger.VertexFinder.TPStubValueMapProducer_cff')
 process.load('L1Trigger.VertexFinder.InputDataProducer_cff')
 
-process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
+process.load('L1Trigger.VertexFinder.VertexNTupler_cfi')
 process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
 
 if process.L1TVertexNTupler.debug == 0:

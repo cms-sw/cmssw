@@ -101,7 +101,7 @@ ntuple_towers = cms.PSet(
     Towers = cms.InputTag('l1tHGCalTowerProducer:HGCalTowerProcessor')
 )
 
-L1THGCalTriggerNtuplizer = cms.EDAnalyzer(
+l1tHGCalTriggerNtuplizer = cms.EDAnalyzer(
     "HGCalTriggerNtupleManager",
     Ntuples = cms.VPSet(
         ntuple_event,
