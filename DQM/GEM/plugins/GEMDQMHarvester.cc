@@ -634,7 +634,6 @@ void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
         }
       }
 
-      nStatusSum &= ~(1 << nBitOcc_);  // No need of displaying the digi occupancy
       h2Summary->setBinContent(nIdxLumi + 1, nIdxCh, nStatusSum);
       if (nMaxBin < nIdxLumi + 1)
         nMaxBin = nIdxLumi + 1;
