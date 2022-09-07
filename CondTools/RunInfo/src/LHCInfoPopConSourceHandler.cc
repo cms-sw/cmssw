@@ -156,7 +156,9 @@ size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
                                                const boost::posix_time::ptime& endFillTime) {
   auto query = oms.query("lumisections");
   query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi"});
-  query->filterEQ("fill_number", fillId).filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
+  query->filterEQ("fill_number", fillId);
+  query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
+  query->limit(kLumisectionsQueryLimit);
   size_t nlumi = 0;
   if (query->execute()) {
     auto res = query->result();
@@ -239,6 +241,8 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
   // the old implementation is not helping: apparently it is checking only the bunchconfiguration for the first diptime set of values...
   auto query1 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam1");
   query1->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  //This query is limited to 100 rows, but currently only one is used
+  //If all this data is needed and saved properly the limit has to be set: query1->limit(...)
   if (query1->execute()) {
     auto res = query1->result();
     if (!res.empty()) {
@@ -256,6 +260,7 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
   }
   auto query2 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam2");
   query2->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  //This query is limited to 100 rows, but currently only one is used
   if (query2->execute()) {
     auto res = query2->result();
     if (!res.empty()) {
@@ -274,6 +279,7 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
 
   auto query3 = oms.query("diplogger/dip/CMS/LHC/LumiPerBunch");
   query3->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  //This query is limited to 100 rows, but currently only one is used
   if (query3->execute()) {
     auto res = query3->result();
     if (!res.empty()) {
