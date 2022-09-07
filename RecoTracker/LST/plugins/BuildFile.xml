@@ -1,0 +1,12 @@
+<library file="*.cc" name="RecoTrackerLSTPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="MagneticField/Engine"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="Validation/RecoTrack"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TrajectoryState"/>
+  <use name="TrackingTools/TransientTrackingRecHit"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
