@@ -7,7 +7,7 @@ ntuple_multiclusters_fulltruth = ntuple_multiclusters.clone(
     Multiclusters = cms.InputTag('l1tCaloTruthCellsProducer'),
     Prefix = cms.untracked.string('cl3dfulltruth')
 )
-L1THGCalTriggerNtuplizer.Ntuples.append(ntuple_multiclusters_fulltruth)
+l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_multiclusters_fulltruth)
 
 # If caloTruthCellsProducer.makeCellsCollection is True, can run the clustering algorithm over output cells too
 
@@ -39,6 +39,6 @@ if l1tCaloTruthCellsProducer.makeCellsCollection:
         Prefix = cms.untracked.string('towertruth')
     )
 
-    L1THGCalTriggerNtuplizer.Ntuples.append(ntuple_triggercells_truth)
-    L1THGCalTriggerNtuplizer.Ntuples.append(ntuple_multiclusters_truth)
-    L1THGCalTriggerNtuplizer.Ntuples.append(ntuple_towers_truth)
+    l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_triggercells_truth)
+    l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_multiclusters_truth)
+    l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_towers_truth)
