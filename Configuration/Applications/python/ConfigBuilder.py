@@ -2017,7 +2017,7 @@ class ConfigBuilder(object):
         self.DQMSaverCFF='Configuration/StandardSequences/DQMSaver'+self._options.harvesting+'_cff'
         self.loadAndRemember(self.DQMSaverCFF)
 
-        harvestingConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.HARVESTINGDefaultCFF)
+        harvestingConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.HARVESTINGDefaultCFF)
 
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
