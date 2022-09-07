@@ -106,7 +106,6 @@ public:
                      bool iCalculateArrivalTime,
                      int iTimeAlgo,
                      double iThEnergeticPulses,
-                     double iThLowPUOOT,
                      double iMeanTime,
                      double iTimeSigmaHPD,
                      double iTimeSigmaSiPM,
@@ -138,10 +137,7 @@ public:
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
   float thEnergeticPulses_;
-  float thLowPUoot_;
-
   float thEnergeticPulsesFC_;
-  float thLowPUootFC_;
 
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;

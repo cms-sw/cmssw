@@ -12,7 +12,6 @@ void MahiFit::setParameters(bool iDynamicPed,
                             bool iCalculateArrivalTime,
                             int timeAlgo,
                             double iThEnergeticPulses,
-                            double iThLowPUOOT,
                             double iMeanTime,
                             double iTimeSigmaHPD,
                             double iTimeSigmaSiPM,
@@ -32,7 +31,6 @@ void MahiFit::setParameters(bool iDynamicPed,
   calculateArrivalTime_ = iCalculateArrivalTime;
   timeAlgo_ = timeAlgo;
   thEnergeticPulses_ = iThEnergeticPulses;
-  thLowPUoot_ = iThLowPUOOT;
   meanTime_ = iMeanTime;
   timeSigmaHPD_ = iTimeSigmaHPD;
   timeSigmaSiPM_ = iTimeSigmaSiPM;
@@ -219,7 +217,7 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
       if (calculateArrivalTime_ && timeAlgo_ == 1)
         arrivalTime = calculateArrivalTime(ipulseintime);
       else if (calculateArrivalTime_ && timeAlgo_ == 2)
-        arrivalTime = ccTime(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset));
+        arrivalTime = ccTime(nnlsWork_.ampVec.coeff(ipulseintime));
       correctedOutput.at(1) = arrivalTime;  //time
     } else
       correctedOutput.at(1) = -9999.f;  //time
@@ -358,18 +356,12 @@ float MahiFit::ccTime(const float itQ) const {
 
   unsigned int soi = nnlsWork_.tsOffset;
 
-  // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
-  if ((nnlsWork_.amplitudes.coeffRef(soi) + nnlsWork_.amplitudes.coeffRef(soi + 1U)) < thEnergeticPulsesFC_)
-    return -999.f;
+  // Selecting energetic hits - Fitted Energy > 20 GeV
+  if (itQ < thEnergeticPulsesFC_) return HcalSpecialTimes::DEFAULT_ccTIME;
+
   // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
-  if (nnlsWork_.amplitudes.coeffRef(soi) <
-      (nnlsWork_.amplitudes.coeffRef(soi + 1U) + nnlsWork_.amplitudes.coeffRef(soi + 2U)))
-    return -999.f;
   // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
-  if ((nnlsWork_.amplitudes.coeffRef(soi - 3U) + nnlsWork_.amplitudes.coeffRef(soi - 2U) +
-       nnlsWork_.amplitudes.coeffRef(soi - 1U)) > thLowPUootFC_)
-    return -999.f;
-  // To speed up check around the fitted time (? to be checked with LLP)
+  // To speed up check around the fitted time (?)
 
   // distanze as in formula of page 6
   // https://indico.cern.ch/event/1142347/contributions/4793749/attachments/2412936/4129323/HCAL%20timing%20update.pdf
@@ -582,7 +574,6 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
 
   // threshold in GeV for ccTime
   thEnergeticPulsesFC_ = thEnergeticPulses_ / gain0;
-  thLowPUootFC_ = thLowPUoot_ / gain0;
 }
 
 void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
