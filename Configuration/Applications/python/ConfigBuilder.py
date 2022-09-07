@@ -1277,7 +1277,7 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, stepSpec = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-        alcaConfig,sequence,_=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
+        alcaConfig,sequence,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.ALCADefaultCFF)
 
         MAXLEN=31 #the alca producer name should be shorter than 31 chars as per https://cms-talk.web.cern.ch/t/alcaprompt-datasets-not-loaded-in-dbs/11146/2
         # decide which ALCA paths to use
@@ -1349,12 +1349,12 @@ class ConfigBuilder(object):
         __import__(loadFragment)
         self.process.load(loadFragment)
         ##inline the modules
-        self._options.inlineObjets+=','+sequence
+        self._options.inlineObjets+=','+stepSpec
 
-        getattr(self.process,sequence).nEvents = int(self._options.number)
+        getattr(self.process,stepSpec).nEvents = int(self._options.number)
 
         #schedule it
-        self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+        self.process.lhe_step = cms.Path( getattr( self.process,stepSpec)  )
         self.excludedPaths.append("lhe_step")
         self.schedule.append( self.process.lhe_step )
 
@@ -1533,7 +1533,7 @@ class ConfigBuilder(object):
                 self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
             self.scheduleSequence('SimL1Emulator','L1RePack_step')
         else:
-            print("L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported)
+            print("L1REPACK with '",stepSpec,"' is not supported! Supported choices are: ",supported)
             raise Exception('unsupported feature')
 
     def prepare_HLT(self, stepSpec = None):
@@ -1975,7 +1975,7 @@ class ConfigBuilder(object):
 
         # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
         self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
-        _,_dqmSeq,_ = self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
+        _,_dqmSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DQMOFFLINEDefaultCFF)
         sequenceList=postSequenceList=_dqmSeq.split('+')
         from DQMOffline.Configuration.autoDQM import autoDQM
         self.expandMapping(sequenceList,autoDQM,index=0)
