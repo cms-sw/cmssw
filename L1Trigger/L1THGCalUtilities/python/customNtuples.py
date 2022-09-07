@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def custom_ntuples_layer1_truncation(process):
-    ntuples = process.L1THGCalTriggerNtuplizer.Ntuples
+    ntuples = process.l1tHGCalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
         if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters' or \
            ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells' or \
@@ -10,7 +10,7 @@ def custom_ntuples_layer1_truncation(process):
     return process
 
 def custom_ntuples_stage1_truncation(process):
-    ntuples = process.L1THGCalTriggerNtuplizer.Ntuples
+    ntuples = process.l1tHGCalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
         if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters' or \
            ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells' or \
@@ -20,7 +20,7 @@ def custom_ntuples_stage1_truncation(process):
     return process
 
 def custom_ntuples_standalone_clustering(process):
-    ntuples = process.L1THGCalTriggerNtuplizer.Ntuples
+    ntuples = process.l1tHGCalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
         if ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells' or \
            ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters' or \
@@ -30,7 +30,7 @@ def custom_ntuples_standalone_clustering(process):
 
 
 def custom_ntuples_standalone_tower(process):
-    ntuples = process.L1THGCalTriggerNtuplizer.Ntuples
+    ntuples = process.l1tHGCalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
         if ntuple.NtupleName=='HGCalTriggerNtupleHGCTowers':
             ntuple.Towers = cms.InputTag('l1tHGCalTowerProducer:HGCalTowerProcessorSA')
@@ -62,6 +62,6 @@ class CreateNtuple(object):
             elif ntuple=='multiclusters':
                 pset.Multiclusters = cms.InputTag(inputs[2])
             vpset.append(pset)
-        ntuplizer = process.L1THGCalTriggerNtuplizer.clone()
+        ntuplizer = process.l1tHGCalTriggerNtuplizer.clone()
         ntuplizer.Ntuples = cms.VPSet(vpset)
         return ntuplizer
