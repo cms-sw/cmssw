@@ -880,20 +880,19 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
             gXYhitsCK1[il]->SetPoint(ixydCK1[il]++, global2.x(), global2.y());
         }
       } else if (rhtools_.isScintillator(id1)) {
-
-	HGCScintillatorDetId id(itHit->id());
+        HGCScintillatorDetId id(itHit->id());
         int il = rhtools_.getLayerWithOffset(id1) - 1;
-	
+
         hXYhitsB[il]->Fill(global2.x(), global2.y());
 
-	if (global2.z() < 0.0)
-	  grXYhitsB0[il]->SetPoint(ixyB0[il]++, global2.x(), global2.y());
-	else
-	  grXYhitsB1[il]->SetPoint(ixyB1[il]++, global2.x(), global2.y());
-	if (id.zside() == -1)
-	  gXYhitsB0[il]->SetPoint(ixydB0[il]++, global2.x(), global2.y());
-	else
-	  gXYhitsB1[il]->SetPoint(ixydB1[il]++, global2.x(), global2.y());
+        if (global2.z() < 0.0)
+          grXYhitsB0[il]->SetPoint(ixyB0[il]++, global2.x(), global2.y());
+        else
+          grXYhitsB1[il]->SetPoint(ixyB1[il]++, global2.x(), global2.y());
+        if (id.zside() == -1)
+          gXYhitsB0[il]->SetPoint(ixydB0[il]++, global2.x(), global2.y());
+        else
+          gXYhitsB1[il]->SetPoint(ixydB1[il]++, global2.x(), global2.y());
       }
     }
 
