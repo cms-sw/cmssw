@@ -91,4 +91,4 @@ process.hgcalCellHitSumHEB = process.hgcalCellHitSum.clone(
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(outputFile) )
 
-process.p = cms.Path(process.hgcalCellHitSumEE*process.hgcalCellHitSumHEF*process.hgcalCellHitSumHEB*process.hgcalCellHitSumHEB)
+process.p = cms.Path(process.hgcalCellHitSumEE*process.hgcalCellHitSumHEF*process.hgcalCellHitSumHEB)
