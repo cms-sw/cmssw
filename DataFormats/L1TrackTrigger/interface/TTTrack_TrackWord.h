@@ -85,7 +85,7 @@ public:
 
   // Binning constants
   static constexpr double minRinv = -0.006;
-  static constexpr double minPhi0 = -0.69813248;  // relative to the center of the sector
+  static constexpr double minPhi0 = -0.7853981696;  // relative to the center of the sector
   static constexpr double minTanl = -8.;
   static constexpr double minZ0 = -20.46912512;
   static constexpr double minD0 = -16.;
