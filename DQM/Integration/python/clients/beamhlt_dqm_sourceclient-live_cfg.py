@@ -39,32 +39,10 @@ if 'unitTest=True' in sys.argv:
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
-
-  # Overwrite source of the unitTest to use a streamer file instead of the DAS query output
-  print("[beamhlt_dqm_sourceclient-live_cfg]:: Overriding DAS input to use a streamer file")
-
-  # Read streamer files from https://github.com/cms-data/DQM-Integration
-  import os
-  dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
-
-  # Set the process source
-  process.source = cms.Source("DQMStreamerReader",
-      runNumber = cms.untracked.uint32(356383),
-      runInputDir = cms.untracked.string(dqm_integration_data),
-      SelectEvents = cms.untracked.vstring('*'),
-      streamLabel = cms.untracked.string('streamDQMOnlineBeamspot'),
-      scanOnce = cms.untracked.bool(True),
-      minEventsPerLumi = cms.untracked.int32(1000),
-      delayMillis = cms.untracked.uint32(500),
-      nextLumiTimeoutMillis = cms.untracked.int32(0),
-      skipFirstLumis = cms.untracked.bool(False),
-      deleteDatFiles = cms.untracked.bool(False),
-      endOfRunKills  = cms.untracked.bool(False),
-      inputFileTransitionsEachEvent = cms.untracked.bool(False)
-  )
-
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  # new stream label
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
