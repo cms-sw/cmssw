@@ -3,9 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionL1uGTReader.h"
 
@@ -20,26 +18,31 @@ namespace triggerExpression {
     if (word.empty())
       return false;
 
-    for (auto const& trigger : m_triggers)
+    auto const& triggers = masksEnabled() ? m_triggersAfterMasking : m_triggers;
+
+    for (auto const& trigger : triggers)
       if (trigger.second < word.size() and word[trigger.second])
         return true;
 
     return false;
   }
 
-  void L1uGTReader::dump(std::ostream& out) const {
+  void L1uGTReader::dump(std::ostream& out, bool const ignoreMasks) const {
     if (not m_initialised) {
       out << "Uninitialised_L1_Expression";
       return;
     }
-    if (m_triggers.empty()) {
+
+    auto const& triggers = ignoreMasks or not masksEnabled() ? m_triggers : m_triggersAfterMasking;
+
+    if (triggers.empty()) {
       out << "FALSE";
-    } else if (m_triggers.size() == 1) {
-      out << m_triggers[0].first;
+    } else if (triggers.size() == 1) {
+      out << triggers[0].first;
     } else {
-      out << "(" << m_triggers[0].first;
-      for (unsigned int i = 1; i < m_triggers.size(); ++i)
-        out << " OR " << m_triggers[i].first;
+      out << "(" << triggers[0].first;
+      for (unsigned int i = 1; i < triggers.size(); ++i)
+        out << " OR " << triggers[i].first;
       out << ")";
     }
   }
@@ -61,14 +64,15 @@ namespace triggerExpression {
       if (entry != triggerMap.end()) {
         // single L1 bit
         m_triggers.push_back(std::make_pair(m_pattern, entry->second.getIndex()));
-      } else
-          // trigger not found in the current menu
-          if (data.shouldThrow())
-        throw cms::Exception("Configuration")
-            << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
-      else
-        edm::LogWarning("Configuration") << "requested L1 trigger \"" << m_pattern
-                                         << "\" does not exist in the current L1 menu";
+      } else {
+        // trigger not found in the current menu
+        if (data.shouldThrow())
+          throw cms::Exception("Configuration")
+              << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
+        else
+          edm::LogWarning("Configuration")
+              << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
+      }
     } else {
       // expand wildcards in the pattern
       bool match = false;
@@ -90,7 +94,42 @@ namespace triggerExpression {
       }
     }
 
+    m_triggersAfterMasking = m_triggers;
     m_initialised = true;
+  }
+
+  void L1uGTReader::mask(Evaluator const& eval) {
+    auto const& triggersToMask = eval.triggers();
+
+    if (triggersToMask.empty()) {
+      edm::LogInfo("NoTriggersToMask") << "\tL1uGTReader[\"" << *this << "\"]::mask(arg = \"" << eval << "\")"
+                                       << " failed: arg.triggers() is empty";
+      return;
+    }
+
+    // patterns() is always empty for a L1uGTReader, and not empty for PathReader;
+    // here, PathReader evaluators are skipped as they shouldn't be used to mask a L1uGTReader
+    if (not eval.patterns().empty()) {
+      edm::LogWarning("InvalidArgumentForMasking")
+          << "\tL1uGTReader[\"" << *this << "\"]::mask(arg = \"" << eval << "\")"
+          << " failed: arg.patterns() is not empty (arg is not a L1uGTReader)";
+      return;
+    }
+
+    enableMasks();
+
+    // clang-format off
+    m_triggersAfterMasking.erase(
+      std::remove_if(
+        m_triggersAfterMasking.begin(),
+        m_triggersAfterMasking.end(),
+        [&triggersToMask](auto const& foo) {
+          return std::find(triggersToMask.begin(), triggersToMask.end(), foo) != triggersToMask.end();
+        }
+      ),
+      m_triggersAfterMasking.end()
+    );
+    // clang-format on
   }
 
 }  // namespace triggerExpression
