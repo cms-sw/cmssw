@@ -5,11 +5,8 @@
 
 using namespace l1tmetemu;
 
-Cordic::Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug)
-    : mPhiScale(aPhiScale),
-      mMagnitudeScale(1 << aMagnitudeBits),
-      mMagnitudeBits(aMagnitudeBits),
-      cordicSteps(aSteps),
+Cordic::Cordic(const int aSteps, bool debug)
+    : cordicSteps(aSteps),
       debug(debug) {
   atanLUT.reserve(aSteps);
   magNormalisationLUT.reserve(aSteps);
@@ -19,7 +16,7 @@ Cordic::Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug)
   }
 
   for (int i = 0; i < aSteps; i++) {
-    atanLUT.push_back(METphi_t(round(mPhiScale * atan(pow(2, -i)) / (2 * M_PI))));
+    atanLUT.push_back(E2t_t(atan(pow(2, -i))));
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator") << atanLUT[i] << " | ";
     }
@@ -31,7 +28,7 @@ Cordic::Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug)
   float val = 1.0;
   for (int j = 0; j < aSteps; j++) {
     val = val / (pow(1 + pow(4, -j), 0.5));
-    magNormalisationLUT.push_back(Et_t(round(mMagnitudeScale * val)));
+    magNormalisationLUT.push_back(E2t_t(val));
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator") << magNormalisationLUT[j] << " | ";
     }
@@ -39,11 +36,13 @@ Cordic::Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug)
 }
 
 EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
-  Et_t new_x = 0;
-  Et_t new_y = 0;
+  E2t_t in_x = x;
+  E2t_t in_y = y;
+  E2t_t new_x = 0;
+  E2t_t new_y = 0;
 
-  METphi_t phi = 0;
-  METphi_t new_phi = 0;
+  E2t_t phi = 0;
+  E2t_t new_phi = 0;
   bool sign = false;
 
   EtMiss ret_etmiss;
@@ -52,59 +51,57 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
     edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Cordic Steps=====";
   }
 
-  if (x >= 0 && y >= 0) {
+  if (in_x >= 0 && in_y >= 0) {
+    phi = E2t_t(M_PI);
+    sign = true;
+
+  } else if (in_x < 0 && in_y >= 0) {
+    phi = E2t_t(2*M_PI);
+    sign = false;
+    in_x = -in_x;
+
+  } else if (in_x < 0 && in_y < 0) {
     phi = 0;
     sign = true;
-    //x = x;
-    //y = y;
-  } else if (x < 0 && y >= 0) {
-    phi = mPhiScale >> 1;
-    sign = false;
-    x = -x;
-    //y = y;
-  } else if (x < 0 && y < 0) {
-    phi = mPhiScale >> 1;
-    sign = true;
-    x = -x;
-    y = -y;
+    in_x = -in_x;
+    in_y = -in_y;
+
   } else {
-    phi = mPhiScale;
+    phi = E2t_t(M_PI);
     sign = false;
-    //x = x;
-    y = -y;
+    in_y = -in_y;
   }
 
   for (int step = 0; step < cordicSteps; step++) {
-    if (y < 0) {
-      new_x = x - (y >> step);
-      new_y = y + (x >> step);
+    if (in_y < 0) {
+      new_x = in_x - (in_y >> step);
+      new_y = in_y + (in_x >> step);
     } else {
-      new_x = x + (y >> step);
-      new_y = y - (x >> step);
+      new_x = in_x + (in_y >> step);
+      new_y = in_y - (in_x >> step);
     }
 
-    if ((y < 0) == sign) {
+    if ((in_y < 0) == sign) {
       new_phi = phi - atanLUT[step];
     } else {
       new_phi = phi + atanLUT[step];
     }
 
-    x = new_x;
-    y = new_y;
+    in_x = new_x;
+    in_y = new_y;
     phi = new_phi;
 
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator")
-          << " Cordic x: " << x << " Cordic y: " << y << " Cordic phi: " << phi << "\n";
+          << " Cordic x: " << in_x << " Cordic y: " << in_y << " Cordic phi: " << phi << "\n";
     }
   }
 
   // Cordic performs calculation in internal Et granularity, convert to final
   // granularity for Et word
 
-  // emulate fw rounding with float division then floor
-  float tempMET = (float)(x * magNormalisationLUT[cordicSteps - 1] * kMaxTrackPt) / ((float)kMaxMET);
-  ret_etmiss.Et = tempMET / pow(2,(mMagnitudeBits + TTTrack_TrackWord::TrackBitWidths::kRinvSize - kMETIntSize ));
-  ret_etmiss.Phi = phi;
+  E2t_t tempMET = in_x * magNormalisationLUT[cordicSteps - 1];
+  ret_etmiss.Et = tempMET;
+  ret_etmiss.Phi = phi.to_double() / kStepMETwordPhi;
   return ret_etmiss;
 }
