@@ -66,8 +66,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob();  // TODO remove
-  void endJob();    // TODO remove
   void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void fillForTraj(const TrajectoryAtInvalidHit& tm,
@@ -131,9 +129,6 @@ private:
 
   // output file
   std::set<uint32_t> badModules_;
-
-  // counters
-  int events, EventTrackCKF;
 
   struct EffME1 {
     EffME1() : hTotal(nullptr), hFound(nullptr) {}
@@ -246,12 +241,6 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
   for (const auto badMod : badModules_) {
     LogDebug("SiStripHitEfficiencyWorker") << " " << badMod;
   }
-}
-
-void SiStripHitEfficiencyWorker::beginJob() {
-  // TODO convert to counters, or simply remove?
-  events = 0;
-  EventTrackCKF = 0;
 }
 
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
@@ -382,7 +371,8 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   // fill the FED Errors
   booker.setCurrentFolder(dqmDir_);
   const auto FEDErrorMapFolder = fmt::format("{}/FEDErrorTkDetMaps", dqmDir_);
-  calibData_.FEDErrorOccupancy = TkHistoMap(tkDetMap, booker, FEDErrorMapFolder, "perModule_FEDErrors", 0, false, true);
+  calibData_.FEDErrorOccupancy =
+      std::make_unique<TkHistoMap>(tkDetMap, booker, FEDErrorMapFolder, "perModule_FEDErrors", 0, false, true);
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -439,6 +429,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   // fill the calibData with the FEDErrors
   for (const auto& fedErr : *fedErrorIds) {
+    // fill the TkHistoMap occupancy map
+    calibData_.FEDErrorOccupancy->fill(fedErr.rawId(), 1.);
+
+    // fill the unordered map
     if (calibData_.fedErrorCounts.find(fedErr.rawId()) != calibData_.fedErrorCounts.end()) {
       calibData_.fedErrorCounts[fedErr.rawId()] += 1;
     } else {
@@ -457,8 +451,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   const auto& chi2Estimator = es.getData(chi2EstimatorToken_);
   const auto& prop = es.getData(propagatorToken_);
 
-  ++events;
-
   // Tracking
   LogDebug("SiStripHitEfficiencyWorker") << "number ckf tracks found = " << tracksCKF->size();
 
@@ -476,8 +468,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
     if (cutOnTracks_)
       LogDebug("SiStripHitEfficiencyWorker")
           << "starting checking good event with < " << trackMultiplicityCut_ << " tracks";
-
-    ++EventTrackCKF;
 
     // actually should do a loop over all the tracks in the event here
 
@@ -1026,14 +1016,6 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
   }
   LogDebug("SiStripHitEfficiencyWorker") << "After layers=TKLayers if with TKlayers=" << TKlayers
                                          << ", layers=" << layers_;
-}
-
-void SiStripHitEfficiencyWorker::endJob() {
-  LogDebug("SiStripHitEfficiencyWorker") << " Events Analysed             " << events;
-  LogDebug("SiStripHitEfficiencyWorker") << " Number Of Tracked events    " << EventTrackCKF;
-
-  // fill the TkMap Data
-  calibData_.fillTkMapFromMap();
 }
 
 void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
