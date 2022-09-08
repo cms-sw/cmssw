@@ -50,8 +50,11 @@ private:
   //used to select what vertices to read from configuration file
   const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
+  const std::string motherName_;
   const std::string MEFolderName_;  // Top-level folder name
   const bool useClosestVertex_;
+
+  std::pair<float, float> massLimits_; /* for the mass plot x-range */
   const float maxSVdist_;
 
   // vertex quantities
@@ -73,7 +76,7 @@ private:
   MonitorElement *hCosPhi3D_;
   MonitorElement *hCosPhiInv_;
   MonitorElement *hCosPhiInv3D_;
-  MonitorElement *hTrackInvMass_;
+  MonitorElement *hInvMass_;
   MonitorElement *hCutFlow_;
 
   // impact parameters information
