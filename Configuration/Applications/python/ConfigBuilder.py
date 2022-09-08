@@ -1218,11 +1218,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, stepSpec, defaultCFF,defaultSEQ=''):
+    def loadDefaultOrSpecifiedCFF(self, stepSpec, defaultCFF, defaultSEQ=''):
         _dotsplit = stepSpec.split('.')
         if ( len(_dotsplit)==1 ):
             if '/' in _dotsplit[0]:
-                _sequence = defaultSEQ if  defaultSEQ else stepSpec 
+                _sequence = defaultSEQ if defaultSEQ else stepSpec 
                 _cff = _dotsplit[0]
             else:
                 _sequence = stepSpec
@@ -1408,9 +1408,9 @@ class ConfigBuilder(object):
 
             if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
-                    self.productionFilterstepSpec = 'ProductionFilterSequence'
+                    self.productionFilterSequence = 'ProductionFilterSequence'
                 elif 'generator' in genModules:
-                    self.productionFilterstepSpec = 'generator'
+                    self.productionFilterSequence = 'generator'
 
         """ Enrich the schedule with the rest of the generation step """
         _,_genSeqName,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.GENDefaultCFF)
