@@ -1218,20 +1218,20 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,defaultSEQ=''):
-        _dotsplit = sequence.split('.')
+    def loadDefaultOrSpecifiedCFF(self, stepSpec, defaultCFF,defaultSEQ=''):
+        _dotsplit = stepSpec.split('.')
         if ( len(_dotsplit)==1 ):
             if '/' in _dotsplit[0]:
-                _sequence = defaultSEQ if  defaultSEQ else sequence 
+                _sequence = defaultSEQ if  defaultSEQ else stepSpec 
                 _cff = _dotsplit[0]
             else:
-                _sequence = sequence
+                _sequence = stepSpec
                 _cff = defaultCFF
         elif ( len(_dotsplit)==2 ):
             _cff,_sequence  = _dotsplit
         else:
             print("sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a")
-            print(sequence,"not recognized")
+            print(stepSpec,"not recognized")
             raise
         l=self.loadAndRemember(_cff)
         return l,_sequence,_cff
@@ -1270,10 +1270,10 @@ class ConfigBuilder(object):
         return
 
     def prepare_ALCAPRODUCER(self, stepSpec = None):
-        self.prepare_ALCA(sequence, workflow = "producers")
+        self.prepare_ALCA(stepSpec, workflow = "producers")
 
     def prepare_ALCAOUTPUT(self, stepSpec = None):
-        self.prepare_ALCA(sequence, workflow = "output")
+        self.prepare_ALCA(stepSpec, workflow = "output")
 
     def prepare_ALCA(self, stepSpec = None, workflow = 'full'):
         """ Enrich the process with alca streams """
@@ -1528,7 +1528,7 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
         supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
         if stepSpec in supported:
-            self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
+            self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'% stepSpec)
             if self._options.scenario == 'HeavyIons':
                 self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
             self.scheduleSequence('SimL1Emulator','L1RePack_step')
@@ -2052,7 +2052,7 @@ class ConfigBuilder(object):
     def prepare_ALCAHARVEST(self, stepSpec = None):
         """ Enrich the process with AlCaHarvesting step """
         harvestingConfig = self.loadAndRemember(self.ALCAHARVESTDefaultCFF)
-        sequence=sequence.split(".")[-1]
+        sequence=stepSpec.split(".")[-1]
 
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
