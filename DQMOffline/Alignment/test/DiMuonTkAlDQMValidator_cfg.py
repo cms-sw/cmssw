@@ -17,6 +17,11 @@ options.register('globalTag',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "conditions")
+options.register('resonance',
+                 'Z',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "resonance type")
 options.parseArguments()
 
 # import of standard configurations
@@ -38,9 +43,30 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
+process.load("DQMOffline.Configuration.AlCaRecoDQM_cff")
+
+if (options.resonance == 'Z'):
+    # Z
+    print('',30*"#",'\n # will process Z->mm data\n',30*"#")
+    readFiles = ['/store/relval/CMSSW_12_4_0/RelValZMM_14/ALCARECO/TkAlDiMuonAndVertex-124X_mcRun3_2022_realistic_v5-v1/2580000/f869e2f4-8884-4b4e-af8b-720938ab7fc5.root']
+    process.seqALCARECOTkAlDQM = cms.Sequence(process.ALCARECOTkAlDiMuonAndVertexVtxDQM + process.ALCARECOTkAlDiMuonMassBiasDQM)
+elif (options.resonance == 'Jpsi'):
+    # J/psi
+    print('',30*"#",'\n # will process Jpsi->mm data\n',30*"#")
+    readFiles = ['/store/relval/CMSSW_12_4_6/RelValEtaBToJpsiJpsi_14TeV/ALCARECO/TkAlJpsiMuMu-124X_mcRun3_2022_realistic_v10-v4/10000/47a900a0-2646-4909-9105-00aa9905210e.root']
+    process.seqALCARECOTkAlDQM = cms.Sequence(process.ALCARECOTkAlJpsiMuMuVtxDQM + process.ALCARECOTkAlJpsiMassBiasDQM)
+elif (options.resonance == 'Upsilon'):
+    # upsilon
+    print('',30*"#",'\n # will process Upsilon->mm data\n',30*"#")
+    readFiles = ['/store/relval/CMSSW_12_4_6/RelValUpsilon1SToMuMu_14/ALCARECO/TkAlUpsilonMuMu-124X_mcRun3_2022_realistic_v10-v4/10000/ee6e1532-933a-4ed2-a64b-b70a8c8a3953.root']
+    process.seqALCARECOTkAlDQM = cms.Sequence(process.ALCARECOTkAlUpsilonMuMuVtxDQM + process.ALCARECOTkAlUpsilonMassBiasDQM)
+else:
+    print('unrecongnized %s resonance',options.resonance)
+    exit(1)
+
 # Input source
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_4_0/RelValZMM_14/ALCARECO/TkAlDiMuonAndVertex-124X_mcRun3_2022_realistic_v5-v1/2580000/f869e2f4-8884-4b4e-af8b-720938ab7fc5.root'),
+                            fileNames = cms.untracked.vstring(readFiles),
                             secondaryFileNames = cms.untracked.vstring()
                             )
 
@@ -79,7 +105,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step3_inDQM.root'),
+    fileName = cms.untracked.string('file:step3_inDQM_'+options.resonance+'.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -87,11 +113,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
-process.load("DQMOffline.Configuration.AlCaRecoDQM_cff")
-
-process.seqALCARECOTkAlDiMuonAndVertex = cms.Sequence(process.ALCARECOTkAlDiMuonAndVertexVtxDQM + process.ALCARECOTkAlDiMuonMassBiasDQM)
-
-process.dqmoffline_step = cms.EndPath(process.seqALCARECOTkAlDiMuonAndVertex)
+process.dqmoffline_step = cms.EndPath(process.seqALCARECOTkAlDQM)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 process.schedule = cms.Schedule(process.dqmoffline_step,process.DQMoutput_step)

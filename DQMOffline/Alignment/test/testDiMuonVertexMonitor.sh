@@ -7,5 +7,17 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
   cd ${SCRAM_TEST_NAME}
 fi
 
-cmsRun ${LOCAL_TEST_DIR}/DiMuonVertexValidator_cfg.py  || die "Failure using DiMuonVertexValidator_cfg.py" $?
-cmsRun ${LOCAL_TEST_DIR}/DiMuonVertex_HARVESTING.py || die "Failure using DiMuonVertex_HARVESTING.py" $? 
+echo -e " Tesing on Z->mm \n\n"
+
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMValidator_cfg.py resonance=Z  || die "Failure using DiMuonTkAlDQMValidator_cfg.py resonance=Z" $?
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMHarvester_cfg.py resonance=Z || die "Failure using DiMuonTkAlDQMHarvester_cfg.py resonance=Z" $? 
+
+echo -e " Testing on J/psi -> mm \n\n"
+
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMValidator_cfg.py resonance=Jpsi || die "Failure using DiMuonTkAlDQMValidator_cfg.py resonance=Jpsi" $?
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMHarvester_cfg.py resonance=Jpsi || die "Failure using DiMuonTkAlDQMHarvester_cfg.py resonance=Jpsi" $? 
+
+echo -e " Testing on Upsilon -> mm \n\n"
+
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMValidator_cfg.py resonance=Upsilon || die "Failure using DiMuonTkAlDQMValidator_cfg.py resonance=Upsilon" $?
+cmsRun ${LOCAL_TEST_DIR}/DiMuonTkAlDQMHarvester_cfg.py resonance=Upsilon || die "Failure using DiMuonTkAlDQMHarvester_cfg.py resonance=Upsilon" $? 
