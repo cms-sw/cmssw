@@ -124,18 +124,23 @@ process = customise(process)
 from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
 process.tcdsDigis = tcdsRawToDigi.clone()
 
-#------------------------
-# Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
+# Import raw to digi modules
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+
+# Set rawDataRepacker (HI and live) or hltFEDSelectorTCDS+hltFEDSelectorOnlineMetaData (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
 elif unitTest:
     # This is needed until we update the streamer files used for the unitTest
     rawDataInputTag = "rawDataCollector"
 else:
-    # Use raw data from selected TCDS FEDs (1024, 1025)
+    # Use raw data from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
     rawDataInputTag = "hltFEDSelectorTCDS"
+    onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
 
-process.tcdsDigis.InputLabel = rawDataInputTag
+process.onlineMetaDataDigis.onlineMetaDataInputLabel = onlineMetaDataInputTag
+process.scalersRawToDigi.scalersInputTag             = rawDataInputTag
+process.tcdsDigis.InputLabel                         = rawDataInputTag
 
 #-----------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
@@ -143,6 +148,23 @@ import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
 
 #--------------------------
 # Proton-Proton Stuff
@@ -246,9 +268,14 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.tcdsDigis
+                        * process.scalersRawToDigi
+                        * process.onlineMetaDataDigis
+                        * process.pixelTrackerHVOn
+                        * process.stripTrackerHVOn
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 
