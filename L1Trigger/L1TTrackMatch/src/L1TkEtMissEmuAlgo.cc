@@ -3,15 +3,15 @@
 using namespace std;
 
 namespace l1tmetemu {
-  std::vector<Et_t> generateCosLUT(unsigned int size) {  // Fill cosine LUT with integer values
+  std::vector<cos_lut_fixed_t> generateCosLUT(unsigned int size) {  // Fill cosine LUT with integer values
     float phi = 0;
-    std::vector<Et_t> cosLUT;
+    std::vector<cos_lut_fixed_t> cosLUT;
     for (unsigned int LUT_idx = 0; LUT_idx < size; LUT_idx++) {
-      cosLUT.push_back((Et_t)(cos(phi)));
+      cosLUT.push_back((cos_lut_fixed_t)(cos(phi)));
       phi += TTTrack_TrackWord::stepPhi0;
-      //std::cout << LUT_idx << "," << (Et_t)(cos(phi)) << std::endl;
+      //std::cout << LUT_idx << "," << (cos_lut_fixed_t)(cos(phi)) << std::endl;
     }
-    cosLUT.push_back((Et_t)(0));  //Prevent overflow in last bin
+    cosLUT.push_back((cos_lut_fixed_t)(0));  //Prevent overflow in last bin
     return cosLUT;
   }
 
