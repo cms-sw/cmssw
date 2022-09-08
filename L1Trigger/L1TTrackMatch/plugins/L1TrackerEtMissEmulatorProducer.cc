@@ -56,7 +56,7 @@ private:
 
   // ----------member data ---------------------------
 
-  std::vector<l1tmetemu::Et_t> cosLUT_;  // Cos LUT array
+  std::vector<l1tmetemu::cos_lut_fixed_t> cosLUT_;  // Cos LUT array
   std::vector<l1tmetemu::global_phi_t> phiQuadrants_;
   std::vector<l1tmetemu::global_phi_t> phiShifts_;
 
@@ -92,10 +92,17 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
 
   // To have same bin spacing between 0 and pi/2 as between original phi
   // granularity
-  int cosLUTbins = floor(l1tmetemu::kMaxCosLUTPhi / TTTrack_TrackWord::stepPhi0);
+  int cosLUTbins = std::floor(l1tmetemu::kMaxCosLUTPhi / TTTrack_TrackWord::stepPhi0);
 
   // Compute LUTs
   cosLUT_ = l1tmetemu::generateCosLUT(cosLUTbins);
+
+  // Print LUTs
+  if (debug_ == 1) {
+    l1tmetemu::printLUT(phiQuadrants_, "L1TrackerEtMissEmulatorProducer", "phiQuadrants_");
+    l1tmetemu::printLUT(phiShifts_, "L1TrackerEtMissEmulatorProducer", "phiShifts_");
+    l1tmetemu::printLUT(cosLUT_, "L1TrackerEtMissEmulatorProducer", "cosLUT_");
+  }
 
   produces<std::vector<EtSum>>(L1MetCollectionName_);
 }
@@ -177,8 +184,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
       // through cosLUT_ gives sin Sum sector Et -ve when cos or sin phi are -ve
       sector_totals[track->phiSector()] += 1;
       if (globalPhi >= phiQuadrants_[0] && globalPhi < phiQuadrants_[1]) {
-        temppx = (ptEmulation * cosLUT_[globalPhi]);
-        temppy = (ptEmulation * cosLUT_[phiQuadrants_[1] - 1 - globalPhi]);
+        temppx = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi]);
+        temppy = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[1] - 1 - globalPhi]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
@@ -188,8 +195,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
         }
       } else if (globalPhi >= phiQuadrants_[1] && globalPhi < phiQuadrants_[2]) {
-        temppx = -(ptEmulation * cosLUT_[phiQuadrants_[2] - 1 - globalPhi]);
-        temppy = (ptEmulation * cosLUT_[globalPhi - phiQuadrants_[1]]);
+        temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[2] - 1 - globalPhi]);
+        temppy = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[1]]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
@@ -199,8 +206,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
               << " Emu Sin(Phi): " << cosLUT_[globalPhi - phiQuadrants_[1]] << "\n";
         }
       } else if (globalPhi >= phiQuadrants_[2] && globalPhi < phiQuadrants_[3]) {
-        temppx = -(ptEmulation * cosLUT_[globalPhi - phiQuadrants_[2]]);
-        temppy = -(ptEmulation * cosLUT_[phiQuadrants_[3] - 1 - globalPhi]);
+        temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[2]]);
+        temppy = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[3] - 1 - globalPhi]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
@@ -210,8 +217,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         }
 
       } else if (globalPhi >= phiQuadrants_[3] && globalPhi < phiQuadrants_[4]) {
-        temppx = (ptEmulation * cosLUT_[phiQuadrants_[4] - 1 - globalPhi]);
-        temppy = -(ptEmulation * cosLUT_[globalPhi - phiQuadrants_[3]]);
+        temppx = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[4] - 1 - globalPhi]);
+        temppy = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[3]]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
@@ -233,7 +240,9 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
       if (debug_ == 4) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
             << "Sector: " << track->phiSector() << " Eta sector: " << EtaSector << "\n"
-            << "Track Px: " << temppx << " Track Py: " << temppy << "\n"
+            << "Track Ref Pt: " << track->momentum().perp()
+            << " Track Ref Px: " << track->momentum().x() << " Track Ref Py: " << track->momentum().y() << "\n"
+            << "Track Pt: " << ptEmulation << " Track Px: " << temppx << " Track Py: " << temppy << "\n"
             << "Sector Sum Px: " << sumPx[link_number] << " Sector Sum Py: " << sumPy[link_number] << "\n";
       }
     }
@@ -257,7 +266,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   else if ((GlobalPx < 0) && (GlobalPy >= 0))
     EtMiss.Phi += l1tmetemu::METWordphi_t(M_PI/l1tmetemu::kStepMETwordPhi);
 
-  if (debug_ == 6) {
+  if (debug_ == 4 || debug_ == 6) {
 
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====Sector Pt====\n";
@@ -265,7 +274,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     for (unsigned int i = 0; i < l1tmetemu::kNSector * 2; i++) {
       edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "Sector " << i << "\n"
-        << "Px: " << sumPx[i]  << " | Py: " << sumPy[i]  
+        << "Px: " << sumPx[i]  << " | Py: " << sumPy[i]
+        << " | Link Totals: " << link_totals[i]
         << " | Sector Totals: " << sector_totals[(int)(i/2)] << "\n";
     }
 
@@ -278,6 +288,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         << "MET word Et: " << EtMiss.Et.range()*l1tmetemu::kStepMETwordEt << "| MET word phi: " << EtMiss.Phi << "\n"
         << "MET: " << EtMiss.Et.to_double() 
         << "| MET phi: " << (float)EtMiss.Phi * l1tmetemu::kStepMETwordPhi << "\n"
+        << "Word MET: " << EtMiss.Et.to_string(2) << " | Word MET phi: " << EtMiss.Phi.to_string(2) << "\n"
         << "# Tracks Associated to Vertex: " << num_assoc_tracks << "\n"
         << "========================================================\n";
   }
