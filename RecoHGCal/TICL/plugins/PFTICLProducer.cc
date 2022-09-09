@@ -92,18 +92,19 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     const auto abs_pdg_id = std::abs(ticl_cand.pdgId());
     const auto charge = ticl_cand.charge();
     const auto& four_mom = ticl_cand.p4();
-    double ecal_energy_fraction = 0.;
+    float total_raw_energy = 0.f;
+    float total_em_raw_energy = 0.f;
     for (const auto& t : ticl_cand.tracksters()) {
-      ecal_energy_fraction = t->raw_em_energy() / t->raw_energy();
+      total_raw_energy += t->raw_energy();
+      total_em_raw_energy += t->raw_em_energy();
     }
-
-    double ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
-                                                 : ticl_cand.rawEnergy() * ecal_energy_fraction;
-    double hcal_energy =
+    float ecal_energy_fraction = total_em_raw_energy / total_raw_energy;
+    float ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
+                                                : ticl_cand.rawEnergy() * ecal_energy_fraction;
+    float hcal_energy =
         energy_from_regression_ ? ticl_cand.p4().energy() - ecal_energy : ticl_cand.rawEnergy() - ecal_energy;
     // fix for floating point rounding could go slightly below 0
-    hcal_energy = hcal_energy < 0 ? 0 : hcal_energy;
-
+    hcal_energy = std::max(0.f, hcal_energy);
     reco::PFCandidate::ParticleType part_type;
     switch (abs_pdg_id) {
       case 11:
