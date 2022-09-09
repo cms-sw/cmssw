@@ -312,8 +312,10 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   // Record postions of all tracksters propagated to layer 1 and lastLayerEE,
   // to be used later for distance calculation in the link finding stage
   // indexed by trackster index in event collection
-  std::vector<Vector> tsAllProp(tracksters.size());
-  std::vector<Vector> tsAllPropInt(tracksters.size());
+  std::vector<Vector> tsAllProp;
+  std::vector<Vector> tsAllPropInt;
+  tsAllProp.reserve(tracksters.size());
+  tsAllPropInt.reserve(tracksters.size());
 
   for (unsigned i = 0; i < tracksters.size(); ++i) {
     const auto &t = tracksters[i];
