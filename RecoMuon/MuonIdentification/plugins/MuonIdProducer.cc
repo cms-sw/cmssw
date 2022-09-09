@@ -637,7 +637,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (auto& muon : *outputMuons) {
         if (!muon.standAloneMuon().isNull()) {
           // global muon
-          if (muon.standAloneMuon().get() == &outerTrack) {
+          if (muon.standAloneMuon().get() == &outerTrack ||
+              (muon.standAloneMuon()->extra().isNonnull() &&
+               muon.standAloneMuon()->extra().get() == outerTrack.extra().get())) {
             newMuon = false;
             break;
           }
