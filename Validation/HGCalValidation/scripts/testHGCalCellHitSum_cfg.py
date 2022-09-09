@@ -83,7 +83,12 @@ process.hgcalCellHitSumHEF = process.hgcalCellHitSum.clone(
     geometryFileName = geomFile
 )
 
+process.hgcalCellHitSumHEB = process.hgcalCellHitSum.clone(
+    simhits = ('g4SimHits', 'HGCHitsHEback'),
+    detector   = 'HGCalHEScintillatorSensitive'
+)
+
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(outputFile) )
 
-process.p = cms.Path(process.hgcalCellHitSumEE*process.hgcalCellHitSumHEF)
+process.p = cms.Path(process.hgcalCellHitSumEE*process.hgcalCellHitSumHEF*process.hgcalCellHitSumHEB)

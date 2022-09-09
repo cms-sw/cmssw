@@ -212,24 +212,28 @@ private:
   std::vector<TGraph *> grXYhitsF0;
   std::vector<TGraph *> grXYhitsCN0;
   std::vector<TGraph *> grXYhitsCK0;
-  int ixyF0[50], ixyCN0[50], ixyCK0[50];
+  std::vector<TGraph *> grXYhitsB0;
+  int ixyF0[50], ixyCN0[50], ixyCK0[50], ixyB0[50];
 
   std::vector<TGraph *> grXYhitsF1;
   std::vector<TGraph *> grXYhitsCN1;
   std::vector<TGraph *> grXYhitsCK1;
-  int ixyF1[50], ixyCN1[50], ixyCK1[50];
+  std::vector<TGraph *> grXYhitsB1;
+  int ixyF1[50], ixyCN1[50], ixyCK1[50], ixyB1[50];
   /////////////////////////////////
 
   // For detid zside. The 0 and 1 are for -ve and +ve, respectively.
   std::vector<TGraph *> gXYhitsF0;
   std::vector<TGraph *> gXYhitsCN0;
   std::vector<TGraph *> gXYhitsCK0;
-  int ixydF0[50], ixydCN0[50], ixydCK0[50];
+  std::vector<TGraph *> gXYhitsB0;
+  int ixydF0[50], ixydCN0[50], ixydCK0[50], ixydB0[50];
 
   std::vector<TGraph *> gXYhitsF1;
   std::vector<TGraph *> gXYhitsCN1;
   std::vector<TGraph *> gXYhitsCK1;
-  int ixydF1[50], ixydCN1[50], ixydCK1[50];
+  std::vector<TGraph *> gXYhitsB1;
+  int ixydF1[50], ixydCN1[50], ixydCK1[50], ixydB1[50];
   //////////////////////////////////////////
 
   std::vector<TH1D *> hELCSMaxF;
@@ -444,36 +448,48 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
     grXYhitsCN0[i - 1]->SetNameTitle(Form("grXYhitsCN0_layer_%02d", i), Form("HitsCN0 in XY for layer %d", i));
     grXYhitsCK0.emplace_back(fs->make<TGraph>(0));
     grXYhitsCK0[i - 1]->SetNameTitle(Form("grXYhitsCK0_layer_%02d", i), Form("HitsCK0 in XY for layer %d", i));
+    grXYhitsB0.emplace_back(fs->make<TGraph>(0));
+    grXYhitsB0[i - 1]->SetNameTitle(Form("grXYhitsB0_layer_%02d", i), Form("HitsB0 in XY for layer %d", i));
     ixyF0[i - 1] = 0;
     ixyCN0[i - 1] = 0;
     ixyCK0[i - 1] = 0;
+    ixyB0[i - 1] = 0;
     grXYhitsF1.emplace_back(fs->make<TGraph>(0));
     grXYhitsF1[i - 1]->SetNameTitle(Form("grXYhitsF1_layer_%02d", i), Form("HitsF1 in XY for layer %d", i));
     grXYhitsCN1.emplace_back(fs->make<TGraph>(0));
     grXYhitsCN1[i - 1]->SetNameTitle(Form("grXYhitsCN1_layer_%02d", i), Form("HitsCN1 in XY for layer %d", i));
     grXYhitsCK1.emplace_back(fs->make<TGraph>(0));
     grXYhitsCK1[i - 1]->SetNameTitle(Form("grXYhitsCK1_layer_%02d", i), Form("HitsCK1 in XY for layer %d", i));
+    grXYhitsB1.emplace_back(fs->make<TGraph>(0));
+    grXYhitsB1[i - 1]->SetNameTitle(Form("grXYhitsB1_layer_%02d", i), Form("HitsB1 in XY for layer %d", i));
     ixyF1[i - 1] = 0;
     ixyCN1[i - 1] = 0;
     ixyCK1[i - 1] = 0;
+    ixyB1[i - 1] = 0;
     gXYhitsF0.emplace_back(fs->make<TGraph>(0));
     gXYhitsF0[i - 1]->SetNameTitle(Form("gXYhitsF0_layer_%02d", i), Form("HitsF0 in XY for layer %d", i));
     gXYhitsCN0.emplace_back(fs->make<TGraph>(0));
     gXYhitsCN0[i - 1]->SetNameTitle(Form("gXYhitsCN0_layer_%02d", i), Form("HitsCN0 in XY for layer %d", i));
     gXYhitsCK0.emplace_back(fs->make<TGraph>(0));
     gXYhitsCK0[i - 1]->SetNameTitle(Form("gXYhitsCK0_layer_%02d", i), Form("HitsCK0 in XY for layer %d", i));
+    gXYhitsB0.emplace_back(fs->make<TGraph>(0));
+    gXYhitsB0[i - 1]->SetNameTitle(Form("gXYhitsB0_layer_%02d", i), Form("HitsB0 in XY for layer %d", i));
     ixydF0[i - 1] = 0;
     ixydCN0[i - 1] = 0;
     ixydCK0[i - 1] = 0;
+    ixydB0[i - 1] = 0;
     gXYhitsF1.emplace_back(fs->make<TGraph>(0));
     gXYhitsF1[i - 1]->SetNameTitle(Form("gXYhitsF1_layer_%02d", i), Form("HitsF1 in XY for layer %d", i));
     gXYhitsCN1.emplace_back(fs->make<TGraph>(0));
     gXYhitsCN1[i - 1]->SetNameTitle(Form("gXYhitsCN1_layer_%02d", i), Form("HitsCN1 in XY for layer %d", i));
     gXYhitsCK1.emplace_back(fs->make<TGraph>(0));
     gXYhitsCK1[i - 1]->SetNameTitle(Form("gXYhitsCK1_layer_%02d", i), Form("HitsCK1 in XY for layer %d", i));
+    gXYhitsB1.emplace_back(fs->make<TGraph>(0));
+    gXYhitsB1[i - 1]->SetNameTitle(Form("gXYhitsB1_layer_%02d", i), Form("HitsB1 in XY for layer %d", i));
     ixydF1[i - 1] = 0;
     ixydCN1[i - 1] = 0;
     ixydCK1[i - 1] = 0;
+    ixydB1[i - 1] = 0;
   }
   for (int i = 1; i <= 50; i++) {
     hNHxXYhitsF.emplace_back(fs->make<TH2D>(
@@ -864,7 +880,19 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
             gXYhitsCK1[il]->SetPoint(ixydCK1[il]++, global2.x(), global2.y());
         }
       } else if (rhtools_.isScintillator(id1)) {
-        hXYhitsB[rhtools_.getLayerWithOffset(id1)]->Fill(global2.x(), global2.y());
+        HGCScintillatorDetId id(itHit->id());
+        int il = rhtools_.getLayerWithOffset(id1) - 1;
+
+        hXYhitsB[il]->Fill(global2.x(), global2.y());
+
+        if (global2.z() < 0.0)
+          grXYhitsB0[il]->SetPoint(ixyB0[il]++, global2.x(), global2.y());
+        else
+          grXYhitsB1[il]->SetPoint(ixyB1[il]++, global2.x(), global2.y());
+        if (id.zside() == -1)
+          gXYhitsB0[il]->SetPoint(ixydB0[il]++, global2.x(), global2.y());
+        else
+          gXYhitsB1[il]->SetPoint(ixydB1[il]++, global2.x(), global2.y());
       }
     }
 
