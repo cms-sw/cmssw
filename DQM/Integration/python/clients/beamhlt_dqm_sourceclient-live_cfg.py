@@ -39,32 +39,10 @@ if 'unitTest=True' in sys.argv:
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
-
-  # Overwrite source of the unitTest to use a streamer file instead of the DAS query output
-  print("[beamhlt_dqm_sourceclient-live_cfg]:: Overriding DAS input to use a streamer file")
-
-  # Read streamer files from https://github.com/cms-data/DQM-Integration
-  import os
-  dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
-
-  # Set the process source
-  process.source = cms.Source("DQMStreamerReader",
-      runNumber = cms.untracked.uint32(356383),
-      runInputDir = cms.untracked.string(dqm_integration_data),
-      SelectEvents = cms.untracked.vstring('*'),
-      streamLabel = cms.untracked.string('streamDQMOnlineBeamspot'),
-      scanOnce = cms.untracked.bool(True),
-      minEventsPerLumi = cms.untracked.int32(1000),
-      delayMillis = cms.untracked.uint32(500),
-      nextLumiTimeoutMillis = cms.untracked.int32(0),
-      skipFirstLumis = cms.untracked.bool(False),
-      deleteDatFiles = cms.untracked.bool(False),
-      endOfRunKills  = cms.untracked.bool(False),
-      inputFileTransitionsEachEvent = cms.untracked.bool(False)
-  )
-
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  # new stream label
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
@@ -146,15 +124,20 @@ process = customise(process)
 from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
 process.tcdsDigis = tcdsRawToDigi.clone()
 
-#------------------------
-# Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
+# Import raw to digi modules
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+
+# Set rawDataRepacker (HI and live) or hltFEDSelectorTCDS+hltFEDSelectorOnlineMetaData (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
 else:
-    # Use raw data from selected TCDS FEDs (1024, 1025)
+    # Use raw data from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
     rawDataInputTag = "hltFEDSelectorTCDS"
+    onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
 
-process.tcdsDigis.InputLabel = rawDataInputTag
+process.onlineMetaDataDigis.onlineMetaDataInputLabel = onlineMetaDataInputTag
+process.scalersRawToDigi.scalersInputTag             = rawDataInputTag
+process.tcdsDigis.InputLabel                         = rawDataInputTag
 
 #-----------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
@@ -162,6 +145,23 @@ import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
 
 #--------------------------
 # Proton-Proton Stuff
@@ -265,9 +265,14 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.tcdsDigis
+                        * process.scalersRawToDigi
+                        * process.onlineMetaDataDigis
+                        * process.pixelTrackerHVOn
+                        * process.stripTrackerHVOn
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 
