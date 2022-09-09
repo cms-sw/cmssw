@@ -140,7 +140,7 @@ bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(float &total_raw_e
                                                               const float &tkTimeQual) {
   float threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
 
-  float energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
+  bool energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
   // compatible if trackster time is within 3sigma of
   // track time; compatible if either: no time assigned
   // to trackster or track time quality is below threshold
