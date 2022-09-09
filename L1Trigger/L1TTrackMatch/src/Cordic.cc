@@ -52,22 +52,18 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
   }
 
   if (in_x >= 0 && in_y >= 0) {
-    phi = E2t_t(M_PI);
     sign = true;
 
   } else if (in_x < 0 && in_y >= 0) {
-    phi = E2t_t(2*M_PI);
     sign = false;
     in_x = -in_x;
 
   } else if (in_x < 0 && in_y < 0) {
-    phi = 0;
     sign = true;
     in_x = -in_x;
     in_y = -in_y;
 
   } else {
-    phi = E2t_t(M_PI);
     sign = false;
     in_y = -in_y;
   }

@@ -39,7 +39,7 @@ namespace l1tmetemu {
   const unsigned int kMETPhiSize{13};  // For Output Phi default 13
 
   typedef ap_ufixed<kMETSize,kMETMagSize> METWord_t;
-  typedef ap_uint<kMETPhiSize> METWordphi_t;
+  typedef ap_int<kMETPhiSize> METWordphi_t;
 
   const double kStepMETwordEt =  kMaxMET / ( 1 << kMETSize);
   const double kStepMETwordPhi = kMaxMETPhi / ( 1 << kMETPhiSize);
