@@ -71,7 +71,14 @@ namespace edm {
       HAD hadronizer_;
       std::unique_ptr<DEC> decayer_;
       std::unique_ptr<HepMCFilterDriver> filter_;
+      unsigned long long nInitializedWithLHERunInfo_{0};
+      unsigned long long nStreamEndLumis_{0};
       bool initialized_ = false;
+    };
+    template <typename HAD, typename DEC>
+    struct LumiCache {
+      gen::StreamCache<HAD, DEC>* useInLumi_{nullptr};
+      unsigned long long nGlobalBeginRuns_{0};
     };
   }  // namespace gen
 
@@ -80,6 +87,7 @@ namespace edm {
                                                              BeginLuminosityBlockProducer,
                                                              EndLuminosityBlockProducer,
                                                              RunCache<gen::RunCache>,
+                                                             LuminosityBlockCache<gen::LumiCache<HAD, DEC>>,
                                                              LuminosityBlockSummaryCache<gen::LumiSummary>,
                                                              StreamCache<gen::StreamCache<HAD, DEC>>> {
   public:
@@ -92,12 +100,13 @@ namespace edm {
 
     std::unique_ptr<gen::StreamCache<HAD, DEC>> beginStream(edm::StreamID) const override;
     bool filter(StreamID id, Event& e, EventSetup const& es) const override;
-    void streamBeginRun(StreamID, Run const&, EventSetup const&) const override;
     void streamEndRun(StreamID, Run const&, EventSetup const&) const override;
     std::shared_ptr<gen::RunCache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
     void globalEndRun(edm::Run const&, edm::EventSetup const&) const override;
     void globalEndRunProduce(Run&, EventSetup const&) const override;
     void streamBeginLuminosityBlock(StreamID, LuminosityBlock const&, EventSetup const&) const override;
+    std::shared_ptr<gen::LumiCache<HAD, DEC>> globalBeginLuminosityBlock(LuminosityBlock const&,
+                                                                         EventSetup const&) const override;
     void globalBeginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) const override;
     void streamEndLuminosityBlockSummary(StreamID,
                                          LuminosityBlock const&,
@@ -105,12 +114,14 @@ namespace edm {
                                          gen::LumiSummary*) const override;
     std::shared_ptr<gen::LumiSummary> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                                         edm::EventSetup const&) const override;
+    void globalEndLuminosityBlock(LuminosityBlock const&, EventSetup const&) const override;
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
                                          edm::EventSetup const&,
                                          gen::LumiSummary*) const override;
     void globalEndLuminosityBlockProduce(LuminosityBlock&, EventSetup const&, gen::LumiSummary const*) const override;
 
   private:
+    void initializeWithLHERunInfo(gen::StreamCache<HAD, DEC>*, LuminosityBlock const&) const;
     void initLumi(gen::StreamCache<HAD, DEC>* cache, LuminosityBlock const& index, EventSetup const& es) const;
     ParameterSet config_;
     InputTag runInfoProductTag_;
@@ -119,6 +130,12 @@ namespace edm {
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
     mutable std::atomic<gen::StreamCache<HAD, DEC>*> useInLumi_{nullptr};
+    mutable std::atomic<unsigned long long> greatestNStreamEndLumis_{0};
+    mutable std::atomic<bool> streamEndRunComplete_{true};
+    // The next two data members are thread safe and can be safely mutable because
+    // they are only modified/read in globalBeginRun and globalBeginLuminosityBlock.
+    mutable unsigned long long nGlobalBeginRuns_{0};
+    mutable unsigned long long nInitializedWithLHERunInfo_{0};
     bool const hasFilter_;
   };
 
@@ -305,29 +322,6 @@ namespace edm {
   }
 
   template <class HAD, class DEC>
-  void ConcurrentHadronizerFilter<HAD, DEC>::streamBeginRun(StreamID id, Run const& run, EventSetup const& es) const {
-    // this is run-specific
-
-    // get LHE stuff and pass to hadronizer!
-
-    if (counterRunInfoProducts_ > 1)
-      throw edm::Exception(errors::EventCorruption) << "More than one LHERunInfoProduct present";
-
-    if (counterRunInfoProducts_ == 0)
-      throw edm::Exception(errors::EventCorruption) << "No LHERunInfoProduct present";
-
-    edm::Handle<LHERunInfoProduct> lheRunInfoProduct;
-    run.getByLabel(runInfoProductTag_, lheRunInfoProduct);
-    //TODO: fix so that this actually works with getByToken commented below...
-    //run.getByToken(runInfoProductToken_, lheRunInfoProduct);
-    auto& hadronizer = this->streamCache(id)->hadronizer_;
-
-    hadronizer.setLHERunInfo(std::make_unique<lhef::LHERunInfo>(*lheRunInfoProduct));
-    lhef::LHERunInfo* lheRunInfo = hadronizer.getLHERunInfo().get();
-    lheRunInfo->initLumi();
-  }
-
-  template <class HAD, class DEC>
   void ConcurrentHadronizerFilter<HAD, DEC>::streamEndRun(StreamID id, Run const& r, EventSetup const&) const {
     auto rCache = this->runCache(r.index());
     auto cache = this->streamCache(id);
@@ -362,11 +356,22 @@ namespace edm {
     if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
       griproduct.release();
     }
+    if (cache == useInLumi_.load()) {
+      streamEndRunComplete_ = true;
+    }
   }
 
   template <class HAD, class DEC>
   std::shared_ptr<gen::RunCache> ConcurrentHadronizerFilter<HAD, DEC>::globalBeginRun(edm::Run const&,
                                                                                       edm::EventSetup const&) const {
+    ++nGlobalBeginRuns_;
+
+    if (counterRunInfoProducts_ > 1)
+      throw edm::Exception(errors::EventCorruption) << "More than one LHERunInfoProduct present";
+
+    if (counterRunInfoProducts_ == 0)
+      throw edm::Exception(errors::EventCorruption) << "No LHERunInfoProduct present";
+
     return std::make_shared<gen::RunCache>();
   }
 
@@ -382,11 +387,32 @@ namespace edm {
   void ConcurrentHadronizerFilter<HAD, DEC>::streamBeginLuminosityBlock(StreamID id,
                                                                         LuminosityBlock const& lumi,
                                                                         EventSetup const& es) const {
-    if (useInLumi_ != this->streamCache(id)) {
-      initLumi(this->streamCache(id), lumi, es);
-    } else {
-      useInLumi_.store(nullptr);
+    gen::StreamCache<HAD, DEC>* streamCachePtr = this->streamCache(id);
+    bool newRun =
+        streamCachePtr->nInitializedWithLHERunInfo_ < this->luminosityBlockCache(lumi.index())->nGlobalBeginRuns_;
+    if (newRun) {
+      streamCachePtr->nInitializedWithLHERunInfo_ = this->luminosityBlockCache(lumi.index())->nGlobalBeginRuns_;
     }
+    if (this->luminosityBlockCache(lumi.index())->useInLumi_ != streamCachePtr) {
+      if (newRun) {
+        initializeWithLHERunInfo(streamCachePtr, lumi);
+      }
+      initLumi(streamCachePtr, lumi, es);
+    }
+  }
+
+  template <class HAD, class DEC>
+  void ConcurrentHadronizerFilter<HAD, DEC>::initializeWithLHERunInfo(gen::StreamCache<HAD, DEC>* streamCachePtr,
+                                                                      edm::LuminosityBlock const& lumi) const {
+    edm::Handle<LHERunInfoProduct> lheRunInfoProduct;
+    lumi.getRun().getByLabel(runInfoProductTag_, lheRunInfoProduct);
+    //TODO: fix so that this actually works with getByToken commented below...
+    //run.getByToken(runInfoProductToken_, lheRunInfoProduct);
+    auto& hadronizer = streamCachePtr->hadronizer_;
+
+    hadronizer.setLHERunInfo(std::make_unique<lhef::LHERunInfo>(*lheRunInfoProduct));
+    lhef::LHERunInfo* lheRunInfo = hadronizer.getLHERunInfo().get();
+    lheRunInfo->initLumi();
   }
 
   template <class HAD, class DEC>
@@ -444,14 +470,32 @@ namespace edm {
   }
 
   template <class HAD, class DEC>
-  void ConcurrentHadronizerFilter<HAD, DEC>::globalBeginLuminosityBlockProduce(LuminosityBlock& lumi,
-                                                                               EventSetup const& es) const {
+  std::shared_ptr<gen::LumiCache<HAD, DEC>> ConcurrentHadronizerFilter<HAD, DEC>::globalBeginLuminosityBlock(
+      edm::LuminosityBlock const& lumi, edm::EventSetup const&) const {
     //need one of the streams to finish
     while (useInLumi_.load() == nullptr) {
     }
+
+    if (nInitializedWithLHERunInfo_ < nGlobalBeginRuns_) {
+      while (!streamEndRunComplete_.load()) {
+      }
+      nInitializedWithLHERunInfo_ = nGlobalBeginRuns_;
+      initializeWithLHERunInfo(useInLumi_.load(), lumi);
+    }
+
+    auto lumiCache = std::make_shared<gen::LumiCache<HAD, DEC>>();
+    lumiCache->useInLumi_ = useInLumi_.load();
+    lumiCache->nGlobalBeginRuns_ = nGlobalBeginRuns_;
+    return lumiCache;
+  }
+
+  template <class HAD, class DEC>
+  void ConcurrentHadronizerFilter<HAD, DEC>::globalBeginLuminosityBlockProduce(LuminosityBlock& lumi,
+                                                                               EventSetup const& es) const {
     initLumi(useInLumi_, lumi, es);
     std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(useInLumi_.load()->hadronizer_.getGenLumiInfoHeader());
     lumi.put(std::move(genLumiInfoHeader));
+    useInLumi_.store(nullptr);
   }
 
   template <class HAD, class DEC>
@@ -509,9 +553,16 @@ namespace edm {
       }
     }
 
-    gen::StreamCache<HAD, DEC>* expected = nullptr;
-    //make it available for beginLuminosityBlockProduce
-    useInLumi_.compare_exchange_strong(expected, this->streamCache(id));
+    // The next section of code depends on the Framework behavior that the stream
+    // lumi transitions are executed for all streams for every lumi even when
+    // there are no events for a stream to process.
+    gen::StreamCache<HAD, DEC>* streamCachePtr = this->streamCache(id);
+    unsigned long long expected = streamCachePtr->nStreamEndLumis_;
+    ++streamCachePtr->nStreamEndLumis_;
+    if (greatestNStreamEndLumis_.compare_exchange_strong(expected, streamCachePtr->nStreamEndLumis_)) {
+      streamEndRunComplete_ = false;
+      useInLumi_ = streamCachePtr;
+    }
   }
 
   template <class HAD, class DEC>
@@ -519,6 +570,10 @@ namespace edm {
       edm::LuminosityBlock const&, edm::EventSetup const&) const {
     return std::make_shared<gen::LumiSummary>();
   }
+
+  template <class HAD, class DEC>
+  void ConcurrentHadronizerFilter<HAD, DEC>::globalEndLuminosityBlock(edm::LuminosityBlock const&,
+                                                                      edm::EventSetup const&) const {}
 
   template <class HAD, class DEC>
   void ConcurrentHadronizerFilter<HAD, DEC>::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
