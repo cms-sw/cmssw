@@ -265,16 +265,17 @@ double Vx3DHLTAnalyzer::Gauss3DFunc(const double* par) {
 }
 
 int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
-  // ############################################
-  // # RETURN CODE:                             #
-  // # >0 == NO OK - fit status (MINUIT manual) #
-  // #  0 == OK                                 #
-  // # -1 == NO OK - not finite edm             #
-  // # -2 == NO OK - not enough "minNentries"   #
-  // # -3 == NO OK - not finite errors          #
-  // # -4 == NO OK - negative determinant       #
-  // # -5 == NO OK - maxLumiIntegration reached #
-  // ############################################
+  // ###############################################
+  // # RETURN CODE:                                #
+  // # >0 == NOT OK - fit status (MINUIT manual)   #
+  // #  0 == OK                                    #
+  // # -1 == NOT OK - not finite edm               #
+  // # -2 == NOT OK - not enough "minNentries"     #
+  // # -3 == NOT OK - not finite errors            #
+  // # -4 == NOT OK - negative determinant         #
+  // # -5 == NOT OK - maxLumiIntegration reached   #
+  // # -6 == NOT OK - FatalRootError: @SUB=Minuit2 #
+  // ###############################################
 
   if ((vals != nullptr) && (vals->size() == nParams * 2)) {
     double nSigmaXY = 10.;
@@ -332,21 +333,24 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = (*vals)[6];
-      yPos = (*vals)[7];
-      zPos = (*vals)[8];
+      xPos = *(it + 6) + deltaMean;
+      yPos = *(it + 7);
+      zPos = *(it + 8);
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(*(it + 0)) + std::fabs(*(it + 1)) / 2.);
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs(*(it + 2)));
 
       try {
         Gauss3D->Minimize();
+        goodData = Gauss3D->Status();
+        edm = Gauss3D->Edm();
       } catch (cms::Exception& er) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception @ Fit at X: \n" << er.what();
+        goodData = -6;
+        edm = 1.;
+        continue;
       }
-      goodData = Gauss3D->Status();
-      edm = Gauss3D->Edm();
 
       if (counterVx < minNentries)
         goodData = -2;
@@ -354,7 +358,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         goodData = -1;
         if (internalDebug == true)
           edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
-      } else
+      } else if (goodData != -6)
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
@@ -408,21 +412,24 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = Gauss3D->X()[6];
-      yPos = Gauss3D->X()[7];
-      zPos = Gauss3D->X()[8];
+      xPos = *(it + 6) + (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
+      yPos = *(it + 7) + deltaMean;
+      zPos = *(it + 8);
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(*(it + 0)) + std::fabs(*(it + 1)) / 2.);
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs(*(it + 2)));
 
       try {
         Gauss3D->Minimize();
+        goodData = Gauss3D->Status();
+        edm = Gauss3D->Edm();
       } catch (cms::Exception& er) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception @ Fit at Y: \n" << er.what();
+        goodData = -6;
+        edm = 1.;
+        continue;
       }
-      goodData = Gauss3D->Status();
-      edm = Gauss3D->Edm();
 
       if (counterVx < minNentries)
         goodData = -2;
@@ -430,7 +437,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         goodData = -1;
         if (internalDebug == true)
           edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
-      } else
+      } else if (goodData != -6)
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
@@ -485,21 +492,24 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8) + deltaMean, parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = Gauss3D->X()[6];
-      yPos = Gauss3D->X()[7];
-      zPos = Gauss3D->X()[8];
+      xPos = *(it + 6) + (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
+      yPos = *(it + 7) + (double(bestMovementY) - 1.) * std::sqrt(*(it + 1));
+      zPos = *(it + 8) + deltaMean;
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(*(it + 0)) + std::fabs(*(it + 1)) / 2.);
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs(*(it + 2)));
 
       try {
         Gauss3D->Minimize();
+        goodData = Gauss3D->Status();
+        edm = Gauss3D->Edm();
       } catch (cms::Exception& er) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception @ Fit at Z: \n" << er.what();
+        goodData = -6;
+        edm = 1.;
+        continue;
       }
-      goodData = Gauss3D->Status();
-      edm = Gauss3D->Edm();
 
       if (counterVx < minNentries)
         goodData = -2;
@@ -507,7 +517,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         goodData = -1;
         if (internalDebug == true)
           edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
-      } else
+      } else if (goodData != -6)
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
@@ -553,21 +563,23 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
     Gauss3D->SetVariable(8, "mean z", *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2)), parDistanceZ);
 
     // Set the central positions of the centroid for vertex rejection
-    xPos = (*vals)[6];
-    yPos = (*vals)[7];
-    zPos = (*vals)[8];
+    xPos = *(it + 6) + (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
+    yPos = *(it + 7) + (double(bestMovementY) - 1.) * std::sqrt(*(it + 1));
+    zPos = *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2));
 
     // Set dimensions of the centroid for vertex rejection
-    maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
-    maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
+    maxTransRadius = nSigmaXY * std::sqrt(std::fabs(*(it + 0)) + std::fabs(*(it + 1)) / 2.);
+    maxLongLength = nSigmaZ * std::sqrt(std::fabs(*(it + 2)));
 
     try {
       Gauss3D->Minimize();
+      goodData = Gauss3D->Status();
+      edm = Gauss3D->Edm();
     } catch (cms::Exception& er) {
-      edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
+      edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception @ Final fit: \n" << er.what();
+      goodData = -6;
+      edm = 1.;
     }
-    goodData = Gauss3D->Status();
-    edm = Gauss3D->Edm();
 
     if (counterVx < minNentries)
       goodData = -2;
@@ -575,7 +587,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       goodData = -1;
       if (internalDebug == true)
         edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
-    } else
+    } else if (goodData != -6)
       for (unsigned int j = 0; j < nParams; j++)
         if (isNotFinite(Gauss3D->Errors()[j]) == true) {
           goodData = -3;
@@ -625,21 +637,25 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             8, "mean z", *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2)), parDistanceZ * largerDist[i]);
 
         // Set the central positions of the centroid for vertex rejection
-        xPos = Gauss3D->X()[6];
-        yPos = Gauss3D->X()[7];
-        zPos = Gauss3D->X()[8];
+        xPos = *(it + 6) + (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
+        yPos = *(it + 7) + (double(bestMovementY) - 1.) * std::sqrt(*(it + 1));
+        zPos = *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2));
 
         // Set dimensions of the centroid for vertex rejection
-        maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
-        maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
+        maxTransRadius = nSigmaXY * std::sqrt(std::fabs(*(it + 0)) + std::fabs(*(it + 1)) / 2.);
+        maxLongLength = nSigmaZ * std::sqrt(std::fabs(*(it + 2)));
 
         try {
           Gauss3D->Minimize();
+          goodData = Gauss3D->Status();
+          edm = Gauss3D->Edm();
         } catch (cms::Exception& er) {
-          edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
+          edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception @ Fit with different distances: \n"
+                                           << er.what();
+          goodData = -6;
+          edm = 1.;
+          continue;
         }
-        goodData = Gauss3D->Status();
-        edm = Gauss3D->Edm();
 
         if (counterVx < minNentries)
           goodData = -2;
@@ -647,7 +663,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
           goodData = -1;
           if (internalDebug == true)
             edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
-        } else
+        } else if (goodData != -6)
           for (unsigned int j = 0; j < nParams; j++)
             if (isNotFinite(Gauss3D->Errors()[j]) == true) {
               goodData = -3;
@@ -1525,18 +1541,19 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, Run const& iRun
       "L - status vs lumi", "App. Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange) + 0.5);
   statusCounter->setAxisTitle("Lumisection [#]", 1);
   statusCounter->getTH1()->SetOption("E1");
-  statusCounter->getTH1()->GetYaxis()->Set(11, -5.5, 5.5);
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(1, "Max Lumi.");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(2, "Neg. det.");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(3, "Infinite err.");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(4, "No vtx.");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(5, "Infinite EDM");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(6, "OK");
-  statusCounter->getTH1()->GetYaxis()->SetBinLabel(7, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->Set(12, -6.5, 5.5);
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(1, "FatalRootError");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(2, "Max Lumi.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(3, "Neg. det.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(4, "Infinite err.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(5, "No vtx.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(6, "Infinite EDM");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(7, "OK");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(8, "MINUIT stat.");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(9, "MINUIT stat.");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(10, "MINUIT stat.");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(11, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(12, "MINUIT stat.");
 
   fitResults = ibooker.book2D("A - fit results", "Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
   fitResults->setAxisTitle("Ongoing: bootstrapping", 1);
