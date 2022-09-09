@@ -354,8 +354,6 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
 float MahiFit::ccTime(const float itQ) const {
   // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
 
-  unsigned int soi = nnlsWork_.tsOffset;
-
   // Selecting energetic hits - Fitted Energy > 20 GeV
   if (itQ < thEnergeticPulsesFC_)
     return HcalSpecialTimes::DEFAULT_ccTIME;
