@@ -6,8 +6,8 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-#include "CondCore/CTPPSPlugins/interface/PPSTimingCalibrationPayloadInspectorHelper.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "CondCore/CTPPSPlugins/interface/CTPPSRPAlignmentCorrectionsDataHelper.h"
 
 int main(int argc, char** argv) {
   Py_Initialize();
@@ -24,18 +24,14 @@ int main(int argc, char** argv) {
 
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
-  std::string tag = "CTPPPSTimingCalibration_HPTDC_byPCL_v0_prompt";
-  cond::Time_t start = static_cast<unsigned long long>(355892);
-  cond::Time_t end = static_cast<unsigned long long>(357079);
+  std::string tag = "CTPPSRPAlignment_real_offline_v8";
+  cond::Time_t start = static_cast<unsigned long long>(273725);
+  cond::Time_t end = static_cast<unsigned long long>(325159);
 
-  edm::LogPrint("testPPSCalibrationPI") << "## Exercising TimingCalibration plots ";
+  edm::LogPrint("testPPSCalibrationPI") << "## Exercising PPSRPAlignmentCorrections plots ";
 
-  ParametersPerChannel<PPSTimingCalibrationPI::db0,
-                       PPSTimingCalibrationPI::plane0,
-                       PPSTimingCalibrationPI::parameter0,
-                       PPSTimingCalibration>
-      test;
+  RPShift_History<CTPPSRPAlignment::RP::RP3, CTPPSRPAlignment::Shift::x, false, CTPPSRPAlignmentCorrectionsData> test;
   test.process(connectionString, PI::mk_input(tag, start, end));
-  edm::LogPrint("testparametersPerChannel") << test.data();
+  edm::LogPrint("testRPShift_History") << test.data();
   Py_Finalize();
 }
