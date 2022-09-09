@@ -1,18 +1,19 @@
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-// #include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
+// #include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
 
 using namespace std;
 TrajectoryAtInvalidHit::TrajectoryAtInvalidHit(const TrajectoryMeasurement& tm,
@@ -67,7 +68,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit(const TrajectoryMeasurement& tm,
     theCombinedPredictedState = propagator.propagate(theCombinedPredictedState, surface);
 
     if (!theCombinedPredictedState.isValid()) {
-      cout << "found invalid combinedpredictedstate after propagation" << endl;
+      edm::LogWarning("TrajectoryAtInvalidHit") << "found invalid combinedpredictedstate after propagation" << endl;
       return;
     }
 
