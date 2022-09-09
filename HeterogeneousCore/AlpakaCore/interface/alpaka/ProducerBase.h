@@ -2,12 +2,14 @@
 #define HeterogeneousCore_AlpakaCore_interface_ProducerBase_h
 
 #include "DataFormats/Common/interface/DeviceProduct.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
+#include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/TransferToHost.h"
 
 #include <memory>
@@ -49,6 +51,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <edm::Transition Tr = edm::Transition::Event>
     [[nodiscard]] auto produces(std::string instanceName) noexcept {
       return ProducerBaseAdaptor<ProducerBase, Tr>(*this, std::move(instanceName));
+    }
+
+    static void prevalidate(edm::ConfigurationDescriptions& descriptions) {
+      Base::prevalidate(descriptions);
+      cms::alpakatools::module_backend_config(descriptions);
     }
 
   private:
