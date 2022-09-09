@@ -1412,34 +1412,56 @@ upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
     offset = 0.6,
 )
 
+# ECAL Phase 2 development WF
 class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflow_ecalDevel, self).__init__(
+            steps = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'HARVESTGlobal',
+            ],
+            PU = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'HARVESTGlobal',
+            ],
+            **kwargs)
+        self.__digi = digi
+        self.__reco = reco
+        self.__harvest = harvest
+
     def setup_(self, step, stepName, stepDict, k, properties):
         # temporarily remove trigger & downstream steps
         mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
             mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
+            mods |= self.__digi
         elif 'Reco' in step:
             mods['-s'] = 'RAW2DIGI,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
             mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
             mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+            mods |= self.__reco
         elif 'HARVEST' in step:
             mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
+            mods |= self.__harvest
         stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
+
+# ECAL Phase 2 workflow running on CPU
 upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
-    steps = [
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
     suffix = '_ecalDevel',
     offset = 0.61,
+)
+
+# ECAL Phase 2 workflow running on CPU or GPU (if available)
+upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
+    reco = {'--procModifiers': 'gpu'},
+    suffix = '_ecalDevelGPU',
+    offset = 0.612,
 )
 
 class UpgradeWorkflow_0T(UpgradeWorkflow):
