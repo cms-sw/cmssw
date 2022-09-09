@@ -56,9 +56,9 @@ math::XYZVector LinkingAlgoByDirectionGeometric::propagateTrackster(const Tracks
 
   zVal *= (baryc.Z() > 0) ? 1 : -1;
 
-  double par = (zVal - baryc.Z()) / directnv.Z();
-  double xOnSurface = par * directnv.X() + baryc.X();
-  double yOnSurface = par * directnv.Y() + baryc.Y();
+  float par = (zVal - baryc.Z()) / directnv.Z();
+  float xOnSurface = par * directnv.X() + baryc.X();
+  float yOnSurface = par * directnv.Y() + baryc.Y();
   Vector tPoint(xOnSurface, yOnSurface, zVal);
   if (tPoint.Eta() > 0)
     tracksterTiles[1].fill(tPoint.Eta(), tPoint.Phi(), idx);
@@ -73,7 +73,7 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
     const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
     const std::array<TICLLayerTile, 2> &tracksterTiles,
     const std::vector<Vector> &tracksterPropPoints,
-    double delta,
+    float delta,
     unsigned trackstersSize,
     std::vector<std::vector<unsigned>> &resultCollection,
     bool useMask = false) {
@@ -83,22 +83,22 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
   // indices found close to the i-th object in the seedingCollection.
   // If specified, Tracksters are masked once found as close to an object.
   std::vector<int> mask(trackstersSize, 0);
-  auto delta2 = delta * delta;
+  float delta2 = delta * delta;
 
   for (auto &i : seedingCollection) {
-    auto seed_eta = i.first.Eta();
-    auto seed_phi = i.first.Phi();
+    float seed_eta = i.first.Eta();
+    float seed_phi = i.first.Phi();
     unsigned seedId = i.second;
     auto sideZ = seed_eta > 0;  //forward or backward region
     const TICLLayerTile &tile = tracksterTiles[sideZ];
-    double eta_min = std::max(abs(seed_eta) - delta, (double)TileConstants::minEta);
-    double eta_max = std::min(abs(seed_eta) + delta, (double)TileConstants::maxEta);
+    float eta_min = std::max(abs(seed_eta) - delta, (float)TileConstants::minEta);
+    float eta_max = std::min(abs(seed_eta) + delta, (float)TileConstants::maxEta);
 
     // get range of bins touched by delta
     std::array<int, 4> search_box = tile.searchBoxEtaPhi(eta_min, eta_max, seed_phi - delta, seed_phi + delta);
 
     std::vector<unsigned> in_delta;
-    std::vector<double> distances2;
+    std::vector<float> distances2;
     for (int eta_i = search_box[0]; eta_i <= search_box[1]; ++eta_i) {
       for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
@@ -132,20 +132,20 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
   }  // seeding collection loop
 }
 
-bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(double &total_raw_energy,
+bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(float &total_raw_energy,
                                                               const reco::Track &track,
                                                               const Trackster &trackster,
                                                               const float &tkT,
                                                               const float &tkTErr,
                                                               const float &tkTimeQual) {
-  double threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
+  float threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
 
-  bool energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
+  float energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
   // compatible if trackster time is within 3sigma of
   // track time; compatible if either: no time assigned
   // to trackster or track time quality is below threshold
-  double tsT = trackster.time();
-  double tsTErr = trackster.timeError();
+  float tsT = trackster.time();
+  float tsTErr = trackster.timeError();
 
   bool timeCompatible = false;
 
@@ -170,7 +170,7 @@ void LinkingAlgoByDirectionGeometric::recordTrackster(const unsigned ts,  //trac
                                                       const std::vector<Trackster> &tracksters,
                                                       const edm::Handle<std::vector<Trackster>> tsH,
                                                       std::vector<unsigned> &ts_mask,
-                                                      double &energy_in_candidate,
+                                                      float &energy_in_candidate,
                                                       TICLCandidate &candidate) {
   if (ts_mask[ts])
     return;
@@ -202,10 +202,10 @@ void LinkingAlgoByDirectionGeometric::buildLayers() {
   // build disks at HGCal front & EM-Had interface for track propagation
 
   float zVal = hgcons_->waferZ(1, true);
-  std::pair<double, double> rMinMax = hgcons_->rangeR(zVal, true);
+  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
 
   float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<double, double> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
+  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
 
   for (int iSide = 0; iSide < 2; ++iSide) {
     float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
@@ -386,7 +386,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     }
 
     TICLCandidate chargedCandidate;
-    double total_raw_energy = 0.;
+    float total_raw_energy = 0.;
 
     auto tkRef = reco::TrackRef(tkH, i);
     auto track_time = tkTime[tkRef];
