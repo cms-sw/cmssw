@@ -304,7 +304,9 @@ namespace l1t {
         // Fill the CSCShowerDigi
         CSCShowerDigi Shower_(ME_.HMT_inTime() == -99 ? 0 : ME_.HMT_inTime(),
                               ME_.HMT_outOfTime() == -99 ? 0 : ME_.HMT_outOfTime(),
-                              Hit_.CSC_DetId());
+                              Hit_.CSC_DetId(),
+                              Hit_.BX(),
+                              CSCShowerDigi::ShowerType::kEMTFShower);
 
         // Set the stub number for this hit
         // Each chamber can send up to 2 stubs per BX

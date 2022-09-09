@@ -95,11 +95,13 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   const auto& shower = showerParams_.getParameterSet("cathodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
-  showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
-  showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
-  showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
-  showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
+  showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
+  peakCheck_ = shower.getParameter<bool>("peakCheck");
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
+  assert(tmb_l1a_window_size / 2 <= CSCConstants::LCT_CENTRAL_BX);
+
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -117,6 +119,8 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   pid_thresh_pretrig = def_pid_thresh_pretrig;
   min_separation = def_min_separation;
   tmb_l1a_window_size = def_tmb_l1a_window_size;
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -138,6 +142,8 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
     dumpConfigParams();
     config_dumped = true;
   }
+  minbx_readout_ = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2;
+  maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
 void CSCCathodeLCTProcessor::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { cclut_->setESLookupTables(conf); }
@@ -170,6 +176,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
   CSCBaseboard::checkConfigParameters(min_separation, max_min_separation, def_min_separation, "min_separation");
   CSCBaseboard::checkConfigParameters(
       tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
+  assert(tmb_l1a_window_size / 2 <= CSCConstants::LCT_CENTRAL_BX);
 }
 
 void CSCCathodeLCTProcessor::clear() {
@@ -178,8 +185,8 @@ void CSCCathodeLCTProcessor::clear() {
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
+    cathode_showers_[bx].clear();
   }
-  inTimeHMT_ = 0;
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -300,7 +307,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
       run(halfStripTimes);
 
     // Get the high multiplicity bits in this chamber
-    encodeHighMultiplicityBits(halfStripTimes);
+    encodeHighMultiplicityBits();
   }
 
   // Return vector of CLCTs.
@@ -1201,52 +1208,46 @@ CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
   return lct;
 }
 
+/** return vector of CSCShower digi **/
+std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::getAllShower() const {
+  std::vector<CSCShowerDigi> vshowers(cathode_showers_, cathode_showers_ + CSCConstants::MAX_CLCT_TBINS);
+  return vshowers;
+};
+
 /** Returns shower bits */
-CSCShowerDigi CSCCathodeLCTProcessor::readoutShower() const { return shower_; }
+std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::readoutShower() const {
+  std::vector<CSCShowerDigi> showerOut;
+  for (unsigned bx = minbx_readout_; bx < maxbx_readout_; bx++)
+    if (cathode_showers_[bx].isValid())
+      showerOut.push_back(cathode_showers_[bx]);
+  return showerOut;
+}
 
-void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
-  inTimeHMT_ = 0;
+void CSCCathodeLCTProcessor::encodeHighMultiplicityBits() {
+  //inTimeHMT_ = 0;
 
-  auto layerTime = [=](unsigned time) { return time == CSCConstants::CLCT_CENTRAL_BX; };
+  //numer of layer with hits and number of hits for 0-15 BXs
+  std::set<unsigned> layersWithHits[CSCConstants::MAX_CLCT_TBINS];
+  unsigned hitsInTime[CSCConstants::MAX_CLCT_TBINS];
   // Calculate layers with hits
-  unsigned nLayersWithHits = 0;
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    bool atLeastOneWGHit = false;
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; i_hstrip++) {
-      // there is at least one halfstrip...
-      if (!halfstrip[i_layer][i_hstrip].empty()) {
-        auto times = halfstrip[i_layer][i_hstrip];
-        int nLayerTime = std::count_if(times.begin(), times.end(), layerTime);
-        // ...for which at least one time bin was on for the central BX
-        if (nLayerTime > 0) {
-          atLeastOneWGHit = true;
-          break;
+  for (unsigned bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+    hitsInTime[bx] = 0;
+    for (unsigned i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      bool atLeastOneCompHit = false;
+      for (const auto& compdigi : digiV[i_layer]) {
+        std::vector<int> bx_times = compdigi.getTimeBinsOn();
+        // there is at least one comparator digi in this bx
+        if (std::find(bx_times.begin(), bx_times.end(), bx) != bx_times.end()) {
+          hitsInTime[bx] += 1;
+          atLeastOneCompHit = true;
         }
       }
+      // add this layer to the number of layers hit
+      if (atLeastOneCompHit) {
+        layersWithHits[bx].insert(i_layer);
+      }
     }
-    // add this layer to the number of layers hit
-    if (atLeastOneWGHit) {
-      nLayersWithHits++;
-    }
-  }
-
-  // require at least nLayersWithHits for the central time bin
-  // do nothing if there are not enough layers with hits
-  if (nLayersWithHits < minLayersCentralTBin_)
-    return;
-
-  // functions for in-time and out-of-time
-  auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
-
-  // count the half-strips in-time and out-time
-  unsigned hitsInTime = 0;
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; i_hstrip++) {
-      auto times = halfstrip[i_layer][i_hstrip];
-      hitsInTime += std::count_if(times.begin(), times.end(), inTime);
-    }
-  }
+  }  //end of full bx loop
 
   // convert station and ring number to index
   // index runs from 2 to 10, subtract 2
@@ -1256,13 +1257,51 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
-  // assign the bits
-  for (unsigned i = 0; i < station_thresholds.size(); i++) {
-    if (hitsInTime >= station_thresholds[i]) {
-      inTimeHMT_ = i + 1;
-    }
-  }
+  //hard coded dead time as 2Bx, since showerNumTBins = 3, like firmware
+  // for example, nhits = 0 at bx7; = 100 at bx8; = 0 at bx9
+  //cathode HMT must be triggered at bx8, not bx7 and bx9
+  //meanwhile we forced 2BX dead time after active shower trigger
+  unsigned int deadtime =
+      showerNumTBins_ - 1;  // firmware hard coded dead time as 2Bx, since showerNumTBins = 3 in firmware
+  unsigned int dead_count = 0;
 
-  // create a new object
-  shower_ = CSCShowerDigi(inTimeHMT_, false, theTrigChamber);
+  for (unsigned bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+    unsigned minbx = bx >= showerNumTBins_ / 2 ? bx - showerNumTBins_ / 2 : bx;
+    unsigned maxbx = bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_ / 2 ? bx + showerNumTBins_ / 2
+                                                                             : CSCConstants::MAX_CLCT_TBINS - 1;
+    unsigned this_hitsInTime = 0;
+    bool isPeak = true;  //check whether total hits in bx is peak of nhits over time bins
+    /*following is to count number of hits over [minbx, maxbx], showerNumTBins=3 =>[n-1, n+1]*/
+    for (unsigned mbx = minbx; mbx <= maxbx; mbx++) {
+      this_hitsInTime += hitsInTime[mbx];
+    }
+
+    if (peakCheck_ and bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_ / 2 - 1) {
+      if (hitsInTime[minbx] < hitsInTime[maxbx + 1] or
+          (hitsInTime[minbx] == hitsInTime[maxbx + 1] and hitsInTime[bx] < hitsInTime[bx + 1]))
+        isPeak = false;  //next bx would have more hits or in the center
+    }
+    bool dead_status = dead_count > 0;
+    if (dead_status)
+      dead_count--;
+
+    unsigned this_inTimeHMT = 0;
+    // require at least nLayersWithHits for the central time bin
+    // do nothing if there are not enough layers with hits
+    if (layersWithHits[bx].size() >= minLayersCentralTBin_ and !dead_status and isPeak) {
+      // assign the bits
+      if (!station_thresholds.empty()) {
+        for (int i = station_thresholds.size() - 1; i >= 0; i--) {
+          if (this_hitsInTime >= station_thresholds[i]) {
+            this_inTimeHMT = i + 1;
+            dead_count = deadtime;
+            break;
+          }
+        }
+      }
+    }
+    //CLCTshower constructor with showerType_ = 2, wirehits = 0;
+    cathode_showers_[bx] = CSCShowerDigi(
+        this_inTimeHMT, false, theTrigChamber, bx, CSCShowerDigi::ShowerType::kCLCTShower, 0, this_hitsInTime);
+  }
 }
