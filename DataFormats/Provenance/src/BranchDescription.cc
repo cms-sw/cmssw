@@ -27,6 +27,7 @@ namespace edm {
         basketSize_(),
         produced_(false),
         onDemand_(false),
+        isTransform_(false),
         dropped_(false),
         transient_(false),
         availableOnlyAtEndTransition_(false),

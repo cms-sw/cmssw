@@ -84,6 +84,11 @@ namespace edm {
         using Type = edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase>;
       };
 
+      template <>
+      struct AbilityToImplementor<edm::Transformer> {
+        using Type = edm::one::impl::Transformer<edm::one::EDProducerBase>;
+      };
+
       template <typename... Cs>
       struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
         using Type = edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDProducerBase, Cs...>;
