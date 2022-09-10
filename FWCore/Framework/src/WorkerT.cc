@@ -269,6 +269,132 @@ namespace edm {
   }
 
   template <typename T>
+  inline void WorkerT<T>::implDoTransform(size_t iTransformIndex, EventPrincipal const&, ParentContext const&) {}
+  template <>
+  inline void WorkerT<global::EDFilterBase>::implDoTransform(size_t iTransformIndex,
+                                                             EventPrincipal const& iEvent,
+                                                             ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<global::EDProducerBase>::implDoTransform(size_t iTransformIndex,
+                                                               EventPrincipal const& iEvent,
+                                                               ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<stream::EDProducerAdaptorBase>::implDoTransform(size_t iTransformIndex,
+                                                                      EventPrincipal const& iEvent,
+                                                                      ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<limited::EDFilterBase>::implDoTransform(size_t iTransformIndex,
+                                                              EventPrincipal const& iEvent,
+                                                              ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<limited::EDProducerBase>::implDoTransform(size_t iTransformIndex,
+                                                                EventPrincipal const& iEvent,
+                                                                ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<one::EDFilterBase>::implDoTransform(size_t iTransformIndex,
+                                                          EventPrincipal const& iEvent,
+                                                          ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+  template <>
+  inline void WorkerT<one::EDProducerBase>::implDoTransform(size_t iTransformIndex,
+                                                            EventPrincipal const& iEvent,
+                                                            ParentContext const& iParent) {
+    ModuleCallingContext mcc(
+        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  }
+
+  template <typename T>
+  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const {
+    return -1;
+  }
+  template <>
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+
+  template <typename T>
+  inline ProductResolverIndex WorkerT<T>::itemToGetForTransform(size_t iTransformIndex) const {
+    return -1;
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<global::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<global::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<stream::EDProducerAdaptorBase>::itemToGetForTransform(
+      size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<limited::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<limited::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<one::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<one::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+
+  template <typename T>
   inline bool WorkerT<T>::implNeedToRunSelection() const {
     return false;
   }
@@ -696,22 +822,6 @@ namespace edm {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
 
-    std::vector<ProductResolverIndex> s_emptyIndexList;
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(void const*) { return s_emptyIndexList; }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(ProducerBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDProducerAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDFilterAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
   }  // namespace
 
   template <typename T>
@@ -720,11 +830,6 @@ namespace edm {
       std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
           iIndicies) {
     resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description()->moduleLabel());
-  }
-
-  template <typename T>
-  std::vector<ProductResolverIndex> const& WorkerT<T>::itemsShouldPutInEvent() const {
-    return itemsShouldPutInEventImpl(&module());
   }
 
   template <>

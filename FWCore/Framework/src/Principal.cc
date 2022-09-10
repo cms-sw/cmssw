@@ -162,7 +162,11 @@ namespace edm {
                 addSourceProduct(cbd);
               } else if (bd.onDemand()) {
                 assert(branchType_ == InEvent);
-                addUnscheduledProduct(cbd);
+                if (bd.isTransform()) {
+                  addTransformProduct(cbd);
+                } else {
+                  addUnscheduledProduct(cbd);
+                }
               } else {
                 addScheduledProduct(cbd);
               }
@@ -348,6 +352,10 @@ namespace edm {
 
   void Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
     addProductOrThrow(std::make_unique<UnscheduledProductResolver>(std::move(bd)));
+  }
+
+  void Principal::addTransformProduct(std::shared_ptr<BranchDescription const> bd) {
+    addProductOrThrow(std::make_unique<TransformingProductResolver>(std::move(bd)));
   }
 
   void Principal::addAliasedProduct(std::shared_ptr<BranchDescription const> bd) {

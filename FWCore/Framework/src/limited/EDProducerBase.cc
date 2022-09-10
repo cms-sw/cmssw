@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -66,6 +67,18 @@ namespace edm {
       commit_(e, &previousParentageIds_[streamIndex]);
       return true;
     }
+
+    void EDProducerBase::doTransform(size_t iTransformIndex,
+                                     EventPrincipal const& iEvent,
+                                     ActivityRegistry*,
+                                     ModuleCallingContext const* iMCC) {
+      EventForTransformer ev(iEvent, iMCC);
+      transform_(iTransformIndex, ev);
+    }
+
+    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
+    ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+    void EDProducerBase::transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const {}
 
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();
