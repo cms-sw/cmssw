@@ -254,6 +254,36 @@ namespace edm {
     mutable std::atomic<bool> prefetchRequested_ = false;
   };
 
+  class TransformingProductResolver : public ProducedProductResolver {
+  public:
+    explicit TransformingProductResolver(std::shared_ptr<BranchDescription const> bd)
+        : ProducedProductResolver(bd, ProductStatus::ResolveFailed), mcc_(nullptr) {}
+
+    void setupUnscheduled(UnscheduledConfigurator const&) final;
+
+  private:
+    Resolution resolveProduct_(Principal const& principal,
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const override;
+    void prefetchAsync_(WaitingTaskHolder waitTask,
+                        Principal const& principal,
+                        bool skipCurrentProcess,
+                        ServiceToken const& token,
+                        SharedResourcesAcquirer* sra,
+                        ModuleCallingContext const* mcc) const override;
+    bool unscheduledWasNotRun_() const override { return status() == ProductStatus::ResolveNotRun; }
+
+    void resetProductData_(bool deleteEarly) override;
+
+    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
+    UnscheduledAuxiliary const* aux_ = nullptr;
+    Worker* worker_ = nullptr;
+    CMS_THREAD_GUARD(prefetchRequested_) mutable ModuleCallingContext mcc_;
+    size_t index_;
+    mutable std::atomic<bool> prefetchRequested_ = false;
+  };
+
   class AliasProductResolver : public DataManagingOrAliasProductResolver {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;

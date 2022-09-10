@@ -82,6 +82,9 @@ namespace edm {
     using ProductRegistryHelper::recordProvenanceList;
     using ProductRegistryHelper::typeLabelList;
 
+    template <typename T>
+    using BranchAliasSetterT = ProductRegistryHelper::BranchAliasSetterT<T>;
+
     void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
       callWhenNewProductsRegistered_ = func;
     }
@@ -114,6 +117,7 @@ namespace edm {
     friend class limited::EDProducerBase;
     friend class limited::EDFilterBase;
     friend class PuttableSourceBase;
+    friend class TransformerBase;
     template <typename T>
     friend class stream::ProducingModuleAdaptorBase;
 
@@ -126,6 +130,8 @@ namespace edm {
     void commit_(P& iPrincipal, I* iID) {
       iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iID);
     }
+
+    using ProductRegistryHelper::transforms;
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
     std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;

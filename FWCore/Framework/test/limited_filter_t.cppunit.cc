@@ -385,6 +385,23 @@ private:
       m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
+
+  class TransformProd : public edm::limited::EDFilter<edm::Transformer> {
+  public:
+    TransformProd(edm::ParameterSet const&)
+        : edm::limited::EDFilterBase(s_pset), edm::limited::EDFilter<edm::Transformer>(s_pset) {
+      token_ = produces<float>();
+      registerTransform(token_, [](float iV) { return int(iV); });
+    }
+
+    bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+      //iEvent.emplace(token_, 3.625);
+      return true;
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
 };
 
 ///registration of the test so that the runner can find it

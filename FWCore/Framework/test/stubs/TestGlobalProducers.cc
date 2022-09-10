@@ -947,7 +947,6 @@ namespace edmtest {
       std::vector<int> expectedByRun_;
       int expectedSum_{0};
     };
-
   }  // namespace global
 }  // namespace edmtest
 
