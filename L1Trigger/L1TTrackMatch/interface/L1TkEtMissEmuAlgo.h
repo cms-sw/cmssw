@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <numeric>
 
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
@@ -24,15 +25,15 @@ namespace l1tmetemu {
   const unsigned int kMETMagSize{11};
   const unsigned int kMETPhiSize{13};  // For Output Phi default 13
   const unsigned int kEtExtra{4};
-  const unsigned int kGlobalPhiExtra{3};
+  const unsigned int kGlobalPhiExtra{4};
   const unsigned int kCosLUTSize{10};
   const unsigned int kCosLUTMagSize{1};
   const unsigned int kAtanLUTSize{64};
   const unsigned int kAtanLUTMagSize{2};
 
-  typedef ap_ufixed<kMETSize,kMETMagSize> METWord_t;
+  typedef ap_ufixed<kMETSize,kMETMagSize, AP_RND_CONV, AP_SAT> METWord_t;
   typedef ap_int<kMETPhiSize> METWordphi_t;
-  typedef ap_uint<TTTrack_TrackWord::TrackBitWidths::kPhiSize + kGlobalPhiExtra> global_phi_t;
+  typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kPhiSize + kGlobalPhiExtra> global_phi_t;
   typedef ap_ufixed<kCosLUTSize, kCosLUTMagSize, AP_RND_CONV, AP_SAT> cos_lut_fixed_t;
   typedef ap_ufixed<kAtanLUTSize, kAtanLUTMagSize, AP_RND_CONV, AP_SAT> atan_lut_fixed_t;
   typedef ap_fixed<kMETSize + kEtExtra, kMETMagSize + kEtExtra, AP_RND_CONV, AP_SAT> Et_t;
@@ -69,7 +70,7 @@ namespace l1tmetemu {
   template <typename T>
   void printLUT(std::vector<T> lut, std::string module = "", std::string name = "") {
     edm::LogVerbatim log(module);
-    log << "The " << name << "[" << lut.size() << "] values are ... \n";
+    log << "The " << name << "[" << lut.size() << "] values are ... \n" << std::setprecision(30);
     for (unsigned int i = 0; i < lut.size(); i++) {
       log << "\t" << i << "\t" << lut[i] << "\n";
     }
