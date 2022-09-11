@@ -16,7 +16,7 @@ Cordic::Cordic(const int aSteps, bool debug)
   }
 
   for (int i = 0; i < aSteps; i++) {
-    atanLUT.push_back(E2t_t(atan(pow(2, -i))));
+    atanLUT.push_back(l1tmetemu::atan_lut_fixed_t(atan(pow(2, -i))));
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator") << atanLUT[i] << " | ";
     }
@@ -25,79 +25,157 @@ Cordic::Cordic(const int aSteps, bool debug)
     edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Normalisation LUT=====";
   }
 
-  float val = 1.0;
+  double val = 1.0;
   for (int j = 0; j < aSteps; j++) {
     val = val / (pow(1 + pow(4, -j), 0.5));
-    magNormalisationLUT.push_back(E2t_t(val));
+    magNormalisationLUT.push_back(l1tmetemu::atan_lut_fixed_t(val));
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator") << magNormalisationLUT[j] << " | ";
     }
   }
 }
 
-EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
-  E2t_t in_x = x;
-  E2t_t in_y = y;
-  E2t_t new_x = 0;
-  E2t_t new_y = 0;
-
-  E2t_t phi = 0;
-  E2t_t new_phi = 0;
-  bool sign = false;
-
-  EtMiss ret_etmiss;
-
+template <typename T>
+void Cordic::cordic_subfunc(T &x, T &y, T &z) const {
   if (debug) {
-    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Cordic Steps=====";
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Cordic Initial Conditions=====\n"
+                                           << "Cordic x: " << x << " Cordic y: " << y
+                                           << " Cordic z: " << z << "\n"
+                                           << "\n=====Cordic Steps=====";
   }
 
-  if (in_x >= 0 && in_y >= 0) {
-    sign = true;
-
-  } else if (in_x < 0 && in_y >= 0) {
-    sign = false;
-    in_x = -in_x;
-
-  } else if (in_x < 0 && in_y < 0) {
-    sign = true;
-    in_x = -in_x;
-    in_y = -in_y;
-
-  } else {
-    sign = false;
-    in_y = -in_y;
-  }
+  T tx, ty, tz;
 
   for (int step = 0; step < cordicSteps; step++) {
-    if (in_y < 0) {
-      new_x = in_x - (in_y >> step);
-      new_y = in_y + (in_x >> step);
+    if (y < 0) {
+      tx = x - (y >> step);
+      ty = y + (x >> step);
+      tz = z - atanLUT[step];
     } else {
-      new_x = in_x + (in_y >> step);
-      new_y = in_y - (in_x >> step);
+      tx = x + (y >> step);
+      ty = y - (x >> step);
+      tz = z + atanLUT[step];
     }
 
-    if ((in_y < 0) == sign) {
-      new_phi = phi - atanLUT[step];
-    } else {
-      new_phi = phi + atanLUT[step];
-    }
-
-    in_x = new_x;
-    in_y = new_y;
-    phi = new_phi;
+    x = tx;
+    y = ty;
+    z = tz;
 
     if (debug) {
       edm::LogVerbatim("L1TkEtMissEmulator")
-          << " Cordic x: " << in_x << " Cordic y: " << in_y << " Cordic phi: " << phi << "\n";
+          << "Cordic x: " << x << " Cordic y: " << y << " Cordic phi: " << z << "\n"
+          << " Cordic gain: " << magNormalisationLUT[step] << " kStepMETwordPhi: " << kStepMETwordPhi << "\n";
     }
   }
 
-  // Cordic performs calculation in internal Et granularity, convert to final
-  // granularity for Et word
+}
 
-  E2t_t tempMET = in_x * magNormalisationLUT[cordicSteps - 1];
-  ret_etmiss.Et = tempMET;
-  ret_etmiss.Phi = phi.to_double() / kStepMETwordPhi;
+EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
+  EtMiss ret_etmiss;
+
+  edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====toPolar input=====\n"
+                                         << "x: " << x << " y: " << y << "\n";
+
+  // Some needed constants
+  const ap_fixed<l1tmetemu::Et_t::width + 1, 3> pi = M_PI;  // pi
+  const ap_fixed<l1tmetemu::Et_t::width + 2, 3> pi2 = M_PI / 2.;  // pi/2
+  const l1tmetemu::METWordphi_t pistep = M_PI / l1tmetemu::kStepMETwordPhi; // (pi) / l1tmetemu::kStepMETwordPhi
+  const l1tmetemu::METWordphi_t pi2step = pistep / 2.; // (pi/2) / l1tmetemu::kStepMETwordPhi
+
+  // Find the sign of the inputs
+  ap_uint<2> signx = (x > 0) ? 2 : (x == 0) ? 1 : 0;
+  ap_uint<2> signy = (y > 0) ? 2 : (y == 0) ? 1 : 0;
+
+  // Corner cases
+  if (signy == 1 && signx == 2) { // y == 0 and x > 0
+    ret_etmiss.Et = x;
+    ret_etmiss.Phi = 0;
+    return ret_etmiss;
+  }
+  else if (signy == 1 && signx == 0) { // y == 0 and x < 0
+    ret_etmiss.Et = -x;
+    ret_etmiss.Phi = pistep;
+    return ret_etmiss;
+  }
+  else if (signy == 2 && signx == 1) { // y > 0 and x == 0
+    ret_etmiss.Et = y;
+    ret_etmiss.Phi = pi2step;
+    return ret_etmiss;
+  }
+  else if (signy == 0 && signx == 1) { // y < 0 and x == 0
+    ret_etmiss.Et = -y;
+    ret_etmiss.Phi = -pi2step;
+    return ret_etmiss;
+  }
+
+  // Take absolute values to operate on the range (0, pi/2)
+  ap_fixed<Et_t::width + 1, Et_t::iwidth + 1, Et_t::qmode, Et_t::omode> absx, absy;
+  if (signy == 0) {
+    absy = -y;
+  }
+  else {
+    absy = y;
+  }
+
+  if (signx == 0) {
+    absx = -x;
+  }
+  else {
+    absx = x;
+  }
+
+  // Normalization (operate on a unit circle)
+  ap_fixed<Et_t::width + 1, 2, Et_t::qmode, Et_t::omode> absx_sft, absy_sft;
+  for (int i = 0; i < Et_t::width + 1; i++) {
+    absx_sft[i] = absx[i];
+    absy_sft[i] = absy[i];
+  }
+
+  // Setup the CORDIC outputs
+  ap_fixed<Et_t::width + 7, 3, Et_t::qmode, Et_t::omode> cx, cy, cphi;
+  if (absy > absx) {
+    cx = absy_sft;
+    cy = absx_sft;
+    cphi = 0;
+  }
+  else {
+    x = absx_sft;
+    y = absy_sft;
+    cphi = 0;
+  }
+
+  // Perform the CORDIC (vectoring) function
+  cordic_subfunc(cx, cy, cphi);
+
+  // Reorient the outputs to their appropriate quadrant
+  if (absy > absx) {
+    cphi = pi2 - cphi;
+  }
+
+  ap_fixed<Et_t::width, 3, Et_t::qmode, Et_t::omode> ophi;
+  if (signx == 0 && signy == 2) { // x < 0 and y > 0
+    ophi = pi - cphi;
+  }
+  else if (signx == 0 && signy == 0) { // x < 0 and y < 0
+    ophi = cphi - pi;
+  }
+  else if (signx == 2 && signy == 0) { // x > 0 and y < 0
+    ophi = -cphi;
+  }
+  else {
+    ophi = cphi;
+  }
+
+  // Re-scale the outputs
+  Et_t magnitude = ((ap_fixed<Et_t::width + Et_t::iwidth + 3 + 1, Et_t::iwidth, Et_t::qmode, Et_t::omode>)cx) << (Et_t::iwidth + 1 - 2);
+  ret_etmiss.Et = magnitude * magNormalisationLUT[cordicSteps - 1];
+  ret_etmiss.Phi = ophi * pi_bins_fixed_t(kBinsInPi);
+
+  if (debug) {
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====toPolar output=====\n"
+                                           << "magnitude: " << magnitude.to_double() << " phi: " << ophi.to_double() << " kBinsInPi: " << pi_bins_fixed_t(kBinsInPi).to_double() << "\n"
+                                           << "Et: " << ret_etmiss.Et.to_double() << " phi (int): " << ret_etmiss.Phi.to_int() << "\n";
+  }
+
   return ret_etmiss;
 }

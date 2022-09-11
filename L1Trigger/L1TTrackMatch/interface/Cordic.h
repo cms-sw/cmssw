@@ -17,6 +17,8 @@ public:
   Cordic();
   Cordic(const int aSteps, bool debug);
 
+  template <typename T>
+  void cordic_subfunc(T &x, T &y, T &z) const;
   l1tmetemu::EtMiss toPolar(l1tmetemu::Et_t x, l1tmetemu::Et_t y) const;
 
 private:
@@ -25,9 +27,9 @@ private:
   const bool debug;
 
   // To calculate atan
-  std::vector<l1tmetemu::E2t_t> atanLUT;
+  std::vector<l1tmetemu::atan_lut_fixed_t> atanLUT;
   // To normalise final magnitude
-  std::vector<l1tmetemu::E2t_t> magNormalisationLUT;
+  std::vector<l1tmetemu::atan_lut_fixed_t> magNormalisationLUT;
 };
 
 #endif
