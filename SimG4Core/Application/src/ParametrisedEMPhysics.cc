@@ -14,6 +14,7 @@
 
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
+#include "G4HadronicParameters.hh"
 #include "G4EmBuilder.hh"
 
 #include "G4RegionStore.hh"
@@ -35,6 +36,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Transportation.hh"
 #include "G4UAtomicDeexcitation.hh"
+#include "G4Version.hh"
 #include <memory>
 
 #include <string>
@@ -71,8 +73,16 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   G4double mubrth = theParSet.getParameter<double>("G4MuonBremsstrahlungThreshold") * CLHEP::GeV;
   param->SetMuHadBremsstrahlungTh(mubrth);
 
-  bool genp = theParSet.getParameter<bool>("G4GeneralProcess");
+  bool genp = theParSet.getParameter<bool>("G4GammaGeneralProcess");
   param->SetGeneralProcessActive(genp);
+
+#if G4VERSION_NUMBER >= 1110
+  bool genn = theParSet.getParameter<bool>("G4NeutronGeneralProcess");
+  G4HadronicParameters::Instance()->SetEnableNeutronGeneralProcess(genn);
+
+  if (theParSet.getParameter<bool>("G4TransportWithMSC"))
+    param->SetTransportationWithMsc(G4TransportationWithMscType::fEnabled);
+#endif
 
   bool mudat = theParSet.getParameter<bool>("ReadMuonData");
   param->SetRetrieveMuDataFromFile(mudat);
