@@ -17,6 +17,7 @@
 //
 
 // system include files
+#include <iomanip>
 #include <memory>
 #include <numeric>
 #include <sstream>
@@ -239,10 +240,11 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
       if (debug_ == 4) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
+            << std::setprecision(8)
             << "Sector: " << track->phiSector() << " Eta sector: " << EtaSector << "\n"
             << "Track Ref Pt: " << track->momentum().perp()
             << " Track Ref Px: " << track->momentum().x() << " Track Ref Py: " << track->momentum().y() << "\n"
-            << "Track Pt: " << ptEmulation << " Track Px: " << temppx << " Track Py: " << temppy << "\n"
+            << "Track Pt: " << ptEmulation << " Track phi: " << globalPhi << " Track Px: " << temppx << " Track Py: " << temppy << "\n"
             << "Sector Sum Px: " << sumPx[link_number] << " Sector Sum Py: " << sumPy[link_number] << "\n";
       }
     }

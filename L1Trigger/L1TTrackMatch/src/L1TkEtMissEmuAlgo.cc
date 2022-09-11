@@ -17,9 +17,12 @@ namespace l1tmetemu {
 
   global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift ) {
     global_phi_t PhiMin = 0;
-    global_phi_t PhiMax = 2*M_PI / TTTrack_TrackWord::stepPhi0; 
+    global_phi_t PhiMax = 2*M_PI / TTTrack_TrackWord::stepPhi0;
 
-    int globalPhi = local_phi;
+    // The initial word comes in as a uint; the correct bits, but not automatically using 2s compliment format.
+    global_phi_t globalPhi = local_phi;
+
+    // Once the word is in a larger, signed container, shift it down so that the negative numbers are automatically represented in 2s compliment.
     if (local_phi >= (1 << (TTTrack_TrackWord::TrackBitWidths::kPhiSize - 1)))
       globalPhi -= (1 << TTTrack_TrackWord::TrackBitWidths::kPhiSize);
 
@@ -31,7 +34,7 @@ namespace l1tmetemu {
       globalPhi = globalPhi - PhiMax;
     }  
 
-    return (global_phi_t)globalPhi;
+    return globalPhi;
   }
 
   std::vector<global_phi_t> generatePhiSliceLUT(unsigned int N) {
