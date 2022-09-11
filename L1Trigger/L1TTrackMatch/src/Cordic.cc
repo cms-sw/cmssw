@@ -1,6 +1,7 @@
 #include "L1Trigger/L1TTrackMatch/interface/Cordic.h"
 
 #include <cmath>
+#include <iomanip>
 #include <memory>
 
 using namespace l1tmetemu;
@@ -185,11 +186,12 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
 
   // Re-scale the outputs
   Et_t magnitude = ((ap_fixed<Et_t::width + Et_t::iwidth + 3 + 1, Et_t::iwidth, Et_t::qmode, Et_t::omode>)cx) << (Et_t::iwidth + 1 - 2);
-  ret_etmiss.Et = magnitude * magNormalisationLUT[cordicSteps - 1];
+  ret_etmiss.Et = l1tmetemu::Et_t(magnitude * magNormalisationLUT[cordicSteps - 1]);
   ret_etmiss.Phi = ophi * pi_bins_fixed_t(kBinsInPi);
 
   if (debug) {
     edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====toPolar output=====\n"
+                                           << std::setprecision(8)
                                            << "magnitude: " << magnitude.to_double() << " phi: " << ophi.to_double() << " kBinsInPi: " << pi_bins_fixed_t(kBinsInPi).to_double() << "\n"
                                            << "Et: " << ret_etmiss.Et.to_double() << " phi (int): " << ret_etmiss.Phi.to_int() << "\n";
   }
