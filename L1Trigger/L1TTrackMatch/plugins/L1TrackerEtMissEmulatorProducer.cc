@@ -136,8 +136,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
   // Initialize sector sums, need 0 initialization in case a sector has no
   // tracks
-  l1tmetemu::E2t_t sumPx[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  l1tmetemu::E2t_t sumPy[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  l1tmetemu::Et_t sumPx[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  l1tmetemu::Et_t sumPy[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int link_totals[l1tmetemu::kNSector * 2] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int sector_totals[l1tmetemu::kNSector] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -177,8 +177,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
             << " Float Px: " << track->momentum().perp()*cos(track->phi()) << " Float Py: "  << track->momentum().perp()*sin(track->phi()) << "\n";
       }
       
-      l1tmetemu::E2t_t temppx = 0;
-      l1tmetemu::E2t_t temppy = 0;
+      l1tmetemu::Et_t temppx = 0;
+      l1tmetemu::Et_t temppy = 0;
 
       // Split tracks in phi quadrants and access cosLUT_, backwards iteration
       // through cosLUT_ gives sin Sum sector Et -ve when cos or sin phi are -ve
@@ -248,8 +248,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     }
   }  // end loop over tracks
 
-  l1tmetemu::E2t_t GlobalPx = 0;
-  l1tmetemu::E2t_t GlobalPy = 0;
+  l1tmetemu::Et_t GlobalPx = 0;
+  l1tmetemu::Et_t GlobalPy = 0;
 
   // Global Et sum as floats to emulate rounding in HW
   for (unsigned int i = 0; i < l1tmetemu::kNSector * 2; i++) {
@@ -259,12 +259,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
   // Perform cordic sqrt, take x,y and converts to polar coordinate r,phi where
   // r=sqrt(x**2+y**2) and phi = atan(y/x)
-  l1tmetemu::EtMiss EtMiss = cordicSqrt.toPolar(GlobalPx, GlobalPy);
-
-  if ((GlobalPx < 0) && (GlobalPy < 0))
-    EtMiss.Phi -=  l1tmetemu::METWordphi_t(M_PI/l1tmetemu::kStepMETwordPhi);
-  else if ((GlobalPx < 0) && (GlobalPy >= 0))
-    EtMiss.Phi += l1tmetemu::METWordphi_t(M_PI/l1tmetemu::kStepMETwordPhi);
+  l1tmetemu::EtMiss EtMiss = cordicSqrt.toPolar(-GlobalPx, -GlobalPy);
 
   if (debug_ == 4 || debug_ == 6) {
 
@@ -287,7 +282,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         << "====MET===\n"
         << "MET word Et: " << EtMiss.Et.range()*l1tmetemu::kStepMETwordEt << "| MET word phi: " << EtMiss.Phi << "\n"
         << "MET: " << EtMiss.Et.to_double() 
-        << "| MET phi: " << (float)EtMiss.Phi * l1tmetemu::kStepMETwordPhi << "\n"
+        << "| MET phi: " << EtMiss.Phi.to_double() * l1tmetemu::kStepMETwordPhi << "\n"
         << "Word MET: " << EtMiss.Et.to_string(2) << " | Word MET phi: " << EtMiss.Phi.to_string(2) << "\n"
         << "# Tracks Associated to Vertex: " << num_assoc_tracks << "\n"
         << "========================================================\n";
