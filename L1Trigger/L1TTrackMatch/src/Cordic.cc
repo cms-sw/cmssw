@@ -73,8 +73,10 @@ void Cordic::cordic_subfunc(T &x, T &y, T &z) const {
 EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
   EtMiss ret_etmiss;
 
-  edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====toPolar input=====\n"
-                                         << "x: " << x << " y: " << y << "\n";
+  if (debug) {
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====toPolar input=====\n"
+                                           << "x: " << x << " y: " << y;
+  }
 
   // Some needed constants
   const ap_fixed<l1tmetemu::Et_t::width + 1, 3> pi = M_PI;  // pi
@@ -124,6 +126,11 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
     absx = x;
   }
 
+  if (debug) {
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Abs input=====\n"
+                                           << "abs(x): " << absx.to_double() << " abs(y): " << absy.to_double();
+  }
+
   // Normalization (operate on a unit circle)
   ap_fixed<Et_t::width + 1, 2, Et_t::qmode, Et_t::omode> absx_sft, absy_sft;
   for (int i = 0; i < Et_t::width + 1; i++) {
@@ -131,7 +138,12 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
     absy_sft[i] = absy[i];
   }
 
-  // Setup the CORDIC outputs
+  if (debug) {
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====Normalized input=====\n"
+                                           << "norm(abs(x)): " << absx_sft.to_double() << " norm(abs(y)): " << absy_sft.to_double();
+  }
+
+  // Setup the CORDIC inputs/outputs
   ap_fixed<Et_t::width + 7, 3, Et_t::qmode, Et_t::omode> cx, cy, cphi;
   if (absy > absx) {
     cx = absy_sft;
@@ -139,9 +151,14 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
     cphi = 0;
   }
   else {
-    x = absx_sft;
-    y = absy_sft;
+    cx = absx_sft;
+    cy = absy_sft;
     cphi = 0;
+  }
+
+  if (debug) {
+    edm::LogVerbatim("L1TkEtMissEmulator") << "\n=====CORDIC function arguments=====\n"
+                                           << "x: " << cx.to_double() << " y: " << cy.to_double() << " phi: " << cphi.to_double();
   }
 
   // Perform the CORDIC (vectoring) function
