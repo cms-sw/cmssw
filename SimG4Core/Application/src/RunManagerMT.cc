@@ -205,6 +205,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_stateManager->SetNewState(G4State_Init);
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: G4State is Init";
   m_kernel->InitializePhysics();
+  if (verb > 0) {
+    G4EmParameters::Instance()->Dump();
+  }
   m_kernel->SetUpDecayChannels();
 
   if (m_kernel->RunInitialization()) {
