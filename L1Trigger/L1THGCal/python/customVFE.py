@@ -7,7 +7,7 @@ def custom_hgcroc_oot(process,
             linearizationCfg_si = vfe_proc.linearizationCfg_si.clone(oot_coefficients=oot_coefficients),
             linearizationCfg_sc = vfe_proc.linearizationCfg_sc.clone(oot_coefficients=oot_coefficients),
             )
-    process.hgcalVFEProducer.ProcessorParameters = parameters
+    process.l1tHGCalVFEProducer.ProcessorParameters = parameters
     return process
 
 
@@ -32,5 +32,5 @@ def custom_hgcroc_compression(process,
                 rounding=rounding,
                 ),
             )
-    process.hgcalVFEProducer.ProcessorParameters = parameters
+    process.l1tHGCalVFEProducer.ProcessorParameters = parameters
     return process

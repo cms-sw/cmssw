@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1CaloJetProducer = cms.EDProducer("L1CaloJetProducer",
+l1tCaloJetProducer = cms.EDProducer("L1CaloJetProducer",
     debug = cms.bool(False),
     HcalTpEtMin = cms.double(0.5),
     EcalTpEtMin = cms.double(0.5),
@@ -10,8 +10,8 @@ L1CaloJetProducer = cms.EDProducer("L1CaloJetProducer",
     EtMinForSeedHit = cms.double(2.5), 
     EtMinForCollection = cms.double(10),
     EtMinForTauCollection = cms.double(10),
-    l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1CaloTowerCalibratedCollection"),
-    L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator"),
+    l1CaloTowers = cms.InputTag("l1tTowerCalibrationProducer","L1CaloTowerCalibratedCollection"),
+    L1CrystalClustersInputTag = cms.InputTag("l1tEGammaClusterEmuProducer", "L1EGXtalClusterEmulator"),
     #L1HgcalTowersInputTag = cms.InputTag("hgcalTriggerPrimitiveDigiProducer","tower"),
     #hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 

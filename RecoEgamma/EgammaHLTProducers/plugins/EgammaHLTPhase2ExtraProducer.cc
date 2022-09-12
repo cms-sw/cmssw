@@ -193,7 +193,7 @@ EgammaHLTPhase2ExtraProducer::EgammaHLTPhase2ExtraProducer(const edm::ParameterS
 void EgammaHLTPhase2ExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("egTrigObjs", edm::InputTag("hltEgammaHLTExtra"));
-  desc.add<edm::InputTag>("l1Trks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("l1Trks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<edm::InputTag>("trkParts", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("l1TrkToTrkPartMap", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
   desc.add<edm::InputTag>("hgcalLayerClusters", edm::InputTag("hgcalLayerClusters"));

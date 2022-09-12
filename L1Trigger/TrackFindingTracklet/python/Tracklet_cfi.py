@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.TrackTrigger.TrackQualityParams_cfi import *
 
-TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
+l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
                                                InputTagTTDTC = cms.InputTag("TrackerDTCProducer", "StubAccepted"), 
                                                readMoreMcTruth = cms.bool(True),
@@ -22,7 +22,7 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TrackQualityPSet = cms.PSet(TrackQualityParams)
     )
 
-TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
+l1tTTTracksFromExtendedTrackletEmulation = l1tTTTracksFromTrackletEmulation.clone(
                                                Extended = cms.bool(True),
                                                Hnpar = cms.uint32(5),
                                                # specifying where the TrackletEngineDisplaced(TED)/TripletEngine(TRE) tables are located

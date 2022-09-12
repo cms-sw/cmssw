@@ -6,5 +6,5 @@ l1tPFPuppiHT400offMaxEta2p4 = cms.EDFilter("L1TEnergySumFilter",
         theScalings = cms.vdouble(50.0182, 1.0961, 0)
     ),
     TypeOfSum = cms.string('HT'),
-    inputTag = cms.InputTag("Phase1L1TJetSumsProducer","Sums")
+    inputTag = cms.InputTag("l1tPhase1JetSumsProducer","Sums")
 )

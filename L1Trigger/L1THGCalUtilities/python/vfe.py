@@ -17,7 +17,7 @@ class CreateVfe(object):
         )
 
     def __call__(self, process):
-        producer = process.hgcalVFEProducer.clone(
+        producer = process.l1tHGCalVFEProducer.clone(
             ProcessorParameters = self.processor
         )
         return producer

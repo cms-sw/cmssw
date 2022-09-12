@@ -4,6 +4,6 @@ from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import *
 
 
-hgcalConcentrator = cms.Task(hgcalConcentratorProducer)
-hgcalConcentratorHFNose = cms.Task(hgcalConcentratorProducerHFNose)
+L1THGCalConcentrator = cms.Task(l1tHGCalConcentratorProducer)
+L1THGCalConcentratorHFNose = cms.Task(l1tHGCalConcentratorProducerHFNose)
 

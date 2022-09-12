@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-pfClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
-     ecalCandidates = cms.VInputTag(cms.InputTag('pfClustersFromL1EGClusters')), # using EM from towers in HGC, no longer reading also 'pfClustersFromHGC3DClustersEM'  
+l1tPFClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
+     ecalCandidates = cms.VInputTag(cms.InputTag('l1tPFClustersFromL1EGClusters')), # using EM from towers in HGC, no longer reading also 'pfClustersFromHGC3DClustersEM'  
      hcalCandidates = cms.VInputTag(),
      hcalDigis = cms.VInputTag(cms.InputTag('simHcalTriggerPrimitiveDigis')),
      hcalDigisBarrel = cms.bool(False),
      hcalDigisHF = cms.bool(True),
-     phase2barrelCaloTowers = cms.VInputTag(cms.InputTag("L1EGammaClusterEmuProducer","L1CaloTowerCollection","")),
-     hcalHGCTowers = cms.VInputTag(cms.InputTag("hgcalTowerProducer:HGCalTowerProcessor") ),
+     phase2barrelCaloTowers = cms.VInputTag(cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")),
+     hcalHGCTowers = cms.VInputTag(cms.InputTag("l1tHGCalTowerProducer:HGCalTowerProcessor") ),
      hcalHGCTowersHadOnly = cms.bool(False), # take also EM part from towers
      emCorrector  = cms.string(""), # no need to correct further
      hcCorrector  = cms.string(""), # no correction to hcal-only in the default scheme
