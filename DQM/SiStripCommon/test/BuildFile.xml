@@ -1,4 +1,4 @@
-1<use name="DQM/SiStripCommon"/>
+<use name="DQM/SiStripCommon"/>
 <use name="FWCore/Framework"/>
 <use name="DQMServices/Core"/>
 <use name="boost"/>
