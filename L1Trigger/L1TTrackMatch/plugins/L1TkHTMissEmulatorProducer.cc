@@ -249,13 +249,12 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
         << "\n"
         << "====MHT AP_INTS TO FLOATS====\n"
         << "sumPx: " << (float)sumPx * l1tmhtemu::kStepPt * l1tmhtemu::kStepPhi
-        << "| sumPy: " << (float)sumPy * l1tmhtemu::kStepPt * l1tmhtemu::kStepPhi
-        << "| ET: " << EtMiss.Et.to_double() << "| HT: " << (float)HT * l1tmhtemu::kStepPt
-        << "| PHI: " << (float)phi * l1tmhtemu::kStepMHTPhi - M_PI << "\n"
+        << "| sumPy: " << (float)sumPy * l1tmhtemu::kStepPt * l1tmhtemu::kStepPhi << "| ET: " << EtMiss.Et.to_double()
+        << "| HT: " << (float)HT * l1tmhtemu::kStepPt << "| PHI: " << (float)phi * l1tmhtemu::kStepMHTPhi - M_PI << "\n"
         << "-------------------------------------------------------------------------\n";
   }
   //rescale HT to correct output range
-  HT = HT / (int)(1/l1tmhtemu::kStepPt);
+  HT = HT / (int)(1 / l1tmhtemu::kStepPt);
 
   EtSum L1HTSum(missingEt, EtSum::EtSumType::kMissingHt, (int)HT.range(), 0, (int)phi, (int)jetn);
 

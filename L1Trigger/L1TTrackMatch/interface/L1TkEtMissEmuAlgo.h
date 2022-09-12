@@ -18,10 +18,10 @@
 // Namespace that defines constants and types used by the EtMiss Emulation
 // Includes functions for writing LUTs and converting to integer representations
 namespace l1tmetemu {
-  
+
   const unsigned int kInternalPtWidth{14};
   const unsigned int kPtMagSize{9};
-  const unsigned int kMETSize{16};     // For output Magnitude default 16
+  const unsigned int kMETSize{16};  // For output Magnitude default 16
   const unsigned int kMETMagSize{11};
   const unsigned int kMETPhiSize{13};  // For Output Phi default 13
   const unsigned int kEtExtra{4};
@@ -31,7 +31,7 @@ namespace l1tmetemu {
   const unsigned int kAtanLUTSize{64};
   const unsigned int kAtanLUTMagSize{2};
 
-  typedef ap_ufixed<kMETSize,kMETMagSize, AP_RND_CONV, AP_SAT> METWord_t;
+  typedef ap_ufixed<kMETSize, kMETMagSize, AP_RND_CONV, AP_SAT> METWord_t;
   typedef ap_int<kMETPhiSize> METWordphi_t;
   typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kPhiSize + kGlobalPhiExtra> global_phi_t;
   typedef ap_ufixed<kCosLUTSize, kCosLUTMagSize, AP_RND_CONV, AP_SAT> cos_lut_fixed_t;
@@ -44,8 +44,8 @@ namespace l1tmetemu {
   const double kMaxMET = 1 << kMETMagSize;  // 2 TeV
   const double kMaxMETPhi{2 * M_PI};
 
-  const double kStepMETwordEt =  kMaxMET / ( 1 << kMETSize);
-  const double kStepMETwordPhi = kMaxMETPhi / ( 1 << kMETPhiSize);
+  const double kStepMETwordEt = kMaxMET / (1 << kMETSize);
+  const double kStepMETwordPhi = kMaxMETPhi / (1 << kMETPhiSize);
   const double kBinsInPi = 1.0 / kStepMETwordPhi;
 
   // Enough symmetry in cos and sin between 0 and pi/2 to get all possible values
@@ -63,8 +63,8 @@ namespace l1tmetemu {
 
   std::vector<cos_lut_fixed_t> generateCosLUT(unsigned int size);
 
-  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift );
-  
+  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift);
+
   std::vector<global_phi_t> generatePhiSliceLUT(unsigned int N);
 
   template <typename T>

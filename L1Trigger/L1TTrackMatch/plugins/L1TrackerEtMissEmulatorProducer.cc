@@ -76,7 +76,6 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
     : trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
       vtxAssocTrackToken_(
           consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))) {
-
   phiQuadrants_ = l1tmetemu::generatePhiSliceLUT(l1tmetemu::kNQuadrants);
   phiShifts_ = l1tmetemu::generatePhiSliceLUT(l1tmetemu::kNSector);
 
@@ -148,7 +147,6 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   for (const auto& track : *L1TTTrackHandle) {
     if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) !=
         L1TTTrackAssociatedHandle->end()) {
-
       bool EtaSector = (track->getTanlWord() & (1 << (TTTrack_TrackWord::TrackBitWidths::kTanlSize - 1)));
 
       ap_uint<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1> ptEmulationBits = track->getTrackWord()(
@@ -156,16 +154,17 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
       ap_ufixed<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1, l1tmetemu::kPtMagSize> ptEmulation;
       ptEmulation.V = ptEmulationBits.range();
 
-      l1tmetemu::global_phi_t globalPhi = l1tmetemu::localToGlobalPhi(track->getPhiWord(),phiShifts_[track->phiSector()]);
+      l1tmetemu::global_phi_t globalPhi =
+          l1tmetemu::localToGlobalPhi(track->getPhiWord(), phiShifts_[track->phiSector()]);
 
       num_assoc_tracks++;
       if (debug_ == 7) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
             << "Track to Vertex ID: " << num_assoc_tracks << "\n"
-            << "Phi Sector: " << track->phiSector() << " pT: " << track->getRinvWord() << " Phi: " << track->getPhiWord()
-            << " TanL: " << track->getTanlWord() << " Z0: " << track->getZ0Word()
+            << "Phi Sector: " << track->phiSector() << " pT: " << track->getRinvWord()
+            << " Phi: " << track->getPhiWord() << " TanL: " << track->getTanlWord() << " Z0: " << track->getZ0Word()
             << " Chi2rphi: " << track->getChi2RPhiWord() << " Chi2rz: " << track->getChi2RZWord()
-            << " bendChi2: " << track->getBendChi2Word() << " Emu pT " << ptEmulation.to_double() <<  "\n"
+            << " bendChi2: " << track->getBendChi2Word() << " Emu pT " << ptEmulation.to_double() << "\n"
             << "--------------------------------------------------------------\n";
       }
 
@@ -173,11 +172,12 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
             << "========================Phi debug=================================\n"
             << "Emu pT: " << ptEmulation.to_double() << " float pT: " << track->momentum().perp() << "\n"
-            << "Int Phi: " << globalPhi << " Float Phi: " << track->phi()
-            << " Float Cos(Phi): " << cos(track->phi()) << "  Float Sin(Phi): " << sin(track->phi()) 
-            << " Float Px: " << track->momentum().perp()*cos(track->phi()) << " Float Py: "  << track->momentum().perp()*sin(track->phi()) << "\n";
+            << "Int Phi: " << globalPhi << " Float Phi: " << track->phi() << " Float Cos(Phi): " << cos(track->phi())
+            << "  Float Sin(Phi): " << sin(track->phi())
+            << " Float Px: " << track->momentum().perp() * cos(track->phi())
+            << " Float Py: " << track->momentum().perp() * sin(track->phi()) << "\n";
       }
-      
+
       l1tmetemu::Et_t temppx = 0;
       l1tmetemu::Et_t temppy = 0;
 
@@ -193,7 +193,6 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
               << "Sector: " << track->phiSector() << " Quadrant: " << 1 << "\n"
               << "Emu Phi: " << globalPhi << " Emu Cos(Phi): " << cosLUT_[globalPhi]
               << " Emu Sin(Phi): " << cosLUT_[phiQuadrants_[1] - 1 - globalPhi] << "\n";
-
         }
       } else if (globalPhi >= phiQuadrants_[1] && globalPhi < phiQuadrants_[2]) {
         temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[2] - 1 - globalPhi]);
@@ -202,8 +201,7 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 2 << "\n"
-              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -"
-              << cosLUT_[phiQuadrants_[2] - 1 - globalPhi]
+              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -" << cosLUT_[phiQuadrants_[2] - 1 - globalPhi]
               << " Emu Sin(Phi): " << cosLUT_[globalPhi - phiQuadrants_[1]] << "\n";
         }
       } else if (globalPhi >= phiQuadrants_[2] && globalPhi < phiQuadrants_[3]) {
@@ -224,9 +222,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 4 << "\n"
-              << " Emu Phi: " << globalPhi
-              << " Emu Cos(Phi): " << cosLUT_[phiQuadrants_[4] - 1 - globalPhi] << " Emu Sin(Phi): -"
-              << cosLUT_[globalPhi - phiQuadrants_[3]] << "\n";
+              << " Emu Phi: " << globalPhi << " Emu Cos(Phi): " << cosLUT_[phiQuadrants_[4] - 1 - globalPhi]
+              << " Emu Sin(Phi): -" << cosLUT_[globalPhi - phiQuadrants_[3]] << "\n";
         }
       } else {
         temppx = 0;
@@ -240,11 +237,11 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
       if (debug_ == 4) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-            << std::setprecision(8)
-            << "Sector: " << track->phiSector() << " Eta sector: " << EtaSector << "\n"
-            << "Track Ref Pt: " << track->momentum().perp()
-            << " Track Ref Px: " << track->momentum().x() << " Track Ref Py: " << track->momentum().y() << "\n"
-            << "Track Pt: " << ptEmulation << " Track phi: " << globalPhi << " Track Px: " << temppx << " Track Py: " << temppy << "\n"
+            << std::setprecision(8) << "Sector: " << track->phiSector() << " Eta sector: " << EtaSector << "\n"
+            << "Track Ref Pt: " << track->momentum().perp() << " Track Ref Px: " << track->momentum().x()
+            << " Track Ref Py: " << track->momentum().y() << "\n"
+            << "Track Pt: " << ptEmulation << " Track phi: " << globalPhi << " Track Px: " << temppx
+            << " Track Py: " << temppy << "\n"
             << "Sector Sum Px: " << sumPx[link_number] << " Sector Sum Py: " << sumPy[link_number] << "\n";
       }
     }
@@ -264,16 +261,13 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   l1tmetemu::EtMiss EtMiss = cordicSqrt.toPolar(-GlobalPx, -GlobalPy);
 
   if (debug_ == 4 || debug_ == 6) {
-
-    edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-        << "====Sector Pt====\n";
+    edm::LogVerbatim("L1TrackerEtMissEmulatorProducer") << "====Sector Pt====\n";
 
     for (unsigned int i = 0; i < l1tmetemu::kNSector * 2; i++) {
       edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
-        << "Sector " << i << "\n"
-        << "Px: " << sumPx[i]  << " | Py: " << sumPy[i]
-        << " | Link Totals: " << link_totals[i]
-        << " | Sector Totals: " << sector_totals[(int)(i/2)] << "\n";
+          << "Sector " << i << "\n"
+          << "Px: " << sumPx[i] << " | Py: " << sumPy[i] << " | Link Totals: " << link_totals[i]
+          << " | Sector Totals: " << sector_totals[(int)(i / 2)] << "\n";
     }
 
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
@@ -282,9 +276,9 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
 
     edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
         << "====MET===\n"
-        << "MET word Et: " << EtMiss.Et.range()*l1tmetemu::kStepMETwordEt << "| MET word phi: " << EtMiss.Phi << "\n"
-        << "MET: " << EtMiss.Et.to_double() 
-        << "| MET phi: " << EtMiss.Phi.to_double() * l1tmetemu::kStepMETwordPhi << "\n"
+        << "MET word Et: " << EtMiss.Et.range() * l1tmetemu::kStepMETwordEt << "| MET word phi: " << EtMiss.Phi << "\n"
+        << "MET: " << EtMiss.Et.to_double() << "| MET phi: " << EtMiss.Phi.to_double() * l1tmetemu::kStepMETwordPhi
+        << "\n"
         << "Word MET: " << EtMiss.Et.to_string(2) << " | Word MET phi: " << EtMiss.Phi.to_string(2) << "\n"
         << "# Tracks Associated to Vertex: " << num_assoc_tracks << "\n"
         << "========================================================\n";
