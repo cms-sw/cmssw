@@ -47,7 +47,7 @@ HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::HLTPFJetsMatchedToFi
       maxDeltaR2_(maxDeltaR_ * maxDeltaR_) {
   if (maxDeltaR_ <= 0.) {
     throw cms::Exception("HLTPFJetsMatchedToFilteredJetsProducerConfiguration")
-        << "invalid value for parameter \"DeltaR\" (must be > 0): " << maxDeltaR_;
+        << "invalid value for parameter \"maxDeltaR\" (must be > 0): " << maxDeltaR_;
   }
 
   produces<reco::PFJetCollection>();
@@ -58,7 +58,7 @@ void HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::fillDescription
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("hltPFJets"));
-  desc.add<edm::InputTag>("triggerJetsFilter", edm::InputTag("hltSingleJet240Regional"));
+  desc.add<edm::InputTag>("triggerJetsFilter", edm::InputTag("hltCaloJetsFiltered"));
   desc.add<int>("triggerJetsType", trigger::TriggerJet);
   desc.add<double>("maxDeltaR", 0.5);
   descriptions.addWithDefaultLabel(desc);
@@ -71,8 +71,7 @@ void HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::produce(edm::St
   auto const& recoCands = iEvent.get(recoCandsToken_);
 
   std::vector<TriggerJetsRefType> triggerJetsRefVec;
-  auto const& triggerJets = iEvent.get(triggerJetsToken_);
-  triggerJets.getObjects(triggerJetsType_, triggerJetsRefVec);
+  iEvent.get(triggerJetsToken_).getObjects(triggerJetsType_, triggerJetsRefVec);
 
   math::XYZPoint const pvtxPoint(0., 0., 0.);
   reco::PFJet::Specific const pfJetSpec;
@@ -80,10 +79,9 @@ void HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::produce(edm::St
   auto outPFJets = std::make_unique<reco::PFJetCollection>();
   outPFJets->reserve(recoCands.size());
 
-  for (auto const& iJetRef : triggerJetsRefVec) {
-    for (auto const& jRecoCand : recoCands) {
-      auto const dR2 = reco::deltaR2(jRecoCand.p4(), iJetRef->p4());
-      if (dR2 < maxDeltaR2_) {
+  for (auto const& jRecoCand : recoCands) {
+    for (auto const& iJetRef : triggerJetsRefVec) {
+      if (reco::deltaR2(jRecoCand.p4(), iJetRef->p4()) < maxDeltaR2_) {
         outPFJets->emplace_back(jRecoCand.p4(), pvtxPoint, pfJetSpec);
         break;
       }
