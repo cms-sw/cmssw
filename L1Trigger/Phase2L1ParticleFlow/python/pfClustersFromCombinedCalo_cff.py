@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1ParticleFlow.pfClustersFromCombinedCalo_cfi import l1tPFClustersFromCombinedCalo
+from L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromCombinedCalo_cfi import l1tPFClustersFromCombinedCalo
 
 # Using phase2_hgcalV10 to customize the config for all 106X samples, since there's no other modifier for it
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10

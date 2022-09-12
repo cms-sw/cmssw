@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import dummy_C2d_params, \
                                                               distance_C2d_params, \
                                                               topological_C2d_params, \
                                                               constrTopological_C2d_params
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import distance_C3d_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer2Producer_cfi import distance_C3d_params, \
                                                               dbscan_C3d_params, \
                                                               histoMax_C3d_clustering_params, \
                                                               histoMaxVariableDR_C3d_params, \

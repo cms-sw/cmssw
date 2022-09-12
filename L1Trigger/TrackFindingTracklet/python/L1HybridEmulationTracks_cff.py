@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 
-from L1Trigger.TrackFindingTracklet.Tracklet_cfi import *
+from L1Trigger.TrackFindingTracklet.l1tTTTracksFromTrackletEmulation_cfi import *
 
 from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
 

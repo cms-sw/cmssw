@@ -79,16 +79,16 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(options.streams if options.streams>0 else 0)
 )
 
-process.load('L1Trigger.VertexFinder.VertexProducer_cfi')
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 
-process.load('L1Trigger.VertexFinder.TPStubValueMapProducer_cff')
-process.load('L1Trigger.VertexFinder.InputDataProducer_cff')
+process.load('L1Trigger.VertexFinder.l1tTPStubValueMapProducer_cfi')
+process.load('L1Trigger.VertexFinder.l1tInputDataProducer_cfi')
 
-process.load('L1Trigger.VertexFinder.VertexNTupler_cfi')
-process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
+process.load('L1Trigger.VertexFinder.l1tVertexNTupler_cfi')
+process.l1tVertexNTupler.l1TracksInputTag = l1TracksTag
 
-if process.L1TVertexNTupler.debug == 0:
+if process.l1tVertexNTupler.debug == 0:
     process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
@@ -103,16 +103,16 @@ for algo in additionalProducerAlgorithms:
 
     if "Emulation" in algo:
         if "L1GTTInputProducer" not in process.producerNames():
-            process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
+            process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
             producer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
             producerSum = process.L1GTTInputProducer + producerSum
 
-        process.L1TVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )
-        process.L1TVertexNTupler.emulationVertexBranchNames.append(algo)
+        process.l1tVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )
+        process.l1tVertexNTupler.emulationVertexBranchNames.append(algo)
     else:
-        process.L1TVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices') )
-        process.L1TVertexNTupler.l1VertexBranchNames.append(algo)
-        process.L1TVertexNTupler.l1VertexTrackInputs.append('hybrid')
+        process.l1tVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices') )
+        process.l1tVertexNTupler.l1VertexBranchNames.append(algo)
+        process.l1tVertexNTupler.l1VertexTrackInputs.append('hybrid')
 
     setattr(process, producerName, producer)
     producerSum += producer
@@ -145,8 +145,8 @@ if options.runVariations:
                     print "producer name =", producerName
                     setattr(process, producerName, producer)
                     producerNames += [producerName]
-                    process.L1TVertexNTupler.extraVertexDescriptions += ['DBSCAN(dist={0},minPt={1},minDensity={2},seedTrackPt{3})'.format(dist, minPt, minDensity, seedTrackPt)]
-                    process.L1TVertexNTupler.extraVertexInputTags.append( cms.InputTag(producerName, 'l1vertices'))
+                    process.l1tVertexNTupler.extraVertexDescriptions += ['DBSCAN(dist={0},minPt={1},minDensity={2},seedTrackPt{3})'.format(dist, minPt, minDensity, seedTrackPt)]
+                    process.l1tVertexNTupler.extraVertexInputTags.append( cms.InputTag(producerName, 'l1vertices'))
                     producerSum += producer
 
 print "Total number of producers =", len(additionalProducerAlgorithms)+1
@@ -173,7 +173,7 @@ if options.trace:
     process.add_(cms.Service("Tracer", dumpPathsAndConsumes = cms.untracked.bool(True)))
 
 # SETUP THE PATH
-process.p = cms.Path(producerSum + process.TPStubValueMapProducer + process.InputDataProducer + process.L1TVertexNTupler)
+process.p = cms.Path(producerSum + process.l1tTPStubValueMapProducer + process.l1tInputDataProducer + process.l1tVertexNTupler)
 
 # DUMP AND EXIT
 if options.dump:

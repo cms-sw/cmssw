@@ -11,7 +11,7 @@ l1emulator += L1THGCalTriggerPrimitives
 from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff import *
 l1emulator += simEcalEBTriggerPrimitiveDigis
 
-from L1Trigger.TrackFindingTracklet.Tracklet_cfi import *
+from L1Trigger.TrackFindingTracklet.l1tTTTracksFromTrackletEmulation_cfi import *
 L1TRK_NAME  = "l1tTTTracksFromTrackletEmulation"
 L1TRK_LABEL = "Level1TTTracks"
 
@@ -24,13 +24,13 @@ from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
 TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
 l1emulator += TrackTriggerAssociatorTracks
 
-from L1Trigger.VertexFinder.VertexProducer_cfi import *
+from L1Trigger.VertexFinder.l1tVertexProducer_cfi import *
 l1emulator += l1tVertexProducer
 
 from Configuration.StandardSequences.SimL1Emulator_cff import *
 l1emulator += SimL1Emulator
 
-from L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi import *
+from L1Trigger.Phase2L1ParticleFlow.l1tPFTracksFromL1Tracks_cfi import *
 l1emulator += l1tPFTracksFromL1Tracks
 
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *

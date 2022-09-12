@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tVertexNTupler = cms.EDAnalyzer('VertexNTupler',
-  inputDataInputTag = cms.InputTag("InputDataProducer","InputData"),
+  inputDataInputTag = cms.InputTag("l1tInputDataProducer","InputData"),
   genParticleInputTag = cms.InputTag("genParticles",""),
   l1TracksInputTags    = cms.VInputTag( cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks") ),
   l1TracksTruthMapInputTags = cms.VInputTag( cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks") ),
-  l1TracksTPInputTags = cms.InputTag("TPStubValueMapProducer:allMatchedTPs"),
-  l1TracksTPValueMapInputTags = cms.InputTag("TPStubValueMapProducer:TPs"),
+  l1TracksTPInputTags = cms.InputTag("l1tTPStubValueMapProducer:allMatchedTPs"),
+  l1TracksTPValueMapInputTags = cms.InputTag("l1tTPStubValueMapProducer:TPs"),
   l1TracksBranchNames  = cms.vstring('hybrid'),
   l1VertexInputTags   = cms.VInputTag( cms.InputTag("l1tVertexProducer", "l1vertices") ),
   l1VertexTrackInputs = cms.vstring('hybrid'),

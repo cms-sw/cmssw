@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-import L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3DClusters_cfi
+import L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromHGC3DClusters_cfi
 
-pfClustersFromHGC3DClustersEM = L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3DClusters_cfi.pfClustersFromHGC3DClusters.clone(
+l1tPFClustersFromHGC3DClustersEM = L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromHGC3DClusters_cfi.l1tPFClustersFromHGC3DClusters.clone(
     emOnly = cms.bool(True),
     useEMInterpretation = cms.string("emOnly"), # use EM intepretation to redefine the energy
     etMin = cms.double(0.0), 
@@ -19,7 +19,7 @@ pfClustersFromHGC3DClustersEM = L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-phase2_hgcalV10.toModify(pfClustersFromHGC3DClustersEM,
+phase2_hgcalV10.toModify(l1tPFClustersFromHGC3DClustersEM,
     corrector = "L1Trigger/Phase2L1ParticleFlow/data/emcorr_hgc_106X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 1.700,  1.900,  2.200,  2.500,  2.800,  2.900),
@@ -28,7 +28,7 @@ phase2_hgcalV10.toModify(pfClustersFromHGC3DClustersEM,
         kind    = cms.string('calo')
     ),
 ) 
-phase2_hgcalV11.toModify(pfClustersFromHGC3DClustersEM,
+phase2_hgcalV11.toModify(l1tPFClustersFromHGC3DClustersEM,
     corrector = "L1Trigger/Phase2L1ParticleFlow/data/emcorr_hgc_110X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 1.700,  1.900,  2.200,  2.500,  2.800,  2.900),

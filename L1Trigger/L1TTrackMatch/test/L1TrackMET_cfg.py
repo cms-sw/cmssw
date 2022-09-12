@@ -58,20 +58,20 @@ else:
   producerSum = None
 
 if GTTInput:
-  process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
+  process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
   producerSum = producerSum + process.L1GTTInputProducer
 
 
 
-process.load("L1Trigger.L1TTrackMatch.L1TrackerEtMissProducer_cfi")
-process.load("L1Trigger.L1TTrackMatch.L1TrackerEtMissEmulatorProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1tTrackerEtMiss_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi")
 process.load("L1Trigger.L1TTrackMatch.L1TkMETAnalyser_cfi")
 
 ############################################################
 # Primary vertex
 ############################################################
 
-process.load('L1Trigger.VertexFinder.VertexProducer_cfi')
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.l1tVertexProducer.l1TracksInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")  
 
 
