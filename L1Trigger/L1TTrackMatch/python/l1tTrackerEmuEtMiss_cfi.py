@@ -6,7 +6,7 @@ l1tTrackerEmuEtMiss = cms.EDProducer('L1TrackerEtMissEmulatorProducer',
     # To bypass GTT input module use  cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
     # and set useGTTinput to false
     L1VertexInputTag = cms.InputTag("l1tVertexProducer", "l1vertices"),
-    # This will use the vertex algorithm as specified in VertexProducer_cfi, if using emulated vertex
+    # This will use the vertex algorithm as specified in l1tVertexProducer_cfi, if using emulated vertex
     # set useVertexEmulator to true
     L1MetCollectionName = cms.string("L1TrackerEmuEtMiss"),
     

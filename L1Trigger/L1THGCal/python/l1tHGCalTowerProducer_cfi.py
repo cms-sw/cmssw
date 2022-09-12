@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi as hgcalTowerMapProducer_cfi
+import L1Trigger.L1THGCal.l1tHGCalTowerMapProducer_cfi as hgcalTowerMapProducer_cfi
 
 tower = cms.PSet( ProcessorName  = cms.string('HGCalTowerProcessor'),
       includeTrigCells = cms.bool(False),

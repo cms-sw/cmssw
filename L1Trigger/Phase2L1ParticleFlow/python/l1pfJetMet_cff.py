@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1ParticleFlow.L1SeedConePFJetProducer_cfi import l1tSeedConePFJetProducer, l1tSeedConePFJetEmulatorProducer
-from L1Trigger.Phase2L1ParticleFlow.DeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
+from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetProducer, l1tSeedConePFJetEmulatorProducer
+from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
 l1tSCPFL1PF            = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
 l1tSCPFL1Puppi         = l1tSeedConePFJetProducer.clone()
 l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
@@ -19,7 +19,7 @@ phase2_hgcalV11.toModify(_correctedJets, correctorFile = "L1Trigger/Phase2L1Part
 
 l1tSCPFL1PuppiCorrectedEmulator = _correctedJets.clone(jets = 'l1tSCPFL1PuppiEmulator', correctorDir = 'L1PuppiSC4EmuDeregJets')
 
-from L1Trigger.Phase2L1ParticleFlow.L1MhtPfProducer_cfi import l1tMHTPFProducer
+from L1Trigger.Phase2L1ParticleFlow.l1tMHTPFProducer_cfi import l1tMHTPFProducer
 l1tSCPFL1PuppiCorrectedEmulatorMHT = l1tMHTPFProducer.clone() 
 
 L1TPFJetsTask = cms.Task(

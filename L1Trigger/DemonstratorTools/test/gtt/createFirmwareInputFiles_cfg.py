@@ -60,7 +60,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
-process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
+process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
 process.load('L1Trigger.DemonstratorTools.GTTFileWriter_cff')
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalTriggerGeometryESProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalVFE_cff import *
 from L1Trigger.L1THGCal.hgcalConcentrator_cff import *
 from L1Trigger.L1THGCal.hgcalBackEndLayer1_cff import *

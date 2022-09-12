@@ -76,7 +76,7 @@ coarseTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
                                     rounding = cms.bool(True),
 )
 
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
+from L1Trigger.L1THGCal.l1tHGCalVFEProducer_cfi import vfe_proc
 best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.vstring(['bestChoiceSelect']*3),
                           NData = cms.vuint32(bestchoice_ndata_decentralized),

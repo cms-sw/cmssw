@@ -1,4 +1,4 @@
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
+from L1Trigger.L1THGCal.l1tHGCalVFEProducer_cfi import vfe_proc
 
 def custom_hgcroc_oot(process,
                       oot_coefficients=vfe_proc.linearizationCfg_si.oot_coefficients
