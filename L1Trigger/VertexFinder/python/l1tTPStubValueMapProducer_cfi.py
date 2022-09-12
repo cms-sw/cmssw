@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexNTupler_cfi import l1tVertexNTupler
-from L1Trigger.VertexFinder.VertexProducer_cfi import l1tVertexProducer
+from L1Trigger.VertexFinder.l1tVertexNTupler_cfi import l1tVertexNTupler
+from L1Trigger.VertexFinder.l1tVertexProducer_cfi import l1tVertexProducer
 
-InputDataProducer = cms.EDProducer('InputDataProducer',
+l1tTPStubValueMapProducer = cms.EDProducer('TPStubValueMapProducer',
   #=== The name of the output collection
-  outputCollectionName = cms.string("InputData"),
+  outputCollectionNames = cms.vstring("TPs","TPsUse","allMatchedTPs"),
   
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
   GenCuts = l1tVertexNTupler.GenCuts,
@@ -19,11 +19,11 @@ InputDataProducer = cms.EDProducer('InputDataProducer',
   VertexReconstruction = l1tVertexProducer.VertexReconstruction,
 
   #=== Input collections
-  hepMCInputTag = cms.InputTag("generatorSmeared","","SIM"),
-  genParticleInputTag = cms.InputTag("genParticles",""),
+  l1TracksTruthMapInputTags = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-  tpValueMapInputTag = cms.InputTag("TPStubValueMapProducer:TPs"),
-  stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
+  stubInputTag = cms.InputTag("l1tTTStubsFromPhase2TrackerDigis", "StubAccepted"),
+  stubTruthInputTag = cms.InputTag("l1tTTStubAssociatorFromPixelDigis", "StubAccepted"),
+  clusterTruthInputTag = cms.InputTag("l1tTTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
 
   #=== Debug printout
   debug = l1tVertexNTupler.debug,

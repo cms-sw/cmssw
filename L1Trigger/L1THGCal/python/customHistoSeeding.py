@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import histoMax_C3d_seeding_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer2Producer_cfi import histoMax_C3d_seeding_params, \
                                                               histoSecondaryMax_C3d_params, \
                                                               histoInterpolatedMax_C3d_params, \
                                                               histoThreshold_C3d_params, \

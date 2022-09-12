@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import layer1truncation_proc
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import stage1truncation_proc
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import truncation_params
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import layer1truncation_proc
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import stage1truncation_proc
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import truncation_params
 
 def custom_layer1_truncation(process):
     parameters = layer1truncation_proc.clone()

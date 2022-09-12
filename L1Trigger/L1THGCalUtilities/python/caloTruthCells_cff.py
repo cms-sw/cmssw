@@ -7,11 +7,11 @@ L1TCaloTruthCells = cms.Sequence(l1tCaloTruthCellsProducer)
 if l1tCaloTruthCellsProducer.makeCellsCollection:
     ## cluster and tower sequence
 
-    from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import l1tHGCalConcentratorProducer
-    from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import l1tHGCalBackEndLayer1Producer
-    from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import l1tHGCalBackEndLayer2Producer
-    from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import l1tHGCalTowerMapProducer
-    from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import l1tHGCalTowerProducer
+    from L1Trigger.L1THGCal.l1tHGCalConcentratorProducer_cfi import l1tHGCalConcentratorProducer
+    from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import l1tHGCalBackEndLayer1Producer
+    from L1Trigger.L1THGCal.l1tHGCalBackEndLayer2Producer_cfi import l1tHGCalBackEndLayer2Producer
+    from L1Trigger.L1THGCal.l1tHGCalTowerMapProducer_cfi import l1tHGCalTowerMapProducer
+    from L1Trigger.L1THGCal.l1tHGCalTowerProducer_cfi import l1tHGCalTowerProducer
     
     l1tHGCalTruthConcentratorProducer = l1tHGCalConcentratorProducer.clone(
         InputTriggerCells = cms.InputTag('l1tCaloTruthCellsProducer')

@@ -70,7 +70,7 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 
 #--- Load config fragment that configures vertex producer
-process.load('L1Trigger.VertexFinder.VertexProducer_cfi')
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 
 #--- Load config fragment that configures vertex analyzer

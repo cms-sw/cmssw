@@ -48,7 +48,7 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 # ----    Produce the L1EGCrystal clusters using Emulator
 
 
-process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
 
 process.pL1EG = cms.Path( process.l1tEGammaClusterEmuProducer )
 
