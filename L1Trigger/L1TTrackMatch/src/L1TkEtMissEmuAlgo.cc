@@ -15,9 +15,9 @@ namespace l1tmetemu {
     return cosLUT;
   }
 
-  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift ) {
+  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift) {
     global_phi_t PhiMin = 0;
-    global_phi_t PhiMax = 2*M_PI / TTTrack_TrackWord::stepPhi0;
+    global_phi_t PhiMax = 2 * M_PI / TTTrack_TrackWord::stepPhi0;
 
     // The initial word comes in as a uint; the correct bits, but not automatically using 2s compliment format.
     global_phi_t globalPhi = local_phi;
@@ -32,7 +32,7 @@ namespace l1tmetemu {
       globalPhi = globalPhi + PhiMax;
     } else if (globalPhi > PhiMax) {
       globalPhi = globalPhi - PhiMax;
-    }  
+    }
 
     return globalPhi;
   }
