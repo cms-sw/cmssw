@@ -4,7 +4,7 @@ from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
 
 
-hgcalTower = cms.Task(hgcalTowerProducer)
+L1THGCalTower = cms.Task(l1tHGCalTowerProducer)
 
-hgcalTowerHFNose = cms.Task(hgcalTowerProducerHFNose)
+L1THGCalTowerHFNose = cms.Task(l1tHGCalTowerProducerHFNose)
 

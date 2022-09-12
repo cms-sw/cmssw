@@ -12,7 +12,7 @@ options.register('redir', 'root://cms-xrd-global.cern.ch/', VarParsing.VarParsin
 options.register('nstart', 0,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "File index to start on")
 options.register('nfiles', -1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of files to process per job")
 options.register('storeTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Store tracks in NTuple")
-options.register('l1Tracks','TTTracksFromTrackletEmulation:Level1TTTracks', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
+options.register('l1Tracks','l1tTTTracksFromTrackletEmulation:Level1TTTracks', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
 options.register('runVariations', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Run some pre-defined algorithmic variations")
 options.register('threads', 1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of threads to run")
 options.register('streams', 0,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of streams to run")
@@ -79,32 +79,32 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(options.streams if options.streams>0 else 0)
 )
 
-process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.VertexProducer.l1TracksInputTag = l1TracksTag
+process.load('L1Trigger.VertexFinder.VertexProducer_cfi')
+process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 
 process.load('L1Trigger.VertexFinder.TPStubValueMapProducer_cff')
 process.load('L1Trigger.VertexFinder.InputDataProducer_cff')
 
-process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
+process.load('L1Trigger.VertexFinder.VertexNTupler_cfi')
 process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
 
 if process.L1TVertexNTupler.debug == 0:
     process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-producerSum = process.VertexProducer
+producerSum = process.l1tVertexProducer
 additionalProducerAlgorithms = ["fastHistoEmulation", "fastHistoLooseAssociation", "DBSCAN"]
 for algo in additionalProducerAlgorithms:
     producerName = 'VertexProducer{0}'.format(algo)
     producerName = producerName.replace(".","p") # legalize the name
 
-    producer = process.VertexProducer.clone()
+    producer = process.l1tVertexProducer.clone()
     producer.VertexReconstruction.Algorithm = cms.string(algo)
 
     if "Emulation" in algo:
         if "L1GTTInputProducer" not in process.producerNames():
             process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
-            producer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+            producer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
             producerSum = process.L1GTTInputProducer + producerSum
 
         process.L1TVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )
@@ -134,7 +134,7 @@ if options.runVariations:
                     print "minDensity =", minDensity
                     print "seedTrkPt  =", seedTrackPt
 
-                    producer = process.VertexProducer.clone()
+                    producer = process.l1tVertexProducer.clone()
                     producer.VertexReconstruction.VertexDistance = cms.double(dist)
                     producer.VertexReconstruction.VxMinTrackPt = cms.double(minPt)
                     producer.VertexReconstruction.DBSCANMinDensityTracks = cms.uint32(minDensity)

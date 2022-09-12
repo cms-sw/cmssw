@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1EGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer",
+l1tEGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer",
    ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis"),
    calib = cms.PSet(
@@ -29,7 +29,7 @@ L1EGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer"
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(L1EGammaClusterEmuProducer,
+premix_stage2.toModify(l1tEGammaClusterEmuProducer,
     ecalTPEB = cms.InputTag("DMEcalEBTriggerPrimitiveDigis"),
     hcalTP = cms.InputTag("DMHcalTriggerPrimitiveDigis"),
 )

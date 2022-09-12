@@ -51,16 +51,16 @@ process.dtc = cms.Path( process.TrackerDTCProducer )
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 
 # prompt tracking only
-process.TTTracksEmulation = cms.Path(process.L1HybridTracks)
-process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociators)
+process.TTTracksEmulation = cms.Path(process.L1THybridTracks)
+process.TTTracksEmulationWithTruth = cms.Path(process.L1THybridTracksWithAssociators)
 
 # extended tracking only
-#process.TTTracksEmulation = cms.Path(process.L1ExtendedHybridTracks)
-#process.TTTracksEmulationWithTruth = cms.Path(process.L1ExtendedHybridTracksWithAssociators)
+#process.TTTracksEmulation = cms.Path(process.L1TExtendedHybridTracks)
+#process.TTTracksEmulationWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
 
 # both prompt+extended hybrid tracking
-#process.TTTracksEmulation = cms.Path(process.L1PromptExtendedHybridTracks)
-#process.TTTracksEmulationWithTruth = cms.Path(process.L1PromptExtendedHybridTracksWithAssociators)
+#process.TTTracksEmulation = cms.Path(process.L1TPromptExtendedHybridTracks)
+#process.TTTracksEmulationWithTruth = cms.Path(process.L1TPromptExtendedHybridTracksWithAssociators)
 
 # ----------------------------------------------------------------------------------
 # output module

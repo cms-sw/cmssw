@@ -1,30 +1,30 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexNTupler_cff import L1TVertexNTupler
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
+from L1Trigger.VertexFinder.VertexNTupler_cfi import l1tVertexNTupler
+from L1Trigger.VertexFinder.VertexProducer_cfi import l1tVertexProducer
 
 TPStubValueMapProducer = cms.EDProducer('TPStubValueMapProducer',
   #=== The name of the output collection
   outputCollectionNames = cms.vstring("TPs","TPsUse","allMatchedTPs"),
   
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
-  GenCuts = L1TVertexNTupler.GenCuts,
+  GenCuts = l1tVertexNTupler.GenCuts,
 
   #=== Rules for deciding when the track finding has found an L1 track candidate
-  L1TrackDef = L1TVertexNTupler.L1TrackDef,
+  L1TrackDef = l1tVertexNTupler.L1TrackDef,
 
   #=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
-  TrackMatchDef = L1TVertexNTupler.TrackMatchDef,
+  TrackMatchDef = l1tVertexNTupler.TrackMatchDef,
 
   #=== Vertex Reconstruction configuration
-  VertexReconstruction = VertexProducer.VertexReconstruction,
+  VertexReconstruction = l1tVertexProducer.VertexReconstruction,
 
   #=== Input collections
   l1TracksTruthMapInputTags = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-  stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
-  stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-  clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
+  stubInputTag = cms.InputTag("l1tTTStubsFromPhase2TrackerDigis", "StubAccepted"),
+  stubTruthInputTag = cms.InputTag("l1tTTStubAssociatorFromPixelDigis", "StubAccepted"),
+  clusterTruthInputTag = cms.InputTag("l1tTTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
 
   #=== Debug printout
-  debug = L1TVertexNTupler.debug,
+  debug = l1tVertexNTupler.debug,
 )

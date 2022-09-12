@@ -139,7 +139,7 @@ phase2_hgcal.toModify(calibration_params_nose,
 
 
 
-hgcalVFEProducer = cms.EDProducer(
+l1tHGCalVFEProducer = cms.EDProducer(
         "HGCalVFEProducer",
         eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
         fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
@@ -147,7 +147,7 @@ hgcalVFEProducer = cms.EDProducer(
         ProcessorParameters = vfe_proc.clone()
        )
 
-hfnoseVFEProducer = cms.EDProducer(
+l1tHFnoseVFEProducer = cms.EDProducer(
         "HFNoseVFEProducer",
         noseDigis = cms.InputTag('simHFNoseUnsuppressedDigis:HFNose'),
         ProcessorParameters = vfe_proc.clone()

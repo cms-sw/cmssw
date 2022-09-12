@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-
-L1TrackJets = cms.EDProducer('L1TrackJetProducer',
-	L1TrackInputTag= cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
+	L1TrackInputTag= cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
+	L1PVertexCollection = cms.InputTag("l1tVertexProducer", "l1vertices"),
 	MaxDzTrackPV = cms.double( 0.5 ),
 	trk_zMax = cms.double (15.) ,    # maximum track z
 	trk_ptMax = cms.double(200.),    # maximumum track pT before saturation [GeV]
@@ -31,9 +29,9 @@ L1TrackJets = cms.EDProducer('L1TrackJetProducer',
 	nDisplacedTracks=cms.int32(2) #Number of displaced tracks required per jet
 )
 
-L1TrackJetsExtended = cms.EDProducer('L1TrackJetProducer',
-	L1TrackInputTag= cms.InputTag("TTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
+l1tTrackJetsExtended = cms.EDProducer('L1TrackJetProducer',
+	L1TrackInputTag= cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+	L1PVertexCollection = cms.InputTag("l1tVertexProducer", "l1vertices"),
 	MaxDzTrackPV = cms.double( 4.0 ), # tracks with dz(trk,PV)>cut excluded
 	trk_zMax = cms.double (15.) ,    # max track z
 	trk_ptMax = cms.double(200.),    # maxi track pT before saturation

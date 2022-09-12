@@ -3,8 +3,8 @@ from math import pi
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
 
-Phase1L1TJetSumsProducer = cms.EDProducer('Phase1L1TJetSumsProducer',
-  inputJetCollectionTag = cms.InputTag("Phase1L1TJetCalibrator", "Phase1L1TJetFromPfCandidates"),
+l1tPhase1JetSumsProducer = cms.EDProducer('Phase1L1TJetSumsProducer',
+  inputJetCollectionTag = cms.InputTag("l1tPhase1JetCalibrator", "Phase1L1TJetFromPfCandidates"),
   nBinsPhi = cms.uint32(72),
   phiLow = cms.double(-pi),
   phiUp = cms.double(pi),
