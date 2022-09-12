@@ -27,7 +27,7 @@ namespace l1tmhtemu {
   // extra room for sumPx, sumPy
   const unsigned int kEtExtra{10};
   const unsigned int kValidSize{1};
-  const unsigned int kMHTSize{16};     // For output Magnitude default 15
+  const unsigned int kMHTSize{16};  // For output Magnitude default 15
   const unsigned int kMHTIntSize{11};
   const unsigned int kMHTPhiSize{13};  // For output Phi default 14
   const unsigned int kHTSize{kInternalPtWidth + kEtExtra};
@@ -56,7 +56,7 @@ namespace l1tmhtemu {
   typedef ap_int<kInternalPhiWidth> phi_t;
 
   typedef ap_int<kHTSize> Et_t;
-  typedef ap_ufixed<kMHTSize,kMHTIntSize> MHT_t;
+  typedef ap_ufixed<kMHTSize, kMHTIntSize> MHT_t;
   typedef ap_uint<kMHTPhiSize> MHTphi_t;
 
   const unsigned int kMHTBins = 1 << kMHTSize;
