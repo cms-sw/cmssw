@@ -22,9 +22,6 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-#include <TFile.h>
-#include <TTree.h>
-
 template <typename DET, typename TOPO, bool ownsTopo = true>
 class PFHCALDenseIdNavigator : public PFRecHitNavigatorBase {
 public:
