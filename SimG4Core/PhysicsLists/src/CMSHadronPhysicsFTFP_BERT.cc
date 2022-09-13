@@ -8,6 +8,7 @@
 #include "G4CascadeInterface.hh"
 
 #include "G4HadronicParameters.hh"
+#include "G4HadronicProcess.hh"
 #include "G4HadProcesses.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Threading.hh"
