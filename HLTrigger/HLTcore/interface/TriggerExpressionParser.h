@@ -28,6 +28,7 @@ namespace triggerExpression {
       operand_not = qi::lexeme[qi::lit("NOT") >> delimiter];
       operand_and = qi::lexeme[qi::lit("AND") >> delimiter];
       operand_or = qi::lexeme[qi::lit("OR") >> delimiter];
+      operand_xor = qi::lexeme[qi::lit("XOR") >> delimiter];
       operand_masking = qi::lexeme[qi::lit("MASKING") >> delimiter];
 
       // "TRUE": keyword to accept all events
@@ -40,9 +41,9 @@ namespace triggerExpression {
       token_l1algo %= qi::raw[qi::lexeme["L1_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
 
       // Decisions of Paths in the CMSSW configuration (e.g. high-level triggers):
-      // any alphanumeric pattern except for "TRUE", "FALSE", "NOT", "AND", "OR", and "MASKING"
+      // any alphanumeric pattern except for "TRUE", "FALSE", "NOT", "AND", "OR", "XOR" and "MASKING"
       token_path %= qi::raw[qi::lexeme[+(qi::char_("a-zA-Z0-9_*?"))] - token_true - token_false - operand_not -
-                            operand_and - operand_or - operand_masking];
+                            operand_and - operand_or - operand_xor - operand_masking];
 
       token = (token_true[qi::_val = new_<Constant>(true)] | token_false[qi::_val = new_<Constant>(false)] |
                token_l1algo[qi::_val = new_<L1uGTReader>(qi::_1)] | token_path[qi::_val = new_<PathReader>(qi::_1)]);
@@ -68,6 +69,7 @@ namespace triggerExpression {
       expression = unary[qi::_val = qi::_1] >>
                    *((operand_and >> unary)[qi::_val = new_<OperatorAnd>(qi::_val, qi::_1)] |
                      (operand_or >> unary)[qi::_val = new_<OperatorOr>(qi::_val, qi::_1)] |
+                     (operand_xor >> unary)[qi::_val = new_<OperatorXor>(qi::_val, qi::_1)] |
                      (operand_masking >> argument_masking)[qi::_val = new_<OperatorMasking>(qi::_val, qi::_1)]);
     }
 
@@ -82,6 +84,7 @@ namespace triggerExpression {
     terminal_rule operand_not;
     terminal_rule operand_and;
     terminal_rule operand_or;
+    terminal_rule operand_xor;
     terminal_rule operand_masking;
 
     name_rule token_l1algo;
