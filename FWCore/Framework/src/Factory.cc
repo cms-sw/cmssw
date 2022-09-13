@@ -25,7 +25,6 @@ namespace edm {
   Factory const* Factory::get() { return &singleInstance_; }
 
   static void annotateExceptionAndRethrow(cms::Exception& except,
-                                          const MakeModuleParams& p,
                                           std::string const& modtype,
                                           ModuleTypeResolverBase const* resolver) {
     if (not resolver) {
@@ -60,7 +59,7 @@ namespace edm {
     MakerMap::iterator it = makers_.find(modtype);
 
     if (it == makers_.end()) {
-      auto make = [](auto resolver, const auto& modtype, auto const& p) {
+      auto make = [](auto resolver, const auto& modtype) {
         if (resolver) {
           auto index = resolver->kInitialIndex;
           auto newType = modtype;
@@ -77,12 +76,12 @@ namespace edm {
             //failed to find a plugin
             return MakerPluginFactory::get()->create(modtype);
           } catch (cms::Exception& iExcept) {
-            annotateExceptionAndRethrow(iExcept, p, modtype, resolver);
+            annotateExceptionAndRethrow(iExcept, modtype, resolver);
           }
         }
         return MakerPluginFactory::get()->create(modtype);
       };
-      std::unique_ptr<Maker> wm = make(resolver, modtype, p);
+      std::unique_ptr<Maker> wm = make(resolver, modtype);
       FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
 
       std::pair<MakerMap::iterator, bool> ret = makers_.insert(std::pair<std::string, Maker*>(modtype, wm.get()));
