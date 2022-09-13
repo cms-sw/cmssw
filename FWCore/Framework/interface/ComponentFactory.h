@@ -46,7 +46,7 @@ namespace edm {
       //~ComponentFactory();
 
       typedef ComponentMakerBase<T> Maker;
-      typedef std::map<std::string, std::shared_ptr<Maker> > MakerMap;
+      typedef std::map<std::string, std::shared_ptr<Maker>> MakerMap;
       typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
@@ -76,7 +76,7 @@ namespace edm {
           //cerr << "Factory: created the worker" << endl;
 
           std::pair<typename MakerMap::iterator, bool> ret =
-              makers_.insert(std::pair<std::string, std::shared_ptr<Maker> >(modtype, wm));
+              makers_.insert(std::pair<std::string, std::shared_ptr<Maker>>(modtype, wm));
 
           if (ret.second == false) {
             Exception::throwThis(errors::Configuration, "Maker Factory map insert failed");
