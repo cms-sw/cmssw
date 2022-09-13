@@ -11,43 +11,23 @@
 // DataFormats
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
-#include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQMServices
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-// HLTrigger
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-// Common tools
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 #include <memory>
 #include "TRegexp.h"
@@ -63,7 +43,7 @@ class GenMuonGMTPair;
 class L1TPhase2MuonOffline : public DQMEDAnalyzer {
 public:
   L1TPhase2MuonOffline(const edm::ParameterSet& ps);
-  ~L1TPhase2MuonOffline() override;
+  ~L1TPhase2MuonOffline() override = default;
 
   enum MuType { kSAMuon, kTkMuon, kNMuTypes };
   enum VarType { kPt, kEta, kPhi, kIso, kQual, kZ0, kD0, kNVarTypes };
@@ -105,13 +85,13 @@ private:
   const std::vector<MuType> muonTypes_;
   const std::vector<EffType> effTypes_;
   const std::vector<ResType> resTypes_;
-  const std::vector<VarType> varTypes_;
+  //  const std::vector<VarType> varTypes_;
   const std::vector<EtaRegion> etaRegions_;
   const std::vector<QualLevel> qualLevels_;
 
   // maps with histogram name bits
-  std::map<EffType, std::string> effNames_;
-  std::map<EffType, std::string> effLabels_;
+  //  std::map<EffType, std::string> effNames_;
+  //  std::map<EffType, std::string> effLabels_;
   std::map<ResType, std::string> resNames_;
   std::map<ResType, std::string> resLabels_;
   std::map<EtaRegion, std::string> etaNames_;
@@ -143,11 +123,11 @@ private:
   std::vector<GenMuonGMTPair> gmtTkMuonPairs_;
   std::vector<std::pair<int, QualLevel>> cuts_;
 
-  float lsb_pt = Phase2L1GMT::LSBpt;
-  float lsb_phi = Phase2L1GMT::LSBphi;
-  float lsb_eta = Phase2L1GMT::LSBeta;
-  float lsb_z0 = Phase2L1GMT::LSBSAz0;
-  float lsb_d0 = Phase2L1GMT::LSBSAd0;
+  const float lsb_pt = Phase2L1GMT::LSBpt;
+  const float lsb_phi = Phase2L1GMT::LSBphi;
+  const float lsb_eta = Phase2L1GMT::LSBeta;
+  const float lsb_z0 = Phase2L1GMT::LSBSAz0;
+  const float lsb_d0 = Phase2L1GMT::LSBSAd0;
 };
 
 //
@@ -159,7 +139,7 @@ public:
   GenMuonGMTPair(const GenMuonGMTPair& muongmtPair);
   ~GenMuonGMTPair(){};
 
-  float dR();
+  float dR2();
   float pt() const { return mu_->pt(); };
   float eta() const { return mu_->eta(); };
   float phi() const { return mu_->phi(); };
