@@ -704,8 +704,6 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
         imatch = keep;
       }
     }
-    if (not keep)
-      match = false;  // FIX: should calc keep with float point here.
 
     if (imatch) {
       if (settings_.debugTracklet()) {

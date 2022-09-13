@@ -59,15 +59,6 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
   }
 
   if (output.substr(0, 9) == "vmstubout") {
-    unsigned int pos = 12;
-    int vmbin = memory->getName().substr(pos, 1)[0] - '0';
-    pos++;
-    if (pos < memory->getName().size()) {
-      if (memory->getName().substr(pos, 1)[0] != 'n') {
-        vmbin = vmbin * 10 + memory->getName().substr(pos, 1)[0] - '0';
-        pos++;
-      }
-    }
     if (memory->getName().substr(3, 2) == "TE") {
       VMStubsTEMemory* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
       unsigned int iseed = output[output.size() - 1] - '0';
