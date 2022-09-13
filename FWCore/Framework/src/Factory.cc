@@ -31,7 +31,7 @@ namespace edm {
     MakerMap::iterator it = makers_.find(modtype);
 
     if (it == makers_.end()) {
-      std::unique_ptr<Maker> wm = resolveMaker<MakerPluginFactory>(modtype, resolver);
+      std::unique_ptr<Maker> wm = detail::resolveMaker<MakerPluginFactory>(modtype, resolver);
       FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
 
       std::pair<MakerMap::iterator, bool> ret = makers_.insert(std::pair<std::string, Maker*>(modtype, wm.get()));

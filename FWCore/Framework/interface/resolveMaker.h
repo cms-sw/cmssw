@@ -7,12 +7,10 @@
 #include <memory>
 #include <string>
 
-namespace edm {
-  namespace detail {
-    void annotateResolverMakerExceptionAndRethrow(cms::Exception& except,
-                                                  std::string const& modtype,
-                                                  ModuleTypeResolverBase const* resolver);
-  }
+namespace edm::detail {
+  void annotateResolverMakerExceptionAndRethrow(cms::Exception& except,
+                                                std::string const& modtype,
+                                                ModuleTypeResolverBase const* resolver);
 
   template <typename TFactory>
   auto resolveMaker(std::string const& moduleType, ModuleTypeResolverBase const* resolver) {
@@ -37,6 +35,6 @@ namespace edm {
     }
     return TFactory::get()->create(moduleType);
   }
-}  // namespace edm
+}  // namespace edm::detail
 
 #endif
