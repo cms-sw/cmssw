@@ -764,6 +764,9 @@ void FitHistExtended(const char* infile,
           value = 1.0;
         } else {
           TH1D* hist = (TH1D*)hist1->Clone();
+          if (debug)
+            std::cout << "Histogram " << name << ":" << (hist->GetName()) << " with " << (hist->GetEntries())
+                      << " entries" << std::endl;
           if (hist->GetEntries() > 0) {
             value = hist->GetMean();
             error = hist->GetRMS();
