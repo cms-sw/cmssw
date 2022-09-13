@@ -476,6 +476,8 @@ namespace edm {
     while (useInLumi_.load() == nullptr) {
     }
 
+    // streamEndRun also uses the hadronizer in the stream cache
+    // so we also need to wait for it to finish if there is a new run
     if (nInitializedWithLHERunInfo_ < nGlobalBeginRuns_) {
       while (!streamEndRunComplete_.load()) {
       }

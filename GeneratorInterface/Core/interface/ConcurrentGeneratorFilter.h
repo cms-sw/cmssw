@@ -126,7 +126,7 @@ namespace edm {
     // The next two data members are thread safe and can be safely mutable because
     // they are only modified/read in globalBeginRun and globalBeginLuminosityBlock.
     mutable unsigned long long nGlobalBeginRuns_{0};
-    mutable unsigned long long nInitializedInGlobalLumi_{0};
+    mutable unsigned long long nInitializedInGlobalLumiAfterNewRun_{0};
   };
 
   //------------------------------------------------------------------------
@@ -321,10 +321,12 @@ namespace edm {
     while (useInLumi_.load() == nullptr) {
     }
 
-    if (nInitializedInGlobalLumi_ < nGlobalBeginRuns_) {
+    // streamEndRun also uses the hadronizer in the stream cache
+    // so we also need to wait for it to finish if there is a new run
+    if (nInitializedInGlobalLumiAfterNewRun_ < nGlobalBeginRuns_) {
       while (!streamEndRunComplete_.load()) {
       }
-      nInitializedInGlobalLumi_ = nGlobalBeginRuns_;
+      nInitializedInGlobalLumiAfterNewRun_ = nGlobalBeginRuns_;
     }
 
     auto lumiCache = std::make_shared<gen::GenLumiCache<HAD, DEC>>();
