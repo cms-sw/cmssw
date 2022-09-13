@@ -451,7 +451,7 @@
   <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --onPath"/>
   <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream"/>
   <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath"/>
-  <!-- uncomment once scram supports ! <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py - - - -noPut"/> -->
+  <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut"/>
 
 
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
