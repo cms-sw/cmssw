@@ -20,23 +20,23 @@ namespace pf {
 
     template <typename tag>
     struct AddSize {};
-    
+
     template <>
     struct AddSize<tags::Vec> {
-      uint32_t size;        // Total size of PFRecHits passing cuts
-      uint32_t sizeCleaned; // Number of PFRecHits that are cleaned (fail cuts)
+      uint32_t size;         // Total size of PFRecHits passing cuts
+      uint32_t sizeCleaned;  // Number of PFRecHits that are cleaned (fail cuts)
     };
 
     template <>
     struct AddSize<tags::Ptr> {
-      uint32_t size;        // Total size of PFRecHits passing cuts
-      uint32_t sizeCleaned; // Number of PFRecHits that are cleaned (fail cuts)
+      uint32_t size;         // Total size of PFRecHits passing cuts
+      uint32_t sizeCleaned;  // Number of PFRecHits that are cleaned (fail cuts)
     };
 
     template <>
     struct AddSize<tags::DevPtr> {
-      uint32_t size;        // Total size of PFRecHits passing cuts
-      uint32_t sizeCleaned; // Number of PFRecHits that are cleaned (fail cuts)
+      uint32_t size;         // Total size of PFRecHits passing cuts
+      uint32_t sizeCleaned;  // Number of PFRecHits that are cleaned (fail cuts)
     };
 
     struct ViewStoragePolicy {

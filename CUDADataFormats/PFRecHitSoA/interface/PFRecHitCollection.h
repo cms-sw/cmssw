@@ -1,16 +1,18 @@
 #ifndef CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h
 #define CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h
+
 #include <vector>
+
 #include "CUDADataFormats/PFCommon/interface/Common.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 namespace hcal {
   template <typename StoragePolicy>
-    struct PFRecHitCollection : public ::pf::common::AddSize<typename StoragePolicy::TagType> {
+  struct PFRecHitCollection : public ::pf::common::AddSize<typename StoragePolicy::TagType> {
     PFRecHitCollection() = default;
     PFRecHitCollection(const PFRecHitCollection&) = default;
     PFRecHitCollection& operator=(const PFRecHitCollection&) = default;
-    
+
     PFRecHitCollection(PFRecHitCollection&&) = default;
     PFRecHitCollection& operator=(PFRecHitCollection&&) = default;
 
@@ -25,35 +27,34 @@ namespace hcal {
     typename StoragePolicy::template StorageSelector<float>::type pfrh_x;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_y;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_z;
-    
+
     //m_dEta, m_dPhi, m_repCorners, backPoint
 
     template <typename U = typename StoragePolicy::TagType>
-      typename std::enable_if<std::is_same<U, ::pf::common::tags::Vec>::value, void>::type resize(size_t size) {
-
+    typename std::enable_if<std::is_same<U, ::pf::common::tags::Vec>::value, void>::type resize(size_t size) {
       pfrh_depth.resize(size);
       pfrh_layer.resize(size);
       pfrh_detId.resize(size);
-      pfrh_neighbours.resize(8*size);
-      pfrh_neighbourInfos.resize(8*size);
-      
+      pfrh_neighbours.resize(8 * size);
+      pfrh_neighbourInfos.resize(8 * size);
+
       pfrh_time.resize(size);
       pfrh_energy.resize(size);
       pfrh_x.resize(size);
       pfrh_y.resize(size);
       pfrh_z.resize(size);
     }
-  }; // struct PFRecHitCollection
+  };  // struct PFRecHitCollection
 
-} // namespace hcal
+}  // namespace hcal
 
 namespace ecal {
   template <typename StoragePolicy>
-    struct PFRecHitCollection : public ::pf::common::AddSize<typename StoragePolicy::TagType> {
+  struct PFRecHitCollection : public ::pf::common::AddSize<typename StoragePolicy::TagType> {
     PFRecHitCollection() = default;
     PFRecHitCollection(const PFRecHitCollection&) = default;
     PFRecHitCollection& operator=(const PFRecHitCollection&) = default;
-    
+
     PFRecHitCollection(PFRecHitCollection&&) = default;
     PFRecHitCollection& operator=(PFRecHitCollection&&) = default;
 
@@ -68,26 +69,25 @@ namespace ecal {
     typename StoragePolicy::template StorageSelector<float>::type pfrh_x;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_y;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_z;
-    
+
     //m_dEta, m_dPhi, m_repCorners, backPoint
 
     template <typename U = typename StoragePolicy::TagType>
-      typename std::enable_if<std::is_same<U, ::pf::common::tags::Vec>::value, void>::type resize(size_t size) {
-
+    typename std::enable_if<std::is_same<U, ::pf::common::tags::Vec>::value, void>::type resize(size_t size) {
       pfrh_depth.resize(size);
       pfrh_layer.resize(size);
       pfrh_detId.resize(size);
-      pfrh_neighbours.resize(8*size);
-      pfrh_neighbourInfos.resize(8*size);
-      
+      pfrh_neighbours.resize(8 * size);
+      pfrh_neighbourInfos.resize(8 * size);
+
       pfrh_time.resize(size);
       pfrh_energy.resize(size);
       pfrh_x.resize(size);
       pfrh_y.resize(size);
       pfrh_z.resize(size);
     }
-  }; // struct PFRecHitCollection
+  };  // struct PFRecHitCollection
 
-} // namespace ecal
+}  // namespace ecal
 
-#endif //CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h
+#endif  // CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h

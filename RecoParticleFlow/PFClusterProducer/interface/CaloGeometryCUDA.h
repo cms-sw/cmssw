@@ -1,9 +1,9 @@
-#ifndef RecoParticleFlow_PFClusterProducerCUDA_interface_CaloGeometryCUDA_h
-#define RecoParticleFlow_PFClusterProducerCUDA_interface_CaloGeometryCUDA_h
+#ifndef RecoParticleFlow_PFClusterProducer_interface_CaloGeometryCUDA_h
+#define RecoParticleFlow_PFClusterProducer_interface_CaloGeometryCUDA_h
 
-#include <ostream>
-#include <optional>
 #include <cstdint>
+#include <optional>
+#include <ostream>
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -18,12 +18,9 @@ namespace calo {
       kNSubDets = kMaxSub + 1,
       kLength = kNDets * kNSubDets
     };
-    
 
+  }  // namespace geometry
 
-  } // namespace Geometry_LUT
+}  // namespace calo
 
-
-} // namespace calo
-
-#endif
+#endif  // RecoParticleFlow_PFClusterProducer_interface_CaloGeometryCUDA_h
