@@ -6,14 +6,14 @@
 //                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
 //                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
 //                  exclude, etamax);
-//  c1.Loop();
+//  c1.Loop(nmax);
 //  c1.savePlot(histFileName,append,all);
 //
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
 //
 //  GetEntries g1(fname, dirname, dupFileName, bit1, bit2);
-//  g1.Loop();
+//  g1.Loop(nmax);
 //
 //         This looks into the tree *EventInfo* and can provide a set
 //         of histograms with event statistics
@@ -102,6 +102,8 @@
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
 //                               in the table is taken (default = false)
+//   nmax            (Long64_t)= maximum number of entries to be processed,
+//                               if -1, all entries to be processed (-1)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
@@ -266,7 +268,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TChain *, const char *, const char *, const char *);
-  virtual void Loop();
+  virtual void Loop(Long64_t nmax = -1);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
   bool goodTrack(double &eHcal, double &cut, const Long64_t &entry, bool debug);
@@ -843,7 +845,7 @@ Int_t CalibMonitor::Cut(Long64_t) {
   return 1;
 }
 
-void CalibMonitor::Loop() {
+void CalibMonitor::Loop(Long64_t nmax) {
   //   In a ROOT session, you can do:
   //      Root > .L CalibMonitor.C
   //      Root > CalibMonitor t
@@ -872,10 +874,16 @@ void CalibMonitor::Loop() {
   if (fChain == 0)
     return;
   std::map<int, counter> runSum, runEn1, runEn2;
-
+  if (debug) {
+    std::cout << etas_.size() << " Eta Bins:";
+    for (unsigned int j = 0; j < etas_.size(); ++j)
+      std::cout << " " << etas_[j];
+    std::cout << std::endl;
+  }
   // Find list of duplicate events
   Long64_t nentries = fChain->GetEntriesFast();
-  std::cout << "Total entries " << nentries << std::endl;
+  Long64_t entries = (nmax > 0) ? nmax : nentries;
+  std::cout << "Total entries " << nentries << ":" << entries << std::endl;
   Long64_t nbytes(0), nb(0);
   unsigned int duplicate(0), good(0), kount(0);
   unsigned int kp1 = ps_.size() - 1;
@@ -888,7 +896,7 @@ void CalibMonitor::Loop() {
   std::vector<int> kount3(20, 0);
   std::vector<int> kount4(20, 0);
   std::vector<int> kount5(20, 0);
-  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+  for (Long64_t jentry = 0; jentry < entries; jentry++) {
     //for (Long64_t jentry=0; jentry<200;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)
@@ -1091,13 +1099,13 @@ void CalibMonitor::Loop() {
       }
     }
     int jp3 = (jp1 >= 0) ? (int)(ietasL_.size() - 1) : jp1;
-    if (debug)
-      std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
-                << jp1 << ":" << jp2 << ":" << jp3 << " pmom:ieta:pv:mindR " << pmom << ":" << std::abs(t_ieta) << ":"
-                << t_goodPV << ":" << t_mindR1 << std::endl;
     double cut = (pmom > 20) ? ((flexibleSelect_ == 0) ? 2.0 : 10.0) : 0.0;
     //  double rcut= (pmom > 20) ? 0.25: 0.1;
     double rcut(-1000.0);
+    if (debug)
+      std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
+                << jp1 << ":" << jp2 << ":" << jp3 << " pmom:ieta:pv:mindR " << pmom << ":" << std::abs(t_ieta) << ":"
+                << t_ieta << ":" << t_goodPV << ":" << t_mindR1 << " Cuts " << cut << ":" << rcut << std::endl;
 
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
@@ -1231,7 +1239,7 @@ void CalibMonitor::Loop() {
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" << t_eHcal << "|" << eHcal << "|" << rat
                 << "|" << kp << "|" << kv << "|" << jp << " Cuts " << t_qltyFlag << "|" << t_selectTk << "|"
                 << (t_hmaxNearP < cut) << "|" << (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut)
-                << " Select Phi " << selPhi << std::endl;
+                << " Select Phi " << selPhi << " hmaxNearP " << t_hmaxNearP << " eMipDR " << t_eMipDR << std::endl;
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp
                 << std::endl;
     }
@@ -1766,7 +1774,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TTree *tree, const char *dupFileName);
-  virtual void Loop();
+  virtual void Loop(Long64_t nmax = -1);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
 
@@ -1914,7 +1922,7 @@ Int_t GetEntries::Cut(Long64_t) {
   return 1;
 }
 
-void GetEntries::Loop() {
+void GetEntries::Loop(Long64_t nmax) {
   //   In a ROOT session, you can do:
   //      Root > .L CalibMonitor.C+g
   //      Root > GetEntries t
@@ -1948,7 +1956,8 @@ void GetEntries::Loop() {
   int allHLT[3] = {0, 0, 0};
   int looseHLT[3] = {0, 0, 0};
   int tightHLT[3] = {0, 0, 0};
-  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+  Long64_t entries = (nmax > 0) ? nmax : nentries;
+  for (Long64_t jentry = 0; jentry < entries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)
       break;

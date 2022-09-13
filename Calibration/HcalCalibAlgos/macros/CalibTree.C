@@ -6,7 +6,7 @@
 //      ratMax, ietaMax, ietaTrack, sysmode, puCorr, applyL1Cut, l1Cut,
 //      truncateFlag, maxIter, corForm, useGen, runlo, runhi, phimin, phimax,
 //      zside, nvxlo, nvxhi, rbx, exclude, higheta, fraction, writeDebugHisto,
-//      debug);
+//      debug, nmax);
 //
 //  where:
 //
@@ -85,6 +85,8 @@
 //                              in o/p file (false)
 //  debug           (bool)    = To produce more debug printing on screen
 //                              (false)
+//  nmax            (Long64_t)= maximum number of entries to be processed,
+//                               if -1, all entries to be processed (-1)
 //
 //  doIt(inFileName, dupFileName)
 //  calls Run 5 times reducing # of events by a factor of 2 in each case
@@ -148,7 +150,8 @@ void Run(const char *inFileName = "Silver.root",
          int higheta = 1,
          double fraction = 1.0,
          bool writeDebugHisto = false,
-         bool debug = false);
+         bool debug = false,
+         Long64_t nmax = -1);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -204,16 +207,17 @@ public:
                         bool last,
                         double fraction,
                         bool writeHisto,
-                        bool debug);
+                        bool debug,
+                        Long64_t nmax);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
-  void getDetId(double fraction, int ietaTrack, bool debug);
+  void getDetId(double fraction, int ietaTrack, bool debug, Long64_t nmax);
   void bookHistos(int loop, bool debug);
   bool goodTrack();
   void writeCorrFactor(const char *corrFileName, int ietaMax);
   bool selectPhi(unsigned int detId);
   std::pair<double, double> fitMean(TH1D *, int);
-  void makeplots(double rmin, double rmax, int ietaMax, bool useWeight, double fraction, bool debug);
+  void makeplots(double rmin, double rmax, int ietaMax, bool useWeight, double fraction, bool debug, Long64_t nmax);
   void fitPol0(TH1D *hist, bool debug);
   void highEtaFactors(int ietaMax, bool debug);
   energyCalor energyHcal(double pmom, const Long64_t &entry, bool final);
@@ -367,7 +371,8 @@ void doIt(const char *infile, const char *dup) {
         1,
         lumi,
         false,
-        false);
+        false,
+        -1);
   }
 }
 
@@ -407,7 +412,8 @@ void Run(const char *inFileName,
          int higheta,
          double fraction,
          bool writeHisto,
-         bool debug) {
+         bool debug,
+         Long64_t nmax) {
   char name[500];
   sprintf(name, "%s/%s", dirName, treeName);
   TChain *chain = new TChain(name);
@@ -418,6 +424,8 @@ void Run(const char *inFileName,
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
     Long64_t nentryTot = chain->GetEntries();
     Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+    if ((nentries > nmax) && (nmax > 0))
+      nentries = nmax;
     static const int maxIterMax = 100;
     if (maxIter > maxIterMax)
       maxIter = maxIterMax;
@@ -456,7 +464,7 @@ void Run(const char *inFileName,
     fout->cd();
 
     double cvgs[maxIterMax], itrs[maxIterMax];
-    t.getDetId(fraction, ietaTrack, debug);
+    t.getDetId(fraction, ietaTrack, debug, nmax);
 
     for (; k <= kmax; ++k) {
       std::cout << "Calling Loop() " << k << "th time" << std::endl;
@@ -474,7 +482,8 @@ void Run(const char *inFileName,
                           k == kmax,
                           fraction,
                           writeHisto,
-                          debug);
+                          debug,
+                          nmax);
       itrs[k] = k;
       cvgs[k] = cvg;
       if (cvg < 0.00001)
@@ -491,7 +500,7 @@ void Run(const char *inFileName,
     g_cvg->Draw("AP");
     g_cvg->Write("Cvg");
     std::cout << "Finish looping after " << k << " iterations" << std::endl;
-    t.makeplots(ratMin, ratMax, ietaMax, useweight, fraction, debug);
+    t.makeplots(ratMin, ratMax, ietaMax, useweight, fraction, debug, nmax);
     fout->Close();
   }
 }
@@ -712,10 +721,13 @@ Double_t CalibTree::Loop(int loop,
                          bool last,
                          double fraction,
                          bool writeHisto,
-                         bool debug) {
+                         bool debug,
+                         Long64_t nmax) {
   Long64_t nbytes(0), nb(0);
   Long64_t nentryTot = fChain->GetEntriesFast();
   Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+  if ((nentries > nmax) && (nmax > 0))
+    nentries = nmax;
 
   bookHistos(loop, debug);
   std::map<unsigned int, myEntry> SumW;
@@ -998,11 +1010,13 @@ Double_t CalibTree::Loop(int loop,
   return mean;
 }
 
-void CalibTree::getDetId(double fraction, int ietaTrack, bool debug) {
+void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nmax) {
   if (fChain != 0) {
     Long64_t nbytes(0), nb(0), kprint(0);
     Long64_t nentryTot = fChain->GetEntriesFast();
     Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+    if ((nentries > nmax) && (nmax > 0))
+      nentries = nmax;
 
     for (Long64_t jentry = 0; jentry < nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -1217,11 +1231,14 @@ std::pair<double, double> CalibTree::fitMean(TH1D *hist, int mode) {
   return results;
 }
 
-void CalibTree::makeplots(double rmin, double rmax, int ietaMax, bool useweight, double fraction, bool debug) {
+void CalibTree::makeplots(
+    double rmin, double rmax, int ietaMax, bool useweight, double fraction, bool debug, Long64_t nmax) {
   if (fChain == 0)
     return;
   Long64_t nentryTot = fChain->GetEntriesFast();
   Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+  if ((nentries > nmax) && (nmax > 0))
+    nentries = nmax;
 
   // Book the histograms
   std::map<int, std::pair<TH1D *, TH1D *> > histos;

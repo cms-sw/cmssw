@@ -6,7 +6,7 @@
 //                         useGen, scale, useScale, etalo, etahi, runlo, runhi,
 //                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
 //                         etamax);
-//  c1.Loop();
+//  c1.Loop(nentries);
 //  c1.savePlot(histFileName, append, all, debug);
 //
 //        This will prepare a set of histograms with properties of the tracks
@@ -83,6 +83,8 @@
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
 //                               in the table is taken (false)
+//   nentries        (int)     = maximum number of entries to be processed,
+//                               if -1, all entries to be processed (-1)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
