@@ -188,7 +188,7 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 #process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/GPU/reHLT_HLT.root ')
 
 process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
-#process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
+process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.schedule = cms.Schedule(process.HBHEPFGPUTask)
 
 process.options.numberOfThreads = cms.untracked.uint32(1)
