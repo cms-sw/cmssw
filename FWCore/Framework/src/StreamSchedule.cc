@@ -35,6 +35,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iomanip>
+#include <limits>
 #include <list>
 #include <map>
 #include <exception>
@@ -158,6 +159,74 @@ namespace edm {
         return std::pair(modnames.end(), modnames.end());
       }
       return std::pair(beg + 1, std::prev(modnames.end()));
+    }
+
+    std::optional<std::string> findBestMatchingAlias(
+        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
+        std::string const& productModuleLabel,
+        ConsumesInfo const& consumesInfo) {
+      std::optional<std::string> best;
+      int wildcardsInBest = std::numeric_limits<int>::max();
+      bool bestIsAmbiguous = false;
+
+      auto updateBest = [&best, &wildcardsInBest, &bestIsAmbiguous](
+                            std::string const& label, bool instanceIsWildcard, bool typeIsWildcard) {
+        int const wildcards = static_cast<int>(instanceIsWildcard) + static_cast<int>(typeIsWildcard);
+        if (wildcards == 0) {
+          bestIsAmbiguous = false;
+          return true;
+        }
+        if (not best or wildcards < wildcardsInBest) {
+          best = label;
+          wildcardsInBest = wildcards;
+          bestIsAmbiguous = false;
+        } else if (best and *best != label and wildcardsInBest == wildcards) {
+          bestIsAmbiguous = true;
+        }
+        return false;
+      };
+
+      auto findAlias = aliasMap.equal_range(productModuleLabel);
+      for (auto it = findAlias.first; it != findAlias.second; ++it) {
+        std::string const& aliasInstanceLabel =
+            it->second.instanceLabel != "*" ? it->second.instanceLabel : it->second.originalInstanceLabel;
+        bool const instanceIsWildcard = (aliasInstanceLabel == "*");
+        if (instanceIsWildcard or consumesInfo.instance() == aliasInstanceLabel) {
+          bool const typeIsWildcard = it->second.friendlyClassName == "*";
+          if (typeIsWildcard or (consumesInfo.type().friendlyClassName() == it->second.friendlyClassName)) {
+            if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
+              return it->second.originalModuleLabel;
+            }
+          } else if (consumesInfo.kindOfType() == ELEMENT_TYPE) {
+            //consume is a View so need to do more intrusive search
+            //find matching branches in module
+            auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
+            for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
+              if (typeIsWildcard or itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
+                if (productholderindexhelper::typeIsViewCompatible(consumesInfo.type(),
+                                                                   TypeID(itBranch->second->wrappedType().typeInfo()),
+                                                                   itBranch->second->className())) {
+                  if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
+                    return it->second.originalModuleLabel;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (bestIsAmbiguous) {
+        throw Exception(errors::UnimplementedFeature)
+            << "Encountered ambiguity when trying to find a best-matching alias for\n"
+            << " friendly class name " << consumesInfo.type().friendlyClassName() << "\n"
+            << " module label " << productModuleLabel << "\n"
+            << " product instance name " << consumesInfo.instance() << "\n"
+            << "when processing EDAliases for modules in ConditionalTasks. Two aliases have the same number of "
+               "wildcards ("
+            << wildcardsInBest << ")";
+      }
+      return best;
     }
   }  // namespace
 
@@ -658,38 +727,11 @@ namespace edm {
           auto itFound = conditionalModules.find(productModuleLabel);
           if (itFound == conditionalModules.end()) {
             //Check to see if this was an alias
-            auto findAlias = aliasMap.equal_range(productModuleLabel);
-            for (auto it = findAlias.first; it != findAlias.second; ++it) {
-              //this was previously filtered so only the conditional modules remain
-              productModuleLabel = it->second.originalModuleLabel;
-              if (it->second.instanceLabel == "*" or ci.instance() == it->second.instanceLabel) {
-                if (it->second.friendlyClassName == "*" or
-                    (ci.type().friendlyClassName() == it->second.friendlyClassName)) {
-                  productFromConditionalModule = true;
-                  //need to check the rest of the data product info
-                  break;
-                } else if (ci.kindOfType() == ELEMENT_TYPE) {
-                  //consume is a View so need to do more intrusive search
-                  //find matching branches in module
-                  auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
-                  for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
-                    if (it->second.originalInstanceLabel == "*" or
-                        itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
-                      if (typeIsViewCompatible(ci.type(),
-                                               TypeID(itBranch->second->wrappedType().typeInfo()),
-                                               itBranch->second->className())) {
-                        productFromConditionalModule = true;
-                        break;
-                      }
-                    }
-                  }
-                  if (productFromConditionalModule) {
-                    break;
-                  }
-                }
-              }
-            }
-            if (productFromConditionalModule) {
+            //note that aliasMap was previously filtered so only the conditional modules remain there
+            auto foundAlias = findBestMatchingAlias(conditionalModuleBranches, aliasMap, productModuleLabel, ci);
+            if (foundAlias) {
+              productModuleLabel = *foundAlias;
+              productFromConditionalModule = true;
               itFound = conditionalModules.find(productModuleLabel);
               //check that the alias-for conditional module has not been used
               if (itFound == conditionalModules.end()) {
