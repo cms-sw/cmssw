@@ -35,7 +35,7 @@ public:
              bool mechanicalView,
              bool isTH2F);
   TkHistoMap(const TkDetMap* tkDetMap);
-  ~TkHistoMap(){};
+  ~TkHistoMap() = default;
 
   void loadServices();
 

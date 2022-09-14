@@ -51,6 +51,11 @@ void TkHistoMap::load(const TkDetMap* tkDetMap,
                       bool mechanicalView,
                       bool isTH2F,
                       bool createTkMap) {
+  // cannot pass nullptr, otherwise methods making use of TrackerTopology will segfault
+  if (tkDetMap == nullptr) {
+    throw cms::Exception("LogicError") << " expected pointer to TkDetMap is null!\n";
+  }
+
   cached_detid = 0;
   cached_layer = 0;
   loadServices();
@@ -260,12 +265,14 @@ float TkHistoMap::getValue(DetId detid) {
 }
 float TkHistoMap::getEntries(DetId detid) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
-  TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
-  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
+
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F) {
     return 1;
-  else
+  } else {
+    TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
     return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(
         tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy));
+  }
 }
 
 void TkHistoMap::dumpInTkMap(TrackerMap* tkmap, bool dumpEntries) {
