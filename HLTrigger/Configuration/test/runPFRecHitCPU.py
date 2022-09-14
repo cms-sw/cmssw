@@ -90,7 +90,6 @@ process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*particleFlow*HBHE*_*_*')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -140,192 +139,22 @@ if 'MessageLogger' in process.__dict__:
 ## Configure CPU producer ##
 ############################
 
+#
+# for PFRecHitHBHE
+# - apply phase1 depth-dependent HCAL thresholds
+_pset_hltParticleFlowRecHitHBHE_producers_mod = process.hltParticleFlowRecHitHBHE.producers
+for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
+    for idy, y in enumerate(x.qualityTests):
+        if y.name._value == "PFRecHitQTestThreshold":
+            y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
+
 process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
-    navigator = cms.PSet(
-        hcalEnums = cms.vint32(1, 2),
-        name = cms.string('PFRecHitHCALDenseIdNavigator')
-    ),
-    producers = cms.VPSet(cms.PSet(
-        name = cms.string('PFHBHERecHitCreator'),
-        qualityTests = cms.VPSet(
-            cms.PSet(
-                cuts = cms.VPSet(
-                    cms.PSet(
-                        depth = cms.vint32(1, 2, 3, 4),
-                        detectorEnum = cms.int32(1),
-                        threshold = cms.vdouble(0.1, 0.2, 0.3, 0.3)
-                    ),
-                    cms.PSet(
-                        depth = cms.vint32(
-                            1, 2, 3, 4, 5,
-                            6, 7
-                        ),
-                        detectorEnum = cms.int32(2),
-                        threshold = cms.vdouble(
-                            0.1, 0.2, 0.2, 0.2, 0.2,
-                            0.2, 0.2
-                        )
-                    )
-                ),
-                name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
-                threshold = cms.double(0.8)
-            ),
-            cms.PSet(
-                cleaningThresholds = cms.vdouble(0.0),
-                flags = cms.vstring('Standard'),
-                maxSeverities = cms.vint32(11),
-                name = cms.string('PFRecHitQTestHCALChannel')
-            )
-        ),
-        src = cms.InputTag("hltHbhereco")
-    ))
+                                                   producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
+                                                   navigator = process.hltParticleFlowRecHitHBHE.navigator
 )
 
-
-#process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
-#    producers = cms.VPSet(
-#      #cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
-#      cms.PSet(  src = cms.InputTag( "hltHbhereco" ),
-#        name = cms.string( "PFHBHERecHitCreator" ),
-#        qualityTests = cms.VPSet(
-#          cms.PSet(  threshold = cms.double( 0.8 ),
-#            name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" ),
-#            cuts = cms.VPSet(
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-#                detectorEnum = cms.int32( 1 )
-#              ),
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-#                detectorEnum = cms.int32( 2 )
-#              )
-#            )
-#          ),
-#          cms.PSet(  flags = cms.vstring( 'Standard' ),
-#            cleaningThresholds = cms.vdouble( 0.0 ),
-#            name = cms.string( "PFRecHitQTestHCALChannel" ),
-#            maxSeverities = cms.vint32( 11 )
-#          )
-#        )
-#      )
-#    ),
-#    navigator = cms.PSet(
-#      name = cms.string( "PFRecHitHCALDenseIdNavigator" ),
-#      hcalEnums = cms.vint32( 1, 2 )
-#    )
-#)
-
-process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
-    pfClusterBuilder = cms.PSet( 
-      minFracTot = cms.double( 1.0E-20 ),
-      stoppingTolerance = cms.double( 1.0E-8 ),
-      positionCalc = cms.PSet( 
-        minAllowedNormalization = cms.double( 1.0E-9 ),
-        posCalcNCrystals = cms.int32( 5 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
-        minFractionInCalc = cms.double( 1.0E-9 ),
-        logWeightDenominatorByDetector = cms.VPSet( 
-          cms.PSet(  depths = cms.vint32( 1, 2, 3, 4 ),
-            detector = cms.string( "HCAL_BARREL1" ),
-            logWeightDenominator = cms.vdouble( 0.1, 0.2, 0.3, 0.3 )
-          ),
-          cms.PSet(  depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-            detector = cms.string( "HCAL_ENDCAP" ),
-            logWeightDenominator = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
-          )
-        )
-      ),
-      maxIterations = cms.uint32( 50 ),
-      minChi2Prob = cms.double( 0.0 ),
-      allCellsPositionCalc = cms.PSet( 
-        minAllowedNormalization = cms.double( 1.0E-9 ),
-        posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
-        minFractionInCalc = cms.double( 1.0E-9 ),
-        logWeightDenominatorByDetector = cms.VPSet( 
-          cms.PSet(  depths = cms.vint32( 1, 2, 3, 4 ),
-            detector = cms.string( "HCAL_BARREL1" ),
-            logWeightDenominator = cms.vdouble( 0.1, 0.2, 0.3, 0.3 )
-          ),
-          cms.PSet(  depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-            detector = cms.string( "HCAL_ENDCAP" ),
-            logWeightDenominator = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
-          )
-        )
-      ),
-      algoName = cms.string( "Basic2DGenericPFlowClusterizer" ),
-      recHitEnergyNorms = cms.VPSet( 
-        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
-          depths = cms.vint32( 1, 2, 3, 4 ),
-          recHitEnergyNorm = cms.vdouble( 0.1, 0.2, 0.3, 0.3 )
-        ),
-        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
-          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-          recHitEnergyNorm = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
-        )
-      ),
-      maxNSigmaTime = cms.double( 10.0 ),
-      showerSigma = cms.double( 10.0 ),
-      timeSigmaEE = cms.double( 10.0 ),
-      clusterTimeResFromSeed = cms.bool( False ),
-      minFractionToKeep = cms.double( 1.0E-7 ),
-      excludeOtherSeeds = cms.bool( True ),
-      timeResolutionCalcBarrel = cms.PSet( 
-        corrTermLowE = cms.double( 0.0 ),
-        threshLowE = cms.double( 6.0 ),
-        noiseTerm = cms.double( 21.86 ),
-        constantTermLowE = cms.double( 4.24 ),
-        noiseTermLowE = cms.double( 8.0 ),
-        threshHighE = cms.double( 15.0 ),
-        constantTerm = cms.double( 2.82 )
-      ),
-      timeResolutionCalcEndcap = cms.PSet( 
-        corrTermLowE = cms.double( 0.0 ),
-        threshLowE = cms.double( 6.0 ),
-        noiseTerm = cms.double( 21.86 ),
-        constantTermLowE = cms.double( 4.24 ),
-        noiseTermLowE = cms.double( 8.0 ),
-        threshHighE = cms.double( 15.0 ),
-        constantTerm = cms.double( 2.82 )
-      ),
-      timeSigmaEB = cms.double( 10.0 )
-    ),
-    positionReCalc = cms.PSet(  ),
-    initialClusteringStep = cms.PSet( 
-      thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
-          depths = cms.vint32( 1, 2, 3, 4 ),
-          gatheringThreshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
-        ),
-        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
-          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-          gatheringThreshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
-        )
-      ),
-      algoName = cms.string( "Basic2DGenericTopoClusterizer" ),
-      useCornerCells = cms.bool( True )
-    ),
-    seedCleaners = cms.VPSet( 
-    ),
-    energyCorrector = cms.PSet(  ),
-    recHitCleaners = cms.VPSet(  ),
-    seedFinder = cms.PSet( 
-      thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
-          depths = cms.vint32( 1, 2, 3, 4 ),
-          seedingThreshold = cms.vdouble( 0.125, 0.25, 0.35, 0.35 ),
-          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
-        ),
-        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
-          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-          seedingThreshold = cms.vdouble( 0.1375, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275 ),
-          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
-        )
-      ),
-      algoName = cms.string( "LocalMaximumSeedFinder" ),
-      nNeighbours = cms.int32( 4 )
-    ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHE" )
-)
+#
+# Additional customization
+process.maxEvents.input = 20
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
