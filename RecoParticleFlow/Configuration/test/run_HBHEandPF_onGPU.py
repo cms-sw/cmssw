@@ -184,7 +184,7 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 
 #
-# Run only PFRecHit and Cluster producers for HBHE only
+# Run only localreco, PFRecHit and PFCluster producers for HBHE only
 #process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/GPU/reHLT_HLT.root ')
 
 process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
@@ -192,7 +192,3 @@ process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+pr
 process.schedule = cms.Schedule(process.HBHEPFGPUTask)
 
 process.options.numberOfThreads = cms.untracked.uint32(1)
-
-#process.PFGPUPath = cms.Path(process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
-#process.schedule = cms.Schedule(process.PFGPUPath)
-

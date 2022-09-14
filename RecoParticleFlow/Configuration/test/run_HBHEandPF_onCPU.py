@@ -160,7 +160,7 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
 
 #
-# Run only PFRecHit and Cluster producers for HBHE only
+# Run only localreco, PFRecHit and PFCluster producers for HBHE only
 #process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/CPU/reHLT_HLT.root ')
 
 #process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
