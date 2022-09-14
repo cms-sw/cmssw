@@ -15,7 +15,7 @@ from ..tasks.HLTPhoton187UnseededTask_cfi import *
 
 HLTPhoton187UnseededSequence = cms.Sequence(
     HLTL1Sequence +
-    L1TkEmSingle51Filter +
+    l1tTkEmSingle51Filter +
     HLTDoFullUnpackingEgammaEcalSequence +
     HLTPFClusteringForEgammaUnseeded +
     HLTHgcalTiclPFClusteringForEgammaUnseeded +

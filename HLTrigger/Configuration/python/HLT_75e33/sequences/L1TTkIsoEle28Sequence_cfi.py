@@ -5,5 +5,5 @@ from ..sequences.HLTL1Sequence_cfi import *
 
 L1TTkIsoEle28Sequence = cms.Sequence(
     HLTL1Sequence +
-    L1TkIsoEleSingle28Filter
+    l1tTkIsoEleSingle28Filter
 )

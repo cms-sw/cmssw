@@ -78,7 +78,7 @@ process = custom_stage1_truncation(process)
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp3
 process = custom_geometry_V11_Imp3(process)
 
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
+process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
 
 
 # load ntuplizer and custom to use collections from Stag1 truncation processor
@@ -87,7 +87,7 @@ from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_stage1_trun
 from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_layer1_truncation
 process = custom_ntuples_stage1_truncation(process)
 #process = custom_ntuples_layer1_truncation(process)
-process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)

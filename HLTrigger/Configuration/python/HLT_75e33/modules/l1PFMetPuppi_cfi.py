@@ -9,7 +9,7 @@ l1PFMetPuppi = cms.EDProducer("PFMETProducer",
     parameters = cms.PSet(
 
     ),
-    src = cms.InputTag("l1pfCandidates","Puppi"),
+    src = cms.InputTag("l1tPFCandidates","Puppi"),
     srcJetResPhi = cms.optional.string,
     srcJetResPt = cms.optional.string,
     srcJetSF = cms.optional.string,
