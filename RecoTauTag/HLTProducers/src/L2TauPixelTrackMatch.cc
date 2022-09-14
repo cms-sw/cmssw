@@ -27,7 +27,7 @@ L2TauPixelTrackMatch::L2TauPixelTrackMatch(const edm::ParameterSet& conf) {
 
 L2TauPixelTrackMatch::~L2TauPixelTrackMatch() {}
 
-void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
+void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
   using namespace std;
   using namespace reco;
 

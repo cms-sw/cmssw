@@ -165,3 +165,6 @@ void TauJetSelectorForHLTTrackSeeding::fillDescriptions(edm::ConfigurationDescri
       "TrackJet collection with CaloJets passing isolation critera - tau candidates");
   descriptions.add("tauJetSelectorForHLTTrackSeeding", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TauJetSelectorForHLTTrackSeeding);
