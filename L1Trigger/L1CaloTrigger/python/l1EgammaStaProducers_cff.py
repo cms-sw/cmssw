@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
+from L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi import *
 
-l1EgammaStaProducers = cms.Sequence(L1EGammaClusterEmuProducer)
+L1TEgammaStaProducers = cms.Sequence(l1tEGammaClusterEmuProducer)
 
-l1EgammaStaProducersEB = cms.Sequence(L1EGammaClusterEmuProducer)
+L1TEgammaStaProducersEB = cms.Sequence(l1tEGammaClusterEmuProducer)

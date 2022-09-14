@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
+l1tGMTStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
     verbose = cms.int32(0),
     srcCSC = cms.InputTag("simCscTriggerPrimitiveDigis"),
     srcDT = cms.InputTag("dtTriggerPhase2PrimitiveDigis"),
@@ -43,9 +43,9 @@ gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
 
 
 
-gmtMuons = cms.EDProducer('Phase2L1TGMTProducer',
-                     srcTracks = cms.InputTag("TTTracksFromTrackletEmulation:Level1TTTracks"),
-                     srcStubs  = cms.InputTag('gmtStubs'),
+l1tGMTMuons = cms.EDProducer('Phase2L1TGMTProducer',
+                     srcTracks = cms.InputTag("l1tTTTracksFromTrackletEmulation:Level1TTTracks"),
+                     srcStubs  = cms.InputTag('l1tGMTStubs'),
                      srcBMTF   = cms.InputTag('simBmtfDigis','BMTF'),
                      srcEMTF   = cms.InputTag('simEmtfDigis','EMTF'),
                      srcOMTF   = cms.InputTag('simOmtfDigis','OMTF'),
@@ -76,7 +76,7 @@ gmtMuons = cms.EDProducer('Phase2L1TGMTProducer',
 
 )
 
-standaloneMuons = cms.EDProducer('Phase2L1TGMTSAMuonProducer',
+l1tStandaloneMuons = cms.EDProducer('Phase2L1TGMTSAMuonProducer',
                                  muonToken  = cms.InputTag('simGmtStage2Digis'),
                                  Nprompt    = cms.uint32(12),
                                  Ndisplaced = cms.uint32(12)
