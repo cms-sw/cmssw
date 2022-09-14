@@ -49,7 +49,7 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeoToken;
 
   bool readFromFile;
-  std::unique_ptr<TkHistoMap> tkhisto, tkhistoBis, tkhistoZ, tkhistoPhi, tkhistoR, tkhistoCheck;
+  std::unique_ptr<TkHistoMap> tkhistoID, tkhisto, tkhistoBis, tkhistoZ, tkhistoPhi, tkhistoR, tkhistoCheck;
 };
 
 //
@@ -57,6 +57,7 @@ testTkHistoMap::testTkHistoMap(const edm::ParameterSet& iConfig)
     : tTopoToken(esConsumes()), tkGeoToken(esConsumes()), readFromFile(iConfig.getParameter<bool>("readFromFile")) {}
 
 void testTkHistoMap::create(const TkDetMap* tkDetMap) {
+  tkhistoID = std::make_unique<TkHistoMap>(tkDetMap, "detIdV", "detIdV", -1);
   tkhisto = std::make_unique<TkHistoMap>(tkDetMap, "detId", "detId", -1);
   tkhistoBis = std::make_unique<TkHistoMap>(
       tkDetMap,
@@ -78,6 +79,7 @@ void testTkHistoMap::create(const TkDetMap* tkDetMap) {
 void testTkHistoMap::read(const TkDetMap* tkDetMap) {
   edm::Service<DQMStore>().operator->()->open("test.root");
 
+  tkhistoID = std::make_unique<TkHistoMap>(tkDetMap);
   tkhisto = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoBis = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoZ = std::make_unique<TkHistoMap>(tkDetMap);
@@ -85,6 +87,7 @@ void testTkHistoMap::read(const TkDetMap* tkDetMap) {
   tkhistoR = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap);
 
+  tkhistoID->loadTkHistoMap("detIdV", "detIdV");
   tkhisto->loadTkHistoMap("detId", "detId");
   tkhistoBis->loadTkHistoMap("detIdBis", "detIdBis", true);
   tkhistoZ->loadTkHistoMap("Zmap", "Zmap");
@@ -190,7 +193,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       value = id % 1000000;
 
-      //tkhisto->fill(id,value);
+      tkhistoID->fill(id, value);
       //tkhistoBis->fill(id,value);
       tkhistoZ->fill(id, globalPos.z());
       tkhistoPhi->fill(id, globalPos.phi());
@@ -201,9 +204,9 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       edm::LogInfo("testTkHistoMap") << "detid " << id.rawId() << " pos z " << globalPos.z() << " phi "
                                      << globalPos.phi() << " r " << globalPos.perp() << std::endl;
 
-      if (value != tkhisto->getValue(id))
+      if (value != tkhistoID->getValue(id))
         edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value "
-                                        << tkhisto->getValue(id) << std::endl;
+                                        << tkhistoID->getValue(id) << std::endl;
 
       // For usage that reset histo content use setBinContent instead than fill
       /* 
