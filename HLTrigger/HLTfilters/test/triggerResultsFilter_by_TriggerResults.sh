@@ -38,16 +38,18 @@ TrigReport     1   10       1000         33        967          0 path_2_pre
 TrigReport     1   11       1000         99        901          0 path_any_pre
 TrigReport     1   12       1000         99        901          0 path_any_pre_doubleNOT
 TrigReport     1   13       1000        901         99          0 path_not_any_pre
-TrigReport     1   14       1000       1000          0          0 path_any_doublestar
-TrigReport     1   15       1000        733        267          0 path_any_question
-TrigReport     1   16       1000          0       1000          0 path_wrong_name
-TrigReport     1   17       1000          0       1000          0 path_wrong_pattern
-TrigReport     1   18       1000       1000          0          0 path_not_wrong_pattern
-TrigReport     1   19       1000          0       1000          0 path_empty_pattern
-TrigReport     1   20       1000          0       1000          0 path_l1path_pattern
-TrigReport     1   21       1000          0       1000          0 path_l1singlemuopen_pattern
-TrigReport     1   22       1000       1000          0          0 path_true_pattern
-TrigReport     1   23       1000          0       1000          0 path_false_pattern
+TrigReport     1   14       1000        499        501          0 Check_1xor2_withoutXOR
+TrigReport     1   15       1000        499        501          0 Check_1xor2_withXOR
+TrigReport     1   16       1000       1000          0          0 path_any_doublestar
+TrigReport     1   17       1000        733        267          0 path_any_question
+TrigReport     1   18       1000          0       1000          0 path_wrong_name
+TrigReport     1   19       1000          0       1000          0 path_wrong_pattern
+TrigReport     1   20       1000       1000          0          0 path_not_wrong_pattern
+TrigReport     1   21       1000          0       1000          0 path_empty_pattern
+TrigReport     1   22       1000          0       1000          0 path_l1path_pattern
+TrigReport     1   23       1000          0       1000          0 path_l1singlemuopen_pattern
+TrigReport     1   24       1000       1000          0          0 path_true_pattern
+TrigReport     1   25       1000          0       1000          0 path_false_pattern
 @EOF
 
 # compare to expected output of test job

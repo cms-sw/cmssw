@@ -123,6 +123,16 @@ process.filter_not_any_pre = _triggerResultsFilter.clone(
     triggerConditions = ( 'NOT(Path_1/15)AND(NOT Path_2/10)AND(NOT Path_3/6)', )
 )
 
+# accept if Path_1 and Path_2 have different results (XOR) without using XOR operator
+process.filter_1xor2_withoutXOR = _triggerResultsFilter.clone(
+    triggerConditions = ( 'Path_1 AND NOT Path_2', 'NOT Path_1 AND Path_2', )
+)
+
+# accept if Path_1 and Path_2 have different results (XOR) using XOR operator
+process.filter_1xor2_withXOR = _triggerResultsFilter.clone(
+    triggerConditions = ( 'Path_1 XOR Path_2', )
+)
+
 # accept if any path succeeds (wildcard, '*')
 process.filter_any_star = _triggerResultsFilter.clone(
     triggerConditions = ( 'Path_*', )
@@ -204,25 +214,27 @@ process.Check_All_Explicit = cms.Path( process.filter_all_explicit )
 process.Check_Any_Or   = cms.Path( process.filter_any_or )
 process.Check_Any_Star = cms.Path( process.filter_any_star )
 
-process.Check_1_Pre     = cms.Path( process.filter_1_pre )
+process.Check_1_Pre             = cms.Path( process.filter_1_pre )
 process.Check_1_Pre_With_Masks1 = cms.Path( process.filter_1_pre_with_masks1 )
 process.Check_1_Pre_With_Masks2 = cms.Path( process.filter_1_pre_with_masks2 )
-process.Check_NOT_1_Pre = cms.Path( process.filter_not_1_pre )
-process.Check_2_Pre     = cms.Path( process.filter_2_pre )
-process.Check_Any_Pre   = cms.Path( process.filter_any_pre )
+process.Check_NOT_1_Pre         = cms.Path( process.filter_not_1_pre )
+process.Check_2_Pre             = cms.Path( process.filter_2_pre )
+process.Check_Any_Pre           = cms.Path( process.filter_any_pre )
 process.Check_Any_Pre_DoubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
-process.Check_Not_Any_Pre = cms.Path( process.filter_not_any_pre )
+process.Check_Not_Any_Pre       = cms.Path( process.filter_not_any_pre )
+process.Check_1xor2_withoutXOR  = cms.Path( process.filter_1xor2_withoutXOR )
+process.Check_1xor2_withXOR     = cms.Path( process.filter_1xor2_withXOR )
 
-process.Check_Any_Question        = cms.Path( process.filter_any_question )
-process.Check_Any_StarQuestion    = cms.Path( process.filter_any_starquestion )
-process.Check_Wrong_Name          = cms.Path( process.filter_wrong_name )
-process.Check_Wrong_Pattern       = cms.Path( process.filter_wrong_pattern )
-process.Check_Not_Wrong_Pattern   = cms.Path( ~ process.filter_wrong_pattern )
-process.Check_Empty_Pattern       = cms.Path( process.filter_empty_pattern )
-process.Check_L1Path_Pattern      = cms.Path( process.filter_l1path_pattern )
+process.Check_Any_Question           = cms.Path( process.filter_any_question )
+process.Check_Any_StarQuestion       = cms.Path( process.filter_any_starquestion )
+process.Check_Wrong_Name             = cms.Path( process.filter_wrong_name )
+process.Check_Wrong_Pattern          = cms.Path( process.filter_wrong_pattern )
+process.Check_Not_Wrong_Pattern      = cms.Path( ~ process.filter_wrong_pattern )
+process.Check_Empty_Pattern          = cms.Path( process.filter_empty_pattern )
+process.Check_L1Path_Pattern         = cms.Path( process.filter_l1path_pattern )
 process.Check_L1Singlemuopen_Pattern = cms.Path( process.filter_l1singlemuopen_pattern )
-process.Check_True_Pattern        = cms.Path( process.filter_true_pattern )
-process.Check_False_Pattern       = cms.Path( process.filter_false_pattern )
+process.Check_True_Pattern           = cms.Path( process.filter_true_pattern )
+process.Check_False_Pattern          = cms.Path( process.filter_false_pattern )
 process.Check_AlwaysNOTFalse_Pattern = cms.Path( process.filter_AlwaysNOTFalse_pattern )
 process.Check_NOTAlwaysFALSE_Pattern = cms.Path( process.filter_NOTAlwaysFALSE_pattern )
 
