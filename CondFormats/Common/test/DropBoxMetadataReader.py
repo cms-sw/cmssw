@@ -38,7 +38,6 @@ process.myReader = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                     'SiStripApvGainRcd',
                                     'TrackerAlignmentRcd',
                                     'TrackerAlignmentHGRcd',
-                                    'SiStripApvGainRcdAfterAbortGap',
                                     'SiStripApvGainRcdAAG',
                                     'EcalPedestalsRcd',
                                     "LumiCorrectionsRcd",
@@ -47,7 +46,8 @@ process.myReader = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                     "SiPixelQualityFromDbRcd_other",
                                     "SiPixelLorentzAngleRcd",
                                     "CTPPSRPAlignmentCorrectionsDataRcd",
-                                    "PPSTimingCalibrationRcd"
+                                    "PPSTimingCalibrationRcd_HPTDC",
+                                    "PPSTimingCalibrationRcd_SAMPIC"
                                     ) # same strings as fType
                                   )
 
