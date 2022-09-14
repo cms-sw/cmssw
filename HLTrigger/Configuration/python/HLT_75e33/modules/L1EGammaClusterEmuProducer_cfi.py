@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1EGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer",
+l1tEGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer",
     calib = cms.PSet(
         etaBins = cms.vdouble(
             0.087, 0.174, 0.261, 0.348, 0.435, 

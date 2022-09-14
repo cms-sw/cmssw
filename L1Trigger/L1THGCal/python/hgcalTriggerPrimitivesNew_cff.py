@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalTriggerGeometryESProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalVFE_cff import *
 from L1Trigger.L1THGCal.hgcalConcentrator_cff import *
 from L1Trigger.L1THGCal.hgcalBackEndLayer1_cff import *
@@ -8,15 +8,15 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer2_cff import *
 from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
 from L1Trigger.L1THGCal.hgcalTower_cff import *
 
-hgcalTriggerPrimitivesTask = cms.Task(hgcalVFE, hgcalConcentrator, hgcalBackEndStage1, hgcalBackEndStage2, hgcalTowerMap, hgcalTower)
-hgcalTriggerPrimitives = cms.Sequence(hgcalTriggerPrimitivesTask)
+L1THGCalTriggerPrimitivesTask = cms.Task(L1THGCalVFE, L1THGCalConcentrator, L1THGCalBackEndStage1, L1THGCalBackEndStage2, L1THGCalTowerMap, L1THGCalTower)
+L1THGCalTriggerPrimitives = cms.Sequence(L1THGCalTriggerPrimitivesTask)
 
-_hfnose_hgcalTriggerPrimitivesTask = hgcalTriggerPrimitivesTask.copy()
-_hfnose_hgcalTriggerPrimitivesTask.add(hfnoseVFE, hgcalConcentratorHFNose, hgcalBackEndLayer1HFNose, hgcalBackEndLayer2HFNose, hgcalTowerMapHFNose, hgcalTowerHFNose)
+_hfnose_hgcalTriggerPrimitivesTask = L1THGCalTriggerPrimitivesTask.copy()
+_hfnose_hgcalTriggerPrimitivesTask.add(L1THFnoseVFE, L1THGCalConcentratorHFNose, L1THGCalBackEndLayer1HFNose, L1THGCalBackEndLayer2HFNose, L1THGCalTowerMapHFNose, L1THGCalTowerHFNose)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toReplaceWith(
-        hgcalTriggerPrimitivesTask, _hfnose_hgcalTriggerPrimitivesTask )
+        L1THGCalTriggerPrimitivesTask, _hfnose_hgcalTriggerPrimitivesTask )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
@@ -31,5 +31,5 @@ from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCal
 def _fakeHGCalDigiAlias(process):
 	from EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi import HGCDigiConverter as _HGCDigiConverter
 	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone()
-	process.hgcalTriggerPrimitivesTask.add(process.simHGCalUnsuppressedDigis)
+	process.L1THGCalTriggerPrimitivesTask.add(process.simHGCalUnsuppressedDigis)
 doFakeHGCalDigiAlias = convertHGCalDigisSim.makeProcessModifier(_fakeHGCalDigiAlias)
