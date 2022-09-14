@@ -108,3 +108,6 @@ void L1HLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descript
       "of returned PFTaus are set).");
   descriptions.add("L1HLTJetsMatching", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1HLTTauMatching);

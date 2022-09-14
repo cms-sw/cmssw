@@ -13,7 +13,7 @@ PFTauToJetProducer::PFTauToJetProducer(const edm::ParameterSet& iConfig) {
 
 PFTauToJetProducer::~PFTauToJetProducer() {}
 
-void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void PFTauToJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace reco;
   using namespace edm;
   using namespace std;
@@ -32,3 +32,6 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   unique_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
   iEvent.put(std::move(selectedTaus));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFTauToJetProducer);
