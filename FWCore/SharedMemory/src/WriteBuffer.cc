@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/SharedMemory/interface/WriteBuffer.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 //
 // constants, enums and typedefs
 //
@@ -41,12 +41,32 @@ WriteBuffer::~WriteBuffer() {
 void WriteBuffer::growBuffer(std::size_t iLength) {
   int newBuffer = (bufferInfo_->index_ + 1) % 2;
   if (sm_) {
-    sm_->destroy<char>(buffer_names::kBuffer);
+    try {
+      sm_->destroy<char>(buffer_names::kBuffer);
+    } catch (boost::interprocess::interprocess_exception const& iExcept) {
+      throw cms::Exception("SharedMemory")
+          << "in growBuffer while destroying the shared memory object the following exception was caught\n"
+          << iExcept.what();
+    }
     sm_.reset();
-    boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
+    try {
+      boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
+    } catch (boost::interprocess::interprocess_exception const& iExcept) {
+      throw cms::Exception("SharedMemory")
+          << "in growBuffer while removing the shared memory object named '" << bufferNames_[bufferInfo_->index_]
+          << "' the following exception was caught\n"
+          << iExcept.what();
+    }
   }
-  sm_ = std::make_unique<boost::interprocess::managed_shared_memory>(
-      boost::interprocess::open_or_create, bufferNames_[newBuffer].c_str(), iLength + 1024);
+  try {
+    sm_ = std::make_unique<boost::interprocess::managed_shared_memory>(
+        boost::interprocess::open_or_create, bufferNames_[newBuffer].c_str(), iLength + 1024);
+  } catch (boost::interprocess::interprocess_exception const& iExcept) {
+    throw cms::Exception("SharedMemory") << "in growBuffer while creating the shared memory object '"
+                                         << bufferNames_[newBuffer] << "' of length " << iLength + 1024
+                                         << " the following exception was caught\n"
+                                         << iExcept.what();
+  }
   assert(sm_.get());
   bufferSize_ = iLength;
   bufferInfo_->index_ = newBuffer;
