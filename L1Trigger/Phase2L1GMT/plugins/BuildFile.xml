@@ -6,5 +6,6 @@
   <use name="hepmc"/>
   <use name="hls"/>
   <use name="root"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags REM_CXXFLAGS="-fsanitize=undefined" FILE="Phase2L1TGMTProducer.cc"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
