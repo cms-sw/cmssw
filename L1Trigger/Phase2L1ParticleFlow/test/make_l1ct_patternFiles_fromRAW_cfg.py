@@ -37,17 +37,17 @@ process.load("L1Trigger.TrackerDTC.ProducerES_cff")
 process.load("L1Trigger.TrackerDTC.ProducerED_cff") 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-from L1Trigger.Phase2L1ParticleFlow.L1SeedConePFJetProducer_cfi import L1SeedConePFJetEmulatorProducer
-from L1Trigger.Phase2L1ParticleFlow.DeregionizerProducer_cfi import DeregionizerProducer
-from L1Trigger.Phase2L1ParticleFlow.l1ctJetFileWriter_cfi import l1ctSeededConeJetFileWriter
-process.l1ctLayer2Deregionizer = DeregionizerProducer.clone()
-process.l1ctLayer2SeedConeJets = L1SeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1ctLayer2Deregionizer', 'Puppi'))
-process.l1ctLayer2SeedConeJetWriter = l1ctSeededConeJetFileWriter.clone(jets = "l1ctLayer2SeedConeJets")
+from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetEmulatorProducer
+from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
+from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
+process.l1tLayer2Deregionizer = l1tDeregionizerProducer.clone()
+process.l1tLayer2SeedConeJets = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'))
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJets")
 
-process.l1ctLayer1Barrel9 = process.l1ctLayer1Barrel.clone()
-process.l1ctLayer1Barrel9.puAlgo.nFinalSort = 32
-process.l1ctLayer1Barrel9.regions[0].etaBoundaries = [ -1.5, -0.5, 0.5, 1.5 ] 
-process.l1ctLayer1Barrel9.boards=cms.VPSet(
+process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
+process.l1tLayer1Barrel9.puAlgo.nFinalSort = 32
+process.l1tLayer1Barrel9.regions[0].etaBoundaries = [ -1.5, -0.5, 0.5, 1.5 ] 
+process.l1tLayer1Barrel9.boards=cms.VPSet(
         cms.PSet(
             regions=cms.vuint32(*[0+9*ie+i for ie in range(3) for i in range(3)])),
         cms.PSet(
@@ -56,45 +56,45 @@ process.l1ctLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
-from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
-process.l1ctLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
-#process.l1ctLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
-process.l1ctLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
-process.l1ctLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
-process.l1ctLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
+from L1Trigger.Phase2L1ParticleFlow.l1tLayer1_patternWriters_cff import *
+process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
+#process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
+process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
+process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
+process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
-process.pfInputsTask = cms.Task(
+process.L1TPFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
     process.TrackerDTCProducer,
     process.offlineBeamSpot,
-    process.TTTracksFromTrackletEmulation,
+    process.l1tTTTracksFromTrackletEmulation,
     process.SimL1EmulatorTask
 )
 process.runPF = cms.Path( 
-        process.l1ctLayer1Barrel +
-        #process.l1ctLayer1Barrel9 +
-        process.l1ctLayer1HGCal +
-        process.l1ctLayer1HGCalNoTK +
-        process.l1ctLayer1HF +
-        process.l1ctLayer1 +
-        process.l1ctLayer2EG +
-        process.l1ctLayer2Deregionizer +
-        process.l1ctLayer2SeedConeJets +
-        process.l1ctLayer2SeedConeJetWriter
+        process.l1tLayer1Barrel +
+        #process.l1tLayer1Barrel9 +
+        process.l1tLayer1HGCal +
+        process.l1tLayer1HGCalNoTK +
+        process.l1tLayer1HF +
+        process.l1tLayer1 +
+        process.l1tLayer2EG +
+        process.l1tLayer2Deregionizer +
+        process.l1tLayer2SeedConeJets +
+        process.l1tLayer2SeedConeJetWriter
     )
-process.runPF.associate(process.pfInputsTask)
+process.runPF.associate(process.L1TPFInputsTask)
 process.schedule = cms.Schedule(process.runPF)
 
 
 #####################################################################################################################
 ## Layer 2 e/gamma 
 
-process.l1ctLayer2EG.writeInPattern = True
-process.l1ctLayer2EG.writeOutPattern = True
-process.l1ctLayer2EG.inPatternFile.maxLinesPerFile = eventsPerFile_*54
-process.l1ctLayer2EG.outPatternFile.maxLinesPerFile = eventsPerFile_*54
+process.l1tLayer2EG.writeInPattern = True
+process.l1tLayer2EG.writeOutPattern = True
+process.l1tLayer2EG.inPatternFile.maxLinesPerFile = eventsPerFile_*54
+process.l1tLayer2EG.outPatternFile.maxLinesPerFile = eventsPerFile_*54
 
 #####################################################################################################################
 ## Layer 2 seeded-cone jets 
-process.l1ctLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
+process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
