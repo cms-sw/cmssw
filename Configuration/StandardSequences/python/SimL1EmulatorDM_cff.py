@@ -15,9 +15,9 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 #
 simHcalTechTrigDigis.ttpDigiCollection = "DMHcalTTPDigis"
 #
-hgcalVFEProducer.eeDigis = "mixData:HGCDigisEE"
-hgcalVFEProducer.fhDigis = "mixData:HGCDigisHEfront"
-hgcalVFEProducer.bhDigis = "mixData:HGCDigisHEback"
+l1tHGCalVFEProducer.eeDigis = "mixData:HGCDigisEE"
+l1tHGCalVFEProducer.fhDigis = "mixData:HGCDigisHEfront"
+l1tHGCalVFEProducer.bhDigis = "mixData:HGCDigisHEback"
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 # Legacy and Stage-1 Trigger

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pfTracksFromL1TracksBarrel = cms.EDProducer("PFTrackProducerFromL1Tracks",
-    L1TrackTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks"),
+l1tPFTracksFromL1TracksBarrel = cms.EDProducer("PFTrackProducerFromL1Tracks",
+    L1TrackTag = cms.InputTag("l1tTTTracksFromTrackletEmulation","Level1TTTracks"),
     nParam = cms.uint32(4),
     resolCalo = cms.PSet(
         etaBins = cms.vdouble(0.7, 1.2, 1.6),

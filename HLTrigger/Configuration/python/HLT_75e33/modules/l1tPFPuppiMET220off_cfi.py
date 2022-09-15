@@ -6,5 +6,5 @@ l1tPFPuppiMET220off = cms.EDFilter("L1TEnergySumFilter",
         theScalings = cms.vdouble(54.2859, 1.39739, 0)
     ),
     TypeOfSum = cms.string('MET'),
-    inputTag = cms.InputTag("L1MetPfProducer")
+    inputTag = cms.InputTag("l1tMETPFProducer")
 )

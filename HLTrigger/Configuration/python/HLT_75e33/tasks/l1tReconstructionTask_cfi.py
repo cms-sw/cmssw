@@ -17,10 +17,10 @@ from ..modules.simMuonGEMPadDigis_cfi import *
 from ..modules.simOmtfDigis_cfi import *
 from ..modules.simTwinMuxDigis_cfi import *
 
-l1tReconstructionTask = cms.Task(
-    L1EGammaClusterEmuProducer,
-    l1EGammaEEProducer,
-    l1NNTauProducerPuppi,
+L1TReconstructionTask = cms.Task(
+    l1tEGammaClusterEmuProducer,
+    l1tEGammaEEProducer,
+    l1tNNTauProducerPuppi,
     simCaloStage2Layer1Digis,
     simCscTriggerPrimitiveDigis,
     simDtTriggerPrimitiveDigis,
