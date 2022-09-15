@@ -61,3 +61,6 @@ void PFJetsMaxInvMassModule::fillDescriptions(edm::ConfigurationDescriptions& de
       "filter.");
   descriptions.add("PFJetsMaxInvMassModule", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFJetsMaxInvMassModule);
