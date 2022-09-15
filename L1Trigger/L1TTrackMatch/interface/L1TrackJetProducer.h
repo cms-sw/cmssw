@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
+#include <algorithm>
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
