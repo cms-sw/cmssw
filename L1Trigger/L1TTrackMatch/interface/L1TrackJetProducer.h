@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <cstdlib>
+#include <vector>
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
