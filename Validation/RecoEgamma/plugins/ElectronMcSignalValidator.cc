@@ -2872,78 +2872,77 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                       "ELE_LOGY E1 P");
 
   h1_ele_ecalPFClusterIso = bookH1withSumw2(iBooker,
-                                        "ecalPFClusterIso",
-                                        "ecal PF Cluster Iso",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                            "ecalPFClusterIso",
+                                            "ecal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
   h1_ele_ecalPFClusterIso_barrel = bookH1withSumw2(iBooker,
-                                        "ecalPFClusterIso_barrel",
-                                        "ecal PF Cluster Iso barrel",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                                   "ecalPFClusterIso_barrel",
+                                                   "ecal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_ecalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
-                                        "ecalPFClusterIso_endcaps",
-                                        "ecal PF Cluster Iso endcaps",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                                    "ecalPFClusterIso_endcaps",
+                                                    "ecal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
   h1_ele_hcalPFClusterIso = bookH1withSumw2(iBooker,
-                                        "hcalPFClusterIso",
-                                        "hcal PF Cluster Iso",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                            "hcalPFClusterIso",
+                                            "hcal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
   h1_ele_hcalPFClusterIso_barrel = bookH1withSumw2(iBooker,
-                                        "hcalPFClusterIso_barrel",
-                                        "hcal PF Cluster Iso barrel",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                                   "hcalPFClusterIso_barrel",
+                                                   "hcal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_hcalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
-                                        "hcalPFClusterIso_endcaps",
-                                        "hcal PF Cluster Iso endcaps",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                                    "hcalPFClusterIso_endcaps",
+                                                    "hcal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
   h1_ele_ecalPFClusterIso_Extended = bookH1withSumw2(iBooker,
-                                        "ecalPFClusterIso_Extended",
-                                        "ecal PF Cluster Iso Extended",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
+                                                     "ecalPFClusterIso_Extended",
+                                                     "ecal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
   h1_ele_hcalPFClusterIso_Extended = bookH1withSumw2(iBooker,
-                                        "hcalPFClusterIso_Extended",
-                                        "hcal PF Cluster Iso Extended",
-                                        100,
-                                        0.0,
-                                        100.,
-                                        "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
-
+                                                     "hcalPFClusterIso_Extended",
+                                                     "hcal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
 
   // fbrem
   h1_ele_fbrem = bookH1withSumw2(
@@ -3635,7 +3634,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         h2_ele_PoPtrueVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / mcIter->p());
         h1_ele_ecalPFClusterIso_Extended->Fill(bestGsfElectron.ecalPFClusterIso());
         h1_ele_hcalPFClusterIso_Extended->Fill(bestGsfElectron.hcalPFClusterIso());
-
 
         double fbrem_mode = bestGsfElectron.fbrem();
         h1_ele_fbrem_Extended->Fill(fbrem_mode);
