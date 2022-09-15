@@ -14,8 +14,8 @@ namespace cms::Ort {
   //    cpu -> Use CPU backend
   //    cuda -> Use cuda backend
   //    default -> Use best available
-  inline ::Ort::SessionOptions getSessionOptions(const std::string &param_backend ) {
-    
+  inline ::Ort::SessionOptions getSessionOptions(const std::string &param_backend) {
+   
     auto backend = cms::Ort::Backend::cpu;
     if ( param_backend == "cuda" )
       backend = cms::Ort::Backend::cuda;
@@ -26,6 +26,7 @@ namespace cms::Ort {
 	backend = cms::Ort::Backend::cuda;
       }
     }    
+
     return ONNXRuntime::defaultSessionOptions(backend);
   }
 }
