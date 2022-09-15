@@ -82,3 +82,6 @@ void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.setComment("This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter.");
   descriptions.add("L1THLTTauMatching", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1THLTTauMatching);
