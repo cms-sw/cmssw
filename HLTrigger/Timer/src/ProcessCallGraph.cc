@@ -228,10 +228,8 @@ std::pair<std::vector<unsigned int>, std::vector<unsigned int>> ProcessCallGraph
 }
 
 // register a (sub)process and assigns it a "process id"
-// if called with a duplicate process name, returns the original process id
+// throws an exception if called with a duplicate process name
 unsigned int ProcessCallGraph::registerProcess(edm::ProcessContext const& context) {
-  static unsigned int s_id = 0;
-
   // registerProcess (called by preBeginJob) must be called for the parent process before its subprocess(es)
   if (context.isSubProcess() and process_id_.find(context.parentProcessContext().processName()) == process_id_.end()) {
     throw edm::Exception(edm::errors::LogicError)
@@ -247,7 +245,9 @@ unsigned int ProcessCallGraph::registerProcess(edm::ProcessContext const& contex
         << (context.isSubProcess() ? "subprocess" : "process") << " " << context.processName();
   }
 
-  std::tie(id, std::ignore) = process_id_.insert(std::make_pair(context.processName(), s_id++));
+  // this assumes that registerProcess (called by preBeginJob) is not called concurrently from different threads
+  // otherwise, process_id_.size() should be replaces with an atomic counter
+  std::tie(id, std::ignore) = process_id_.insert(std::make_pair(context.processName(), process_id_.size()));
   return id->second;
 }
 
