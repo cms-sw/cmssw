@@ -16,7 +16,7 @@
 #ifndef PHASE2GMT_ISOLATION
 #define PHASE2GMT_ISOLATION
 
-#include "L1Trigger/Phase2L1GMT/interface/TopologicalAlgorithm.h"
+#include "TopologicalAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

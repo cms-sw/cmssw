@@ -9,12 +9,12 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
-#include "L1Trigger/Phase2L1GMT/interface/TrackConverter.h"
-#include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
+#include "TrackConverter.h"
+#include "PreTrackMatchedMuon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
-#include "L1Trigger/Phase2L1GMT/interface/MuonROI.h"
-#include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
+#include "MuonROI.h"
+#include "ConvertedTTTrack.h"
+#include "Constants.h"
 #include <fstream>
 
 namespace Phase2L1GMT {

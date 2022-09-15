@@ -1,11 +1,11 @@
 #ifndef PHASE2GMT_NODE
 #define PHASE2GMT_NODE
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1GMT/interface/TrackConverter.h"
-#include "L1Trigger/Phase2L1GMT/interface/ROITempAssociator.h"
-#include "L1Trigger/Phase2L1GMT/interface/TrackMuonMatchAlgorithm.h"
-#include "L1Trigger/Phase2L1GMT/interface/Isolation.h"
-#include "L1Trigger/Phase2L1GMT/interface/Tauto3Mu.h"
+#include "TrackConverter.h"
+#include "ROITempAssociator.h"
+#include "TrackMuonMatchAlgorithm.h"
+#include "Isolation.h"
+#include "Tauto3Mu.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 namespace Phase2L1GMT {

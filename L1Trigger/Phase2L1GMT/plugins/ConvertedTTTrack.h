@@ -1,7 +1,7 @@
 #ifndef PHASE2GMT_CONEVRTEDTTRACK
 #define PHASE2GMT_CONEVRTEDTTRACK
-#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace Phase2L1GMT {
