@@ -88,11 +88,6 @@ process.ecalMonitorTask.collectionTags.EBCpuUncalibRecHit = cms.untracked.InputT
 process.ecalMonitorTask.collectionTags.EECpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitLegacy", "EcalUncalibRecHitsEE")
 process.ecalMonitorTask.collectionTags.EBGpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitFromSoA", "EcalUncalibRecHitsEB")
 process.ecalMonitorTask.collectionTags.EEGpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitFromSoA", "EcalUncalibRecHitsEE")
-# RecHit GPU collection tags are temp placeholder
-process.ecalMonitorTask.collectionTags.EBCpuRecHit = cms.untracked.InputTag("hltEcalRecHit", "EcalRecHitsEB")
-process.ecalMonitorTask.collectionTags.EECpuRecHit = cms.untracked.InputTag("hltEcalRecHit", "EcalRecHitsEE")
-process.ecalMonitorTask.collectionTags.EBGpuRecHit = cms.untracked.InputTag("hltEcalRecHit", "EcalRecHitsEB")
-process.ecalMonitorTask.collectionTags.EEGpuRecHit = cms.untracked.InputTag("hltEcalRecHit", "EcalRecHitsEE")
 
 ### Paths ###
 
