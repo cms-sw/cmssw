@@ -57,7 +57,11 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  unsigned getIdx(const unsigned);
+  //const bool produceSoA_;            // PFRecHits in SoA format
+  //const bool produceLegacy_;         // PFRecHits in legacy format
+  //const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
+
+  //KenH unsigned getIdx(const unsigned);
 
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
@@ -121,13 +125,18 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
 
+  //
+  // producer-related parameters
   const auto& prodConf = ps.getParameterSetVector("producers")[0];
   const std::string& prodName = prodConf.getParameter<std::string>("name");
   const auto& qualityConf = prodConf.getParameterSetVector("qualityTests");
 
+  //
   const std::string& qualityTestName = qualityConf[0].getParameter<std::string>("name");
-  qTestThresh = (float)qualityConf[0].getParameter<double>("threshold");
+  qTestThresh = (float)qualityConf[0].getParameter<double>("threshold"); // <-- this is all we need really...
 
+  //
+  // navigator-related parameters
   const auto& navSet = ps.getParameterSet("navigator");
   navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
 
@@ -171,7 +180,7 @@ void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& c
   cdesc.addWithDefaultLabel(desc);
 }
 
-unsigned PFHBHERechitProducerGPU::getIdx(const unsigned denseid) { return (denseid - denseIdHcalMin_); }
+//KenH unsigned PFHBHERechitProducerGPU::getIdx(const unsigned denseid) { return (denseid - denseIdHcalMin_); }
 
 void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
   navigator_->init(setup);
@@ -182,6 +191,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   topology_.release();
   topology_.reset(topoHandle.product());
 
+  //
   // Get list of valid Det Ids for HCAL barrel & endcap once
   geoHandle = setup.getHandle(geomToken_);
   // get the hcal geometry
@@ -201,18 +211,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 
   detIdToIndex.reserve(nValidDetIds);
   validDetIdPositions.reserve(nValidDetIds);
-  //vDenseIdHcal.clear();
-  //vDenseIdHcal.reserve(nValidDetIds);
 
-  //    for (auto hDetId : validBarrelDetIds) {
-  //      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
-  //    }
-  //    for (auto hDetId : validEndcapDetIds) {
-  //      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
-  //    }
-  //    std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());
-  //    neighboursHcal_ = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(*(&navigator_))->getNeighbours();
-  //    std::cout<<"Found neighboursHcal_->.size() = "<<neighboursHcal_->size()<<std::endl;
   vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
   std::cout << "Found vDenseIdHcal->size() = " << vDenseIdHcal->size() << std::endl;
 
@@ -229,6 +228,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 
     detIdToIndex[hid_c.rawId()] = detIdToIndex.size();
   }
+  // -> vDenseIdHcal, detIdToIndex, validDetIdPositions
 
   initCuda = true;  // (Re)initialize cuda arrays
 }
@@ -236,14 +236,13 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
+
   GPU_timers.fill(0.0);
-  //auto start = std::chrono::high_resolution_clock::now();
 
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
   auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
   size_t num_rechits = HBHERecHitSoA.size;
-  //std::cout << "num input rechits = " << num_rechits << "\tctx.stream() = " << ctx.stream() << std::endl;
 
   // Lambda function to copy arrays to CPU for testing
   //    auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
@@ -288,6 +287,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
       nRHTotal++;
     }
 
+    //
     // Copy to GPU
     cudaCheck(cudaMemcpyAsync(persistentDataGPU.rh_pos.get(),
                               persistentDataCPU.rh_pos.get(),
@@ -311,16 +311,16 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     initCuda = false;
   }
 
-  if (num_rechits == 0) {
-    return;
-  }
+  if (num_rechits == 0) return; // if no rechit, there is nothing to do.
 
+  //
   // Entry point for GPU calls
   PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
+  //
   // Copy back PFRecHit SoA data to CPU
   auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
@@ -350,6 +350,8 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 }
 
 void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
+
+
   cms::cuda::ScopedContextProduce ctx{cudaState_};
   ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
   auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();

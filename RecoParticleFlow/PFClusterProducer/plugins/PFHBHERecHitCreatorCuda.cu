@@ -5,6 +5,8 @@
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
@@ -20,9 +22,29 @@ namespace PFRecHit {
     __constant__ uint32_t nValidRHTotal;
     __constant__ float qTestThresh;
 
+    //
+    // member methods:
+    //  initializeCudaConstants [called from producer]
+    //  initializeArrays
+    //  buildDetIdMapPerBlockMulti (not used)
+    //  buildDetIdMapPerBlock
+    //  testDetIdMap (can be used for tesing maps)
+    //  applyQTests (apply a single threshold)
+    //  applyDepthThresholdQTests
+    //  applyMaskSerial (simplier version)
+    //  applyMask
+    //  convert_rechits_to_PFRechits
+    //  entryPoint [called from producer] utilizes:
+    //   initializeArrays
+    //   buildDetIdMapPerBlock
+    //   applyDepthThresholdQTests
+    //   applyMask
+    //   convert_rechits_to_PFRechits
+
     void initializeCudaConstants(const uint32_t in_nValidRHBarrel,
                                  const uint32_t in_nValidRHEndcap,
                                  const float in_qTestThresh) {
+
       cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &in_nValidRHBarrel, sizeof(uint32_t)));
 #ifdef DEBUG_ENABLE
       printf("--- HCAL Cuda constant values ---\n");
@@ -52,6 +74,7 @@ namespace PFRecHit {
       cudaCheck(cudaMemcpyFromSymbol(&val, qTestThresh, sizeof(float)));
       printf("qTestThresh read from symbol: %f\n\n", val);
 #endif
+
     }
 
     // Initialize arrays used to store temporary values for each event
@@ -79,8 +102,8 @@ namespace PFRecHit {
     __global__ void buildDetIdMapPerBlockMulti(
         uint32_t size,
         uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        uint32_t* rh_detIdMap,          //  Map for input rechit detId -> reference table index
-        uint32_t const* recHits_did) {  //  Input rechit detIds
+        uint32_t* rh_detIdMap,          // Map for input rechit detId -> reference table index
+        uint32_t const* recHits_did) {  // Input rechit detIds
 
       __shared__ uint32_t detId, subdet, minval, maxval, notDone;
 
@@ -91,7 +114,7 @@ namespace PFRecHit {
 
           // Get subdetector encoded in detId
           // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
-          subdet = (detId >> 25) & 0x7;
+          subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
           if (subdet == HcalBarrel) {
             minval = 0;
             maxval = nValidRHBarrel;
@@ -123,9 +146,9 @@ namespace PFRecHit {
     __global__ void buildDetIdMapPerBlock(
         uint32_t size,                  // Number of input rechits
         uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        int* rh_inputToFullIdx,         //  Map for input rechit index -> reference table index
-        int* rh_fullToInputIdx,         //  Map for reference table index -> input rechit index
-        uint32_t const* recHits_did) {  //  Input rechit detIds
+        int* rh_inputToFullIdx,         // Map for input rechit index -> reference table index
+        int* rh_fullToInputIdx,         // Map for reference table index -> input rechit index
+        uint32_t const* recHits_did) {  // Input rechit detIds
 
       __shared__ uint32_t detId, subdet, minval, maxval;
 
@@ -134,7 +157,7 @@ namespace PFRecHit {
 
         // Get subdetector encoded in detId to narrow the range of reference table values to search
         // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
-        subdet = (detId >> 25) & 0x7;
+        subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
         if (subdet == HcalBarrel) {
           minval = 0;
           maxval = nValidRHBarrel;
@@ -197,10 +220,12 @@ namespace PFRecHit {
                                               const uint32_t* recHits_did,    // Input rechit detIds
                                               const float* recHits_energy) {  // Input rechit energy
 
+      printf("KenH: qTestThresh %f",qTestThresh);
+
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += gridDim.x * blockDim.x) {
         uint32_t detid = recHits_did[i];
-        uint32_t subdet = (detid >> 25) & 0x7;
-        uint32_t depth = (detid >> 20) & 0xf;
+        uint32_t subdet = (detid >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+        uint32_t depth = (detid >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2;
         float threshold = 9999.;
         if (subdet == HcalBarrel) {
           if (depth == 1)
@@ -326,8 +351,10 @@ namespace PFRecHit {
                                                  float* pfrechits_z,
                                                  int* pfrechits_neighbours,
                                                  short* pfrechits_neighbourInfos) {
+
       for (uint32_t pfIdx = blockIdx.x * blockDim.x + threadIdx.x; pfIdx < (*nPFRHOut + *nPFRHCleaned);
            pfIdx += blockDim.x * gridDim.x) {
+
         int i = pfrhToInputIdx[pfIdx];  // Get input rechit index corresponding to output PFRecHit index pfIdx
         if (i < 0)
           printf("convert kernel with pfIdx = %u has input index i = %u\n", pfIdx, i);
@@ -341,10 +368,10 @@ namespace PFRecHit {
         //bool debug = (detid == 1158706177) ? true : false;
         bool debug = false;
         // cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0168
-        pfrechits_depth[pfIdx] = (detid >> 20) & 0xf;
+        pfrechits_depth[pfIdx] = (detid >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2;
 
         // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0050
-        int subdet = (detid >> 25) & 0x7;
+        int subdet = (detid >> DetId::kSubdetOffset) & DetId::kSubdetMask;
         int layer = 0;
         if (subdet == HcalBarrel)
           layer = PFLayer::HCAL_BARREL1;
@@ -459,6 +486,7 @@ namespace PFRecHit {
                     ScratchDataGPU& scratchDataGPU,
                     cudaStream_t cudaStream,
                     std::array<float, 5>& timer) {
+
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
         HBHEPFRecHits_asOutput.PFRecHits.size = 0;
@@ -515,9 +543,6 @@ namespace PFRecHit {
       cudaEventElapsedTime(&timer[1], start, stop);
       printf("\nbuildDetIdMapPerBlock took %f ms\n", timer[1]);
 
-      //      testDetIdMap<<<(nRHIn+127)/128, 128, 0, cudaStream>>>(nRHIn, persistentDataGPU.rh_detId.get(), scratchDataGPU.rh_inputToFullIdx.get(), scratchDataGPU.rh_fullToInputIdx.get(), HBHERecHits_asInput.did.get());
-      //      cudaDeviceSynchronize();
-      //      cudaCheck(cudaGetLastError());
       cudaEventRecord(start, cudaStream);
 #endif
 
