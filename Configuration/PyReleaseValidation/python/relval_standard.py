@@ -493,6 +493,7 @@ workflows[140.115] = ['',['RunHLTPhysics2022B','HLTRUN3','RECONANORUN3','SKIMHLT
 workflows[140.116] = ['',['RunCommissioning2022B','HLTRUN3','RECONANORUN3','SKIMCOMMISSIONINGRUN3']]
 workflows[140.117] = ['',['RunCosmics2022B','HLTRUN3','RECOCOSMRUN3','SKIMCOSMICSRUN3']]
 #workflows[140.118] = ['',['RunParkingBPH2022B','HLTRUN3','RECONANORUN3','SKIMPARKINGBPHRUN3']]
+workflows[140.119] = ['', ['RunJetMET2022D','HLTRUN3','RECONANORUN3','SKIMJETMETRUN3']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
