@@ -16,6 +16,7 @@
 
 EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iConfig)
     : egHLTSumHistName_("egHLTTrigSum"), isSetup_(false) {
+  usesResource("DQMStore");
   dirName_ = iConfig.getParameter<std::string>(
       "DQMDirName");  //only one chance to get this, if we every have another shot, remember to check isSetup is okay
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -283,3 +284,6 @@ void EgHLTOfflineSummaryClient::fillQTestData_(const edm::ParameterSet& iConfig,
 // {
 
 // }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgHLTOfflineSummaryClient);

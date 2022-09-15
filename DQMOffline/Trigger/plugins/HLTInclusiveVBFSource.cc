@@ -784,3 +784,6 @@ bool HLTInclusiveVBFSource::isTriggerObjectFound(std::string objectName) {
   }
   return output;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTInclusiveVBFSource);
