@@ -55,15 +55,6 @@ namespace l1t {
         uint16_t RPCc = payload[2];
         uint16_t RPCd = payload[3];
 
-        // Run 3 has a different EMTF DAQ output format since August 26th
-        // Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
-        // bool run3_DAQ_format =
-        //     (getAlgoVersion() >= 11546);  // Firmware from 26.08.22 which enabled new Run 3 DAQ format for GEMs - EY 13.09.22
-
-        // std::vector<int> format_bits{0, 0, 1, 0};
-        // if (run3_DAQ_format)
-        //   format_bits
-
         // Check Format
         if (GetHexBits(RPCa, 15, 15) != 0) {
           errors += 1;
