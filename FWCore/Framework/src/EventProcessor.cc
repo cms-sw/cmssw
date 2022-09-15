@@ -227,7 +227,8 @@ namespace edm {
       ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       validateLooper(*providerPSet);
       providerPSet->registerIt();
-      vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet);
+      // Unlikely we would ever need the ModuleTypeResolver in Looper
+      vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet, nullptr);
     }
     return vLooper;
   }
