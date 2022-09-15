@@ -175,7 +175,7 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       edm::FileInPath(
           "RecoParticleFlow/PFProducer/data/mlpf/"
           "mlpf_2021_11_16__no_einsum__all_data_cms-best-of-asha-scikit_20211026_042043_178263.workergpu010.onnx"));
-  desc.add<std::string>("onnx_backend","default");
+  desc.add<std::string>("onnx_backend", "default");
   descriptions.addWithDefaultLabel(desc);
 }
 

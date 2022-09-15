@@ -16,7 +16,6 @@
 #include <memory>
 #include <numeric>
 
-
 namespace cms::Ort {
 
   using namespace ::Ort;

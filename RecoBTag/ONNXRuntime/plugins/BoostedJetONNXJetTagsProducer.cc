@@ -126,19 +126,20 @@ void BoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescripti
                                          "probQCDothers",
                                      });
   desc.addOptionalUntracked<bool>("debugMode", false);
-  desc.add<std::string>("onnx_backend","default");
+  desc.add<std::string>("onnx_backend", "default");
 
   descriptions.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<ONNXRuntime> BoostedJetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  std::string backend= iConfig.getParameter<std::string>("onnx_backend");
- 
+  std::string backend = iConfig.getParameter<std::string>("onnx_backend");
+
   auto session_options = cms::Ort::getSessionOptions(backend);
   // Sept 8, 2022 - on gpu, this model crashes with all optimizations on
-  if ( backend != "cpu" )
+  if (backend != "cpu")
     session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),&session_options);
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),
+                                       &session_options);
 }
 
 void BoostedJetONNXJetTagsProducer::globalEndJob(const ONNXRuntime *cache) {}

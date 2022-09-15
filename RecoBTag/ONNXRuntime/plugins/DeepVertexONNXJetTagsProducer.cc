@@ -112,14 +112,15 @@ void DeepVertexONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<std::vector<std::string>>("flav_names", std::vector<std::string>{"probb", "probc", "probuds", "probg"});
   desc.add<double>("min_jet_pt", 15.0);
   desc.add<double>("max_jet_eta", 2.5);
-  desc.add<std::string>("onnx_backend","default");
+  desc.add<std::string>("onnx_backend", "default");
 
   descriptions.add("pfDeepVertexJetTags", desc);
 }
 
 std::unique_ptr<ONNXRuntime> DeepVertexONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   auto session_options = cms::Ort::getSessionOptions(iConfig.getParameter<std::string>("onnx_backend"));
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),
+                                       &session_options);
 }
 
 void DeepVertexONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
