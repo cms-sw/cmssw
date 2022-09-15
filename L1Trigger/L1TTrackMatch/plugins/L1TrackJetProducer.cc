@@ -64,73 +64,73 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
-  const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
-  const edm::EDGetTokenT<std::vector<l1t::Vertex>> PVtxToken_;
   vector<Ptr<L1TTTrackType>> L1TrkPtrs_;
   vector<int> tdtrk_;
-  float trkZMax_;
-  float trkPtMax_;
-  float trkPtMin_;
-  float trkEtaMax_;
-  float nStubs4PromptChi2_;
-  float nStubs5PromptChi2_;
-  float nStubs4PromptBend_;
-  float nStubs5PromptBend_;
-  int trkNPSStubMin_;
-  int lowpTJetMinTrackMultiplicity_;
-  float lowpTJetThreshold_;
-  int highpTJetMinTrackMultiplicity_;
-  float highpTJetThreshold_;
-  int zBins_;
-  int etaBins_;
-  int phiBins_;
-  double minTrkJetpT_;
+  const float trkZMax_;
+  const float trkPtMax_;
+  const float trkPtMin_;
+  const float trkEtaMax_;
+  const float nStubs4PromptChi2_;
+  const float nStubs5PromptChi2_;
+  const float nStubs4PromptBend_;
+  const float nStubs5PromptBend_;
+  const int trkNPSStubMin_;
+  const int lowpTJetMinTrackMultiplicity_;
+  const float lowpTJetThreshold_;
+  const int highpTJetMinTrackMultiplicity_;
+  const float highpTJetThreshold_;
+  const int zBins_;
+  const int etaBins_;
+  const int phiBins_;
+  const double minTrkJetpT_;
   float zStep_;
   float etaStep_;
   float phiStep_;
-  bool displaced_;
-  float d0CutNStubs4_;
-  float d0CutNStubs5_;
-  float nStubs4DisplacedChi2_;
-  float nStubs5DisplacedChi2_;
-  float nStubs4DisplacedBend_;
-  float nStubs5DisplacedBend_;
-  int nDisplacedTracks_;
-  float dzPVTrk_;
+  const bool displaced_;
+  const float d0CutNStubs4_;
+  const float d0CutNStubs5_;
+  const float nStubs4DisplacedChi2_;
+  const float nStubs5DisplacedChi2_;
+  const float nStubs4DisplacedBend_;
+  const float nStubs5DisplacedBend_;
+  const int nDisplacedTracks_;
+  const float dzPVTrk_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
+  const edm::EDGetTokenT<std::vector<l1t::Vertex>> PVtxToken_;
 };
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
-    : tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+    : trkZMax_((float)iConfig.getParameter<double>("trk_zMax")),
+      trkPtMax_((float)iConfig.getParameter<double>("trk_ptMax")),
+      trkPtMin_((float)iConfig.getParameter<double>("trk_ptMin")),
+      trkEtaMax_((float)iConfig.getParameter<double>("trk_etaMax")),
+      nStubs4PromptChi2_((float)iConfig.getParameter<double>("nStubs4PromptChi2")),
+      nStubs5PromptChi2_((float)iConfig.getParameter<double>("nStubs5PromptChi2")),
+      nStubs4PromptBend_((float)iConfig.getParameter<double>("nStubs4PromptBend")),
+      nStubs5PromptBend_((float)iConfig.getParameter<double>("nStubs5PromptBend")),
+      trkNPSStubMin_((int)iConfig.getParameter<int>("trk_nPSStubMin")),
+      lowpTJetMinTrackMultiplicity_((int)iConfig.getParameter<int>("lowpTJetMinTrackMultiplicity")),
+      lowpTJetThreshold_((float)iConfig.getParameter<double>("lowpTJetThreshold")),
+      highpTJetMinTrackMultiplicity_((int)iConfig.getParameter<int>("highpTJetMinTrackMultiplicity")),
+      highpTJetThreshold_((float)iConfig.getParameter<double>("highpTJetThreshold")),
+      zBins_((int)iConfig.getParameter<int>("zBins")),
+      etaBins_((int)iConfig.getParameter<int>("etaBins")),
+      phiBins_((int)iConfig.getParameter<int>("phiBins")),
+      minTrkJetpT_(iConfig.getParameter<double>("minTrkJetpT")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      d0CutNStubs4_((float)iConfig.getParameter<double>("d0_cutNStubs4")),
+      d0CutNStubs5_((float)iConfig.getParameter<double>("d0_cutNStubs5")),
+      nStubs4DisplacedChi2_((float)iConfig.getParameter<double>("nStubs4DisplacedChi2")),
+      nStubs5DisplacedChi2_((float)iConfig.getParameter<double>("nStubs5DisplacedChi2")),
+      nStubs4DisplacedBend_((float)iConfig.getParameter<double>("nStubs4DisplacedBend")),
+      nStubs5DisplacedBend_((float)iConfig.getParameter<double>("nStubs5DisplacedBend")),
+      nDisplacedTracks_((int)iConfig.getParameter<int>("nDisplacedTracks")),
+      dzPVTrk_((float)iConfig.getParameter<double>("MaxDzTrackPV")),
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
       trackToken_(consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       PVtxToken_(consumes<vector<l1t::Vertex>>(iConfig.getParameter<InputTag>("L1PVertexCollection"))) {
-  trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
-  trkPtMax_ = (float)iConfig.getParameter<double>("trk_ptMax");
-  trkPtMin_ = (float)iConfig.getParameter<double>("trk_ptMin");
-  trkEtaMax_ = (float)iConfig.getParameter<double>("trk_etaMax");
-  nStubs4PromptChi2_ = (float)iConfig.getParameter<double>("nStubs4PromptChi2");
-  nStubs5PromptChi2_ = (float)iConfig.getParameter<double>("nStubs5PromptChi2");
-  nStubs4PromptBend_ = (float)iConfig.getParameter<double>("nStubs4PromptBend");
-  nStubs5PromptBend_ = (float)iConfig.getParameter<double>("nStubs5PromptBend");
-  trkNPSStubMin_ = (int)iConfig.getParameter<int>("trk_nPSStubMin");
-  minTrkJetpT_ = iConfig.getParameter<double>("minTrkJetpT");
-  etaBins_ = (int)iConfig.getParameter<int>("etaBins");
-  phiBins_ = (int)iConfig.getParameter<int>("phiBins");
-  zBins_ = (int)iConfig.getParameter<int>("zBins");
-  d0CutNStubs4_ = (float)iConfig.getParameter<double>("d0_cutNStubs4");
-  d0CutNStubs5_ = (float)iConfig.getParameter<double>("d0_cutNStubs5");
-  lowpTJetMinTrackMultiplicity_ = (int)iConfig.getParameter<int>("lowpTJetMinTrackMultiplicity");
-  lowpTJetThreshold_ = (float)iConfig.getParameter<double>("lowpTJetThreshold");
-  highpTJetMinTrackMultiplicity_ = (int)iConfig.getParameter<int>("highpTJetMinTrackMultiplicity");
-  highpTJetThreshold_ = (float)iConfig.getParameter<double>("highpTJetThreshold");
-  displaced_ = iConfig.getParameter<bool>("displaced");
-  nStubs4DisplacedChi2_ = (float)iConfig.getParameter<double>("nStubs4DisplacedChi2");
-  nStubs5DisplacedChi2_ = (float)iConfig.getParameter<double>("nStubs5DisplacedChi2");
-  nStubs4DisplacedBend_ = (float)iConfig.getParameter<double>("nStubs4DisplacedBend");
-  nStubs5DisplacedBend_ = (float)iConfig.getParameter<double>("nStubs5DisplacedBend");
-  nDisplacedTracks_ = (int)iConfig.getParameter<int>("nDisplacedTracks");
-  dzPVTrk_ = (float)iConfig.getParameter<double>("MaxDzTrackPV");
-
   zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);  // added +1 in denom
   etaStep_ = 2.0 * trkEtaMax_ / etaBins_;  //etaStep is the width of an etabin
   phiStep_ = 2 * M_PI / phiBins_;          ////phiStep is the width of a phibin
