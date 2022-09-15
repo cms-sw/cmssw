@@ -8,7 +8,8 @@ namespace l1t {
     setTkJetWord(pt, eta, phi, z0, nt, nx, unassigned);
   }
 
-  void TkJetWord::setTkJetWord(pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned) {
+  void TkJetWord::setTkJetWord(
+      pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned) {
     // pack the TkJet word
     unsigned int offset = 0;
     for (unsigned int b = offset; b < (offset + TkJetBitWidths::kPtSize); b++) {
