@@ -60,7 +60,8 @@ process.electronMcSignalPostValidator.OutputFolderName = cms.string("EgammaV/Ele
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '124X_mcRun3_2021_realistic_v1'
+#process.GlobalTag.globaltag = '125X_mcRun3_2022_realistic_v3'
+#process.GlobalTag.globaltag = '125X_mcRun4_realistic_v2_2026D88noPU' # no more needed
 #process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 #process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'
 
