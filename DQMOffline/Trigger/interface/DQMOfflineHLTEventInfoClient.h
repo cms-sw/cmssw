@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
@@ -17,7 +17,7 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-class DQMOfflineHLTEventInfoClient : public edm::EDAnalyzer {
+class DQMOfflineHLTEventInfoClient : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;

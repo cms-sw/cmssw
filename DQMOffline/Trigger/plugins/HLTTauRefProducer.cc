@@ -351,3 +351,6 @@ void HLTTauRefProducer::doMET(edm::Event& iEvent) const {
   }
   iEvent.put(move(product_MET), "MET");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTTauRefProducer);
