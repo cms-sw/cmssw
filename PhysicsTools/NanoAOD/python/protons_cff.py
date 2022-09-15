@@ -2,26 +2,18 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
 from PhysicsTools.NanoAOD.nano_eras_cff import *
-from RecoPPS.ProtonReconstruction.ppsFilteredProtonProducer_cfi import *
 
 singleRPProtons = True
 
-filteredProtons = ppsFilteredProtonProducer.clone(
-    protons_single_rp = cms.PSet(
-        include = cms.bool(singleRPProtons)
-    )
-)
-
 protonTable = cms.EDProducer("ProtonProducer",
-                             tagRecoProtonsMulti  = cms.InputTag("filteredProtons", "multiRP"),
+                             tagRecoProtonsSingle = cms.InputTag("ctppsProtons", "singleRP"),
+                             tagRecoProtonsMulti  = cms.InputTag("ctppsProtons", "multiRP"),
                              tagTrackLite         = cms.InputTag("ctppsLocalTrackLiteProducer"),
                              storeSingleRPProtons = cms.bool(singleRPProtons)
 )
-protonTable.tagRecoProtonsSingle = cms.InputTag("filteredProtons" if singleRPProtons else "ctppsProtons","singleRP")
-
 
 multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
-    src = cms.InputTag("filteredProtons","multiRP"),
+    src = cms.InputTag("ctppsProtons","multiRP"),
     cut = cms.string(""),
     name = cms.string("Proton_multiRP"),
     doc  = cms.string("bon"),
@@ -42,7 +34,7 @@ multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
 )
 
 singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
-    src = cms.InputTag("filteredProtons","singleRP"),
+    src = cms.InputTag("ctppsProtons","singleRP"),
     cut = cms.string(""),
     name = cms.string("Proton_singleRP"),
     doc  = cms.string("bon"),
@@ -58,7 +50,7 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     ),
 )
 
-protonTablesTask = cms.Task(filteredProtons,protonTable,multiRPTable)
+protonTablesTask = cms.Task(protonTable,multiRPTable)
 if singleRPProtons: protonTablesTask.add(singleRPTable)
 
 # GEN-level signal/PU protons collection
