@@ -29,8 +29,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
-ProcessCallGraph::ProcessCallGraph() = default;
-
 // adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
 template <typename I>
 struct iterator_pair_as_a_range : std::pair<I, I> {
@@ -46,9 +44,10 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p) {
   return iterator_pair_as_a_range<I>(p);
 }
 
-// FIXME
-//   - check that the Source has not already been added
 void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& module) {
+  // check that the Source has not already been added
+  assert(source_ == edm::ModuleDescription::invalidID());
+
   // keep track of the Source module id
   source_ = module.id();
 
@@ -58,12 +57,14 @@ void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& modul
 }
 
 // FIXME
-//  - check that the Source has already been added
 //  - check that all module ids are valid (e.g. subprocesses are not being added in
 //    the wrong order)
 void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
                                    edm::ProcessContext const& context) {
   unsigned int pid = registerProcess(context);
+
+  // check that the Source has already been added
+  assert(source_ != edm::ModuleDescription::invalidID());
 
   // work on the full graph (for the main process) or a subgraph (for a subprocess)
   GraphType& graph = context.isSubProcess() ? graph_.create_subgraph() : graph_.root();
