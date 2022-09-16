@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalBHValid_cfg.py geometry=D88
 #
-#   Options for geometry D77, D83, D88, D92
+#   Options for geometry D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D77",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D88, D92")
+                  "geometry of operations: D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,30 +26,21 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D83"):
+if (options.geometry == "D88"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
-    fileName = 'hgcBHValidD83.root'
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
     fileName = 'hgcBHValidD88.root'
 elif (options.geometry == "D92"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     fileName = 'hgcBHValidD92.root'
 else:
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCGeomAnalysis',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-    fileName = 'hgcBHValidD77.root'
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileName = 'hgcBHValidD93.root'
 
 print("Output file: ", fileName)
 
