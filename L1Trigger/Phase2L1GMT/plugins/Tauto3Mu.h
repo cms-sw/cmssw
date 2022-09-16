@@ -16,7 +16,7 @@
 #ifndef PHASE2GMT_TAUTO3MU
 #define PHASE2GMT_TAUTO3MU
 
-#include "L1Trigger/Phase2L1GMT/interface/TopologicalAlgorithm.h"
+#include "TopologicalAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace Phase2L1GMT {

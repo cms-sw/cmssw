@@ -2,7 +2,7 @@
 #define PHASE2GMT_TEMPORARY_ASSOCIATOR
 
 #include "ap_int.h"
-#include "L1Trigger/Phase2L1GMT/interface/MuonROI.h"
+#include "MuonROI.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
