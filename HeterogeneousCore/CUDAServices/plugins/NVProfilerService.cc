@@ -41,6 +41,7 @@
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 using namespace std::string_literals;
 
@@ -287,6 +288,9 @@ private:
     return highlight(label) ? nvtxLightAmber : nvtxLightGreen;
   }
 
+  // build a complete representation of the modules in the whole job
+  ProcessCallGraph callgraph_;
+
   std::vector<std::string> highlightModules_;
   const bool showModulePrefetching_;
   const bool skipFirstEvent_;
@@ -502,7 +506,7 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   std::stringstream out;
   out << "preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
       << bounds.maxNumberOfConcurrentLuminosityBlocks() << " luminosity sections, " << bounds.maxNumberOfStreams()
-      << " streams\nrunning on" << bounds.maxNumberOfThreads() << " threads";
+      << " streams\nrunning on " << bounds.maxNumberOfThreads() << " threads";
   nvtxDomainMark(global_domain_, out.str().c_str());
 
   auto concurrentStreams = bounds.maxNumberOfStreams();
@@ -524,12 +528,13 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
 }
 
 void NVProfilerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
-                                    edm::ProcessContext const& pc) {
+                                    edm::ProcessContext const& context) {
+  callgraph_.preBeginJob(pathsAndConsumes, context);
   nvtxDomainMark(global_domain_, "preBeginJob");
 
-  // FIXME this probably works only in the absence of subprocesses
-  // size() + 1 because pathsAndConsumes.allModules() does not include the source
-  unsigned int modules = pathsAndConsumes.allModules().size() + 1;
+  // this assumes that preBeginJob is not called concurrently with the modules' beginJob method
+  // or the preBeginJob for a subprocess
+  unsigned int modules = callgraph_.size();
   global_modules_.resize(modules, nvtxInvalidRangeId);
   for (unsigned int sid = 0; sid < stream_modules_.size(); ++sid) {
     stream_modules_[sid].resize(modules, nvtxInvalidRangeId);
@@ -1115,6 +1120,8 @@ void NVProfilerService::postModuleGlobalEndLumi(edm::GlobalContext const& gc, ed
 }
 
 void NVProfilerService::preSourceConstruction(edm::ModuleDescription const& desc) {
+  callgraph_.preSourceConstruction(desc);
+
   if (not skipFirstEvent_) {
     auto mid = desc.id();
     global_modules_.grow_to_at_least(mid + 1);
