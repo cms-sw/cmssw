@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun protoSimValid_cfg.py geometry=D77 type=hgcalBHValidation
+#   cmsRun protoSimValid_cfg.py geometry=D88 type=hgcalBHValidation
 #
 #   Options for geometry D88, D92, D93
 #               type hgcalBHValidation, hgcalSiliconValidation
