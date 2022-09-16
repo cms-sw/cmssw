@@ -4,7 +4,6 @@ from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 process = cms.Process('PROD',Phase2C11I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D94_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -19,7 +18,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:step2.root')
+                            fileNames = cms.untracked.vstring('file:step2D94.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(
