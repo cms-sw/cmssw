@@ -262,7 +262,8 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         doEndcapHwQual=True,
         writeBeforeBremRecovery=False,
         writeEGSta=True,
-        doCompositeTkEle=False),
+        doCompositeTkEle=True
+        trkQualityPtMin=0.), # This should be 10 GeV when doCompositeTkEle=False
     tkEgSorterParameters=tkEgSorterParameters.clone(
         nObjToSort = 5
     ),
