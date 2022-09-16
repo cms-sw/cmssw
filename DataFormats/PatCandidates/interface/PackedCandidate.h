@@ -1104,6 +1104,9 @@ namespace pat {
       return covarianceParameterization_;
     }
 
+    /// details (hit pattern) of the first hit on track
+    uint16_t firstHit_;
+
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;
     template <typename, typename, typename>
@@ -1138,8 +1141,6 @@ namespace pat {
     static constexpr int EXPO_TIMEERROR = 5;            // power of 2 used in encoding timeError
     static constexpr int EXPO_TIME_NOERROR = 6;         // power of 2 used in encoding time without timeError
     static constexpr int EXPO_TIME_WITHERROR = -6;      // power of 2 used in encoding time with timeError
-  public:
-    uint16_t firstHit_;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;
