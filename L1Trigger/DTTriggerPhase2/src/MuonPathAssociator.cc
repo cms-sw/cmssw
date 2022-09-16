@@ -400,7 +400,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                 if (std::abs(x_inSL3 - x_wire) > std::abs(x_inSL3 - x_wire_left)) {
                   x_wire = x_wire_left;  //choose the closest laterality
                   lat = 0;
-                }                
+                }
                 if (std::abs(x_inSL3 - x_wire) < minx) {
                   // different layer than the stored in best, hit added, matched_digis++;. This approach in somewhat
                   // buggy, as we could have stored as best LayerX -> LayerY -> LayerX, and this should
