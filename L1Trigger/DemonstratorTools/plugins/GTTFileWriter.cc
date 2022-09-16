@@ -297,7 +297,8 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<edm::InputTag>("selectedTracks",
                                    edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"));
   desc.addUntracked<edm::InputTag>(
-      "vertexAssociatedTracks", edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
+      "vertexAssociatedTracks",
+      edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "l1verticesEmulation"));
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
