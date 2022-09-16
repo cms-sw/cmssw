@@ -29,8 +29,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
-ProcessCallGraph::ProcessCallGraph() = default;
-
 // adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
 template <typename I>
 struct iterator_pair_as_a_range : std::pair<I, I> {
@@ -46,9 +44,10 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p) {
   return iterator_pair_as_a_range<I>(p);
 }
 
-// FIXME
-//   - check that the Source has not already been added
 void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& module) {
+  // check that the Source has not already been added
+  assert(source_ == edm::ModuleDescription::invalidID());
+
   // keep track of the Source module id
   source_ = module.id();
 
@@ -58,12 +57,14 @@ void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& modul
 }
 
 // FIXME
-//  - check that the Source has already been added
 //  - check that all module ids are valid (e.g. subprocesses are not being added in
 //    the wrong order)
 void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
                                    edm::ProcessContext const& context) {
   unsigned int pid = registerProcess(context);
+
+  // check that the Source has already been added
+  assert(source_ != edm::ModuleDescription::invalidID());
 
   // work on the full graph (for the main process) or a subgraph (for a subprocess)
   GraphType& graph = context.isSubProcess() ? graph_.create_subgraph() : graph_.root();
@@ -227,10 +228,8 @@ std::pair<std::vector<unsigned int>, std::vector<unsigned int>> ProcessCallGraph
 }
 
 // register a (sub)process and assigns it a "process id"
-// if called with a duplicate process name, returns the original process id
+// throws an exception if called with a duplicate process name
 unsigned int ProcessCallGraph::registerProcess(edm::ProcessContext const& context) {
-  static unsigned int s_id = 0;
-
   // registerProcess (called by preBeginJob) must be called for the parent process before its subprocess(es)
   if (context.isSubProcess() and process_id_.find(context.parentProcessContext().processName()) == process_id_.end()) {
     throw edm::Exception(edm::errors::LogicError)
@@ -246,7 +245,9 @@ unsigned int ProcessCallGraph::registerProcess(edm::ProcessContext const& contex
         << (context.isSubProcess() ? "subprocess" : "process") << " " << context.processName();
   }
 
-  std::tie(id, std::ignore) = process_id_.insert(std::make_pair(context.processName(), s_id++));
+  // this assumes that registerProcess (called by preBeginJob) is not called concurrently from different threads
+  // otherwise, process_id_.size() should be replaces with an atomic counter
+  std::tie(id, std::ignore) = process_id_.insert(std::make_pair(context.processName(), process_id_.size()));
   return id->second;
 }
 
