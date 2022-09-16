@@ -63,11 +63,11 @@ process.options = cms.untracked.PSet(
 )
 
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
-process.load('L1Trigger.VertexFinder.VertexProducer_cff')
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.load('L1Trigger.DemonstratorTools.GTTFileWriter_cff')
 
 process.L1GTTInputProducer.debug = cms.int32(options.debug)
-process.VertexProducer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+process.VertexProducer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
 process.VertexProducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
 process.VertexProducer.VertexReconstruction.VxMinTrackPt = cms.double(0.0)
 process.VertexProducer.debug = options.debug
@@ -80,4 +80,4 @@ process.GTTFileWriter.format = cms.untracked.string(options.format)
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-process.p = cms.Path(process.L1GTTInputProducer * process.VertexProducer * process.GTTFileWriter)
+process.p = cms.Path(process.l1tGTTInputProducer * process.l1tVertexProducer * process.GTTFileWriter)
