@@ -6,6 +6,43 @@
 // the hadronizer type HAD to read in external partons and hadronize them,
 // and decay the resulting particles, in the CMS framework.
 
+// Some additional notes related to concurrency:
+//
+//     This is an unusual module in CMSSW because its hadronizers are in stream caches
+//     (one hadronizer per stream cache). The Framework expects objects in a stream
+//     cache to only be used in stream transitions associated with that stream. That
+//     is how the Framework provides thread safety and avoids data races. In this module
+//     a global transition needs to use one of the hadronizers. The
+//     globalBeginLuminosityBlockProduce method uses one hadronizer to create the
+//     GenLumiInfoHeader which is put in the LuminosityBlock. This hadronizer must be
+//     initialized for the lumi before creating the product. This creates a problem because
+//     the global method might run concurrently with the stream methods. There is extra
+//     complexity in this module to deal with that unusual usage of an object in a stream cache.
+//
+//     The solution of this issue is conceptually simple. The module explicitly makes
+//     globalBeginLuminosityBlock wait until the previous lumi is finished on one stream
+//     and also until streamEndRun is finished on that stream if there was a new run. It
+//     avoids doing work in streamBeginRun. There is extra complexity in this module to
+//     ensure thread safety that normally does not appear in modules (usually this kind of
+//     thing is handled in the Framework).
+//
+//     Two alternative solutions were considered when designing this implementation and
+//     possibly someday we might reimplement this using one of them if we find this
+//     complexity hard to maintain.
+//
+//     1. We could make an extra hadronizer only for the global transition. We rejected
+//     that idea because that would require extra memory and CPU resources.
+//
+//     2. We could put the GenLumiInfoHeader product into the LuminosityBlock at the end
+//     global transition. We didn't know whether anything depended on the product being
+//     present in the begin transition or how difficult it would be to remove such a dependence
+//     so we also rejected that alternative.
+//
+//     There might be other ways to deal with this concurrency issue. This issue became
+//     important when run concurrency support was implemented in the Framework. That support
+//     allowed the streamBeginRun and streamEndRun transitions to run concurrently with other
+//     transitions even in the case where the number of concurrent runs was limited to 1.
+
 #ifndef GeneratorInterface_Core_ConcurrentHadronizerFilter_h
 #define GeneratorInterface_Core_ConcurrentHadronizerFilter_h
 
