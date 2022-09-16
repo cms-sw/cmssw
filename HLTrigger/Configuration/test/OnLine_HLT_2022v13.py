@@ -80258,6 +80258,8 @@ process.hltPixelVerticesSoA = SwitchProducerCUDA(
 
 process.hltOutputParkingDoubleElectronLowMass0 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleElectronLowMass0.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80274,6 +80276,8 @@ process.hltOutputParkingDoubleElectronLowMass0 = cms.OutputModule( "PoolOutputMo
 )
 process.hltOutputParkingDoubleElectronLowMass1 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleElectronLowMass1.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80290,6 +80294,8 @@ process.hltOutputParkingDoubleElectronLowMass1 = cms.OutputModule( "PoolOutputMo
 )
 process.hltOutputParkingDoubleElectronLowMass2 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleElectronLowMass2.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80306,6 +80312,8 @@ process.hltOutputParkingDoubleElectronLowMass2 = cms.OutputModule( "PoolOutputMo
 )
 process.hltOutputParkingDoubleMuonLowMass0 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleMuonLowMass0.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80322,6 +80330,8 @@ process.hltOutputParkingDoubleMuonLowMass0 = cms.OutputModule( "PoolOutputModule
 )
 process.hltOutputParkingDoubleMuonLowMass1 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleMuonLowMass1.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80338,6 +80348,8 @@ process.hltOutputParkingDoubleMuonLowMass1 = cms.OutputModule( "PoolOutputModule
 )
 process.hltOutputParkingDoubleMuonLowMass2 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleMuonLowMass2.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80354,6 +80366,8 @@ process.hltOutputParkingDoubleMuonLowMass2 = cms.OutputModule( "PoolOutputModule
 )
 process.hltOutputParkingDoubleMuonLowMass3 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingDoubleMuonLowMass3.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80370,6 +80384,8 @@ process.hltOutputParkingDoubleMuonLowMass3 = cms.OutputModule( "PoolOutputModule
 )
 process.hltOutputParkingSingleMuon = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputParkingSingleMuon.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80385,6 +80401,8 @@ process.hltOutputParkingSingleMuon = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputALCALowPtJet = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCALowPtJet.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80399,6 +80417,8 @@ process.hltOutputALCALowPtJet = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputALCALumiPixelsCountsExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCALumiPixelsCountsExpress.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80411,6 +80431,8 @@ process.hltOutputALCALumiPixelsCountsExpress = cms.OutputModule( "PoolOutputModu
 )
 process.hltOutputALCALumiPixelsCountsPrompt = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCALumiPixelsCountsPrompt.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80423,6 +80445,8 @@ process.hltOutputALCALumiPixelsCountsPrompt = cms.OutputModule( "PoolOutputModul
 )
 process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAP0.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80447,6 +80471,8 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAPHISYM.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80460,6 +80486,8 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputALCAPPS = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAPPS.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80474,6 +80502,8 @@ process.hltOutputALCAPPS = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80488,6 +80518,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMCalibration.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80502,6 +80534,8 @@ process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputDQMEventDisplay = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMEventDisplay.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80516,6 +80550,8 @@ process.hltOutputDQMEventDisplay = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMGPUvsCPU.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80540,6 +80576,8 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputDQMOnlineBeamspot = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMOnlineBeamspot.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80554,6 +80592,8 @@ process.hltOutputDQMOnlineBeamspot = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80588,6 +80628,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputEcalCalibration.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80601,6 +80643,8 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80616,6 +80660,8 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputExpressAlignment = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpressAlignment.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80631,6 +80677,8 @@ process.hltOutputExpressAlignment = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMonitor.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80683,6 +80731,8 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputNanoDST.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80696,6 +80746,8 @@ process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80716,6 +80768,8 @@ process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputScoutingPF = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputScoutingPF.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80733,6 +80787,8 @@ process.hltOutputScoutingPF = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsCommissioning.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80755,6 +80811,8 @@ process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsEGamma = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsEGamma.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80770,6 +80828,8 @@ process.hltOutputPhysicsEGamma = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsEndOfFill = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsEndOfFill.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80785,6 +80845,8 @@ process.hltOutputPhysicsEndOfFill = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsHadronsTaus = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHadronsTaus.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80803,6 +80865,8 @@ process.hltOutputPhysicsHadronsTaus = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsMuons = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsMuons.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80820,6 +80884,8 @@ process.hltOutputPhysicsMuons = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsScoutingPFMonitor = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsScoutingPFMonitor.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80842,6 +80908,8 @@ process.hltOutputPhysicsScoutingPFMonitor = cms.OutputModule( "PoolOutputModule"
 )
 process.hltOutputPhysicsHLTPhysics = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHLTPhysics.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -80857,6 +80925,8 @@ process.hltOutputPhysicsHLTPhysics = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsZeroBias = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsZeroBias.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
