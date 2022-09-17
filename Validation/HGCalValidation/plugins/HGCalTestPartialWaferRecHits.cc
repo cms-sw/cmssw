@@ -110,31 +110,31 @@ void HGCalTestPartialWaferRecHits::analyze(const edm::Event& e, const edm::Event
       ++all;
       DetId id(it.id());
       if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
-	++allSi;
-	HGCSiliconDetId hid(id);
-	const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
-	bool toCheck(false);
-	if (!wafers_.empty()) {
-	  int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
-	  if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
-	    toCheck = true;
-	} else if (!dumpDets_.empty()) {
-	  if ((std::find(dumpDets_.begin(), dumpDets_.end(), static_cast<int>(id.det())) != dumpDets_.end()) &&
-	      (info.part != HGCalTypes::WaferFull))
-	    toCheck = true;
-	} else {
-	  // Only partial wafers
-	  toCheck = (info.part != HGCalTypes::WaferFull);
-	}
-	if (toCheck) {
-	  ++good;
-	  GlobalPoint pos = geom->getPosition(id);
-	  bool valid1 = geom->topology().valid(id);
-	  bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV());
-	  edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << hid
-				       << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
-				       << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()
-				       << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2;
+        ++allSi;
+        HGCSiliconDetId hid(id);
+        const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
+        bool toCheck(false);
+        if (!wafers_.empty()) {
+          int indx = HGCalWaferIndex::waferIndex(firstLayer + hid.layer(), hid.waferU(), hid.waferV(), false);
+          if (std::find(wafers_.begin(), wafers_.end(), indx) != wafers_.end())
+            toCheck = true;
+        } else if (!dumpDets_.empty()) {
+          if ((std::find(dumpDets_.begin(), dumpDets_.end(), static_cast<int>(id.det())) != dumpDets_.end()) &&
+              (info.part != HGCalTypes::WaferFull))
+            toCheck = true;
+        } else {
+          // Only partial wafers
+          toCheck = (info.part != HGCalTypes::WaferFull);
+        }
+        if (toCheck) {
+          ++good;
+          GlobalPoint pos = geom->getPosition(id);
+          bool valid1 = geom->topology().valid(id);
+          bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV());
+          edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << hid
+                                       << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
+                                       << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()
+                                       << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2;
         }
       }
     }
