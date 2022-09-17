@@ -40,3 +40,6 @@ void HLTTauCertifier::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &i
   MonitorElement *certME = iBooker.bookFloat(targetME_);
   certME->Fill(response);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTTauCertifier);

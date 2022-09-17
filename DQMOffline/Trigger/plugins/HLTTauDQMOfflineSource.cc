@@ -246,3 +246,6 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
     counterEvt_++;
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTTauDQMOfflineSource);
