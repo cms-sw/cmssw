@@ -241,7 +241,7 @@ mkdir  "$WORKDIR"
 cd     "$WORKDIR"
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths "$MENU" $HLTLISTPATHPROXY -p --no-dep --exclude "^HLTriggerFinalPath$" "^Dataset_.+" "^DST_HLTMuon_Run3_PFScoutingPixelTracking_v[0-9]+$")
+TRIGGERS=$(hltListPaths "$MENU" $HLTLISTPATHPROXY -p --no-dep --exclude "^HLTriggerFinalPath$")
 echo "${TRIGGERS[@]}" > paths.txt
 
 # print some info
