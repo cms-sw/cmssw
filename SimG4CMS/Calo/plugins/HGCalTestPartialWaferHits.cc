@@ -74,7 +74,7 @@ HGCalTestPartialWaferHits::HGCalTestPartialWaferHits(const edm::ParameterSet& ps
         } else if (items.size() == 1) {
           int dumpdet = std::atoi(items[0].c_str());
           dumpDets_.emplace_back(dumpdet);
-          edm::LogVerbatim("HGCSim") << nameSense_ << " Dump detector " << dumpdet;
+          edm::LogVerbatim("HGCalSim") << nameSense_ << " Dump detector " << dumpdet;
         }
       }
       edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits::Reads in " << wafers_.size() << ":"
@@ -94,7 +94,7 @@ void HGCalTestPartialWaferHits::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSetup& iS) {
-  // get hcalGeometry
+  // get HGCalGeometry
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
   int firstLayer = hgc.getLayerOffset();
