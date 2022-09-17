@@ -80,6 +80,7 @@ private:
 */
 
 DQMOfflineHLTEventInfoClient::DQMOfflineHLTEventInfoClient(const edm::ParameterSet& ps) {
+  usesResource("DQMStore");
   parameters_ = ps;
   initialize();
 }
@@ -248,3 +249,6 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   CertificationSummaryMap_->setBinContent(1, 5, 1);              //BJet
   CertificationSummaryMap_->setBinContent(1, 6, tauValue);       //Tau
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMOfflineHLTEventInfoClient);

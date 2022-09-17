@@ -67,6 +67,7 @@ process.dqmSaverPB.tag = 'EcalGPU'
 process.dqmSaverPB.runNumber = options.runNumber
 
 process.ecalGpuTask.params.runGpuTask = True
+process.ecalGpuTask.params.enableRecHit = False
 process.ecalMonitorTask.workers = ['GpuTask']
 process.ecalMonitorTask.workerParameters = cms.untracked.PSet(GpuTask = process.ecalGpuTask)
 process.ecalMonitorTask.verbosity = 0
@@ -87,11 +88,6 @@ process.ecalMonitorTask.collectionTags.EBCpuUncalibRecHit = cms.untracked.InputT
 process.ecalMonitorTask.collectionTags.EECpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitLegacy", "EcalUncalibRecHitsEE")
 process.ecalMonitorTask.collectionTags.EBGpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitFromSoA", "EcalUncalibRecHitsEB")
 process.ecalMonitorTask.collectionTags.EEGpuUncalibRecHit = cms.untracked.InputTag("hltEcalUncalibRecHitFromSoA", "EcalUncalibRecHitsEE")
-# RecHit GPU collection tags are temp placeholder
-process.ecalMonitorTask.collectionTags.EBCpuRecHit = cms.untracked.InputTag("hltEcalRecHitWithoutTPs", "EcalRecHitsEB")
-process.ecalMonitorTask.collectionTags.EECpuRecHit = cms.untracked.InputTag("hltEcalRecHitWithoutTPs", "EcalRecHitsEE")
-process.ecalMonitorTask.collectionTags.EBGpuRecHit = cms.untracked.InputTag("hltEcalRecHitWithTPs", "EcalRecHitsEB")
-process.ecalMonitorTask.collectionTags.EEGpuRecHit = cms.untracked.InputTag("hltEcalRecHitWithTPs", "EcalRecHitsEE")
 
 ### Paths ###
 
