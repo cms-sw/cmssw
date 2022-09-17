@@ -1,12 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCalWaferHitCheck_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D93",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+if (options.geometry == "D88"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    fileInput = 'file:step1D88tt.root'
+elif (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    fileInput = 'file:step1D92tt.root'
+else:
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileInput = 'file:step1D93tt.root'
+
+print("Input file: ", fileInput)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -22,7 +58,7 @@ if hasattr(process,'MessageLogger'):
 #   process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:step1.root')
+                            fileNames = cms.untracked.vstring(fileInput)
                             )
 
 process.maxEvents = cms.untracked.PSet(
