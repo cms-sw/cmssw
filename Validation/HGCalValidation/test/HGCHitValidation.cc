@@ -124,20 +124,21 @@ private:
   TH1F *hefEnSim_, *heeEnRec_, *heeEnSim_;
 };
 
-HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg) 
+HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg)
     : geometrySource_(cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource")),
       ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
       makeTree_(cfg.getUntrackedParameter<bool>("makeTree", true)),
-      tok_hgcal_{edm::vector_transform(
-	  geometrySource_,
-	  [this](const std::string& name) {
-	     return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-	  })},
+      tok_hgcal_{
+          edm::vector_transform(geometrySource_,
+                                [this](const std::string &name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
       tok_hgcalg_{edm::vector_transform(
-	  geometrySource_,
-	  [this](const std::string& name) {
-	     return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-	  })},
+          geometrySource_,
+          [this](const std::string &name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
       eeSimHitSource(cfg.getParameter<edm::InputTag>("eeSimHitSource")),
       fhSimHitSource(cfg.getParameter<edm::InputTag>("fhSimHitSource")),
       bhSimHitSource(cfg.getParameter<edm::InputTag>("bhSimHitSource")),
@@ -292,7 +293,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   std::map<unsigned int, HGCHitTuple> eeHitRefs, fhHitRefs, bhHitRefs;
 
   //Accesing ee simhits
-  const edm::Handle<std::vector<PCaloHit>>& eeSimHits = iEvent.getHandle(eeSimHitToken_);
+  const edm::Handle<std::vector<PCaloHit>> &eeSimHits = iEvent.getHandle(eeSimHitToken_);
 
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, heeEnSim_, eeHitRefs);
@@ -308,7 +309,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //Accesing fh simhits
-  const edm::Handle<std::vector<PCaloHit>>& fhSimHits = iEvent.getHandle(fhSimHitToken_);
+  const edm::Handle<std::vector<PCaloHit>> &fhSimHits = iEvent.getHandle(fhSimHitToken_);
   if (fhSimHits.isValid()) {
     analyzeHGCalSimHit(fhSimHits, 1, hefEnSim_, fhHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = fhHitRefs.begin(); itr != fhHitRefs.end(); ++itr) {
@@ -323,7 +324,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //Accessing bh simhits
-  const edm::Handle<std::vector<PCaloHit>>& bhSimHits = iEvent.getHandle(bhSimHitToken_);
+  const edm::Handle<std::vector<PCaloHit>> &bhSimHits = iEvent.getHandle(bhSimHitToken_);
   if (bhSimHits.isValid()) {
     analyzeHGCalSimHit(bhSimHits, 2, hebEnSim_, bhHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
@@ -337,7 +338,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing EE Rechit information
-  const edm::Handle<HGCeeRecHitCollection>& eeRecHit = iEvent.getHandle(eeRecHitToken_);
+  const edm::Handle<HGCeeRecHitCollection> &eeRecHit = iEvent.getHandle(eeRecHitToken_);
   if (eeRecHit.isValid()) {
     const HGCeeRecHitCollection *theHits = (eeRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -377,7 +378,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing FH Rechit information
-  const edm::Handle<HGChefRecHitCollection>& fhRecHit = iEvent.getHandle(fhRecHitToken_);
+  const edm::Handle<HGChefRecHitCollection> &fhRecHit = iEvent.getHandle(fhRecHitToken_);
   if (fhRecHit.isValid()) {
     const HGChefRecHitCollection *theHits = (fhRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -417,7 +418,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing BH Rechit information
-  const edm::Handle<HGChebRecHitCollection>& bhRecHit = iEvent.getHandle(bhRecHitToken_);
+  const edm::Handle<HGChebRecHitCollection> &bhRecHit = iEvent.getHandle(bhRecHitToken_);
   if (bhRecHit.isValid()) {
     const HGChebRecHitCollection *theHits = (bhRecHit.product());
     analyzeHGCalRecHit(theHits, bhHitRefs);

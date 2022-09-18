@@ -60,14 +60,12 @@ private:
   static constexpr double mmTocm_ = 0.1;
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) 
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg)
     : g4Token_(consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"))),
       geometrySource_(cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource")),
-      tok_hgcGeom_{edm::vector_transform(
-	  geometrySource_,
-	  [this](const std::string& name) {
-	     return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-	  })} {
+      tok_hgcGeom_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
+        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+      })} {
   usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HGCalValid") << "HGCGeometryCheck:: use information from "
@@ -106,7 +104,7 @@ void HGCGeometryCheck::beginJob() {
 void HGCGeometryCheck::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
   //initiating hgc geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    const edm::ESHandle<HGCalDDDConstants>& hgcGeom = iSetup.getHandle(tok_hgcGeom_[i]);
+    const edm::ESHandle<HGCalDDDConstants> &hgcGeom = iSetup.getHandle(tok_hgcGeom_[i]);
     if (hgcGeom.isValid()) {
       hgcGeometry_.push_back(hgcGeom.product());
       edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
