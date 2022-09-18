@@ -97,9 +97,11 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
       etamin_(iConfig.getUntrackedParameter<double>("etaMin", 1.0)),
       etamax_(iConfig.getUntrackedParameter<double>("etaMax", 3.0)),
       digiSource_(consumes<HGCalDigiCollection>(source_)),
-      tok_hgcGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})) {
+      tok_hgcGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {
   usesResource(TFileService::kSharedResource);
-  edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi collection " << source_ << " for " << nameDetector_;
+  edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi collection " << source_ << " for "
+                                      << nameDetector_;
 }
 
 void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

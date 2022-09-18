@@ -88,7 +88,8 @@ private:
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("detectorName")),
       recHitSource_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("source"))),
-      tok_hgcaldd_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
+      tok_hgcaldd_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       tok_hgcGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
@@ -107,7 +108,9 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
       firstLayer_(1) {
   usesResource(TFileService::kSharedResource);
 
-  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << iConfig.getParameter<edm::InputTag>("source") << " Flag " << ifNose_ << ":" << verbosity_;
+  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag "
+                                      << iConfig.getParameter<edm::InputTag>("source") << " Flag " << ifNose_ << ":"
+                                      << verbosity_;
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
