@@ -29,7 +29,7 @@ process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi')
+process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
 process.load("DQM.GEM.GEMDQM_cff")
 process.load("DQM.GEM.gemEffByGEMCSCSegment_cff")
 

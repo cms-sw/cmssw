@@ -34,6 +34,30 @@ GEMCSCSegmentProducer::~GEMCSCSegmentProducer() {
   delete segmentBuilder_;
 }
 
+void GEMCSCSegmentProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // gemcscSegments
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputObjectsGEM", edm::InputTag("gemRecHits"));
+  desc.add<edm::InputTag>("inputObjectsCSC", edm::InputTag("cscSegments"));
+  desc.add<bool>("enableME21GE21", false);
+  desc.add<std::string>("algo_name", "GEMCSCSegAlgoRR");
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<bool>("GEMCSCDebug", true);
+    psd0.add<unsigned int>("minHitsPerSegment", 2);
+    psd0.add<bool>("preClustering", true);
+    psd0.add<double>("dXclusBoxMax", 1.0);
+    psd0.add<double>("dYclusBoxMax", 5.0);
+    psd0.add<bool>("preClusteringUseChaining", true);
+    psd0.add<double>("dPhiChainBoxMax", 1.0);
+    psd0.add<double>("dThetaChainBoxMax", 0.02);
+    psd0.add<double>("dRChainBoxMax", 0.5);
+    psd0.add<int>("maxRecHitsInCluster", 6);
+    desc.add<edm::ParameterSetDescription>("algo_psets", psd0);
+  }
+  descriptions.add("gemcscSegments", desc);
+}
+
 void GEMCSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogDebug("GEMCSCSegment") << "start producing segments for " << ++iev << "th event w/ gem and csc data";
 
