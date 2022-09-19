@@ -33,7 +33,7 @@ class GEMCSCCoincidenceRateAnalyzer : public edm::one::EDAnalyzer<edm::one::Shar
 public:
   explicit GEMCSCCoincidenceRateAnalyzer(const edm::ParameterSet&);
   ~GEMCSCCoincidenceRateAnalyzer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -44,10 +44,9 @@ private:
                             const GEMVFATStatusCollection*,
                             const std::vector<const CSCSegment*>&);
 
-
   bool checkGEMChamberStatus(const GEMDetId& chamber_id, const GEMOHStatusCollection*, const GEMVFATStatusCollection*);
-  std::vector<const CSCSegment*> findMuonSegments(const reco::MuonCollection *);
-  bool isMuonSegment(const CSCSegment &, const std::vector<const CSCSegment*>);
+  std::vector<const CSCSegment*> findMuonSegments(const reco::MuonCollection*);
+  bool isMuonSegment(const CSCSegment&, const std::vector<const CSCSegment*>);
   bool checkCSCChamberType(const CSCDetId&);
 
   const edm::EDGetTokenT<GEMCSCSegmentCollection> gem_csc_segment_collection_token_;
@@ -90,7 +89,6 @@ GEMCSCCoincidenceRateAnalyzer::GEMCSCCoincidenceRateAnalyzer(const edm::Paramete
       log_category_(ps.getUntrackedParameter<std::string>("logCategory")),
       use_gem_daq_status_(ps.getUntrackedParameter<bool>("useGEMDAQStatus")),
       csc_whitelist_(ps.getUntrackedParameter<std::vector<unsigned int> >("cscWhitelist")) {
-
   usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> file_service;
@@ -114,8 +112,7 @@ GEMCSCCoincidenceRateAnalyzer::GEMCSCCoincidenceRateAnalyzer(const edm::Paramete
   tree_->Branch("gem_cls", &b_gem_cls_);
 }
 
-GEMCSCCoincidenceRateAnalyzer::~GEMCSCCoincidenceRateAnalyzer() {
-}
+GEMCSCCoincidenceRateAnalyzer::~GEMCSCCoincidenceRateAnalyzer() {}
 
 void GEMCSCCoincidenceRateAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -125,15 +122,15 @@ void GEMCSCCoincidenceRateAnalyzer::fillDescriptions(edm::ConfigurationDescripti
   desc.addUntracked<edm::InputTag>("gemcscSegmentTag", edm::InputTag("gemcscSegments"));
   desc.addUntracked<edm::InputTag>("muonTag", edm::InputTag("muons"));
   desc.addUntracked<bool>("useGEMDAQStatus", false);
-  desc.addUntracked<std::vector<unsigned int> >("cscWhitelist", {CSCDetId::iChamberType(1, 1), CSCDetId::iChamberType(2, 1)});
+  desc.addUntracked<std::vector<unsigned int> >("cscWhitelist",
+                                                {CSCDetId::iChamberType(1, 1), CSCDetId::iChamberType(2, 1)});
   descriptions.addWithDefaultLabel(desc);
 }
 
-
 void GEMCSCCoincidenceRateAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&) {
-  ///////////////////////////////////////////////////////////////////////////// 
+  /////////////////////////////////////////////////////////////////////////////
   // get data from edm::Event
-  ///////////////////////////////////////////////////////////////////////////// 
+  /////////////////////////////////////////////////////////////////////////////
   const GEMCSCSegmentCollection* gem_csc_segment_collection = nullptr;
   if (const edm::Handle<GEMCSCSegmentCollection> handle = event.getHandle(gem_csc_segment_collection_token_)) {
     gem_csc_segment_collection = handle.product();
@@ -172,9 +169,9 @@ void GEMCSCCoincidenceRateAnalyzer::analyze(const edm::Event& event, const edm::
     return;
   }
 
-  ///////////////////////////////////////////////////////////////////////////// 
+  /////////////////////////////////////////////////////////////////////////////
   // analyze
-  ///////////////////////////////////////////////////////////////////////////// 
+  /////////////////////////////////////////////////////////////////////////////
   const std::vector<const CSCSegment*> muon_segment_vec = findMuonSegments(muon_collection);
 
   for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gem_csc_segment_collection->begin();
@@ -190,7 +187,6 @@ void GEMCSCCoincidenceRateAnalyzer::analyze(const edm::Event& event, const edm::
     }
   }  // GEMCSCSegment
 }
-
 
 void GEMCSCCoincidenceRateAnalyzer::resetBranches() {
   // detector
@@ -230,7 +226,9 @@ bool GEMCSCCoincidenceRateAnalyzer::analyzeGEMCSCSegment(const GEMCSCSegment& ge
   b_station_ = csc_id.station();
   b_ring_ = csc_id.ring();
   b_chamber_ = csc_id.chamber();
-  b_gem_chamber_has_error_ = use_gem_daq_status_ ? checkGEMChamberStatus(gem_chamber_id, gem_oh_status_collection, gem_vfat_status_collection) : false;
+  b_gem_chamber_has_error_ =
+      use_gem_daq_status_ ? checkGEMChamberStatus(gem_chamber_id, gem_oh_status_collection, gem_vfat_status_collection)
+                          : false;
   // GEMCSCSegment
   b_norm_chi2_ = static_cast<float>(gem_csc_segment.chi2() / gem_csc_segment.nRecHits());
   // CSCSegment
@@ -252,16 +250,17 @@ bool GEMCSCCoincidenceRateAnalyzer::analyzeGEMCSCSegment(const GEMCSCSegment& ge
     b_gem_ieta_.push_back(gem_id.ieta());
     b_gem_first_strip_.push_back(gem_hit.firstClusterStrip());
     b_gem_cls_.push_back(gem_hit.clusterSize());
-  } // GEMRecHit
+  }  // GEMRecHit
 
   return true;
 }
 
 // Returns a vector of CSCSegments, which are matched with muons.
-std::vector<const CSCSegment*> GEMCSCCoincidenceRateAnalyzer::findMuonSegments(const reco::MuonCollection* muon_collection) {
+std::vector<const CSCSegment*> GEMCSCCoincidenceRateAnalyzer::findMuonSegments(
+    const reco::MuonCollection* muon_collection) {
   std::vector<const CSCSegment*> muon_segment_vec;
 
-  for (const reco::Muon& muon : *muon_collection) { 
+  for (const reco::Muon& muon : *muon_collection) {
     for (const reco::MuonChamberMatch& chamber_match : muon.matches()) {
       if (chamber_match.detector() != MuonSubdetId::CSC) {
         continue;
@@ -274,10 +273,10 @@ std::vector<const CSCSegment*> GEMCSCCoincidenceRateAnalyzer::findMuonSegments(c
             break;
           }
         }  // MuonSegmentMatch
-      } // checkCSCChamberType
-    }    // MuonChamberMatch
-  }      // MuonCollection
-  
+      }    // checkCSCChamberType
+    }      // MuonChamberMatch
+  }        // MuonCollection
+
   return muon_segment_vec;
 }
 
@@ -285,7 +284,7 @@ std::vector<const CSCSegment*> GEMCSCCoincidenceRateAnalyzer::findMuonSegments(c
 // muon.
 // TODO better segment comparison
 bool GEMCSCCoincidenceRateAnalyzer::isMuonSegment(const CSCSegment& csc_segment,
-                                                         const std::vector<const CSCSegment*> muon_segment_vec) {
+                                                  const std::vector<const CSCSegment*> muon_segment_vec) {
   bool found = false;
 
   const CSCDetId csc_id = csc_segment.cscDetId();
@@ -307,14 +306,14 @@ bool GEMCSCCoincidenceRateAnalyzer::isMuonSegment(const CSCSegment& csc_segment,
   return found;
 }
 
-
 // Returns a boolean indicating whether the GEMChamber has any DAQ error.
 bool GEMCSCCoincidenceRateAnalyzer::checkGEMChamberStatus(const GEMDetId& chamber_id,
-                                                      const GEMOHStatusCollection* oh_status_collection,
-                                                      const GEMVFATStatusCollection* vfat_status_collection) {
+                                                          const GEMOHStatusCollection* oh_status_collection,
+                                                          const GEMVFATStatusCollection* vfat_status_collection) {
   const bool has_error = true;
   if (not use_gem_daq_status_) {
-    edm::LogError(log_category_) << "useGEMDAQStatus is false but checkGEMChamberStatus is called. gem_chamber_has_error will be set to false";
+    edm::LogError(log_category_)
+        << "useGEMDAQStatus is false but checkGEMChamberStatus is called. gem_chamber_has_error will be set to false";
     return not has_error;
   }
 
@@ -354,4 +353,4 @@ bool GEMCSCCoincidenceRateAnalyzer::checkCSCChamberType(const CSCDetId& csc_id) 
 }
 
 DEFINE_FWK_MODULE(GEMCSCCoincidenceRateAnalyzer);
-#endif // RecoLocalMuon_GEMCSCSegment_GEMCSCCoincidenceRateAnalyzer_h
+#endif  // RecoLocalMuon_GEMCSCSegment_GEMCSCCoincidenceRateAnalyzer_h
