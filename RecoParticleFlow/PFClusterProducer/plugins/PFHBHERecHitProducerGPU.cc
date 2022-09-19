@@ -57,28 +57,28 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  //const bool produceSoA_;            // PFRecHits in SoA format
-  //const bool produceLegacy_;         // PFRecHits in legacy format
-  //const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
-
-  //KenH unsigned getIdx(const unsigned);
+  const bool produceSoA_;            // PFRecHits in SoA format
+  const bool produceLegacy_;         // PFRecHits in legacy format
+  const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
 
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
-  //Output Token
+  //Input Token
   using IProductType = cms::cuda::Product<hcal::RecHitCollection<calo::common::DevStoragePolicy>>;
   const edm::EDGetTokenT<IProductType> InputRecHitSoA_Token_;
-
+  //Output Token
   using OProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
   edm::EDPutTokenT<OProductType> OutputPFRecHitSoA_Token_;
 
   PFRecHit::HCAL::OutputPFRecHitDataGPU outputGPU;
   cms::cuda::ContextState cudaState_;
 
+  // PFRecHits for GPU
   hcal::PFRecHitCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
 
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
 
+  // HCAL geometry/topology
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -87,6 +87,7 @@ private:
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   std::unique_ptr<const HcalTopology> topology_;
 
+  // Miscellaneous
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::PersistentDataGPU persistentDataGPU;
   PFRecHit::HCAL::ScratchDataGPU scratchDataGPU;
@@ -115,7 +116,10 @@ private:
 };
 
 PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
-    : InputRecHitSoA_Token_{consumes<IProductType>(
+    : produceSoA_{ps.getParameter<bool>("produceSoA")},
+      produceLegacy_{ps.getParameter<bool>("produceLegacy")},
+      produceCleanedLegacy_{ps.getParameter<bool>("produceCleanedLegacy")},
+      InputRecHitSoA_Token_{consumes<IProductType>(
           ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
@@ -169,8 +173,9 @@ PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
 void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
 
-  //desc.add<edm::InputTag>("recHitsM0LabelIn", edm::InputTag{"hbheRecHitProducerGPU"});
-  //desc.add<edm::InputTag>("recHitsM0LabelIn", edm::InputTag{"hltHbherecoGPU"});
+  desc.add<bool>("produceSoA", true);
+  desc.add<bool>("produceLegacy", true);
+  desc.add<bool>("produceCleanedLegacy", true);
 
   desc.add<std::string>("PFRecHitsGPUOut", "");
   // Prevents the producer and navigator parameter sets from throwing an exception
@@ -179,8 +184,6 @@ void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& c
 
   cdesc.addWithDefaultLabel(desc);
 }
-
-//KenH unsigned PFHBHERechitProducerGPU::getIdx(const unsigned denseid) { return (denseid - denseIdHcalMin_); }
 
 void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
   navigator_->init(setup);
@@ -353,59 +356,65 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 
 
   cms::cuda::ScopedContextProduce ctx{cudaState_};
-  ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
-  auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
-  auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
+  if (produceSoA_)
+    ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
 
-  const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+  if (produceLegacy_ || produceCleanedLegacy_){
 
-  pfrhLegacy->reserve(tmpPFRecHits.size);
-  pfrhLegacyCleaned->reserve(tmpPFRecHits.sizeCleaned);
-  for (unsigned i = 0; i < nPFRHTotal; i++) {
-    HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);
+    auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
+    auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
 
-    std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
-    PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
-    switch (hid.subdet()) {
-      case HcalBarrel:
-        thisCell = hcalBarrelGeo->getGeometry(hid);
-        layer = PFLayer::HCAL_BARREL1;
-        break;
+    const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+    const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
-      case HcalEndcap:
-        thisCell = hcalEndcapGeo->getGeometry(hid);
-        layer = PFLayer::HCAL_ENDCAP;
-        break;
-      default:
-        break;
+    pfrhLegacy->reserve(tmpPFRecHits.size);
+    pfrhLegacyCleaned->reserve(tmpPFRecHits.sizeCleaned);
+    for (unsigned i = 0; i < nPFRHTotal; i++) {
+      HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);
+
+      std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
+      PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
+      switch (hid.subdet()) {
+        case HcalBarrel:
+          thisCell = hcalBarrelGeo->getGeometry(hid);
+	  layer = PFLayer::HCAL_BARREL1;
+	  break;
+
+        case HcalEndcap:
+	  thisCell = hcalEndcapGeo->getGeometry(hid);
+	  layer = PFLayer::HCAL_ENDCAP;
+	  break;
+        default:
+	  break;
+      }
+      reco::PFRecHit pfrh(thisCell, hid.rawId(), layer, tmpPFRecHits.pfrh_energy[i]);
+      pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
+      pfrh.setDepth(hid.depth());
+
+      std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
+      std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
+      std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
+      for (int n = 0; n < 8; n++) {
+	int neighId = tmpPFRecHits.pfrh_neighbours[i * 8 + gpuOrder[n]];
+	if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
+	  pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
+      }
+
+      if (i < tmpPFRecHits.size)
+	pfrhLegacy->push_back(pfrh);
+      else
+	pfrhLegacyCleaned->push_back(pfrh);
     }
-    reco::PFRecHit pfrh(thisCell, hid.rawId(), layer, tmpPFRecHits.pfrh_energy[i]);
-    pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
-    pfrh.setDepth(hid.depth());
+    //#ifdef PF_DEBUG_ENABLE
+    //  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
+    //#endif
 
-    std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
-    std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
-    std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
-    for (int n = 0; n < 8; n++) {
-      int neighId = tmpPFRecHits.pfrh_neighbours[i * 8 + gpuOrder[n]];
-      if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
-        pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
-    }
+    if (produceLegacy_) event.put(std::move(pfrhLegacy), "");
+    if (produceCleanedLegacy_) event.put(std::move(pfrhLegacyCleaned), "Cleaned");
 
-    if (i < tmpPFRecHits.size)
-      pfrhLegacy->push_back(pfrh);
-    else
-      pfrhLegacyCleaned->push_back(pfrh);
-  }
-  //#ifdef PF_DEBUG_ENABLE
-  //  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
-  //#endif
+    tmpPFRecHits.resize(0);
 
-  event.put(std::move(pfrhLegacy), "");
-  event.put(std::move(pfrhLegacyCleaned), "Cleaned");
-
-  tmpPFRecHits.resize(0);
+  } // if (produceLegacy_ || produceCleanedLegacy_)
 
 #ifdef PF_DEBUG_ENABLE
   for (int i = 0; i < (int)GPU_timers.size(); i++)
