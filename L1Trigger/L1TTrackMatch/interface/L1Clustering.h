@@ -1,4 +1,5 @@
-#pragma once
+#ifndef L1Trigger_L1TTrackMatch_L1Clustering_HH
+#define L1Trigger_L1TTrackMatch_L1Clustering_HH
 #include <cmath>
 #include <cstdlib>
 #include <vector>
@@ -248,3 +249,4 @@ inline std::vector<EtaPhiBin> L2_clustering(std::vector<std::vector<EtaPhiBin>> 
   }    // end of m-loop
   return clusters;
 }
+#endif

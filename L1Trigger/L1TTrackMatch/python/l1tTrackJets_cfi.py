@@ -31,35 +31,17 @@ l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
         nDisplacedTracks=cms.int32(2)
 )
 
-l1tTrackJetsExtended = cms.EDProducer('L1TrackJetProducer',
-	L1TrackInputTag= cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("l1tVertexProducer", "l1vertices"),
-	MaxDzTrackPV = cms.double( 5.0 ), # tracks with dz(trk,PV)>cut excluded
-	trk_zMax = cms.double (15.) ,    # max track z
-	trk_ptMax = cms.double(200.),    # maxi track pT before saturation
-	trk_ptMin = cms.double(3.0),     # min track pt 
-   	trk_etaMax = cms.double(2.4),    # max track eta
-        nStubs4PromptChi2=cms.double(5.0), #Prompt track quality flags for loose/tight
-        nStubs4PromptBend=cms.double(1.7),
-        nStubs5PromptChi2=cms.double(2.75),
-        nStubs5PromptBend=cms.double(3.5),
-	trk_nPSStubMin=cms.int32(-1),    # min # PS stubs, -1 means no cut
-	minTrkJetpT=cms.double(5.),      # min track jet pt to be considered for most energetic zbin finding
-	etaBins=cms.int32(24), #number of eta bins
-	phiBins=cms.int32(27), #number of phi bins
-	zBins=cms.int32(1),    #number of z bins
-	d0_cutNStubs4=cms.double(-1),    # -1 excludes nstub=4 from disp tag process
-	d0_cutNStubs5=cms.double(0.22),  # -1 excludes nstub>4 from disp tag process
-	lowpTJetMinTrackMultiplicity=cms.int32(2),  #relevant only when N of z-bins >1; excludes from the HT calculation jets with low number of very energetic tracks; this cut selects the threshold on number of tracks
-        lowpTJetThreshold=cms.double(50.), # this threshold controls the pT of the jet
-	highpTJetMinTrackMultiplicity=cms.int32(3), #same as above for a different WP of tracks / pT
-        highpTJetThreshold=cms.double(100.),
-	displaced=cms.bool(True), #Flag for displaced tracks
-	nStubs4DisplacedChi2=cms.double(3.3), #Disp tracks selection [trk<cut]
-	nStubs4DisplacedBend=cms.double(2.3),
-	nStubs5DisplacedChi2=cms.double(11.3),
-	nStubs5DisplacedBend=cms.double(9.8),
-        nDisplacedTracks=cms.int32(3) #min Ntracks to tag a jet as displaced
+l1tTrackJetsExtended = l1tTrackJets.clone(
+	L1TrackInputTag= ("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+	MaxDzTrackPV = 5.0 ,             # tracks with dz(trk,PV)>cut excluded
+	minTrkJetpT= 5.,                 # min track jet pt to be considered for most energetic zbin finding
+	d0_cutNStubs5= 0.22,             # -1 excludes nstub>4 from disp tag process
+	displaced=True,                  #Flag for displaced tracks
+	nStubs4DisplacedChi2= 3.3,       #Disp tracks selection [trk<cut]
+	nStubs4DisplacedBend= 2.3,
+	nStubs5DisplacedChi2= 11.3,
+	nStubs5DisplacedBend= 9.8,
+        nDisplacedTracks= 3              #min Ntracks to tag a jet as displaced
 )
 
 
