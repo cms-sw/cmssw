@@ -72,7 +72,7 @@ private:
 
 private:
   //HGCal numbering scheme
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > ddconsToken_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> ddconsToken_;
   std::vector<std::unique_ptr<HGCalNumberingScheme>> hgcalNumbering_;
 
   // to read from parameter set
@@ -95,15 +95,16 @@ private:
   std::vector<double> hgchitX_, hgchitY_, hgchitZ_;
 };
 
-SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p) 
+SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p)
     : m_Anal(p.getParameter<edm::ParameterSet>("SimG4HGCalValidation")),
-      names_(m_Anal.getParameter<std::vector<std::string> >("Names")),
-      types_(m_Anal.getParameter<std::vector<int> >("Types")),
-      detTypes_(m_Anal.getParameter<std::vector<int> >("DetTypes")),
+      names_(m_Anal.getParameter<std::vector<std::string>>("Names")),
+      types_(m_Anal.getParameter<std::vector<int>>("Types")),
+      detTypes_(m_Anal.getParameter<std::vector<int>>("DetTypes")),
       labelLayer_(m_Anal.getParameter<std::string>("LabelLayerInfo")),
       verbosity_(m_Anal.getUntrackedParameter<int>("Verbosity", 0)),
-      levelT1_(999), levelT2_(999), count_(0) {
-
+      levelT1_(999),
+      levelT2_(999),
+      count_(0) {
   produces<PHGCalValidInfo>(labelLayer_);
 
   if (verbosity_ > 0) {
@@ -124,11 +125,11 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
     if (types_[type] <= 1) {
       dets_.emplace_back((unsigned int)(DetId::Forward));
       if (detType == 0)
-	subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
+        subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
       else if (detType == 1)
-	subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
+        subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
       else
-	subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
+        subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
       if (detType == 0)
         nameX = "HGCalEESensitive";
       else if (detType == 1)
@@ -161,7 +162,8 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
     if (hdc.isValid()) {
       levelT1_ = hdc->levelTop(0);
       levelT2_ = hdc->levelTop(1);
-      hgcalNumbering_.emplace_back(std::make_unique<HGCalNumberingScheme>(*hdc, static_cast<DetId::Detector>(dets_[type]), nameXs_[type], ""));
+      hgcalNumbering_.emplace_back(
+          std::make_unique<HGCalNumberingScheme>(*hdc, static_cast<DetId::Detector>(dets_[type]), nameXs_[type], ""));
       layers = hdc->layers(false);
     } else {
       edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameXs_[type];
@@ -241,15 +243,15 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
         float globalZ = touchable->GetTranslation(0).z();
         int iz(globalZ > 0 ? 1 : -1);
         int module(-1), cell(-1);
-	if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
-	  layer = touchable->GetReplicaNumber(0);
-	} else {
-	  layer = touchable->GetReplicaNumber(3);
-	  module = touchable->GetReplicaNumber(2);
-	  cell = touchable->GetReplicaNumber(1);
-	}
-	double weight(0);
-	index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
+        if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
+          layer = touchable->GetReplicaNumber(0);
+        } else {
+          layer = touchable->GetReplicaNumber(3);
+          module = touchable->GetReplicaNumber(2);
+          cell = touchable->GetReplicaNumber(1);
+        }
+        double weight(0);
+        index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
         if (verbosity_ > 1)
           edm::LogVerbatim("ValidHGCal") << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell "
                                          << cell;

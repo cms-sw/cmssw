@@ -28,8 +28,8 @@ private:
   const std::string subDirectory_;
 };
 
-HGCalGeometryClient::HGCalGeometryClient(const edm::ParameterSet& iConfig) 
-    : subDirectory_(iConfig.getParameter<std::string>("DirectoryName")) { }
+HGCalGeometryClient::HGCalGeometryClient(const edm::ParameterSet& iConfig)
+    : subDirectory_(iConfig.getParameter<std::string>("DirectoryName")) {}
 
 void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
   ig.setCurrentFolder("/");

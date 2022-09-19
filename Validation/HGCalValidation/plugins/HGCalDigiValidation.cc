@@ -94,7 +94,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig)
           edm::ESInputTag{"", nameDetector_})),
       tok_hgcalg_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
       digiSource_(consumes<HGCalDigiCollection>(iConfig.getParameter<edm::InputTag>("DigiSource"))),
-      firstLayer_(1) { }
+      firstLayer_(1) {}
 
 void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -131,8 +131,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer()
-                                       : HFNoseDetId(detId).layer());
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HFNoseDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();
@@ -269,26 +268,32 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&,
       istr1.insert(0, "0");
     }
     histoname.str("");
-    histoname << "TOA_" << "layer_" << istr1;
+    histoname << "TOA_"
+              << "layer_" << istr1;
     TOA_.push_back(iB.book1D(histoname.str().c_str(), "toa_", 1024, 0, 1024));
 
     histoname.str("");
-    histoname << "ADC_" << "layer_" << istr1;
+    histoname << "ADC_"
+              << "layer_" << istr1;
     ADC_.push_back(iB.book1D(histoname.str().c_str(), "ADCDigiOccupancy", 1024, 0, 1024));
 
     histoname.str("");
-    histoname << "TOT_" << "layer_" << istr1;
+    histoname << "TOT_"
+              << "layer_" << istr1;
     TOT_.push_back(iB.book1D(histoname.str().c_str(), "TOTDigiOccupancy", 4096, 0, 4096));
 
     histoname.str("");
-    histoname << "DigiOccupancy_XY_" << "layer_" << istr1;
+    histoname << "DigiOccupancy_XY_"
+              << "layer_" << istr1;
     DigiOccupancy_XY_.push_back(iB.book2D(histoname.str().c_str(), "DigiOccupancy", 50, -500, 500, 50, -500, 500));
 
     histoname.str("");
-    histoname << "DigiOccupancy_Plus_" << "layer_" << istr1;
+    histoname << "DigiOccupancy_Plus_"
+              << "layer_" << istr1;
     DigiOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy +z", 100, 0, 1000));
     histoname.str("");
-    histoname << "DigiOccupancy_Minus_" << "layer_" << istr1;
+    histoname << "DigiOccupancy_Minus_"
+              << "layer_" << istr1;
     DigiOccupancy_Minus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy -z", 100, 0, 1000));
   }
 

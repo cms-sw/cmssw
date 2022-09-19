@@ -96,22 +96,24 @@ private:
   MonitorElement *heeEnRec, *heeEnSim;
 };
 
-HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg) 
-  : geometrySource_(cfg.getParameter<std::vector<std::string>>("geometrySource")),
-    ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
-    eeSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("eeSimHitSource"))),
-    fhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("fhSimHitSource"))),
-    bhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("bhSimHitSource"))),
-    eeRecHitToken_(consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"))),
-  fhRecHitToken_(consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"))),
-  bhRecHitToken_(consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"))),
-  tok_ddd_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
-      return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-    })},
-  tok_geom_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
-	return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg)
+    : geometrySource_(cfg.getParameter<std::vector<std::string>>("geometrySource")),
+      ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
+      eeSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("eeSimHitSource"))),
+      fhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("fhSimHitSource"))),
+      bhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("bhSimHitSource"))),
+      eeRecHitToken_(consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"))),
+      fhRecHitToken_(consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"))),
+      bhRecHitToken_(consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"))),
+      tok_ddd_{
+          edm::vector_transform(geometrySource_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_geom_{edm::vector_transform(geometrySource_, [this](const std::string& name) {
+        return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
       })} {
-
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
   for (unsigned int k = 0; k < ietaExcludeBH_.size(); ++k)
