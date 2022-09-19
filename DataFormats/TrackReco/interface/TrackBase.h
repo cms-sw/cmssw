@@ -2,7 +2,7 @@
 #define TrackReco_TrackBase_h
 /** \class reco::TrackBase TrackBase.h DataFormats/TrackReco/interface/TrackBase.h
  *
- * Common base class to all track types, including Muon fits.
+* Common base class to all track types, including Muon fits.
  * Internally, the following information is stored: <BR>
  *   <DT> A reference position on the track: (vx,vy,vz) </DT>
  *   <DT> Momentum at this given reference point on track: (px,py,pz) </DT>
@@ -55,6 +55,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "Rtypes.h"
 #include <bitset>
 
 namespace reco {
@@ -453,7 +454,7 @@ namespace reco {
     HitPattern hitPattern_;
 
     /// perigee 5x5 covariance matrix
-    float covariance_[covarianceSize];
+    Float16_t covariance_[covarianceSize];  //[0,0,10]
 
     /// errors for time and velocity (separate from cov for now)
     float covt0t0_, covbetabeta_;
