@@ -98,12 +98,15 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
-      tok_hgcGeom_{edm::vector_transform(nameDetectors_, [this](const std::string &name) {
-        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-      })},
-      tok_hits_{edm::vector_transform(caloHitSources_, [this](const std::string &source) {
-	return consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source));
-	  })} {
+      tok_hgcGeom_{
+          edm::vector_transform(nameDetectors_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_hits_{edm::vector_transform(caloHitSources_, [this](const std::string& source) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source));
+      })} {
   usesResource(TFileService::kSharedResource);
 }
 

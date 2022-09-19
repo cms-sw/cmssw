@@ -75,13 +75,13 @@ private:
   MonitorElement *hebdX, *hebdY, *hebdZ;
 };
 
-HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) 
-  : g4Token_(consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"))),
-    geometrySource_(cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource")),
-    verbosity_(cfg.getUntrackedParameter<int>("verbosity", 0)),
-    geomToken_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
-      return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-    })} { }
+HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg)
+    : g4Token_(consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"))),
+      geometrySource_(cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource")),
+      verbosity_(cfg.getUntrackedParameter<int>("verbosity", 0)),
+      geomToken_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
+        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+      })} {}
 
 void HGCGeometryValidation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -159,7 +159,7 @@ void HGCGeometryValidation::bookHistograms(DQMStore::IBooker &iB, edm::Run const
 
 void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Accessing G4 information
-  const edm::Handle<PHGCalValidInfo>& infoLayer = iEvent.getHandle(g4Token_);
+  const edm::Handle<PHGCalValidInfo> &infoLayer = iEvent.getHandle(g4Token_);
 
   if (infoLayer.isValid()) {
     //step vertex information
@@ -202,80 +202,80 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
       int dtype(0), layer(0), zside(1);
       std::pair<float, float> xy;
       if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
-	int subdet, wafer, celltype, cell;
-	HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
-	dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
-	xy = hgcGeometry_[dtype]->locateCell(cell, layer, wafer, true);  //cm
+        int subdet, wafer, celltype, cell;
+        HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
+        dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
+        xy = hgcGeometry_[dtype]->locateCell(cell, layer, wafer, true);  //cm
       } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-		 (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
-	HGCSiliconDetId id(hitIdx.at(i));
-	dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
-	layer = id.layer();
-	zside = id.zside();
-	xy = hgcGeometry_[dtype]->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true);
+                 (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
+        HGCSiliconDetId id(hitIdx.at(i));
+        dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
+        layer = id.layer();
+        zside = id.zside();
+        xy = hgcGeometry_[dtype]->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true);
       } else {
-	HGCScintillatorDetId id(hitIdx.at(i));
-	dtype = 2;
-	layer = id.layer();
-	zside = id.zside();
-	xy = hgcGeometry_[dtype]->locateCellTrap(layer, id.ietaAbs(), id.iphi(), true);
+        HGCScintillatorDetId id(hitIdx.at(i));
+        dtype = 2;
+        layer = id.layer();
+        zside = id.zside();
+        xy = hgcGeometry_[dtype]->locateCellTrap(layer, id.ietaAbs(), id.iphi(), true);
       }
       double zz = hgcGeometry_[dtype]->waferZ(layer, true);  //cm
       if (zside < 0)
-	zz = -zz;
+        zz = -zz;
       xx = (zside < 0) ? -xy.first : xy.first;
       yy = xy.second;
 
       if (dtype == 0) {
-	heedzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-	heedyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-	heedxVsX->Fill(xx, (hitVtxX.at(i) - xx));
-	
-	heeXG4VsId->Fill(hitVtxX.at(i), xx);
-	heeYG4VsId->Fill(hitVtxY.at(i), yy);
-	heeZG4VsId->Fill(hitVtxZ.at(i), zz);
+        heedzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
+        heedyVsY->Fill(yy, (hitVtxY.at(i) - yy));
+        heedxVsX->Fill(xx, (hitVtxX.at(i) - xx));
 
-	heedzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-	heedyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-	heedxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+        heeXG4VsId->Fill(hitVtxX.at(i), xx);
+        heeYG4VsId->Fill(hitVtxY.at(i), yy);
+        heeZG4VsId->Fill(hitVtxZ.at(i), zz);
 
-	heedX->Fill((hitVtxX.at(i) - xx));
-	heedZ->Fill((hitVtxZ.at(i) - zz));
-	heedY->Fill((hitVtxY.at(i) - yy));
+        heedzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
+        heedyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
+        heedxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+
+        heedX->Fill((hitVtxX.at(i) - xx));
+        heedZ->Fill((hitVtxZ.at(i) - zz));
+        heedY->Fill((hitVtxY.at(i) - yy));
 
       } else if (dtype == 1) {
-	hefdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-	hefdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-	hefdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
-	
-	hefXG4VsId->Fill(hitVtxX.at(i), xx);
-	hefYG4VsId->Fill(hitVtxY.at(i), yy);
-	hefZG4VsId->Fill(hitVtxZ.at(i), zz);
-	
-	hefdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-	hefdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-	hefdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
-	
-	hefdX->Fill((hitVtxX.at(i) - xx));
-	hefdZ->Fill((hitVtxZ.at(i) - zz));
-	hefdY->Fill((hitVtxY.at(i) - yy));
+        hefdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
+        hefdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
+        hefdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
+
+        hefXG4VsId->Fill(hitVtxX.at(i), xx);
+        hefYG4VsId->Fill(hitVtxY.at(i), yy);
+        hefZG4VsId->Fill(hitVtxZ.at(i), zz);
+
+        hefdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
+        hefdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
+        hefdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+
+        hefdX->Fill((hitVtxX.at(i) - xx));
+        hefdZ->Fill((hitVtxZ.at(i) - zz));
+        hefdY->Fill((hitVtxY.at(i) - yy));
 
       } else {
-	hebdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-	hebdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-	hebdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
+        hebdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
+        hebdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
+        hebdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
 
-	hebXG4VsId->Fill(hitVtxX.at(i), xx);
-	hebYG4VsId->Fill(hitVtxY.at(i), yy);
-	hebZG4VsId->Fill(hitVtxZ.at(i), zz);
+        hebXG4VsId->Fill(hitVtxX.at(i), xx);
+        hebYG4VsId->Fill(hitVtxY.at(i), yy);
+        hebZG4VsId->Fill(hitVtxZ.at(i), zz);
 
-	hebdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-	hebdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-	hebdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+        hebdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
+        hebdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
+        hebdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
 
-	hebdX->Fill((hitVtxX.at(i) - xx));
-	hebdZ->Fill((hitVtxZ.at(i) - zz));
-	hebdY->Fill((hitVtxY.at(i) - yy));
+        hebdX->Fill((hitVtxX.at(i) - xx));
+        hebdZ->Fill((hitVtxZ.at(i) - zz));
+        hebdY->Fill((hitVtxY.at(i) - yy));
       }
     }  //end G4 hits
 

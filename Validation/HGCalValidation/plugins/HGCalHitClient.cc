@@ -30,7 +30,8 @@ private:
   int geometryEndjob(const std::vector<MonitorElement*>& hcalMEs);
 };
 
-HGCalHitClient::HGCalHitClient(const edm::ParameterSet& iConfig) : subDirectory_(iConfig.getParameter<std::string>("DirectoryName")) {}
+HGCalHitClient::HGCalHitClient(const edm::ParameterSet& iConfig)
+    : subDirectory_(iConfig.getParameter<std::string>("DirectoryName")) {}
 
 void HGCalHitClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
   ig.setCurrentFolder("/");
