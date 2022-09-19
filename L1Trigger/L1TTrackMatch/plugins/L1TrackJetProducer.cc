@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +30,7 @@
 
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 
-#include "L1Trigger/L1TTrackMatch/interface/L1TrackJetProducer.h"
+#include "L1Trigger/L1TTrackMatch/interface/L1Clustering.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -207,9 +206,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     EtaPhiBin epbins_default[phiBins_][etaBins_];  // create grid of phiBins
 
     float phi = -1.0 * M_PI;
-    float eta = -1.0 * trkEtaMax_;
     for (int i = 0; i < phiBins_; ++i) {
-      eta = -1.0 * trkEtaMax_;
+      float eta = -1.0 * trkEtaMax_;
       for (int j = 0; j < etaBins_; ++j) {
         epbins_default[i][j].phi = (phi + (phi + phiStep_)) / 2.0;  // phimin=phi; phimax= phimin+step
         epbins_default[i][j].eta = (eta + (eta + etaStep_)) / 2.0;  // phimin=phi; phimax phimin+step
@@ -242,19 +240,16 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
 
       // fill grid
       for (unsigned int k = 0; k < L1TrkPtrs_.size(); ++k) {
-        float trkpt = L1TrkPtrs_[k]->momentum().perp();
-        float trketa = L1TrkPtrs_[k]->momentum().eta();
-        float trkphi = L1TrkPtrs_[k]->momentum().phi();
         float trkZ = L1TrkPtrs_[k]->z0();
         if (zmax < trkZ)
           continue;
-        if (zbin == 0) {
-          if (zmin > trkZ)
-            continue;
-        } else {
-          if (zmin >= trkZ)
-            continue;
-        }
+        if (zmin > trkZ)
+          continue;
+        if (zbin == 0 && zmin == trkZ)
+          continue;
+        float trkpt = L1TrkPtrs_[k]->momentum().perp();
+        float trketa = L1TrkPtrs_[k]->momentum().eta();
+        float trkphi = L1TrkPtrs_[k]->momentum().phi();
         for (int i = 0; i < phiBins_; ++i) {
           for (int j = 0; j < etaBins_; ++j) {
             float eta_min = epbins[i][j].eta - etaStep_ / 2.0;  //eta min
@@ -315,9 +310,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       float jetPz = jetPt * sinh(jetEta);
       float jetP = jetPt * cosh(jetEta);
       int totalDisptrk = mzb.clusters[j].numtdtrks;
-      bool isDispJet = false;
-      if (totalDisptrk > nDisplacedTracks_ || totalDisptrk == nDisplacedTracks_)
-        isDispJet = true;
+      bool isDispJet = (totalDisptrk > nDisplacedTracks_ || totalDisptrk == nDisplacedTracks_);
 
       math::XYZTLorentzVector jetP4(jetPx, jetPy, jetPz, jetP);
       L1TrackAssocJet.clear();
@@ -362,11 +355,37 @@ bool L1TrackJetProducer::trackQualityCuts(int trk_nstub, float trk_chi2, float t
 }
 
 void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  // l1tTrackJets
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("L1PVertexCollection", edm::InputTag("l1tVertexProducer", "l1vertices"));
+  desc.add<double>("MaxDzTrackPV", 1.0);
+  desc.add<double>("trk_zMax", 15.0);
+  desc.add<double>("trk_ptMax", 200.0);
+  desc.add<double>("trk_ptMin", 3.0);
+  desc.add<double>("trk_etaMax", 2.4);
+  desc.add<double>("nStubs4PromptChi2", 5.0);
+  desc.add<double>("nStubs4PromptBend", 1.7);
+  desc.add<double>("nStubs5PromptChi2", 2.75);
+  desc.add<double>("nStubs5PromptBend", 3.5);
+  desc.add<int>("trk_nPSStubMin", -1);
+  desc.add<double>("minTrkJetpT", -1.0);
+  desc.add<int>("etaBins", 24);
+  desc.add<int>("phiBins", 27);
+  desc.add<int>("zBins", 1);
+  desc.add<double>("d0_cutNStubs4", -1);
+  desc.add<double>("d0_cutNStubs5", -1);
+  desc.add<int>("lowpTJetMinTrackMultiplicity", 2);
+  desc.add<double>("lowpTJetThreshold", 50.0);
+  desc.add<int>("highpTJetMinTrackMultiplicity", 3);
+  desc.add<double>("highpTJetThreshold", 100.0);
+  desc.add<bool>("displaced", false);
+  desc.add<double>("nStubs4DisplacedChi2", 5.0);
+  desc.add<double>("nStubs4DisplacedBend", 1.7);
+  desc.add<double>("nStubs5DisplacedChi2", 2.75);
+  desc.add<double>("nStubs5DisplacedBend", 3.5);
+  desc.add<int>("nDisplacedTracks", 2);
+  descriptions.add("l1tTrackJets", desc);
 }
 
 //define this as a plug-in
