@@ -32,7 +32,7 @@
 class HGCalBHValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalBHValidation(const edm::ParameterSet& ps);
-  ~HGCalBHValidation() override {}
+  ~HGCalBHValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -41,8 +41,6 @@ protected:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  template <class T>
-  void analyzeDigi(const T&, double const&, bool const&, int const&, unsigned int&);
 
 private:
   edm::Service<TFileService> fs_;
@@ -51,7 +49,7 @@ private:
   const int iSample_;
   const double threshold_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  const edm::EDGetToken tok_digi_;
+  const edm::EDGetTokenT<HGCalDigiCollection> tok_digi_;
   const int etaMax_;
 
   TH1D *hsimE1_, *hsimE2_, *hsimTm_;
@@ -110,8 +108,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation:Run = " << e.id().run() << " Event = " << e.id().event();
 
   //SimHits
-  edm::Handle<edm::PCaloHitContainer> hitsHE;
-  e.getByToken(tok_hits_, hitsHE);
+  const edm::Handle<edm::PCaloHitContainer>& hitsHE = e.getHandle(tok_hits_);
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: PCaloHitContainer"
                                       << " obtained with flag " << hitsHE.isValid();
   if (hitsHE.isValid()) {
@@ -128,9 +125,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
         eta = HGCScintillatorDetId(id).ieta();
         phi = HGCScintillatorDetId(id).iphi();
         lay = HGCScintillatorDetId(id).layer();
-      }
-      double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-      if (bh) {
+	double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
         hsi2Oc_->Fill(eta1, (phi - 0.1), energy);
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
@@ -154,8 +149,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   //Digits
   unsigned int kount(0);
-  edm::Handle<HGCalDigiCollection> hecoll;
-  e.getByToken(tok_digi_, hecoll);
+  const edm::Handle<HGCalDigiCollection>& hecoll = e.getHandle(tok_digi_);
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: "
                                       << "HGCalDigiCollection obtained with"
                                       << " flag " << hecoll.isValid();
@@ -169,28 +163,22 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
       if (bh) {
         HGCScintillatorDetId cell(df.id());
         int depth = cell.layer();
-        analyzeDigi(cell, energy, bh, depth, kount);
+	if (energy > threshold_) {
+	  int eta = cell.ieta();
+	  int phi = cell.iphi();
+	  double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
+	  hdi2Oc_->Fill(eta1, (phi - 0.1));
+	  if (bh) {
+	    hdigEn_->Fill(energy);
+	    hdigOc_->Fill(eta1, (phi - 0.1));
+	    hdigLn_->Fill(depth);
+	    hdi3Oc_->Fill(eta1, depth);
+	    ++kount;
+	    edm::LogVerbatim("HGCalValidation")
+	      << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
+	  }
+	}
       }
-    }
-  }
-}
-
-template <class T>
-void HGCalBHValidation::analyzeDigi(
-    const T& cell, double const& energy, bool const& bh, int const& depth, unsigned int& kount) {
-  if (energy > threshold_) {
-    int eta = cell.ieta();
-    int phi = cell.iphi();
-    double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-    hdi2Oc_->Fill(eta1, (phi - 0.1));
-    if (bh) {
-      hdigEn_->Fill(energy);
-      hdigOc_->Fill(eta1, (phi - 0.1));
-      hdigLn_->Fill(depth);
-      hdi3Oc_->Fill(eta1, depth);
-      ++kount;
-      edm::LogVerbatim("HGCalValidation")
-          << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
     }
   }
 }

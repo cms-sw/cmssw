@@ -25,7 +25,7 @@ private:
 
 public:
   explicit HGCalDigiClient(const edm::ParameterSet &);
-  ~HGCalDigiClient() override {}
+  ~HGCalDigiClient() override = default;
 
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
