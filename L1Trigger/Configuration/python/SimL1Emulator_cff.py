@@ -127,6 +127,7 @@ l1tVertexFinderEmulator = l1tVertexProducer.clone()
 l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
 l1tVertexFinderEmulator.l1TracksInputTag = ("l1tGTTInputProducer","Level1TTTracksConverted")
 _phase2_siml1emulator.add(l1tVertexFinder)
+_phase2_siml1emulator.add(l1tVertexProducer)
 _phase2_siml1emulator.add(l1tGTTInputProducer)
 _phase2_siml1emulator.add(l1tGTTInputProducerExtended)
 _phase2_siml1emulator.add(l1tVertexFinderEmulator)
@@ -155,6 +156,11 @@ l1tTrackFastJets.L1PrimaryVertexTag  = ("l1tVertexFinder", "l1vertices")
 l1tTrackJetsExtended.L1PVertexCollection  = ("l1tVertexFinder", "l1vertices")
 #l1tTrackerEtMiss.L1VertexInputTag = ("l1tVertexFinder", "l1vertices")
 #l1tTrackerEtMissExtended.L1VertexInputTag = ("l1tVertexFinder", "l1vertices")
+
+from L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi import *
+_phase2_siml1emulator.add(l1tTrackSelectionProducer)
+_phase2_siml1emulator.add(l1tTrackSelectionProducerExtended)
+
 _phase2_siml1emulator.add(l1tTrackJets)
 _phase2_siml1emulator.add(l1tTrackJetsExtended)
 _phase2_siml1emulator.add(l1tTrackFastJets)
@@ -167,7 +173,7 @@ _phase2_siml1emulator.add(l1tTrackJetsEmulation)
 _phase2_siml1emulator.add(l1tTrackJetsExtendedEmulation)
 
 from L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi import *
-l1tTrackerEmuEtMiss.L1VertexInputTag = ("L1VertexFinderEmulator","l1verticesEmulation")
+l1tTrackerEmuEtMiss.L1VertexInputTag = ("l1tVertexFinderEmulator","l1verticesEmulation")
 _phase2_siml1emulator.add(l1tTrackerEmuEtMiss)
 
 from L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi import *
