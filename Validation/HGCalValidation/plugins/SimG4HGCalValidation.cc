@@ -123,13 +123,13 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
     int detType = detTypes_[type];
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
-      dets_.emplace_back((unsigned int)(DetId::Forward));
+      dets_.emplace_back(static_cast<unsigned int>(DetId::Forward));
       if (detType == 0)
-        subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCEE));
       else if (detType == 1)
-        subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEF));
       else
-        subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEB));
       if (detType == 0)
         nameX = "HGCalEESensitive";
       else if (detType == 1)
@@ -262,15 +262,15 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
                                          << edeposit << " hit at " << hitPoint;
         if (detType == 0) {
           edepEE_ += edeposit;
-          if (layer < (int)(hgcEEedep_.size()))
+          if (layer < static_cast<int>(hgcEEedep_.size()))
             hgcEEedep_[layer] += edeposit;
         } else if (detType == 1) {
           edepHEF_ += edeposit;
-          if (layer < (int)(hgcHEFedep_.size()))
+          if (layer < static_cast<int>(hgcHEFedep_.size()))
             hgcHEFedep_[layer] += edeposit;
         } else {
           edepHEB_ += edeposit;
-          if (layer < (int)(hgcHEBedep_.size()))
+          if (layer < static_cast<int>(hgcHEBedep_.size()))
             hgcHEBedep_[layer] += edeposit;
         }
         G4String nextVolume("XXX");

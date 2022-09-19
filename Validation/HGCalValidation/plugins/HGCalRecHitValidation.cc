@@ -215,7 +215,7 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const
   iB.setCurrentFolder("HGCAL/HGCalRecHitsV/" + nameDetector_);
   std::ostringstream histoname;
   for (unsigned int il = 0; il < layers_; ++il) {
-    int ilayer = firstLayer_ + (int)(il);
+    int ilayer = firstLayer_ + static_cast<int>(il);
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");

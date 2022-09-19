@@ -201,13 +201,13 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
       double xx, yy;
       int dtype(0), layer(0), zside(1);
       std::pair<float, float> xy;
-      if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
+      if (hitDet.at(i) == static_cast<unsigned int>(DetId::Forward)) {
         int subdet, wafer, celltype, cell;
         HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
-        dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
+        dtype = (subdet == static_cast<int>(HGCEE)) ? 0 : 1;
         xy = hgcGeometry_[dtype]->locateCell(cell, layer, wafer, true);  //cm
-      } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-                 (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
+      } else if ((hitDet.at(i) == static_cast<unsigned int>(DetId::HGCalEE)) ||
+                 (hitDet.at(i) == static_cast<unsigned int>(DetId::HGCalHSi))) {
         HGCSiliconDetId id(hitIdx.at(i));
         dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
         layer = id.layer();
