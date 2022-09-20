@@ -5,24 +5,55 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 ##################### User floats producers, selectors ##########################
 
-from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
 #      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-jetPuppiCorrFactorsNano = patJetCorrFactors.clone(src='slimmedJetsPuppi',
-    levels = cms.vstring('L1FastJet',
+jetPuppiCorrFactorsNano = cms.EDProducer("JetCorrFactorsProducer",
+    emf = cms.bool(False),
+    extraJPTOffset = cms.string('L1FastJet'),
+    flavorType = cms.string('J'),
+    levels = cms.vstring(
+        'L1FastJet',
         'L2Relative',
         'L3Absolute',
-        'L2L3Residual'),
+        'L2L3Residual'
+    ),
+    mightGet = cms.optional.untracked.vstring,
     payload = cms.string('AK4PFPuppi'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    src = cms.InputTag("slimmedJetsPuppi"),
+    useNPV = cms.bool(True),
+    useRho = cms.bool(True)
 )
 
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
-
-updatedJetsPuppi = updatedPatJets.clone(
-    addBTagInfo=False,
-    jetSource='slimmedJetsPuppi',
-    jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetPuppiCorrFactorsNano") ),
+updatedJetsPuppi = cms.EDProducer("PATJetUpdater",
+    addBTagInfo = cms.bool(False),
+    addDiscriminators = cms.bool(True),
+    addJetCorrFactors = cms.bool(True),
+    addTagInfos = cms.bool(False),
+    discriminatorSources = cms.VInputTag(),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetPuppiCorrFactorsNano")),
+    jetSource = cms.InputTag("slimmedJetsPuppi"),
+    mightGet = cms.optional.untracked.vstring,
+    printWarning = cms.bool(True),
+    sort = cms.bool(True),
+    tagInfoSources = cms.VInputTag(),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(),
+        userFunctions = cms.vstring(),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        )
+    )
 )
 
 tightJetPuppiId = cms.EDProducer("PatJetIDValueMapProducer",
@@ -41,8 +72,20 @@ tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 )
 
 #HF shower shape recomputation
-from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
-hfJetPuppiShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJetsPuppi",vertices="offlineSlimmedPrimaryVertices")
+hfJetPuppiShowerShapeforNanoAOD = cms.EDProducer("HFJetShowerShape",
+    hfTowerEtaWidth = cms.double(0.175),
+    hfTowerPhiWidth = cms.double(0.175),
+    jetEtaThreshold = cms.double(2.9),
+    jetPtThreshold = cms.double(25),
+    jetReferenceRadius = cms.double(0.4),
+    jets = cms.InputTag("updatedJetsPuppi"),
+    mightGet = cms.optional.untracked.vstring,
+    offsetPerPU = cms.double(0.4),
+    stripPtThreshold = cms.double(10),
+    vertexRecoEffcy = cms.double(0.7),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    widthPtThreshold = cms.double(3)
+)
 
 updatedJetsPuppiWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
     src = cms.InputTag("updatedJetsPuppi"),

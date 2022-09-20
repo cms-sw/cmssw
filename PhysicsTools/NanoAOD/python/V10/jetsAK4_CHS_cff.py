@@ -5,22 +5,55 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 ##################### User floats producers, selectors ##########################
 
-from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
 #      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-jetCorrFactorsNano = patJetCorrFactors.clone(src='slimmedJets',
-    levels = cms.vstring('L1FastJet',
+jetCorrFactorsNano = cms.EDProducer("JetCorrFactorsProducer",
+    emf = cms.bool(False),
+    extraJPTOffset = cms.string('L1FastJet'),
+    flavorType = cms.string('J'),
+    levels = cms.vstring(
+        'L1FastJet',
         'L2Relative',
         'L3Absolute',
-        'L2L3Residual'),
+        'L2L3Residual'
+    ),
+    mightGet = cms.optional.untracked.vstring,
+    payload = cms.string('AK4PFchs'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    src = cms.InputTag("slimmedJets"),
+    useNPV = cms.bool(True),
+    useRho = cms.bool(True)
 )
 
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
-updatedJets = updatedPatJets.clone(
-    addBTagInfo=False,
-    jetSource='slimmedJets',
-    jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsNano") ),
+updatedJets = cms.EDProducer("PATJetUpdater",
+    addBTagInfo = cms.bool(False),
+    addDiscriminators = cms.bool(True),
+    addJetCorrFactors = cms.bool(True),
+    addTagInfos = cms.bool(False),
+    discriminatorSources = cms.VInputTag(),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactorsNano")),
+    jetSource = cms.InputTag("slimmedJets"),
+    mightGet = cms.optional.untracked.vstring,
+    printWarning = cms.bool(True),
+    sort = cms.bool(True),
+    tagInfoSources = cms.VInputTag(),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(),
+        userFunctions = cms.vstring(),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        )
+    )
 )
 
 #
@@ -317,8 +350,13 @@ run2_jme_2017.toModify( cjetNN,outputFormulas = cms.vstring(["at(0)*0.2471852451
 #
 # Quark-Gluon Likelihood (QGL)
 #
-from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
-qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
+qgtagger=cms.EDProducer("QGTagger",
+    jetsLabel = cms.string('QGL_AK4PFchs'),
+    srcJets = cms.InputTag("updatedJets"),
+    srcRho = cms.InputTag("fixedGridRhoFastjetAll"),
+    srcVertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    useQualityCuts = cms.bool(False)
+)
 
 #
 # PileUp ID
@@ -364,8 +402,8 @@ nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
     nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
 )
 run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
+
 ################################################
 ## DeepInfoAK4CHS:End
 #################################################
@@ -416,28 +454,37 @@ jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,tightJetId,tightJetIdLepVe
 # HF shower shape recomputation
 # Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...)
 #
-from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
-hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
-    modifier.toModify(updatedJetsWithUserData.userFloats,
+hfJetShowerShapeforNanoAOD = cms.EDProducer("HFJetShowerShape",
+    hfTowerEtaWidth = cms.double(0.175),
+    hfTowerPhiWidth = cms.double(0.175),
+    jetEtaThreshold = cms.double(2.9),
+    jetPtThreshold = cms.double(25),
+    jetReferenceRadius = cms.double(0.4),
+    jets = cms.InputTag("updatedJets"),
+    mightGet = cms.optional.untracked.vstring,
+    offsetPerPU = cms.double(0.4),
+    stripPtThreshold = cms.double(10),
+    vertexRecoEffcy = cms.double(0.7),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    widthPtThreshold = cms.double(3)
+)
+
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(updatedJetsWithUserData.userFloats,
         hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaEtaEta'),
         hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaPhiPhi'),
-    )
-    modifier.toModify(updatedJetsWithUserData.userInts,
+    ).toModify(updatedJetsWithUserData.userInts,
         hfcentralEtaStripSize = cms.InputTag('hfJetShowerShapeforNanoAOD:centralEtaStripSize'),
         hfadjacentEtaStripsSize = cms.InputTag('hfJetShowerShapeforNanoAOD:adjacentEtaStripsSize'),
+    ).toModify(jetTable.variables, hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10)
+    ).toModify(jetTable.variables, hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10)
+    ).toModify(jetTable.variables, hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)")
+    ).toModify(jetTable.variables, hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)")
+    ).toModify(jetUserDataTask, jetUserDataTask.add(hfJetShowerShapeforNanoAOD)
     )
-    modifier.toModify(jetTable.variables, hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10))
-    modifier.toModify(jetTable.variables, hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10))
-    modifier.toModify(jetTable.variables, hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"))
-    modifier.toModify(jetTable.variables, hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)"))
-    modifier.toModify(jetUserDataTask, jetUserDataTask.add(hfJetShowerShapeforNanoAOD))
 
-_jetUserDataTask2016 = jetUserDataTask.copy()
-_jetUserDataTask2016.add(looseJetId)
+_jetUserDataTask2016 = cms.Task(jetUserDataTask.copy(), looseJetId)
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-  modifier.toReplaceWith(jetUserDataTask,_jetUserDataTask2016)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(jetUserDataTask,_jetUserDataTask2016)
 
 #before cross linking
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)

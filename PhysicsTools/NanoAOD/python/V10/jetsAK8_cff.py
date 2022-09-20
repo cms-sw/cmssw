@@ -3,24 +3,57 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
-from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
 #      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8',
-    levels = cms.vstring('L1FastJet',
+jetCorrFactorsAK8 = cms.EDProducer("JetCorrFactorsProducer",
+    emf = cms.bool(False),
+    extraJPTOffset = cms.string('L1FastJet'),
+    flavorType = cms.string('J'),
+    levels = cms.vstring(
+        'L1FastJet',
         'L2Relative',
         'L3Absolute',
-        'L2L3Residual'),
+        'L2L3Residual'
+    ),
+    mightGet = cms.optional.untracked.vstring,
     payload = cms.string('AK8PFPuppi'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    src = cms.InputTag("slimmedJetsAK8"),
+    useNPV = cms.bool(True),
+    useRho = cms.bool(True)
 )
+
 run2_miniAOD_80XLegacy.toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
 
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
-updatedJetsAK8 = updatedPatJets.clone(
-    addBTagInfo=False,
-    jetSource='slimmedJetsAK8',
-    jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsAK8") ),
+updatedJetsAK8 = cms.EDProducer("PATJetUpdater",
+    addBTagInfo = cms.bool(False),
+    addDiscriminators = cms.bool(True),
+    addJetCorrFactors = cms.bool(True),
+    addTagInfos = cms.bool(False),
+    discriminatorSources = cms.VInputTag(),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactorsAK8")),
+    jetSource = cms.InputTag("slimmedJetsAK8"),
+    mightGet = cms.optional.untracked.vstring,
+    printWarning = cms.bool(True),
+    sort = cms.bool(True),
+    tagInfoSources = cms.VInputTag(),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(),
+        userFunctions = cms.vstring(),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        )
+    )
 )
 
 #
