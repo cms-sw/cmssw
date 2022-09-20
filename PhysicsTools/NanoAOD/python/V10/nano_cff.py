@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ##these imports do not need to be copied, as they are very common definitions
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 ##these imports do need to be "frozen" for V10
 from PhysicsTools.NanoAOD.V10.jetsAK4_CHS_cff import *
 from PhysicsTools.NanoAOD.V10.jetsAK4_Puppi_cff import *
@@ -27,7 +28,6 @@ from PhysicsTools.NanoAOD.V10.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.V10.isotracks_cff import *
 from PhysicsTools.NanoAOD.V10.protons_cff import *
 from PhysicsTools.NanoAOD.V10.btagWeightTable_cff import *
-from PhysicsTools.NanoAOD.V10.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.V10.fsrPhotons_cff import *
 from PhysicsTools.NanoAOD.V10.softActivity_cff import *
 
