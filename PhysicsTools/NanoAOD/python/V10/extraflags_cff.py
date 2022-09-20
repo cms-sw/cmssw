@@ -11,8 +11,12 @@ badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
     vtx = cms.InputTag("offlineSlimmedPrimaryVertices")
 )
 
-cloneGlobalMuonTagger = cloneGlobalMuonTaggerMAOD.clone(
-    taggingMode = True
+cloneGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
+    muonPtCut = cms.double(20),
+    muons = cms.InputTag("slimmedMuons"),
+    selectClones = cms.bool(True),
+    taggingMode = cms.bool(True),
+    vtx = cms.InputTag("offlineSlimmedPrimaryVertices")
 )
 
 BadPFMuonTagger = cms.EDFilter("BadParticleFilter",
@@ -76,11 +80,7 @@ ecalBadCalibFilterNanoTagger = cms.EDFilter("EcalBadCalibFilter",
 )
 
 # modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(extraFlagsTable, variables= cms.PSet())
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)")))
-#for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-#    modifier.toModify(extraFlagsTable, variables= cms.PSet())
-#    modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)")))
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(extraFlagsTable, variables= cms.PSet()).toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)")))
 
 
 # empty task as default
