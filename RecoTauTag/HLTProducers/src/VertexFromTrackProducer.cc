@@ -197,3 +197,6 @@ void VertexFromTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& d
       "taken from BeamSpot/Vertex");
   descriptions.add("hltVertexFromTrackProducer", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(VertexFromTrackProducer);

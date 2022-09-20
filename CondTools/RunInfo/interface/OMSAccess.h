@@ -187,6 +187,9 @@ namespace cond {
       std::stringstream filter;
       if (m_filter.empty()) {
         filter << "?";
+        if (!m_limit.empty()) {
+          m_limit.front() = '&';
+        }
       } else {
         filter << m_filter << "&";
       }
@@ -222,6 +225,9 @@ namespace cond {
     // not null filter
     inline OMSServiceQuery& filterNotNull(const std::string& varName) { return filterNEQ(varName, SNULL); }
 
+    // limit for the page size, when unspecified OMS's default limit is 100
+    OMSServiceQuery& limit(int value);
+
     // triggers the execution of the query ( calling curl functions )
     bool execute();
 
@@ -240,6 +246,7 @@ namespace cond {
   private:
     std::string m_url;
     std::string m_filter;
+    std::string m_limit;
     std::string m_varList;
     std::unique_ptr<OMSServiceResult> m_result;
     unsigned long m_status = 0;

@@ -9,5 +9,5 @@ pfClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
         offset = cms.vdouble(0.838, 0.924, 1.101),
         scale = cms.vdouble(0.012, 0.017, 0.018)
     ),
-    src = cms.InputTag("L1EGammaClusterEmuProducer")
+    src = cms.InputTag("l1tEGammaClusterEmuProducer")
 )

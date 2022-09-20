@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 from collections import OrderedDict
-from .MatrixUtil import merge, Kby
+from .MatrixUtil import merge, Kby, Mby
 import re
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
@@ -1412,34 +1412,56 @@ upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
     offset = 0.6,
 )
 
+# ECAL Phase 2 development WF
 class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflow_ecalDevel, self).__init__(
+            steps = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'HARVESTGlobal',
+            ],
+            PU = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'HARVESTGlobal',
+            ],
+            **kwargs)
+        self.__digi = digi
+        self.__reco = reco
+        self.__harvest = harvest
+
     def setup_(self, step, stepName, stepDict, k, properties):
         # temporarily remove trigger & downstream steps
         mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
             mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
+            mods |= self.__digi
         elif 'Reco' in step:
             mods['-s'] = 'RAW2DIGI,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
             mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
             mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+            mods |= self.__reco
         elif 'HARVEST' in step:
             mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
+            mods |= self.__harvest
         stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
+
+# ECAL Phase 2 workflow running on CPU
 upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
-    steps = [
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
     suffix = '_ecalDevel',
     offset = 0.61,
+)
+
+# ECAL Phase 2 workflow running on CPU or GPU (if available)
+upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
+    reco = {'--procModifiers': 'gpu'},
+    suffix = '_ecalDevelGPU',
+    offset = 0.612,
 )
 
 class UpgradeWorkflow_0T(UpgradeWorkflow):
@@ -2364,7 +2386,12 @@ upgradeFragments = OrderedDict([
     ('DoubleMuFlatPt2To100Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To100Dxy100')),
     ('BuToJPsiPrimeKToJPsiPiPiK_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(223,2222),'BuToJPsiPrimeKToJPsiPiPiK_14TeV')), # 5.7%
     ('Psi2SToJPsiPiPi_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(45,500),'Psi2SToJPsiPiPi_14TeV')), # 24.6%
-    ('XiMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi', UpgradeFragment(Kby(8000,90000),'XiMinus_13p6TeV')), #2%
+    ('XiMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi', UpgradeFragment(Kby(8000,90000),'XiMinus_13p6TeV')), #2.8%
     ('Chib1PToUpsilon1SGamma_MuFilter_TuneCP5_14TeV-pythia8_evtgen_cfi', UpgradeFragment(Kby(3600,36000),'Chib1PToUpsilon1SGamma_14TeV')), #2.8%
     ('ChicToJpsiGamma_MuFilter_TuneCP5_14TeV_pythia8_evtgen_cfi', UpgradeFragment(Kby(2000,20000),'ChicToJpsiGamma_14TeV')), #5%
+    ('B0ToJpsiK0s_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Kby(38000,38000),'B0ToJpsiK0s_DGamma0_13p6TeV')), #2.7%
+    ('DStarToD0Pi_D0ToKsPiPi_inclusive_SoftQCD_TuneCP5_13p6TeV-pythia8-evtgen',UpgradeFragment(Kby(38000,38000),'DStarToD0Pi_D0ToKsPiPi_13p6TeV')), #1.3%
+    ('LbToJpsiLambda_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Mby(66,660000),'LbToJpsiLambda_DGamma0_13p6TeV')), #0.3%
+    ('LbToJpsiXiK0sPi_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Mby(50,500000),'LbToJpsiXiK0sPr_DGamma0_13p6TeV')), #0.6%
+    ('OmegaMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi',UpgradeFragment(Mby(100,1000000),'OmegaMinus_13p6TeV')), #0.1%
 ])

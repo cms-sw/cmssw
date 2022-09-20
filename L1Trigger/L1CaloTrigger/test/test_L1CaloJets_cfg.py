@@ -64,7 +64,7 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 ### from L1Trigger.Configuration.customiseUtils import L1TrackTriggerTracklet
 ### process = L1TrackTriggerTracklet(process)
 process.load('L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff')
-process.L1TrackTriggerTracklet_step = cms.Path(process.L1HybridTracksWithAssociators)
+process.L1TrackTriggerTracklet_step = cms.Path(process.L1THybridTracksWithAssociators)
 
 
 
@@ -74,7 +74,7 @@ process.L1TrackTriggerTracklet_step = cms.Path(process.L1HybridTracksWithAssocia
 # ----    Load the L1CaloJet sequence designed to accompany process named "REPR"
 
 process.load('L1Trigger.L1CaloTrigger.L1CaloJets_cff')
-process.l1CaloJets = cms.Path(process.l1CaloJetsSequence)
+process.l1CaloJets = cms.Path(process.L1TCaloJetsSequence)
 
 
 
@@ -82,13 +82,13 @@ process.Out = cms.OutputModule( "PoolOutputModule",
      fileName = cms.untracked.string( "l1caloJetTest.root" ),
      fastCloning = cms.untracked.bool( False ),
      outputCommands = cms.untracked.vstring(
-                          "keep *_L1EGammaClusterEmuProducer_*_*",
-                          "keep *_L1CaloJetProducer_*_*",
-                          "keep *_L1CaloJetHTTProducer_*_*",
+                          "keep *_l1tEGammaClusterEmuProducer_*_*",
+                          "keep *_l1tCaloJetProducer_*_*",
+                          "keep *_l1tCaloJetHTTProducer_*_*",
                           "keep *_TriggerResults_*_*",
                           "keep *_simHcalTriggerPrimitiveDigis_*_*",
                           "keep *_EcalEBTrigPrimProducer_*_*",
-                          "keep *_hgcalTowerProducer_*_*"
+                          "keep *_l1tHGCalTowerProducer_*_*"
                           )
 )
 

@@ -120,7 +120,7 @@ public:
 
 public:
   // default c'tor
-  ProcessCallGraph();
+  ProcessCallGraph() = default;
 
   // to be called from preSourceConstruction(...)
   void preSourceConstruction(edm::ModuleDescription const &);
@@ -172,7 +172,7 @@ private:
   GraphType graph_;
 
   // module id of the Source
-  unsigned int source_;
+  unsigned int source_ = edm::ModuleDescription::invalidID();
 
   // map each (sub)process name to a "process id"
   std::unordered_map<std::string, unsigned int> process_id_;

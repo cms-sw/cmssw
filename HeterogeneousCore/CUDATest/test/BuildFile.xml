@@ -11,4 +11,5 @@
     <test name="TestCUDATest" command="runtests.sh cpu"/>
   </ifrelease>
 
+  <test name="testHeterogeneousCoreCUDATestWriteRead" command="testHeterogeneousCoreCUDATestWriteRead.sh"/>
 </iftool>

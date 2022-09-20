@@ -24,24 +24,18 @@ int main(int argc, char** argv) {
 
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
-  // PPSTimimg
-  if (argc == 4) {
-    std::string tag = argv[1];
-    cond::Time_t start = static_cast<unsigned long long>(std::strtol(argv[2], &argv[2], 10));
-    cond::Time_t end = static_cast<unsigned long long>(std::strtol(argv[3], &argv[3], 10));
+  std::string tag = "CTPPPSTimingCalibration_HPTDC_byPCL_v0_prompt";
+  cond::Time_t start = static_cast<unsigned long long>(355892);
+  cond::Time_t end = static_cast<unsigned long long>(357079);
 
-    edm::LogPrint("testPPSCalibrationPI") << "## Exercising TimingCalibration plots ";
+  edm::LogPrint("testPPSCalibrationPI") << "## Exercising TimingCalibration plots ";
 
-    ParametersPerChannel<PPSTimingCalibrationPI::db0,
-                         PPSTimingCalibrationPI::plane0,
-                         PPSTimingCalibrationPI::parameter0,
-                         PPSTimingCalibration>
-        test;
-    test.process(connectionString, PI::mk_input(tag, start, end));
-    edm::LogPrint("testparametersPerChannel") << test.data();
-  } else {
-    edm::LogPrint("testparametersPerChannel") << "Wrong arguments";
-  }
-
+  ParametersPerChannel<PPSTimingCalibrationPI::db0,
+                       PPSTimingCalibrationPI::plane0,
+                       PPSTimingCalibrationPI::parameter0,
+                       PPSTimingCalibration>
+      test;
+  test.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testparametersPerChannel") << test.data();
   Py_Finalize();
 }

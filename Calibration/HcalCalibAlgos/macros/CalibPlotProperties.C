@@ -6,7 +6,7 @@
 //                         useGen, scale, useScale, etalo, etahi, runlo, runhi,
 //                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
 //                         etamax);
-//  c1.Loop();
+//  c1.Loop(nentries);
 //  c1.savePlot(histFileName, append, all, debug);
 //
 //        This will prepare a set of histograms with properties of the tracks
@@ -19,18 +19,18 @@
 //
 //   where:
 //
-//   fname   (std::string)     = file name of the input ROOT tree
+//   fname   (const char*)     = file name of the input ROOT tree
 //                               or name of the file containing a list of
 //                               file names of input ROOT trees
-//   dirname (std::string)     = name of the directory where Tree resides
+//   dirname (const char*)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
-//   dupFileName (char*)       = name of the file containing list of entries
+//   dupFileName (const char*) = name of the file containing list of entries
 //                               of duplicate events
 //   prefix (std::string)      = String to be added to the name of histogram
 //                               (usually a 4 character string; default="")
-//   corrFileName (char*)      = name of the text file having the correction
+//   corrFileName (const char*)= name of the text file having the correction
 //                               factors to be used (default="", no corr.)
-//   rcorFileName (char*)      = name of the text file having the correction
+//   rcorFileName (const char*)= name of the text file having the correction
 //                               factors as a function of run numbers or depth
 //                               to be used for raddam/depth dependent
 //                               correction  (default="", no corr.)
@@ -83,6 +83,8 @@
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
 //                               in the table is taken (false)
+//   nentries        (int)     = maximum number of entries to be processed,
+//                               if -1, all entries to be processed (-1)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
@@ -103,7 +105,6 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <TF1.h>
 #include <TH1D.h>
 #include <TH2F.h>
 #include <TProfile.h>
@@ -119,10 +120,12 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <string>
 
+void unpackDetId(unsigned int, int &, int &, int &, int &, int &);
 #include "CalibCorr.C"
 
 namespace CalibPlots {
@@ -291,7 +294,7 @@ private:
   std::vector<Long64_t> entries_;
   std::vector<std::pair<int, int> > events_;
   TH1D *h_p[CalibPlots::ntitles];
-  TH1D *h_eta[CalibPlots::ntitles], *h_nvtx;
+  TH1D *h_eta[CalibPlots::ntitles], *h_nvtx, *h_nvtxEv, *h_nvtxTk;
   std::vector<TH1D *> h_eta0, h_eta1, h_eta2, h_eta3, h_eta4;
   std::vector<TH1D *> h_dL1, h_vtx;
   std::vector<TH1D *> h_etaEH[CalibPlots::npbin0];
@@ -488,7 +491,7 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   Notify();
 
   if (std::string(dupFileName) != "") {
-    ifstream infil1(dupFileName);
+    std::ifstream infil1(dupFileName);
     if (!infil1.is_open()) {
       std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
     } else {
@@ -509,6 +512,12 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
 
   if (plotBasic_) {
     std::cout << "Book Basic Histos" << std::endl;
+    h_nvtx = new TH1D("hnvtx", "Number of vertices (selected entries)", 10, 0, 100);
+    h_nvtx->Sumw2();
+    h_nvtxEv = new TH1D("hnvtxEv", "Number of vertices (selected events)", 10, 0, 100);
+    h_nvtxEv->Sumw2();
+    h_nvtxTk = new TH1D("hnvtxTk", "Number of vertices (selected tracks)", 10, 0, 100);
+    h_nvtxTk->Sumw2();
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       sprintf(name, "%sp%d", prefix_.c_str(), k);
       sprintf(title, "Momentum for %s", CalibPlots::getTitle(k).c_str());
@@ -685,8 +694,6 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   }
 
   if (plotHists_) {
-    h_nvtx = new TH1D("hnvtx", "Number of vertices", 10, 0, 100);
-    h_nvtx->Sumw2();
     for (int i = 0; i < CalibPlots::ndepth; i++) {
       sprintf(name, "b_edepth%d", i);
       sprintf(title, "Total RecHit energy in depth %d (Barrel)", i + 1);
@@ -775,6 +782,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
   if (nentries < 0)
     nentries = fChain->GetEntriesFast();
   std::cout << "Total entries " << nentries << ":" << fChain->GetEntriesFast() << std::endl;
+  std::vector<std::pair<int, int> > runEvent;
   Long64_t nbytes(0), nb(0);
   unsigned int duplicate(0), good(0), kount(0);
   double sel(0), selHB(0), selHE(0);
@@ -825,6 +833,15 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       if (debug)
         std::cout << "Reject Run # " << t_Run << " Event # " << t_Event << " not in the selection list" << std::endl;
       continue;
+    }
+
+    if (plotBasic_) {
+      h_nvtx->Fill(t_nVtx);
+      std::pair<int, int> runEv(t_Run, t_Event);
+      if (std::find(runEvent.begin(), runEvent.end(), runEv) == runEvent.end()) {
+        h_nvtxEv->Fill(t_nVtx);
+        runEvent.push_back(runEv);
+      }
     }
 
     // if (Cut(ientry) < 0) continue;
@@ -878,6 +895,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                 << "|" << kp << " Cuts " << t_qltyFlag << "|" << t_selectTk << "|" << (t_hmaxNearP < cut) << "|"
                 << (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut) << " Select Phi " << selPhi << std::endl;
     if (plotBasic_) {
+      h_nvtxTk->Fill(t_nVtx);
       h_p[0]->Fill(pmom, t_EventWeight);
       h_eta[0]->Fill(t_ieta, t_EventWeight);
       if (kp < CalibPlots::npbin0)
@@ -937,7 +955,6 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         }
 
         if (plotHists_) {
-          h_nvtx->Fill(t_nVtx);
           if ((std::fabs(rat - 1) < 0.15) && (kp == kp50) && ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
             float weight = (dataMC_ ? t_EventWeight : t_EventWeight * puweight(t_nVtx));
             h_etaE->Fill(t_ieta, eHcal, weight);
@@ -1048,6 +1065,11 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
   theFile->cd();
 
   if (plotBasic_) {
+    if (debug)
+      std::cout << "nvtx " << h_nvtx << ":" << h_nvtxEv << ":" << h_nvtxTk << std::endl;
+    h_nvtx->Write();
+    h_nvtxEv->Write();
+    h_nvtxTk->Write();
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       if (debug)
         std::cout << "[" << k << "] p " << h_p[k] << " eta " << h_eta[k] << std::endl;
@@ -1134,8 +1156,7 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
 
   if (plotHists_) {
     if (debug)
-      std::cout << "nvtx " << h_nvtx << " etaE " << h_etaE << std::endl;
-    h_nvtx->Write();
+      std::cout << "etaE " << h_etaE << std::endl;
     h_etaE->Write();
     for (int i = 0; i < CalibPlots::ndepth; ++i) {
       if (debug)
@@ -1254,6 +1275,21 @@ void PlotHist(const char *hisFileName,
   TH1D *hist;
   if ((file != nullptr) && plotBasic) {
     std::cout << "Plot Basic Histos" << std::endl;
+    hist = (TH1D *)(file->FindObjectAny("hnvtx"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected entries)");
+      PlotThisHist(hist, text, save);
+    }
+    hist = (TH1D *)(file->FindObjectAny("hnvtxEv"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected events)");
+      PlotThisHist(hist, text, save);
+    }
+    hist = (TH1D *)(file->FindObjectAny("hnvtxTk"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected tracks)");
+      PlotThisHist(hist, text, save);
+    }
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       sprintf(name, "%sp%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1466,11 +1502,6 @@ void PlotHist(const char *hisFileName,
   }
 
   if (plotHists) {
-    hist = (TH1D *)(file->FindObjectAny("hnvtx"));
-    if (hist != nullptr) {
-      hist->GetXaxis()->SetTitle("Number of vertices");
-      PlotThisHist(hist, text, save);
-    }
     for (int i = 0; i < CalibPlots::ndepth; i++) {
       sprintf(name, "b_edepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));

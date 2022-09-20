@@ -97,10 +97,10 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp2
 process = custom_geometry_V11_Imp2(process)
 
-process.hgcaltriggergeomtester = cms.EDAnalyzer(
+process.L1THGCaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9Imp2"
     )
-process.test_step = cms.Path(process.hgcaltriggergeomtester)
+process.test_step = cms.Path(process.L1THGCaltriggergeomtester)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.test_step,process.endjob_step)

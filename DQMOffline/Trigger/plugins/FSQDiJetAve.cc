@@ -883,3 +883,6 @@ void FSQDiJetAve::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(FSQDiJetAve);

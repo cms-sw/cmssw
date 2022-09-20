@@ -103,3 +103,16 @@ getPayloadData.py \
     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test ;
+
+# add examples of full 6 coordinate comparisons
+#*************************************************************************#
+getPayloadData.py \
+    --plugin pluginTrackerAlignment_PayloadInspector \
+    --plot plot_TrackerAlignmentComparatorTwoTags \
+    --tag TrackerAlignment_collisions22_v3 \
+    --tagtwo TrackerAlignment_PCL_byRun_v2_express \
+    --time_type Run \
+    --iovs '{"start_iov": "357710", "end_iov": "357710"}' \
+    --iovstwo '{"start_iov": "358156", "end_iov": "358156"}' \
+    --db Prod \
+    --test ;
