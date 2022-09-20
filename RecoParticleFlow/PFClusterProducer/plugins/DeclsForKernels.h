@@ -77,6 +77,18 @@ namespace PFRecHit {
         inputToPFRHIdx = cms::cuda::make_device_unique<int[]>(sizeof(int) * length, cudaStream);
       }
     };
+
+    struct PFRecHitConstants {
+      uint32_t nValidBarrelIds;
+      uint32_t nValidEndcapIds;
+      uint32_t nValidDetIds;
+      float qTestThresh;
+      uint32_t qTestDepthHB[4];
+      uint32_t qTestDepthHE[7];
+      float qTestThreshVsDepthHB[4];
+      float qTestThreshVsDepthHE[7];
+    };
+
   }  // namespace HCAL
 
   namespace ECAL {
