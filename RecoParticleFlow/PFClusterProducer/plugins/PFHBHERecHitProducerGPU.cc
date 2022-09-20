@@ -11,7 +11,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TTree.h>
-#endif  // PF_DEBUG_ENABLE
+#endif // PF_DEBUG_ENABLE
 
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
@@ -91,9 +91,9 @@ private:
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::PersistentDataGPU persistentDataGPU;
   PFRecHit::HCAL::ScratchDataGPU scratchDataGPU;
+  PFRecHit::HCAL::Constants cudaConstants;
 
-  uint32_t nValidBarrelIds = 0, nValidEndcapIds = 0, nValidDetIds = 0;
-  float qTestThresh = 0.;
+  uint32_t nValidDetIds = 0;
   std::vector<std::vector<DetId>>* neighboursHcal_;
   std::vector<unsigned>* vDenseIdHcal;
   std::unordered_map<unsigned, unsigned>
@@ -133,11 +133,40 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
   // producer-related parameters
   const auto& prodConf = ps.getParameterSetVector("producers")[0];
   const std::string& prodName = prodConf.getParameter<std::string>("name");
-  const auto& qualityConf = prodConf.getParameterSetVector("qualityTests");
+  const auto& qualityConf = prodConf.getParameterSetVector("qualityTests")[0];
 
-  //
-  const std::string& qualityTestName = qualityConf[0].getParameter<std::string>("name");
-  qTestThresh = (float)qualityConf[0].getParameter<double>("threshold"); // <-- this is all we need really...
+  // Single threshold
+  const std::string& qualityTestName = qualityConf.getParameter<std::string>("name");
+  cudaConstants.qTestThresh = (float)qualityConf.getParameter<double>("threshold");
+  std::cout << cudaConstants.qTestThresh << std::endl;
+
+  // Thresholds vs depth
+  const auto& qualityCutConfs = qualityConf.getParameterSetVector("cuts");
+  for (const auto& cutConf : qualityCutConfs) {
+    uint32_t detEnum = cutConf.getParameter<uint32_t>("detectorEnum");
+
+    //const auto& thresholds = pset.getParameter<std::vector<double>>("seedingThreshold");
+
+    const auto& depths = cutConf.getParameter<std::vector<uint32_t>>("depth");
+    const auto& thresholds = cutConf.getParameter<std::vector<double>>("threshold");
+    std::vector<float> fthresholds(thresholds.begin(), thresholds.end());
+    if (detEnum == HcalBarrel){
+      std::copy(depths.begin(), depths.end(), cudaConstants.qTestDepthHB);
+      std::copy(fthresholds.begin(), fthresholds.end(), cudaConstants.qTestThreshVsDepthHB);
+    }
+    else if (detEnum == HcalEndcap){
+      std::copy(depths.begin(), depths.end(), cudaConstants.qTestDepthHE);
+      std::copy(fthresholds.begin(), fthresholds.end(), cudaConstants.qTestThreshVsDepthHE);
+    }
+  }
+  for (unsigned int i = 0; i < 4; i++) std::cout << cudaConstants.qTestDepthHB[i] << " ";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i < 4; i++) std::cout << cudaConstants.qTestThreshVsDepthHB[i] << " ";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i < 7; i++) std::cout << cudaConstants.qTestDepthHE[i] << " ";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i < 7; i++) std::cout << cudaConstants.qTestThreshVsDepthHE[i] << " ";
+  std::cout << std::endl;
 
   //
   // navigator-related parameters
@@ -203,11 +232,13 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 
   const std::vector<DetId>& validBarrelDetIds = hcalBarrelGeo->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& validEndcapDetIds = hcalEndcapGeo->getValidDetIds(DetId::Hcal, HcalEndcap);
-  nValidBarrelIds = validBarrelDetIds.size();
-  nValidEndcapIds = validEndcapDetIds.size();
-  nValidDetIds = nValidBarrelIds + nValidEndcapIds;
+  cudaConstants.nValidBarrelIds = validBarrelDetIds.size();
+  cudaConstants.nValidEndcapIds = validEndcapDetIds.size();
+  nValidDetIds = cudaConstants.nValidBarrelIds + cudaConstants.nValidEndcapIds;
+  cudaConstants.nValidDetIds = nValidDetIds;
 
-  std::cout << "Found nValidBarrelIds = " << nValidBarrelIds << "\tnValidEndcapIds = " << nValidEndcapIds << std::endl;
+  std::cout << "Found nValidBarrelIds = " << cudaConstants.nValidBarrelIds
+	    << "\tnValidEndcapIds = " << cudaConstants.nValidEndcapIds << std::endl;
 
   detIdToIndex.clear();
   validDetIdPositions.clear();
@@ -309,7 +340,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
                               ctx.stream()));
 
     // Initialize Cuda constants
-    PFRecHit::HCAL::initializeCudaConstants(nValidBarrelIds, nValidEndcapIds, qTestThresh);
+    PFRecHit::HCAL::initializeCudaConstants(cudaConstants);
 
     initCuda = false;
   }
