@@ -25,26 +25,14 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('HGCalSimHitLocal',Phase2C11M9)
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalSimHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'file:SimHitValD88.root'
-    outFile = 'file:step1D88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalSimHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'file:SimHitValD92.root'
-    outFile = 'file:step1D92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalSimHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileName = 'file:SimHitValD93.root'
-    outFile = 'file:step1D93.root'
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileName = "file:SimHitVal" + options.geometry + ".root"
+outFile = "file:step1" + options.geometry + ".root"
 
+print("Geometry file:          ", geomFile)
 print("SIM Output file:        ", outFile)
 print("Validation Output file: ", fileName)
 

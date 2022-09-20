@@ -25,30 +25,19 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('HGCalRecHitLocal',Phase2C11M9)
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalRecHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'file:RecHitValD88.root'
-    outFile = 'file:step3D88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalRecHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'file:RecHitValD92.root'
-    outFile = 'file:step3D92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('testHGCalRecHitLocal',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileName = 'file:RecHitValD93.root'
-    outFile = 'file:step3D93.root'
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileName = "file:RecHitVal" + options.geometry + ".root"
+outFile = "file:step3" + options.geometry + ".root"
 
+print("Geometry file:          ", geomFile)
 print("Reco Output file:       ", outFile)
 print("Validation Output file: ", fileName)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')

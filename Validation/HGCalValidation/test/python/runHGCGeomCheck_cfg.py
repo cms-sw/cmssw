@@ -25,29 +25,18 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('GeomCheck',Phase2C11M9)
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    inFile = 'file:testHGCalSimWatcherV16.root'
-    outFile = 'hgcGeomCheckD88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    inFile = 'file:testHGCalSimWatcherV17.root'
-    outFile = 'hgcGeomCheckD92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    inFile = 'file:testHGCalSimWatcherV17N.root'
-    outFile = 'hgcGeomCheckD93.root'
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+inFile = "file:testHGCalSimWatcher" + options.geometry + ".root"
+outFile = "hgcGeomCheck" + options.geometry + ".root"
 
-print("Input file: ", inFile)
-print("Output file: ", outFile)
+print("Geometry file: ", geomFile)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
 
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
 process.load('FWCore.MessageService.MessageLogger_cfi')

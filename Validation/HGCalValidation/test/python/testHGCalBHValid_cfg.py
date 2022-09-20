@@ -25,26 +25,17 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'hgcBHValidD88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'hgcBHValidD92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileName = 'hgcBHValidD93.root'
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileName = "hgcBHValid" + options.geometry + ".root"
 
-print("Output file: ", fileName)
+print("Geometry file:  ", geomFile)
+print("Output file:    ", fileName)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
