@@ -35,6 +35,7 @@ private:
   const std::vector<int> particleID_;  // vector of particle IDs to look for
   const double minMass_;
   const double maxMass_;
+  const bool requiredOutgoingStatus_; // Whether particles required to pass filter must have outgoing status
 };
 
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
@@ -42,7 +43,8 @@ LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
       numRequired_(iConfig.getParameter<int>("NumRequired")),
       particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
       minMass_(iConfig.getParameter<double>("MinMass")),
-      maxMass_(iConfig.getParameter<double>("MaxMass")) {}
+      maxMass_(iConfig.getParameter<double>("MaxMass")),
+      requiredOutgoingStatus_(iConfig.getParameter<bool>("RequiredOutgoingStatus")) {}
 
 // ------------ method called to skim the data  ------------
 bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
@@ -57,7 +59,7 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
   double E = 0.;
 
   for (int i = 0; i < EvtHandle->hepeup().NUP; ++i) {
-    if (EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
+    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
       continue;
     }
     for (unsigned int j = 0; j < particleID_.size(); ++j) {
