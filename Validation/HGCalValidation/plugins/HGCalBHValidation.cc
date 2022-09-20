@@ -125,11 +125,11 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
         eta = HGCScintillatorDetId(id).ieta();
         phi = HGCScintillatorDetId(id).iphi();
         lay = HGCScintillatorDetId(id).layer();
-        double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-        hsi2Oc_->Fill(eta1, (phi - 0.1), energy);
+        double eta1 = (eta >= 0) ? (eta + 0.01) : (eta - 0.01);
+        hsi2Oc_->Fill(eta1, (phi - 0.01), energy);
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
-        hsimOc_->Fill(eta1, (phi - 0.1), energy);
+        hsimOc_->Fill(eta1, (phi - 0.01), energy);
         hsimLn_->Fill(lay, energy);
         hsi3Oc_->Fill(eta1, lay, energy);
         double ensum(0);
@@ -166,11 +166,11 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
         if (energy > threshold_) {
           int eta = cell.ieta();
           int phi = cell.iphi();
-          double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-          hdi2Oc_->Fill(eta1, (phi - 0.1));
+          double eta1 = (eta >= 0) ? (eta + 0.01) : (eta - 0.01);
+          hdi2Oc_->Fill(eta1, (phi - 0.01));
           if (bh) {
             hdigEn_->Fill(energy);
-            hdigOc_->Fill(eta1, (phi - 0.1));
+            hdigOc_->Fill(eta1, (phi - 0.01));
             hdigLn_->Fill(depth);
             hdi3Oc_->Fill(eta1, depth);
             ++kount;

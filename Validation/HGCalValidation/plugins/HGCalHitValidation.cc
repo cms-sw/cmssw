@@ -183,7 +183,7 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
     } else {
       edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
     }
-    const edm::ESHandle<HGCalGeometry> hgcGeom = iSetup.getHandle(tok_geom_[i]);
+    const edm::ESHandle<HGCalGeometry>& hgcGeom = iSetup.getHandle(tok_geom_[i]);
     if (hgcGeom.isValid()) {
       hgcGeometry_.push_back(hgcGeom.product());
     } else {
