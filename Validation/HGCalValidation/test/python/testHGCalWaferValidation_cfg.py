@@ -24,25 +24,19 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('TestHGCalWaferValidation',Phase2C11M9)
 
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('TEST',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
     fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360_V1.txt'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('TEST',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
-    fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360_V2.txt'
 else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('TEST',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
     fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360_V2.txt'
 
-print("File Name: ", fileName)
+print("Geometry file: ", geomFile)
+print("File Name:     ", fileName)
 
+process.load(geomFile)
 process.load('Validation.HGCalValidation.hgcalWaferValidation_cfi')
 process.hgcalWaferValidation.GeometryFileName = cms.FileInPath(fileName)
 
