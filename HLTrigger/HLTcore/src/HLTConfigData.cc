@@ -10,8 +10,8 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/path_configuration.h"
+#include "FWCore/Utilities/interface/transform.h"
 
-#include <unordered_set>
 #include <iostream>
 
 //Using this function with the 'const static within s_dummyPSet'
@@ -47,7 +47,9 @@ HLTConfigData::HLTConfigData()
       datasetNames_(),
       datasetIndex_(),
       datasetContents_(),
-      hltPrescaleTable_() {
+      hltPrescaleTable_(),
+      hltPrescaleTableValuesDouble_{},
+      hltPrescaleTableValuesFractional_{} {
   if (processPSet_->id().isValid()) {
     extract();
   }
@@ -72,7 +74,9 @@ HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet)
       datasetNames_(),
       datasetIndex_(),
       datasetContents_(),
-      hltPrescaleTable_() {
+      hltPrescaleTable_(),
+      hltPrescaleTableValuesDouble_{},
+      hltPrescaleTableValuesFractional_{} {
   if (processPSet_->id().isValid()) {
     extract();
   }
@@ -271,6 +275,14 @@ void HLTConfigData::extract() {
     }
   }
 
+  // fill maps to return prescales values with allowed types (double, FractionalPrescale)
+  for (auto const& [key, psVals] : hltPrescaleTable_.table()) {
+    hltPrescaleTableValuesDouble_.insert(
+        {key, edm::vector_transform(psVals, [](auto const ps) -> double { return ps; })});
+    hltPrescaleTableValuesFractional_.insert(
+        {key, edm::vector_transform(psVals, [](auto const ps) -> FractionalPrescale { return ps; })});
+  }
+
   // Determine L1T Type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
   l1tType_ = 0;
   unsigned int stage1(0), stage2(0);
@@ -411,15 +423,13 @@ void HLTConfigData::dump(const std::string& what) const {
     }
     if (n > 0)
       cout << endl;
-    const map<string, vector<unsigned int>>& table(hltPrescaleTable_.table());
+    auto const& table = hltPrescaleTable_.table();
     cout << "HLTConfigData::dump: PrescaleTable: # of paths: " << table.size() << endl;
-    const map<string, vector<unsigned int>>::const_iterator tb(table.begin());
-    const map<string, vector<unsigned int>>::const_iterator te(table.end());
-    for (map<string, vector<unsigned int>>::const_iterator ti = tb; ti != te; ++ti) {
+    for (auto const& [key, val] : table) {
       for (unsigned int i = 0; i != n; ++i) {
-        cout << " " << ti->second.at(i);
+        cout << " " << val.at(i);
       }
-      cout << " " << ti->first << endl;
+      cout << " " << key << endl;
     }
   } else {
     cout << "HLTConfigData::dump: Unkown dump request: " << what << endl;
@@ -594,13 +604,17 @@ const std::vector<std::string>& HLTConfigData::datasetContent(const std::string&
 }
 
 unsigned int HLTConfigData::prescaleSize() const { return hltPrescaleTable_.size(); }
-unsigned int HLTConfigData::prescaleValue(unsigned int set, const std::string& trigger) const {
-  return hltPrescaleTable_.prescale(set, trigger);
+
+template <>
+std::map<std::string, std::vector<double>> const& HLTConfigData::prescaleTable() const {
+  return hltPrescaleTableValuesDouble_;
+}
+
+template <>
+std::map<std::string, std::vector<FractionalPrescale>> const& HLTConfigData::prescaleTable() const {
+  return hltPrescaleTableValuesFractional_;
 }
 
 const std::vector<std::string>& HLTConfigData::prescaleLabels() const { return hltPrescaleTable_.labels(); }
-const std::map<std::string, std::vector<unsigned int>>& HLTConfigData::prescaleTable() const {
-  return hltPrescaleTable_.table();
-}
 
 edm::ParameterSetID HLTConfigData::id() const { return processPSet_->id(); }

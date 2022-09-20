@@ -139,7 +139,7 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
 
     if (TString(*iHLT).Contains(TRegexp(hltTag_))) {
       triggerInMenu[*iHLT] = true;
-      if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
+      if (hltPrescaleProvider_.prescaleValue<double>(event, eventSetup, *iHLT) == 1)
         triggerUnprescaled[*iHLT] = true;
     }
   }
