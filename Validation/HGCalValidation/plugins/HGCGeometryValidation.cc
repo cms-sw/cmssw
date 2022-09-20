@@ -202,7 +202,7 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
       int dtype(0), layer(0), zside(1);
       std::pair<float, float> xy;
       if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
-	  (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
         HGCSiliconDetId id(hitIdx[i]);
         dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
         layer = id.layer();
