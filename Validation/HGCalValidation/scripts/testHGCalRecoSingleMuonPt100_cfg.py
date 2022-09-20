@@ -25,32 +25,18 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('SingleMuonReco',Phase2C11I13M9)
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    inFile = 'file:step2D88.root'
-    outFile = 'file:step3D88.root'
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    inFile = 'file:step2D93.root'
-    outFile = 'file:step3D93.root'
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    inFile = 'file:step2D92.root'
-    outFile = 'file:step3D92.root'
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+globalTag = "auto:phase2_realistic_T21"
+inFile = "file:step2" + options.geometry + ".root"
+outFile = "file:step3" + options.geometry + ".root"
 
-print("Global Tag: ", globalTag)
-print("Input file: ", inFile)
-print("Output file: ", outFile)
+print("Geometry file: ", geomFile)
+print("Global Tag:    ", globalTag)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
