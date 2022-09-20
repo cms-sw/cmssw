@@ -3,30 +3,51 @@ from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 # Bad/clone muon filters - tagging mode to keep the event
-from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTaggerMAOD, cloneGlobalMuonTaggerMAOD
-badGlobalMuonTagger = badGlobalMuonTaggerMAOD.clone(
-    taggingMode = True
+badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
+    muonPtCut = cms.double(20),
+    muons = cms.InputTag("slimmedMuons"),
+    selectClones = cms.bool(False),
+    taggingMode = cms.bool(True),
+    vtx = cms.InputTag("offlineSlimmedPrimaryVertices")
 )
 
 cloneGlobalMuonTagger = cloneGlobalMuonTaggerMAOD.clone(
     taggingMode = True
 )
 
-from RecoMET.METFilters.BadPFMuonFilter_cfi import BadPFMuonFilter
-BadPFMuonTagger = BadPFMuonFilter.clone(
-    PFCandidates = cms.InputTag("packedPFCandidates"),
-    muons = cms.InputTag("slimmedMuons"),
-    vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    taggingMode = True,
+BadPFMuonTagger = cms.EDFilter("BadParticleFilter",
+    PFCandidates = cms.InputTag("particleFlow"),
+    algo = cms.int32(14),
+    filterType = cms.string('BadPFMuon'),
+    innerTrackRelErr = cms.double(1),
+    maxDR = cms.double(0.001),
+    mightGet = cms.optional.untracked.vstring,
+    minDzBestTrack = cms.double(-1),
+    minMuonPt = cms.double(100),
+    minMuonTrackRelErr = cms.double(2),
+    minPtDiffRel = cms.double(0),
+    muons = cms.InputTag("muons"),
+    segmentCompatibility = cms.double(0.3),
+    taggingMode = cms.bool(False),
+    vtx = cms.InputTag("offlinePrimaryVertices")
 )
 
 # Bad charge hadron
-from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidateFilter
-BadChargedCandidateTagger = BadChargedCandidateFilter.clone(
+BadChargedCandidateTagger = cms.EDFilter("BadParticleFilter",
     PFCandidates = cms.InputTag("packedPFCandidates"),
+    algo = cms.int32(14),
+    filterType = cms.string('BadChargedCandidate'),
+    innerTrackRelErr = cms.double(1),
+    maxDR = cms.double(1e-05),
+    mightGet = cms.optional.untracked.vstring,
+    minDzBestTrack = cms.double(-1),
+    minMuonPt = cms.double(100),
+    minMuonTrackRelErr = cms.double(2),
+    minPtDiffRel = cms.double(1e-05),
     muons = cms.InputTag("slimmedMuons"),
-    vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    taggingMode = True,
+    segmentCompatibility = cms.double(0.3),
+    taggingMode = cms.bool(True),
+    vtx = cms.InputTag("offlineSlimmedPrimaryVertices")
 )
 
 extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
@@ -38,8 +59,19 @@ extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
-from RecoMET.METFilters.ecalBadCalibFilter_cfi import *
-ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
+ecalBadCalibFilterNanoTagger = cms.EDFilter("EcalBadCalibFilter",
+    EcalRecHitSource = cms.InputTag("reducedEcalRecHitsEE"),
+    baddetEcal = cms.vuint32(
+        872439604, 872422825, 872420274, 872423218, 872423215,
+        872416066, 872435036, 872439336, 872420273, 872436907,
+        872420147, 872439731, 872436657, 872420397, 872439732,
+        872439339, 872439603, 872422436, 872439861, 872437051,
+        872437052, 872420649, 872421950, 872437185, 872422564,
+        872421566, 872421695, 872421955, 872421567, 872437184,
+        872421951, 872421694, 872437056, 872437057, 872437313
+    ),
+    debug = cms.bool(False),
+    ecalMinEt = cms.double(50.0),
     taggingMode = cms.bool(True)
 )
 

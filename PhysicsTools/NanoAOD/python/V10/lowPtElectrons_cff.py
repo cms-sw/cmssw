@@ -6,16 +6,20 @@ from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 # Modules
 ################################################################################
 
-from RecoEgamma.EgammaTools.lowPtElectronModifier_cfi import lowPtElectronModifier
 modifiedLowPtElectrons = cms.EDProducer(
     "ModifiedElectronProducer",
     src = cms.InputTag("slimmedLowPtElectrons"),
     modifierConfig = cms.PSet(
-        modifications = cms.VPSet(lowPtElectronModifier)
+        modifications = cms.VPSet(cms.PSet(
+        addExtraUserVars = cms.bool(True),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
+        conversions = cms.InputTag("gsfTracksOpenConversions","gsfTracksOpenConversions"),
+        modifierName = cms.string('LowPtElectronModifier'),
+        vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+    ))
     )
 )
 
-import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 updatedLowPtElectrons = cms.EDProducer(
     "PATElectronUpdater",
     src = cms.InputTag("modifiedLowPtElectrons"),
@@ -23,8 +27,14 @@ updatedLowPtElectrons = cms.EDProducer(
     computeMiniIso = cms.bool(True),
     fixDxySign = cms.bool(False),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
-    miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB,
-    miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE,
+    miniIsoParamsB = cms.vdouble(
+        0.05, 0.2, 10.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0
+    ),
+    miniIsoParamsE = cms.vdouble(
+        0.05, 0.2, 10.0, 0.0, 0.015,
+        0.015, 0.08, 0.0, 0.0
+    )
 )
 
 isoForLowPtEle = cms.EDProducer(
@@ -193,8 +203,9 @@ _modifiers = ( run2_miniAOD_80XLegacy |
 (_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
 
 # To preserve "nano v9" functionality ...
-
+# dependency that might be dropped
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
+
 run2_nanoAOD_106Xv2.toModify(modifiedLowPtElectrons.modifierConfig,
                              modifications = cms.VPSet(lowPtElectronModifier,
                                                        lowPtRegressionModifier))
@@ -219,6 +230,6 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
     ],
 )
 
-_lowPtElectronTask = cms.Task(lowPtPATElectronID)
-_lowPtElectronTask.add(lowPtElectronTask.copy())
+_lowPtElectronTask = cms.Task(lowPtPATElectronID, lowPtElectronTask.copy())
+
 run2_nanoAOD_106Xv2.toReplaceWith(lowPtElectronTask,_lowPtElectronTask)

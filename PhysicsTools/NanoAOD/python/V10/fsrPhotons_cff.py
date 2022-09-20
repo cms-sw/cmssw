@@ -1,12 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import P3Vars,Var
 
-from CommonTools.RecoUtils.leptonFSRProducer_cfi import leptonFSRProducer
-leptonFSRphotons = leptonFSRProducer.clone(
-  packedPFCandidates = "packedPFCandidates",
-  slimmedElectrons = "slimmedElectrons", #for footrprint veto
-  muons = "linkedObjects:muons",
-  electrons = "linkedObjects:electrons",
+
+leptonFSRphotons = cms.EDProducer("LeptonFSRProducer",
+    deltaROverEt2Max = cms.double(0.05),
+    eleEtaMax = cms.double(2.5),
+    elePtMin = cms.double(5),
+    electrons = cms.InputTag("linkedObjects","electrons"),
+    isolation = cms.double(2),
+    mightGet = cms.optional.untracked.vstring,
+    muonEtaMax = cms.double(2.4),
+    muonPtMin = cms.double(3),
+    muons = cms.InputTag("linkedObjects","muons"),
+    packedPFCandidates = cms.InputTag("packedPFCandidates"),
+    photonPtMin = cms.double(2),
+    slimmedElectrons = cms.InputTag("slimmedElectrons")
 )
 
 fsrTable = cms.EDProducer("SimpleCandidateFlatTableProducer",

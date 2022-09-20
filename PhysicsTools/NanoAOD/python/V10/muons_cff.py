@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
 # this below is used only in some eras
 slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
@@ -11,7 +10,10 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     computeMiniIso = cms.bool(False),
     fixDxySign = cms.bool(True),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
-    miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
+    miniIsoParams = cms.vdouble(
+        0.05, 0.2, 10.0, 0.5, 0.0001,
+        0.01, 0.01, 0.01, 0.0
+    ),
     recomputeMuonBasicSelectors = cms.bool(False),
 )
 run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True, recomputeMuonBasicSelectors = True )

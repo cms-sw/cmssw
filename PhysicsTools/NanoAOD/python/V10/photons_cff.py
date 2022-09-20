@@ -65,8 +65,8 @@ isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
     EAFile_PFIso_Neu = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased_V2.txt"),
     EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfPhotons_90percentBased_V2.txt"),
 )
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(isoForPho,
+
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(isoForPho,
         EAFile_PFIso_Chg = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfChargedHadrons_90percentBased.txt"),
         EAFile_PFIso_Neu = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased.txt"),
         EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
@@ -74,11 +74,38 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 
 seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimmedPhotons"))
 
-import RecoEgamma.EgammaTools.calibratedEgammas_cff
-
-calibratedPatPhotonsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"),
+calibratedPatPhotonsNano = cms.EDProducer("CalibratedPatPhotonProducer",
+    correctionFile = cms.string('EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain'),
+    mightGet = cms.optional.untracked.vstring,
+    minEtToCalibrate = cms.double(5.0),
+    produceCalibratedObjs = cms.bool(False),
+    recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
+    semiDeterministic = cms.bool(True),
+    src = cms.InputTag("slimmedPhotons"),
+    valueMapsStored = cms.vstring(
+        'energyScaleStatUp',
+        'energyScaleStatDown',
+        'energyScaleSystUp',
+        'energyScaleSystDown',
+        'energyScaleGainUp',
+        'energyScaleGainDown',
+        'energySigmaRhoUp',
+        'energySigmaRhoDown',
+        'energySigmaPhiUp',
+        'energySigmaPhiDown',
+        'energyScaleUp',
+        'energyScaleDown',
+        'energySigmaUp',
+        'energySigmaDown',
+        'energyScaleValue',
+        'energySigmaValue',
+        'energySmearNrSigma',
+        'ecalEnergyPreCorr',
+        'ecalEnergyErrPreCorr',
+        'ecalEnergyPostCorr',
+        'ecalEnergyErrPostCorr'
+    )
 )
 
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedPatPhotonsNano,
@@ -108,7 +135,6 @@ run2_nanoAOD_94XMiniAODv1.toModify(calibratedPatPhotonsNano,
 run2_nanoAOD_94XMiniAODv2.toModify(calibratedPatPhotonsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
 )
-
 
 run2_miniAOD_80XLegacy.toModify(calibratedPatPhotonsNano,
                                 correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc")
@@ -243,23 +269,17 @@ run2_nanoAOD_94X2016.toModify(photonTable.variables,
                       
     )
 
-_modifers = (run2_nanoAOD_94X2016 | run2_miniAOD_80XLegacy)
-_modifers.toModify(slimmedPhotonsWithUserData.userFloats,
+(run2_nanoAOD_94X2016 | run2_miniAOD_80XLegacy).toModify(slimmedPhotonsWithUserData.userFloats,
         mvaID_Spring16nonTrigV1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
-                  )
-_modifers.toModify(slimmedPhotonsWithUserData.userIntFromBools,
+                  ).toModify(slimmedPhotonsWithUserData.userIntFromBools,
         cutID_Spring16_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
         cutID_Spring16_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
         cutID_Spring16_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
         mvaID_Spring16nonTrigV1_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
         mvaID_Spring16nonTrigV1_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
-
-    )
-_modifers.toModify(slimmedPhotonsWithUserData.userInts,
+    ).toModify(slimmedPhotonsWithUserData.userInts,
         VIDNestedWPBitmap_Spring16V2p2 = cms.InputTag("bitmapVIDForPhoSpring16V2p2"),
-    )
-
-_modifers.toModify(photonTable.variables,
+    ).toModify(photonTable.variables,
         cutBased_Spring16V2p2 = Var(
             "userInt('cutID_Spring16_loose')+userInt('cutID_Spring16_medium')+userInt('cutID_Spring16_tight')",
             int,
@@ -308,14 +328,7 @@ slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
 #might as well fix 80X while we're at it although the differences are not so relavent for nano
 run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
 
-_modifiers = (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1)
-_modifiers.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
-_modifiers.toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X")
-_modifiers.toModify(isoForPho, src = "slimmedPhotonsTo106X")
-_modifiers.toModify(calibratedPatPhotonsNano, src = "slimmedPhotonsTo106X")
-_modifiers.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
-_modifiers.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
-
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X").toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X").toModify(isoForPho, src = "slimmedPhotonsTo106X").toModify(calibratedPatPhotonsNano, src = "slimmedPhotonsTo106X").toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X").toModify(seedGainPho, src = "slimmedPhotonsTo106X")
 
 ##adding 4 most imp scale & smearing variables to table
 (run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(photonTable.variables,
@@ -337,15 +350,54 @@ photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 
 
+photonIDValueMapProducer = cms.EDProducer("PhotonIDValueMapProducer",
+    ebReducedRecHitCollection = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    eeReducedRecHitCollection = cms.InputTag("reducedEgamma","reducedEERecHits"),
+    esReducedRecHitCollection = cms.InputTag("reducedEgamma","reducedESRecHits"),
+    isAOD = cms.bool(False),
+    mightGet = cms.optional.untracked.vstring,
+    particleBasedIsolation = cms.InputTag("particleBasedIsolation","gedPhotons"),
+    pfCandidates = cms.InputTag("packedPFCandidates"),
+    src = cms.InputTag("slimmedPhotons","","@skipCurrentProcess"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
 
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
-from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
+egmPhotonIsolation = cms.EDProducer("CITKPFIsolationSumProducer",
+    isolationConeDefinitions = cms.VPSet(
+        cms.PSet(
+            coneSize = cms.double(0.3),
+            isolateAgainst = cms.string('h+'),
+            isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
+            miniAODVertexCodes = cms.vuint32(2, 3),
+            particleBasedIsolation = cms.InputTag("particleBasedIsolation","gedPhotons"),
+            vertexIndex = cms.int32(0)
+        ),
+        cms.PSet(
+            coneSize = cms.double(0.3),
+            isolateAgainst = cms.string('h0'),
+            isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
+            miniAODVertexCodes = cms.vuint32(2, 3),
+            particleBasedIsolation = cms.InputTag("particleBasedIsolation","gedPhotons"),
+            vertexIndex = cms.int32(0)
+        ),
+        cms.PSet(
+            coneSize = cms.double(0.3),
+            isolateAgainst = cms.string('gamma'),
+            isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
+            miniAODVertexCodes = cms.vuint32(2, 3),
+            particleBasedIsolation = cms.InputTag("particleBasedIsolation","gedPhotons"),
+            vertexIndex = cms.int32(0)
+        )
+    ),
+    mightGet = cms.optional.untracked.vstring,
+    srcForIsolationCone = cms.InputTag("packedPFCandidates"),
+    srcToIsolate = cms.InputTag("slimmedPhotons")
+)
 
-_withUpdatePho_Task = cms.Task(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X)
-_withUpdatePho_Task.add(photonTask.copy())
+_withUpdatePho_Task = cms.Task(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X, photonTask.copy())
 
 (run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_94XMiniAODv1).toReplaceWith(photonTask, _withUpdatePho_Task)
 
-_withSpring16V2p2_Task = cms.Task(bitmapVIDForPhoSpring16V2p2)
-_withSpring16V2p2_Task.add(_withUpdatePho_Task.copy())
+_withSpring16V2p2_Task = cms.Task(bitmapVIDForPhoSpring16V2p2, _withUpdatePho_Task.copy())
+
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(photonTask, _withSpring16V2p2_Task)
