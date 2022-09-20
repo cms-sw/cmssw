@@ -78,7 +78,7 @@ namespace PFRecHit {
       }
     };
 
-    struct PFRecHitConstants {
+    struct Constants {
       uint32_t nValidBarrelIds;
       uint32_t nValidEndcapIds;
       uint32_t nValidDetIds;
