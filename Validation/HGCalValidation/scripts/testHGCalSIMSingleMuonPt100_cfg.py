@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
 #
-#   Options for geometry D49, D88, D92, D93
+#   Options for geometry D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D88, D92, D93")
+                  "geometry of operations: D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,39 +26,19 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D49"):
-    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-    process = cms.Process('SingleMuon',Phase2C9)
-    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    globalTag = "auto:phase2_realistic_T15"
-    outFile = "file:step1D49.root"
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    outFile = "file:step1D88.root"
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    outFile = "file:step1D93.root"
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-    outFile = "file:step1D92.root"
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('SingleMuon',Phase2C11I13M9)
 
-print("Global Tag: ", globalTag)
-print("Output file: ", outFile)
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+globalTag = "auto:phase2_realistic_T21"
+outFile = "file:step1" + options.geometry + ".root"
+
+print("Geometry file: ", geomFile)
+print("Global Tag:    ", globalTag)
+print("Output file:   ", outFile)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
