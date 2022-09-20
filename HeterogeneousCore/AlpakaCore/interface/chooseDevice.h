@@ -1,6 +1,7 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_chooseDevice_h
 #define HeterogeneousCore_AlpakaCore_interface_chooseDevice_h
 
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
