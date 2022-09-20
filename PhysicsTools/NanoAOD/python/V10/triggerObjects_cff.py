@@ -258,7 +258,20 @@ run2_HLTconditions_2016.toModify(
   selections = selections2016
 )
 
-from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
+prefiringweight = cms.EDProducer('L1PrefiringWeightProducer',
+  TheMuons = cms.InputTag('slimmedMuons'),
+  ThePhotons = cms.InputTag('slimmedPhotons'),
+  TheJets = cms.InputTag('slimmedJets'),
+  L1Maps = cms.string('L1PrefiringMaps.root'),
+  L1MuonParametrizations = cms.string('L1MuonPrefiringParametriations.root'),
+  DataEraECAL = cms.string('2017BtoF'),
+  DataEraMuon = cms.string('2016'),
+  UseJetEMPt = cms.bool(False),
+  PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+  PrefiringRateSystematicUnctyMuon = cms.double(0.2),
+  JetMaxMuonFraction = cms.double(0.5),
+  mightGet = cms.optional.untracked.vstring
+)
 #Next lines are for UL2016 maps
 (run2_muon_2016 & tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016preVFP"),  DataEraMuon = cms.string("2016preVFP"))
 (run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016postVFP"),  DataEraMuon = cms.string("2016postVFP"))

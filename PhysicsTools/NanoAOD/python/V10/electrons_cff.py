@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-## might be an issue with V10 support in newer release
-import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 
 from math import ceil,log
 #NOTE: All definitions of modules should point to the latest flavour of the electronTable in NanoAOD.
@@ -32,8 +30,14 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
     computeMiniIso = cms.bool(False),
     fixDxySign = cms.bool(True),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
-    miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB, # so they're in sync
-    miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE, # so they're in sync
+    miniIsoParamsB = cms.vdouble(
+        0.05, 0.2, 10.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0
+    ),
+    miniIsoParamsE = cms.vdouble(
+        0.05, 0.2, 10.0, 0.0, 0.015,
+        0.015, 0.08, 0.0, 0.0
+    )
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 ##modify the past eras
@@ -160,11 +164,72 @@ seedGainEle = cms.EDProducer("ElectronSeedGainProducer", src = cms.InputTag("sli
 ############################################seed gainELE
 ############################calibratedPatElectrons##############
 ##this is a special one, so we leave the era modifications here#####
-import RecoEgamma.EgammaTools.calibratedEgammas_cff
-
-calibratedPatElectronsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    src = "slimmedElectrons"
+calibratedPatElectronsNano = cms.EDProducer("CalibratedPatElectronProducer",
+    correctionFile = cms.string('EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain'),
+    epCombConfig = cms.PSet(
+        ecalTrkRegressionConfig = cms.PSet(
+            ebHighEtForestName = cms.ESInputTag("","electron_eb_ECALTRK"),
+            ebLowEtForestName = cms.ESInputTag("","electron_eb_ECALTRK_lowpt"),
+            eeHighEtForestName = cms.ESInputTag("","electron_ee_ECALTRK"),
+            eeLowEtForestName = cms.ESInputTag("","electron_ee_ECALTRK_lowpt"),
+            forceHighEnergyTrainingIfSaturated = cms.bool(False),
+            lowEtHighEtBoundary = cms.double(50.0),
+            rangeMaxHighEt = cms.double(3.0),
+            rangeMaxLowEt = cms.double(3.0),
+            rangeMinHighEt = cms.double(-1.0),
+            rangeMinLowEt = cms.double(-1.0)
+        ),
+        ecalTrkRegressionUncertConfig = cms.PSet(
+            ebHighEtForestName = cms.ESInputTag("","electron_eb_ECALTRK_var"),
+            ebLowEtForestName = cms.ESInputTag("","electron_eb_ECALTRK_lowpt_var"),
+            eeHighEtForestName = cms.ESInputTag("","electron_ee_ECALTRK_var"),
+            eeLowEtForestName = cms.ESInputTag("","electron_ee_ECALTRK_lowpt_var"),
+            forceHighEnergyTrainingIfSaturated = cms.bool(False),
+            lowEtHighEtBoundary = cms.double(50.0),
+            rangeMaxHighEt = cms.double(0.5),
+            rangeMaxLowEt = cms.double(0.5),
+            rangeMinHighEt = cms.double(0.0002),
+            rangeMinLowEt = cms.double(0.0002)
+        ),
+        maxEPDiffInSigmaForComb = cms.double(15.0),
+        maxEcalEnergyForComb = cms.double(200.0),
+        maxRelTrkMomErrForComb = cms.double(10.0),
+        minEOverPForComb = cms.double(0.025)
+    ),
+    mightGet = cms.optional.untracked.vstring,
+    minEtToCalibrate = cms.double(5.0),
+    produceCalibratedObjs = cms.bool(False),
+    recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
+    semiDeterministic = cms.bool(True),
+    src = cms.InputTag("slimmedElectrons"),
+    valueMapsStored = cms.vstring(
+        'energyScaleStatUp',
+        'energyScaleStatDown',
+        'energyScaleSystUp',
+        'energyScaleSystDown',
+        'energyScaleGainUp',
+        'energyScaleGainDown',
+        'energySigmaRhoUp',
+        'energySigmaRhoDown',
+        'energySigmaPhiUp',
+        'energySigmaPhiDown',
+        'energyScaleUp',
+        'energyScaleDown',
+        'energySigmaUp',
+        'energySigmaDown',
+        'energyScaleValue',
+        'energySigmaValue',
+        'energySmearNrSigma',
+        'ecalEnergyPreCorr',
+        'ecalEnergyErrPreCorr',
+        'ecalEnergyPostCorr',
+        'ecalEnergyErrPostCorr',
+        'ecalTrkEnergyPreCorr',
+        'ecalTrkEnergyErrPreCorr',
+        'ecalTrkEnergyPostCorr',
+        'ecalTrkEnergyErrPostCorr'
+    )
 )
 
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedPatElectronsNano,
@@ -572,7 +637,82 @@ _withULAndUpdate_Task = cms.Task(slimmedElectronsUpdated)
 _withULAndUpdate_Task.add(electronTask.copy())
 _modifiers.toReplaceWith(electronTask, _withULAndUpdate_Task)
 
-from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heepIDVarValueMaps
+heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    candVetosAOD = cms.vstring(
+        'ELES',
+        'NONE',
+        'NONELES'
+    ),
+    candVetosMiniAOD = cms.vstring(
+        'ELES',
+        'NONE',
+        'NONELES'
+    ),
+    candsAOD = cms.VInputTag("packedCandsForTkIso", "lostTracksForTkIso", "lostTracksForTkIso:eleTracks"),
+    candsMiniAOD = cms.VInputTag("packedPFCandidates", "lostTracks", "lostTracks:eleTracks"),
+    dataFormat = cms.int32(2),
+    ebRecHitsAOD = cms.InputTag("reducedEcalRecHitsEB"),
+    ebRecHitsMiniAOD = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    eeRecHitsAOD = cms.InputTag("reducedEcalRecHitsEB"),
+    eeRecHitsMiniAOD = cms.InputTag("reducedEgamma","reducedEERecHits"),
+    elesAOD = cms.InputTag("gedGsfElectrons"),
+    elesMiniAOD = cms.InputTag("slimmedElectrons"),
+    makeTrkIso04 = cms.bool(True),
+    trkIso04Config = cms.PSet(
+        barrelCuts = cms.PSet(
+            algosToReject = cms.vstring(),
+            allowedQualities = cms.vstring(),
+            maxDPtPt = cms.double(0.1),
+            maxDR = cms.double(0.4),
+            maxDZ = cms.double(0.1),
+            minDEta = cms.double(0.005),
+            minDR = cms.double(0.0),
+            minHits = cms.int32(8),
+            minPixelHits = cms.int32(1),
+            minPt = cms.double(1.0)
+        ),
+        endcapCuts = cms.PSet(
+            algosToReject = cms.vstring(),
+            allowedQualities = cms.vstring(),
+            maxDPtPt = cms.double(0.1),
+            maxDR = cms.double(0.4),
+            maxDZ = cms.double(0.5),
+            minDEta = cms.double(0.005),
+            minDR = cms.double(0.0),
+            minHits = cms.int32(8),
+            minPixelHits = cms.int32(1),
+            minPt = cms.double(1.0)
+        )
+    ),
+    trkIsoConfig = cms.PSet(
+        barrelCuts = cms.PSet(
+            algosToReject = cms.vstring(),
+            allowedQualities = cms.vstring(),
+            maxDPtPt = cms.double(0.1),
+            maxDR = cms.double(0.3),
+            maxDZ = cms.double(0.1),
+            minDEta = cms.double(0.005),
+            minDR = cms.double(0.0),
+            minHits = cms.int32(8),
+            minPixelHits = cms.int32(1),
+            minPt = cms.double(1.0)
+        ),
+        endcapCuts = cms.PSet(
+            algosToReject = cms.vstring(),
+            allowedQualities = cms.vstring(),
+            maxDPtPt = cms.double(0.1),
+            maxDR = cms.double(0.3),
+            maxDZ = cms.double(0.5),
+            minDEta = cms.double(0.005),
+            minDR = cms.double(0.0),
+            minHits = cms.int32(8),
+            minPixelHits = cms.int32(1),
+            minPt = cms.double(1.0)
+        )
+    )
+)
+
 _withTo106XAndUpdate_Task = cms.Task(heepIDVarValueMaps,slimmedElectronsTo106X)
 _withTo106XAndUpdate_Task.add(electronTask.copy())
 heepIDVarValueMaps.dataFormat = 2
