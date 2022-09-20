@@ -53,6 +53,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
       theOffset_L1(conf.getParameter<int>("VCaltoElectronOffset_L1")),
       theElectronPerADCGain(conf.getParameter<double>("ElectronPerADCGain")),
       doPhase2Calibration(conf.getParameter<bool>("Phase2Calibration")),
+      dropDuplicates(conf.getParameter<bool>("DropDuplicates")),
       thePhase2ReadoutMode(conf.getParameter<int>("Phase2ReadoutMode")),
       thePhase2DigiBaseline(conf.getParameter<double>("Phase2DigiBaseline")),
       thePhase2KinkADC(conf.getParameter<int>("Phase2KinkADC")),
@@ -82,6 +83,7 @@ void PixelThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<double>("ElectronPerADCGain", 135.);
+  desc.add<bool>("DropDuplicates", true);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
   desc.add<double>("Phase2DigiBaseline", 1200.);
@@ -296,8 +298,9 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
        of view of the final cluster charge since these are typically >= 20000.
     */
 
-    thePixelOccurrence[theBuffer.index(row, col)]++;                     // increment the occurrence counter
-    uint8_t occurrence = thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
+    thePixelOccurrence[theBuffer.index(row, col)]++;  // increment the occurrence counter
+    uint8_t occurrence =
+        (!dropDuplicates) ? 1 : thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
 
     switch (occurrence) {
       // the 1st occurrence (standard treatment)
