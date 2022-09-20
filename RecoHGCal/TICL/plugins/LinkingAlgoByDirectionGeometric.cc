@@ -20,9 +20,6 @@ LinkingAlgoByDirectionGeometric::LinkingAlgoByDirectionGeometric(const edm::Para
       del_ts_em_had_(conf.getParameter<double>("delta_ts_em_had")),
       del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")),
       timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
-      pid_threshold_(conf.getParameter<double>("pid_threshold")),
-      energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
-      filter_on_categories_(conf.getParameter<std::vector<int>>("filter_hadronic_on_categories")),
       cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByDirectionGeometric::~LinkingAlgoByDirectionGeometric() {}
@@ -59,9 +56,9 @@ math::XYZVector LinkingAlgoByDirectionGeometric::propagateTrackster(const Tracks
 
   zVal *= (baryc.Z() > 0) ? 1 : -1;
 
-  double par = (zVal - baryc.Z()) / directnv.Z();
-  double xOnSurface = par * directnv.X() + baryc.X();
-  double yOnSurface = par * directnv.Y() + baryc.Y();
+  float par = (zVal - baryc.Z()) / directnv.Z();
+  float xOnSurface = par * directnv.X() + baryc.X();
+  float yOnSurface = par * directnv.Y() + baryc.Y();
   Vector tPoint(xOnSurface, yOnSurface, zVal);
   if (tPoint.Eta() > 0)
     tracksterTiles[1].fill(tPoint.Eta(), tPoint.Phi(), idx);
@@ -75,7 +72,8 @@ math::XYZVector LinkingAlgoByDirectionGeometric::propagateTrackster(const Tracks
 void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
     const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
     const std::array<TICLLayerTile, 2> &tracksterTiles,
-    double delta,
+    const std::vector<Vector> &tracksterPropPoints,
+    float delta,
     unsigned trackstersSize,
     std::vector<std::vector<unsigned>> &resultCollection,
     bool useMask = false) {
@@ -85,49 +83,69 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
   // indices found close to the i-th object in the seedingCollection.
   // If specified, Tracksters are masked once found as close to an object.
   std::vector<int> mask(trackstersSize, 0);
+  float delta2 = delta * delta;
 
   for (auto &i : seedingCollection) {
-    auto seed_eta = i.first.Eta();
-    auto seed_phi = i.first.Phi();
+    float seed_eta = i.first.Eta();
+    float seed_phi = i.first.Phi();
     unsigned seedId = i.second;
     auto sideZ = seed_eta > 0;  //forward or backward region
     const TICLLayerTile &tile = tracksterTiles[sideZ];
-    double eta_min = std::max(abs(seed_eta) - delta, (double)TileConstants::minEta);
-    double eta_max = std::min(abs(seed_eta) + delta, (double)TileConstants::maxEta);
+    float eta_min = std::max(abs(seed_eta) - delta, (float)TileConstants::minEta);
+    float eta_max = std::min(abs(seed_eta) + delta, (float)TileConstants::maxEta);
 
+    // get range of bins touched by delta
     std::array<int, 4> search_box = tile.searchBoxEtaPhi(eta_min, eta_max, seed_phi - delta, seed_phi + delta);
-    if (search_box[2] > search_box[3])
-      search_box[3] += TileConstants::nPhiBins;
 
+    std::vector<unsigned> in_delta;
+    std::vector<float> distances2;
     for (int eta_i = search_box[0]; eta_i <= search_box[1]; ++eta_i) {
       for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
-        const auto &in_box = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
-        for (const unsigned t_i : in_box) {
-          if (!mask[t_i]) {
-            resultCollection[seedId].push_back(t_i);
-            if (useMask)
-              mask[t_i] = 1;
+        const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
+        for (const unsigned &t_i : in_tile) {
+          // calculate actual distances of tracksters to the seed for a more accurate cut
+          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
+                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+          if (sep2 < delta2) {
+            in_delta.push_back(t_i);
+            distances2.push_back(sep2);
           }
         }
       }
     }
+
+    // sort tracksters found in ascending order of their distances from the seed
+    std::vector<unsigned> indices(in_delta.size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::sort(indices.begin(), indices.end(), [&](unsigned i, unsigned j) { return distances2[i] < distances2[j]; });
+
+    // push back sorted tracksters in the result collection
+    for (const unsigned &index : indices) {
+      const auto &t_i = in_delta[index];
+      if (!mask[t_i]) {
+        resultCollection[seedId].push_back(t_i);
+        if (useMask)
+          mask[t_i] = 1;
+      }
+    }
+
   }  // seeding collection loop
 }
 
-bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(double &total_raw_energy,
+bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(float &total_raw_energy,
                                                               const reco::Track &track,
                                                               const Trackster &trackster,
                                                               const float &tkT,
                                                               const float &tkTErr,
                                                               const float &tkTimeQual) {
-  double threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
+  float threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
 
   bool energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
   // compatible if trackster time is within 3sigma of
   // track time; compatible if either: no time assigned
   // to trackster or track time quality is below threshold
-  double tsT = trackster.time();
-  double tsTErr = trackster.timeError();
+  float tsT = trackster.time();
+  float tsTErr = trackster.timeError();
 
   bool timeCompatible = false;
 
@@ -152,7 +170,7 @@ void LinkingAlgoByDirectionGeometric::recordTrackster(const unsigned ts,  //trac
                                                       const std::vector<Trackster> &tracksters,
                                                       const edm::Handle<std::vector<Trackster>> tsH,
                                                       std::vector<unsigned> &ts_mask,
-                                                      double &energy_in_candidate,
+                                                      float &energy_in_candidate,
                                                       TICLCandidate &candidate) {
   if (ts_mask[ts])
     return;
@@ -184,10 +202,10 @@ void LinkingAlgoByDirectionGeometric::buildLayers() {
   // build disks at HGCal front & EM-Had interface for track propagation
 
   float zVal = hgcons_->waferZ(1, true);
-  std::pair<double, double> rMinMax = hgcons_->rangeR(zVal, true);
+  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
 
   float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<double, double> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
+  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
 
   for (int iSide = 0; iSide < 2; ++iSide) {
     float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
@@ -212,7 +230,8 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
                                                      const edm::ValueMap<float> &tkTimeQual,
                                                      const std::vector<reco::Muon> &muons,
                                                      const edm::Handle<std::vector<Trackster>> tsH,
-                                                     std::vector<TICLCandidate> &resultLinked) {
+                                                     std::vector<TICLCandidate> &resultLinked,
+                                                     std::vector<TICLCandidate> &chargedHadronsFromTk) {
   const auto &tracks = *tkH;
   const auto &tracksters = *tsH;
 
@@ -235,15 +254,12 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   std::array<TICLLayerTile, 2> tsPropIntTiles = {};      // all Tracksters, propagated to lastLayerEE
   std::array<TICLLayerTile, 2> tsHadPropIntTiles = {};   // Tracksters in CE-H, propagated to lastLayerEE
 
-  // filters (true for) anything but EM
+  // linking : trackster is hadronic if its barycenter is in CE-H
   auto isHadron = [&](const Trackster &t) -> bool {
-    auto cumulative_prob = 0.;
-    for (const auto index : filter_on_categories_) {
-      cumulative_prob += t.id_probabilities(index);
-    }
-    return ((cumulative_prob <= pid_threshold_) and (t.raw_em_energy() != t.raw_energy())) or
-           (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
+    auto boundary_z = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
+    return (std::abs(t.barycenter().Z()) > boundary_z);
   };
+
   if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
     LogDebug("LinkingAlgoByDirectionGeometric") << "------- Geometric Linking ------- \n";
 
@@ -252,18 +268,20 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   candidateTrackIds.reserve(tracks.size());
   for (unsigned i = 0; i < tracks.size(); ++i) {
     const auto &tk = tracks[i];
-
     reco::TrackRef trackref = reco::TrackRef(tkH, i);
-    // also veto tracks associated to muons
+
+    // veto tracks associated to muons
     int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
+
     if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
       LogDebug("LinkingAlgoByDirectionGeometric")
           << "track " << i << " - eta " << tk.eta() << " phi " << tk.phi() << " time " << tkTime[reco::TrackRef(tkH, i)]
           << " time qual " << tkTimeQual[reco::TrackRef(tkH, i)] << "  muid " << muId << "\n";
+
     if (!cutTk_((tk)) or muId != -1)
       continue;
 
-    // record tracks that can used to make a ticlcandidate
+    // record tracks that can be used to make a ticlcandidate
     candidateTrackIds.push_back(i);
 
     // don't consider tracks below 2 GeV for linking
@@ -288,7 +306,17 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   tkPropIntColl.shrink_to_fit();
   trackPColl.shrink_to_fit();
   candidateTrackIds.shrink_to_fit();
+
   // Propagate tracksters
+
+  // Record postions of all tracksters propagated to layer 1 and lastLayerEE,
+  // to be used later for distance calculation in the link finding stage
+  // indexed by trackster index in event collection
+  std::vector<Vector> tsAllProp;
+  std::vector<Vector> tsAllPropInt;
+  tsAllProp.reserve(tracksters.size());
+  tsAllPropInt.reserve(tracksters.size());
+
   for (unsigned i = 0; i < tracksters.size(); ++i) {
     const auto &t = tracksters[i];
     if (LinkingAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
@@ -299,10 +327,12 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     // to HGCal front
     float zVal = hgcons_->waferZ(1, true);
     auto tsP = propagateTrackster(t, i, zVal, tracksterPropTiles);
+    tsAllProp.emplace_back(tsP);
 
     // to lastLayerEE
     zVal = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
     tsP = propagateTrackster(t, i, zVal, tsPropIntTiles);
+    tsAllPropInt.emplace_back(tsP);
 
     if (!isHadron(t))  // EM tracksters
       tsPropIntColl.emplace_back(tsP, i);
@@ -313,56 +343,52 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   }  // TS
   tsPropIntColl.shrink_to_fit();
   tsHadPropIntColl.shrink_to_fit();
+
   // Track - Trackster link finding
   // step 3: tracks -> all tracksters, at layer 1
 
   std::vector<std::vector<unsigned>> tsNearTk(tracks.size());
-  findTrackstersInWindow(trackPColl, tracksterPropTiles, del_tk_ts_layer1_, tracksters.size(), tsNearTk);
+  findTrackstersInWindow(trackPColl, tracksterPropTiles, tsAllProp, del_tk_ts_layer1_, tracksters.size(), tsNearTk);
 
   // step 4: tracks -> all tracksters, at lastLayerEE
 
   std::vector<std::vector<unsigned>> tsNearTkAtInt(tracks.size());
-  findTrackstersInWindow(tkPropIntColl, tsPropIntTiles, del_tk_ts_int_, tracksters.size(), tsNearTkAtInt);
+  findTrackstersInWindow(tkPropIntColl, tsPropIntTiles, tsAllPropInt, del_tk_ts_int_, tracksters.size(), tsNearTkAtInt);
 
   // Trackster - Trackster link finding
   // step 2: tracksters EM -> HAD, at lastLayerEE
 
   std::vector<std::vector<unsigned>> tsNearAtInt(tracksters.size());
-  findTrackstersInWindow(tsPropIntColl, tsHadPropIntTiles, del_ts_em_had_, tracksters.size(), tsNearAtInt, true);
+  findTrackstersInWindow(
+      tsPropIntColl, tsHadPropIntTiles, tsAllPropInt, del_ts_em_had_, tracksters.size(), tsNearAtInt);
 
   // step 1: tracksters HAD -> HAD, at lastLayerEE
 
   std::vector<std::vector<unsigned>> tsHadNearAtInt(tracksters.size());
-  findTrackstersInWindow(tsHadPropIntColl, tsHadPropIntTiles, del_ts_had_had_, tracksters.size(), tsHadNearAtInt, true);
-#ifdef EDM_ML_DEBUG
+  findTrackstersInWindow(
+      tsHadPropIntColl, tsHadPropIntTiles, tsAllPropInt, del_ts_had_had_, tracksters.size(), tsHadNearAtInt);
 
+#ifdef EDM_ML_DEBUG
   dumpLinksFound(tsNearTk, "track -> tracksters at layer 1");
   dumpLinksFound(tsNearTkAtInt, "track -> tracksters at lastLayerEE");
   dumpLinksFound(tsNearAtInt, "EM -> HAD tracksters at lastLayerEE");
   dumpLinksFound(tsHadNearAtInt, "HAD -> HAD tracksters at lastLayerEE");
 #endif  //EDM_ML_DEBUG
+
   // make final collections
 
   std::vector<TICLCandidate> chargedCandidates;
-  std::vector<TICLCandidate> chargedHadronsFromTk;
   std::vector<unsigned int> chargedMask(tracksters.size(), 0);
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       TICLCandidate chargedHad;
-      const auto &tk = tracks[i];
-      chargedHad.setCharge(tk.charge());
-      chargedHad.setPdgId(211 * tk.charge());
       chargedHad.setTrackPtr(edm::Ptr<reco::Track>(tkH, i));
-      float energy = std::sqrt(tk.p() * tk.p() + ticl::mpion2);
-      chargedHad.setRawEnergy(energy);
-      math::PtEtaPhiMLorentzVector p4Polar(tk.pt(), tk.eta(), tk.phi(), ticl::mpion);
-      chargedHad.setP4(p4Polar);
       chargedHadronsFromTk.push_back(chargedHad);
       continue;
     }
 
     TICLCandidate chargedCandidate;
-    double total_raw_energy = 0.;
+    float total_raw_energy = 0.;
 
     auto tkRef = reco::TrackRef(tkH, i);
     auto track_time = tkTime[tkRef];
@@ -425,14 +451,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
       chargedCandidates.push_back(chargedCandidate);
     } else {  // create charged hadron
       TICLCandidate chargedHad;
-      const auto &tk = tracks[i];
-      chargedHad.setCharge(tk.charge());
-      chargedHad.setPdgId(211 * tk.charge());
       chargedHad.setTrackPtr(edm::Ptr<reco::Track>(tkH, i));
-      float energy = std::sqrt(tk.p() * tk.p() + ticl::mpion2);
-      chargedHad.setRawEnergy(energy);
-      math::PtEtaPhiMLorentzVector p4Polar(tk.pt(), tk.eta(), tk.phi(), mpion);
-      chargedHad.setP4(p4Polar);
       chargedHadronsFromTk.push_back(chargedHad);
     }
   }
@@ -484,60 +503,8 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     }
   }
 
-  // set other attributes of created candidates
-  for (auto &cand : chargedCandidates) {
-    bool isHAD = false;
-    double rawE = 0.;
-    const auto track = cand.trackPtr();
-    for (const auto &ts : cand.tracksters()) {
-      // isHAD if atleast one trackster is not EM
-      if (isHadron(*ts))
-        isHAD = true;
-      rawE += ts->raw_energy();
-    }
-    auto pdgID = isHAD ? 211 : 11;
-
-    cand.setCharge(track->charge());
-    cand.setPdgId(pdgID * track->charge());
-    cand.setRawEnergy(rawE);
-    math::XYZTLorentzVector p4(rawE * track->momentum().unit().x(),
-                               rawE * track->momentum().unit().y(),
-                               rawE * track->momentum().unit().z(),
-                               rawE);
-    cand.setP4(p4);
-  }
-
-  for (auto &cand : neutralCandidates) {
-    bool isHAD = false;
-    double rawE = 0.;
-    const auto track = cand.trackPtr();
-    double wtSum_baryc[3] = {0};
-    for (const auto &ts : cand.tracksters()) {
-      if (isHadron(*ts))
-        isHAD = true;
-      rawE += ts->raw_energy();
-      wtSum_baryc[0] += (ts->raw_energy()) * (ts->barycenter().x());
-      wtSum_baryc[1] += (ts->raw_energy()) * (ts->barycenter().y());
-      wtSum_baryc[2] += (ts->raw_energy()) * (ts->barycenter().z());
-    }
-    Vector combined_baryc(wtSum_baryc[0] / rawE, wtSum_baryc[1] / rawE, wtSum_baryc[2] / rawE);
-    auto pdgID = isHAD ? 130 : 22;
-    auto const &magnitude = isHAD ? std::sqrt(rawE * rawE - ticl::mpion2) : rawE;
-
-    cand.setCharge(0);
-    cand.setPdgId(pdgID);
-    cand.setRawEnergy(rawE);
-    math::XYZTLorentzVector p4(magnitude * combined_baryc.unit().x(),
-                               magnitude * combined_baryc.unit().y(),
-                               magnitude * combined_baryc.unit().z(),
-                               rawE);
-
-    cand.setP4(p4);
-  }
-
   resultLinked.insert(std::end(resultLinked), std::begin(neutralCandidates), std::end(neutralCandidates));
   resultLinked.insert(std::end(resultLinked), std::begin(chargedCandidates), std::end(chargedCandidates));
-  resultLinked.insert(std::end(resultLinked), std::begin(chargedHadronsFromTk), std::end(chargedHadronsFromTk));
 
 }  // linkTracksters
 
@@ -550,8 +517,5 @@ void LinkingAlgoByDirectionGeometric::fillPSetDescription(edm::ParameterSetDescr
   desc.add<double>("delta_ts_em_had", 0.03);
   desc.add<double>("delta_ts_had_had", 0.03);
   desc.add<double>("track_time_quality_threshold", 0.5);
-  desc.add<double>("pid_threshold", 0.5);
-  desc.add<double>("energy_em_over_total_threshold", 0.9);
-  desc.add<std::vector<int>>("filter_hadronic_on_categories", {0, 1});
   LinkingAlgoBase::fillPSetDescription(desc);
 }
