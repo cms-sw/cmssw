@@ -21,6 +21,10 @@ namespace PFRecHit {
     __constant__ uint32_t nValidRHEndcap;
     __constant__ uint32_t nValidRHTotal;
     __constant__ float qTestThresh;
+    __constant__ uint32_t qTestDepthHB[4];
+    __constant__ uint32_t qTestDepthHE[7];
+    __constant__ float qTestThreshVsDepthHB[4];
+    __constant__ float qTestThreshVsDepthHE[7];
 
     //
     // member methods:
@@ -41,11 +45,9 @@ namespace PFRecHit {
     //   applyMask
     //   convert_rechits_to_PFRechits
 
-    void initializeCudaConstants(const uint32_t in_nValidRHBarrel,
-                                 const uint32_t in_nValidRHEndcap,
-                                 const float in_qTestThresh) {
+    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants) {
 
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &in_nValidRHBarrel, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &cudaConstants.nValidBarrelIds, sizeof(uint32_t)));
 #ifdef DEBUG_ENABLE
       printf("--- HCAL Cuda constant values ---\n");
       uint32_t ival = 0;
@@ -53,27 +55,32 @@ namespace PFRecHit {
       printf("nValidRHBarrel read from symbol: %u\n", ival);
 #endif
 
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHEndcap, &in_nValidRHEndcap, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHEndcap, &cudaConstants.nValidEndcapIds, sizeof(uint32_t)));
 #ifdef DEBUG_ENABLE
       ival = 0;
       cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHEndcap, sizeof(uint32_t)));
       printf("nValidRHEndcap read from symbol: %u\n", ival);
 #endif
 
-      uint32_t total = in_nValidRHBarrel + in_nValidRHEndcap;
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHTotal, &total, sizeof(uint32_t)));
+      //uint32_t total = &cudaConstants.nValidBarrelIds + &cudaConstants.nValidEndcapIds;
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHTotal, &cudaConstants.nValidDetIds, sizeof(uint32_t)));
 #ifdef DEBUG_ENABLE
       ival = 0;
       cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHTotal, sizeof(uint32_t)));
       printf("nValidRHTotal read from symbol: %u\n", ival);
 #endif
 
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThresh, &in_qTestThresh, sizeof(float)));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThresh, &cudaConstants.qTestThresh, sizeof(float)));
 #ifdef DEBUG_ENABLE
       float val = 0;
       cudaCheck(cudaMemcpyFromSymbol(&val, qTestThresh, sizeof(float)));
       printf("qTestThresh read from symbol: %f\n\n", val);
 #endif
+
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHB, &cudaConstants.qTestDepthHB, 4*sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHE, &cudaConstants.qTestDepthHE, 7*sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHB, &cudaConstants.qTestThreshVsDepthHB, 4*sizeof(float)));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHE, &cudaConstants.qTestThreshVsDepthHE, 7*sizeof(float)));
 
     }
 
@@ -210,7 +217,7 @@ namespace PFRecHit {
                                 const uint32_t* recHits_did,
                                 const float* recHits_energy) {
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += gridDim.x * blockDim.x) {
-        rh_mask[i] = (recHits_energy[i] > 0.8);
+        rh_mask[i] = (recHits_energy[i] > qTestThresh);
       }
     }
 
@@ -220,29 +227,30 @@ namespace PFRecHit {
                                               const uint32_t* recHits_did,    // Input rechit detIds
                                               const float* recHits_energy) {  // Input rechit energy
 
-      printf("KenH: qTestThresh %f",qTestThresh);
-
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += gridDim.x * blockDim.x) {
         uint32_t detid = recHits_did[i];
         uint32_t subdet = (detid >> DetId::kSubdetOffset) & DetId::kSubdetMask;
         uint32_t depth = (detid >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2;
         float threshold = 9999.;
         if (subdet == HcalBarrel) {
-          if (depth == 1)
-            threshold = 0.1;
-          else if (depth == 2)
-            threshold = 0.2;
-          else if (depth == 3 || depth == 4)
-            threshold = 0.3;
-          else
+	  bool found = false;
+	  for (uint32_t j=0; j<4; j++){
+	    if (depth == qTestDepthHB[j]){
+	      threshold = qTestThreshVsDepthHB[j];
+	      found = true; // found depth and threshold
+	    }
+	  }
+	  if (!found)
             printf("i = %u\tInvalid depth %u for barrel rechit %u!\n", i, depth, detid);
-
         } else if (subdet == HcalEndcap) {
-          if (depth == 1)
-            threshold = 0.1;
-          else if (depth >= 2 && depth <= 7)
-            threshold = 0.2;
-          else
+	  bool found = false;
+	  for (uint32_t j=0; j<7; j++){
+	    if (depth == qTestDepthHE[j]){
+	      threshold = qTestThreshVsDepthHE[j];
+	      found = true; // found depth and threshold
+	    }
+	  }
+	  if (!found)
             printf("i = %u\tInvalid depth %u for endcap rechit %u!\n", i, depth, detid);
         } else {
           printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detid, subdet);

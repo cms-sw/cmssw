@@ -9,9 +9,7 @@
 
 namespace PFRecHit {
   namespace HCAL {
-    void initializeCudaConstants(const uint32_t in_nValidRHBarrel,
-                                 const uint32_t in_nValidRHEndcap,
-                                 const float in_qTestThresh);
+    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants);
 
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
                     OutputPFRecHitDataGPU&,
