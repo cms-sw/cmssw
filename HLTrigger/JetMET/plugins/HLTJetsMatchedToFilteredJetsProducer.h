@@ -1,5 +1,5 @@
-#ifndef HLTrigger_JetMET_HLTPFJetsMatchedToFilteredJetsProducer_h
-#define HLTrigger_JetMET_HLTPFJetsMatchedToFilteredJetsProducer_h
+#ifndef HLTrigger_JetMET_HLTJetsMatchedToFilteredJetsProducer_h
+#define HLTrigger_JetMET_HLTJetsMatchedToFilteredJetsProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -10,25 +10,27 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
 #include <memory>
 #include <utility>
 
-template <typename TriggerJetsRefType>
-class HLTPFJetsMatchedToFilteredJetsProducer : public edm::global::EDProducer<> {
+template <typename TriggerJetsType, typename TriggerJetsRefType>
+class HLTJetsMatchedToFilteredJetsProducer : public edm::global::EDProducer<> {
 public:
-  explicit HLTPFJetsMatchedToFilteredJetsProducer(edm::ParameterSet const& iConfig);
+  explicit HLTJetsMatchedToFilteredJetsProducer(edm::ParameterSet const& iConfig);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
-  // collection of reco::*Jets (using edm::View<reco::Candidate> to be able to read different types of reco::*Jet collections without templating explicitly)
-  edm::EDGetTokenT<edm::View<reco::Candidate>> const recoCandsToken_;
+  using InputJetCollection = edm::View<TriggerJetsType>;
+  using OutputJetCollection = std::vector<TriggerJetsType>;
+
+  // collection of input jets
+  edm::EDGetTokenT<InputJetCollection> const jetsToken_;
   // collection of TriggerFilterObjectWithRefs containing TriggerObjects holding refs to Jets stored by an HLTFilter
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> const triggerJetsToken_;
   // TriggerType of Jets produced by previous HLTFilter
@@ -37,58 +39,55 @@ private:
   double const maxDeltaR_, maxDeltaR2_;
 };
 
-template <typename TriggerJetsRefType>
-HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::HLTPFJetsMatchedToFilteredJetsProducer(
+template <typename TriggerJetsType, typename TriggerJetsRefType>
+HLTJetsMatchedToFilteredJetsProducer<TriggerJetsType, TriggerJetsRefType>::HLTJetsMatchedToFilteredJetsProducer(
     edm::ParameterSet const& iConfig)
-    : recoCandsToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
+    : jetsToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
       triggerJetsToken_(consumes(iConfig.getParameter<edm::InputTag>("triggerJetsFilter"))),
       triggerJetsType_(iConfig.getParameter<int>("triggerJetsType")),
       maxDeltaR_(iConfig.getParameter<double>("maxDeltaR")),
       maxDeltaR2_(maxDeltaR_ * maxDeltaR_) {
   if (maxDeltaR_ <= 0.) {
-    throw cms::Exception("HLTPFJetsMatchedToFilteredJetsProducerConfiguration")
+    throw cms::Exception("HLTJetsMatchedToFilteredJetsProducerConfiguration")
         << "invalid value for parameter \"maxDeltaR\" (must be > 0): " << maxDeltaR_;
   }
 
-  produces<reco::PFJetCollection>();
+  produces<OutputJetCollection>();
 }
 
-template <typename TriggerJetsRefType>
-void HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::fillDescriptions(
+template <typename TriggerJetsType, typename TriggerJetsRefType>
+void HLTJetsMatchedToFilteredJetsProducer<TriggerJetsType, TriggerJetsRefType>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("hltPFJets"));
+  desc.add<edm::InputTag>("src", edm::InputTag("hltJets"));
   desc.add<edm::InputTag>("triggerJetsFilter", edm::InputTag("hltCaloJetsFiltered"));
   desc.add<int>("triggerJetsType", trigger::TriggerJet);
   desc.add<double>("maxDeltaR", 0.5);
   descriptions.addWithDefaultLabel(desc);
 }
 
-template <typename TriggerJetsRefType>
-void HLTPFJetsMatchedToFilteredJetsProducer<TriggerJetsRefType>::produce(edm::StreamID streamID,
-                                                                         edm::Event& iEvent,
-                                                                         edm::EventSetup const&) const {
-  auto const& recoCands = iEvent.get(recoCandsToken_);
+template <typename TriggerJetsType, typename TriggerJetsRefType>
+void HLTJetsMatchedToFilteredJetsProducer<TriggerJetsType, TriggerJetsRefType>::produce(edm::StreamID,
+                                                                                        edm::Event& iEvent,
+                                                                                        edm::EventSetup const&) const {
+  auto const& jets = iEvent.get(jetsToken_);
 
   std::vector<TriggerJetsRefType> triggerJetsRefVec;
   iEvent.get(triggerJetsToken_).getObjects(triggerJetsType_, triggerJetsRefVec);
 
-  math::XYZPoint const pvtxPoint(0., 0., 0.);
-  reco::PFJet::Specific const pfJetSpec;
+  auto outJets = std::make_unique<OutputJetCollection>();
+  outJets->reserve(jets.size());
 
-  auto outPFJets = std::make_unique<reco::PFJetCollection>();
-  outPFJets->reserve(recoCands.size());
-
-  for (auto const& jRecoCand : recoCands) {
-    for (auto const& iJetRef : triggerJetsRefVec) {
-      if (reco::deltaR2(jRecoCand.p4(), iJetRef->p4()) < maxDeltaR2_) {
-        outPFJets->emplace_back(jRecoCand.p4(), pvtxPoint, pfJetSpec);
+  for (auto const& jet_i : jets) {
+    for (auto const& jetRef_j : triggerJetsRefVec) {
+      if (reco::deltaR2(jet_i.p4(), jetRef_j->p4()) < maxDeltaR2_) {
+        outJets->emplace_back(jet_i);
         break;
       }
     }
   }
 
-  iEvent.put(std::move(outPFJets));
+  iEvent.put(std::move(outJets));
 }
 
 #endif
