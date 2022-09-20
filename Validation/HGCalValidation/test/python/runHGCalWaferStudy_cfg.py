@@ -25,31 +25,18 @@ print(options)
 
 ############################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
 
-import FWCore.ParameterSet.Config as cms
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileInput = "file:step2" + options.geometry + "tt.root"
+fileName = "hgcWafer" + options.geometry + "tt.root"
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileInput = 'file:step2D88tt.root'
-    fileName = 'hgcWaferD88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileInput = 'file:step2D92tt.root'
-    fileName = 'hgcWaferD92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileInput = 'file:step2D93tt.root'
-    fileName = 'hgcWaferD93.root'
+print("Geometry file: ", geomFile)
+print("Input file:    ", fileInput)
+print("Output file:   ", fileName)
 
-print("Input file: ", fileInput)
-print("Output file: ", fileName)
-
+process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
