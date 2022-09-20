@@ -35,7 +35,7 @@ private:
   const std::vector<int> particleID_;  // vector of particle IDs to look for
   const double minMass_;
   const double maxMass_;
-  const bool requiredOutgoingStatus_; // Whether particles required to pass filter must have outgoing status
+  const bool requiredOutgoingStatus_;  // Whether particles required to pass filter must have outgoing status
 };
 
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
