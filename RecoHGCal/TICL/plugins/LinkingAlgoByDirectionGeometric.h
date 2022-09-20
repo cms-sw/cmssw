@@ -38,6 +38,7 @@ namespace ticl {
                         const edm::ValueMap<float> &,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription &desc);
@@ -54,12 +55,13 @@ namespace ticl {
 
     void findTrackstersInWindow(const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                 const std::array<TICLLayerTile, 2> &tracksterTiles,
-                                double delta,
+                                const std::vector<Vector> &tracksterPropPoints,
+                                float delta,
                                 unsigned trackstersSize,
                                 std::vector<std::vector<unsigned>> &resultCollection,
                                 bool useMask);
 
-    bool timeAndEnergyCompatible(double &total_raw_energy,
+    bool timeAndEnergyCompatible(float &total_raw_energy,
                                  const reco::Track &track,
                                  const Trackster &trackster,
                                  const float &tkTime,
@@ -70,35 +72,19 @@ namespace ticl {
                          const std::vector<Trackster> &tracksters,
                          const edm::Handle<std::vector<Trackster>> tsH,
                          std::vector<unsigned> &ts_mask,
-                         double &energy_in_candidate,
+                         float &energy_in_candidate,
                          TICLCandidate &candidate);
-
-    void addTracksterIfCompatible(const unsigned ts,
-                                  const edm::Handle<std::vector<Trackster>> tsH,
-                                  const unsigned tk,
-                                  const reco::TrackRef &tkRef,
-                                  const std::vector<Trackster> &tracksters,
-                                  const std::vector<reco::Track> &tracks,
-                                  std::vector<unsigned> &ts_mask,
-                                  double &energy_in_candidate,
-                                  TICLCandidate &candidate,
-                                  const edm::ValueMap<float> &tkTime,
-                                  const edm::ValueMap<float> &tkTimeErr,
-                                  const edm::ValueMap<float> &tkTimeQual);
 
     void dumpLinksFound(std::vector<std::vector<unsigned>> &resultCollection, const char *label) const;
 
-    const double tkEnergyCut_ = 2.0;
-    const double maxDeltaT_ = 3.;
-    const double del_tk_ts_layer1_;
-    const double del_tk_ts_int_;
-    const double del_ts_em_had_;
-    const double del_ts_had_had_;
+    const float tkEnergyCut_ = 2.0f;
+    const float maxDeltaT_ = 3.0f;
+    const float del_tk_ts_layer1_;
+    const float del_tk_ts_int_;
+    const float del_ts_em_had_;
+    const float del_ts_had_had_;
 
-    const double timing_quality_threshold_;
-    const double pid_threshold_;
-    const double energy_em_over_total_threshold_;
-    const std::vector<int> filter_on_categories_;
+    const float timing_quality_threshold_;
 
     const StringCutObjectSelector<reco::Track> cutTk_;
     std::once_flag initializeGeometry_;
