@@ -120,7 +120,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
                                  << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Accessing G4 information
-  const edm::Handle<PHGCalValidInfo>& infoLayer = iEvent.getHandle(g4Token_);
+  const edm::Handle<PHGCalValidInfo> &infoLayer = iEvent.getHandle(g4Token_);
 
   if (infoLayer.isValid()) {
     //step vertex information
@@ -136,11 +136,13 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
       double yy = mmTocm_ * hitVtxY[i];
       double zz = mmTocm_ * hitVtxZ[i];
       double rr = sqrt(xx * xx + yy * yy);
-      if ((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) || (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
-          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) || (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
+      if ((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
         int dtype(0), layer(0), zside(1);
         if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
-	    (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
+            (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
           HGCSiliconDetId id(hitIdx[i]);
           dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
           layer = id.layer();
@@ -155,7 +157,8 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
         if (zside < 0)
           zp = -zp;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << zside << ":" << layer << " Z " << zp << ":" << zz << " R " << rr;
+        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << zside << ":"
+                                       << layer << " Z " << zp << ":" << zz << " R " << rr;
 #endif
         if (dtype == 0) {
           heedzVsZ->Fill(zp, (zz - zp));
