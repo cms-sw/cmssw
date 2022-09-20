@@ -80,3 +80,6 @@ void L2TauJetsMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.setComment("Merges CaloJet collections removing duplicates");
   descriptions.add("L2TauJetsMerger", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2TauJetsMerger);

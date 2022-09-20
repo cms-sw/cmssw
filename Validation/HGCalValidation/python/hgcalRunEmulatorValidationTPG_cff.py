@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalTriggerGeometryESProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalVFEProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalConcentratorProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer2Producer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalTowerMapProducer_cfi import *
+from L1Trigger.L1THGCal.l1tHGCalTowerProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 from Validation.HGCalValidation.hgcalValidationTPG_cfi import *
 
@@ -21,4 +21,4 @@ onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
     tag = cms.untracked.string('validation_HGCAL_TPG')
 )
 
-hgcalTPGRunEmulatorValidation = cms.Sequence(hgcalTriggerPrimitives*hgcalTrigPrimValidation*onlineSaver)
+hgcalTPGRunEmulatorValidation = cms.Sequence(L1THGCalTriggerPrimitives*L1THGCalTrigPrimValidation*onlineSaver)

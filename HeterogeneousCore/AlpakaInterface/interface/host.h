@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaInterface_interface_host_h
 #define HeterogeneousCore_AlpakaInterface_interface_host_h
 
+#include <cassert>
+
 namespace cms::alpakatools {
 
   namespace detail {

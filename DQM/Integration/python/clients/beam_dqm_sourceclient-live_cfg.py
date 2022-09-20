@@ -429,12 +429,32 @@ else:
         frontierKey = cms.untracked.string(options.runUniqueKey)
     )
 print("Configured frontierKey", options.runUniqueKey)
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
+
 #---------
 # Final path
 if (not process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(process.scalersRawToDigi
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
+                       * process.pixelTrackerHVOn
+                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -445,6 +465,8 @@ else:
     process.p = cms.Path(process.scalersRawToDigi
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
+                       * process.pixelTrackerHVOn
+                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter
@@ -453,5 +475,6 @@ else:
                        * process.monitor
                        * process.BeamSpotProblemModule)
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

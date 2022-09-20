@@ -95,6 +95,16 @@ def customisePostEra_Run3_express_trackingOnly(process):
     customisePostEra_Run2_2018_express_trackingOnly(process)
     return process
 
+def customisePostEra_Run3_pp_on_PbPb_express_trackingOnly(process):
+    #start with repeat of 2018
+    customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb(process):
+    customisePostEra_Run3(process)
+    return process
+
+
 ##############################################################################
 def customisePPData(process):
     #deprecated process= customiseCommon(process)

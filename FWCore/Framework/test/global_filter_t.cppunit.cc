@@ -156,18 +156,14 @@ private:
       return std::unique_ptr<int>{};
     }
 
-    virtual void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
-    virtual void streamBeginLuminosityBlock(edm::StreamID,
-                                            edm::LuminosityBlock const&,
-                                            edm::EventSetup const&) const override {
+    void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
+    void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    virtual void streamEndLuminosityBlock(edm::StreamID,
-                                          edm::LuminosityBlock const&,
-                                          edm::EventSetup const&) const override {
+    void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    virtual void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
+    void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
     void endStream(edm::StreamID) const override { ++m_count; }
   };
 
@@ -355,6 +351,22 @@ private:
       CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == true);
       m_globalEndLuminosityBlockSummaryCalled = false;
     }
+  };
+
+  class TransformProd : public edm::global::EDFilter<edm::Transformer> {
+  public:
+    TransformProd(edm::ParameterSet const&) {
+      token_ = produces<float>();
+      registerTransform(token_, [](float iV) { return int(iV); });
+    }
+
+    bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+      //iEvent.emplace(token_, 3.625);
+      return true;
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
   };
 };
 

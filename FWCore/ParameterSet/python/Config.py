@@ -1732,14 +1732,14 @@ class _BoolModifierBase(object):
             self._rhs = rhs
     def toModify(self,obj, func=None,**kw):
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self._isChosen():
-            return
-        Modifier._toModify(obj,func,**kw)
+        if self._isChosen():
+            Modifier._toModify(obj,func,**kw)
+        return self
     def toReplaceWith(self,toObj,fromObj):
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self._isChosen():
-            return
-        Modifier._toReplaceWith(toObj,fromObj)
+        if self._isChosen():
+            Modifier._toReplaceWith(toObj,fromObj)
+        return self
     def makeProcessModifier(self,func):
         """This is used to create a ProcessModifer that can perform actions on the process as a whole.
             This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1810,9 +1810,9 @@ class Modifier(object):
             mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self._isChosen():
-            return
-        Modifier._toModify(obj,func,**kw)
+        if self._isChosen():
+            Modifier._toModify(obj,func,**kw)
+        return self
     @staticmethod
     def _toModify(obj,func,**kw):
         if func is not None:
@@ -1828,9 +1828,9 @@ class Modifier(object):
         """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
         """
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self._isChosen():
-            return
-        Modifier._toReplaceWith(toObj,fromObj)
+        if self._isChosen():
+            Modifier._toReplaceWith(toObj,fromObj)
+        return self
     @staticmethod
     def _toReplaceWith(toObj,fromObj):
         if isinstance(fromObj,_ModuleSequenceType):
@@ -4373,6 +4373,32 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
             (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
+            #check chaining of toModify and toReplaceWith
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            Process._firstProcess = True
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            p.b = EDProducer("MyProducer", barney = int32(1), betty = int32(1))
+            (m1 & m2).toModify(p.a, fred = 2).toModify(p.b, betty = 3)
+            self.assertEqual(p.a.fred, 2)
+            self.assertEqual(p.a.wilma, 1)
+            self.assertEqual(p.b.barney, 1)
+            self.assertEqual(p.b.betty, 3)
+            (m1 | m3).toModify(p.a, wilma = 4).toModify(p.b, barney = 5)
+            self.assertEqual(p.a.fred, 2)
+            self.assertEqual(p.a.wilma, 4)
+            self.assertEqual(p.b.barney, 5)
+            self.assertEqual(p.b.betty, 3)
+            (m2 & ~m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer")).toModify(p.b, barney = 6)
+            self.assertEqual(p.a.type_(), "YourAnalyzer")
+            self.assertEqual(p.b.barney, 6)
+            self.assertEqual(p.b.betty, 3)
+            (m1 & ~m3).toModify(p.a, param=int32(42)).toReplaceWith(p.b, EDProducer("YourProducer"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer")
+            self.assertEqual(p.a.param, 42)
+            self.assertEqual(p.b.type_(), "YourProducer")
 
             # EDAlias
             a = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))

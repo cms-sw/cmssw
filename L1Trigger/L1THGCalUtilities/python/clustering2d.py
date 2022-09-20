@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import dummy_C2d_params, \
                                                               distance_C2d_params, \
                                                               topological_C2d_params, \
                                                               constrTopological_C2d_params, \
@@ -13,7 +13,7 @@ def create_distance(process, inputs,
                     seed_threshold=distance_C2d_params.seeding_threshold_silicon,  # MipT
                     cluster_threshold=distance_C2d_params.clustering_threshold_silicon  # MipT
                     ):
-    producer = process.hgcalBackEndLayer1Producer.clone(
+    producer = process.l1tHGCalBackEndLayer1Producer.clone(
             InputTriggerCells = cms.InputTag(inputs)
             )
     producer.ProcessorParameters.C2d_parameters = distance_C2d_params.clone(
@@ -27,7 +27,7 @@ def create_topological(process, inputs,
                        seed_threshold=topological_C2d_params.seeding_threshold_silicon,  # MipT
                        cluster_threshold=topological_C2d_params.clustering_threshold_silicon  # MipT
                        ):
-    producer = process.hgcalBackEndLayer1Producer.clone(
+    producer = process.l1tHGCalBackEndLayer1Producer.clone(
             InputTriggerCells = cms.InputTag(inputs)
             )
     producer.ProcessorParameters.C2d_parameters = topological_C2d_params.clone()
@@ -40,7 +40,7 @@ def create_constrainedtopological(process, inputs,
                                   seed_threshold=constrTopological_C2d_params.seeding_threshold_silicon,  # MipT
                                   cluster_threshold=constrTopological_C2d_params.clustering_threshold_silicon  # MipT
                                   ):
-    producer = process.hgcalBackEndLayer1Producer.clone(
+    producer = process.l1tHGCalBackEndLayer1Producer.clone(
             InputTriggerCells = cms.InputTag(inputs)
             )
     producer.ProcessorParameters.C2d_parameters = constrTopological_C2d_params.clone(
@@ -53,7 +53,7 @@ def create_constrainedtopological(process, inputs,
 
 class CreateDummy(object):
     def __call__(self, process, inputs):
-        producer = process.hgcalBackEndLayer1Producer.clone(
+        producer = process.l1tHGCalBackEndLayer1Producer.clone(
                 InputTriggerCells = cms.InputTag(inputs)
                 )
         producer.ProcessorParameters.C2d_parameters = dummy_C2d_params.clone()
@@ -61,7 +61,7 @@ class CreateDummy(object):
 
 class CreateTruthDummy(object):
     def __call__(self, process, inputs):
-        producer = process.hgcalBackEndLayer1Producer.clone(
+        producer = process.l1tHGCalBackEndLayer1Producer.clone(
                 InputTriggerCells = cms.InputTag(inputs)
                 )
         producer.ProcessorParameters.C2d_parameters = dummy_C2d_params.clone()
@@ -78,7 +78,7 @@ class RozBinTruncation(object):
                 )
 
     def __call__(self, process, inputs):
-        producer = process.hgcalBackEndLayer1Producer.clone(
+        producer = process.l1tHGCalBackEndLayer1Producer.clone(
                 InputTriggerCells = cms.InputTag(inputs),
                 ProcessorParameters = self.processor
                 )

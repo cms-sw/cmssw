@@ -158,7 +158,21 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     TrackPtMax = 50
 )
 
-ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
+ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "J/#psi",
+    vertices = 'offlinePrimaryVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+    maxSVdist = 50
+)
+
+ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    decayMotherName = 'J/#psi',
+    DiMuMassConfig = dict(ymin = 2.7 ,ymax = 3.4))
+
+ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuVtxDQM + ALCARECOTkAlJpsiMassBiasDQM)
 
 #########################################################
 #############---  TkAlJpsiMuMuHI ---#####################
@@ -214,7 +228,21 @@ ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     TrackPtMax = 50
 )
 
-ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM )
+ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "#Upsilon",
+    vertices = 'offlinePrimaryVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+    maxSVdist = 50
+)
+
+ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    decayMotherName = '#Upsilon',
+    DiMuMassConfig = dict(ymin = 8.9 ,ymax = 9.9))
+
+ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuVtxDQM + ALCARECOTkAlUpsilonMassBiasDQM)
 
 ############################################################
 #############---  TkAlUpsilonMuMuHI ---#####################

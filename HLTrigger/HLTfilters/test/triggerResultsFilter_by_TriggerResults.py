@@ -47,6 +47,18 @@ process.filter_1_pre = _triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', )
 )
 
+# accept if 'Path_1' succeeds, prescaled by 15
+# masking Path_2 (equivalent to filter_1_pre)
+process.filter_1_pre_with_masks1 = _triggerResultsFilter.clone(
+    triggerConditions =  ( '(Path_1 / 15 OR Path_2) MASKING Path_2', )
+)
+
+# accept if 'Path_1' succeeds, prescaled by 15
+# masking Path_2 and Path_3 (equivalent to filter_1_pre)
+process.filter_1_pre_with_masks2 = _triggerResultsFilter.clone(
+    triggerConditions =  ( '(Path_? / 15) MASKING Path_2 MASKING Path_3', )
+)
+
 # accept if 'Path_1' prescaled by 15 does not succeed
 process.filter_not_1_pre = _triggerResultsFilter.clone(
     triggerConditions =  ( 'NOT (Path_1 / 15)', )
@@ -70,6 +82,16 @@ process.filter_any_pre_doubleNOT = _triggerResultsFilter.clone(
 # opposite of filter_any_pre without whitespaces where possible
 process.filter_not_any_pre = _triggerResultsFilter.clone(
     triggerConditions = ( 'NOT(Path_1/15)AND(NOT Path_2/10)AND(NOT Path_3/6)', )
+)
+
+# accept if Path_1 and Path_2 have different results (XOR) without using XOR operator
+process.filter_1xor2_withoutXOR = _triggerResultsFilter.clone(
+    triggerConditions = ( 'Path_1 AND NOT Path_2', 'NOT Path_1 AND Path_2', )
+)
+
+# accept if Path_1 and Path_2 have different results (XOR) using XOR operator
+process.filter_1xor2_withXOR = _triggerResultsFilter.clone(
+    triggerConditions = ( 'Path_1 XOR Path_2', )
 )
 
 # accept if any path succeeds (wildcard, '*')
@@ -145,12 +167,16 @@ process.path_all_explicit = cms.Path( process.filter_all_explicit )
 process.path_any_or   = cms.Path( process.filter_any_or )
 process.path_any_star = cms.Path( process.filter_any_star )
 
-process.path_1_pre     = cms.Path( process.filter_1_pre )
-process.path_not_1_pre = cms.Path( process.filter_not_1_pre )
-process.path_2_pre     = cms.Path( process.filter_2_pre )
-process.path_any_pre   = cms.Path( process.filter_any_pre )
+process.path_1_pre             = cms.Path( process.filter_1_pre )
+process.path_1_pre_with_masks1 = cms.Path( process.filter_1_pre_with_masks1 )
+process.path_1_pre_with_masks2 = cms.Path( process.filter_1_pre_with_masks2 )
+process.path_not_1_pre         = cms.Path( process.filter_not_1_pre )
+process.path_2_pre             = cms.Path( process.filter_2_pre )
+process.path_any_pre           = cms.Path( process.filter_any_pre )
 process.path_any_pre_doubleNOT = cms.Path( process.filter_any_pre_doubleNOT )
-process.path_not_any_pre = cms.Path( process.filter_not_any_pre )
+process.path_not_any_pre       = cms.Path( process.filter_not_any_pre )
+process.Check_1xor2_withoutXOR = cms.Path( process.filter_1xor2_withoutXOR )
+process.Check_1xor2_withXOR    = cms.Path( process.filter_1xor2_withXOR )
 
 process.path_any_doublestar      = cms.Path( process.filter_any_doublestar )
 process.path_any_question        = cms.Path( process.filter_any_question )

@@ -146,13 +146,12 @@ void SiStripHitEfficiencyHarvester::endRun(edm::Run const&, edm::EventSetup cons
 
 bool SiStripHitEfficiencyHarvester::checkMapsValidity(const std::vector<MonitorElement*>& maps,
                                                       const std::string& type) const {
-  std::vector<bool> isAvailable;
-  isAvailable.reserve(maps.size());
-  std::transform(
-      maps.begin() + 1, maps.end(), std::back_inserter(isAvailable), [](auto& x) { return !(x == nullptr); });
+  std::vector<bool> isThere;
+  isThere.reserve(maps.size());
+  std::transform(maps.begin() + 1, maps.end(), std::back_inserter(isThere), [](auto& x) { return !(x == nullptr); });
 
   int count{0};
-  for (const auto& it : isAvailable) {
+  for (const auto& it : isThere) {
     count++;
     LogDebug("SiStripHitEfficiencyHarvester") << " layer: " << count << " " << it << std::endl;
     if (it)
@@ -162,7 +161,7 @@ bool SiStripHitEfficiencyHarvester::checkMapsValidity(const std::vector<MonitorE
   // check on the input TkHistoMap
   bool areMapsAvailable{true};
   int layerCount{0};
-  for (const auto& it : isAvailable) {
+  for (const auto& it : isThere) {
     layerCount++;
     if (!it) {
       edm::LogError("SiStripHitEfficiencyHarvester")
@@ -264,13 +263,28 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   TrackerMap tkMapDen{" Detector denominator "};
   std::map<unsigned int, double> badModules;
 
+  // load the FEDError map
+  const auto& EventStats = getter.get(fmt::format("{}/EventInfo/EventStats", inputFolder_));
+  const int totalEvents = EventStats->getBinContent(1., 1.);  // first bin contains info on number of events run
+  calibData_.FEDErrorOccupancy = std::make_unique<TkHistoMap>(tkDetMap_.get());
+  calibData_.FEDErrorOccupancy->loadTkHistoMap(fmt::format("{}/FEDErrorTkDetMaps", inputFolder_),
+                                               "perModule_FEDErrors");
+
+  // tag as bad from FEDErrors the modules that have an error on 75% of the events
+  calibData_.fillMapFromTkMap(totalEvents, 0.75, stripDetIds_);
+
+  for (const auto& [badId, fraction] : calibData_.fedErrorCounts) {
+    LogDebug("SiStripHitEfficiencyHarvester")
+        << __PRETTY_FUNCTION__ << " bad module from FEDError " << badId << "," << fraction << std::endl;
+  }
+
   for (auto det : stripDetIds_) {
     auto layer = ::checkLayer(det, tTopo_.get());
     const auto num = h_module_found->getValue(det);
     const auto denom = h_module_total->getValue(det);
     if (denom) {
       // use only the "good" modules
-      if (stripQuality_->getBadApvs(det) == 0) {
+      if (stripQuality_->getBadApvs(det) == 0 && calibData_.checkFedError(det)) {
         const auto eff = num / denom;
         hEffInLayer[layer]->Fill(eff);
         if (!autoIneffModTagging_) {
@@ -314,7 +328,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
         layerFound[layer] += num;
 
         // for the summary
-        //Have to do the decoding for which side to go on (ugh)
+        // Have to do the decoding for which side to go on (ugh)
         if (layer <= bounds::k_LayersAtTOBEnd) {
           goodlayerfound[layer] += num;
           goodlayertotal[layer] += denom;
@@ -374,7 +388,8 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(1, hEffInLayer[i]->getNbinsX() + 1);
 
       for (auto det : stripDetIds_) {
-        if (stripQuality_->getBadApvs(det) == 0) {
+        // use only the "good" modules
+        if (stripQuality_->getBadApvs(det) == 0 && calibData_.checkFedError(det)) {
           const auto layer = ::checkLayer(det, tTopo_.get());
           if (layer == i) {
             const auto num = h_module_found->getValue(det);

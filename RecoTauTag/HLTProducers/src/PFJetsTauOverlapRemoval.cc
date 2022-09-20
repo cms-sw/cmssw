@@ -56,3 +56,6 @@ void PFJetsTauOverlapRemoval::fillDescriptions(edm::ConfigurationDescriptions& d
       "filter.");
   descriptions.add("PFJetsTauOverlapRemoval", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFJetsTauOverlapRemoval);

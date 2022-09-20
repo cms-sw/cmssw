@@ -37,15 +37,11 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient(const edm::ParameterSet& iConfig) :
 
 HLTInclusiveVBFClient::~HLTInclusiveVBFClient() = default;
 
-void HLTInclusiveVBFClient::beginRun(const edm::Run& r, const edm::EventSetup& context) {}
-
 void HLTInclusiveVBFClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 void HLTInclusiveVBFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
   runClient_();
 }
-
-void HLTInclusiveVBFClient::endRun(const edm::Run& r, const edm::EventSetup& context) {}
 
 void HLTInclusiveVBFClient::runClient_() {
   if (!dbe_)
@@ -56,3 +52,6 @@ void HLTInclusiveVBFClient::runClient_() {
   if (debug_)
     std::cout << "runClient" << std::endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTInclusiveVBFClient);

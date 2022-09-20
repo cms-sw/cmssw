@@ -23,5 +23,5 @@ hltEgammaEleL1TrkIsoUnseeded = cms.EDProducer("EgammaHLTEleL1TrackIsolProducer",
         ),
         useAbsEta = cms.bool(True)
     ),
-    l1Tracks = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks")
+    l1Tracks = cms.InputTag("l1tTTTracksFromTrackletEmulation","Level1TTTracks")
 )

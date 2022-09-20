@@ -1,8 +1,3 @@
-#include <optional>
-#include <string>
-
-#include <alpaka/alpaka.hpp>
-
 #include "DataFormats/Portable/interface/Product.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "FWCore/Framework/interface/Event.h"

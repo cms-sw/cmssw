@@ -66,3 +66,6 @@ void PFTauL1TJetsMatching::fillDescriptions(edm::ConfigurationDescriptions& desc
       "This module produces a collection of PFTaus matched to the leading jet passing the L1 seed filter.");
   descriptions.add("PFTauL1TJetsMatching", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFTauL1TJetsMatching);

@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 import math
 
 def custom_towers_unclustered_tc(process):
-    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClusteringUnclustered')
-    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClusteringUnclustered')
+    process.l1tHGCalTowerProducer.InputTriggerCells = cms.InputTag('l1tHGCalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClusteringUnclustered')
+    process.l1tHGCalTowerProducerHFNose.InputTriggerCells = cms.InputTag('l1tHGCalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClusteringUnclustered')
     return process
 
 
 def custom_towers_all_tc(process):
-    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering')
-    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering')
+    process.l1tHGCalTowerProducer.InputTriggerCells = cms.InputTag('l1tHGCalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering')
+    process.l1tHGCalTowerProducerHFNose.InputTriggerCells = cms.InputTag('l1tHGCalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering')
     return process
 
 
@@ -23,7 +23,7 @@ def custom_towers_etaphi(process,
         binsEta=[],
         binsPhi=[]
         ):
-    parameters_towers_2d = process.hgcalTowerMapProducer.ProcessorParameters.towermap_parameters
+    parameters_towers_2d = process.l1tHGCalTowerMapProducer.ProcessorParameters.towermap_parameters
     parameters_towers_2d.L1TTriggerTowerConfig.readMappingFile = cms.bool(False)
     parameters_towers_2d.L1TTriggerTowerConfig.minEta = cms.double(minEta)
     parameters_towers_2d.L1TTriggerTowerConfig.maxEta = cms.double(maxEta)
@@ -45,7 +45,7 @@ def custom_towers_map(process,
         nBinsEta=18,
         nBinsPhi=72
         ):
-    parameters_towers_2d = process.hgcalTowerMapProducer.ProcessorParameters.towermap_parameters
+    parameters_towers_2d = process.l1tHGCalTowerMapProducer.ProcessorParameters.towermap_parameters
     parameters_towers_2d.L1TTriggerTowerConfig.readMappingFile = cms.bool(True)
     parameters_towers_2d.L1TTriggerTowerConfig.L1TTriggerTowerMapping = cms.FileInPath(towermapping)
     parameters_towers_2d.L1TTriggerTowerConfig.minEta = cms.double(minEta)

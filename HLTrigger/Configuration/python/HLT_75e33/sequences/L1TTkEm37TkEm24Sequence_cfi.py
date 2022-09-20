@@ -6,6 +6,6 @@ from ..sequences.HLTL1Sequence_cfi import *
 
 L1TTkEm37TkEm24Sequence = cms.Sequence(
     HLTL1Sequence +
-    L1TkEmSingle37Filter +
-    L1TkEmDouble24Filter
+    l1tTkEmSingle37Filter +
+    l1tTkEmDouble24Filter
 )
