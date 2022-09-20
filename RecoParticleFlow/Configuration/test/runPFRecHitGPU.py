@@ -153,6 +153,13 @@ for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
     for idy, y in enumerate(x.qualityTests):
         if y.name._value == "PFRecHitQTestThreshold":
             y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
+            for idz, z in enumerate(y.cuts): # convert signed to unsigned
+                if z.detectorEnum == 1: # HB
+                    z.detectorEnum = cms.uint32( 1 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4 )
+                if z.detectorEnum == 2: # HE
+                    z.detectorEnum = cms.uint32( 2 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  )
 
 process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFHBHERechitProducerGPU", # instead of "PFRecHitProducer"
                                                    producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,

@@ -144,6 +144,30 @@ if 'MessageLogger' in process.__dict__:
 #####################################
 
 #
+# for GPU PFRecHitHBHE
+# - use GPU version
+process.hltParticleFlowRecHitHBHEonGPU = process.hltParticleFlowRecHitHBHE.clone()
+_pset_hltParticleFlowRecHitHBHE_producers_mod = process.hltParticleFlowRecHitHBHEonGPU.producers
+for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
+    if x.src.moduleLabel == "hltHbhereco":
+        x.src.moduleLabel = "hltHbherecoGPU" # use GPU version as input instead of legacy version
+    for idy, y in enumerate(x.qualityTests):
+        if y.name._value == "PFRecHitQTestThreshold":
+            y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
+            for idz, z in enumerate(y.cuts): # convert signed to unsigned
+                if z.detectorEnum == 1: # HB
+                    z.detectorEnum = cms.uint32( 1 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4 )
+                if z.detectorEnum == 2: # HE
+                    z.detectorEnum = cms.uint32( 2 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  )
+
+process.hltParticleFlowRecHitHBHEonGPU = cms.EDProducer("PFHBHERechitProducerGPU", # instead of "PFRecHitProducer"
+                                                   producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
+                                                   navigator = process.hltParticleFlowRecHitHBHE.navigator
+)
+
+#
 # for CPU PFRecHitHBHE
 #
 # for PFRecHitHBHE
@@ -155,23 +179,6 @@ for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
             y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
 
 process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
-                                                   producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
-                                                   navigator = process.hltParticleFlowRecHitHBHE.navigator
-)
-
-#
-# for GPU PFRecHitHBHE
-# - use GPU version
-process.hltParticleFlowRecHitHBHEonGPU = process.hltParticleFlowRecHitHBHE.clone()
-_pset_hltParticleFlowRecHitHBHE_producers_mod = process.hltParticleFlowRecHitHBHEonGPU.producers
-for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
-    if x.src.moduleLabel == "hltHbhereco":
-        x.src.moduleLabel = "hltHbherecoGPU" # use GPU version as input instead of legacy version
-    for idy, y in enumerate(x.qualityTests):
-        if y.name._value == "PFRecHitQTestThreshold":
-            y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
-            
-process.hltParticleFlowRecHitHBHEonGPU = cms.EDProducer("PFHBHERechitProducerGPU", # instead of "PFRecHitProducer"
                                                    producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
                                                    navigator = process.hltParticleFlowRecHitHBHE.navigator
 )

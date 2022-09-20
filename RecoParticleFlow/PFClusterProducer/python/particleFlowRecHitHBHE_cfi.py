@@ -42,13 +42,24 @@ _module_pset = cms.PSet(
     )
 )
 
+_module_pset_cuda = _module_pset.clone()
+_module_pset_cuda.producers[0].src= "hbheRecHitProducerGPU" # use GPU version as input instead of legacy version
+for idx, x in enumerate(_module_pset_cuda.producers):
+    for idy, y in enumerate(x.qualityTests):
+        if y.name._value == "PFRecHitQTestHCALThresholdVsDepth": # when applying phase1 depth-dependent HCAL thresholds
+            for idz, z in enumerate(y.cuts): # convert signed to unsigned
+                if z.detectorEnum == 1: # HB
+                    z.detectorEnum = cms.uint32( 1 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4 )
+                if z.detectorEnum == 2: # HE
+                    z.detectorEnum = cms.uint32( 2 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  )
 
 _particleFlowRecHitHBHE_cpu = cms.EDProducer("PFRecHitProducer", _module_pset.clone() )
 _particleFlowRecHitHBHE_cpu.produceDummyProducts=cms.bool(True)
 _particleFlowRecHitHBHE_cpu.PFRecHitsGPUOut=cms.string("") 
 
-_particleFlowRecHitHBHE_cuda = cms.EDProducer("PFHBHERechitProducerGPU", _module_pset.clone() )
-_particleFlowRecHitHBHE_cuda.producers[0].src= "hbheRecHitProducerGPU"
+_particleFlowRecHitHBHE_cuda = cms.EDProducer("PFHBHERechitProducerGPU", _module_pset_cuda.clone() )
 
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
