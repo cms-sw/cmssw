@@ -245,9 +245,9 @@ private:
   // trigger info
   HLTPrescaleProvider hltPrescaleProvider_;
   std::vector<int> photonTrigFired_;
-  std::vector<int> photonTrigPrescale_;
+  std::vector<double> photonTrigPrescale_;
   std::vector<int> jetTrigFired_;
-  std::vector<int> jetTrigPrescale_;
+  std::vector<double> jetTrigPrescale_;
 
   // Event info
   int runNumber_, lumiBlock_, eventNumber_;
@@ -782,8 +782,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         photonTrigPrescale_.push_back(-1);
       else {
         // for triggers with two L1 seeds this fails
-        std::pair<int, int> prescaleVals =
-            hltPrescaleProvider_.prescaleValues(iEvent, evSetup, evTrigNames.triggerName(id));
+        auto const prescaleVals =
+            hltPrescaleProvider_.prescaleValues<double>(iEvent, evSetup, evTrigNames.triggerName(id));
         photonTrigPrescale_.push_back(prescaleVals.first * prescaleVals.second);
       }
     }
@@ -799,8 +799,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (fired)
         jetTrigFlag = true;
       jetTrigFired_.push_back(fired);
-      std::pair<int, int> prescaleVals =
-          hltPrescaleProvider_.prescaleValues(iEvent, evSetup, evTrigNames.triggerName(id));
+      auto const prescaleVals =
+          hltPrescaleProvider_.prescaleValues<double>(iEvent, evSetup, evTrigNames.triggerName(id));
       jetTrigPrescale_.push_back(prescaleVals.first * prescaleVals.second);
     }
   }

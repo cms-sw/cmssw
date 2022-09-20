@@ -7,7 +7,7 @@
 // Class:      pat::TriggerPath
 //
 //
-/**
+/*
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
   \brief    Analysis-level HLTrigger path class
 
@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -41,7 +42,7 @@ namespace pat {
     /// Path index in trigger table
     unsigned index_;
     /// Pre-scale
-    unsigned prescale_;
+    double prescale_;
     /// Was path run?
     bool run_;
     /// Did path succeed?
@@ -76,7 +77,7 @@ namespace pat {
     /// Constructor from values
     TriggerPath(const std::string& name,
                 unsigned index,
-                unsigned prescale,
+                double prescale,
                 bool run,
                 bool accept,
                 bool error,
@@ -84,7 +85,7 @@ namespace pat {
                 unsigned l3Filters = 0);
 
     /// Destructor
-    virtual ~TriggerPath(){};
+    virtual ~TriggerPath() = default;
 
     /// Methods
 
@@ -93,7 +94,7 @@ namespace pat {
     /// Set the path index
     void setIndex(unsigned index) { index_ = index; };
     /// Set the path pre-scale
-    void setPrescale(unsigned prescale) { prescale_ = prescale; };
+    void setPrescale(double prescale) { prescale_ = prescale; };
     /// Set the run flag
     void setRun(bool run) { run_ = run; };
     /// Set the success flag
@@ -116,7 +117,13 @@ namespace pat {
     /// Get the path index
     unsigned index() const { return index_; };
     /// Get the path pre-scale
-    unsigned prescale() const { return prescale_; };
+    template <typename T = unsigned int>
+    T prescale() const {
+      static_assert(std::is_same_v<T, double>,
+                    "\n\tPlease use prescale<double>"
+                    "\n\t(other types for prescales are not supported anymore by pat::TriggerPath");
+      return prescale_;
+    };
     /// Get the run flag
     bool wasRun() const { return run_; };
     /// Get the success flag

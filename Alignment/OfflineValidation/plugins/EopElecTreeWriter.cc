@@ -83,7 +83,7 @@
 
 struct EopTriggerType {
   bool fired;
-  int prescale;
+  double prescale;
   int index;
 
   EopTriggerType() {
@@ -411,7 +411,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     const unsigned int prescaleSize = hltConfig_.prescaleSize();
     for (unsigned int ps = 0; ps < prescaleSize; ps++) {
-      const unsigned int prescaleValue = hltConfig_.prescaleValue(ps, triggerName);
+      auto const prescaleValue = hltConfig_.prescaleValue<double>(ps, triggerName);
       if (prescaleValue != 1) {
         myTrigger.prescale = prescaleValue;
       }
