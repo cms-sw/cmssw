@@ -120,7 +120,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
                                  << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Accessing G4 information
-  const edm::Handle<PHGCalValidInfo> infoLayer = iEvent.getHandle(g4Token_);
+  const edm::Handle<PHGCalValidInfo>& infoLayer = iEvent.getHandle(g4Token_);
 
   if (infoLayer.isValid()) {
     //step vertex information
@@ -132,25 +132,21 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
     //loop over all hits
     for (unsigned int i = 0; i < hitVtxZ.size(); i++) {
-      double xx = mmTocm_ * hitVtxX.at(i);
-      double yy = mmTocm_ * hitVtxY.at(i);
-      double zz = mmTocm_ * hitVtxZ.at(i);
+      double xx = mmTocm_ * hitVtxX[i];
+      double yy = mmTocm_ * hitVtxY[i];
+      double zz = mmTocm_ * hitVtxZ[i];
       double rr = sqrt(xx * xx + yy * yy);
-      if ((hitDet.at(i) == (unsigned int)(DetId::Forward)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-          (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalHSc))) {
-        int dtype(0), subdet(0), layer(0), zside(1);
-        if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
-          int wafer, celltype, cell;
-          HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
-          dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
-        } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-                   (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
-          HGCSiliconDetId id(hitIdx.at(i));
+      if ((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) || (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) || (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
+        int dtype(0), layer(0), zside(1);
+        if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+	    (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
+          HGCSiliconDetId id(hitIdx[i]);
           dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
           layer = id.layer();
           zside = id.zside();
         } else {
-          HGCScintillatorDetId id(hitIdx.at(i));
+          HGCScintillatorDetId id(hitIdx[i]);
           dtype = 2;
           layer = id.layer();
           zside = id.zside();
@@ -159,8 +155,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
         if (zside < 0)
           zp = -zp;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << subdet << ":"
-                                       << zside << ":" << layer << " Z " << zp << ":" << zz << " R " << rr;
+        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << zside << ":" << layer << " Z " << zp << ":" << zz << " R " << rr;
 #endif
         if (dtype == 0) {
           heedzVsZ->Fill(zp, (zz - zp));
