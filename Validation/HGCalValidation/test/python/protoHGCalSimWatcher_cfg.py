@@ -26,29 +26,23 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileCheck = 'testHGCalSimWatcherV16.root'
-    runMode = 1
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileCheck = 'testHGCalSimWatcherV17.root'
-    runMode = 1
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('PROD',Phase2C11M9)
+
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileCheck = "testHGCalSimWatcher2026" + options.geometry + ".root"
+
+if (options.geometry == "D93"):
+    runMode = 2
 else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileCheck = 'testHGCalSimWatcherV17N.root'
     runMode = 1
 
+print("Geometry file: ", geomFile)
 print("Output file: ", fileCheck)
 print("Run Mode:    ", runMode)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
