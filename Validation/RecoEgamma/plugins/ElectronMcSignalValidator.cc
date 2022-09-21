@@ -566,6 +566,15 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = nullptr;
   h1_ele_hcalTowerSumEt_dr03_depth2 = nullptr;
 
+  h1_ele_ecalPFClusterIso = nullptr;
+  h1_ele_hcalPFClusterIso = nullptr;
+  h1_ele_ecalPFClusterIso_Extended = nullptr;
+  h1_ele_hcalPFClusterIso_Extended = nullptr;
+  h1_ele_ecalPFClusterIso_barrel = nullptr;
+  h1_ele_hcalPFClusterIso_barrel = nullptr;
+  h1_ele_ecalPFClusterIso_endcaps = nullptr;
+  h1_ele_hcalPFClusterIso_endcaps = nullptr;
+
   // conversions
   h1_ele_convFlags = nullptr;
   h1_ele_convFlags_all = nullptr;
@@ -2862,6 +2871,79 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                       "Events",
                       "ELE_LOGY E1 P");
 
+  h1_ele_ecalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "ecalPFClusterIso",
+                                            "ecal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "ecalPFClusterIso_barrel",
+                                                   "ecal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "ecalPFClusterIso_endcaps",
+                                                    "ecal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "hcalPFClusterIso",
+                                            "hcal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "hcalPFClusterIso_barrel",
+                                                   "hcal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "hcalPFClusterIso_endcaps",
+                                                    "hcal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "ecalPFClusterIso_Extended",
+                                                     "ecal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "hcalPFClusterIso_Extended",
+                                                     "hcal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
+
   // fbrem
   h1_ele_fbrem = bookH1withSumw2(
       iBooker, "fbrem", "ele brem fraction, mode of GSF components", 100, 0., 1., "P_{in} - P_{out} / P_{in}");
@@ -3550,6 +3632,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
                                                           bestGsfElectron.ecalEnergy() / mcIter->p());
         h2_ele_PoPtrueVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / mcIter->p());
+        h1_ele_ecalPFClusterIso_Extended->Fill(bestGsfElectron.ecalPFClusterIso());
+        h1_ele_hcalPFClusterIso_Extended->Fill(bestGsfElectron.hcalPFClusterIso());
 
         double fbrem_mode = bestGsfElectron.fbrem();
         h1_ele_fbrem_Extended->Fill(fbrem_mode);
@@ -4167,6 +4251,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // isolation
     h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+    h1_ele_ecalPFClusterIso->Fill(bestGsfElectron.ecalPFClusterIso());
+    h1_ele_hcalPFClusterIso->Fill(bestGsfElectron.hcalPFClusterIso());
     h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
     h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
     h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
@@ -4183,6 +4269,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(2));
+      h1_ele_ecalPFClusterIso_barrel->Fill(bestGsfElectron.ecalPFClusterIso());
+      h1_ele_hcalPFClusterIso_barrel->Fill(bestGsfElectron.hcalPFClusterIso());
     } else if (isEEflag) {
       h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
       h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
@@ -4192,6 +4280,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(2));
+      h1_ele_ecalPFClusterIso_endcaps->Fill(bestGsfElectron.ecalPFClusterIso());
+      h1_ele_hcalPFClusterIso_endcaps->Fill(bestGsfElectron.hcalPFClusterIso());
     }
 
     // conversion rejection
