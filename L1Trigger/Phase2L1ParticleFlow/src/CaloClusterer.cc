@@ -195,20 +195,23 @@ l1tpf_calo::SingleCaloClusterer::SingleCaloClusterer(const edm::ParameterSet &ps
   else
     throw cms::Exception("Configuration") << "Unsupported energyShareAlgo '" << energyShareAlgo << "'\n";
   if (pset.existsAs<std::vector<int>>("neighborCells")) {
-    neighborCells_ = pset.getParameter<std::vector<int>>("neighborCells"); //anything other than 3x3 is incompatible with grow() I think...
+    neighborCells_ = pset.getParameter<std::vector<int>>(
+        "neighborCells");  //anything other than 3x3 is incompatible with grow() I think...
   } else {
-    neighborCells_ = std::vector<int>({0,1,2,3,4,5,6,7}); //default to 3x3
-//  in relative eta,phi: 5 = (+1, 0), 6 = (+1, 0), 7 = (+1,+1)
-//                       3 = ( 0,-1),              4 = ( 0,+1), 
-//                       0 = (-1,-1), 1 = (-1, 0), 2 = (-1,+1), 
+    neighborCells_ = std::vector<int>({0, 1, 2, 3, 4, 5, 6, 7});  //default to 3x3
+    //  in relative eta,phi: 5 = (+1, 0), 6 = (+1, 0), 7 = (+1,+1)
+    //                       3 = ( 0,-1),              4 = ( 0,+1),
+    //                       0 = (-1,-1), 1 = (-1, 0), 2 = (-1,+1),
   }
-  if ((etaBounds_.size() - 1)*(phiBounds_.size() - 1) != maxClustersEtaPhi_.size()) {
-    throw cms::Exception("Configuration") << "Size mismatch between eta/phi bounds and max clusters: " << (etaBounds_.size() - 1) << " x "<<(phiBounds_.size() - 1)<<" != "<< maxClustersEtaPhi_.size() << "\n";
+  if ((etaBounds_.size() - 1) * (phiBounds_.size() - 1) != maxClustersEtaPhi_.size()) {
+    throw cms::Exception("Configuration")
+        << "Size mismatch between eta/phi bounds and max clusters: " << (etaBounds_.size() - 1) << " x "
+        << (phiBounds_.size() - 1) << " != " << maxClustersEtaPhi_.size() << "\n";
   }
-  if (!std::is_sorted(etaBounds_.begin(),etaBounds_.end())) {
+  if (!std::is_sorted(etaBounds_.begin(), etaBounds_.end())) {
     throw cms::Exception("Configuration") << "etaBounds is not sorted\n";
   }
-  if (!std::is_sorted(phiBounds_.begin(),phiBounds_.end())) {
+  if (!std::is_sorted(phiBounds_.begin(), phiBounds_.end())) {
     throw cms::Exception("Configuration") << "phiBounds is not sorted\n";
   }
 }
@@ -245,8 +248,9 @@ void l1tpf_calo::SingleCaloClusterer::run() {
       precluster_[i].ptLocalMax = rawet_[i];
       //// uncommment code below for debugging the clustering
       //printf("   candidate precluster pt %7.2f at %4d (ieta %+3d iphi %2d)\n",  rawet_[i], i, grid_->ieta(i), grid_->iphi(i));
-      for(const auto& ineigh: neighborCells_) {
-        if (ineigh >= 4) continue;
+      for (const auto &ineigh : neighborCells_) {
+        if (ineigh >= 4)
+          continue;
         if (rawet_.neigh(i, ineigh) > rawet_[i])
           precluster_[i].ptLocalMax = 0;
         //// uncommment code below for debugging the clustering
@@ -254,8 +258,9 @@ void l1tpf_calo::SingleCaloClusterer::run() {
         //if (ncell == -1) printf("   \t neigh %d is null\n", ineigh);
         //else printf("   \t neigh %d at %4d (ieta %+3d iphi %2d) has pt %7.2f: comparison %1d \n", ineigh, ncell, grid_->ieta(ncell), grid_->iphi(ncell), rawet_[ncell], precluster_[i].ptLocalMax > 0);
       }
-      for(const auto& ineigh: neighborCells_) {
-        if (ineigh < 4) continue;
+      for (const auto &ineigh : neighborCells_) {
+        if (ineigh < 4)
+          continue;
         if (rawet_.neigh(i, ineigh) >= rawet_[i])
           precluster_[i].ptLocalMax = 0;
         //// uncommment code below for debugging the clustering
@@ -271,7 +276,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
       switch (energyShareAlgo_) {
         case EnergyShareAlgo::Fractions: {
           float tot = 0;
-          for(const auto& ineigh: neighborCells_) {
+          for (const auto &ineigh : neighborCells_) {
             tot += precluster_.neigh(i, ineigh).ptLocalMax;
           }
           precluster_[i].ptOverNeighLocalMaxSum = tot ? rawet_[i] / tot : 0;
@@ -281,14 +286,14 @@ void l1tpf_calo::SingleCaloClusterer::run() {
           break;
         case EnergyShareAlgo::Greedy: {
           float maxet = 0;
-          for(const auto& ineigh: neighborCells_) {
+          for (const auto &ineigh : neighborCells_) {
             maxet = std::max(maxet, precluster_.neigh(i, ineigh).ptLocalMax);
           }
           precluster_[i].ptOverNeighLocalMaxSum = maxet;
         } break;
         case EnergyShareAlgo::Crude: {
           int number = 0;
-          for(const auto& ineigh: neighborCells_) {
+          for (const auto &ineigh : neighborCells_) {
             number += (precluster_.neigh(i, ineigh).ptLocalMax > 0);
           }
           precluster_[i].ptOverNeighLocalMaxSum = (number > 1 ? 0.5 : 1.0) * rawet_[i];
@@ -310,7 +315,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
       float avg_phi = 0;
       cluster.clear();
       cluster.constituents.emplace_back(i, 1.0);
-      for(const auto& ineigh: neighborCells_) {
+      for (const auto &ineigh : neighborCells_) {
         int ineighcell = grid_->neighbour(i, ineigh);
         if (ineighcell == -1)
           continue;  // skip dummy cells
@@ -341,7 +346,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
       if (tot > minClusterEt_) {
         cluster.et = tot;
         unclustered_[i] = 0;
-        for(const auto& ineigh: neighborCells_) {
+        for (const auto &ineigh : neighborCells_) {
           int ineighcell = grid_->neighbour(i, ineigh);
           if (ineighcell == -1)
             continue;  // skip dummy cells
@@ -398,56 +403,25 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch
   const EtGrid &src = (unclusteredOnly ? unclustered_ : rawet_);
   const EtaPhiCenterGrid &eta_shift = eta_center_;
   const EtaPhiCenterGrid &phi_shift = phi_center_;
-  if (maxClustersEtaPhi_.size() > 0) {
-    int totalClusters = 0;
-    std::vector<std::vector<std::pair<float,unsigned int>>> regionPtIndices(maxClustersEtaPhi_.size());//pt and index pairs in each region
-    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-      if (src[i] <= ptMin)
-        continue;
-      if ((unclusteredOnly == false) && (ptMin == 0)) {
-        assert(cellKey_[i] == totalClusters);
-      }
-      totalClusters++;
-      unsigned int etai = etaBounds_.size();
-      for (unsigned int ie = 0; ie < etaBounds_.size()-1; ie++) {
-        if (grid_->eta(i) >= etaBounds_[ie] && grid_->eta(i) < etaBounds_[ie+1]) {
-          etai = ie;
-          break;
-        }
-      }
-      unsigned int phii = phiBounds_.size();
-      for (unsigned int ip = 0; ip < phiBounds_.size()-1; ip++) {
-        if (grid_->phi(i) >= phiBounds_[ip] && grid_->phi(i) < phiBounds_[ip+1]) {
-          phii = ip;
-          break;
-        }
-      }
-      if (etai < etaBounds_.size() && phii < phiBounds_.size()) {
-        regionPtIndices[etai*(phiBounds_.size()-1)+phii].emplace_back(src[i],i);
-      }
+  l1tpf_calo::GridSelector selector = l1tpf_calo::GridSelector(etaBounds_, phiBounds_, maxClustersEtaPhi_);
+  int totalClusters = 0;
+  for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
+    if (src[i] <= ptMin)
+      continue;
+    if ((unclusteredOnly == false) && (ptMin == 0)) {
+      assert(cellKey_[i] == totalClusters);
     }
-    for (unsigned int ir = 0; ir < maxClustersEtaPhi_.size(); ir++) {
-      std::sort(regionPtIndices[ir].begin(),regionPtIndices[ir].end(),std::greater<std::pair<float,unsigned int>>());
-      for (unsigned int i = 0; i < std::min(size_t(maxClustersEtaPhi_[ir]),regionPtIndices[ir].size()); i++) {
-        unsigned int theIndex = regionPtIndices[ir][i].second;
-        ret->emplace_back(regionPtIndices[ir][i].first, grid_->eta(theIndex)+eta_shift[theIndex], grid_->phi(theIndex)+phi_shift[theIndex]);
-        ret->back().setHwEta(grid_->ieta(theIndex));
-        ret->back().setHwPhi(grid_->iphi(theIndex));
-      }
-    }
-  } else {
-    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-      if (src[i] <= ptMin)
-        continue;
-      if ((unclusteredOnly == false) && (ptMin == 0)) {
-        assert(cellKey_[i] == int(ret->size()));
-      }
-      ret->emplace_back(src[i], grid_->eta(i)+eta_shift[i], grid_->phi(i)+phi_shift[i]);
-      ret->back().setHwEta(grid_->ieta(i));
-      ret->back().setHwPhi(grid_->iphi(i));
-    }
+    totalClusters++;
+    selector.fill(src[i], grid_->eta(i), grid_->phi(i), i);
   }
-  
+  std::vector<unsigned int> indices = selector.returnSorted();
+  for (unsigned int ii = 0; ii < indices.size(); ii++) {
+    unsigned int theIndex = indices[ii];
+    ret->emplace_back(
+        src[theIndex], grid_->eta(theIndex) + eta_shift[theIndex], grid_->phi(theIndex) + phi_shift[theIndex]);
+    ret->back().setHwEta(grid_->ieta(theIndex));
+    ret->back().setHwPhi(grid_->iphi(theIndex));
+  }
   return ret;
 }
 
@@ -496,13 +470,15 @@ l1tpf_calo::SimpleCaloLinkerBase::SimpleCaloLinkerBase(const edm::ParameterSet &
     throw cms::Exception("LogicError", "Inconsistent grid between ecal and linker\n");
   if (grid_ != &hcal.raw().grid())
     throw cms::Exception("LogicError", "Inconsistent grid between hcal and linker\n");
-  if ((etaBounds_.size() - 1)*(phiBounds_.size() - 1) != maxClustersEtaPhi_.size()) {
-    throw cms::Exception("Configuration") << "Size mismatch between eta/phi bounds and max clusters: " << (etaBounds_.size() - 1) << " x "<<(phiBounds_.size() - 1)<<" != "<< maxClustersEtaPhi_.size() << "\n";
+  if ((etaBounds_.size() - 1) * (phiBounds_.size() - 1) != maxClustersEtaPhi_.size()) {
+    throw cms::Exception("Configuration")
+        << "Size mismatch between eta/phi bounds and max clusters: " << (etaBounds_.size() - 1) << " x "
+        << (phiBounds_.size() - 1) << " != " << maxClustersEtaPhi_.size() << "\n";
   }
-  if (!std::is_sorted(etaBounds_.begin(),etaBounds_.end())) {
+  if (!std::is_sorted(etaBounds_.begin(), etaBounds_.end())) {
     throw cms::Exception("Configuration") << "etaBounds is not sorted\n";
   }
-  if (!std::is_sorted(phiBounds_.begin(),phiBounds_.end())) {
+  if (!std::is_sorted(phiBounds_.begin(), phiBounds_.end())) {
     throw cms::Exception("Configuration") << "phiBounds is not sorted\n";
   }
 }
@@ -519,86 +495,38 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetc
     const edm::OrphanHandle<l1t::PFClusterCollection> &hcal) const {
   bool setRefs = (ecal.isValid() && hcal.isValid());
   auto ret = std::make_unique<l1t::PFClusterCollection>();
-  if (maxClustersEtaPhi_.size() > 0) {
-    std::vector<std::vector<std::pair<float,unsigned int>>> regionPtIndices(maxClustersEtaPhi_.size());//pt and index pairs in each region
-    unsigned int index = 0;
-    for (const CombinedCluster &cluster : clusters_) {
-      index++;
-      if (cluster.et > 0) {
-        bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
-        if (photon && noEmInHGC_) {
-          if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {  // 1.5-3 = eta range of HGCal
-            continue;
-          }
-        }
-        unsigned int etai = etaBounds_.size();
-        for (unsigned int ie = 0; ie < etaBounds_.size()-1; ie++) {
-          if (cluster.eta >= etaBounds_[ie] && cluster.eta < etaBounds_[ie+1]) {
-            etai = ie;
-            break;
-          }
-        }
-        unsigned int phii = phiBounds_.size();
-        for (unsigned int ip = 0; ip < phiBounds_.size()-1; ip++) {
-          if (cluster.phi >= phiBounds_[ip] && cluster.phi < phiBounds_[ip+1]) {
-            phii = ip;
-            break;
-          }
-        }
-        if (etai < etaBounds_.size() && phii < phiBounds_.size()) {
-          regionPtIndices[etai*(phiBounds_.size()-1)+phii].emplace_back(cluster.et,index-1);
+  l1tpf_calo::GridSelector selector = l1tpf_calo::GridSelector(etaBounds_, phiBounds_, maxClustersEtaPhi_);
+  unsigned int index = 0;
+  for (const CombinedCluster &cluster : clusters_) {
+    index++;
+    if (cluster.et > 0) {
+      bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
+      if (photon && noEmInHGC_) {
+        if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {  // 1.5-3 = eta range of HGCal
+          continue;
         }
       }
+      selector.fill(cluster.et, cluster.eta, cluster.phi, index - 1);
     }
-    for (unsigned int ir = 0; ir < maxClustersEtaPhi_.size(); ir++) {
-      std::sort(regionPtIndices[ir].begin(),regionPtIndices[ir].end(),std::greater<std::pair<float,unsigned int>>());
-      for (unsigned int i = 0; i < std::min(size_t(maxClustersEtaPhi_[ir]),regionPtIndices[ir].size()); i++) {
-        unsigned int theIndex = regionPtIndices[ir][i].second;
-        const CombinedCluster &cluster = clusters_[theIndex];
-        bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
-        if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
-          ret->emplace_back(cluster.et,
-                            photon ? cluster.ecal_eta : cluster.eta,
-                            photon ? cluster.ecal_phi : cluster.phi,
-                            cluster.ecal_et > 0 ? std::max(cluster.et - cluster.ecal_et, 0.f) / cluster.ecal_et : -1,
-                            photon);
-          if (setRefs) {
-            for (const auto &pair : cluster.constituents) {
-              assert(pair.first != 0);
-              if (pair.first > 0) {  // 1+hcal index
-                ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first - 1), pair.second);
-              } else {  // -1-ecal index
-                ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first + 1), pair.second);
-              }
-            }
-          }
-        }
-      }
-    }
-  } else {
-    for (const CombinedCluster &cluster : clusters_) {
-      if (cluster.et > 0) {
-        bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
-        if (photon && noEmInHGC_) {
-          if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {  // 1.5-3 = eta range of HGCal
-            continue;
-          }
-        }
-        if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
-          ret->emplace_back(cluster.et,
-                            photon ? cluster.ecal_eta : cluster.eta,
-                            photon ? cluster.ecal_phi : cluster.phi,
-                            cluster.ecal_et > 0 ? std::max(cluster.et - cluster.ecal_et, 0.f) / cluster.ecal_et : -1,
-                            photon);
-          if (setRefs) {
-            for (const auto &pair : cluster.constituents) {
-              assert(pair.first != 0);
-              if (pair.first > 0) {  // 1+hcal index
-                ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first - 1), pair.second);
-              } else {  // -1-ecal index
-                ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first + 1), pair.second);
-              }
-            }
+  }
+  std::vector<unsigned int> indices = selector.returnSorted();
+  for (unsigned int ii = 0; ii < indices.size(); ii++) {
+    unsigned int theIndex = indices[ii];
+    const CombinedCluster &cluster = clusters_[theIndex];
+    bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
+    if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
+      ret->emplace_back(cluster.et,
+                        photon ? cluster.ecal_eta : cluster.eta,
+                        photon ? cluster.ecal_phi : cluster.phi,
+                        cluster.ecal_et > 0 ? std::max(cluster.et - cluster.ecal_et, 0.f) / cluster.ecal_et : -1,
+                        photon);
+      if (setRefs) {
+        for (const auto &pair : cluster.constituents) {
+          assert(pair.first != 0);
+          if (pair.first > 0) {  // 1+hcal index
+            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first - 1), pair.second);
+          } else {  // -1-ecal index
+            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first + 1), pair.second);
           }
         }
       }
@@ -764,8 +692,8 @@ void l1tpf_calo::FlatCaloLinker::run() {
 }
 
 l1tpf_calo::CombinedCaloLinker::CombinedCaloLinker(const edm::ParameterSet &pset,
-                                           const SingleCaloClusterer &ecal,
-                                           const SingleCaloClusterer &hcal)
+                                                   const SingleCaloClusterer &ecal,
+                                                   const SingleCaloClusterer &hcal)
     : SimpleCaloLinkerBase(pset, ecal, hcal), combClusterer_(pset) {}
 
 l1tpf_calo::CombinedCaloLinker::~CombinedCaloLinker() {}
@@ -820,6 +748,49 @@ void l1tpf_calo::CombinedCaloLinker::run() {
     dst.ecal_eta = eta_ecal;
     dst.ecal_phi = phi_ecal;
   }
+}
+
+l1tpf_calo::GridSelector::GridSelector(std::vector<double> etaBounds,
+                                       std::vector<double> phiBounds,
+                                       std::vector<unsigned int> maxClusters)
+    : etaBounds_(etaBounds),
+      phiBounds_(phiBounds),
+      maxClustersEtaPhi_(maxClusters),
+      regionPtIndices_(!maxClusters.empty() ? maxClusters.size() : 1) {}
+
+void l1tpf_calo::GridSelector::fill(float pt, float eta, float phi, unsigned int index) {
+  if (!maxClustersEtaPhi_.empty()) {
+    unsigned int etai = etaBounds_.size();
+    for (unsigned int ie = 0; ie < etaBounds_.size() - 1; ie++) {
+      if (eta >= etaBounds_[ie] && eta < etaBounds_[ie + 1]) {
+        etai = ie;
+        break;
+      }
+    }
+    unsigned int phii = phiBounds_.size();
+    for (unsigned int ip = 0; ip < phiBounds_.size() - 1; ip++) {
+      if (phi >= phiBounds_[ip] && phi < phiBounds_[ip + 1]) {
+        phii = ip;
+        break;
+      }
+    }
+    if (etai < etaBounds_.size() && phii < phiBounds_.size()) {
+      regionPtIndices_[etai * (phiBounds_.size() - 1) + phii].emplace_back(pt, index);
+    }
+  } else {
+    regionPtIndices_[0].emplace_back(pt, index);
+  }
+}
+
+std::vector<unsigned int> l1tpf_calo::GridSelector::returnSorted() {
+  std::vector<unsigned int> indices;
+  for (auto &regionPtIndex : regionPtIndices_) {
+    std::sort(regionPtIndex.begin(), regionPtIndex.end(), std::greater<std::pair<float, unsigned int>>());
+    for (const auto &p : regionPtIndex) {
+      indices.push_back(p.second);
+    }
+  }
+  return indices;
 }
 
 std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset,
