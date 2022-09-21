@@ -36,6 +36,18 @@
 #include <utility>
 #include <vector>
 
+#ifdef PFLOW_DEBUG
+#define LOGVERB(x) edm::LogVerbatim(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) edm::LogInfo(x)
+#else
+#define LOGVERB(x) LogTrace(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) LogDebug(x)
+#endif
+
 class PFGPUComparisonTask : public DQMEDAnalyzer {
 public:
   PFGPUComparisonTask(edm::ParameterSet const& conf);
@@ -47,10 +59,9 @@ private:
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterHBHETok_ref_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterHBHETok_target_;
 
-  MonitorElement* energy_GPUvsCPU_;
-  //MonitorElement* energy_CPU_;
-
-  // Need MonitorElement* for rechit multiplicity?
+  MonitorElement* pfCluster_Multiplicity_GPUvsCPU_;
+  MonitorElement* pfCluster_Energy_GPUvsCPU_;
+  MonitorElement* pfCluster_RecHitMultiplicity_GPUvsCPU_;
 
 };
 
@@ -68,13 +79,17 @@ void PFGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker,
                                          edm::EventSetup const& isetup) {
   constexpr auto size = 100;
   char histo[size];
-  //char histo2[size];
+  ibooker.setCurrentFolder("ParticleFlow/PFClusterCPUvsGPUV");
 
-  ibooker.setCurrentFolder("ParticleFlow/PFClusterV");
+  strncpy(histo, "pfCluster_Multiplicity_GPUvsCPU_", size);
+  pfCluster_Multiplicity_GPUvsCPU_ = ibooker.book2D(histo, histo, 100, 0, 2000, 100, 0, 2000);
 
-  strncpy(histo, "energy_GPUvsCPU_", size);
-  //strncpy(histo2, "energy_CPU_", size);
-  energy_GPUvsCPU_ = ibooker.book2D(histo, histo, 500, 0, 10000, 500, 0, 10000);
+  strncpy(histo, "pfCluster_Energy_GPUvsCPU_", size);
+  pfCluster_Energy_GPUvsCPU_ = ibooker.book2D(histo, histo, 100, 0, 500, 100, 0, 500);
+
+  strncpy(histo, "pfCluster_RecHitMultiplicity_GPUvsCPU_", size);
+  pfCluster_RecHitMultiplicity_GPUvsCPU_ = ibooker.book2D(histo, histo, 100, 0, 100, 100, 0, 100);
+
 }
 void PFGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup const& c) {
 
@@ -84,17 +99,49 @@ void PFGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup const
   edm::Handle<reco::PFClusterCollection> pfClusterHBHE_target;
   event.getByToken(pfClusterHBHETok_ref_, pfClusterHBHE_target);
 
-  double energy_CPU = 0;
-  for (auto pf = pfClusterHBHE_ref->begin(); pf != pfClusterHBHE_ref->end(); ++pf) {
-      energy_CPU = pf->energy();
+  //
+  // Compare per-event PF cluster multiplicity
+  
+  LOGVERB("PFGPUComparisonTask") << " PFCluster multiplicity " <<  pfClusterHBHE_ref->size() << " " <<  pfClusterHBHE_target->size();
+  pfCluster_Multiplicity_GPUvsCPU_->Fill((float)pfClusterHBHE_ref->size(),(float)pfClusterHBHE_target->size());
+
+  //
+  // Find matching PF cluster pairs
+  std::vector<int> matched_idx;
+  for (unsigned i = 0; i < pfClusterHBHE_ref->size(); ++i) {
+    bool matched=false;
+    for (unsigned j = 0; j < pfClusterHBHE_target->size(); ++j) {
+      if (pfClusterHBHE_ref->at(i).seed() == pfClusterHBHE_target->at(j).seed()){
+	if (!matched){
+	  matched=true;
+	  matched_idx.push_back((int)j);
+	} else {
+	  LOGWARN("PFGPUComparisonTask") << " another matching? ";
+	}
+      }
+    }
+    if (!matched) matched_idx.push_back(-1); // if you don't find a match, put a dummy number
   }
 
-  double energy_GPU = 0;
-  for (auto pf = pfClusterHBHE_target->begin(); pf != pfClusterHBHE_target->end(); ++pf) {
-      energy_GPU = pf->energy();
+  //
+  // Check matches
+  std::vector<int> tmp = matched_idx;
+  sort(tmp.begin(), tmp.end());
+  const bool hasDuplicates = std::adjacent_find(tmp.begin(), tmp.end()) != tmp.end();  
+  if (hasDuplicates) LOGWARN("PFGPUComparisonTask") << "find duplicated matched";
+  
+  // 
+  // Plot matching PF cluster variables
+  for (unsigned i = 0; i < pfClusterHBHE_ref->size(); ++i) {
+    if (matched_idx[i]>=0){
+      unsigned int j = matched_idx[i];
+      pfCluster_Energy_GPUvsCPU_->Fill(pfClusterHBHE_ref->at(i).energy(),
+				       pfClusterHBHE_target->at(j).energy());
+      pfCluster_RecHitMultiplicity_GPUvsCPU_->Fill((float)pfClusterHBHE_ref->at(i).recHitFractions().size(),
+						   (float)pfClusterHBHE_target->at(j).recHitFractions().size());
+    }
   }
 
-  energy_GPUvsCPU_->Fill(energy_GPU, energy_CPU);
 }
   
 #include "FWCore/Framework/interface/MakerMacros.h"

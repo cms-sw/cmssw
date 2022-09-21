@@ -205,7 +205,8 @@ process.schedule.append(process.PFGPUPath)
 # some customization
 #process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 50
 #process.hltParticleFlowClusterHBHE.pfClusterBuilder.stoppingTolerance = 1e-06
-process.maxEvents.input = 20
+process.options.numberOfThreads = 8
+process.maxEvents.input = -1
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
