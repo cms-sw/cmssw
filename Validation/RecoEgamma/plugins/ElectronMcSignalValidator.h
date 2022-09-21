@@ -582,6 +582,15 @@ private:
   MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel;
   MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps;
 
+  MonitorElement *h1_ele_ecalPFClusterIso;
+  MonitorElement *h1_ele_hcalPFClusterIso;
+  MonitorElement *h1_ele_ecalPFClusterIso_Extended;
+  MonitorElement *h1_ele_hcalPFClusterIso_Extended;
+  MonitorElement *h1_ele_ecalPFClusterIso_barrel;
+  MonitorElement *h1_ele_hcalPFClusterIso_barrel;
+  MonitorElement *h1_ele_ecalPFClusterIso_endcaps;
+  MonitorElement *h1_ele_hcalPFClusterIso_endcaps;
+
   // conversions
   MonitorElement *h1_ele_convFlags;
   MonitorElement *h1_ele_convFlags_all;
