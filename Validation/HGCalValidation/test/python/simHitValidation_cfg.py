@@ -37,6 +37,7 @@ print("SIM Output file:        ", outFile)
 print("Validation Output file: ", fileName)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
