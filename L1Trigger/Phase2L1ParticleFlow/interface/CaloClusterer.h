@@ -189,14 +189,14 @@ namespace l1tpf_calo {
     ~SingleCaloClusterer();
     void clear();
     void add(const reco::Candidate &c) { add(c.pt(), c.eta(), c.phi()); }
-    void add(float pt, float eta, float phi) { 
-      rawet_(eta, phi) += pt; 
+    void add(float pt, float eta, float phi) {
+      rawet_(eta, phi) += pt;
       if (preciseEtaPhi_) {
         float newet = rawet_(eta, phi);
-        float prevw = (newet-pt)/newet;
-        float nextw = pt/newet;
-        eta_center_(eta, phi) = eta_center_(eta, phi)*prevw + eta*nextw;
-        phi_center_(eta, phi) = phi_center_(eta, phi)*prevw + phi*nextw;
+        float prevw = (newet - pt) / newet;
+        float nextw = pt / newet;
+        eta_center_(eta, phi) = eta_center_(eta, phi) * prevw + eta * nextw;
+        phi_center_(eta, phi) = phi_center_(eta, phi) * prevw + phi * nextw;
       }
     }
     void run();
@@ -249,7 +249,7 @@ namespace l1tpf_calo {
     bool preciseEtaPhi_;
     std::vector<double> etaBounds_;
     std::vector<double> phiBounds_;
-    std::vector<unsigned int> maxClustersEtaPhi_;//eta x phi
+    std::vector<unsigned int> maxClustersEtaPhi_;  //eta x phi
     std::vector<Cluster> clusters_;
     const Cluster nullCluster_;
     float zsEt_, seedEt_, minClusterEt_, minEtToGrow_;
@@ -290,7 +290,7 @@ namespace l1tpf_calo {
     std::vector<CombinedCluster> clusters_;
     std::vector<double> etaBounds_;
     std::vector<double> phiBounds_;
-    std::vector<unsigned int> maxClustersEtaPhi_;//eta x phi
+    std::vector<unsigned int> maxClustersEtaPhi_;  //eta x phi
     float hoeCut_, minPhotonEt_, minHadronRawEt_, minHadronEt_;
     bool noEmInHGC_;
   };
@@ -325,6 +325,20 @@ namespace l1tpf_calo {
 
   protected:
     SingleCaloClusterer combClusterer_;
+  };
+
+  class GridSelector {
+  public:
+    GridSelector(std::vector<double> etaBounds, std::vector<double> phiBounds, std::vector<unsigned int> maxClusters);
+    ~GridSelector() {}
+    void fill(float pt, float eta, float phi, unsigned int index);
+    std::vector<unsigned int> returnSorted();
+
+  private:
+    const std::vector<double> etaBounds_;
+    const std::vector<double> phiBounds_;
+    const std::vector<unsigned int> maxClustersEtaPhi_;
+    std::vector<std::vector<std::pair<float, unsigned int>>> regionPtIndices_;  //pt and index pairs in each region
   };
 
   // makes a calo linker (pointer will be owned by the callee)
