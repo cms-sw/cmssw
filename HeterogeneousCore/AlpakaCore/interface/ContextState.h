@@ -7,6 +7,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/ScopedContextFwd.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
