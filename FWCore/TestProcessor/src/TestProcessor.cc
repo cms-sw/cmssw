@@ -168,7 +168,10 @@ namespace edm {
 
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_, *processBlockHelper_);
+      // should we add the module type resolver support for TestProcessor?
+      ModuleTypeResolverMaker const* typeResolverMaker = nullptr;
+      schedule_ = items.initSchedule(
+          *psetPtr, false, preallocations_, &processContext_, typeResolverMaker, *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
