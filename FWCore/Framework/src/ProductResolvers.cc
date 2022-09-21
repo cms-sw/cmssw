@@ -407,47 +407,21 @@ namespace edm {
         }
       }
 
-      //Need to try modifying prefetchRequested_ before adding to m_waitingTasks
-      bool expected = false;
-      bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
-      m_waitingTasks.add(waitTask);
-
-      if (worker_ and prefetchRequested) {
-        //using a waiting task to do a callback guarantees that
-        // the m_waitingTasks list will be released from waiting even
-        // if the module does not put this data product or the
-        // module has an exception while running
-
-        auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
-          if (nullptr != iException) {
-            m_waitingTasks.doneWaiting(*iException);
-          } else {
-            m_waitingTasks.doneWaiting(std::exception_ptr());
-          }
-        });
-        worker_->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
+      if (waitingTasks_) {
+        // using a waiting task to do a callback guarantees that the
+        // waitingTasks_ list (from the worker) will be released from
+        // waiting even if the module does not put this data product
+        // or the module has an exception while running
+        waitingTasks_->add(waitTask);
       }
     }
   }
 
-  void PuttableProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
-    ProducedProductResolver::putProduct(std::move(edp));
-    bool expected = false;
-    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
-      m_waitingTasks.doneWaiting(std::exception_ptr());
-    }
-  }
-
-  void PuttableProductResolver::resetProductData_(bool deleteEarly) {
-    if (not deleteEarly) {
-      prefetchRequested_ = false;
-      m_waitingTasks.reset();
-    }
-    DataManagingProductResolver::resetProductData_(deleteEarly);
-  }
-
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    auto worker = iConfigure.findWorker(branchDescription().moduleLabel());
+    if (worker) {
+      waitingTasks_ = &worker->waitingTaskList();
+    }
   }
 
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
