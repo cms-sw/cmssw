@@ -36,7 +36,7 @@
 class HGCalRecHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalRecHitStudy(const edm::ParameterSet&);
-  ~HGCalRecHitStudy() override {}
+  ~HGCalRecHitStudy() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -69,9 +69,9 @@ private:
 
   // ----------member data ---------------------------
   const std::string nameDetector_;
-  edm::EDGetToken recHitSource_;
-  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcaldd_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcGeom_;
+  const edm::EDGetTokenT<HGCRecHitCollection> recHitSource_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcaldd_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcGeom_;
   const bool ifNose_, ifLayer_;
   const int verbosity_, nbinR_, nbinZ_, nbinEta_, nLayers_;
   const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
@@ -87,6 +87,10 @@ private:
 
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("detectorName")),
+      recHitSource_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("source"))),
+      tok_hgcaldd_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      tok_hgcGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
@@ -104,20 +108,9 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
       firstLayer_(1) {
   usesResource(TFileService::kSharedResource);
 
-  auto temp = iConfig.getParameter<edm::InputTag>("source");
-  if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
-      (nameDetector_ == "HGCalHEScintillatorSensitive") || (nameDetector_ == "HGCalHFNoseSensitive")) {
-    recHitSource_ = consumes<HGCRecHitCollection>(temp);
-  } else {
-    throw cms::Exception("BadHGCRecHitSource") << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-                                               << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", or "
-                                               << "\"HGCalHEScintillatorSensitive\"!";
-  }
-  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
-                                      << " Flag " << ifNose_ << ":" << verbosity_;
-  tok_hgcaldd_ =
-      esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
-  tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_});
+  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag "
+                                      << iConfig.getParameter<edm::InputTag>("source") << " Flag " << ifNose_ << ":"
+                                      << verbosity_;
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -146,15 +139,12 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   bool ok(true);
   unsigned int ntot(0), nused(0);
-  edm::Handle<HGCRecHitCollection> hbhecoll;
-  iEvent.getByToken(recHitSource_, hbhecoll);
-  edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcGeom_);
+  const edm::ESHandle<HGCalGeometry>& geom = iSetup.getHandle(tok_hgcGeom_);
   if (!geom.isValid())
     edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
   const HGCalGeometry* geom0 = geom.product();
 
-  edm::Handle<HGCRecHitCollection> theRecHitContainers;
-  iEvent.getByToken(recHitSource_, theRecHitContainers);
+  const edm::Handle<HGCRecHitCollection>& theRecHitContainers = iEvent.getHandle(recHitSource_);
   if (theRecHitContainers.isValid()) {
     if (verbosity_ > 0)
       edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainers->size() << " element(s)";
