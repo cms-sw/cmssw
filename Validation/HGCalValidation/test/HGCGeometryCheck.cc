@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
@@ -32,7 +33,7 @@
 class HGCGeometryCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCGeometryCheck(const edm::ParameterSet &);
-  ~HGCGeometryCheck() override {}
+  ~HGCGeometryCheck() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
@@ -44,9 +45,9 @@ protected:
   virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
 
 private:
-  edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
-  std::vector<std::string> geometrySource_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
+  const edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
+  const std::vector<std::string> geometrySource_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
 
   //HGCal geometry scheme
   std::vector<const HGCalDDDConstants *> hgcGeometry_;
@@ -59,15 +60,13 @@ private:
   static constexpr double mmTocm_ = 0.1;
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) {
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg)
+    : g4Token_(consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"))),
+      geometrySource_(cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource")),
+      tok_hgcGeom_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
+        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+      })} {
   usesResource(TFileService::kSharedResource);
-
-  g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
-  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
-  for (const auto &name : geometrySource_) {
-    tok_hgcGeom_.emplace_back(
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-  }
 
   edm::LogVerbatim("HGCalValid") << "HGCGeometryCheck:: use information from "
                                  << cfg.getParameter<edm::InputTag>("g4Source") << " and " << geometrySource_.size()
@@ -105,12 +104,12 @@ void HGCGeometryCheck::beginJob() {
 void HGCGeometryCheck::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
   //initiating hgc geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    edm::ESHandle<HGCalDDDConstants> hgcGeom = iSetup.getHandle(tok_hgcGeom_[i]);
+    const edm::ESHandle<HGCalDDDConstants> &hgcGeom = iSetup.getHandle(tok_hgcGeom_[i]);
     if (hgcGeom.isValid()) {
       hgcGeometry_.push_back(hgcGeom.product());
       edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
     } else {
-      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
+      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i];
     }
   }
 }
@@ -121,8 +120,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
                                  << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Accessing G4 information
-  edm::Handle<PHGCalValidInfo> infoLayer;
-  iEvent.getByToken(g4Token_, infoLayer);
+  const edm::Handle<PHGCalValidInfo> &infoLayer = iEvent.getHandle(g4Token_);
 
   if (infoLayer.isValid()) {
     //step vertex information
@@ -134,25 +132,23 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
     //loop over all hits
     for (unsigned int i = 0; i < hitVtxZ.size(); i++) {
-      double xx = mmTocm_ * hitVtxX.at(i);
-      double yy = mmTocm_ * hitVtxY.at(i);
-      double zz = mmTocm_ * hitVtxZ.at(i);
+      double xx = mmTocm_ * hitVtxX[i];
+      double yy = mmTocm_ * hitVtxY[i];
+      double zz = mmTocm_ * hitVtxZ[i];
       double rr = sqrt(xx * xx + yy * yy);
-      if ((hitDet.at(i) == (unsigned int)(DetId::Forward)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-          (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalHSc))) {
-        int dtype(0), subdet(0), layer(0), zside(1);
-        if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
-          int wafer, celltype, cell;
-          HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
-          dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
-        } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-                   (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
-          HGCSiliconDetId id(hitIdx.at(i));
+      if ((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
+        int dtype(0), layer(0), zside(1);
+        if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+            (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
+          HGCSiliconDetId id(hitIdx[i]);
           dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
           layer = id.layer();
           zside = id.zside();
         } else {
-          HGCScintillatorDetId id(hitIdx.at(i));
+          HGCScintillatorDetId id(hitIdx[i]);
           dtype = 2;
           layer = id.layer();
           zside = id.zside();
@@ -161,8 +157,8 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
         if (zside < 0)
           zp = -zp;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << subdet << ":"
-                                       << zside << ":" << layer << " Z " << zp << ":" << zz << " R " << rr;
+        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << zside << ":"
+                                       << layer << " Z " << zp << ":" << zz << " R " << rr;
 #endif
         if (dtype == 0) {
           heedzVsZ->Fill(zp, (zz - zp));

@@ -46,7 +46,7 @@
 class HGCalWaferStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalWaferStudy(const edm::ParameterSet&);
-  ~HGCalWaferStudy() override {}
+  ~HGCalWaferStudy() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -73,7 +73,7 @@ private:
   std::vector<const HGCalDDDConstants*> hgcons_;
   std::vector<const HGCalGeometry*> hgeoms_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> tok_hits_;
-  std::vector<edm::EDGetToken> tok_digi_;
+  std::vector<edm::EDGetTokenT<HGCalDigiCollection>> tok_digi_;
 
   //histogram related stuff
   static const int nType = 2;
@@ -149,8 +149,7 @@ void HGCalWaferStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
 void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //First the hits
   for (unsigned int k = 0; k < tok_hits_.size(); ++k) {
-    edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
-    iEvent.getByToken(tok_hits_[k], theCaloHitContainers);
+    const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hits_[k]);
     if (theCaloHitContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
@@ -203,8 +202,7 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   //Then the digis
   for (unsigned int k = 0; k < tok_digi_.size(); ++k) {
-    edm::Handle<HGCalDigiCollection> theHGCDigiContainer;
-    iEvent.getByToken(tok_digi_[k], theHGCDigiContainer);
+    const edm::Handle<HGCalDigiCollection>& theHGCDigiContainer = iEvent.getHandle(tok_digi_[k]);
     if (theHGCDigiContainer.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
