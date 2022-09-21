@@ -37,6 +37,7 @@ print("Geometry file: ", geomFile)
 print("Input file:    ", fileInput)
 print("Output file:   ", fileName)
 
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
 process.load('FWCore.MessageService.MessageLogger_cfi')
