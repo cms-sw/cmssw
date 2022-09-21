@@ -235,11 +235,8 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
       bool prescaled = false;
       const unsigned int prescaleSize = hltConfigProvider_.prescaleSize();
       for (unsigned int ps = 0; ps < prescaleSize; ps++) {
-        const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trig);
-        if (prescaleValue != 1)
+        if (hltConfigProvider_.prescaleValue<double>(ps, trig) != 1)
           prescaled = true;
-        //	std::cout<< " prescaleValue[" << ps << "] =" << prescaleValue
-        //<<std::endl;
       }
       if (!prescaled) {
         // looking now for the lowest hlt path not prescaled, with name of the

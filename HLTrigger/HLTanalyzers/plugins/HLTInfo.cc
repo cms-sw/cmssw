@@ -60,7 +60,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltEvtCnt = 0;
   const int kMaxTrigFlag = 10000;
   trigflag = new int[kMaxTrigFlag];
-  trigPrescl = new int[kMaxTrigFlag];
+  trigPrescl = new double[kMaxTrigFlag];
 
   L1EvtCnt = 0;
   const int kMaxL1Flag = 10000;
@@ -136,8 +136,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>& hltresults,
       const std::string& trigName = triggerNames.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
 
-      //trigPrescl[itrig] = hltConfig_.prescaleValue(iEvent, eventSetup, trigName);
-      trigPrescl[itrig] = hltPrescaleProvider_->prescaleValue(iEvent, eventSetup, trigName);
+      trigPrescl[itrig] = hltPrescaleProvider_->prescaleValue<double>(iEvent, eventSetup, trigName);
 
       if (accept) {
         trigflag[itrig] = 1;
