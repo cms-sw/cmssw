@@ -147,7 +147,8 @@ namespace l1t {
         uint16_t GEMc = payload[2];
         uint16_t GEMd = payload[3];
 
-        for (int i = 0; i < nTPs; i++) {
+        // If there are 2 TPs in the block we fill them 1 by 1
+        for (int i = 1; i <= nTPs; i++) {
           // res is a pointer to a collection of EMTFDaqOut class objects
           // There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
           EMTFDaqOutCollection* res;
