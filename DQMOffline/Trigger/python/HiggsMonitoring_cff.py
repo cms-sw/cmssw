@@ -168,15 +168,11 @@ mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg = hltHIGmonitoring.clone(
     #FolderName = 'HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg',
     FolderName = 'HLT/HIG/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*"]),
-    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu20_v*","HLT_TkMu20_v*",
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu20_v*",
                                                   "HLT_IsoMu24_eta2p1_v*",
                                                   "HLT_IsoMu24_v*",
                                                   "HLT_IsoMu27_v*",
-                                                  "HLT_IsoMu20_v*",
-                                                  "HLT_IsoTkMu24_eta2p1_v*",
-                                                  "HLT_IsoTkMu24_v*",
-                                                  "HLT_IsoTkMu27_v*",
-                                                  "HLT_IsoTkMu20_v*"])
+                                                  "HLT_IsoMu20_v*"])
 )
 
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg = hltHIGmonitoring.clone(
@@ -198,15 +194,10 @@ mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg = hltHIGmonitoring.clone(
     FolderName = 'HLT/HIG/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*"]), #        
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu20_v*",
-                                                  "HLT_TkMu20_v*",
                                                   "HLT_IsoMu24_eta2p1_v*",
                                                   "HLT_IsoMu24_v*",
                                                   "HLT_IsoMu27_v*",
-                                                  "HLT_IsoMu20_v*",
-                                                  "HLT_IsoTkMu24_eta2p1_v*",
-                                                  "HLT_IsoTkMu24_v*",
-                                                  "HLT_IsoTkMu27_v*",
-                                                  "HLT_IsoTkMu20_v*"])
+                                                  "HLT_IsoMu20_v*"])
 )
 
 
@@ -227,7 +218,7 @@ higgsTrimumon = hltHIGmonitoring.clone(
     FolderName = 'HLT/HIG/TriLepton/HLT_TripleMu_12_10_5/',
     nmuons = 3,
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_TripleMu_12_10_5_v*"]), #                                      
-    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*"])
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*"])
 )
 
 higgsTrimu10_5_5_dz_mon = hltHIGmonitoring.clone(
@@ -235,7 +226,7 @@ higgsTrimu10_5_5_dz_mon = hltHIGmonitoring.clone(
     FolderName = 'HLT/HIG/TriLepton/HLT_TripleM_10_5_5_DZ/',
     nmuons = 3,
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_TripleMu_10_5_5_DZ_v*"]), #                                    
-    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*"])
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*"])
 )
 
 #######TripleElectron####
@@ -267,11 +258,7 @@ diMu9Ele9CaloIdLTrackIdL_eleleg = hltHIGmonitoring.clone(
     nmuons = 2,
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v*"]),
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*",
-                                                  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*",
-                                                  "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*",
-                                                  "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*",
-                                                  "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*",
-                                                  "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"])
+                                                  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*"])
 )
 
 ##Eff of the HLT with DZ w.ref to non-DZ one
