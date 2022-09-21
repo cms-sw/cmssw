@@ -41,7 +41,7 @@ namespace edm {
   class ModuleRegistry {
   public:
     ModuleRegistry() = default;
-    explicit ModuleRegistry(std::unique_ptr<ModuleTypeResolverMaker>);
+    explicit ModuleRegistry(ModuleTypeResolverMaker const* resolverMaker) : typeResolverMaker_(resolverMaker) {}
     std::shared_ptr<maker::ModuleHolder> getModule(MakeModuleParams const& p,
                                                    std::string const& moduleLabel,
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPre,
@@ -65,7 +65,7 @@ namespace edm {
 
   private:
     std::map<std::string, edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>> labelToModule_;
-    std::unique_ptr<ModuleTypeResolverMaker> typeResolverMaker_;
+    ModuleTypeResolverMaker const* typeResolverMaker_;
   };
 }  // namespace edm
 
