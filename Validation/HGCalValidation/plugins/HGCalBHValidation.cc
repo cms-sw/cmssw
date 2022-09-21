@@ -135,8 +135,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
           ensum = map_try[id];
         ensum += energy;
         map_try[id] = ensum;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << ++i << "] ID " << std::hex << " " << id << std::dec << " "
-                                            << HGCScintillatorDetId(id) << " E " << energy << " time " << time;
+        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << ++i << "] ID " << std::hex << " " << id << std::dec
+                                            << " " << HGCScintillatorDetId(id) << " E " << energy << " time " << time;
       }
     }
     for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
@@ -164,13 +164,13 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
           double phi = cell.iphi() - 0.01;
           double ring1 = cell.zside() * ring;
           hdi2Oc_->Fill(ring1, phi);
-	  hdigEn_->Fill(energy);
-	  hdigOc_->Fill(ring1, phi);
-	  hdigLn_->Fill(depth);
-	  hdi3Oc_->Fill(ring1, depth);
-	  edm::LogVerbatim("HGCalValidation")
-                << "HGCalBHDigit[" << ++kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
-	}
+          hdigEn_->Fill(energy);
+          hdigOc_->Fill(ring1, phi);
+          hdigLn_->Fill(depth);
+          hdi3Oc_->Fill(ring1, depth);
+          edm::LogVerbatim("HGCalValidation")
+              << "HGCalBHDigit[" << ++kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
+        }
       }
     }
   }
