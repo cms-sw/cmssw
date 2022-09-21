@@ -119,17 +119,15 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
       double energy = it->energy();
       double time = it->time();
       unsigned int id = it->id();
-      int ring(0), phi(0), lay(0);
-      bool bh = (DetId(id).det() == DetId::HGCalHSc);
-      if (bh) {
-        ring = HGCScintillatorDetId(id).ring();
-        phi = HGCScintillatorDetId(id).iphi();
-        lay = HGCScintillatorDetId(id).layer();
-        double ring1 = HGCScintillatorDetId(id).zside() * (ring + 0.01);
-        hsi2Oc_->Fill(ring1, (phi - 0.01), energy);
+      if (DetId(id).det() == DetId::HGCalHSc) {
+        double ring = 0.01 + HGCScintillatorDetId(id).ring();
+        double phi = HGCScintillatorDetId(id).iphi() - 0.01;
+        int lay = HGCScintillatorDetId(id).layer();
+        double ring1 = ring * HGCScintillatorDetId(id).zside();
+        hsi2Oc_->Fill(ring1, phi, energy);
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
-        hsimOc_->Fill(ring1, (phi - 0.01), energy);
+        hsimOc_->Fill(ring1, phi, energy);
         hsimLn_->Fill(lay, energy);
         hsi3Oc_->Fill(ring1, lay, energy);
         double ensum(0);
@@ -137,8 +135,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
           ensum = map_try[id];
         ensum += energy;
         map_try[id] = ensum;
-        ++i;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
+        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << ++i << "] ID " << std::hex << " " << id << std::dec << " "
                                             << HGCScintillatorDetId(id) << " E " << energy << " time " << time;
       }
     }
@@ -159,25 +156,21 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
     for (HGCalDigiCollection::const_iterator it = hecoll->begin(); it != hecoll->end(); ++it) {
       HGCalDataFrame df(*it);
       double energy = df[iSample_].data();
-      bool bh = (DetId(df.id()).det() == DetId::HGCalHSc);
-      if (bh) {
+      if (DetId(df.id()).det() == DetId::HGCalHSc) {
         HGCScintillatorDetId cell(df.id());
         int depth = cell.layer();
         if (energy > threshold_) {
-          int ring = cell.ring();
-          int phi = cell.iphi();
-          double ring1 = cell.zside() * (ring + 0.01);
-          hdi2Oc_->Fill(ring1, (phi - 0.01));
-          if (bh) {
-            hdigEn_->Fill(energy);
-            hdigOc_->Fill(ring1, (phi - 0.01));
-            hdigLn_->Fill(depth);
-            hdi3Oc_->Fill(ring1, depth);
-            ++kount;
-            edm::LogVerbatim("HGCalValidation")
-                << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
-          }
-        }
+          double ring = 0.01 + cell.ring();
+          double phi = cell.iphi() - 0.01;
+          double ring1 = cell.zside() * ring;
+          hdi2Oc_->Fill(ring1, phi);
+	  hdigEn_->Fill(energy);
+	  hdigOc_->Fill(ring1, phi);
+	  hdigLn_->Fill(depth);
+	  hdi3Oc_->Fill(ring1, depth);
+	  edm::LogVerbatim("HGCalValidation")
+                << "HGCalBHDigit[" << ++kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
+	}
       }
     }
   }
