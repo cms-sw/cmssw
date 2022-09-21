@@ -37,7 +37,7 @@
 class SiPixelBarycenter : public DQMEDHarvester {
 public:
   explicit SiPixelBarycenter(const edm::ParameterSet& conf);
-  ~SiPixelBarycenter() override;
+  ~SiPixelBarycenter() override = default;
 
 protected:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
@@ -54,6 +54,9 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
 
   std::map<std::string, MonitorElement*> barycenters_;
+
+  const std::array<std::string, 9> subdetectors_ = {
+      {"BPIX", "FPIX_zm", "FPIX_zp", "BPIX_xp", "BPIX_xm", "FPIX_zp_xp", "FPIX_zm_xp", "FPIX_zp_xm", "FPIX_zm_xm"}};
 
   //book the barycenter histograms
   void bookBarycenterHistograms(DQMStore::IBooker& iBooker);
