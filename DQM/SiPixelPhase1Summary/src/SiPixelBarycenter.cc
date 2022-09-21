@@ -33,12 +33,6 @@ SiPixelBarycenter::SiPixelBarycenter(const edm::ParameterSet& iConfig)
   LogInfo("PixelDQM") << "SiPixelBarycenter::SiPixelBarycenter: Got DQM BackEnd interface" << endl;
 }
 
-SiPixelBarycenter::~SiPixelBarycenter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  LogInfo("PixelDQM") << "SiPixelBarycenter::~SiPixelBarycenter: Destructor" << endl;
-}
-
 void SiPixelBarycenter::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {}
 
 void SiPixelBarycenter::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {}
@@ -63,8 +57,7 @@ void SiPixelBarycenter::bookBarycenterHistograms(DQMStore::IBooker& iBooker) {
 
   iBooker.setCurrentFolder("PixelPhase1/Barycenter");
   //Book one histogram for each subdetector
-  for (std::string subdetector :
-       {"BPIX", "FPIX_zm", "FPIX_zp", "BPIX_xp", "BPIX_xm", "FPIX_zp_xp", "FPIX_zm_xp", "FPIX_zp_xm", "FPIX_zm_xm"}) {
+  for (const std::string& subdetector : subdetectors_) {
     barycenters_[subdetector] =
         iBooker.book1D("barycenters_" + subdetector,
                        "Position of the barycenter for " + subdetector + ";Coordinate;Position [mm]",
@@ -101,12 +94,15 @@ void SiPixelBarycenter::fillBarycenterHistograms(DQMStore::IBooker& iBooker,
   auto Zbarycenters = barycenters.getZ();
 
   //Fill histogram for each subdetector
-  std::vector<std::string> subdetectors = {
-      "BPIX", "FPIX_zm", "FPIX_zp", "BPIX_xp", "BPIX_xm", "FPIX_zp_xp", "FPIX_zm_xp", "FPIX_zp_xm", "FPIX_zm_xm"};
-  for (std::size_t i = 0; i < subdetectors.size(); ++i) {
-    barycenters_[subdetectors[i]]->setBinContent(1, Xbarycenters[i]);
-    barycenters_[subdetectors[i]]->setBinContent(2, Ybarycenters[i]);
-    barycenters_[subdetectors[i]]->setBinContent(3, Zbarycenters[i]);
+  for (std::size_t i = 0; i < subdetectors_.size(); ++i) {
+    barycenters_[subdetectors_[i]]->setBinContent(1, Xbarycenters[i]);
+    barycenters_[subdetectors_[i]]->setBinContent(2, Ybarycenters[i]);
+    barycenters_[subdetectors_[i]]->setBinContent(3, Zbarycenters[i]);
+
+    // zero the errors for better comparison display
+    barycenters_[subdetectors_[i]]->setBinError(1, 0.);
+    barycenters_[subdetectors_[i]]->setBinError(2, 0.);
+    barycenters_[subdetectors_[i]]->setBinError(3, 0.);
   }
 }
 

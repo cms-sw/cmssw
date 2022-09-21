@@ -140,7 +140,8 @@ namespace l1t {
         uint16_t RPCc = payload[2];
         uint16_t RPCd = payload[3];
 
-        for (int i = 0; i < nTPs; i++) {
+        // If there are 2 TPs in the block we fill them 1 by 1
+        for (int i = 1; i <= nTPs; i++) {
           // res is a pointer to a collection of EMTFDaqOut class objects
           // There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
           EMTFDaqOutCollection* res;
@@ -159,7 +160,7 @@ namespace l1t {
           ////////////////////////////
 
           if (run3_DAQ_format) {  // Run 3 DAQ format has 2 TPs per block
-            if (i == 0) {
+            if (i == 1) {
               RPC_.set_phi(GetHexBits(RPCa, 0, 10));
               RPC_.set_word(GetHexBits(RPCa, 11, 12));
               RPC_.set_frame(GetHexBits(RPCa, 13, 14));
