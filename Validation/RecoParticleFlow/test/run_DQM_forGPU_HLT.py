@@ -94,12 +94,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '
 # process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOffline)
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.pfGPUComparisonTask_HLT = DQMEDAnalyzer("PFGPUComparisonTask",
-                                                particleFlowClusterHBHE = cms.untracked.InputTag('hltParticleFlowClusterHBHE'),
-                                                particleFlowClusterHBHEonGPU = cms.untracked.InputTag('hltParticleFlowClusterHBHEonGPU'),
+process.pfHBHEGPUComparisonTask_HLT = DQMEDAnalyzer("PFCaloGPUComparisonTask",
+                                                    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHBHE'),
+                                                    pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHBHEonGPU'),
+                                                    pfCaloGPUCompDir = cms.untracked.string("pfClusterHBHEGPUHLTv")
 )
 process.pfGPUSequence_HLT = cms.Sequence(
-    process.pfGPUComparisonTask_HLT
+    process.pfHBHEGPUComparisonTask_HLT
 )
 process.dqmhlt_step = cms.EndPath(process.pfGPUSequence_HLT)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
