@@ -3,7 +3,7 @@
 
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "onnxruntime/core/session/onnxruntime_cxx_api.h"
 #include <string>
 
