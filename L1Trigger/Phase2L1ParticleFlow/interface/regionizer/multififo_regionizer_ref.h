@@ -25,6 +25,7 @@ namespace l1ct {
                                 unsigned int nmu,
                                 bool streaming,
                                 unsigned int outii,
+                                unsigned int pauseii,
                                 bool useAlsoVtxCoords);
 
     enum class BarrelSetup { Full54, Full27, Central18, Central9, Phi18, Phi9 };

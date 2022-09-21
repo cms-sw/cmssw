@@ -17,6 +17,7 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::Parame
                                   iConfig.getParameter<uint32_t>("nMu"),
                                   /*streaming=*/false,
                                   /*outii=*/1,
+                                  /*pauseii=*/0,
                                   iConfig.getParameter<bool>("useAlsoVtxCoords")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   if (iConfig.existsAs<edm::ParameterSet>("egInterceptMode")) {
@@ -34,12 +35,13 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
                                                                unsigned int nmu,
                                                                bool streaming,
                                                                unsigned int outii,
+                                                               unsigned int pauseii,
                                                                bool useAlsoVtxCoords)
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
       NTK_LINKS(2),
-      NCALO_LINKS(3),
+      NCALO_LINKS((outii + pauseii == 9 ? 2 : 3)),
       HCAL_LINKS(0),
       ECAL_LINKS(0),
       NMU_LINKS(1),
@@ -50,14 +52,14 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
       nem_(nem),
       nmu_(nmu),
       outii_(outii),
-      pauseii_(0),
+      pauseii_(pauseii),
       streaming_(streaming),
       emInterceptMode_(noIntercept),
       init_(false),
-      tkRegionizer_(ntk, streaming ? (ntk + outii - 1) / outii : ntk, streaming, outii, 0, useAlsoVtxCoords),
-      hadCaloRegionizer_(ncalo, streaming ? (ncalo + outii - 1) / outii : ncalo, streaming, outii, 0),
-      emCaloRegionizer_(nem, streaming ? (nem + outii - 1) / outii : nem, streaming, outii, 0),
-      muRegionizer_(nmu, streaming ? std::max(1u, (nmu + outii - 1) / outii) : nmu, streaming, outii, 0) {
+      tkRegionizer_(ntk, streaming ? (ntk + outii - 1) / outii : ntk, streaming, outii, pauseii, useAlsoVtxCoords),
+      hadCaloRegionizer_(ncalo, streaming ? (ncalo + outii - 1) / outii : ncalo, streaming, outii, pauseii),
+      emCaloRegionizer_(nem, streaming ? (nem + outii - 1) / outii : nem, streaming, outii, pauseii),
+      muRegionizer_(nmu, streaming ? std::max(1u, (nmu + outii - 1) / outii) : nmu, streaming, outii, pauseii) {
   // now we initialize the routes: track finder
   for (unsigned int ie = 0; ie < nendcaps && ntk > 0; ++ie) {
     for (unsigned int is = 0; is < NTK_SECTORS; ++is) {  // 9 tf sectors
