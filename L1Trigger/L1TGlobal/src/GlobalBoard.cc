@@ -50,7 +50,6 @@
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -971,14 +970,14 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   // prescale counters are reset at the beginning of the luminosity segment
   if (m_firstEv) {
     // prescale counters: numberPhysTriggers counters per bunch cross
-    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent);
-
-    auto const& prescaleCountersAlgoTrig =
-        m_semiRandomInitialPSCounters ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig) : prescaleFactorsAlgoTrig;
+    auto const& prescaleCountersAlgoTrig = m_semiRandomInitialPSCounters
+                                               ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig)
+                                               : zeroPrescaleCounters(prescaleFactorsAlgoTrig);
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
       m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
     }
+
     m_firstEv = false;
     m_currentLumi = iEvent.luminosityBlock();
   }
@@ -986,13 +985,14 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   // update and clear prescales at the beginning of the luminosity segment
   if (m_firstEvLumiSegment || (m_currentLumi != iEvent.luminosityBlock() && m_resetPSCountersEachLumiSec)) {
     m_prescaleCounterAlgoTrig.clear();
+    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent + 1);
+    auto const& prescaleCountersAlgoTrig = m_semiRandomInitialPSCounters
+                                               ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig)
+                                               : zeroPrescaleCounters(prescaleFactorsAlgoTrig);
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      if (m_semiRandomInitialPSCounters) {
-        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
-      } else {
-        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
-      }
+      m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
     }
+
     m_firstEvLumiSegment = false;
     m_currentLumi = iEvent.luminosityBlock();
   }
@@ -1011,15 +1011,14 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     bool temp_algPrescaledOr = false;
     bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-      bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial(iBit);
+      const bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial(iBit);
       if (bitValue) {
         // Make sure algo bit in range, warn otherwise
         if (iBit < prescaleFactorsAlgoTrig.size()) {
           if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
-            (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-            if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
-              // bit already true in algoDecisionWord, just reset counter
-              m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+            const bool triggered = m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit).accept();
+
+            if (triggered) {
               temp_algPrescaledOr = true;
             } else {
               // change bit to false in prescaled word and final decision word
@@ -1055,7 +1054,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     bool temp_algFinalOr = false;
     bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-      bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm(iBit);
+      const bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm(iBit);
 
       if (bitValue) {
         //bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
@@ -1068,7 +1067,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
                                        << std::endl;
         }
 
-        bool passMask = (bitValue && !isMasked);
+        const bool passMask = (bitValue && !isMasked);
 
         if (passMask)
           temp_algFinalOr = true;
@@ -1168,35 +1167,54 @@ void l1t::GlobalBoard::printGmtData(const int iBxInEvent) const {
   LogTrace("L1TGlobal") << std::endl;
 }
 
-//initializer prescale counter using a semi-random value between [1, prescale value]
-const std::vector<double> l1t::GlobalBoard::semirandomNumber(const edm::Event& iEvent,
-                                                             const std::vector<double>& prescaleFactorsAlgoTrig) {
-  auto out = prescaleFactorsAlgoTrig;
+// initializer prescale counters using a semi-random value between [0, prescale value * 10 ^ precision - 1]
+const std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::semirandomNumber(
+    const edm::Event& iEvent, const std::vector<double>& prescaleFactorsAlgoTrig) {
   // pick a random number from a combination of run, lumi, event numbers
-  std::srand(iEvent.id().run());
-  std::srand(std::rand() + iEvent.id().luminosityBlock());
   // this causes different (semi)random number number for different streams
   // reminder: different streams have different initial event number
+  std::srand(iEvent.id().run());
+  std::srand(std::rand() + iEvent.id().luminosityBlock());
   std::srand(std::rand() + iEvent.id().event());
+
   // very large (semi)random number
-  double const semirandom = std::rand();
-  for (auto& ps : out) {
-    // if the ps is smaller than 1 (e.g. ps=0, ps=1), it is not changed
-    // else, replace ps with a semirandom integer in the [1,ps] range
-    if (ps > 1) {
-      auto nps = semirandom - floor(semirandom / ps) * ps;
-      // if nps=0 or a wrong value (<0,>ps) use PS value (standard method)
-      if (nps > 0 and nps <= ps)
-        ps = nps;
-      else {
-        if (nps != 0)  // complain only if nps <0 or nps >PS
-          edm::LogWarning("L1TGlobal::semirandomNumber")
-              << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
-              << "\n This is probably do to the floating-point precision. Using the PS value."
-              << "\n semirandom = " << semirandom << "\n PS = " << ps << "\n nps = " << nps
-              << " <-- it should be in the range [0 , " << ps << "]" << std::endl;
-      }
+  const int semirandom = std::rand();
+  std::vector<PrescaleCounter> out;
+  out.reserve(prescaleFactorsAlgoTrig.size());
+
+  for (size_t iAlgo = 0; iAlgo < prescaleFactorsAlgoTrig.size(); iAlgo++) {
+    // for prescaled triggers, initialise trigger_counter to
+    // a semirandom integer between 0 and prescale_count - 1 (inclusive)
+    out.emplace_back(PrescaleCounter(prescaleFactorsAlgoTrig[iAlgo]));
+
+    auto& prescaleCounter = out.back();
+    if (prescaleCounter.prescale_count > 0) {
+      prescaleCounter.trigger_counter = semirandom % prescaleCounter.prescale_count;
     }
   }
+
   return out;
+}
+
+// initialize prescale counters to zero
+const std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::zeroPrescaleCounters(
+    const std::vector<double>& prescaleFactorsAlgoTrig) {
+  std::vector<PrescaleCounter> out;
+  out.reserve(prescaleFactorsAlgoTrig.size());
+  for (size_t iAlgo = 0; iAlgo < prescaleFactorsAlgoTrig.size(); iAlgo++) {
+    out.emplace_back(PrescaleCounter(prescaleFactorsAlgoTrig[iAlgo]));
+  }
+
+  return out;
+}
+
+bool l1t::GlobalBoard::PrescaleCounter::accept() {
+  trigger_counter += m_singlestep;
+
+  if (prescale_count == 0 or trigger_counter < prescale_count)
+    return false;
+
+  trigger_counter -= prescale_count;
+
+  return true;
 }
