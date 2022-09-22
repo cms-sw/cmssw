@@ -24,16 +24,10 @@ namespace edm {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);
-
-    if (it == makers_.end()) {
-      std::unique_ptr<Maker> wm = detail::resolveMaker<MakerPluginFactory>(modtype, resolverMaker, *p.pset_);
-      FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
-
-      std::pair<MakerMap::iterator, bool> ret = makers_.insert({modtype, std::move(wm)});
-
-      it = ret.first;
+    if (it != makers_.end()) {
+      return it->second.get();
     }
-    return it->second;
+    return detail::resolveMaker<MakerPluginFactory>(modtype, resolverMaker, *p.pset_, makers_);
   }
 
   std::shared_ptr<maker::ModuleHolder> Factory::makeModule(
