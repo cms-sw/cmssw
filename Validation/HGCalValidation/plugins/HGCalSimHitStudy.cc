@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -52,7 +53,7 @@ public:
   };
 
   explicit HGCalSimHitStudy(const edm::ParameterSet&);
-  ~HGCalSimHitStudy() override {}
+  ~HGCalSimHitStudy() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -70,9 +71,9 @@ private:
   const double etamin_, etamax_;
   const int nbinR_, nbinZ_, nbinEta_, nLayers_, verbosity_;
   const bool ifNose_, ifLayer_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
+  const std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<const HGCalDDDConstants*> hgcons_;
-  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<int> layers_, layerFront_;
 
   //histogram related stuff
@@ -96,14 +97,17 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
       nLayers_(iConfig.getUntrackedParameter<int>("layers", 50)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)) {
+      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
+      tok_hgcGeom_{
+          edm::vector_transform(nameDetectors_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_hits_{edm::vector_transform(caloHitSources_, [this](const std::string& source) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source));
+      })} {
   usesResource(TFileService::kSharedResource);
-
-  for (auto const& name : nameDetectors_)
-    tok_hgcGeom_.emplace_back(
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-  for (auto const& source : caloHitSources_)
-    tok_hits_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source)));
 }
 
 void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -131,8 +135,7 @@ void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
 void HGCalSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Now the hits
   for (unsigned int k = 0; k < tok_hits_.size(); ++k) {
-    edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
-    iEvent.getByToken(tok_hits_[k], theCaloHitContainers);
+    const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hits_[k]);
     if (theCaloHitContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " << theCaloHitContainers->size();

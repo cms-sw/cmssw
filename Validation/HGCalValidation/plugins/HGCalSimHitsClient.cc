@@ -31,7 +31,7 @@ private:
 
 public:
   explicit HGCalSimHitsClient(const edm::ParameterSet &);
-  ~HGCalSimHitsClient() override {}
+  ~HGCalSimHitsClient() override = default;
 
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;

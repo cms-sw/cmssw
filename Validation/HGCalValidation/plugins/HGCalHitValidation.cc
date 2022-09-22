@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -51,7 +52,7 @@
 class HGCalHitValidation : public DQMEDAnalyzer {
 public:
   explicit HGCalHitValidation(const edm::ParameterSet&);
-  ~HGCalHitValidation() override;
+  ~HGCalHitValidation() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -69,18 +70,16 @@ private:
   //HGC Geometry
   std::vector<const HGCalDDDConstants*> hgcCons_;
   std::vector<const HGCalGeometry*> hgcGeometry_;
-  std::vector<std::string> geometrySource_;
-  std::vector<int> ietaExcludeBH_;
-
-  edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
-  edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
-  edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
-  edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
-  edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
-  edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
-  edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_ddd_;
-  std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_geom_;
+  const std::vector<std::string> geometrySource_;
+  const std::vector<int> ietaExcludeBH_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
+  const edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
+  const edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_ddd_;
+  const std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_geom_;
 
   //histogram related stuff
   MonitorElement *heedzVsZ, *heedyVsY, *heedxVsX;
@@ -97,31 +96,30 @@ private:
   MonitorElement *heeEnRec, *heeEnSim;
 };
 
-HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg) {
-  geometrySource_ = cfg.getParameter<std::vector<std::string>>("geometrySource");
-  eeSimHitToken_ = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("eeSimHitSource"));
-  fhSimHitToken_ = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("fhSimHitSource"));
-  bhSimHitToken_ = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("bhSimHitSource"));
-  eeRecHitToken_ = consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"));
-  fhRecHitToken_ = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
-  bhRecHitToken_ = consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
-  ietaExcludeBH_ = cfg.getParameter<std::vector<int>>("ietaExcludeBH");
-
-  for (const auto& name : geometrySource_) {
-    tok_ddd_.emplace_back(
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-    tok_geom_.emplace_back(
-        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-  }
-
+HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg)
+    : geometrySource_(cfg.getParameter<std::vector<std::string>>("geometrySource")),
+      ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
+      eeSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("eeSimHitSource"))),
+      fhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("fhSimHitSource"))),
+      bhSimHitToken_(consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("bhSimHitSource"))),
+      eeRecHitToken_(consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"))),
+      fhRecHitToken_(consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"))),
+      bhRecHitToken_(consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"))),
+      tok_ddd_{
+          edm::vector_transform(geometrySource_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_geom_{edm::vector_transform(geometrySource_, [this](const std::string& name) {
+        return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+      })} {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
   for (unsigned int k = 0; k < ietaExcludeBH_.size(); ++k)
     edm::LogInfo("HGCalValid") << " [" << k << "] " << ietaExcludeBH_[k];
 #endif
 }
-
-HGCalHitValidation::~HGCalHitValidation() {}
 
 void HGCalHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -179,13 +177,13 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
 void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   //initiating hgc Geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    edm::ESHandle<HGCalDDDConstants> hgcCons = iSetup.getHandle(tok_ddd_[i]);
+    const edm::ESHandle<HGCalDDDConstants>& hgcCons = iSetup.getHandle(tok_ddd_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
     } else {
       edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
     }
-    edm::ESHandle<HGCalGeometry> hgcGeom = iSetup.getHandle(tok_geom_[i]);
+    const edm::ESHandle<HGCalGeometry>& hgcGeom = iSetup.getHandle(tok_geom_[i]);
     if (hgcGeom.isValid()) {
       hgcGeometry_.push_back(hgcGeom.product());
     } else {
@@ -198,8 +196,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::map<unsigned int, HGCHitTuple> eeHitRefs, fhHitRefs, bhHitRefs;
 
   //Accesing ee simhits
-  edm::Handle<std::vector<PCaloHit>> eeSimHits;
-  iEvent.getByToken(eeSimHitToken_, eeSimHits);
+  const edm::Handle<std::vector<PCaloHit>>& eeSimHits = iEvent.getHandle(eeSimHitToken_);
 
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, heeEnSim, eeHitRefs);
@@ -216,8 +213,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   //Accesing fh simhits
-  edm::Handle<std::vector<PCaloHit>> fhSimHits;
-  iEvent.getByToken(fhSimHitToken_, fhSimHits);
+  const edm::Handle<std::vector<PCaloHit>>& fhSimHits = iEvent.getHandle(fhSimHitToken_);
   if (fhSimHits.isValid()) {
     analyzeHGCalSimHit(fhSimHits, 1, hefEnSim, fhHitRefs);
 #ifdef EDM_ML_DEBUG
@@ -233,8 +229,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   //Accessing bh simhits
-  edm::Handle<std::vector<PCaloHit>> bhSimHits;
-  iEvent.getByToken(bhSimHitToken_, bhSimHits);
+  const edm::Handle<std::vector<PCaloHit>>& bhSimHits = iEvent.getHandle(bhSimHitToken_);
   if (bhSimHits.isValid()) {
     analyzeHGCalSimHit(bhSimHits, 2, hebEnSim, bhHitRefs);
 #ifdef EDM_ML_DEBUG
@@ -250,8 +245,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   //accessing EE Rechit information
-  edm::Handle<HGCeeRecHitCollection> eeRecHit;
-  iEvent.getByToken(eeRecHitToken_, eeRecHit);
+  const edm::Handle<HGCeeRecHitCollection>& eeRecHit = iEvent.getHandle(eeRecHitToken_);
   if (eeRecHit.isValid()) {
     const HGCeeRecHitCollection* theHits = (eeRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -280,8 +274,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   //accessing FH Rechit information
-  edm::Handle<HGChefRecHitCollection> fhRecHit;
-  iEvent.getByToken(fhRecHitToken_, fhRecHit);
+  const edm::Handle<HGChefRecHitCollection>& fhRecHit = iEvent.getHandle(fhRecHitToken_);
   if (fhRecHit.isValid()) {
     const HGChefRecHitCollection* theHits = (fhRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -311,8 +304,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   //accessing BH Rechit information
-  edm::Handle<HGChebRecHitCollection> bhRecHit;
-  iEvent.getByToken(bhRecHitToken_, bhRecHit);
+  const edm::Handle<HGChebRecHitCollection>& bhRecHit = iEvent.getHandle(bhRecHitToken_);
   if (bhRecHit.isValid()) {
     const HGChebRecHitCollection* theHits = (bhRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
