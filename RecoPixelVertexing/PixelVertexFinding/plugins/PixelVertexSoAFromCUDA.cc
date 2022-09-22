@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 class PixelVertexSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -33,7 +34,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<ZVertexHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<ZVertexHeterogeneous> tokenSOA_;
 
-  cms::cuda::host::unique_ptr<ZVertexSoA> m_soa;
+  ZVertexHeterogeneous soa_;
 };
 
 PixelVertexSoAFromCUDA::PixelVertexSoAFromCUDA(const edm::ParameterSet& iConfig)
@@ -54,12 +55,13 @@ void PixelVertexSoAFromCUDA::acquire(edm::Event const& iEvent,
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
-  m_soa = inputData.toHostAsync(ctx.stream());
+  soa_ = memoryPool::cuda::makeBuffer<ZVertexHeterogeneous::value_type>(1, ctx.stream(), memoryPool::onHost);
+  memoryPool::cuda::copy(soa_, inputData, 1, ctx.stream());
 }
 
 void PixelVertexSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // No copies....
-  iEvent.emplace(tokenSOA_, ZVertexHeterogeneous(std::move(m_soa)));
+  iEvent.emplace(tokenSOA_, std::move(soa_));
 }
 
 DEFINE_FWK_MODULE(PixelVertexSoAFromCUDA);

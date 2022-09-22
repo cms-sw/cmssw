@@ -6,6 +6,8 @@
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+
 // #define DUMP_GPU_TK_TUPLES
 
 namespace cAHitNtupletGenerator {
@@ -153,21 +155,21 @@ namespace cAHitNtupletGenerator {
 
 }  // namespace cAHitNtupletGenerator
 
-template <typename TTraits>
+template <memoryPool::Where w>
 class CAHitNtupletGeneratorKernels {
 public:
-  using Traits = TTraits;
+  static constexpr memoryPool::Where where = w;
 
   using QualityCuts = cAHitNtupletGenerator::QualityCuts;
   using Params = cAHitNtupletGenerator::Params;
   using Counters = cAHitNtupletGenerator::Counters;
 
   template <typename T>
-  using unique_ptr = typename Traits::template unique_ptr<T>;
+  using Buffer = memoryPool::Buffer<T>;
 
   using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
-  using HitsOnCPU = TrackingRecHit2DHeterogeneous<Traits>;
+  using HitsOnCPU = TrackingRecHit2DHeterogeneous;
 
   using HitToTuple = caConstants::HitToTuple;
   using TupleMultiplicity = caConstants::TupleMultiplicity;
@@ -197,28 +199,28 @@ private:
   Counters* counters_ = nullptr;
 
   // workspace
-  unique_ptr<unsigned char[]> cellStorage_;
-  unique_ptr<caConstants::CellNeighborsVector> device_theCellNeighbors_;
+  Buffer<unsigned char> cellStorage_;
+  Buffer<caConstants::CellNeighborsVector> device_theCellNeighbors_;
   caConstants::CellNeighbors* device_theCellNeighborsContainer_;
-  unique_ptr<caConstants::CellTracksVector> device_theCellTracks_;
+  Buffer<caConstants::CellTracksVector> device_theCellTracks_;
   caConstants::CellTracks* device_theCellTracksContainer_;
 
-  unique_ptr<GPUCACell[]> device_theCells_;
-  unique_ptr<GPUCACell::OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
+  Buffer<GPUCACell> device_theCells_;
+  Buffer<GPUCACell::OuterHitOfCellContainer> device_isOuterHitOfCell_;
   GPUCACell::OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
-  unique_ptr<HitToTuple> device_hitToTuple_;
-  unique_ptr<HitToTuple::Counter[]> device_hitToTupleStorage_;
+  Buffer<HitToTuple> device_hitToTuple_;
+  Buffer<HitToTuple::Counter> device_hitToTupleStorage_;
   HitToTuple::View hitToTupleView_;
 
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
   cms::cuda::AtomicPairCounter* device_hitTuple_apc_ = nullptr;
 
-  unique_ptr<TupleMultiplicity> device_tupleMultiplicity_;
+  Buffer<TupleMultiplicity> device_tupleMultiplicity_;
 
-  unique_ptr<cms::cuda::AtomicPairCounter::c_type[]> device_storage_;
+  Buffer<cms::cuda::AtomicPairCounter::c_type> device_storage_;
   // params
   Params const& params_;
   /// Intermediate result avoiding repeated computations.
@@ -236,7 +238,7 @@ private:
   }
 };
 
-using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits>;
-using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits>;
+using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<memoryPool::onDevice>;
+using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernels<memoryPool::onCPU>;
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h

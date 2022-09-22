@@ -1,14 +1,14 @@
 #ifndef CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DReduced_h
 #define CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DReduced_h
 
+#include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
-#include "CUDADataFormats/Common/interface/HostProduct.h"
 
 // a reduced (in content and therefore in size) version to be used on CPU for Legacy reconstruction
 class TrackingRecHit2DReduced {
 public:
-  using HLPstorage = HostProduct<float[]>;
-  using HIDstorage = HostProduct<uint16_t[]>;
+  using HLPstorage = memoryPool::Buffer<float>;
+  using HIDstorage = memoryPool::Buffer<uint16_t>;
 
   template <typename UP32, typename UP16>
   TrackingRecHit2DReduced(UP32&& istore32, UP16&& istore16, int nhits)
