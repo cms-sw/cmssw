@@ -225,10 +225,55 @@ steps['MuonEG2018MINIAOD10.6v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lum
 steps['NANO_data10.6ul18v2']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv2',
                                      '--conditions':'auto:run2_data'},
                                     steps['NANO_data']])
-##12.4 INPUT
+##12.2 INPUT (mc only)
+steps['TTbarMINIAOD12.2'] = {'INPUT':InputInfo(location='STD',
+                                               dataSet='/TTToSemiLeptonic_TuneCP5_13p6TeV-powheg-pythia8/Run3Winter22MiniAOD-FlatPU0to70_122X_mcRun3_2021_realistic_v9-v2/MINIAODSIM')}
+steps['NANO_mc12.2_v10']=merge([{'--era':'Run3,run3_nanoAOD_122',
+                                 '--conditions':'auto:phase1_2022_realistic',
+                                 ## customise to be updated with V10/V11 decoupling
+                                 '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'}, 
+                                steps['NANO_mc']])
+steps['NANO_mc12.2']=merge([{'--era':'Run3,run3_nanoAOD_122',
+                             '--conditions':'auto:phase1_2022_realistic'},
+                            steps['NANO_mc']])
 
+##12.4 INPUT 
+steps['TTbarMINIAOD12.4'] = {'INPUT':InputInfo(location='STD',
+                                               ## to be updated as soon as some TTbar appears in a 12.4 campaign
+                                               dataSet='/MinBias_TuneCP5_14TeV-pythia8/Run3Summer22MiniAODv3-NoPU_Pilot_124X_mcRun3_2022_realistic_v11-v2/MINIAODSIM ')}
+steps['NANO_mc12.4_v10']=merge([{'--era':'Run3',
+                                 '--conditions':'auto:phase1_2022_realistic',
+                                 ## customise to be updated with V10/V11 decoupling
+                                 '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'},
+                                steps['NANO_mc']])
+steps['NANO_mc12.4']=merge([{'--era':'Run3',
+                             '--conditions':'auto:phase1_2022_realistic'},
+                            steps['NANO_mc']])
 
-##12.6 workflows
+steps['MuonEG2022MINIAOD12.4'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis,
+                                                    dataSet='/MuonEG/Run2022D-PromptReco-v2/MINIAOD')}
+steps['NANO_data12.4_v10']=merge([{'--era':'Run3',
+                                   '--conditions':'auto:run3_data',
+                                   ## customise to be updated with V10/V11 decoupling
+                                   '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'},
+                                  steps['NANO_data']])
+steps['NANO_data12.4']=merge([{'--era':'Run3',
+                               '--conditions':'auto:run3_data'},
+                              steps['NANO_data']])
+
+##12.6 workflows ("from scratch")
+steps['TTBarMINIAOD12.6'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis,
+                                               ## this is a dataset from the last pre-release: to be updated much too often IMO
+                                               dataSet='/RelValTTbar_14TeV/CMSSW_12_6_0_pre2-PU_125X_mcRun3_2022_realistic_v3-v1/MINIAODSIM')}
+steps['NANO_mc12.6_v10']=merge([{'--era':'Run3',
+                                 '--conditions':'auto:phase1_2022_realistic',
+                                 ## customise to be updated with V10/V11 decoupling
+                                 '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'},
+                                steps['NANO_data']])
+steps['NANO_mc12.6']=merge([{'--era':'Run3',
+                             '--conditions':'auto:phase1_2022_realistic'},
+                            steps['NANO_data']])
+
 
 _wfn=WFN()
 ################
@@ -238,8 +283,8 @@ workflows[_wfn()] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0']]
 #workflows[_wfn()] = ['data80X', ['JetHT2016HMINIAOD8.0','NANO_data8.0']] ##redundant
 #workflows[_wfn()] = ['data80X', ['SingleMuon2016HMINIAOD8.0','NANO_data8.0']] ##redundant
 #workflows[_wfn()] = ['data80X', ['SingleElectron2016HMINIAOD8.0','NANO_data8.0']] ##redundant
-_wfn.next()
 
+_wfn.next()
 ################
 #9.4 input
 workflows[_wfn()] = ['mc94X', ['TTbarMINIAOD9.4v1','NANO_mc9.4v1']]
@@ -260,16 +305,16 @@ workflows[_wfn()] = ['data94Xv2', ['MuonEG2017MINIAOD9.4v2','NANO_data9.4v2']]
 #workflows[_wfn()] = ['data94Xv2', ['JetHT2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
 #workflows[_wfn()] = ['data94Xv2', ['SingleMuon2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
 #workflows[_wfn()] = ['data94Xv2', ['SingleElectron2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
-_wfn.next()
 
+_wfn.next()
 ################
 #10.2 input
 workflows[_wfn()] = ['mc102X', ['TTbarMINIAOD10.2','NANO_mc10.2']]
 _wfn.subnext()
 workflows[_wfn()] = ['data102X', ['MuonEG2018MINIAOD10.2','NANO_data10.2']]
 #workflows[_wfn()] = ['data102X', ['JetHT2018MINIAOD10.2','NANO_data10.2']] ##redundant
-_wfn.next()
 
+_wfn.next()
 ################
 #10.6 input
 workflows[_wfn()] = ['mc106Xul16', ['TTbarMINIAOD10.6_UL16v1','NANO_mc10.6ul16v1']]
@@ -291,9 +336,29 @@ workflows[_wfn()] = ['data106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.
 #workflows[_wfn()] = ['data106Xul17v2', ['DoubleEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2']] ##redundant
 workflows[_wfn()] = ['data106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2']]
 #workflows[_wfn()] = ['data106Xul18v2', ['DoubleMuon2018MINIAOD10.6v2', 'NANO_data10.6ul18v2']] ##redundant
-_wfn.next()
 
+_wfn.next()
+################
+#12.2 input
+workflows[_wfn()] = ['mc122Xrun3_v10', ['TTbarMINIAOD12.2','NANO_mc12.2_v10']]
+workflows[_wfn()] = ['mc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2']]
+
+_wfn.next()
 ################
 #12.4 input
+workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10']]
+workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4']]
+_wfn.subnext()
+workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10']]
+workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4']]
 
-
+_wfn.next()
+################
+#12.6 workflows
+## these two workflows should be creating a sample "from scratch" instead of using a pre-release sample as input
+workflows[_wfn()] = ['mc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10']]
+workflows[_wfn()] = ['mc126X', ['TTBarMINIAOD12.6','NANO_mc12.6']]
+_wfn.subnext()
+workflows[_wfn()] = ['mc126X_v10', ['NANO_mc12.6_v10']]
+_wfn.next()
+################
