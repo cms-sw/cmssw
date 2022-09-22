@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -67,7 +68,7 @@ public:
   };
 
   explicit HGCalSimHitValidation(const edm::ParameterSet&);
-  ~HGCalSimHitValidation() override {}
+  ~HGCalSimHitValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -80,8 +81,6 @@ private:
   void analyzeHits(std::vector<PCaloHit>& hits);
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   void fillHitsInfo(std::pair<hitsinfo, energysum> hit_, unsigned int itimeslice, double esum);
-  bool defineGeometry(const DDCompactView* ddViewH);
-  bool defineGeometry(const cms::DDCompactView* ddViewH);
 
   TH1F* createHisto(std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX = true);
   void histoSetting(TH1F*& histo,
@@ -107,12 +106,10 @@ private:
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
   const edm::ESGetToken<DDCompactView, IdealGeometryRecord> tok_cpv_;
   const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tok_cpvc_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
-  bool symmDet_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   unsigned int layers_;
   int firstLayer_;
-  std::map<uint32_t, HepGeom::Transform3D> transMap_;
 
   std::vector<MonitorElement*> HitOccupancy_Plus_, HitOccupancy_Minus_;
   std::vector<MonitorElement*> EtaPhi_Plus_, EtaPhi_Minus_;
@@ -135,10 +132,9 @@ HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig)
           edm::ESInputTag{"", nameDetector_})),
       tok_cpv_(esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
       tok_cpvc_(esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
-      symmDet_(true),
+      tok_hepMC_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))),
       firstLayer_(1) {
-  tok_hepMC_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_));
   nTimes_ = (times_.size() > maxTime_) ? maxTime_ : times_.size();
 }
 
@@ -157,8 +153,7 @@ void HGCalSimHitValidation::fillDescriptions(edm::ConfigurationDescriptions& des
 void HGCalSimHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Generator input
   if (verbosity_ > 0) {
-    edm::Handle<edm::HepMCProduct> evtMC;
-    iEvent.getByToken(tok_hepMC_, evtMC);
+    const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_hepMC_);
     if (!evtMC.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
     } else {
@@ -173,8 +168,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   //Now the hits
-  edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
-  iEvent.getByToken(tok_hits_, theCaloHitContainers);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hits_);
   if (theCaloHitContainers.isValid()) {
     if (verbosity_ > 0)
       edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " << theCaloHitContainers->size();
@@ -401,108 +395,11 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
   }    //layer condition
 }
 
-bool HGCalSimHitValidation::defineGeometry(const DDCompactView* ddViewH) {
-  if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DDD) for " << nameDetector_ << " : "
-                                        << hgcons_;
-
-  if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-    const DDCompactView& cview = *ddViewH;
-    std::string attribute = "Volume";
-    std::string value = nameDetector_;
-
-    DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0)};
-    DDFilteredView fv(cview, filter);
-    bool dodet = fv.firstChild();
-
-    while (dodet) {
-      const DDSolid& sol = fv.logicalPart().solid();
-      const std::string& name = sol.name().fullname();
-      int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
-      if (isd > 0) {
-        std::vector<int> copy = fv.copyNumbers();
-        int nsiz = static_cast<int>(copy.size());
-        int lay = (nsiz > 0) ? copy[nsiz - 1] : -1;
-        int sec = (nsiz > 1) ? copy[nsiz - 2] : -1;
-        int zp = (nsiz > 3) ? copy[nsiz - 4] : -1;
-        if (zp != 1)
-          zp = -1;
-        const DDTrap& trp = static_cast<DDTrap>(sol);
-        int subs = (trp.alpha1() > 0 ? 1 : 0);
-        symmDet_ = (trp.alpha1() == 0 ? true : false);
-        uint32_t id = HGCalTestNumbering::packSquareIndex(zp, lay, sec, subs, 0);
-        DD3Vector x, y, z;
-        fv.rotation().GetComponents(x, y, z);
-        const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-        const CLHEP::HepRotation hr(rotation);
-        const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
-        const HepGeom::Transform3D ht3d(hr, h3v);
-        transMap_.insert(std::make_pair(id, ht3d));
-        if (verbosity_ > 2)
-          edm::LogVerbatim("HGCalValidation") << HGCalDetId(id) << " Transform using " << h3v << " and " << hr;
-      }
-      dodet = fv.next();
-    }
-    if (verbosity_ > 0)
-      edm::LogVerbatim("HGCalValidation") << "Finds " << transMap_.size() << " elements and SymmDet_ = " << symmDet_;
-  }
-  return true;
-}
-
-bool HGCalSimHitValidation::defineGeometry(const cms::DDCompactView* ddViewH) {
-  if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DD4hep) for " << nameDetector_ << " : "
-                                        << hgcons_;
-
-  if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-    const cms::DDCompactView& cview = *ddViewH;
-    const cms::DDFilter filter("Volume", nameDetector_);
-    cms::DDFilteredView fv(cview, filter);
-
-    while (fv.firstChild()) {
-      const auto& name = fv.name();
-      int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
-      if (isd > 0) {
-        const auto& copy = fv.copyNos();
-        int nsiz = static_cast<int>(copy.size());
-        int lay = (nsiz > 0) ? copy[0] : -1;
-        int sec = (nsiz > 1) ? copy[1] : -1;
-        int zp = (nsiz > 3) ? copy[3] : -1;
-        if (zp != 1)
-          zp = -1;
-        const auto& pars = fv.parameters();
-        int subs = (pars[6] > 0 ? 1 : 0);
-        symmDet_ = (pars[6] == 0 ? true : false);
-        uint32_t id = HGCalTestNumbering::packSquareIndex(zp, lay, sec, subs, 0);
-        DD3Vector x, y, z;
-        fv.rotation().GetComponents(x, y, z);
-        const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-        const CLHEP::HepRotation hr(rotation);
-        const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
-        const HepGeom::Transform3D ht3d(hr, h3v);
-        transMap_.insert(std::make_pair(id, ht3d));
-        if (verbosity_ > 2)
-          edm::LogVerbatim("HGCalValidation") << HGCalDetId(id) << " Transform using " << h3v << " and " << hr;
-      }
-    }
-    if (verbosity_ > 0)
-      edm::LogVerbatim("HGCalValidation") << "Finds " << transMap_.size() << " elements and SymmDet_ = " << symmDet_;
-  }
-  return true;
-}
-
 // ------------ method called when starting to processes a run  ------------
 void HGCalSimHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   hgcons_ = &iSetup.getData(tok_hgcal_);
   layers_ = hgcons_->layers(false);
   firstLayer_ = hgcons_->firstLayer();
-  if (fromDDD_) {
-    const DDCompactView* pDD = &iSetup.getData(tok_cpv_);
-    defineGeometry(pDD);
-  } else {
-    const cms::DDCompactView* pDD = &iSetup.getData(tok_cpvc_);
-    defineGeometry(pDD);
-  }
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << layers_ << " Layers with first at "
                                         << firstLayer_;
