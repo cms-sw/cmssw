@@ -121,11 +121,11 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   if (infoLayer.isValid()) {
     //step vertex information
-    const std::vector<float>& hitVtxX = infoLayer->hitvtxX();
-    const std::vector<float>& hitVtxY = infoLayer->hitvtxY();
-    const std::vector<float>& hitVtxZ = infoLayer->hitvtxZ();
-    const std::vector<unsigned int>& hitDet = infoLayer->hitDets();
-    const std::vector<unsigned int>& hitIdx = infoLayer->hitIndex();
+    const std::vector<float> &hitVtxX = infoLayer->hitvtxX();
+    const std::vector<float> &hitVtxY = infoLayer->hitvtxY();
+    const std::vector<float> &hitVtxZ = infoLayer->hitvtxZ();
+    const std::vector<unsigned int> &hitDet = infoLayer->hitDets();
+    const std::vector<unsigned int> &hitIdx = infoLayer->hitIndex();
 
     //loop over all hits
     for (unsigned int i = 0; i < hitVtxZ.size(); i++) {

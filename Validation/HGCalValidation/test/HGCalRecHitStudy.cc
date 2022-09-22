@@ -151,8 +151,8 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       nused++;
       DetId detId = it.id();
       int layer = (ifNose_ ? HFNoseDetId(detId).layer()
-		   : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
-		      : HGCSiliconDetId(detId).layer()));
+                           : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                               : HGCSiliconDetId(detId).layer()));
       recHitValidation(detId, layer, geom0, &it);
     }
   } else {

@@ -209,7 +209,7 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           HFNoseDetId detId = HFNoseDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-        } else  {
+        } else {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());

@@ -237,23 +237,23 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
-		     : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer()
-			: HFNoseDetId(detId).layer()));
+        int layer =
+            ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
+                              : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer() : HFNoseDetId(detId).layer()));
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t adc = hgcSample.data();
         double charge = adc;
         //      uint16_t   gain      = hgcSample.toa();
         //      double     charge    = adc*gain;
         digiValidation(detId, hgcGeom_, layer, adc, charge);
-	if (geomType_ == 1) {
+        if (geomType_ == 1) {
           HGCSiliconDetId id = HGCSiliconDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.waferU());
           h_W2_->Fill(id.waferV());
           h_C1_->Fill(id.cellU());
           h_C2_->Fill(id.cellV());
-	} else if (geomType_ == 2) {
+        } else if (geomType_ == 2) {
           HGCScintillatorDetId id = HGCScintillatorDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.ieta());
@@ -282,16 +282,16 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
-		     : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer()
-			: HFNoseDetId(detId).layer()));
+        int layer =
+            ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
+                              : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer() : HFNoseDetId(detId).layer()));
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t adc = hgcSample.data();
         double charge = adc;
         //      uint16_t   gain      = hgcSample.toa();
         //      double     charge    = adc*gain;
         digiValidation(detId, hgcGeom_, layer, adc, charge);
-	if (geomType_ == 1) {
+        if (geomType_ == 1) {
           HGCSiliconDetId id = HGCSiliconDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.waferU());
@@ -310,7 +310,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           h_W2_->Fill(id.waferV());
           h_C1_->Fill(id.cellU());
           h_C2_->Fill(id.cellV());
-	}
+        }
       }
     } else {
       edm::LogVerbatim("HGCalValidation")
