@@ -461,7 +461,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     CMS_SA_ALLOW try {
-      if (nStreams > 1) {
+      if (nThreads > 1) {
         edm::Service<RootHandlers> handler;
         handler->willBeUsingThreads();
       }
