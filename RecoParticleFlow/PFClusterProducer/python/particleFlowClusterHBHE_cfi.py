@@ -154,11 +154,26 @@ run3_HB.toModify(_particleFlowClusterHBHE_cuda,
 )
 
 # HCALonly WF
-particleFlowClusterHBHEOnly = _particleFlowClusterHBHE_cpu.clone(
-    recHitsSource = "particleFlowRecHitHBHEOnly"
+# particleFlowClusterHBHEOnly = _particleFlowClusterHBHE_cpu.clone(
+#     recHitsSource = "particleFlowRecHitHBHEOnly"
+# )
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+particleFlowClusterHBHEOnly = SwitchProducerCUDA(
+    cpu = _particleFlowClusterHBHE_cpu.clone(
+        recHitsSource = "particleFlowRecHitHBHEOnly@cpu"
+    )
 )
 
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(particleFlowClusterHBHEOnly,
+    cuda = _particleFlowClusterHBHE_cuda.clone(
+        recHitsSource = "particleFlowRecHitHBHEOnly@cuda",
+        PFRecHitsLabelIn = "particleFlowRecHitHBHEOnly@cuda"
+    )
+)
+
+#
+#from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 particleFlowClusterHBHE = SwitchProducerCUDA(
     cpu = _particleFlowClusterHBHE_cpu.clone()
 )

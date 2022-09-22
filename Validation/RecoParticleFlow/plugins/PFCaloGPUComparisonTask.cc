@@ -54,7 +54,7 @@ public:
   ~PFCaloGPUComparisonTask() override;
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterTok_ref_;
@@ -153,14 +153,14 @@ void PFCaloGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup c
   }
 
 }
-void PFCaloGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  //desc.setUnknown();
-  desc.add<edm::InputTag>("pfClusterToken_ref", edm::InputTag("particleFlowClusterHBHE"));
-  desc.add<edm::InputTag>("pfClusterToken_target", edm::InputTag("particleFlowClusterHBHEonGPU"));
-  desc.addUntracked<std::string>("", "pfClusterHBHEGPUv");
-  descriptions.addDefault(desc);
-}
+// void PFCaloGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+//   edm::ParameterSetDescription desc;
+//   //desc.setUnknown();
+//   desc.add<edm::InputTag>("pfClusterToken_ref", edm::InputTag("particleFlowClusterHBHE"));
+//   desc.add<edm::InputTag>("pfClusterToken_target", edm::InputTag("particleFlowClusterHBHEonGPU"));
+//   desc.addUntracked<std::string>("pfCaloGPUCompDir", "pfClusterHBHEGPUv");
+//   descriptions.addDefault(desc);
+// }
   
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFCaloGPUComparisonTask);

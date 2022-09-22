@@ -59,7 +59,7 @@ _particleFlowRecHitHBHE_cpu = cms.EDProducer("PFRecHitProducer", _module_pset.cl
 _particleFlowRecHitHBHE_cpu.produceDummyProducts=cms.bool(True)
 _particleFlowRecHitHBHE_cpu.PFRecHitsGPUOut=cms.string("") 
 
-_particleFlowRecHitHBHE_cuda = cms.EDProducer("PFHBHERechitProducerGPU", _module_pset_cuda.clone() )
+_particleFlowRecHitHBHE_cuda = cms.EDProducer("PFHBHERecHitProducerGPU", _module_pset_cuda.clone() )
 
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
@@ -88,7 +88,7 @@ particleFlowRecHitHBHE = SwitchProducerCUDA(
 from Configuration.ProcessModifiers.gpu_cff import gpu
 gpu.toModify(particleFlowRecHitHBHE, 
     cuda = _particleFlowRecHitHBHE_cuda.clone()
-)         
+)
 
 
 # HCALonly WF
@@ -97,4 +97,14 @@ particleFlowRecHitHBHEOnly = _particleFlowRecHitHBHE_cpu.clone(
 )
 run3_HB.toModify(particleFlowRecHitHBHEOnly,
     producers = { 0: dict(src = "hbhereco") }
+)
+
+# KenH: this overwrites the original above. I am not sure if that's a good thing.
+particleFlowRecHitHBHEOnly = SwitchProducerCUDA(
+    cpu = _particleFlowRecHitHBHE_cpu.clone()
+)
+
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(particleFlowRecHitHBHEOnly,
+    cuda = _particleFlowRecHitHBHE_cuda.clone()
 )

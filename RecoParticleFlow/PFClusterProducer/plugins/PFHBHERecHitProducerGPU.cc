@@ -46,10 +46,10 @@
 
 typedef PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> PFRecHitHCALDenseIdNavigator;
 
-class PFHBHERechitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
+class PFHBHERecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit PFHBHERechitProducerGPU(edm::ParameterSet const&);
-  ~PFHBHERechitProducerGPU() override;
+  explicit PFHBHERecHitProducerGPU(edm::ParameterSet const&);
+  ~PFHBHERecHitProducerGPU() override;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
@@ -115,7 +115,7 @@ private:
 #endif
 };
 
-PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
+PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
     : produceSoA_{ps.getParameter<bool>("produceSoA")},
       produceLegacy_{ps.getParameter<bool>("produceLegacy")},
       produceCleanedLegacy_{ps.getParameter<bool>("produceCleanedLegacy")},
@@ -126,6 +126,8 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
       geomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   edm::ConsumesCollector cc = consumesCollector();
 
+  std::cout << "PFHBHERecHitProducerGPU constructor" << std::endl;
+  
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
 
@@ -187,7 +189,7 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
 #endif
 }
 
-PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
+PFHBHERecHitProducerGPU::~PFHBHERecHitProducerGPU() {
   topology_.release();
 #ifdef PF_DEBUG_ENABLE
   TFile* f = new TFile("gpuPFRecHitTimers.root", "recreate");
@@ -199,7 +201,7 @@ PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
 #endif
 }
 
-void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
+void PFHBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("produceSoA", true);
@@ -214,7 +216,7 @@ void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& c
   cdesc.addWithDefaultLabel(desc);
 }
 
-void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
   navigator_->init(setup);
   if (!theRecNumberWatcher_.check(setup))
     return;
@@ -267,7 +269,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   initCuda = true;  // (Re)initialize cuda arrays
 }
 
-void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
+void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
 
@@ -383,7 +385,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     cudaCheck(cudaStreamSynchronize(ctx.stream()));
 }
 
-void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
+void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
 
 
   cms::cuda::ScopedContextProduce ctx{cudaState_};
@@ -455,4 +457,4 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 #endif
 }
 
-DEFINE_FWK_MODULE(PFHBHERechitProducerGPU);
+DEFINE_FWK_MODULE(PFHBHERecHitProducerGPU);

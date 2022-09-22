@@ -35,10 +35,10 @@
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
 
-class PFHBHERechitProducerCPU : public edm::stream::EDProducer<edm::ExternalWork> {
+class PFHBHERecHitProducerCPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit PFHBHERechitProducerCPU(edm::ParameterSet const&);
-  ~PFHBHERechitProducerCPU() override;
+  explicit PFHBHERecHitProducerCPU(edm::ParameterSet const&);
+  ~PFHBHERecHitProducerCPU() override;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
@@ -75,7 +75,7 @@ private:
   uint32_t nRechitsTotal = 0;
 };
 
-PFHBHERechitProducerCPU::PFHBHERechitProducerCPU(edm::ParameterSet const& ps)
+PFHBHERecHitProducerCPU::PFHBHERecHitProducerCPU(edm::ParameterSet const& ps)
     : produceSoA_{ps.getParameter<bool>("produceSoA")},
       produceLegacy_{ps.getParameter<bool>("produceLegacy")},
       produceCleanedLegacy_{ps.getParameter<bool>("produceCleanedLegacy")},
@@ -93,12 +93,12 @@ PFHBHERechitProducerCPU::PFHBHERechitProducerCPU(edm::ParameterSet const& ps)
               : edm::EDPutTokenT<reco::PFRecHitCollection>{}},  // empty token if disabled
       geomToken_(esConsumes()) {}
 
-PFHBHERechitProducerCPU::~PFHBHERechitProducerCPU() {}
+PFHBHERecHitProducerCPU::~PFHBHERecHitProducerCPU() {}
 
-void PFHBHERechitProducerCPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
+void PFHBHERecHitProducerCPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("PFRecHitsGPULabelIn", edm::InputTag{"PFHBHERechitProducerGPU"});
+  desc.add<edm::InputTag>("PFRecHitsGPULabelIn", edm::InputTag{"PFHBHERecHitProducerGPU"});
   desc.add<std::string>("PFRecHitsSoALabelOut", "PFRecHitSoA");
   desc.add<std::string>("PFRecHitsLegacyLabelOut", "");
   desc.add<std::string>("PFRecHitsCleanedLegacyLabelOut", "Cleaned");
@@ -114,7 +114,7 @@ void PFHBHERechitProducerCPU::fillDescriptions(edm::ConfigurationDescriptions& c
   cdesc.addWithDefaultLabel(desc);
 }
 
-void PFHBHERechitProducerCPU::acquire(edm::Event const& event,
+void PFHBHERecHitProducerCPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
   //auto start = std::chrono::high_resolution_clock::now();
@@ -175,7 +175,7 @@ void PFHBHERechitProducerCPU::acquire(edm::Event const& event,
   //  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 }
 
-void PFHBHERechitProducerCPU::produce(edm::Event& event, edm::EventSetup const& setup) {
+void PFHBHERecHitProducerCPU::produce(edm::Event& event, edm::EventSetup const& setup) {
   geoHandle = setup.getHandle(geomToken_);
   const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
@@ -240,4 +240,4 @@ void PFHBHERechitProducerCPU::produce(edm::Event& event, edm::EventSetup const& 
   tmpPFRecHits.resize(0);
 }
 
-DEFINE_FWK_MODULE(PFHBHERechitProducerCPU);
+DEFINE_FWK_MODULE(PFHBHERecHitProducerCPU);
