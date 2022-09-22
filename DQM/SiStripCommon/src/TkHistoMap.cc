@@ -170,6 +170,11 @@ std::string TkHistoMap::folderDefinition(DQMStore::IBooker& ibooker,
 void TkHistoMap::fillFromAscii(const std::string& filename) {
   std::ifstream file;
   file.open(filename.c_str());
+
+  if (file.fail()) {
+    throw cms::Exception("LogicError") << "failed to open input file" << std::endl;
+  }
+
   float value;
   uint32_t detid;
   while (file.good()) {
@@ -181,6 +186,11 @@ void TkHistoMap::fillFromAscii(const std::string& filename) {
 
 void TkHistoMap::fill(DetId detid, float value) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
+  if (layer == TkLayerMap::INVALID) {
+    edm::LogError("TkHistoMap") << " could not fill for detid " << detid.rawId() << ", as the layer is invalid";
+    return;
+  }
+
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
 #ifdef debug_TkHistoMap
   LogTrace("TkHistoMap") << "[TkHistoMap::fill] Fill detid " << detid.rawId() << " Layer " << layer << " value "
@@ -191,7 +201,6 @@ void TkHistoMap::fill(DetId detid, float value) {
     tkHistoMap_[layer]->getTProfile2D()->Fill(xybin.x, xybin.y, value);
   else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
     tkHistoMap_[layer]->getTH2F()->Fill(xybin.x, xybin.y, value);
-
 #ifdef debug_TkHistoMap
   LogTrace("TkHistoMap") << "[TkHistoMap::fill] "
                          << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(xybin.ix, xybin.iy);
@@ -209,7 +218,13 @@ void TkHistoMap::fill(DetId detid, float value) {
 
 void TkHistoMap::setBinContent(DetId detid, float value) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
+  if (layer == TkLayerMap::INVALID) {
+    edm::LogError("TkHistoMap") << " could not setBinContent for detid " << detid.rawId()
+                                << ", as the layer is invalid";
+    return;
+  }
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
+
   if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D) {
     tkHistoMap_[layer]->getTProfile2D()->SetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy),
                                                        1);
@@ -240,6 +255,10 @@ void TkHistoMap::add(DetId detid, float value) {
   LogTrace("TkHistoMap") << "[TkHistoMap::add]";
 #endif
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
+  if (layer == TkLayerMap::INVALID) {
+    edm::LogError("TkHistoMap") << " could not add for detid " << detid.rawId() << ", as the layer is invalid";
+    return;
+  }
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
   if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D)
     setBinContent(detid,
@@ -255,6 +274,11 @@ void TkHistoMap::add(DetId detid, float value) {
 
 float TkHistoMap::getValue(DetId detid) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
+  if (layer == TkLayerMap::INVALID) {
+    edm::LogError("TkHistoMap") << " could not getValue for detid " << detid.rawId() << ", as the layer is invalid";
+    return -99999.f;
+  }
+
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
 
   if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
@@ -265,6 +289,10 @@ float TkHistoMap::getValue(DetId detid) {
 }
 float TkHistoMap::getEntries(DetId detid) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
+  if (layer == TkLayerMap::INVALID) {
+    edm::LogError("TkHistoMap") << " could not getValue for detid " << detid.rawId() << ", as the layer is invalid";
+    return -99999.f;
+  }
 
   if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F) {
     return 1;
