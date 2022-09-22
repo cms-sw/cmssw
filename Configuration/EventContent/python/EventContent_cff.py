@@ -466,6 +466,7 @@ AODSIMEventContent = cms.PSet(
     eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
 AODSIMEventContent.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
