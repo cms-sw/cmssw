@@ -47,6 +47,7 @@ from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
 from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
+from HLTriggerOffline.Common.HLTValidation_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -126,6 +127,10 @@ from Validation.Configuration.me0SimValid_cff import *
 
 baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
 baseCommonValidation = cms.Sequence()
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(baseCommonPreValidation,cms.Sequence(cms.SequencePlaceholder("mix")*hltassociation))
+phase2_common.toReplaceWith(baseCommonValidation,cms.Sequence(hltvalidation))
 
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(

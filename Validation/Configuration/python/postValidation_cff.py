@@ -73,6 +73,10 @@ from Validation.MtdValidation.MtdPostProcessor_cff import *
 
 postValidation_common = cms.Sequence()
 
+from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(postValidation_common,cms.Sequence(hltpostvalidation))
+
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
     + postProcessorVertexSequence

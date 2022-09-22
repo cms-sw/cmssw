@@ -1358,6 +1358,33 @@ upgradeWFs['HLT75e33'] = UpgradeWorkflow_HLT75e33(
     offset = 0.75,
 )
 
+class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'DigiTrigger' in step:
+            stepDict[stepName][k] = merge([{'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@relval2026'}, stepDict[step][k]])
+        elif 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([{'-s':'RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM'}, stepDict[step][k]])
+        elif 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([{'-s':'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
+    steps = [
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    suffix = '_HLTwDIGI75e33',
+    offset = 0.76,
+)
+
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
@@ -2191,7 +2218,7 @@ upgradeProperties[2026] = {
     },
     '2026D88' : {
         'Geom' : 'Extended2026D88',
-        'HLTmenu': '@relval2026',
+        'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],

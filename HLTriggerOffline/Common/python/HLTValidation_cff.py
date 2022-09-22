@@ -61,6 +61,9 @@ hltvalidationWithMC = cms.Sequence(
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
 )
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(hltvalidationWithMC, hltvalidationWithMC.copyAndExclude([hltHCALdigisAnalyzer,hltHCALRecoAnalyzer,hltHCALNoiseRates]))
+
 hltvalidationWithData = cms.Sequence(
 )
 
