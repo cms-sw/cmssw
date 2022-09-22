@@ -11,14 +11,16 @@ namespace memoryPool {
 
   class DeleterBase {
   public:
-    explicit DeleterBase(SimplePoolAllocator* pool) : m_pool(pool) {}
+    explicit DeleterBase(SimplePoolAllocator* pool, void * stream) : m_pool(pool), m_stream(stream) {}
     virtual ~DeleterBase() = default;
     virtual void operator()(int bucket) = 0;
 
     SimplePoolAllocator* pool() const { return m_pool; }
+    void * stream() const { return m_stream;}
 
   protected:
     SimplePoolAllocator* m_pool;
+    void * m_stream;
   };
 
   class Deleter {
@@ -41,6 +43,7 @@ namespace memoryPool {
     }
 
     SimplePoolAllocator* pool() const { return me->pool(); }
+    void * stream() const { return me->stream();}
 
   private:
     std::shared_ptr<DeleterBase> me;  //!

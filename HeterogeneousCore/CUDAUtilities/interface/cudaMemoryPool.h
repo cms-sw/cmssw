@@ -18,10 +18,10 @@ namespace memoryPool {
     SimplePoolAllocator *getPool(Where where);
 
     // allocate either on current device or on host
-    std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool);
+    std::pair<void *, int> alloc(void * stream, uint64_t size, SimplePoolAllocator &pool);
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
+    void free(void * stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
     template <typename T>
     auto copy(Buffer<T> &dst, Buffer<T> const &src, uint64_t size, cudaStream_t stream) {
@@ -32,26 +32,25 @@ namespace memoryPool {
     }
 
     struct CudaDeleterBase : public DeleterBase {
-      CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {}
+      CudaDeleterBase(void *stream, Where where) : DeleterBase(getPool(where), stream) {}
 
-      CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {}
+      CudaDeleterBase(void * stream, SimplePoolAllocator *pool) : DeleterBase(pool,stream) {}
 
       ~CudaDeleterBase() override = default;
 
-      cudaStream_t m_stream;
     };
 
     struct DeleteOne final : public CudaDeleterBase {
       using CudaDeleterBase::CudaDeleterBase;
 
       ~DeleteOne() override = default;
-      void operator()(int bucket) override { free(m_stream, std::vector<int>(1, bucket), *pool()); }
+      void operator()(int bucket) override { free(stream(), std::vector<int>(1, bucket), *pool()); }
     };
 
     struct BundleDelete final : public CudaDeleterBase {
-      BundleDelete(cudaStream_t const &stream, Where where) : CudaDeleterBase(stream, where) { m_buckets.reserve(8); }
+      BundleDelete(void *stream, Where where) : CudaDeleterBase(stream, where) { m_buckets.reserve(8); }
 
-      ~BundleDelete() override { free(m_stream, std::move(m_buckets), *pool()); }
+      ~BundleDelete() override { free(stream(), std::move(m_buckets), *pool()); }
 
       void operator()(int bucket) override { m_buckets.push_back(bucket); }
 
@@ -60,7 +59,7 @@ namespace memoryPool {
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, Deleter const &del) {
-      auto ret = alloc(sizeof(T) * size, *del.pool());
+      auto ret = alloc(del.stream(), sizeof(T) * size, *del.pool());
       if (ret.second < 0) {
         std::cout << "could not allocate " << size << ' ' << typeid(T).name() << " of size " << sizeof(T) << std::endl;
         throw std::bad_alloc();
@@ -70,7 +69,7 @@ namespace memoryPool {
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, Deleter &&del) {
-      auto ret = alloc(sizeof(T) * size, *del.pool());
+      auto ret = alloc(del.stream(), sizeof(T) * size, *del.pool());
       if (ret.second < 0) {
         std::cout << "could not allocate " << size << ' ' << typeid(T).name() << " of size " << sizeof(T) << std::endl;
         throw std::bad_alloc();
@@ -79,7 +78,7 @@ namespace memoryPool {
     }
 
     template <typename T>
-    Buffer<T> makeBuffer(uint64_t size, cudaStream_t const &stream, Where where) {
+    Buffer<T> makeBuffer(uint64_t size, void * stream, Where where) {
       return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, where)));
     }
 

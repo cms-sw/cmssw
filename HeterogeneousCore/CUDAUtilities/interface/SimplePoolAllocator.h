@@ -10,8 +10,9 @@
 #include <cstdint>
 #include <iostream>
 #include <chrono>
+#include <cmath>
 
-// #define MEMORY_POOL_DEBUG
+#define MEMORY_POOL_DEBUG
 
 namespace poolDetails {
 
@@ -29,9 +30,18 @@ namespace memoryPool {
   };
 }  // namespace memoryPool
 
+  struct TriState {
+    static constexpr int free = 0;
+    static constexpr int used = 1;
+    static constexpr int scheduled = -1;
+    alignas(64) std::atomic<int> v;
+  };
+
 class SimplePoolAllocator {
 public:
   using Pointer = void *;
+
+  static constexpr void * invalidStream = nullptr; //(void*)(3UL);  // "3" cannot be a pointer
 
   virtual ~SimplePoolAllocator() = default;
 
@@ -41,7 +51,7 @@ public:
 
   SimplePoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
     for (auto &p : m_used)
-      p.v = true;
+      p.v = TriState::used;
   }
 
   int size() const { return m_size; }
@@ -50,22 +60,24 @@ public:
 
   void dumpStat() const;
 
-  void free(int i) {
+  void free(int i, bool sched=true) {
+    if (sched) assert(m_used[i].v == TriState::scheduled);
 #ifdef MEMORY_POOL_DEBUG
     m_last[i] = -1;
 #endif
-    m_used[i].v = false;
+    m_used[i].v = TriState::free;
+    m_stream[i] = invalidStream;
   }
 
-  int alloc(uint64_t s) {
-    auto i = allocImpl(s);
+  int alloc(uint64_t s, void * stream) {
+    auto i = allocImpl(s,stream);
 
     //test garbage
     // if(totBytes>4507964512) garbageCollect();
 
     if (i >= 0) {
 #ifdef MEMORY_POOL_DEBUG
-      assert(m_used[i].v);
+      assert(m_used[i].v==TriState::used);
       if (nullptr == m_slots[i])
         std::cout << "race ??? " << i << ' ' << m_bucket[i] << ' ' << m_last[i] << std::endl;
       assert(m_slots[i]);
@@ -73,9 +85,9 @@ public:
       return i;
     }
     garbageCollect();
-    i = allocImpl(s);
+    i = allocImpl(s,stream);
     if (i >= 0) {
-      assert(m_used[i].v);
+      assert(m_used[i].v==TriState::used);
       assert(m_slots[i]);
 #ifdef MEMORY_POOL_DEBUG
       assert(m_last[i] >= 0);
@@ -85,12 +97,12 @@ public:
   }
 
 protected:
-  int allocImpl(uint64_t s);
-  int createAt(int ls, int b);
+  int allocImpl(uint64_t s, void * stream);
+  int createAt(int ls, int b, void * stream);
   void garbageCollect();
-  int useOld(int b);
+  int useOld(int b, void * stream);
 
-private:
+
   const int m_maxSlots;
 
 #ifdef MEMORY_POOL_DEBUG
@@ -99,10 +111,8 @@ private:
 
   std::vector<int> m_bucket = std::vector<int>(m_maxSlots, -1);
   std::vector<Pointer> m_slots = std::vector<Pointer>(m_maxSlots, nullptr);
-  struct alBool {
-    alignas(64) std::atomic<bool> v;
-  };
-  std::vector<alBool> m_used = std::vector<alBool>(m_maxSlots);
+  std::vector<Pointer> m_stream = std::vector<Pointer>(m_maxSlots, invalidStream);
+  std::vector<TriState> m_used = std::vector<TriState>(m_maxSlots);
   std::atomic<int> m_size = 0;
 
   std::atomic<uint64_t> totBytes = 0;
@@ -140,6 +150,10 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
 
   void scheduleFree(memoryPool::Payload *payload, void *stream) override {
     assert(payload->pool == this);
+    auto const &buckets = payload->buckets;
+    for (auto i : buckets) {
+      m_used[i].v = TriState::scheduled;
+    }
     Traits::scheduleFree(payload, stream);
   }
 };

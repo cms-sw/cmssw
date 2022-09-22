@@ -132,14 +132,14 @@ namespace memoryPool {
     }
 
     // allocate either on current device or on host (actually anywhere, not cuda specific)
-    std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool) {
-      int i = pool.alloc(size);
+    std::pair<void *, int> alloc(void * stream, uint64_t size, SimplePoolAllocator &pool) {
+      int i = pool.alloc(size,stream);
       void *p = pool.pointer(i);
       return std::pair<void *, int>(p, i);
     }
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
+    void free(void * stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
       pool.scheduleFree(payload, stream);
     }

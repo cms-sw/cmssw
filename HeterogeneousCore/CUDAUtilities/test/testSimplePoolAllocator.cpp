@@ -102,16 +102,16 @@ void go() {
 
   std::cout << "try to allocate " << s << std::endl;
 
-  int i0 = pool.alloc(s);
+  int i0 = pool.alloc(s,0);
   assert(1 == pool.size());
   assert(i0 >= 0);
   auto p0 = pool.pointer(i0);
   assert(nullptr != p0);
 
-  pool.free(i0);
+  pool.free(i0,false);
   assert(1 == pool.size());
 
-  int i1 = pool.alloc(s);
+  int i1 = pool.alloc(s,0);
   assert(1 == pool.size());
   assert(i1 == i0);
   auto p1 = pool.pointer(i1);
@@ -156,7 +156,7 @@ void go() {
         }
         uint64_t s = 1LL << b;
         assert(s > 0);
-        i = pool.alloc(s + sizeof(Node));
+        i = pool.alloc(s + sizeof(Node),0);
         if (i < 0) {
           std::cout << "\n\n!!!Failed " << me << " at " << iter << std::endl;
           pool.dumpStat();
@@ -186,7 +186,7 @@ void go() {
       auto doFree = [&]() {
         for (int k = 0; k < n; ++k) {
           auto i = ind[k];
-          pool.free(i);
+          pool.free(i,false);
         }
       };
       cudaLaunchHostFunc(stream, myCallback<decltype(doFree)>, &doFree);
@@ -216,7 +216,7 @@ void go() {
       }
       // free
       for (auto i : ind) {
-        pool.free(i);
+        pool.free(i,false);
       }
 #endif
     }
