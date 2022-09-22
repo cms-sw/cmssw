@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalDigi_cfg.py geometry=D92
 #
-#   Options for geometry D49, D88, D92, D93
+#   Options for geometry D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D88, D92, D93")
+                  "geometry of operations: D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -25,29 +25,18 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('SingleMuonDigi',Phase2C11I13M9)
 
-if (options.geometry == "D49"):
-    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-    process = cms.Process('SingleMuonDigi',Phase2C9)
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    globalTag = "auto:phase2_realistic_T15"
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonDigi',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonDigi',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonDigi',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+globalTag = "auto:phase2_realistic_T21"
+inFile = "file:step1" + options.geometry + ".root"
+outFile = "file:step2" + options.geometry + ".root"
 
-print("Global Tag: ", globalTag)
+print("Geometry file: ", geomFile)
+print("Global Tag:    ", globalTag)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -64,6 +53,8 @@ process.load('HLTrigger.Configuration.HLT_Fake2_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
@@ -72,7 +63,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:step1.root'),
+    fileNames = cms.untracked.vstring(inFile),
     inputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_genParticles_*_*',
@@ -139,7 +130,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step2.root'),
+    fileName = cms.untracked.string(outFile),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )

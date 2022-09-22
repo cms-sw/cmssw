@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalDigi_cfg.py geometry=D92
 #
-#   Options for geometry D49, D88, D92, D93
+#   Options for geometry D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D88, D92, D93")
+                  "geometry of operations: D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -25,29 +25,18 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('SingleMuonReco',Phase2C11I13M9)
 
-if (options.geometry == "D49"):
-    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-    process = cms.Process('SingleMuonReco',Phase2C9)
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    globalTag = "auto:phase2_realistic_T15"
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuonReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+globalTag = "auto:phase2_realistic_T21"
+inFile = "file:step2" + options.geometry + ".root"
+outFile = "file:step3" + options.geometry + ".root"
 
-print("Global Tag: ", globalTag)
+print("Geometry file: ", geomFile)
+print("Global Tag:    ", globalTag)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -55,12 +44,18 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Validation.HGCalValidation.hgcalRecHitPartial_cff')
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.ValidHGCal=dict()
+#    process.MessageLogger.HGCalGeom=dict()
+#    process.MessageLogger.HGCalSim=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
@@ -69,7 +64,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step2.root'),
+    fileNames = cms.untracked.vstring(inFile),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -117,7 +112,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step3.root'),
+    fileName = cms.untracked.string(outFile),
     outputCommands = cms.untracked.vstring(
         'keep *_*hbhe*_*_*',
         'keep *_g4SimHits_*_*',
@@ -140,12 +135,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.recosim_step = cms.Path(process.recosim)
+process.analysis_step = cms.Path(process.hgcalRecHitPartialEE+process.hgcalRecHitPartialHE)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,
                                 process.reconstruction_step,
                                 process.recosim_step,
+                                process.analysis_step,
                                 process.FEVTDEBUGHLToutput_step)
 
 # customisation of the process.
