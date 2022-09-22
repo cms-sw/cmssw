@@ -1,0 +1,357 @@
+/// -*- C++ -*-
+//
+// Package:    HGCMissingRecHit
+// Class:      HGCMissingRecHit
+//
+/**\class HGCMissingRecHit HGCMissingRecHit.cc Validation/HGCalValidation/test/HGCMissingRecHit.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+ 	[Notes on implementation]
+*/
+//
+// Original Author:  "Sunanda Banerjee"
+//         Created:  Tue September 20 17:55:26 CDT 2022
+// $Id$
+//
+//
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/transform.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <TH1D.h>
+
+class HGCMissingRecHit : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+public:
+  explicit HGCMissingRecHit(const edm::ParameterSet &);
+  ~HGCMissingRecHit() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  typedef std::tuple<float, float, float, float> HGCHitTuple;
+
+  void beginJob() override;
+  void endJob() override {}
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
+  virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
+  void analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> const &simHits,
+                          int idet,
+                          std::map<unsigned int, HGCHitTuple> &);
+  template <class T1>
+  void analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
+
+private:
+  //HGC Geometry
+  const std::vector<std::string> geometrySource_, detectors_;
+  const std::vector<int> ietaExcludeBH_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_hgcal_;
+  const std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_hgcalg_;
+  std::vector<const HGCalDDDConstants *> hgcCons_;
+  std::vector<const HGCalGeometry *> hgcGeometry_;
+
+  const edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
+  const edm::InputTag eeRecHitSource, fhRecHitSource, bhRecHitSource;
+  const edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
+  const edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
+
+  std::vector<TH1D*> goodHitsE_, missedHitsE_;
+};
+
+HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
+    : geometrySource_(cfg.getParameter<std::vector<std::string>>("geometrySource")),
+      detectors_(cfg.getParameter<std::vector<std::string>>("detectors")),
+      ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
+      tok_hgcal_{
+          edm::vector_transform(geometrySource_,
+                                [this](const std::string &name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_hgcalg_{edm::vector_transform(
+          geometrySource_,
+          [this](const std::string &name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
+      eeSimHitSource(cfg.getParameter<edm::InputTag>("eeSimHitSource")),
+      fhSimHitSource(cfg.getParameter<edm::InputTag>("fhSimHitSource")),
+      bhSimHitSource(cfg.getParameter<edm::InputTag>("bhSimHitSource")),
+      eeSimHitToken_(consumes<std::vector<PCaloHit>>(eeSimHitSource)),
+      fhSimHitToken_(consumes<std::vector<PCaloHit>>(fhSimHitSource)),
+      bhSimHitToken_(consumes<std::vector<PCaloHit>>(bhSimHitSource)),
+      eeRecHitSource(cfg.getParameter<edm::InputTag>("eeRecHitSource")),
+      fhRecHitSource(cfg.getParameter<edm::InputTag>("fhRecHitSource")),
+      bhRecHitSource(cfg.getParameter<edm::InputTag>("bhRecHitSource")),
+      eeRecHitToken_(consumes<HGCeeRecHitCollection>(eeRecHitSource)),
+      fhRecHitToken_(consumes<HGChefRecHitCollection>(fhRecHitSource)),
+      bhRecHitToken_(consumes<HGChebRecHitCollection>(bhRecHitSource)) {
+  usesResource(TFileService::kSharedResource);
+
+  edm::LogVerbatim("HGCalValid") << "Use " << geometrySource_.size() << " Geometry sources";
+  for (unsigned int k = 0; k < geometrySource_.size(); k++)
+    edm::LogVerbatim("HGCalValid") << "  " << detectors_[k] << ":" << geometrySource_[k];
+  edm::LogVerbatim("HGCalValid") << "SimHit labels: " << eeSimHitSource << "  " << fhSimHitSource << "  "
+                                 << bhSimHitSource;
+  edm::LogVerbatim("HGCalValid") << "RecHit labels: " << eeRecHitSource << "  " << fhRecHitSource << "  "
+                                 << bhRecHitSource;
+  edm::LogVerbatim("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
+  for (unsigned int k = 0; k < ietaExcludeBH_.size(); ++k)
+    edm::LogVerbatim("HGCalValid") << " [" << k << "] " << ietaExcludeBH_[k];
+}
+
+void HGCMissingRecHit::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  std::vector<std::string> sources = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
+  std::vector<std::string> names = {"EE", "HE Silicon", "HE Scintillator"};
+  std::vector<int> etas;
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<std::string>>("geometrySource", sources);
+  desc.add<std::vector<std::string>>("detectors", names);
+  desc.add<edm::InputTag>("eeSimHitSource", edm::InputTag("g4SimHits", "HGCHitsEE"));
+  desc.add<edm::InputTag>("fhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEfront"));
+  desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEback"));
+  desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
+  desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<std::vector<int>>("ietaExcludeBH", etas);
+  descriptions.add("hgcMissingRecHit", desc);
+}
+
+void HGCMissingRecHit::beginJob() {
+  //initiating fileservice
+  edm::Service<TFileService> fs;
+  for (unsigned int k = 0; k < detectors_.size(); ++k) {
+    char name[50], title[100];
+    sprintf(name, "GoodE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy for good hits in %s", detectors_[k].c_str());
+    goodHitsE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    goodHitsE_.back()->Sumw2();
+    sprintf(name, "MissE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy for missed hits in %s", detectors_[k].c_str());
+    missedHitsE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    missedHitsE_.back()->Sumw2();
+  }
+}
+
+void HGCMissingRecHit::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
+  //initiating hgc Geometry
+  for (size_t i = 0; i < geometrySource_.size(); i++) {
+    edm::LogVerbatim("HGCalValid") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i;
+    const edm::ESHandle<HGCalDDDConstants>& hgcCons = iSetup.getHandle(tok_hgcal_[i]);
+    if (hgcCons.isValid()) {
+      hgcCons_.push_back(hgcCons.product());
+    } else {
+      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
+    }
+    const edm::ESHandle<HGCalGeometry>& hgcGeom = iSetup.getHandle(tok_hgcalg_[i]);
+    if (hgcGeom.isValid()) {
+      hgcGeometry_.push_back(hgcGeom.product());
+    } else {
+      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i] << std::endl;
+    }
+  }
+}
+
+void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  std::map<unsigned int, HGCHitTuple> eeHitRefs, fhHitRefs, bhHitRefs;
+
+  //Accesing ee simhits
+  const edm::Handle<std::vector<PCaloHit>> &eeSimHits = iEvent.getHandle(eeSimHitToken_);
+
+  if (eeSimHits.isValid()) {
+    analyzeHGCalSimHit(eeSimHits, 0, eeHitRefs);
+    for (std::map<unsigned int, HGCHitTuple>::iterator itr = eeHitRefs.begin(); itr != eeHitRefs.end(); ++itr) {
+      int idx = std::distance(eeHitRefs.begin(), itr);
+      edm::LogVerbatim("HGCalValid") << "EEHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
+                                     << std::get<0>(itr->second) << "; Position"
+                                     << " (" << std::get<1>(itr->second) << ", " << std::get<2>(itr->second) << ", "
+                                     << std::get<3>(itr->second) << ")";
+    }
+  } else {
+    edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
+  }
+
+  //Accesing fh simhits
+  const edm::Handle<std::vector<PCaloHit>> &fhSimHits = iEvent.getHandle(fhSimHitToken_);
+  if (fhSimHits.isValid()) {
+    analyzeHGCalSimHit(fhSimHits, 1, fhHitRefs);
+    for (std::map<unsigned int, HGCHitTuple>::iterator itr = fhHitRefs.begin(); itr != fhHitRefs.end(); ++itr) {
+      int idx = std::distance(fhHitRefs.begin(), itr);
+      edm::LogVerbatim("HGCalValid") << "FHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
+                                     << std::get<0>(itr->second) << "; Position"
+                                     << " (" << std::get<1>(itr->second) << ", " << std::get<2>(itr->second) << ", "
+                                     << std::get<3>(itr->second) << ")";
+    }
+  } else {
+    edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
+  }
+
+  //Accessing bh simhits
+  const edm::Handle<std::vector<PCaloHit>> &bhSimHits = iEvent.getHandle(bhSimHitToken_);
+  if (bhSimHits.isValid()) {
+    analyzeHGCalSimHit(bhSimHits, 2, bhHitRefs);
+    for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
+      int idx = std::distance(bhHitRefs.begin(), itr);
+      edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
+                                     << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second) << ", "
+                                     << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ")";
+    }
+  } else {
+    edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
+  }
+
+  //accessing EE Rechit information
+  const edm::Handle<HGCeeRecHitCollection> &eeRecHit = iEvent.getHandle(eeRecHitToken_);
+  if (eeRecHit.isValid()) {
+    const HGCeeRecHitCollection *theHits = (eeRecHit.product());
+    analyzeHGCalRecHit(theHits, 0, eeHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No EE RecHit Found " << std::endl;
+  }
+
+  //accessing FH Rechit information
+  const edm::Handle<HGChefRecHitCollection> &fhRecHit = iEvent.getHandle(fhRecHitToken_);
+  if (fhRecHit.isValid()) {
+    const HGChefRecHitCollection *theHits = (fhRecHit.product());
+    analyzeHGCalRecHit(theHits, 1, fhHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No FH RecHit Found " << std::endl;
+  }
+
+  //accessing BH Rechit information
+  const edm::Handle<HGChebRecHitCollection> &bhRecHit = iEvent.getHandle(bhRecHitToken_);
+  if (bhRecHit.isValid()) {
+    const HGChebRecHitCollection *theHits = (bhRecHit.product());
+    analyzeHGCalRecHit(theHits, 2, bhHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+  }
+}
+
+void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> const &simHits,
+                                          int idet,
+                                          std::map<unsigned int, HGCHitTuple> &hitRefs) {
+  const bool debug(false);
+  for (auto const &simHit : *simHits) {
+    unsigned int id = simHit.id();
+    std::pair<float, float> xy;
+    bool ok(true);
+    int subdet(0), zside(0), layer(0), wafer(0), celltype(0), cell(0), wafer2(0), cell2(0);
+    if ((hgcCons_[idet]->waferHexagon8()) && ((DetId(id).det() == DetId::HGCalEE) || (DetId(id).det() == DetId::HGCalHSi))) {
+      HGCSiliconDetId detId = HGCSiliconDetId(id);
+      subdet = static_cast<int>(detId.det());
+      cell = detId.cellU();
+      cell2 = detId.cellV();
+      wafer = detId.waferU();
+      wafer2 = detId.waferV();
+      celltype = detId.type();
+      layer = detId.layer();
+      zside = detId.zside();
+      xy = hgcCons_[idet]->locateCell(layer, wafer, wafer2, cell, cell2, true, true, debug);
+    } else if ((hgcCons_[idet]->tileTrapezoid()) && (DetId(id).det() == DetId::HGCalHSc)) {
+      HGCScintillatorDetId detId = HGCScintillatorDetId(id);
+      subdet = static_cast<int>(detId.det());
+      wafer = detId.ietaAbs();
+      cell = detId.iphi();
+      celltype = detId.type();
+      layer = detId.layer();
+      zside = detId.zside();
+      xy = hgcCons_[idet]->locateCellTrap(layer, wafer, cell, false, debug);
+      edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " LocateCellTrap i/p " << layer << ":" << wafer << ":" << cell << " o/p " << xy.first << ":" << xy.second;
+    } else {
+      // This is an invalid cell
+      ok = false;
+      std::ostringstream st1;
+      if (DetId(id).det() == DetId::HGCalHSc) {
+	st1 << HGCScintillatorDetId(id);
+      } else if ((DetId(id).det() == DetId::HGCalEE) || (DetId(id).det() == DetId::HGCalHSi)) {
+	st1 << HGCSiliconDetId(id);
+      } else {
+	st1 << "Not a Standard One";
+      }
+      edm::LogVerbatim("HGCalError") << "Hit " << std::hex << id << std::dec << " " << st1.str() << " in the wrong collection for detector " << idet << ":" << geometrySource_[idet] << " ***** ERROR *****";
+   }
+
+    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id << std::dec << " (" << subdet << ":" << zside << ":"
+                                   << layer << ":" << celltype << ":" << wafer << ":" << wafer2 << ":" << cell << ":"
+                                   << cell2 << ") Flag " << ok;
+
+    if (ok) {
+      float zp = hgcCons_[idet]->waferZ(layer, false);
+      if (zside < 0)
+        zp = -zp;
+      float xp = (zside < 0) ? -xy.first / 10 : xy.first / 10;
+      float yp = xy.second / 10.0;
+      float energy = simHit.energy();
+
+      float energySum(energy);
+      if (hitRefs.count(id) != 0)
+        energySum += std::get<0>(hitRefs[id]);
+      hitRefs[id] = std::make_tuple(energySum, xp, yp, zp);
+      edm::LogVerbatim("HGCalValid") << "Position (" << xp << ", " << yp << ", " << zp << ") "
+                                     << " Energy " << simHit.energy() << ":" << energySum;
+    }
+  }
+}
+
+template <class T1>
+void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs) {
+  std::vector<unsigned int> ids;
+  for (auto it = theHits->begin(); it != theHits->end(); ++it) 
+    ids.emplace_back((it->id().rawId()));
+  for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
+    auto itr = std::find(ids.begin(), ids.end(), it->first);
+    if (itr == ids.end()) {
+      missedHitsE_[idet]->Fill(std::get<0>(it->second));
+      std::ostringstream st1;
+      if (DetId(it->first).det() == DetId::HGCalHSc)
+	st1 << HGCScintillatorDetId(it->first);
+      else
+	st1 << HGCSiliconDetId(it->first);
+      edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str() << " SimHit (E = " << std::get<0>(it->second) << ", X = " << std::get<1>(it->second) << ", Y = " << std::get<2>(it->second) << ", Z = " << std::get<3>(it->second) << ") is missing in the RecHit collection";
+    } else {
+      goodHitsE_[idet]->Fill(std::get<0>(it->second));
+    }
+  }
+}
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(HGCMissingRecHit);
