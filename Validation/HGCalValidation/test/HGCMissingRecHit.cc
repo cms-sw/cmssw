@@ -23,6 +23,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
@@ -74,6 +75,8 @@ private:
                           int idet,
                           std::map<unsigned int, HGCHitTuple> &);
   template <class T1>
+  void analyzeHGCalDigi(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
+  template <class T1>
   void analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
 
 private:
@@ -89,12 +92,17 @@ private:
   const edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
   const edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
   const edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
+  const edm::InputTag eeDigiSource, fhDigiSource, bhDigiSource;
+  const edm::EDGetTokenT<HGCalDigiCollection> eeDigiToken_;
+  const edm::EDGetTokenT<HGCalDigiCollection> fhDigiToken_;
+  const edm::EDGetTokenT<HGCalDigiCollection> bhDigiToken_;
   const edm::InputTag eeRecHitSource, fhRecHitSource, bhRecHitSource;
   const edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
   const edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
   const edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
 
-  std::vector<TH1D *> goodHitsE_, missedHitsE_;
+  std::vector<TH1D *> goodHitsDE_, missedHitsDE_;
+  std::vector<TH1D *> goodHitsRE_, missedHitsRE_;
 };
 
 HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
@@ -118,6 +126,12 @@ HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
       eeSimHitToken_(consumes<std::vector<PCaloHit>>(eeSimHitSource)),
       fhSimHitToken_(consumes<std::vector<PCaloHit>>(fhSimHitSource)),
       bhSimHitToken_(consumes<std::vector<PCaloHit>>(bhSimHitSource)),
+      eeDigiSource(cfg.getParameter<edm::InputTag>("eeDigiSource")),
+      fhDigiSource(cfg.getParameter<edm::InputTag>("fhDigiSource")),
+      bhDigiSource(cfg.getParameter<edm::InputTag>("bhDigiSource")),
+      eeDigiToken_(consumes<HGCalDigiCollection>(eeDigiSource)),
+      fhDigiToken_(consumes<HGCalDigiCollection>(fhDigiSource)),
+      bhDigiToken_(consumes<HGCalDigiCollection>(bhDigiSource)),
       eeRecHitSource(cfg.getParameter<edm::InputTag>("eeRecHitSource")),
       fhRecHitSource(cfg.getParameter<edm::InputTag>("fhRecHitSource")),
       bhRecHitSource(cfg.getParameter<edm::InputTag>("bhRecHitSource")),
@@ -131,6 +145,8 @@ HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
     edm::LogVerbatim("HGCalValid") << "  " << detectors_[k] << ":" << geometrySource_[k];
   edm::LogVerbatim("HGCalValid") << "SimHit labels: " << eeSimHitSource << "  " << fhSimHitSource << "  "
                                  << bhSimHitSource;
+  edm::LogVerbatim("HGCalValid") << "Digi labels: " << eeDigiSource << "  " << fhDigiSource << "  "
+                                 << bhDigiSource;
   edm::LogVerbatim("HGCalValid") << "RecHit labels: " << eeRecHitSource << "  " << fhRecHitSource << "  "
                                  << bhRecHitSource;
   edm::LogVerbatim("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
@@ -148,9 +164,12 @@ void HGCMissingRecHit::fillDescriptions(edm::ConfigurationDescriptions &descript
   desc.add<edm::InputTag>("eeSimHitSource", edm::InputTag("g4SimHits", "HGCHitsEE"));
   desc.add<edm::InputTag>("fhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEfront"));
   desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEback"));
+  desc.add<edm::InputTag>("eeDigiSource", edm::InputTag("simHGCalUnsuppressedDigis", "EE"));
+  desc.add<edm::InputTag>("fhDigiSource", edm::InputTag("simHGCalUnsuppressedDigis", "HEfront"));
+  desc.add<edm::InputTag>("bhDigiSource", edm::InputTag("simHGCalUnsuppressedDigis", "HEback"));
   desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-  desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+   desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   desc.add<std::vector<int>>("ietaExcludeBH", etas);
   descriptions.add("hgcMissingRecHit", desc);
 }
@@ -160,14 +179,22 @@ void HGCMissingRecHit::beginJob() {
   edm::Service<TFileService> fs;
   for (unsigned int k = 0; k < detectors_.size(); ++k) {
     char name[50], title[100];
-    sprintf(name, "GoodE%s", geometrySource_[k].c_str());
-    sprintf(title, "SimHit energy for good hits in %s", detectors_[k].c_str());
-    goodHitsE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
-    goodHitsE_.back()->Sumw2();
-    sprintf(name, "MissE%s", geometrySource_[k].c_str());
-    sprintf(title, "SimHit energy for missed hits in %s", detectors_[k].c_str());
-    missedHitsE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
-    missedHitsE_.back()->Sumw2();
+    sprintf(name, "GoodDE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy present among Digis in %s", detectors_[k].c_str());
+    goodHitsDE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    goodHitsDE_.back()->Sumw2();
+    sprintf(name, "MissDE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy absent among Digis in %s", detectors_[k].c_str());
+    missedHitsDE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    missedHitsDE_.back()->Sumw2();
+    sprintf(name, "GoodRE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy present among RecHits in %s", detectors_[k].c_str());
+    goodHitsRE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    goodHitsRE_.back()->Sumw2();
+    sprintf(name, "MissRE%s", geometrySource_[k].c_str());
+    sprintf(title, "SimHit energy absent among RecHits in %s", detectors_[k].c_str());
+    missedHitsRE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
+    missedHitsRE_.back()->Sumw2();
   }
 }
 
@@ -195,7 +222,6 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   //Accesing ee simhits
   const edm::Handle<std::vector<PCaloHit>> &eeSimHits = iEvent.getHandle(eeSimHitToken_);
-
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, eeHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = eeHitRefs.begin(); itr != eeHitRefs.end(); ++itr) {
@@ -236,6 +262,33 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     }
   } else {
     edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
+  }
+
+  //accessing EE Digi information
+  const edm::Handle<HGCalDigiCollection> &eeDigi = iEvent.getHandle(eeDigiToken_);
+  if (eeDigi.isValid()) {
+    const HGCalDigiCollection *theHits = (eeDigi.product());
+    analyzeHGCalDigi(theHits, 0, eeHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No EE Digi Found " << std::endl;
+  }
+
+  //accessing FH Digi information
+  const edm::Handle<HGCalDigiCollection> &fhDigi = iEvent.getHandle(fhDigiToken_);
+  if (fhDigi.isValid()) {
+    const HGCalDigiCollection *theHits = (fhDigi.product());
+    analyzeHGCalDigi(theHits, 1, fhHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No FH Digi Found " << std::endl;
+  }
+
+  //accessing BH Digi information
+  const edm::Handle<HGCalDigiCollection> &bhDigi = iEvent.getHandle(bhDigiToken_);
+  if (bhDigi.isValid()) {
+    const HGCalDigiCollection *theHits = (bhDigi.product());
+    analyzeHGCalDigi(theHits, 2, bhHitRefs);
+  } else {
+    edm::LogWarning("HGCalValid") << "No BH Digi Found " << std::endl;
   }
 
   //accessing EE Rechit information
@@ -337,6 +390,32 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
 }
 
 template <class T1>
+void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
+					int idet,
+					std::map<unsigned int, HGCHitTuple> const &hitRefs) {
+  std::vector<unsigned int> ids;
+  for (auto it = theHits->begin(); it != theHits->end(); ++it)
+    ids.emplace_back((it->id().rawId()));
+  for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
+    auto itr = std::find(ids.begin(), ids.end(), it->first);
+    if (itr == ids.end()) {
+      missedHitsDE_[idet]->Fill(std::get<0>(it->second));
+      std::ostringstream st1;
+      if (DetId(it->first).det() == DetId::HGCalHSc)
+        st1 << HGCScintillatorDetId(it->first);
+      else
+        st1 << HGCSiliconDetId(it->first);
+      edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
+                                    << " SimHit (E = " << std::get<0>(it->second) << ", X = " << std::get<1>(it->second)
+                                    << ", Y = " << std::get<2>(it->second) << ", Z = " << std::get<3>(it->second)
+                                    << ") is missing in the Digi collection";
+    } else {
+      goodHitsDE_[idet]->Fill(std::get<0>(it->second));
+    }
+  }
+}
+
+template <class T1>
 void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
                                           int idet,
                                           std::map<unsigned int, HGCHitTuple> const &hitRefs) {
@@ -346,7 +425,7 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
-      missedHitsE_[idet]->Fill(std::get<0>(it->second));
+      missedHitsRE_[idet]->Fill(std::get<0>(it->second));
       std::ostringstream st1;
       if (DetId(it->first).det() == DetId::HGCalHSc)
         st1 << HGCScintillatorDetId(it->first);
@@ -357,7 +436,7 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
                                     << ", Y = " << std::get<2>(it->second) << ", Z = " << std::get<3>(it->second)
                                     << ") is missing in the RecHit collection";
     } else {
-      goodHitsE_[idet]->Fill(std::get<0>(it->second));
+      goodHitsRE_[idet]->Fill(std::get<0>(it->second));
     }
   }
 }
