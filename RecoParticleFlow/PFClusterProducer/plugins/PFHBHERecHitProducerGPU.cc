@@ -126,8 +126,6 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
       geomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   edm::ConsumesCollector cc = consumesCollector();
 
-  std::cout << "PFHBHERecHitProducerGPU constructor" << std::endl;
-  
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
 
