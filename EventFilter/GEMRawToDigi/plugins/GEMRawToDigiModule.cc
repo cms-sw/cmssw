@@ -178,6 +178,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           if (keepDAQStatus_) {
             outOHStatus.get()->insertDigi(cId, st_oh);
           }
+          continue;
         }
 
         //Read vfat data
@@ -194,7 +195,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             continue;
           }
 
-          GEMVFATStatus st_vfat(amc, vfat, vfat.position(), readMultiBX_);
+          GEMVFATStatus st_vfat(amc, optoHybrid, vfat, readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {
