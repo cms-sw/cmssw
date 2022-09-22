@@ -88,6 +88,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Residual.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
+#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 
 ////////////////
 // PHYSICS TOOLS
@@ -99,7 +100,6 @@
 
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
 #include "L1Trigger/TrackTrigger/interface/L1TrackQuality.h"
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
 
 //////////////
 // STD HEADERS
@@ -350,9 +350,6 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
 
   setup_ = &iSetup.getData(esGetToken_);
   setupHPH_ = &iSetup.getData(esGetTokenHPH_);
-  if (trackQuality_) {
-    trackQualityModel_->beginRun(setupHPH_);
-  }
   // Tracklet pattern reco output channel info.
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
@@ -721,6 +718,11 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (trackQuality_) {
       trackQualityModel_->setL1TrackQuality(aTrack);
     }
+
+    //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);
+    //    if (trackQuality_) {
+    //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());
+    //    }
 
     // test track word
     //aTrack.testTrackWordBits();

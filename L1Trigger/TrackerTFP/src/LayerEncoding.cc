@@ -1,5 +1,4 @@
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
-#include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 
 #include <vector>
 #include <set>
@@ -20,6 +19,9 @@ namespace trackerTFP {
         cot_(&dataFormats->format(Variable::cot, Process::zht)),
         layerEncoding_(setup_->numSectorsEta(),
                        vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width())))),
+        layerEncodingMap_(setup_->numSectorsEta(),
+                          vector<vector<map<int, const SensorModule*>>>(
+                              pow(2, zT_->width()), vector<map<int, const SensorModule*>>(pow(2, cot_->width())))),
         maybeLayer_(setup_->numSectorsEta(),
                     vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width())))) {
     // number of boundaries of fiducial area in r-z plane for a given set of rough r-z track parameter
@@ -58,6 +60,7 @@ namespace trackerTFP {
           const double cot = cot_->floating(cot_->toSigned(binCot));
           // layer ids crossed by left and right rough r-z parameter shape boundaries
           vector<set<int>> layers(boundaries);
+          map<int, const SensorModule*>& layermaps = layerEncodingMap_[binEta][binZT][binCot];
           // cotTheta wrt sectorCot of this bin boundaries
           const vector<double> cots = {sectorCot + cot - cot_->base() / 2., sectorCot + cot + cot_->base() / 2.};
           // loop over all unique modules
@@ -71,8 +74,10 @@ namespace trackerTFP {
               const double d =
                   (zTi - sm->z() + (sm->r() - setup_->chosenRofZ()) * coti) / (sm->cosTilt() - sm->sinTilt() * coti);
               // compare distance with module size and add module layer id to layers if module is crossed
-              if (abs(d) < sm->numColumns() * sm->pitchCol() / 2.)
+              if (abs(d) < sm->numColumns() * sm->pitchCol() / 2.) {
                 layers[i].insert(sm->layerId());
+                layermaps[sm->layerId()] = sm;
+              }
             }
           }
           // mayber layers are given by layer ids crossed by only one booundary

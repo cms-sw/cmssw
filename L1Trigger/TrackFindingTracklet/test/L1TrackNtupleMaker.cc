@@ -56,7 +56,7 @@
 
 ////////////////
 // PHYSICS TOOLS
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
+#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 

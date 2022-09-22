@@ -20,7 +20,6 @@ C.Brown 28/07/20
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include <memory>
 
@@ -58,7 +57,7 @@ public:
                     std::string const& ONNXInputName,
                     std::vector<std::string> const& featureNames);
 
-  void beginRun(const hph::Setup* setup);
+  void setBonusFeatures(std::vector<float> bonusFeatures);
 
 private:
   // Private Member Data
@@ -72,8 +71,8 @@ private:
   float bendchi2Max_;
   float minPt_;
   int nStubsmin_;
-  const hph::Setup* setupHPH_;
   bool useHPH_;
+  std::vector<float> bonusFeatures_;
   std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
 };
 #endif

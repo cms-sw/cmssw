@@ -10,8 +10,10 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
+#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 
 #include <memory>
 
@@ -28,17 +30,23 @@ namespace hph {
 
   private:
     const ParameterSet iConfig_;
-    ESGetToken<tt::Setup, tt::SetupRcd> getTokenSetup_;
+    ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
+    ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> esGetTokenLayerEncoding_;
   };
 
   ProducerHPH::ProducerHPH(const ParameterSet& iConfig) : iConfig_(iConfig) {
     auto cc = setWhatProduced(this);
-    getTokenSetup_ = cc.consumes();
+    esGetTokenSetup_ = cc.consumes();
+    esGetTokenDataFormats_ = cc.consumes();
+    esGetTokenLayerEncoding_ = cc.consumes();
   }
 
   unique_ptr<Setup> ProducerHPH::produce(const SetupRcd& Rcd) {
-    const tt::Setup& setupTT = Rcd.get(getTokenSetup_);
-    return make_unique<Setup>(iConfig_, setupTT);
+    const tt::Setup& setupTT = Rcd.get(esGetTokenSetup_);
+    const trackerTFP::DataFormats& dataFormats = Rcd.get(esGetTokenDataFormats_);
+    const trackerTFP::LayerEncoding& layerEncoding = Rcd.get(esGetTokenLayerEncoding_);
+    return make_unique<Setup>(iConfig_, setupTT, dataFormats, layerEncoding);
   }
 
 }  // namespace hph

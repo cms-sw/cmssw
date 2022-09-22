@@ -28,8 +28,10 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelperRcd.h"
+#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelperRcd.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 
 #include <bitset>
 #include <iostream>
@@ -42,27 +44,42 @@ namespace hph {
   //Class that stores configuration for HitPatternHelper
   class Setup {
   public:
-    Setup() {}
-    Setup(const edm::ParameterSet& iConfig, const tt::Setup& setupTT);
+    Setup(const edm::ParameterSet& iConfig,
+          const tt::Setup& setupTT,
+          const trackerTFP::DataFormats& dataFormats,
+          const trackerTFP::LayerEncoding& layerEncoding);
     ~Setup() {}
 
-    bool hphDebug() const { return iConfig_.getParameter<bool>("hphDebug"); }
-    bool useNewKF() const { return iConfig_.getParameter<bool>("useNewKF"); }
-    double deltaTanL() const { return iConfig_.getParameter<double>("deltaTanL"); }
-    double chosenRofZ() const { return setupTT_.chosenRofZ(); }
-    std::vector<double> etaRegions() const { return setupTT_.boundarieEta(); }
-    std::vector<tt::SensorModule> sensorModules() const { return setupTT_.sensorModules(); }
+    bool hphDebug() const { return hphDebug_; }
+    bool useNewKF() const { return useNewKF_; }
+    double chosenRofZ() const { return chosenRofZ_; }
+    std::vector<double> etaRegions() const { return etaRegions_; }
     std::map<int, std::map<int, std::vector<int>>> layermap() const { return layermap_; }
     int nKalmanLayers() const { return nKalmanLayers_; }
-    static auto smallerID(std::pair<int, bool> lhs, std::pair<int, bool> rhs) { return lhs.first < rhs.first; }
-    static auto equalID(std::pair<int, bool> lhs, std::pair<int, bool> rhs) { return lhs.first == rhs.first; }
+    int etaRegion(double z0, double cot, bool useNewKF) const;
+    int digiCot(double cot, int binEta) const;
+    int digiZT(double z0, double cot, int binEta) const;
+    const std::vector<int>& layerEncoding(int binEta, int binZT, int binCot) const {
+      return layerEncoding_.layerEncoding(binEta, binZT, binCot);
+    }
+    const std::map<int, const tt::SensorModule*>& layerEncodingMap(int binEta, int binZT, int binCot) const {
+      return layerEncoding_.layerEncodingMap(binEta, binZT, binCot);
+    }
 
   private:
     edm::ParameterSet iConfig_;
+    edm::ParameterSet oldKFPSet_;
     const tt::Setup setupTT_;  // Helper class to store TrackTrigger configuration
-    std::vector<std::pair<int, bool>>
-        layerIds_;  // layer IDs (1~6->L1~L6;11~15->D1~D5) and whether or not they are from tracker barrel
-                    // Only needed by Old KF
+    const trackerTFP::DataFormats dataFormats_;
+    const trackerTFP::DataFormat dfcot_;
+    const trackerTFP::DataFormat dfzT_;
+    const trackerTFP::LayerEncoding layerEncoding_;
+    bool hphDebug_;
+    bool useNewKF_;
+    double chosenRofZNewKF_;
+    std::vector<double> etaRegionsNewKF_;
+    double chosenRofZ_;
+    std::vector<double> etaRegions_;
     std::map<int, std::map<int, std::vector<int>>> layermap_;  // Hard-coded layermap in Old KF
     int nEtaRegions_;                                          // # of eta regions
     int nKalmanLayers_;                                        // # of maximum KF layers allowed
@@ -71,7 +88,6 @@ namespace hph {
   //Class that returns decoded information from hitpattern
   class HitPatternHelper {
   public:
-    HitPatternHelper() {}
     HitPatternHelper(const Setup* setup, int hitpattern, double cot, double z0);
     ~HitPatternHelper() {}
 
@@ -94,17 +110,27 @@ namespace hph {
       return numMissingInterior2_;
     }  //The number of missing interior layers (using hitpattern, layermap from Old KF and sensor modules)
     std::vector<int> binary() { return binary_; }  //11-bit hitmask needed by TrackQuality.cc (0~5->L1~L6;6~10->D1~D5)
-    static auto smallerID(tt::SensorModule lhs, tt::SensorModule rhs) { return lhs.layerId() < rhs.layerId(); }
-    static auto equalID(tt::SensorModule lhs, tt::SensorModule rhs) { return lhs.layerId() == rhs.layerId(); }
+    std::vector<float> bonusFeatures() { return bonusFeatures_; }  //bonus features for track quality
 
-    int ReducedId(
+    int reducedId(
         int layerId);  //Converts layer ID (1~6->L1~L6;11~15->D1~D5) to reduced layer ID (0~5->L1~L6;6~10->D1~D5)
     int findLayer(int layerId);  //Search for a layer ID from sensor modules
 
   private:
-    int etaSector_;
-    int hitpattern_;
+    const Setup* setup_;
+    bool hphDebug_;
+    bool useNewKF_;
+    std::vector<double> etaRegions_;
+    std::map<int, std::map<int, std::vector<int>>> layermap_;
+    int nKalmanLayers_;
+    int etaBin_;
+    int cotBin_;
+    int zTBin_;
+    std::vector<int> layerEncoding_;
+    std::map<int, const tt::SensorModule*> layerEncodingMap_;
     int numExpLayer_;
+    int hitpattern_;
+    int etaSector_;
     int numMissingLayer_;
     int numMissingPS_;
     int numMissing2S_;
@@ -112,18 +138,8 @@ namespace hph {
     int num2S_;
     int numMissingInterior1_;
     int numMissingInterior2_;
-    double cot_;
-    double z0_;
-    const Setup* setup_;
-    std::vector<tt::SensorModule> layers_;  //Sensor modules that particles are expected to hit
     std::vector<int> binary_;
-    bool hphDebug_;
-    bool useNewKF_;
-    float chosenRofZ_;
-    float deltaTanL_;  // Uncertainty added to tanL (cot) when layermap in new KF is determined
-    std::vector<double> etaRegions_;
-    int nKalmanLayers_;
-    std::map<int, std::map<int, std::vector<int>>> layermap_;
+    std::vector<float> bonusFeatures_;
   };
 
 }  // namespace hph
