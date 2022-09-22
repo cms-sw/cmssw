@@ -18,6 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -39,7 +40,7 @@ const double mmtocm = 0.1;
 class HGCGeometryValidation : public DQMEDAnalyzer {
 public:
   explicit HGCGeometryValidation(const edm::ParameterSet &);
-  ~HGCGeometryValidation() override;
+  ~HGCGeometryValidation() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
@@ -48,10 +49,10 @@ protected:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
-  std::vector<std::string> geometrySource_;
-  int verbosity_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> geomToken_;
+  const edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
+  const std::vector<std::string> geometrySource_;
+  const int verbosity_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> geomToken_;
 
   //HGCal geometry scheme
   std::vector<const HGCalDDDConstants *> hgcGeometry_;
@@ -74,16 +75,13 @@ private:
   MonitorElement *hebdX, *hebdY, *hebdZ;
 };
 
-HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) {
-  g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
-  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource");
-  verbosity_ = cfg.getUntrackedParameter<int>("verbosity", 0);
-  for (const auto &name : geometrySource_)
-    geomToken_.emplace_back(
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-}
-
-HGCGeometryValidation::~HGCGeometryValidation() {}
+HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg)
+    : g4Token_(consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"))),
+      geometrySource_(cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource")),
+      verbosity_(cfg.getUntrackedParameter<int>("verbosity", 0)),
+      geomToken_{edm::vector_transform(geometrySource_, [this](const std::string &name) {
+        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+      })} {}
 
 void HGCGeometryValidation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -161,8 +159,7 @@ void HGCGeometryValidation::bookHistograms(DQMStore::IBooker &iB, edm::Run const
 
 void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Accessing G4 information
-  edm::Handle<PHGCalValidInfo> infoLayer;
-  iEvent.getByToken(g4Token_, infoLayer);
+  const edm::Handle<PHGCalValidInfo> &infoLayer = iEvent.getHandle(g4Token_);
 
   if (infoLayer.isValid()) {
     //step vertex information
@@ -179,15 +176,15 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
 
     unsigned int i;
     for (i = 0; i < edepLayerEE.size(); i++) {
-      heeLayerVsEnStep->Fill(i, edepLayerEE.at(i));
+      heeLayerVsEnStep->Fill(i, edepLayerEE[i]);
     }
 
     for (i = 0; i < edepLayerHE.size(); i++) {
-      hefLayerVsEnStep->Fill(i, edepLayerHE.at(i));
+      hefLayerVsEnStep->Fill(i, edepLayerHE[i]);
     }
 
     for (i = 0; i < edepLayerHB.size(); i++) {
-      hebLayerVsEnStep->Fill(i, edepLayerHB.at(i));
+      hebLayerVsEnStep->Fill(i, edepLayerHB[i]);
     }
 
     //fill total energy deposited
@@ -197,91 +194,83 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
 
     //loop over all hits
     for (unsigned int i = 0; i < hitVtxX.size(); i++) {
-      hitVtxX.at(i) = mmtocm * hitVtxX.at(i);
-      hitVtxY.at(i) = mmtocm * hitVtxY.at(i);
-      hitVtxZ.at(i) = mmtocm * hitVtxZ.at(i);
+      hitVtxX[i] *= mmtocm;
+      hitVtxY[i] *= mmtocm;
+      hitVtxZ[i] *= mmtocm;
 
-      if ((hitDet.at(i) == (unsigned int)(DetId::Forward)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-          (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi)) || (hitDet.at(i) == (unsigned int)(DetId::HGCalHSc))) {
-        double xx, yy;
-        int dtype(0), layer(0), zside(1);
-        std::pair<float, float> xy;
-        if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
-          int subdet, wafer, celltype, cell;
-          HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);
-          dtype = (subdet == (int)(HGCEE)) ? 0 : 1;
-          xy = hgcGeometry_[dtype]->locateCell(cell, layer, wafer, true);  //cm
-        } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
-                   (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
-          HGCSiliconDetId id(hitIdx.at(i));
-          dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
-          layer = id.layer();
-          zside = id.zside();
-          xy = hgcGeometry_[dtype]->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true);
-        } else {
-          HGCScintillatorDetId id(hitIdx.at(i));
-          dtype = 2;
-          layer = id.layer();
-          zside = id.zside();
-          xy = hgcGeometry_[dtype]->locateCellTrap(layer, id.ietaAbs(), id.iphi(), true);
-        }
-        double zz = hgcGeometry_[dtype]->waferZ(layer, true);  //cm
-        if (zside < 0)
-          zz = -zz;
-        xx = (zside < 0) ? -xy.first : xy.first;
-        yy = xy.second;
+      double xx, yy;
+      int dtype(0), layer(0), zside(1);
+      std::pair<float, float> xy;
+      if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
+          (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
+        HGCSiliconDetId id(hitIdx[i]);
+        dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
+        layer = id.layer();
+        zside = id.zside();
+        xy = hgcGeometry_[dtype]->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true);
+      } else {
+        HGCScintillatorDetId id(hitIdx[i]);
+        dtype = 2;
+        layer = id.layer();
+        zside = id.zside();
+        xy = hgcGeometry_[dtype]->locateCellTrap(layer, id.ietaAbs(), id.iphi(), true);
+      }
+      double zz = hgcGeometry_[dtype]->waferZ(layer, true);  //cm
+      if (zside < 0)
+        zz = -zz;
+      xx = (zside < 0) ? -xy.first : xy.first;
+      yy = xy.second;
 
-        if (dtype == 0) {
-          heedzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-          heedyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-          heedxVsX->Fill(xx, (hitVtxX.at(i) - xx));
+      if (dtype == 0) {
+        heedzVsZ->Fill(zz, (hitVtxZ[i] - zz));
+        heedyVsY->Fill(yy, (hitVtxY[i] - yy));
+        heedxVsX->Fill(xx, (hitVtxX[i] - xx));
 
-          heeXG4VsId->Fill(hitVtxX.at(i), xx);
-          heeYG4VsId->Fill(hitVtxY.at(i), yy);
-          heeZG4VsId->Fill(hitVtxZ.at(i), zz);
+        heeXG4VsId->Fill(hitVtxX[i], xx);
+        heeYG4VsId->Fill(hitVtxY[i], yy);
+        heeZG4VsId->Fill(hitVtxZ[i], zz);
 
-          heedzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-          heedyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-          heedxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+        heedzVsLayer->Fill(layer, (hitVtxZ[i] - zz));
+        heedyVsLayer->Fill(layer, (hitVtxY[i] - yy));
+        heedxVsLayer->Fill(layer, (hitVtxX[i] - xx));
 
-          heedX->Fill((hitVtxX.at(i) - xx));
-          heedZ->Fill((hitVtxZ.at(i) - zz));
-          heedY->Fill((hitVtxY.at(i) - yy));
+        heedX->Fill((hitVtxX[i] - xx));
+        heedZ->Fill((hitVtxZ[i] - zz));
+        heedY->Fill((hitVtxY[i] - yy));
 
-        } else if (dtype == 1) {
-          hefdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-          hefdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-          hefdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
+      } else if (dtype == 1) {
+        hefdzVsZ->Fill(zz, (hitVtxZ[i] - zz));
+        hefdyVsY->Fill(yy, (hitVtxY[i] - yy));
+        hefdxVsX->Fill(xx, (hitVtxX[i] - xx));
 
-          hefXG4VsId->Fill(hitVtxX.at(i), xx);
-          hefYG4VsId->Fill(hitVtxY.at(i), yy);
-          hefZG4VsId->Fill(hitVtxZ.at(i), zz);
+        hefXG4VsId->Fill(hitVtxX[i], xx);
+        hefYG4VsId->Fill(hitVtxY[i], yy);
+        hefZG4VsId->Fill(hitVtxZ[i], zz);
 
-          hefdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-          hefdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-          hefdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+        hefdzVsLayer->Fill(layer, (hitVtxZ[i] - zz));
+        hefdyVsLayer->Fill(layer, (hitVtxY[i] - yy));
+        hefdxVsLayer->Fill(layer, (hitVtxX[i] - xx));
 
-          hefdX->Fill((hitVtxX.at(i) - xx));
-          hefdZ->Fill((hitVtxZ.at(i) - zz));
-          hefdY->Fill((hitVtxY.at(i) - yy));
+        hefdX->Fill((hitVtxX[i] - xx));
+        hefdZ->Fill((hitVtxZ[i] - zz));
+        hefdY->Fill((hitVtxY[i] - yy));
 
-        } else {
-          hebdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-          hebdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-          hebdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
+      } else {
+        hebdzVsZ->Fill(zz, (hitVtxZ[i] - zz));
+        hebdyVsY->Fill(yy, (hitVtxY[i] - yy));
+        hebdxVsX->Fill(xx, (hitVtxX[i] - xx));
 
-          hebXG4VsId->Fill(hitVtxX.at(i), xx);
-          hebYG4VsId->Fill(hitVtxY.at(i), yy);
-          hebZG4VsId->Fill(hitVtxZ.at(i), zz);
+        hebXG4VsId->Fill(hitVtxX[i], xx);
+        hebYG4VsId->Fill(hitVtxY[i], yy);
+        hebZG4VsId->Fill(hitVtxZ[i], zz);
 
-          hebdzVsLayer->Fill(layer, (hitVtxZ.at(i) - zz));
-          hebdyVsLayer->Fill(layer, (hitVtxY.at(i) - yy));
-          hebdxVsLayer->Fill(layer, (hitVtxX.at(i) - xx));
+        hebdzVsLayer->Fill(layer, (hitVtxZ[i] - zz));
+        hebdyVsLayer->Fill(layer, (hitVtxY[i] - yy));
+        hebdxVsLayer->Fill(layer, (hitVtxX[i] - xx));
 
-          hebdX->Fill((hitVtxX.at(i) - xx));
-          hebdZ->Fill((hitVtxZ.at(i) - zz));
-          hebdY->Fill((hitVtxY.at(i) - yy));
-        }
+        hebdX->Fill((hitVtxX[i] - xx));
+        hebdZ->Fill((hitVtxZ[i] - zz));
+        hebdY->Fill((hitVtxY[i] - yy));
       }
     }  //end G4 hits
 
