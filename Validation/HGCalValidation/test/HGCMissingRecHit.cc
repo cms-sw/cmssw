@@ -145,8 +145,7 @@ HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
     edm::LogVerbatim("HGCalValid") << "  " << detectors_[k] << ":" << geometrySource_[k];
   edm::LogVerbatim("HGCalValid") << "SimHit labels: " << eeSimHitSource << "  " << fhSimHitSource << "  "
                                  << bhSimHitSource;
-  edm::LogVerbatim("HGCalValid") << "Digi labels: " << eeDigiSource << "  " << fhDigiSource << "  "
-                                 << bhDigiSource;
+  edm::LogVerbatim("HGCalValid") << "Digi labels: " << eeDigiSource << "  " << fhDigiSource << "  " << bhDigiSource;
   edm::LogVerbatim("HGCalValid") << "RecHit labels: " << eeRecHitSource << "  " << fhRecHitSource << "  "
                                  << bhRecHitSource;
   edm::LogVerbatim("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
@@ -169,7 +168,7 @@ void HGCMissingRecHit::fillDescriptions(edm::ConfigurationDescriptions &descript
   desc.add<edm::InputTag>("bhDigiSource", edm::InputTag("simHGCalUnsuppressedDigis", "HEback"));
   desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-   desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   desc.add<std::vector<int>>("ietaExcludeBH", etas);
   descriptions.add("hgcMissingRecHit", desc);
 }
@@ -391,8 +390,8 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
 
 template <class T1>
 void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
-					int idet,
-					std::map<unsigned int, HGCHitTuple> const &hitRefs) {
+                                        int idet,
+                                        std::map<unsigned int, HGCHitTuple> const &hitRefs) {
   std::vector<unsigned int> ids;
   for (auto it = theHits->begin(); it != theHits->end(); ++it)
     ids.emplace_back((it->id().rawId()));
