@@ -36,7 +36,7 @@
 
 // forward declarations
 namespace edm {
-  class ModuleTypeResolverBase;
+  class ModuleTypeResolverMaker;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -55,15 +55,15 @@ namespace edm {
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                        EventSetupProvider& iProvider,
                                        edm::ParameterSet& iConfiguration,
-                                       ModuleTypeResolverBase const* resolver,
+                                       ModuleTypeResolverMaker const* resolverMaker,
                                        bool replaceExisting = false) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         //cerr << "Factory: module_type = " << modtype << endl;
         typename MakerMap::iterator it = makers_.find(modtype);
 
         if (it == makers_.end()) {
-          std::shared_ptr<Maker> wm(
-              detail::resolveMaker<edmplugin::PluginFactory<ComponentMakerBase<T>*()>>(modtype, resolver));
+          std::shared_ptr<Maker> wm(detail::resolveMaker<edmplugin::PluginFactory<ComponentMakerBase<T>*()>>(
+              modtype, resolverMaker, iConfiguration));
 
           //cerr << "Factory: created the worker" << endl;
 

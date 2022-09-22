@@ -2,6 +2,7 @@
 #define FWCore_Framework_interface_resolveMaker_h
 
 #include "FWCore/Framework/interface/ModuleTypeResolverBase.h"
+#include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <memory>
@@ -13,8 +14,11 @@ namespace edm::detail {
                                                 ModuleTypeResolverBase const* resolver);
 
   template <typename TFactory>
-  auto resolveMaker(std::string const& moduleType, ModuleTypeResolverBase const* resolver) {
-    if (resolver) {
+  auto resolveMaker(std::string const& moduleType,
+                    ModuleTypeResolverMaker const* resolverMaker,
+                    edm::ParameterSet const& modulePSet) {
+    if (resolverMaker) {
+      auto resolver = resolverMaker->makeResolver(modulePSet);
       auto index = resolver->kInitialIndex;
       auto newType = moduleType;
       do {
@@ -30,7 +34,7 @@ namespace edm::detail {
         //failed to find a plugin
         return TFactory::get()->create(moduleType);
       } catch (cms::Exception& iExcept) {
-        detail::annotateResolverMakerExceptionAndRethrow(iExcept, moduleType, resolver);
+        detail::annotateResolverMakerExceptionAndRethrow(iExcept, moduleType, resolver.get());
       }
     }
     return TFactory::get()->create(moduleType);
