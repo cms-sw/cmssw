@@ -31,6 +31,7 @@ process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.tester = DQMEDAnalyzer("testTkHistoMap",
+                               inputFile = cms.FileInPath("DQM/SiStripCommon/test/data/SiStripDetInfo.dat"),
                                readFromFile = cms.bool(False))
 
 process.p = cms.Path(process.tester)
