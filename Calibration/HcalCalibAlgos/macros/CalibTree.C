@@ -925,6 +925,7 @@ Double_t CalibTree::Loop(int loop,
   std::cout << "cafctors: " << cfactors.size() << ":" << maxch << std::endl;
   kount = 0;
   std::map<unsigned int, std::pair<double, double> >::const_iterator itr = cfactors.begin();
+  const double factorMin(0.1);
   for (; itr != cfactors.end(); ++itr, ++kount) {
     unsigned int detid = itr->first;
     int subdet, depth, zside, ieta, iphi;
@@ -932,7 +933,7 @@ Double_t CalibTree::Loop(int loop,
     double id = ieta * zside + 0.25 * (depth - 1);
     double factor = (itr->second).first;
     double dfac = (itr->second).second;
-    if (ieta > ietaMax) {
+    if ((ieta > ietaMax) || (factor < factorMin)) {
       factor = 1;
       dfac = 0;
     }
