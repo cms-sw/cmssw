@@ -18,7 +18,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalValidation=dict()
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:step1.root')
+                            fileNames = cms.untracked.vstring('file:step1D94.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(
