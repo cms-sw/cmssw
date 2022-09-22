@@ -2,7 +2,9 @@
 #define FWCore_Framework_test_TestTypeResolvers_h
 
 #include "FWCore/Framework/interface/ModuleTypeResolverBase.h"
+#include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -12,6 +14,13 @@ namespace edm::test {
     SimpleTestTypeResolver() = default;
     std::pair<std::string, int> resolveType(std::string basename, int index) const final {
       return {basename, kLastIndex};
+    }
+  };
+  class SimpleTestTypeResolverMaker : public edm::ModuleTypeResolverMaker {
+  public:
+    SimpleTestTypeResolverMaker() = default;
+    std::shared_ptr<ModuleTypeResolverBase const> makeResolver(edm::ParameterSet const&) const final {
+      return std::make_shared<SimpleTestTypeResolver>();
     }
   };
 
@@ -31,6 +40,13 @@ namespace edm::test {
         return {basename, kInitialIndex + 1};
       }
       return {basename, kLastIndex};
+    }
+  };
+  class ComplexTestTypeResolverMaker : public edm::ModuleTypeResolverMaker {
+  public:
+    ComplexTestTypeResolverMaker() = default;
+    std::shared_ptr<ModuleTypeResolverBase const> makeResolver(edm::ParameterSet const&) const final {
+      return std::make_shared<ComplexTestTypeResolver>();
     }
   };
 }  // namespace edm::test
