@@ -8,9 +8,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
@@ -29,12 +27,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -201,8 +195,8 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       zside = detId.zside();
       xy = hgcons_[ih]->locateCellTrap(layer, sector, cell, false);
     } else {
-      HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);
-      xy = hgcons_[ih]->locateCell(cell, layer, sector, false);
+      edm::LogError("HGCalValidation") << "HGCalSimHitStudy: Wrong geometry mode " << hgcons_[ih]->geomMode();
+      continue;
     }
     double zp = hgcons_[ih]->waferZ(layer, false);
     if (zside < 0)
