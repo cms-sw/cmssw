@@ -79,7 +79,8 @@ private:
   void analyzeHGCalDigi(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
   template <class T1>
   void analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
-  double getEta(const HGCHitTuple& hitRef);
+  double getEta(const HGCHitTuple &hitRef);
+
 private:
   //HGC Geometry
   const std::vector<std::string> geometrySource_, detectors_;
@@ -350,12 +351,12 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
     } else {
       st1 << "Not a Standard One";
     }
-    if ((hgcCons_[idet]->waferHexagon8()) &&
-        ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi))) {
+    if ((hgcCons_[idet]->waferHexagon8()) && ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi))) {
       p = hgcGeometry_[idet]->getPosition(id);
     } else if ((hgcCons_[idet]->tileTrapezoid()) && (id.det() == DetId::HGCalHSc)) {
       p = hgcGeometry_[idet]->getPosition(id);
-      edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " position (" << p.x() << ", " << p.y() << ", " << p.z() << ")";
+      edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " position (" << p.x() << ", " << p.y()
+                                    << ", " << p.z() << ")";
     } else {
       // This is an invalid cell
       ok = false;
@@ -364,7 +365,8 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
                                      << " ***** ERROR *****";
     }
 
-    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id.rawId() << std::dec << " " << st1.str() << " Flag " << ok;
+    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id.rawId() << std::dec << " " << st1.str() << " Flag "
+                                   << ok;
 
     if (ok) {
       float xp = p.x();
@@ -440,14 +442,15 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
   }
 }
 
-double HGCMissingRecHit::getEta(const HGCHitTuple& hitRef) {
+double HGCMissingRecHit::getEta(const HGCHitTuple &hitRef) {
   double x = std::get<1>(hitRef);
   double y = std::get<2>(hitRef);
   double r = std::sqrt(x * x + y * y);
   double z = std::abs(std::get<3>(hitRef));
   double theta = std::atan(r / z);
   double eta = (z > 0) ? -std::log(std::tan(0.5 * theta)) : 100.0;
-  edm::LogVerbatim("HGCalValid") << " x:y:z:r:theta:eta " << x << ":" << y  << ":" << z  << ":" << r  << ":" << theta  << ":" << eta;
+  edm::LogVerbatim("HGCalValid") << " x:y:z:r:theta:eta " << x << ":" << y << ":" << z << ":" << r << ":" << theta
+                                 << ":" << eta;
   return eta;
 }
 
