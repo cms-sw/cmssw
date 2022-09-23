@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
