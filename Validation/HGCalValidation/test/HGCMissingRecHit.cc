@@ -63,7 +63,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  typedef std::tuple<float, float, float, float> HGCHitTuple;
+  typedef std::tuple<float, GlobalPoint> HGCHitTuple;
 
   void beginJob() override;
   void endJob() override {}
@@ -79,7 +79,6 @@ private:
   void analyzeHGCalDigi(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
   template <class T1>
   void analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
-  double getEta(const HGCHitTuple &hitRef);
 
 private:
   //HGC Geometry
@@ -244,9 +243,8 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = eeHitRefs.begin(); itr != eeHitRefs.end(); ++itr) {
       int idx = std::distance(eeHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "EEHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position"
-                                     << " (" << std::get<1>(itr->second) << ", " << std::get<2>(itr->second) << ", "
-                                     << std::get<3>(itr->second) << ")";
+                                     << std::get<0>(itr->second) << "; Position = "
+                                     << std::get<1>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
@@ -259,9 +257,8 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = fhHitRefs.begin(); itr != fhHitRefs.end(); ++itr) {
       int idx = std::distance(fhHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "FHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position"
-                                     << " (" << std::get<1>(itr->second) << ", " << std::get<2>(itr->second) << ", "
-                                     << std::get<3>(itr->second) << ")";
+                                     << std::get<0>(itr->second) << "; Position = "
+                                     << std::get<1>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
@@ -274,8 +271,7 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
       int idx = std::distance(bhHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second) << ", "
-                                     << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ")";
+                                     << std::get<0>(itr->second) << "; Position = (" << std::get<1>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
@@ -369,17 +365,13 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
                                    << ok;
 
     if (ok) {
-      float xp = p.x();
-      float yp = p.y();
-      float zp = p.z();
       float energy = simHit.energy();
 
       float energySum(energy);
       if (hitRefs.count(id) != 0)
         energySum += std::get<0>(hitRefs[id]);
-      hitRefs[id] = std::make_tuple(energySum, xp, yp, zp);
-      edm::LogVerbatim("HGCalValid") << "Position (" << xp << ", " << yp << ", " << zp << ") "
-                                     << " Energy " << simHit.energy() << ":" << energySum;
+      hitRefs[id] = std::make_tuple(energySum, p);
+      edm::LogVerbatim("HGCalValid") << "Position = " << p << " Energy " << simHit.energy() << ":" << energySum;
     }
   }
 }
@@ -392,7 +384,7 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
   for (auto it = theHits->begin(); it != theHits->end(); ++it)
     ids.emplace_back((it->id().rawId()));
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
-    double eta = getEta(it->second);
+    double eta = std::get<1>(it->second).eta();
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
       missedHitsDE_[idet]->Fill(std::get<0>(it->second));
@@ -403,9 +395,7 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
       else
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
-                                    << " SimHit (E = " << std::get<0>(it->second) << ", X = " << std::get<1>(it->second)
-                                    << ", Y = " << std::get<2>(it->second) << ", Z = " << std::get<3>(it->second)
-                                    << ") is missing in the Digi collection";
+                                    << " SimHit (E = " << std::get<0>(it->second) << ", Position = " << std::get<1>(it->second) << ") is missing in the Digi collection";
     } else {
       goodHitsDE_[idet]->Fill(std::get<0>(it->second));
       goodHitsDT_[idet]->Fill(eta);
@@ -421,7 +411,7 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
   for (auto it = theHits->begin(); it != theHits->end(); ++it)
     ids.emplace_back((it->id().rawId()));
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
-    double eta = getEta(it->second);
+    double eta = std::get<1>(it->second).eta();
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
       missedHitsRE_[idet]->Fill(std::get<0>(it->second));
@@ -432,26 +422,13 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
       else
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
-                                    << " SimHit (E = " << std::get<0>(it->second) << ", X = " << std::get<1>(it->second)
-                                    << ", Y = " << std::get<2>(it->second) << ", Z = " << std::get<3>(it->second)
+                                    << " SimHit (E = " << std::get<0>(it->second) << ", Position = " << std::get<1>(it->second)
                                     << ") is missing in the RecHit collection";
     } else {
       goodHitsRE_[idet]->Fill(std::get<0>(it->second));
       goodHitsRT_[idet]->Fill(eta);
     }
   }
-}
-
-double HGCMissingRecHit::getEta(const HGCHitTuple &hitRef) {
-  double x = std::get<1>(hitRef);
-  double y = std::get<2>(hitRef);
-  double r = std::sqrt(x * x + y * y);
-  double z = std::abs(std::get<3>(hitRef));
-  double theta = std::atan(r / z);
-  double eta = (z > 0) ? -std::log(std::tan(0.5 * theta)) : 100.0;
-  edm::LogVerbatim("HGCalValid") << " x:y:z:r:theta:eta " << x << ":" << y << ":" << z << ":" << r << ":" << theta
-                                 << ":" << eta;
-  return eta;
 }
 
 //define this as a plug-in
