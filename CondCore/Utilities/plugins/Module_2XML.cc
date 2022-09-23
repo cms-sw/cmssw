@@ -211,6 +211,8 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(L1TriggerKeyExt);
   PAYLOAD_2XML_CLASS(L1TriggerKeyListExt);
   PAYLOAD_2XML_CLASS(LHCInfo);
+  PAYLOAD_2XML_CLASS(LHCInfoPerFill);
+  PAYLOAD_2XML_CLASS(LHCInfoPerLS);
   PAYLOAD_2XML_CLASS(METCorrectorParametersCollection);
   PAYLOAD_2XML_CLASS(MEtXYcorrectParametersCollection);
   PAYLOAD_2XML_CLASS(MagFieldConfig);
