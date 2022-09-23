@@ -250,6 +250,9 @@ namespace edm {
 
     virtual bool hasAccumulator() const = 0;
 
+    // Used in PuttableProductResolver
+    edm::WaitingTaskList& waitingTaskList() { return waitingTasks_; }
+
   protected:
     template <typename O>
     friend class workerhelper::CallImpl;
