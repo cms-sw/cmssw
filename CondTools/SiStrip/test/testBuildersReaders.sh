@@ -83,3 +83,17 @@ echo -e " Done with the gain rescaler \n\n"
 (cmsRun "${LOCAL_TEST_DIR}/"SiStripCondVisualizer_cfg.py) || die "Failure using cmsRun SiStripCondVisualizer_cfg.py" $?
 (python3 "${LOCAL_TEST_DIR}/"db_tree_dump_wrapper.py) || die "Failure running python3 db_tree_dump_wrapper.py" $?
 echo -e " Done with the visualization \n\n"
+
+echo -e "\n\n Testing the conditions patching code: \n\n"
+## do the bad components patching code
+myFEDs=""
+for i in {51..490..2}; do
+    myFEDs+="${i},"
+done
+myFEDs+=491
+echo " masking the following FEDs: "${myFEDs}
+
+(cmsRun "${LOCAL_TEST_DIR}/"SiStripBadChannelPatcher_cfg.py isUnitTest=True FEDsToAdd=${myFEDs} outputTag=OddFEDs) || die "Failure using cmsRun SiStripBadChannelPatcher_cfg.py when adding FEDs" $?
+(cmsRun "${LOCAL_TEST_DIR}/"SiStripBadChannelPatcher_cfg.py isUnitTest=True inputConnection=sqlite_file:outputDB.db inputTag=OddFEDs FEDsToRemove=${myFEDs} outputTag=OddFEDsRemoved) || die "Failure using cmsRun SiStripBadChannelPatcher_cfg.py when removing FEDs" $?
+
+echo -e " Done with the bad components patching \n\n"
