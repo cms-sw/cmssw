@@ -23,6 +23,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
@@ -78,7 +79,7 @@ private:
   void analyzeHGCalDigi(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
   template <class T1>
   void analyzeHGCalRecHit(T1 const &theHits, int idet, std::map<unsigned int, HGCHitTuple> const &hitRefs);
-
+  double getEta(const HGCHitTuple& hitRef);
 private:
   //HGC Geometry
   const std::vector<std::string> geometrySource_, detectors_;
@@ -101,8 +102,8 @@ private:
   const edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
   const edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
 
-  std::vector<TH1D *> goodHitsDE_, missedHitsDE_;
-  std::vector<TH1D *> goodHitsRE_, missedHitsRE_;
+  std::vector<TH1D *> goodHitsDE_, missedHitsDE_, goodHitsDT_, missedHitsDT_;
+  std::vector<TH1D *> goodHitsRE_, missedHitsRE_, goodHitsRT_, missedHitsRT_;
 };
 
 HGCMissingRecHit::HGCMissingRecHit(const edm::ParameterSet &cfg)
@@ -186,6 +187,14 @@ void HGCMissingRecHit::beginJob() {
     sprintf(title, "SimHit energy absent among Digis in %s", detectors_[k].c_str());
     missedHitsDE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
     missedHitsDE_.back()->Sumw2();
+    sprintf(name, "GoodDT%s", geometrySource_[k].c_str());
+    sprintf(title, "|#eta| of SimHits present among Digis in %s", detectors_[k].c_str());
+    goodHitsDT_.emplace_back(fs->make<TH1D>(name, title, 320, 2.7, 3.1));
+    goodHitsDT_.back()->Sumw2();
+    sprintf(name, "MissDT%s", geometrySource_[k].c_str());
+    sprintf(title, "|#eta| of SimHits absent among Digis in %s", detectors_[k].c_str());
+    missedHitsDT_.emplace_back(fs->make<TH1D>(name, title, 320, 2.7, 3.1));
+    missedHitsDT_.back()->Sumw2();
     sprintf(name, "GoodRE%s", geometrySource_[k].c_str());
     sprintf(title, "SimHit energy present among RecHits in %s", detectors_[k].c_str());
     goodHitsRE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
@@ -194,6 +203,14 @@ void HGCMissingRecHit::beginJob() {
     sprintf(title, "SimHit energy absent among RecHits in %s", detectors_[k].c_str());
     missedHitsRE_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 0.01));
     missedHitsRE_.back()->Sumw2();
+    sprintf(name, "GoodRT%s", geometrySource_[k].c_str());
+    sprintf(title, "|#eta| of SimHits present among RecHits in %s", detectors_[k].c_str());
+    goodHitsRT_.emplace_back(fs->make<TH1D>(name, title, 320, 2.7, 3.1));
+    goodHitsRT_.back()->Sumw2();
+    sprintf(name, "MissRT%s", geometrySource_[k].c_str());
+    sprintf(title, "|#eta| of SimHits absent among RecHits in %s", detectors_[k].c_str());
+    missedHitsRT_.emplace_back(fs->make<TH1D>(name, title, 320, 2.7, 3.1));
+    missedHitsRT_.back()->Sumw2();
   }
 }
 
@@ -321,61 +338,38 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
 void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> const &simHits,
                                           int idet,
                                           std::map<unsigned int, HGCHitTuple> &hitRefs) {
-  const bool debug(false);
   for (auto const &simHit : *simHits) {
-    unsigned int id = simHit.id();
-    std::pair<float, float> xy;
+    DetId id(simHit.id());
     bool ok(true);
-    int subdet(0), zside(0), layer(0), wafer(0), celltype(0), cell(0), wafer2(0), cell2(0);
+    GlobalPoint p;
+    std::ostringstream st1;
+    if (id.det() == DetId::HGCalHSc) {
+      st1 << HGCScintillatorDetId(id);
+    } else if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
+      st1 << HGCSiliconDetId(id);
+    } else {
+      st1 << "Not a Standard One";
+    }
     if ((hgcCons_[idet]->waferHexagon8()) &&
-        ((DetId(id).det() == DetId::HGCalEE) || (DetId(id).det() == DetId::HGCalHSi))) {
-      HGCSiliconDetId detId = HGCSiliconDetId(id);
-      subdet = static_cast<int>(detId.det());
-      cell = detId.cellU();
-      cell2 = detId.cellV();
-      wafer = detId.waferU();
-      wafer2 = detId.waferV();
-      celltype = detId.type();
-      layer = detId.layer();
-      zside = detId.zside();
-      xy = hgcCons_[idet]->locateCell(layer, wafer, wafer2, cell, cell2, true, true, debug);
-    } else if ((hgcCons_[idet]->tileTrapezoid()) && (DetId(id).det() == DetId::HGCalHSc)) {
-      HGCScintillatorDetId detId = HGCScintillatorDetId(id);
-      subdet = static_cast<int>(detId.det());
-      wafer = detId.ietaAbs();
-      cell = detId.iphi();
-      celltype = detId.type();
-      layer = detId.layer();
-      zside = detId.zside();
-      xy = hgcCons_[idet]->locateCellTrap(layer, wafer, cell, false, debug);
-      edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " LocateCellTrap i/p " << layer << ":"
-                                    << wafer << ":" << cell << " o/p " << xy.first << ":" << xy.second;
+        ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi))) {
+      p = hgcGeometry_[idet]->getPosition(id);
+    } else if ((hgcCons_[idet]->tileTrapezoid()) && (id.det() == DetId::HGCalHSc)) {
+      p = hgcGeometry_[idet]->getPosition(id);
+      edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " position (" << p.x() << ", " << p.y() << ", " << p.z() << ")";
     } else {
       // This is an invalid cell
       ok = false;
-      std::ostringstream st1;
-      if (DetId(id).det() == DetId::HGCalHSc) {
-        st1 << HGCScintillatorDetId(id);
-      } else if ((DetId(id).det() == DetId::HGCalEE) || (DetId(id).det() == DetId::HGCalHSi)) {
-        st1 << HGCSiliconDetId(id);
-      } else {
-        st1 << "Not a Standard One";
-      }
-      edm::LogVerbatim("HGCalError") << "Hit " << std::hex << id << std::dec << " " << st1.str()
+      edm::LogVerbatim("HGCalError") << "Hit " << std::hex << id.rawId() << std::dec << " " << st1.str()
                                      << " in the wrong collection for detector " << idet << ":" << geometrySource_[idet]
                                      << " ***** ERROR *****";
     }
 
-    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id << std::dec << " (" << subdet << ":" << zside << ":"
-                                   << layer << ":" << celltype << ":" << wafer << ":" << wafer2 << ":" << cell << ":"
-                                   << cell2 << ") Flag " << ok;
+    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id.rawId() << std::dec << " " << st1.str() << " Flag " << ok;
 
     if (ok) {
-      float zp = hgcCons_[idet]->waferZ(layer, false);
-      if (zside < 0)
-        zp = -zp;
-      float xp = (zside < 0) ? -xy.first / 10 : xy.first / 10;
-      float yp = xy.second / 10.0;
+      float xp = p.x();
+      float yp = p.y();
+      float zp = p.z();
       float energy = simHit.energy();
 
       float energySum(energy);
@@ -396,9 +390,11 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
   for (auto it = theHits->begin(); it != theHits->end(); ++it)
     ids.emplace_back((it->id().rawId()));
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
+    double eta = getEta(it->second);
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
       missedHitsDE_[idet]->Fill(std::get<0>(it->second));
+      missedHitsDT_[idet]->Fill(eta);
       std::ostringstream st1;
       if (DetId(it->first).det() == DetId::HGCalHSc)
         st1 << HGCScintillatorDetId(it->first);
@@ -410,6 +406,7 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
                                     << ") is missing in the Digi collection";
     } else {
       goodHitsDE_[idet]->Fill(std::get<0>(it->second));
+      goodHitsDT_[idet]->Fill(eta);
     }
   }
 }
@@ -422,9 +419,11 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
   for (auto it = theHits->begin(); it != theHits->end(); ++it)
     ids.emplace_back((it->id().rawId()));
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
+    double eta = getEta(it->second);
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
       missedHitsRE_[idet]->Fill(std::get<0>(it->second));
+      missedHitsRT_[idet]->Fill(eta);
       std::ostringstream st1;
       if (DetId(it->first).det() == DetId::HGCalHSc)
         st1 << HGCScintillatorDetId(it->first);
@@ -436,8 +435,20 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
                                     << ") is missing in the RecHit collection";
     } else {
       goodHitsRE_[idet]->Fill(std::get<0>(it->second));
+      goodHitsRT_[idet]->Fill(eta);
     }
   }
+}
+
+double HGCMissingRecHit::getEta(const HGCHitTuple& hitRef) {
+  double x = std::get<1>(hitRef);
+  double y = std::get<2>(hitRef);
+  double r = std::sqrt(x * x + y * y);
+  double z = std::abs(std::get<3>(hitRef));
+  double theta = std::atan(r / z);
+  double eta = (z > 0) ? -std::log(std::tan(0.5 * theta)) : 100.0;
+  edm::LogVerbatim("HGCalValid") << " x:y:z:r:theta:eta " << x << ":" << y  << ":" << z  << ":" << r  << ":" << theta  << ":" << eta;
+  return eta;
 }
 
 //define this as a plug-in
