@@ -127,6 +127,7 @@ protected:
   std::vector<uint64_t> m_count = std::vector<uint64_t>(m_maxSlots, 0);
   std::atomic<int> m_size = 0;
 
+  uint64_t maxBytes = 0;
   std::atomic<uint64_t> totBytes = 0;
   std::atomic<uint64_t> nAlloc = 0;
   std::atomic<uint64_t> nFree = 0;

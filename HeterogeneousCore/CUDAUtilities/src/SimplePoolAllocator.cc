@@ -89,6 +89,8 @@ int SimplePoolAllocator::createAt(int ls, int b, void* stream) {
   m_stream[ls] = stream;
   m_count[ls]++;
   totBytes += as;
+  if (totBytes > maxBytes)
+    maxBytes = totBytes;  // not guaranteed to be accurate
   nAlloc++;
   return ls;
 }
@@ -168,6 +170,7 @@ void SimplePoolAllocator::dumpStat() const {
             << "# alloc " << nAlloc << '\n'
             << "# free " << nFree << '\n'
             << "# used " << fn << ' ' << fs << '\n'
+            << "max bytes " << maxBytes << '\n'
             << "max count " << maxCount << '\n'
             << std::endl;
 }
