@@ -11,16 +11,16 @@ namespace memoryPool {
 
   class DeleterBase {
   public:
-    explicit DeleterBase(SimplePoolAllocator* pool, void * stream) : m_pool(pool), m_stream(stream) {}
+    explicit DeleterBase(SimplePoolAllocator* pool, void* stream) : m_pool(pool), m_stream(stream) {}
     virtual ~DeleterBase() = default;
-    virtual void operator()(int bucket) = 0;
+    virtual void operator()(int bucket, uint64_t count) = 0;
 
     SimplePoolAllocator* pool() const { return m_pool; }
-    void * stream() const { return m_stream;}
+    void* stream() const { return m_stream; }
 
   protected:
     SimplePoolAllocator* m_pool;
-    void * m_stream;
+    void* m_stream;
   };
 
   class Deleter {
@@ -32,18 +32,18 @@ namespace memoryPool {
     void set(std::shared_ptr<DeleterBase> const& del) { me = del; }
     std::shared_ptr<DeleterBase> const& get() const { return me; }
 
-    void operator()(int bucket) {
+    void operator()(int bucket, uint64_t count) {
       if (!me) {
         std::cout << "deleter w/o implementation!!!" << std::endl;
         throw std::bad_alloc();
       }
       if (bucket < 0)
         std::cout << "delete with negative bucket!!!" << std::endl;
-      (*me)(bucket);
+      (*me)(bucket, count);
     }
 
     SimplePoolAllocator* pool() const { return me->pool(); }
-    void * stream() const { return me->stream();}
+    void* stream() const { return me->stream(); }
 
   private:
     std::shared_ptr<DeleterBase> me;  //!
@@ -58,11 +58,16 @@ namespace memoryPool {
     typedef T const* const_pointer;
     typedef T const& const_reference;
 
+    using Tuple = std::tuple<T*, int, uint64_t>;
+
     Buffer() = default;
-    Buffer(T* p, int bucket) : m_p(p), m_bucket(bucket) {}
-    Buffer(T* p, int bucket, Deleter const& del) : m_deleter(del), m_p(p), m_bucket(bucket) {}
-    Buffer(T* p, int bucket, Deleter&& del) : m_deleter(del), m_p(p), m_bucket(bucket) {}
-    Buffer(std::pair<T*, int> const& rh, Deleter const& del) : m_deleter(del), m_p(rh.first), m_bucket(rh.second) {}
+    Buffer(T* p, int bucket, uint64_t count) : m_p(p), m_bucket(bucket), m_count(count) {}
+    Buffer(T* p, int bucket, uint64_t count, Deleter const& del)
+        : m_deleter(del), m_p(p), m_bucket(bucket), m_count(count) {}
+    Buffer(T* p, int bucket, uint64_t count, Deleter&& del)
+        : m_deleter(del), m_p(p), m_bucket(bucket), m_count(count) {}
+    Buffer(Tuple const& rh, Deleter const& del)
+        : m_deleter(del), m_p(std::get<0>(rh)), m_bucket(std::get<1>(rh)), m_count(std::get<2>(rh)) {}
     Buffer(Buffer const&) = delete;
     Buffer& operator=(Buffer const&) = delete;
 
@@ -78,7 +83,7 @@ namespace memoryPool {
     ~Buffer() {
       // assert(m_p == pool()->pointer(m_bucket));
       if (m_p)
-        m_deleter(m_bucket);
+        m_deleter(m_bucket, m_count);
     }
 
     pointer get() { return m_p; }
@@ -95,30 +100,33 @@ namespace memoryPool {
     SimplePoolAllocator* pool() const { return deleter().pool(); }
 
     int bucket() const { return m_bucket; }
+    uint64_t count() const { return m_count; }
 
-    std::pair<T*, int> release() {
-      auto ret = std::make_pair(m_p, m_bucket);
+    Tuple release() {
+      auto ret = std::make_tuple(m_p, m_bucket, m_count);
       m_p = nullptr;
       m_bucket = -1;
       return ret;
     }
     void reset() {
       if (m_p)
-        m_deleter(m_bucket);
+        m_deleter(m_bucket, m_count);
       m_p = nullptr;
       m_bucket = -1;
     }
-    void reset(std::pair<T*, int> const& rh) {
+    void reset(Tuple const& rh) {
       if (m_p)
-        m_deleter(m_bucket);
-      m_p = rh.first;
-      m_bucket = rh.second;
+        m_deleter(m_bucket, m_count);
+      m_p = std::get<0>(rh);
+      m_bucket = std::get<1>(rh);
+      m_count = std::get<2>(rh);
     }
 
   private:
     Deleter m_deleter;      //!
     pointer m_p = nullptr;  //!
     int m_bucket = -1;      //!
+    uint64_t m_count;       //!
   };
 
 }  // namespace memoryPool

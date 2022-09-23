@@ -102,18 +102,22 @@ void go() {
 
   std::cout << "try to allocate " << s << std::endl;
 
-  int i0 = pool.alloc(s,0);
+  int i0 = pool.alloc(s, 0);
   assert(1 == pool.size());
   assert(i0 >= 0);
   auto p0 = pool.pointer(i0);
   assert(nullptr != p0);
-
-  pool.free(i0,false);
+  auto c0 = pool.count(i0);
+  assert(c0 == 1);
+  pool.setScheduled(i0);
+  pool.free(i0, c0);
   assert(1 == pool.size());
 
-  int i1 = pool.alloc(s,0);
+  int i1 = pool.alloc(s, 0);
   assert(1 == pool.size());
   assert(i1 == i0);
+  auto c1 = pool.count(i1);
+  assert(c1 == 2);
   auto p1 = pool.pointer(i1);
   assert(p1 == p0);
 
@@ -145,9 +149,9 @@ void go() {
         break;
       iter++;
       auto n = rgen1(eng);
-      int ind[n];
+      std::pair<int, uint64_t> ind[n];
       bool large = 0 == (iter % (128 + me));
-      for (auto &i : ind) {
+      for (auto &ip : ind) {
         int b = bin24 ? rgen24(eng) : rgen20(eng);
         // once in while let's allocate 2GB
         if (large) {
@@ -156,7 +160,9 @@ void go() {
         }
         uint64_t s = 1LL << b;
         assert(s > 0);
-        i = pool.alloc(s + sizeof(Node),0);
+        auto i = pool.alloc(s + sizeof(Node), 0);
+        ip.first = i;
+        ip.second = pool.count(i);
         if (i < 0) {
           std::cout << "\n\n!!!Failed " << me << " at " << iter << std::endl;
           pool.dumpStat();
@@ -175,7 +181,7 @@ void go() {
       auto &stream = streams[me];
       // do something???
       for (int k = 0; k < n; ++k) {
-        auto i = ind[k];
+        auto i = ind[k].first;
         hp[k] = pool.pointer(i);
       }
       cudaMemcpyAsync(dp, hp, n * sizeof(void *), cudaMemcpyHostToDevice, stream);
@@ -185,8 +191,10 @@ void go() {
       // free
       auto doFree = [&]() {
         for (int k = 0; k < n; ++k) {
-          auto i = ind[k];
-          pool.free(i,false);
+          auto i = ind[k].first;
+          auto c = ind[k].second;
+          pool.setScheduled(i);
+          pool.free(i, c);
         }
       };
       cudaLaunchHostFunc(stream, myCallback<decltype(doFree)>, &doFree);
@@ -196,27 +204,30 @@ void go() {
 #else
       // do something???
       for (auto i : ind) {
-        auto p = pool.pointer(i);
+        auto p = pool.pointer(i.first);
         assert(p);
         auto n = (Node *)(p);
         n->it = me;
-        n->i = i;
+        n->i = i.first;
         n->p = p;
         n->c = 1;
       }
       for (auto i : ind) {
-        auto p = pool.pointer(i);
+        auto p = pool.pointer(i.first);
         assert(p);
         auto n = (Node *)(p);
         n->c--;
         assert(n->it == me);
-        assert(n->i == i);
+        assert(n->i == i.first);
         assert(n->p == p);
         assert(0 == n->c);
       }
       // free
       for (auto i : ind) {
-        pool.free(i,false);
+        pool.setScheduled(i.first);
+      }
+      for (auto i : ind) {
+        pool.free(i.first, i.second);
       }
 #endif
     }
@@ -255,6 +266,8 @@ struct CudaAlloc {
 struct CudaDeviceAlloc : public CudaAlloc {
   using Pointer = void *;
 
+  static constexpr bool useScheduled = true;
+
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMalloc(&p, size);
@@ -271,6 +284,8 @@ struct CudaDeviceAlloc : public CudaAlloc {
 
 struct CudaHostAlloc : public CudaAlloc {
   using Pointer = void *;
+
+  static constexpr bool useScheduled = false;
 
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;

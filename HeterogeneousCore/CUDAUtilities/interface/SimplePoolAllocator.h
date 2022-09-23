@@ -9,8 +9,6 @@
 #include <vector>
 #include <cstdint>
 #include <iostream>
-#include <chrono>
-#include <cmath>
 
 #define MEMORY_POOL_DEBUG
 
@@ -26,22 +24,22 @@ class SimplePoolAllocator;
 namespace memoryPool {
   struct Payload {
     SimplePoolAllocator *pool;
-    std::vector<int> buckets;
+    std::vector<std::pair<int, uint64_t>> buckets;
   };
 }  // namespace memoryPool
 
-  struct TriState {
-    static constexpr int free = 0;
-    static constexpr int used = 1;
-    static constexpr int scheduled = -1;
-    alignas(64) std::atomic<int> v;
-  };
+struct TriState {
+  static constexpr int free = 0;
+  static constexpr int used = 1;
+  static constexpr int scheduled = -1;
+  alignas(64) std::atomic<int> v;
+};
 
 class SimplePoolAllocator {
 public:
   using Pointer = void *;
 
-  static constexpr void * invalidStream = nullptr; //(void*)(3UL);  // "3" cannot be a pointer
+  static constexpr void *invalidStream = nullptr;
 
   virtual ~SimplePoolAllocator() = default;
 
@@ -49,7 +47,7 @@ public:
   virtual void doFree(Pointer ptr) = 0;
   virtual void scheduleFree(memoryPool::Payload *payload, void *stream) = 0;
 
-  SimplePoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
+  SimplePoolAllocator(int maxSlots, bool useScheduled) : m_maxSlots(maxSlots), m_useScheduled(useScheduled) {
     for (auto &p : m_used)
       p.v = TriState::used;
   }
@@ -57,27 +55,40 @@ public:
   int size() const { return m_size; }
 
   Pointer pointer(int i) const { return m_slots[i]; }
+  uint64_t count(int i) const { return m_count[i]; }
+  void setScheduled(int i) { m_used[i].v = TriState::scheduled; }
 
   void dumpStat() const;
 
-  void free(int i, bool sched=true) {
-    if (sched) assert(m_used[i].v == TriState::scheduled);
+  void free(int i, uint64_t count) {
+    if (m_used[i].v != TriState::scheduled)
+      return;
+    if (count != m_count[i])
+      return;
+    int exp = TriState::scheduled;
+    if (m_used[i].v.compare_exchange_strong(exp, TriState::used)) {  // used! so nobody can touch it...
+      if (count != m_count[i]) {                                     // oops
+        m_used[i].v = TriState::scheduled;
+        return;
+      }
 #ifdef MEMORY_POOL_DEBUG
-    m_last[i] = -1;
+      m_last[i] = -1;
 #endif
-    m_used[i].v = TriState::free;
-    m_stream[i] = invalidStream;
+      m_stream[i] = invalidStream;
+      assert(count == m_count[i]);  // should we reset to 0?
+      m_used[i].v = TriState::free;
+    }
   }
 
-  int alloc(uint64_t s, void * stream) {
-    auto i = allocImpl(s,stream);
+  int alloc(uint64_t s, void *stream) {
+    auto i = allocImpl(s, stream);
 
     //test garbage
     // if(totBytes>4507964512) garbageCollect();
 
     if (i >= 0) {
 #ifdef MEMORY_POOL_DEBUG
-      assert(m_used[i].v==TriState::used);
+      assert(m_used[i].v == TriState::used);
       if (nullptr == m_slots[i])
         std::cout << "race ??? " << i << ' ' << m_bucket[i] << ' ' << m_last[i] << std::endl;
       assert(m_slots[i]);
@@ -85,9 +96,9 @@ public:
       return i;
     }
     garbageCollect();
-    i = allocImpl(s,stream);
+    i = allocImpl(s, stream);
     if (i >= 0) {
-      assert(m_used[i].v==TriState::used);
+      assert(m_used[i].v == TriState::used);
       assert(m_slots[i]);
 #ifdef MEMORY_POOL_DEBUG
       assert(m_last[i] >= 0);
@@ -97,13 +108,13 @@ public:
   }
 
 protected:
-  int allocImpl(uint64_t s, void * stream);
-  int createAt(int ls, int b, void * stream);
+  int allocImpl(uint64_t s, void *stream);
+  int createAt(int ls, int b, void *stream);
   void garbageCollect();
-  int useOld(int b, void * stream);
-
+  int useOld(int b, void *stream);
 
   const int m_maxSlots;
+  const bool m_useScheduled;
 
 #ifdef MEMORY_POOL_DEBUG
   std::vector<int> m_last = std::vector<int>(m_maxSlots, -2);
@@ -113,6 +124,7 @@ protected:
   std::vector<Pointer> m_slots = std::vector<Pointer>(m_maxSlots, nullptr);
   std::vector<Pointer> m_stream = std::vector<Pointer>(m_maxSlots, invalidStream);
   std::vector<TriState> m_used = std::vector<TriState>(m_maxSlots);
+  std::vector<uint64_t> m_count = std::vector<uint64_t>(m_maxSlots, 0);
   std::atomic<int> m_size = 0;
 
   std::atomic<uint64_t> totBytes = 0;
@@ -126,7 +138,7 @@ namespace poolDetails {
     auto &pool = *(payload->pool);
     auto const &buckets = payload->buckets;
     for (auto i : buckets) {
-      pool.free(i);
+      pool.free(i.first, i.second);
     }
     delete payload;
   }
@@ -136,7 +148,7 @@ template <typename T>
 struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
   using Traits = T;
 
-  using SimplePoolAllocator::SimplePoolAllocator;
+  SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots, Traits::useScheduled) {}
 
   ~SimplePoolAllocatorImpl() override {
     garbageCollect();
@@ -152,7 +164,7 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
     assert(payload->pool == this);
     auto const &buckets = payload->buckets;
     for (auto i : buckets) {
-      m_used[i].v = TriState::scheduled;
+      m_used[i.first].v = TriState::scheduled;
     }
     Traits::scheduleFree(payload, stream);
   }
@@ -161,6 +173,8 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
 #include <cstdlib>
 struct PosixAlloc {
   using Pointer = void *;
+
+  static constexpr bool useScheduled = false;
 
   static Pointer alloc(size_t size) { return ::malloc(size); }
   static void free(Pointer ptr) { ::free(ptr); }

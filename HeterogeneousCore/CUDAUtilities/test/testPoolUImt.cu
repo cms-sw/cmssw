@@ -124,14 +124,6 @@ void go() {
     std::cout << "first RN " << rgen1(eng) << " at "
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " in " << me << std::endl;
 
-#ifdef __CUDACC__
-    Node **dp = nullptr;
-    Node **hp = nullptr;
-    cudaMalloc(&dp, 100 * sizeof(void *));
-    assert(dp);
-    cudaMallocHost(&hp, 100 * sizeof(void *));
-    assert(hp);
-#endif
     auto &stream = streams[me];
 
     int iter = 0;
@@ -142,6 +134,13 @@ void go() {
 
       memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, where));
       auto n = rgen1(eng);
+      auto dpb = memoryPool::cuda::makeBuffer<Node *>(100, devDeleter);
+      auto dp = dpb.get();
+      assert(dp);
+      auto hpb = memoryPool::cuda::makeBuffer<Node *>(100, stream, memoryPool::onHost);
+      auto hp = hpb.get();
+      assert(hp);
+
       bool large = 0 == (iter % (128 + me));
       for (int k = 0; k < n; ++k) {
         int b = bin24 ? rgen24(eng) : rgen20(eng);

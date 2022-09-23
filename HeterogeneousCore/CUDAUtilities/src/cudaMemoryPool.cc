@@ -44,6 +44,8 @@ struct CudaAlloc {
 struct CudaDeviceAlloc : public CudaAlloc {
   using Pointer = void *;
 
+  static constexpr bool useScheduled = true;
+
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMalloc(&p, size);
@@ -62,6 +64,8 @@ struct CudaDeviceAlloc : public CudaAlloc {
 
 struct CudaHostAlloc : public CudaAlloc {
   using Pointer = void *;
+
+  static constexpr bool useScheduled = false;
 
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
@@ -132,14 +136,15 @@ namespace memoryPool {
     }
 
     // allocate either on current device or on host (actually anywhere, not cuda specific)
-    std::pair<void *, int> alloc(void * stream, uint64_t size, SimplePoolAllocator &pool) {
-      int i = pool.alloc(size,stream);
+    std::tuple<void *, int, uint64_t> alloc(void *stream, uint64_t size, SimplePoolAllocator &pool) {
+      int i = pool.alloc(size, stream);
       void *p = pool.pointer(i);
-      return std::pair<void *, int>(p, i);
+      uint64_t c = pool.count(i);
+      return std::tuple<void *, int, uint64_t>(p, i, c);
     }
 
     // schedule free
-    void free(void * stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
+    void free(void *stream, std::vector<std::pair<int, uint64_t>> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
       pool.scheduleFree(payload, stream);
     }

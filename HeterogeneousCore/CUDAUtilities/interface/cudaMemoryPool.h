@@ -18,10 +18,10 @@ namespace memoryPool {
     SimplePoolAllocator *getPool(Where where);
 
     // allocate either on current device or on host
-    std::pair<void *, int> alloc(void * stream, uint64_t size, SimplePoolAllocator &pool);
+    std::tuple<void *, int, uint64_t> alloc(void *stream, uint64_t size, SimplePoolAllocator &pool);
 
     // schedule free
-    void free(void * stream, std::vector<int> buckets, SimplePoolAllocator &pool);
+    void free(void *stream, std::vector<std::pair<int, uint64_t>> buckets, SimplePoolAllocator &pool);
 
     template <typename T>
     auto copy(Buffer<T> &dst, Buffer<T> const &src, uint64_t size, cudaStream_t stream) {
@@ -34,17 +34,18 @@ namespace memoryPool {
     struct CudaDeleterBase : public DeleterBase {
       CudaDeleterBase(void *stream, Where where) : DeleterBase(getPool(where), stream) {}
 
-      CudaDeleterBase(void * stream, SimplePoolAllocator *pool) : DeleterBase(pool,stream) {}
+      CudaDeleterBase(void *stream, SimplePoolAllocator *pool) : DeleterBase(pool, stream) {}
 
       ~CudaDeleterBase() override = default;
-
     };
 
     struct DeleteOne final : public CudaDeleterBase {
       using CudaDeleterBase::CudaDeleterBase;
 
       ~DeleteOne() override = default;
-      void operator()(int bucket) override { free(stream(), std::vector<int>(1, bucket), *pool()); }
+      void operator()(int bucket, uint64_t count) override {
+        free(stream(), std::vector<std::pair<int, uint64_t>>(1, std::make_pair(bucket, count)), *pool());
+      }
     };
 
     struct BundleDelete final : public CudaDeleterBase {
@@ -52,33 +53,33 @@ namespace memoryPool {
 
       ~BundleDelete() override { free(stream(), std::move(m_buckets), *pool()); }
 
-      void operator()(int bucket) override { m_buckets.push_back(bucket); }
+      void operator()(int bucket, uint64_t count) override { m_buckets.push_back(std::make_pair(bucket, count)); }
 
-      std::vector<int> m_buckets;
+      std::vector<std::pair<int, uint64_t>> m_buckets;
     };
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, Deleter const &del) {
       auto ret = alloc(del.stream(), sizeof(T) * size, *del.pool());
-      if (ret.second < 0) {
+      if (std::get<1>(ret) < 0) {
         std::cout << "could not allocate " << size << ' ' << typeid(T).name() << " of size " << sizeof(T) << std::endl;
         throw std::bad_alloc();
       }
-      return Buffer<T>((T *)(ret.first), ret.second, del);
+      return Buffer<T>((T *)(std::get<0>(ret)), std::get<1>(ret), std::get<2>(ret), del);
     }
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, Deleter &&del) {
       auto ret = alloc(del.stream(), sizeof(T) * size, *del.pool());
-      if (ret.second < 0) {
+      if (std::get<1>(ret) < 0) {
         std::cout << "could not allocate " << size << ' ' << typeid(T).name() << " of size " << sizeof(T) << std::endl;
         throw std::bad_alloc();
       }
-      return Buffer<T>((T *)(ret.first), ret.second, std::move(del));
+      return Buffer<T>((T *)(std::get<0>(ret)), std::get<1>(ret), std::get<2>(ret), std::move(del));
     }
 
     template <typename T>
-    Buffer<T> makeBuffer(uint64_t size, void * stream, Where where) {
+    Buffer<T> makeBuffer(uint64_t size, void *stream, Where where) {
       return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, where)));
     }
 
