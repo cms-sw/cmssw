@@ -152,7 +152,7 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
   for (unsigned int type = 0; type < types_.size(); ++type) {
     int layers(0);
     int detType = detTypes_[type];
-    const edm::ESHandle<HGCalDDDConstants> &hdc = es.getHandle(ddconsToken_[type]);
+    const edm::ESHandle<HGCalDDDConstants>& hdc = es.getHandle(ddconsToken_[type]);
     if (hdc.isValid()) {
       levelT1_ = hdc->levelTop(0);
       levelT2_ = hdc->levelTop(1);

@@ -10,26 +10,50 @@
 //        Plots histograms created by HGCalBHValidation
 //   void hgcalSiliconAnalysisPlots(fname, tag, dtype, save, debug)
 //        Plots histograms created by HGCalSiliconValidation
+//   void hgcalMissedHitPlots(fname, tag, dtype, save, debug)
+//        Plots histograms created by HGCalMissedRecHit
+//   void ehcalPlots(fname, dirnm, tag, dets, save, debug) 
+//        Plots histograms created by EcalSimHitStudy
 //
 //   where
 //     fanme     (std::string)  Input ROOT file name
 //                              ("hfnRecHitD31tt.root" for noseRecHitPlots,
-//                               "roots/hgcSimHitD83tt.root" studyPlots,
-//                               "roots/hgcGeomCheckD83.root" GeomCheck,
-//                               "roots/hgcBHValidD83.root" BHValid)
+//                               "roots/hgcSimHitD83tt.root" hgcalStudyPlots,
+//                               "roots/hgcGeomCheckD83.root" hgcalGeomCheck,
+//                               "roots/hgcBHValidD83.root" hgcalBHValid,
+//                               "roots/hgcSilValidD86.root" hgcalSiliconAnalysis,
+//                               "missedRecHitD88.root" hgcalMissedHitPlots,
+//                               "ecalHitdd4hep.root" ehcalPlot)
 //     dirnm     (std::string)  Directory name
-//                              ("hfnoseRecHitStudy" for noseRecHitPlots)
+//                              ("hfnoseRecHitStudy" for noseRecHitPlots
+//                               "hgcGeomCheck" for hgcalGeomCheck,
+//                               "hgcalBHAnalysis" for hgcalBHValid,
+//                               "hgcMissingRecHit" for hgcalMissedHitPlots,
+//                               "EcalSimHitStudy" for ehcalPlot)
 //     type      (int)          Type: 0 SimHit; 1 Digi; 2 RecHit (0)
 //     tag       (std::string)  Name of the tag for the canvas name
 //                              ("HFNose" for noseRecHitPlots,
-//                               "SimHitD83" for studyPlots,
-//                               "GeomChkD83" for GeomCheck,
-//                               "BHValidD83" for BHValid)
+//                               "SimHitD83" for hgcalStudyPlots,
+//                               "GeomChkD83" for hgcalGeomCheck,
+//                               "BHValidD83" for hgcalBHValid,
+//                               "SilValidD86" for hgcalSiliconAnalysisPlots,
+//                               "MissedHitD88" for hgcalMissedHitPlots,
+//                               "DD4Hep" for ehcalPlots)
 //     dtype     (std::string)  Data type added for canvas name
-//                              ("ttbar D83" for studyPlots,
-//                               "#mu D83" for geomCheck, BHValid)
+//                              ("ttbar D83" for hgcalStudyPlots,
+//                               "#mu D83" for hgcalGeomCheck, hgcalBHValid',
+//                               "ttbar D86" for hgcalSiliconAnalysisPlots,
+//                               "#mu D88" for hgcalMissedHitPlots)
 //     save      (bool)         Flag to save the canvas (false)
 //     debug     (bool)         Debug flag (false)
+//
+//   In addition there is a tree analysis class to study the ROOT tree
+//   created by HGCHitAnalysis code. To invoke this, one needs to do 
+//   the following steps:
+//   .L MakePlots.C+g
+//   hgchits c1(fname);
+//   c1.Loop();
+//   c1.saveHistos(outFile);
 //
 //###########################################################################
 //
@@ -269,7 +293,7 @@ void hgcalStudyPlots(std::string fname = "roots/hgcSimHitD83tt.root",
 void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD83.root",
                          std::string tag = "GeomChkD83",
                          std::string dtype = "#mu D83",
-                         bool statbox = true,
+			 bool statbox = true,
                          bool save = false,
                          bool debug = false) {
   std::string dirnm = "hgcGeomCheck";
@@ -285,9 +309,9 @@ void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD83.root",
                           "hebrVsLayer",
                           "hebzVsLayer",
                           "hebdzVsZ"};
-  std::string xtitl[9] = {"Layer", "Layer", "Z (cm)", "Layer", "Layer", "Z (cm)", "Layer", "Layer", "Z (cm)"};
-  std::string ytitl[9] = {
-      "R (cm)", "Z (cm)", "#Delta Z (cm)", "R (cm)", "Z (cm)", "#Delta Z (cm)", "R (cm)", "Z (cm)", "#Delta Z (cm)"};
+  std::string xtitl[9] = {
+      "Layer", "Layer", "Z (cm)", "Layer", "Layer", "Z (cm)", "Layer", "Layer", "Z (cm)"};
+  std::string ytitl[9] = {"R (cm)", "Z (cm)", "#Delta Z (cm)", "R (cm)", "Z (cm)", "#Delta Z (cm)", "R (cm)", "Z (cm)", "#Delta Z (cm)"};
 
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
@@ -458,10 +482,10 @@ void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD83.root",
 }
 
 void hgcalSiliconAnalysisPlots(std::string fname = "roots/hgcSilValidD86.root",
-                               std::string tag = "SilValidD86",
-                               std::string dtype = "ttbar D86",
-                               bool save = false,
-                               bool debug = false) {
+			       std::string tag = "SilValidD86",
+			       std::string dtype = "ttbar D86",
+			       bool save = false,
+			       bool debug = false) {
   std::string dirnm[2] = {"hgcalSiliconAnalysisEE", "hgcalSiliconAnalysisHEF"};
   std::string name0[2] = {"HGCal EE", "HGCal HE Silicon"};
   int nhist = 9;
@@ -501,64 +525,179 @@ void hgcalSiliconAnalysisPlots(std::string fname = "roots/hgcSilValidD86.root",
       sprintf(dirx, "%s", dirnm[idir].c_str());
       TDirectory *dir = (TDirectory *)file->FindObjectAny(dirx);
       if (debug)
-        std::cout << "Directory " << dirx << " : " << dir << std::endl;
+	std::cout << "Directory " << dirx << " : " << dir << std::endl;
       if (dir) {
-        for (int ih = 0; ih < nhist; ++ih) {
-          char hname[100];
-          sprintf(hname, "%s", name2[ih].c_str());
-          TH1D *hist1(nullptr);
-          TH2D *hist2(nullptr);
-          if (ihty[ih] <= 1)
-            hist1 = (TH1D *)dir->FindObjectAny(hname);
-          else
-            hist2 = (TH2D *)dir->FindObjectAny(hname);
+	for (int ih = 0; ih < nhist; ++ih) {
+	  char hname[100];
+	  sprintf(hname, "%s", name2[ih].c_str());
+	  TH1D *hist1(nullptr);
+	  TH2D *hist2(nullptr);
+	  if (ihty[ih] <= 1)
+	    hist1 = (TH1D *)dir->FindObjectAny(hname);
+	  else
+	    hist2 = (TH2D *)dir->FindObjectAny(hname);
+	  if (debug)
+	    std::cout << "Hist " << hname << " : " << hist1 << ":" << hist2 << " Xtitle " << xtitl[ih] << " Ytitle "
+		      << ytitl[ih] << " xmax " << xmax[ih] << " iaxty " << iaxty[ih] << " ibin " << ibin[ih] << std::endl;
+	  if ((hist1 != nullptr) || (hist2 != nullptr)) {
+	    char name[100], title[100];
+	    sprintf(name, "%s%s", hname, tag.c_str());
+	    TCanvas *pad = new TCanvas(name, name, 500, 500);
+	    pad->SetRightMargin(0.10);
+	    pad->SetTopMargin(0.10);
+	    sprintf(title, "%s (%s)", name0[idir].c_str(), dtype.c_str());
+	    if (debug)
+	      std::cout << "Pad " << name << " : " << pad << "\n";
+	    if (hist1 != nullptr) {
+	      hist1->GetYaxis()->SetTitle(ytitl[ih].c_str());
+	      hist1->GetXaxis()->SetTitle(xtitl[ih].c_str());
+	      hist1->SetTitle(title);
+	      if (xmax[ih] > 0)
+		hist1->GetXaxis()->SetRangeUser(0, xmax[ih]);
+	      if (iaxty[ih] > 0)
+		pad->SetLogy();
+	      if (ibin[ih] > 0)
+		hist1->Rebin(ibin[ih]);
+	      hist1->GetYaxis()->SetTitleOffset(1.2);
+	      hist1->Draw();
+	    } else {
+	      hist2->GetYaxis()->SetTitle(ytitl[ih].c_str());
+	      hist2->GetXaxis()->SetTitle(xtitl[ih].c_str());
+	      hist2->SetTitle(title);
+	      hist2->GetYaxis()->SetTitleOffset(1.2);
+	      hist2->Draw();
+	    }
+	    pad->Update();
+	    TPaveStats *st1 = ((hist1 != nullptr) ? ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"))
+			       : ((TPaveStats *)hist2->GetListOfFunctions()->FindObject("stats")));
+	    if (st1 != NULL) {
+	      st1->SetY1NDC(0.70);
+	      st1->SetY2NDC(0.90);
+	      st1->SetX1NDC(0.65);
+	      st1->SetX2NDC(0.90);
+	    }
+	    pad->Modified();
+	    pad->Update();
+	    if (save) {
+	      sprintf(name, "c_%s.jpg", pad->GetName());
+	      pad->Print(name);
+	    }
+	  }
+        }
+      }
+    }
+  }
+}
+
+void hgcalMissedHitPlots(std::string fname = "missedRecHitD88.root",
+			 std::string tag = "MissedHitD88",
+			 std::string dtype = "#mu D88",
+			 bool save = false,
+			 bool debug = false) {
+  std::string dirnm = "hgcMissingRecHit";
+  std::string name0 = "HGCal HE Scintillator";
+  const int nhist = 24;
+  std::string name2[nhist] = {"GoodDEHGCalEESensitive",
+			      "MissDEHGCalEESensitive",
+			      "GoodDEHGCalHESiliconSensitive",
+			      "MissDEHGCalHESiliconSensitive",
+			      "GoodDEHGCalHEScintillatorSensitive",
+			      "MissDEHGCalHEScintillatorSensitive",
+			      "GoodREHGCalEESensitive",
+			      "MissREHGCalEESensitive",
+			      "GoodREHGCalHESiliconSensitive",
+			      "MissREHGCalHESiliconSensitive",
+			      "GoodREHGCalHEScintillatorSensitive",
+			      "MissREHGCalHEScintillatorSensitive",
+			      "GoodDTHGCalEESensitive",
+			      "MissDTHGCalEESensitive",
+			      "GoodDTHGCalHESiliconSensitive",
+			      "MissDTHGCalHESiliconSensitive",
+			      "GoodDTHGCalHEScintillatorSensitive",
+			      "MissDTHGCalHEScintillatorSensitive",
+			      "GoodRTHGCalEESensitive",
+			      "MissRTHGCalEESensitive",
+			      "GoodRTHGCalHESiliconSensitive",
+			      "MissRTHGCalHESiliconSensitive",
+			      "GoodRTHGCalHEScintillatorSensitive",
+			      "MissRTHGCalHEScintillatorSensitive"};
+  std::string xtitl[nhist] = {"SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "SimHit Energy (GeV)",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|",
+			      "|#eta|"};
+  std::string ytitl[nhist] = {"Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits", "Hits"};
+  int ibin[nhist] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptStat(111110);
+  if (debug)
+    std::cout << "File " << fname << " Tags " << tag << " : " << dtype << " Save " << save << "\n";
+  TFile *file = new TFile(fname.c_str());
+  if (file) {
+    char dirx[100];
+    sprintf(dirx, "%s", dirnm.c_str());
+    TDirectory *dir = (TDirectory *)file->FindObjectAny(dirx);
+    if (debug)
+      std::cout << "Directory " << dirx << " : " << dir << std::endl;
+    if (dir) {
+      for (int ih = 0; ih < nhist; ++ih) {
+        char hname[100];
+        sprintf(hname, "%s", name2[ih].c_str());
+        TH1D *hist1 = (TH1D *)dir->FindObjectAny(hname);
+        if (debug)
+          std::cout << "Hist " << hname << " : " << hist1 << " Xtitle " << xtitl[ih] << " Ytitle "  << ytitl[ih] << " ibin " << ibin[ih] << std::endl;
+        if (hist1 != nullptr) {
+          char name[100], title[100];
+          sprintf(name, "%s%s", hname, tag.c_str());
+          TCanvas *pad = new TCanvas(name, name, 500, 500);
+          pad->SetRightMargin(0.10);
+          pad->SetTopMargin(0.10);
+          sprintf(title, "%s (%s)", hist1->GetTitle(), dtype.c_str());
           if (debug)
-            std::cout << "Hist " << hname << " : " << hist1 << ":" << hist2 << " Xtitle " << xtitl[ih] << " Ytitle "
-                      << ytitl[ih] << " xmax " << xmax[ih] << " iaxty " << iaxty[ih] << " ibin " << ibin[ih]
-                      << std::endl;
-          if ((hist1 != nullptr) || (hist2 != nullptr)) {
-            char name[100], title[100];
-            sprintf(name, "%s%s", hname, tag.c_str());
-            TCanvas *pad = new TCanvas(name, name, 500, 500);
-            pad->SetRightMargin(0.10);
-            pad->SetTopMargin(0.10);
-            sprintf(title, "%s (%s)", name0[idir].c_str(), dtype.c_str());
-            if (debug)
-              std::cout << "Pad " << name << " : " << pad << "\n";
-            if (hist1 != nullptr) {
-              hist1->GetYaxis()->SetTitle(ytitl[ih].c_str());
-              hist1->GetXaxis()->SetTitle(xtitl[ih].c_str());
-              hist1->SetTitle(title);
-              if (xmax[ih] > 0)
-                hist1->GetXaxis()->SetRangeUser(0, xmax[ih]);
-              if (iaxty[ih] > 0)
-                pad->SetLogy();
-              if (ibin[ih] > 0)
-                hist1->Rebin(ibin[ih]);
-              hist1->GetYaxis()->SetTitleOffset(1.2);
-              hist1->Draw();
-            } else {
-              hist2->GetYaxis()->SetTitle(ytitl[ih].c_str());
-              hist2->GetXaxis()->SetTitle(xtitl[ih].c_str());
-              hist2->SetTitle(title);
-              hist2->GetYaxis()->SetTitleOffset(1.2);
-              hist2->Draw();
-            }
-            pad->Update();
-            TPaveStats *st1 = ((hist1 != nullptr) ? ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"))
-                                                  : ((TPaveStats *)hist2->GetListOfFunctions()->FindObject("stats")));
-            if (st1 != NULL) {
-              st1->SetY1NDC(0.70);
-              st1->SetY2NDC(0.90);
-              st1->SetX1NDC(0.65);
-              st1->SetX2NDC(0.90);
-            }
-            pad->Modified();
-            pad->Update();
-            if (save) {
-              sprintf(name, "c_%s.jpg", pad->GetName());
-              pad->Print(name);
-            }
+            std::cout << "Pad " << name << " : " << pad << "\n";
+	  hist1->GetYaxis()->SetTitle(ytitl[ih].c_str());
+	  hist1->GetXaxis()->SetTitle(xtitl[ih].c_str());
+	  hist1->SetTitle(title);
+	  pad->SetLogy();
+	  if (ibin[ih] > 0)
+	    hist1->Rebin(ibin[ih]);
+	  hist1->GetYaxis()->SetTitleOffset(1.2);
+	  hist1->Draw();
+          pad->Update();
+          TPaveStats *st1 = ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"));
+          if (st1 != NULL) {
+            st1->SetY1NDC(0.70);
+            st1->SetY2NDC(0.90);
+            st1->SetX1NDC(0.65);
+            st1->SetX2NDC(0.90);
+          }
+          pad->Modified();
+          pad->Update();
+          if (save) {
+            sprintf(name, "c_%s.jpg", pad->GetName());
+            pad->Print(name);
           }
         }
       }
