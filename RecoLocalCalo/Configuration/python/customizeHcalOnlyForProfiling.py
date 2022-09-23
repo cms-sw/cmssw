@@ -18,6 +18,26 @@ def customizeHcalOnlyForProfilingGPUOnly(process):
   return process
 
 
+# Customise the HCAL-only (HBHE digi, local reco as well as the pf rechit and pf cluster) reconstruction to run on GPU
+#
+# Currently, this means:
+#   - running the unpacker on CPU, converting the digis into SoA format and copying them to GPU
+#   - running the HBHE local reconstruction, including MAHI, on GPU.
+#   - running the HBHE PFRecHit and PFCluster producers on GPU [including copy of them to host, as we cannot untangle the copy back at a moment]
+def customizeHcalPFOnlyForProfilingGPUOnly(process):
+
+  process.consumer = cms.EDAnalyzer("GenericConsumer",
+      #eventProducts = cms.untracked.vstring('hbheRecHitProducerGPU')
+      eventProducts = cms.untracked.vstring('particleFlowClusterHBHE')
+  )
+
+  process.consume_step = cms.EndPath(process.consumer)
+
+  process.schedule = cms.Schedule(process.raw2digi_step, process.reconstruction_step, process.consume_step)
+
+  return process
+
+
 # Customise the HCAL-only reconstruction to run on GPU, and copy the data to the host
 #
 # Currently, this means:
