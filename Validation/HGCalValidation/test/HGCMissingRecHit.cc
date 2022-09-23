@@ -243,8 +243,7 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = eeHitRefs.begin(); itr != eeHitRefs.end(); ++itr) {
       int idx = std::distance(eeHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "EEHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position = "
-                                     << std::get<1>(itr->second) << ")";
+                                     << std::get<0>(itr->second) << "; Position = " << std::get<1>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
@@ -257,8 +256,7 @@ void HGCMissingRecHit::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = fhHitRefs.begin(); itr != fhHitRefs.end(); ++itr) {
       int idx = std::distance(fhHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "FHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position = "
-                                     << std::get<1>(itr->second) << ")";
+                                     << std::get<0>(itr->second) << "; Position = " << std::get<1>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
@@ -395,7 +393,9 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
       else
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
-                                    << " SimHit (E = " << std::get<0>(it->second) << ", Position = " << std::get<1>(it->second) << ") is missing in the Digi collection";
+                                    << " SimHit (E = " << std::get<0>(it->second)
+                                    << ", Position = " << std::get<1>(it->second)
+                                    << ") is missing in the Digi collection";
     } else {
       goodHitsDE_[idet]->Fill(std::get<0>(it->second));
       goodHitsDT_[idet]->Fill(eta);
@@ -422,7 +422,8 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
       else
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
-                                    << " SimHit (E = " << std::get<0>(it->second) << ", Position = " << std::get<1>(it->second)
+                                    << " SimHit (E = " << std::get<0>(it->second)
+                                    << ", Position = " << std::get<1>(it->second)
                                     << ") is missing in the RecHit collection";
     } else {
       goodHitsRE_[idet]->Fill(std::get<0>(it->second));
