@@ -52,7 +52,7 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
   G4double energy = track->GetKineticEnergy();
   if (fMaterial != track->GetMaterial() || energy >= fEmax)
     return false;
-  
+
   /*
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
@@ -67,7 +67,7 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
     if (ptr->isPrimary()) {
       int pdgMother = mother->GetDefinition()->GetPDGEncoding();
       if (std::abs(pdgMother) == 11 || pdgMother == 22)
-	return false;
+        return false;
     }
   }
   return true;
