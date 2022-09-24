@@ -18,7 +18,7 @@ eval `scram run -sh`
 for DIR in ${OLD_CMSSW_BASE} ${CMSSW_RELEASE_BASE} ${CMSSW_FULL_RELEASE_BASE} ; do
     if [ -d ${DIR}/src/DataFormats/TestObjects ]; then
         mkdir DataFormats
-        cp -r ${DIR}/src/DataFormats/TestObjects DataFormats/
+        cp -Lr ${DIR}/src/DataFormats/TestObjects DataFormats/
         break
     fi
 done
