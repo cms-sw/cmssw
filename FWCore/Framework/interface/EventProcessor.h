@@ -332,6 +332,8 @@ namespace edm {
     std::atomic<unsigned int> streamLumiActive_{0};  //works as guard for streamLumiStatus
 
     std::vector<std::string> branchesToDeleteEarly_;
+    std::multimap<std::string, std::string> referencesToBranches_;
+    std::vector<std::string> modulesToIgnoreForDeleteEarly_;
 
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
