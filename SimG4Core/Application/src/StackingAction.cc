@@ -457,8 +457,8 @@ bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) 
 int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   int flag = flagIn;
   if (flag != 1) {
-    const TrackInformation& motherInfo(extractor(mother));
-    if (motherInfo.isPrimary()) {
+    const TrackInformation* ptr = static_cast<TrackInformation*>(mother.GetUserInformation());
+    if (ptr->isPrimary()) {
       flag = 3;
     }
   }
