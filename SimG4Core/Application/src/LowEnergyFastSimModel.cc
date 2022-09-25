@@ -3,6 +3,7 @@
 
 #include "SimG4Core/Application/interface/LowEnergyFastSimModel.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4VFastSimulationModel.hh"
 #include "G4EventManager.hh"
@@ -15,13 +16,13 @@
 #include "G4PhysicalConstants.hh"
 
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
-constexpr G4double scaleFactor = 1.015;
+constexpr G4double scaleFactor = 1.05;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(name, region),
       fRegion(region),
       fTrackingAction(nullptr),
-      fCheck(false),
+      fCheck(true),
       fTailPos(0., 0., 0.) {
   fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
   fPositron = G4Positron::Positron();
@@ -48,21 +49,28 @@ G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle)
 
 G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
   const G4Track* track = fastTrack.GetPrimaryTrack();
-  if (fCheck) {
-    if (nullptr == fTrackingAction) {
-      fTrackingAction = static_cast<const TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
-    }
-    int pdgMother = std::abs(fTrackingAction->geant4Track()->GetDefinition()->GetPDGEncoding());
-    if (pdgMother == 11 || pdgMother == 22)
-      return false;
-  }
   G4double energy = track->GetKineticEnergy();
+  if (fMaterial != track->GetMaterial() || energy >= fEmax)
+    return false;
+
   /*
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
                                             << track->GetMaterial()->GetName() << ">";
   */
-  return (energy < fEmax && fMaterial == track->GetMaterial());
+  if (fCheck) {
+    if (nullptr == fTrackingAction) {
+      fTrackingAction = static_cast<const TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
+    }
+    const G4Track* mother = fTrackingAction->geant4Track();
+    const TrackInformation* ptr = static_cast<TrackInformation*>(mother->GetUserInformation());
+    if (ptr->isPrimary()) {
+      int pdgMother = mother->GetDefinition()->GetPDGEncoding();
+      if (std::abs(pdgMother) == 11 || pdgMother == 22)
+        return false;
+    }
+  }
+  return true;
 }
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
