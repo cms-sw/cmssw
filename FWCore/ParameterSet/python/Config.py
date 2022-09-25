@@ -251,10 +251,12 @@ class Process(object):
                               FailPath = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
+                              holdsReferencesToDeleteEarly = untracked.VPSet(),
+                              modulesToIgnoreForDeleteEarly = untracked.vstring(),
                               dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,
-                              makeTriggerResults = obsolete.untracked.bool
+                              makeTriggerResults = obsolete.untracked.bool,
                               )
     def __updateOptions(self,opt):
         newOpts = self.defaultOptions_()
@@ -2366,7 +2368,9 @@ process.options = cms.untracked.PSet(
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
@@ -4513,6 +4517,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertRaises(TypeError, setattr, proc, "processAcceleratorTest", ProcessAcceleratorTest())
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
             del proc.MessageLogger # remove boilerplate unnecessary for this test case
+            self.maxDiff = None
             self.assertEqual(proc.dumpPython(),
 """import FWCore.ParameterSet.Config as cms
 from test import ProcessAcceleratorTest
@@ -4547,7 +4552,9 @@ process.options = cms.untracked.PSet(
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
