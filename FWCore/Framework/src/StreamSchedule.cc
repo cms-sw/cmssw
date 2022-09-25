@@ -38,6 +38,7 @@
 #include <list>
 #include <map>
 #include <exception>
+#include <fmt/format.h>
 
 namespace edm {
 
@@ -389,6 +390,8 @@ namespace edm {
 
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
                                              std::vector<std::string> const& branchesToDeleteEarly,
+                                             std::multimap<std::string, std::string> const& referencesToBranches,
+                                             std::vector<std::string> const& modulesToSkip,
                                              edm::ProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
@@ -424,23 +427,88 @@ namespace edm {
       return;
     }
 
+    std::unordered_set<std::string> modulesToExclude(modulesToSkip.begin(), modulesToSkip.end());
     for (auto w : allWorkers()) {
+      if (modulesToExclude.end() != modulesToExclude.find(w->description()->moduleLabel())) {
+        continue;
+      }
       //determine if this module could read a branch we want to delete early
-      auto pset = pset::Registry::instance()->getMapped(w->description()->parameterSetID());
-      if (nullptr != pset) {
-        auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet", kEmpty);
-        if (not branches.empty()) {
-          ++upperLimitOnReadingWorker;
-        }
-        for (auto const& branch : branches) {
-          auto found = branchToReadingWorker.equal_range(branch);
-          if (found.first != found.second) {
-            ++upperLimitOnIndicies;
-            ++reserveSizeForWorker[w];
-            if (nullptr == found.first->second) {
-              found.first->second = w;
+      auto consumes = w->consumesInfo();
+      if (not consumes.empty()) {
+        bool foundAtLeastOneMatchingBranch = false;
+        for (auto const& product : consumes) {
+          std::string branch = fmt::format("{}_{}_{}_{}",
+                                           product.type().friendlyClassName(),
+                                           product.label().data(),
+                                           product.instance().data(),
+                                           product.process().data());
+          {
+            //Handle case where worker directly consumes product
+            auto found = branchToReadingWorker.end();
+            if (product.process().empty()) {
+              auto startFound = branchToReadingWorker.lower_bound(branch);
+              if (startFound != branchToReadingWorker.end()) {
+                if (startFound->first.substr(0, branch.size()) == branch) {
+                  //match all processNames here, even if it means multiple matches will happen
+                  found = startFound;
+                }
+              }
             } else {
-              branchToReadingWorker.insert(make_pair(found.first->first, w));
+              auto exactFound = branchToReadingWorker.equal_range(branch);
+              if (exactFound.first != exactFound.second) {
+                found = exactFound.first;
+              }
+            }
+            if (found != branchToReadingWorker.end()) {
+              if (not foundAtLeastOneMatchingBranch) {
+                ++upperLimitOnReadingWorker;
+                foundAtLeastOneMatchingBranch = true;
+              }
+              ++upperLimitOnIndicies;
+              ++reserveSizeForWorker[w];
+              if (nullptr == found->second) {
+                found->second = w;
+              } else {
+                branchToReadingWorker.insert(make_pair(found->first, w));
+              }
+            }
+          }
+          {
+            //Handle case where indirectly consumes product
+            auto found = referencesToBranches.end();
+            if (product.process().empty()) {
+              auto startFound = referencesToBranches.lower_bound(branch);
+              if (startFound != referencesToBranches.end()) {
+                if (startFound->first.substr(0, branch.size()) == branch) {
+                  //match all processNames here, even if it means multiple matches will happen
+                  found = startFound;
+                }
+              }
+            } else {
+              //can match exactly
+              auto exactFound = referencesToBranches.equal_range(branch);
+              if (exactFound.first != exactFound.second) {
+                found = exactFound.first;
+              }
+            }
+            if (found != referencesToBranches.end()) {
+              for (auto itr = found; (itr != referencesToBranches.end()) and (itr->first == found->first); ++itr) {
+                auto foundInBranchToReadingWorker = branchToReadingWorker.find(itr->second);
+                if (foundInBranchToReadingWorker == branchToReadingWorker.end()) {
+                  continue;
+                }
+                if (not foundAtLeastOneMatchingBranch) {
+                  ++upperLimitOnReadingWorker;
+                  foundAtLeastOneMatchingBranch = true;
+                }
+                ++upperLimitOnIndicies;
+                ++reserveSizeForWorker[w];
+                if (nullptr == foundInBranchToReadingWorker->second) {
+                  foundInBranchToReadingWorker->second = w;
+                } else {
+                  branchToReadingWorker.insert(make_pair(itr->second, w));
+                }
+              }
             }
           }
         }
@@ -463,7 +531,7 @@ namespace edm {
       if (not unusedBranches.empty()) {
         LogWarning l("UnusedProductsForCanDeleteEarly");
         l << "The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
-             " If possible, remove the producer from the job or add the product to the producer's own 'mightGet' list.";
+             " If possible, remove the producer from the job.";
         for (auto const& n : unusedBranches) {
           l << "\n " << n;
         }
@@ -492,6 +560,7 @@ namespace edm {
           // EarlyDeleteHelper will automatically advance its internal end pointer.
           size_t index = nextOpenIndex;
           size_t nIndices = reserveSizeForWorker[branchAndWorker.second];
+          assert(index < earlyDeleteHelperToBranchIndicies_.size());
           earlyDeleteHelperToBranchIndicies_[index] = earlyDeleteBranchToCount_.size() - 1;
           earlyDeleteHelpers_.emplace_back(beginAddress + index, beginAddress + index + 1, &earlyDeleteBranchToCount_);
           branchAndWorker.second->setEarlyDeleteHelper(&(earlyDeleteHelpers_.back()));
@@ -548,7 +617,7 @@ namespace edm {
     for (auto const& ci : consumesInfo) {
       if (not ci.skipCurrentProcess() and
           (ci.process().empty() or ci.process() == processConfiguration->processName())) {
-        auto productModuleLabel = ci.label();
+        auto productModuleLabel = std::string(ci.label());
         if (productModuleLabel.empty()) {
           //this is a consumesMany request
           for (auto const& branch : conditionalModuleBranches) {

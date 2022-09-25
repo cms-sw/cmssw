@@ -168,7 +168,9 @@
    <version ClassVersion="3" checksum="1338867524"/>
  </class>
  <class name="edm::Wrapper<edmtest::DeleteEarly>"/>
-
+ <class name="edm::RefProd<edmtest::DeleteEarly>"/>
+ <class name="edm::Wrapper<edm::RefProd<edmtest::DeleteEarly>>"/>
+ 
  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > >"/>
  <class name="edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> >">
     <field name="transientMap_" transient="true" />

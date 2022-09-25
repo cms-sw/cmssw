@@ -13,12 +13,10 @@ process.options = cms.untracked.PSet(
 process.maker = cms.EDProducer("DeleteEarlyProducer")
 
 process.reader1 = cms.EDAnalyzer("DeleteEarlyReader",
-                                tag = cms.untracked.InputTag("maker"),
-                                mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                tag = cms.untracked.InputTag("maker"))
 
 process.reader2 = cms.EDAnalyzer("DeleteEarlyReader",
-                                 tag = cms.untracked.InputTag("maker"),
-                                 mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                 tag = cms.untracked.InputTag("maker"))
 
 process.tester1 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
                                 expectedValues = cms.untracked.vuint32(3,7,11))
