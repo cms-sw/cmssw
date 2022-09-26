@@ -208,7 +208,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_mc_Z = nullptr;
   h2_mc_PtEta = nullptr;
 
-  h1_mc_Eta_matched = nullptr;
   h1_mc_Eta_Extended_matched = nullptr;
   h1_mc_AbsEta_matched = nullptr;
   h1_mc_AbsEta_Extended_matched = nullptr;
@@ -351,7 +350,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_foundHits = nullptr;
   h1_ele_foundHits_barrel = nullptr;
   h1_ele_foundHits_endcaps = nullptr;
-  h2_ele_foundHitsVsEta = nullptr;
   h2_ele_foundHitsVsEta_Extended = nullptr;
   h2_ele_foundHitsVsEta_mAOD = nullptr;
   h2_ele_foundHitsVsPhi = nullptr;
@@ -373,7 +371,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_PoPtrue_barrel = nullptr;
   h1_ele_PoPtrue_endcaps = nullptr;
 
-  h2_ele_PoPtrueVsEta = nullptr;
   h2_ele_PoPtrueVsEta_Extended = nullptr;
   h2_ele_PoPtrueVsPhi = nullptr;
   h2_ele_PoPtrueVsPt = nullptr;
@@ -419,7 +416,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_EoP = nullptr;
   h1_ele_EoP_barrel = nullptr;
   h1_ele_EoP_endcaps = nullptr;
-  h2_ele_EoPVsEta = nullptr;
   h2_ele_EoPVsEta_Extended = nullptr;
   h2_ele_EoPVsPhi = nullptr;
   h2_ele_EoPVsE = nullptr;
@@ -565,6 +561,15 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_hcalTowerSumEt_dr03_depth1_barrel = nullptr;
   h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = nullptr;
   h1_ele_hcalTowerSumEt_dr03_depth2 = nullptr;
+
+  h1_ele_ecalPFClusterIso = nullptr;
+  h1_ele_hcalPFClusterIso = nullptr;
+  h1_ele_ecalPFClusterIso_Extended = nullptr;
+  h1_ele_hcalPFClusterIso_Extended = nullptr;
+  h1_ele_ecalPFClusterIso_barrel = nullptr;
+  h1_ele_hcalPFClusterIso_barrel = nullptr;
+  h1_ele_ecalPFClusterIso_endcaps = nullptr;
+  h1_ele_hcalPFClusterIso_endcaps = nullptr;
 
   // conversions
   h1_ele_convFlags = nullptr;
@@ -1061,7 +1066,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
 
   // matched electrons
   setBookPrefix("h_mc");
-  h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched", "Eta of matched electrons", eta_nbin, eta_min, eta_max);
   h1_mc_Eta_Extended_matched = bookH1withSumw2(iBooker,
                                                "Eta_Extended_matched",
                                                "Eta of matched electrons",
@@ -1151,15 +1155,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                            poptrue_min,
                                            poptrue_max,
                                            "P/P_{gen}");
-  h2_ele_PoPtrueVsEta = bookH2withSumw2(iBooker,
-                                        "PoPtrueVsEta",
-                                        "ele momentum / gen momentum vs eta",
-                                        eta2D_nbin,
-                                        eta_min,
-                                        eta_max,
-                                        50,
-                                        poptrue_min,
-                                        poptrue_max);
   h2_ele_PoPtrueVsEta_Extended = bookH2withSumw2(iBooker,
                                                  "PoPtrueVsEta_Extended",
                                                  "ele momentum / gen momentum vs eta",
@@ -1677,15 +1672,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       iBooker, "foundHits_barrel", "ele track # found hits, barrel", fhits_nbin, 0., fhits_max, "N_{hits}");
   h1_ele_foundHits_endcaps = bookH1withSumw2(
       iBooker, "foundHits_endcaps", "ele track # found hits, endcaps", fhits_nbin, 0., fhits_max, "N_{hits}");
-  h2_ele_foundHitsVsEta = bookH2(iBooker,
-                                 "foundHitsVsEta",
-                                 "ele track # found hits vs eta",
-                                 eta2D_nbin,
-                                 eta_min,
-                                 eta_max,
-                                 fhits_nbin,
-                                 0.,
-                                 fhits_max);
   h2_ele_foundHitsVsEta_Extended = bookH2(iBooker,
                                           "foundHitsVsEta_Extended",
                                           "ele track # found hits vs eta",
@@ -1860,8 +1846,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                        "E/P_{vertex}",
                                        "Events",
                                        "ELE_LOGY E1 P");
-  h2_ele_EoPVsEta =
-      bookH2(iBooker, "EoPVsEta", "ele E/P_{vertex} vs eta", eta2D_nbin, eta_min, eta_max, eop2D_nbin, 0., eopmaxsht);
   h2_ele_EoPVsEta_Extended = bookH2(iBooker,
                                     "EoPVsEta_Extended",
                                     "ele E/P_{vertex} vs eta",
@@ -2862,6 +2846,79 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                       "Events",
                       "ELE_LOGY E1 P");
 
+  h1_ele_ecalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "ecalPFClusterIso",
+                                            "ecal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "ecalPFClusterIso_barrel",
+                                                   "ecal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "ecalPFClusterIso_endcaps",
+                                                    "ecal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "hcalPFClusterIso",
+                                            "hcal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "hcalPFClusterIso_barrel",
+                                                   "hcal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "hcalPFClusterIso_endcaps",
+                                                    "hcal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "ecalPFClusterIso_Extended",
+                                                     "ecal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "hcalPFClusterIso_Extended",
+                                                     "hcal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
+
   // fbrem
   h1_ele_fbrem = bookH1withSumw2(
       iBooker, "fbrem", "ele brem fraction, mode of GSF components", 100, 0., 1., "P_{in} - P_{out} / P_{in}");
@@ -3550,6 +3607,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
                                                           bestGsfElectron.ecalEnergy() / mcIter->p());
         h2_ele_PoPtrueVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / mcIter->p());
+        h1_ele_ecalPFClusterIso_Extended->Fill(bestGsfElectron.ecalPFClusterIso());
+        h1_ele_hcalPFClusterIso_Extended->Fill(bestGsfElectron.hcalPFClusterIso());
 
         double fbrem_mode = bestGsfElectron.fbrem();
         h1_ele_fbrem_Extended->Fill(fbrem_mode);
@@ -3618,7 +3677,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h1_mc_Phi_matched->Fill(mcIter->phi());
     h1_mc_AbsEta_matched->Fill(std::abs(mcIter->eta()));
     h1_mc_AbsEta_Extended_matched->Fill(std::abs(mcIter->eta()));
-    h1_mc_Eta_matched->Fill(mcIter->eta());
     h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
     h2_mc_PtEta_matched->Fill(mcIter->eta(), mcIter->pt());
     h2_ele_vertexEtaVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta());
@@ -3645,7 +3703,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h2_ele_PhiMnPhiTrueVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.phi() - mcIter->phi());
     h1_ele_PoPtrue->Fill(bestGsfElectron.p() / mcIter->p());
     h1_ele_PtoPttrue->Fill(bestGsfElectron.pt() / mcIter->pt());
-    h2_ele_PoPtrueVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / mcIter->p());
     h2_ele_PoPtrueVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / mcIter->p());
     h2_ele_PoPtrueVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / mcIter->p());
     h2_ele_PoPtrueVsPt->Fill(bestGsfElectron.py(), bestGsfElectron.p() / mcIter->p());
@@ -3768,7 +3825,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (!readAOD_)  // track extra does not exist in AOD
     {
       h1_ele_foundHits->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
-      h2_ele_foundHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
       h2_ele_foundHitsVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
       h2_ele_foundHitsVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfValidHits());
       h2_ele_foundHitsVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfValidHits());
@@ -3863,7 +3919,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // match distributions
     h1_ele_EoP->Fill(bestGsfElectron.eSuperClusterOverP());
-    h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eSuperClusterOverP());
@@ -4167,6 +4222,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // isolation
     h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+    h1_ele_ecalPFClusterIso->Fill(bestGsfElectron.ecalPFClusterIso());
+    h1_ele_hcalPFClusterIso->Fill(bestGsfElectron.hcalPFClusterIso());
     h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
     h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
     h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
@@ -4183,6 +4240,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(2));
+      h1_ele_ecalPFClusterIso_barrel->Fill(bestGsfElectron.ecalPFClusterIso());
+      h1_ele_hcalPFClusterIso_barrel->Fill(bestGsfElectron.hcalPFClusterIso());
     } else if (isEEflag) {
       h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
       h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
@@ -4192,6 +4251,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(2));
+      h1_ele_ecalPFClusterIso_endcaps->Fill(bestGsfElectron.ecalPFClusterIso());
+      h1_ele_hcalPFClusterIso_endcaps->Fill(bestGsfElectron.hcalPFClusterIso());
     }
 
     // conversion rejection
