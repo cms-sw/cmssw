@@ -140,11 +140,9 @@ void PFCaloGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup c
   for (unsigned i = 0; i < pfClusters_ref->size(); ++i) {
     if (matched_idx[i]>=0){
       unsigned int j = matched_idx[i];
-      /*
-      if (pfClusters_ref->at(i).energy() != pfClusters_target->at(j).energy())
+      //if (fabs(pfClusters_ref->at(i).energy()-pfClusters_target->at(j).energy())>0.1)
 	std::cout << pfClusters_ref->at(i).energy() << " " << pfClusters_ref->at(i).eta() << " " << pfClusters_ref->at(i).phi() << " "
 		  << pfClusters_target->at(j).energy() << " " << pfClusters_target->at(j).eta() << " " << pfClusters_target->at(j).phi() << std::endl;
-      */
       pfCluster_Energy_GPUvsCPU_->Fill(pfClusters_ref->at(i).energy(),
 				       pfClusters_target->at(j).energy());
       pfCluster_RecHitMultiplicity_GPUvsCPU_->Fill((float)pfClusters_ref->at(i).recHitFractions().size(),

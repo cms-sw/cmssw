@@ -104,13 +104,17 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-#from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
+#from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction
+
+# only enable Hcal GPU
+#process = customiseCommon(process)
+#process = customiseHcalLocalReconstruction(process)
 
 #call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
 #process = customizeHLTforPatatrack(process)
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 process = customizeHLTforMC(process)
@@ -135,10 +139,35 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.ThroughputService = cms.untracked.PSet()
     process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
 
-############################
-## Configure CPU producer ##
-############################
+#####################################
+## Configure CPU and GPU producers ##
+#####################################
 
+#
+# for GPU PFRecHitHBHE
+# - use GPU version
+process.hltParticleFlowRecHitHBHEonGPU = process.hltParticleFlowRecHitHBHE.clone()
+_pset_hltParticleFlowRecHitHBHE_producers_mod = process.hltParticleFlowRecHitHBHEonGPU.producers
+for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
+    if x.src.moduleLabel == "hltHbhereco":
+        x.src.moduleLabel = "hltHbherecoGPU" # use GPU version as input instead of legacy version
+    for idy, y in enumerate(x.qualityTests):
+        if y.name._value == "PFRecHitQTestHCALThresholdVsDepth": # apply phase1 depth-dependent HCAL thresholds
+            for idz, z in enumerate(y.cuts): # convert signed to unsigned
+                if z.detectorEnum == 1: # HB
+                    z.detectorEnum = cms.uint32( 1 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4 )
+                if z.detectorEnum == 2: # HE
+                    z.detectorEnum = cms.uint32( 2 )
+                    z.depth = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  )
+
+process.hltParticleFlowRecHitHBHEonGPU = cms.EDProducer("PFHBHERecHitProducerGPU", # instead of "PFRecHitProducer"
+                                                   producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
+                                                   navigator = process.hltParticleFlowRecHitHBHE.navigator
+)
+
+#
+# for CPU PFRecHitHBHE
 #
 # for PFRecHitHBHE
 # - apply phase1 depth-dependent HCAL thresholds
@@ -153,8 +182,24 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                                                    navigator = process.hltParticleFlowRecHitHBHE.navigator
 )
 
+#
+# for GPU PFClusterHBHE
+# - use GPU version
+process.hltParticleFlowClusterHBHEonGPU = cms.EDProducer("PFClusterProducerCudaHCAL", # instead of "PFClusterProducer"
+                                                    pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
+                                                    positionReCalc = process.hltParticleFlowClusterHBHE.positionReCalc,
+                                                    recHitCleaners = process.hltParticleFlowClusterHBHE.recHitCleaners,
+                                                    recHitsSource = cms.InputTag("hltParticleFlowRecHitHBHEonGPU"), # Use GPU version of input
+                                                    seedCleaners = process.hltParticleFlowClusterHBHE.seedCleaners,
+                                                    seedFinder = process.hltParticleFlowClusterHBHE.seedFinder,
+                                                    energyCorrector = process.hltParticleFlowClusterHBHE.energyCorrector,
+                                                    initialClusteringStep = process.hltParticleFlowClusterHBHE.initialClusteringStep
+)
+process.hltParticleFlowClusterHBHEonGPU.PFRecHitsLabelIn = cms.InputTag("hltParticleFlowRecHitHBHEonGPU","")
+
 # value before recent optimizations
 process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 50
+process.hltParticleFlowClusterHBHEonGPU.pfClusterBuilder.maxIterations = 50
 
 #
 # Additional customization
@@ -162,19 +207,23 @@ process.maxEvents.input = 200
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 #process.FEVTDEBUGHLToutput.outputCommands.append('keep *_genParticles_*_*')
-# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltFastPrimaryVertex_*_*')
-# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlow_*_*')
-# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK4PFJets_*_*')
-# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK8PFJets_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltFastPrimaryVertex_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlow_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK4PFJets_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK8PFJets_*_*')
 
 #
 # Run only localreco, PFRecHit and PFCluster producers for HBHE only
-#process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/CPU/reHLT_HLT.root ')
+#process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/GPU/reHLT_HLT.root ')
 
+# Path/sequence definitions
 process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
-process.schedule = cms.Schedule(process.HBHEPFCPUTask)
+process.HBHEPFCPUGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE+process.hltParticleFlowRecHitHBHEonGPU+process.hltParticleFlowClusterHBHEonGPU)
+process.schedule = cms.Schedule(process.HBHEPFCPUGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 
 process.options.numberOfThreads = cms.untracked.uint32(1)

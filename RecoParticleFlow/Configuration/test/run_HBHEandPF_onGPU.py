@@ -151,8 +151,7 @@ for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
     if x.src.moduleLabel == "hltHbhereco":
         x.src.moduleLabel = "hltHbherecoGPU" # use GPU version as input instead of legacy version
     for idy, y in enumerate(x.qualityTests):
-        if y.name._value == "PFRecHitQTestThreshold":
-            y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
+        if y.name._value == "PFRecHitQTestHCALThresholdVsDepth": # apply phase1 depth-dependent HCAL thresholds
             for idz, z in enumerate(y.cuts): # convert signed to unsigned
                 if z.detectorEnum == 1: # HB
                     z.detectorEnum = cms.uint32( 1 )
@@ -182,13 +181,22 @@ process.hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducerCudaHCAL",
                                                     initialClusteringStep = process.hltParticleFlowClusterHBHE.initialClusteringStep
 )
 
+# value before recent optimizations
+process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 50
+
 #
 # Additional customization
 process.maxEvents.input = 200
+process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
+# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_genParticles_*_*')
+# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltFastPrimaryVertex_*_*')
+# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlow_*_*')
+# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK4PFJets_*_*')
+# process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltAK8PFJets_*_*')
 
 #
 # Run only localreco, PFRecHit and PFCluster producers for HBHE only
@@ -197,5 +205,6 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.schedule = cms.Schedule(process.HBHEPFGPUTask)
+process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 
 process.options.numberOfThreads = cms.untracked.uint32(1)
