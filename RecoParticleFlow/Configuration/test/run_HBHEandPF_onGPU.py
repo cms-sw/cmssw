@@ -161,7 +161,7 @@ for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
                     z.detectorEnum = cms.uint32( 2 )
                     z.depth = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  )
 
-process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFHBHERechitProducerGPU", # instead of "PFRecHitProducer"
+process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFHBHERecHitProducerGPU", # instead of "PFRecHitProducer"
                                                    producers = _pset_hltParticleFlowRecHitHBHE_producers_mod,
                                                    navigator = process.hltParticleFlowRecHitHBHE.navigator
 )
