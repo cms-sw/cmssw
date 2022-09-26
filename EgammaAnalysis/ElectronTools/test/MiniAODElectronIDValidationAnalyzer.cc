@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,10 +57,10 @@
 // class declaration
 //
 
-class MiniAODElectronIDValidationAnalyzer : public edm::EDAnalyzer {
+class MiniAODElectronIDValidationAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MiniAODElectronIDValidationAnalyzer(const edm::ParameterSet &);
-  ~MiniAODElectronIDValidationAnalyzer();
+  ~MiniAODElectronIDValidationAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -72,9 +72,9 @@ public:
   };  // The last does not include tau parents
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -136,6 +136,7 @@ MiniAODElectronIDValidationAnalyzer::MiniAODElectronIDValidationAnalyzer(const e
       electronIdTag_(iConfig.getParameter<edm::InputTag>("electronIDs")),
       electronIdToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("electronIDs"))) {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   electronTree_ = fs->make<TTree>("ElectronTree", "Electron data");
 
