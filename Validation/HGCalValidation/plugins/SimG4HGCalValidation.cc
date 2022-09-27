@@ -3,19 +3,14 @@
 // Description: Main analysis class for HGCal Validation of G4 Hits
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 
 // to retreive hits
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
@@ -158,7 +152,7 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
   for (unsigned int type = 0; type < types_.size(); ++type) {
     int layers(0);
     int detType = detTypes_[type];
-    edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(ddconsToken_[type]);
+    const edm::ESHandle<HGCalDDDConstants>& hdc = es.getHandle(ddconsToken_[type]);
     if (hdc.isValid()) {
       levelT1_ = hdc->levelTop(0);
       levelT2_ = hdc->levelTop(1);
