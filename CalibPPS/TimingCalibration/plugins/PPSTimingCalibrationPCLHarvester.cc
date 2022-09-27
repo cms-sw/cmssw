@@ -126,19 +126,28 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     }
     const double upper_tot_range = hists.toT[chid]->getMean() + 2.5;
     {  // scope for x-profile
+
+      std::string ch_name;
+      detid.channelName(ch_name);
+      auto profile = iBooker.bookProfile(ch_name + "_prof_x", ch_name + "_prof_x", 240, 0., 60., 450, -20., 25.);
+
       std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2F()->ProfileX("_prof_x", 1, -1));
+      *(profile->getTProfile()) = *((TProfile*)prof->Clone());
+      profile->getTProfile()->SetTitle(ch_name.c_str());
+      profile->getTProfile()->SetName(ch_name.c_str());
+
       interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
                             hists.toT[chid]->getMean(),
                             0.8,
                             hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-      TFitResultPtr res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-
-      if (res == 0) {
+      const auto& res = profile->getTProfile()->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+      if (!(bool)res) {
         calib_params[key] = {
             interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
         calib_time[key] =
             std::make_pair(offset_, resolution_);  // hardcoded offset/resolution placeholder for the time being
         // can possibly do something with interp_.GetChiSquare() in the near future
+
       } else
         edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
             << "Fit did not converge for channel (" << detid << ").";
