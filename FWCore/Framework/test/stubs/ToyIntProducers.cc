@@ -962,6 +962,50 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+namespace edm::test {
+  namespace other {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p)
+          : token_{produces()}, value_(p.getParameter<int>("valueOther")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace other
+  namespace cpu {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p) : token_{produces()}, value_(p.getParameter<int>("valueCpu")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace cpu
+}  // namespace edm::test
+
 using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
 using edmtest::BusyWaitIntLimitedProducer;
@@ -1007,3 +1051,5 @@ DEFINE_FWK_MODULE(IntProducerBeginProcessBlock);
 DEFINE_FWK_MODULE(IntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(TransientIntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(edmtest::MustRunIntProducer);
+DEFINE_FWK_MODULE(edm::test::other::IntProducer);
+DEFINE_FWK_MODULE(edm::test::cpu::IntProducer);
