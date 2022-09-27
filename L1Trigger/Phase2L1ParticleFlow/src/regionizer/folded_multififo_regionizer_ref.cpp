@@ -4,6 +4,8 @@
 #include <memory>
 
 l1ct::FoldedMultififoRegionizerEmulator::FoldedMultififoRegionizerEmulator(unsigned int nclocks,
+                                                                           unsigned int ntklinks,
+                                                                           unsigned int ncalolinks,
                                                                            unsigned int ntk,
                                                                            unsigned int ncalo,
                                                                            unsigned int nem,
@@ -15,8 +17,8 @@ l1ct::FoldedMultififoRegionizerEmulator::FoldedMultififoRegionizerEmulator(unsig
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
-      NTK_LINKS(2),
-      NCALO_LINKS((outii + pauseii == 9 ? 2 : 3)),
+      NTK_LINKS(ntklinks),
+      NCALO_LINKS(ncalolinks),
       HCAL_LINKS(0),
       ECAL_LINKS(0),
       NMU_LINKS(1),
@@ -32,10 +34,36 @@ l1ct::FoldedMultififoRegionizerEmulator::FoldedMultififoRegionizerEmulator(unsig
       init_(false) {
   // now we initialize the routes: track finder
   for (unsigned int ie = 0; ie < 2; ++ie) {
-    fold_.emplace_back(
-        ie,
-        std::make_unique<l1ct::MultififoRegionizerEmulator>(
-            /*nendcaps=*/1, nclocks / 2, ntk, ncalo, nem, nmu, streaming, outii, pauseii, useAlsoVtxCoords));
+    fold_.emplace_back(ie,
+#ifdef CMSSW_GIT_HASH
+                       std::make_unique<l1ct::MultififoRegionizerEmulator>(
+                           /*nendcaps=*/1,
+                           nclocks / 2,
+                           NTK_LINKS,
+                           NCALO_LINKS,
+                           ntk,
+                           ncalo,
+                           nem,
+                           nmu,
+                           streaming,
+                           outii,
+                           pauseii,
+                           useAlsoVtxCoords));
+#else
+                       std::unique_ptr<l1ct::MultififoRegionizerEmulator>(new l1ct::MultififoRegionizerEmulator(
+                           /*nendcaps=*/1,
+                           nclocks / 2,
+                           NTK_LINKS,
+                           NCALO_LINKS,
+                           ntk,
+                           ncalo,
+                           nem,
+                           nmu,
+                           streaming,
+                           outii,
+                           pauseii,
+                           useAlsoVtxCoords)));
+#endif
   }
   clocksPerFold_ = nclocks / 2;
 }
@@ -91,13 +119,10 @@ void l1ct::FoldedMultififoRegionizerEmulator::initSectorsAndRegions(const Region
   init_ = true;
   splitSectors(in);
   splitRegions(out);
-  std::cout << "Initializing folded  with " << in.track.size() << " tk sectors, " << out.size() << " regions"
-            << std::endl;
   for (auto& f : fold_) {
-    std::cout << "Initializing fold " << f.index << " with " << f.sectors.track.size() << " tk sectors, "
-              << f.regions.size() << " regions" << std::endl;
     f.regionizer->initSectorsAndRegions(f.sectors, f.regions);
   }
+  nregions_ = out.size();
 }
 // clock-cycle emulation
 #if 0
@@ -183,19 +208,60 @@ bool l1ct::FoldedMultififoRegionizerEmulator::inFold(const l1ct::PFRegion& reg, 
 void l1ct::FoldedMultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {
   if (!init_)
     initSectorsAndRegions(in, out);
-  else
+  else {
     fillEvent(in);
-  for (auto& f : fold_)
-    f.regionizer->run(f.sectors, f.regions);
-  for (auto& o : out) {
-    for (auto& ro : fold_[whichFold(o.region)].regions) {
-      if (ro.region.hwEtaCenter == o.region.hwEtaCenter && ro.region.hwPhiCenter == o.region.hwPhiCenter) {
-        std::swap(o.track, ro.track);
-        std::swap(o.hadcalo, ro.hadcalo);
-        std::swap(o.emcalo, ro.emcalo);
-        std::swap(o.muon, ro.muon);
+    for (auto& f : fold_)
+      f.regionizer->reset();
+  }
+
+  std::vector<l1ct::TkObjEmu> tk_links_in, tk_out;
+  std::vector<l1ct::EmCaloObjEmu> em_links_in, em_out;
+  std::vector<l1ct::HadCaloObjEmu> calo_links_in, calo_out;
+  std::vector<l1ct::MuObjEmu> mu_links_in, mu_out;
+
+  std::vector<bool> unused;
+  for (unsigned int iclock = 0; iclock < 2 * nclocks_; ++iclock) {
+    if (iclock < nclocks_) {
+      fillLinks(iclock, tk_links_in, unused);
+      fillLinks(iclock, em_links_in, unused);
+      fillLinks(iclock, calo_links_in, unused);
+      fillLinks(iclock, mu_links_in, unused);
+    } else {
+      // set up an empty event
+      for (auto& l : tk_links_in)
+        l.clear();
+      for (auto& l : em_links_in)
+        l.clear();
+      for (auto& l : calo_links_in)
+        l.clear();
+      for (auto& l : mu_links_in)
+        l.clear();
+    }
+
+    bool newevt = (iclock % nclocks_) == 0, mux = true;
+    step(newevt, tk_links_in, calo_links_in, em_links_in, mu_links_in, tk_out, calo_out, em_out, mu_out, mux);
+
+    if (iclock >= nclocks_ / 2) {
+      unsigned int ireg = ((iclock - nclocks_ / 2) / (outii_ + pauseii_));
+      if (((iclock - nclocks_ / 2) % (outii_ + pauseii_)) >= outii_)
+        continue;
+      if (ireg >= nregions_)
         break;
+
+      if (streaming_) {
+        Fold& f = fold_[whichFold(iclock)];
+        f.regionizer->destream(iclock % clocksPerFold_, tk_out, em_out, calo_out, mu_out, out[ireg]);
+      } else {
+        if ((iclock - nclocks_ / 2) % (outii_ + pauseii_) == 0) {
+          out[ireg].track = tk_out;
+          out[ireg].emcalo = em_out;
+          out[ireg].hadcalo = calo_out;
+          out[ireg].muon = mu_out;
+        }
       }
     }
   }
+
+  for (auto& f : fold_)
+    f.regionizer->reset();
 }

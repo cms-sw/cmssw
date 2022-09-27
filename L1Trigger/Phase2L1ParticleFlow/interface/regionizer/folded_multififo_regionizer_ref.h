@@ -3,6 +3,7 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include <memory>
+#include <deque>
 
 namespace edm {
   class ParameterSet;
@@ -16,9 +17,11 @@ namespace l1ct {
 namespace l1ct {
   class FoldedMultififoRegionizerEmulator : public RegionizerEmulator {
   public:
-    enum class FoldMode { EndcapEta2 };  // , BarrelPhi3
+    enum class FoldMode { EndcapEta2 };
 
     FoldedMultififoRegionizerEmulator(unsigned int nclocks,
+                                      unsigned int ntklinks,
+                                      unsigned int ncalolinks,
                                       unsigned int ntk,
                                       unsigned int ncalo,
                                       unsigned int nem,
@@ -75,9 +78,9 @@ namespace l1ct {
     void fillEvent(const RegionizerDecodedInputs& in);
 
     template <typename T>
-    void fillLinks(unsigned int iclock, std::vector<T>& links) {
+    void fillLinks(unsigned int iclock, std::vector<T>& links, std::vector<bool>& valid) {
       Fold& fold = fold_[whichFold(iclock)];
-      fold.regionizer->fillLinks(iclock % clocksPerFold_, fold.sectors, links);
+      fold.regionizer->fillLinks(iclock % clocksPerFold_, fold.sectors, links, valid);
     }
 
     // convert links to firmware
@@ -86,8 +89,8 @@ namespace l1ct {
       fold_.front().regionizer->toFirmware(emu, fw);
     }
 
-  private:
-    const unsigned int NTK_SECTORS, NCALO_SECTORS;  // max objects per sector per clock cycle
+  protected:
+    const unsigned int NTK_SECTORS, NCALO_SECTORS;
     const unsigned int NTK_LINKS, NCALO_LINKS, HCAL_LINKS, ECAL_LINKS, NMU_LINKS;
     unsigned int nclocks_, ntk_, ncalo_, nem_, nmu_, outii_, pauseii_, nregions_;
     bool streaming_;
