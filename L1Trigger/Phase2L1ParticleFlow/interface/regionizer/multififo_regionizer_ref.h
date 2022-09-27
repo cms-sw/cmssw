@@ -19,6 +19,8 @@ namespace l1ct {
   public:
     MultififoRegionizerEmulator(unsigned int nendcaps,
                                 unsigned int nclocks,
+                                unsigned int ntklinks,
+                                unsigned int ncalolinks,
                                 unsigned int ntk,
                                 unsigned int ncalo,
                                 unsigned int nem,
@@ -87,16 +89,35 @@ namespace l1ct {
                   PFInputRegion& out);
 
     // link emulation from decoded inputs (for simulation)
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::TkObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::HadCaloObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::EmCaloObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::MuObjEmu>& links);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::TkObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::HadCaloObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::EmCaloObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::MuObjEmu>& links,
+                   std::vector<bool>& valid);
+    template <typename T>
+    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<T>& links) {
+      std::vector<bool> unused;
+      fillLinks(iclock, in, links, unused);
+    }
 
     // convert links to firmware
     void toFirmware(const std::vector<l1ct::TkObjEmu>& emu, TkObj fw[/*NTK_SECTORS*NTK_LINKS*/]);
     void toFirmware(const std::vector<l1ct::HadCaloObjEmu>& emu, HadCaloObj fw[/*NCALO_SECTORS*NCALO_LINKS*/]);
     void toFirmware(const std::vector<l1ct::EmCaloObjEmu>& emu, EmCaloObj fw[/*NCALO_SECTORS*NCALO_LINKS*/]);
     void toFirmware(const std::vector<l1ct::MuObjEmu>& emu, MuObj fw[/*NMU_LINKS*/]);
+
+    void reset();
 
   private:
     const unsigned int NTK_SECTORS, NCALO_SECTORS;  // max objects per sector per clock cycle
@@ -114,7 +135,10 @@ namespace l1ct {
     std::vector<l1ct::multififo_regionizer::Route> tkRoutes_, caloRoutes_, emCaloRoutes_, muRoutes_;
 
     template <typename T>
-    void fillCaloLinks_(unsigned int iclock, const std::vector<DetectorSector<T>>& in, std::vector<T>& links);
+    void fillCaloLinks_(unsigned int iclock,
+                        const std::vector<DetectorSector<T>>& in,
+                        std::vector<T>& links,
+                        std::vector<bool>& valid);
   };
 
 }  // namespace l1ct
