@@ -173,6 +173,8 @@ process.hltParticleFlowRecHitHBHEonGPU = cms.EDProducer("PFHBHERecHitProducerGPU
 # - apply phase1 depth-dependent HCAL thresholds
 _pset_hltParticleFlowRecHitHBHE_producers_mod = process.hltParticleFlowRecHitHBHE.producers
 for idx, x in enumerate(_pset_hltParticleFlowRecHitHBHE_producers_mod):
+    if x.src.moduleLabel == "hltHbhereco":
+        x.src.moduleLabel = "hltHbherecoFromGPU" # use GPU version as input instead of legacy version
     for idy, y in enumerate(x.qualityTests):
         if y.name._value == "PFRecHitQTestThreshold":
             y.name._value = "PFRecHitQTestHCALThresholdVsDepth" # apply phase1 depth-dependent HCAL thresholds
@@ -203,7 +205,7 @@ process.hltParticleFlowClusterHBHEonGPU.pfClusterBuilder.maxIterations = 50
 
 #
 # Additional customization
-process.maxEvents.input = 200
+process.maxEvents.input = -1
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
@@ -222,8 +224,8 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 # Path/sequence definitions
 process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
-process.HBHEPFCPUGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE+process.hltParticleFlowRecHitHBHEonGPU+process.hltParticleFlowClusterHBHEonGPU)
+process.HBHEPFCPUGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoLegacy+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE+process.hltParticleFlowRecHitHBHEonGPU+process.hltParticleFlowClusterHBHEonGPU)
 process.schedule = cms.Schedule(process.HBHEPFCPUGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 
-process.options.numberOfThreads = cms.untracked.uint32(1)
+process.options.numberOfThreads = cms.untracked.uint32(8)
