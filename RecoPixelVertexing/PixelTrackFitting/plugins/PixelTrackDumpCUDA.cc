@@ -47,7 +47,7 @@ PixelTrackDumpCUDAT<TrackerTraits>::PixelTrackDumpCUDAT(const edm::ParameterSet&
     tokenGPUVertex_ =
         consumes<cms::cuda::Product<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   } else {
-    tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenSoATrack_ = consumes(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   }
 }

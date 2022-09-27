@@ -22,7 +22,6 @@
 #include "CAHitNtupletGeneratorOnGPU.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename TrackerTraits>
 class CAHitNtupletCUDAT : public edm::global::EDProducer<> {
@@ -60,10 +59,10 @@ template <typename TrackerTraits>
 CAHitNtupletCUDAT<TrackerTraits>::CAHitNtupletCUDAT(const edm::ParameterSet& iConfig)
     : onGPU_(iConfig.getParameter<bool>("onGPU")), tokenField_(esConsumes()), gpuAlgo_(iConfig, consumesCollector()) {
   if (onGPU_) {
-    tokenHitGPU_ = consumes<cms::cuda::Product<HitsOnGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
+    tokenHitGPU_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
     tokenTrackGPU_ = produces<cms::cuda::Product<PixelTrackHeterogeneous>>();
   } else {
-    tokenHitCPU_ = consumes<HitsOnCPU>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
+    tokenHitCPU_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
     tokenTrackCPU_ = produces<PixelTrackHeterogeneous>();
   }
 }

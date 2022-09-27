@@ -110,9 +110,9 @@ protected:
 
   const double theElectronPerADCGain;  //  ADC to electrons conversion
 
-  const bool doPhase2Calibration;      // The ADC --> electrons calibration is for phase-2 tracker
+  const bool doPhase2Calibration;  // The ADC --> electrons calibration is for phase-2 tracker
 
-  const bool dropDuplicates;           // Enabling dropping duplicate pixels
+  const bool dropDuplicates;  // Enabling dropping duplicate pixels
 
   const int thePhase2ReadoutMode;      // Readout mode of the phase-2 IT digitizer
   const double thePhase2DigiBaseline;  // Threshold above which digis are measured in the phase-2 IT

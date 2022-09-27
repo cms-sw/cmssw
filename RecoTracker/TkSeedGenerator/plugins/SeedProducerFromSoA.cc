@@ -57,7 +57,7 @@ private:
 template <typename TrackerTraits>
 SeedProducerFromSoAT<TrackerTraits>::SeedProducerFromSoAT(const edm::ParameterSet& iConfig)
     : tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-      tokenTrack_(consumes<PixelTrackHeterogeneousT<TrackerTraits>>(iConfig.getParameter<edm::InputTag>("src"))),
+      tokenTrack_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
       idealMagneticFieldToken_(esConsumes()),
       trackerDigiGeometryToken_(esConsumes()),
       trackerPropagatorToken_(esConsumes(edm::ESInputTag("PropagatorWithMaterial"))),

@@ -53,8 +53,7 @@ private:
 
 template <typename TrackerTraits>
 SiPixelRecHitSoAFromCUDAT<TrackerTraits>::SiPixelRecHitSoAFromCUDAT(const edm::ParameterSet& iConfig)
-    : hitsTokenGPU_(consumes<cms::cuda::Product<TrackingRecHit2DGPUT<TrackerTraits>>>(
-          iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+    : hitsTokenGPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       hitsPutTokenCPU_(produces<TrackingRecHit2DCPUT<TrackerTraits>>()),
       hostPutToken_(produces<HMSstorage>()) {}
 
