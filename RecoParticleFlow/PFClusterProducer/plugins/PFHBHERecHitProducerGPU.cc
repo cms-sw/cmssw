@@ -137,7 +137,8 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
 
   // Single threshold
   const std::string& qualityTestName = qualityConf.getParameter<std::string>("name");
-  cudaConstants.qTestThresh = 0.8; //(float)qualityConf.getParameter<double>("threshold"); temporary hack for phase0 threshold
+  cudaConstants.qTestThresh = 0.8;
+  if (qualityConf.exists("threshold")) cudaConstants.qTestThresh = (float)qualityConf.getParameter<double>("threshold");
   std::cout << cudaConstants.qTestThresh << std::endl;
 
   // Thresholds vs depth
