@@ -502,12 +502,24 @@ namespace PFRecHit {
         return;
       }
 
-      uint32_t *h_nPFRHOut, *d_nPFRHOut;          // Number of output PFRecHits (total passing cuts)
-      uint32_t *h_nPFRHCleaned, *d_nPFRHCleaned;  // Number of cleaned PFRecHits
-      h_nPFRHOut = new uint32_t(0);
-      h_nPFRHCleaned = new uint32_t(0);
-      cudaCheck(cudaMallocAsync(&d_nPFRHOut, sizeof(int), cudaStream));
-      cudaCheck(cudaMallocAsync(&d_nPFRHCleaned, sizeof(int), cudaStream));
+      // uint32_t *h_nPFRHOut, *d_nPFRHOut;          // Number of output PFRecHits (total passing cuts)
+      // uint32_t *h_nPFRHCleaned, *d_nPFRHCleaned;  // Number of cleaned PFRecHits
+      // h_nPFRHOut = new uint32_t(0);
+      // h_nPFRHCleaned = new uint32_t(0);
+      // cudaCheck(cudaMallocAsync(&d_nPFRHOut, sizeof(int), cudaStream));
+      // cudaCheck(cudaMallocAsync(&d_nPFRHCleaned, sizeof(int), cudaStream));
+
+
+      cms::cuda::device::unique_ptr<uint32_t[]> d_nPFRHOut; // Number of output PFRecHits (total passing cuts)
+      cms::cuda::device::unique_ptr<uint32_t[]> d_nPFRHCleaned; // Number of cleaned PFRecHits
+      cms::cuda::host::unique_ptr<uint32_t[]> h_nPFRHOut;
+      cms::cuda::host::unique_ptr<uint32_t[]> h_nPFRHCleaned;
+      
+      d_nPFRHOut = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
+      d_nPFRHCleaned = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
+
+      h_nPFRHOut = cms::cuda::make_host_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
+      h_nPFRHCleaned = cms::cuda::make_host_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
 
 #ifdef DEBUG_ENABLE
       cudaEvent_t start, stop;
@@ -572,8 +584,8 @@ namespace PFRecHit {
 
       // Apply rechit mask and determine output PFRecHit order
       applyMask<<<1, 256, nRHIn * sizeof(int), cudaStream>>>(nRHIn,
-                                                             d_nPFRHOut,
-                                                             d_nPFRHCleaned,
+                                                             d_nPFRHOut.get(),
+                                                             d_nPFRHCleaned.get(),
                                                              scratchDataGPU.rh_mask.get(),
                                                              scratchDataGPU.pfrhToInputIdx.get(),
                                                              scratchDataGPU.inputToPFRHIdx.get());
@@ -585,8 +597,8 @@ namespace PFRecHit {
       cudaEventElapsedTime(&timer[3], start, stop);
       printf("\napplyMask took %f ms\n\n", timer[3]);
 #endif
-      cudaCheck(cudaMemcpyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
-      cudaCheck(cudaMemcpyAsync(h_nPFRHCleaned, d_nPFRHCleaned, sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      cudaCheck(cudaMemcpyAsync(h_nPFRHOut.get(), d_nPFRHOut.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      cudaCheck(cudaMemcpyAsync(h_nPFRHCleaned.get(), d_nPFRHCleaned.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
 
 #ifdef DEBUG_ENABLE
       cudaDeviceSynchronize();
@@ -596,8 +608,8 @@ namespace PFRecHit {
       // Fill output PFRecHit arrays
       convert_rechits_to_PFRechits<<<(nRHIn + 31) / 32, 128, 0, cudaStream>>>(
           nRHIn,
-          d_nPFRHOut,
-          d_nPFRHCleaned,
+          d_nPFRHOut.get(),
+          d_nPFRHCleaned.get(),
           scratchDataGPU.rh_mask.get(),
           scratchDataGPU.pfrhToInputIdx.get(),
           scratchDataGPU.inputToPFRHIdx.get(),
@@ -635,13 +647,13 @@ namespace PFRecHit {
       printf("\nconvert_rechits_to_PFRechits took %f ms\n\n", timer[4]);
 #endif
 
-      HBHEPFRecHits_asOutput.PFRecHits.size = *h_nPFRHOut;
-      HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = *h_nPFRHCleaned;
+      HBHEPFRecHits_asOutput.PFRecHits.size = *(h_nPFRHOut.get());
+      HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = *(h_nPFRHCleaned.get());
 
-      cudaCheck(cudaFree(d_nPFRHOut));
-      cudaCheck(cudaFree(d_nPFRHCleaned));
-      delete h_nPFRHOut;
-      delete h_nPFRHCleaned;
+      // cudaCheck(cudaFree(d_nPFRHOut));
+      // cudaCheck(cudaFree(d_nPFRHCleaned));
+      // delete h_nPFRHOut;
+      // delete h_nPFRHCleaned;
     }
   }  // namespace HCAL
 }  //  namespace PFRecHit
