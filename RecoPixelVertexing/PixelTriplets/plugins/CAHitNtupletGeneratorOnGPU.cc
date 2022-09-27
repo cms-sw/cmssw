@@ -187,7 +187,8 @@ void CAHitNtupletGeneratorOnGPU::endJob() {
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,
                                                                     float bfield,
                                                                     cudaStream_t stream) const {
-  PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<pixelTrack::TrackSoA>(stream));
+  auto where = memoryPool::onDevice;
+  PixelTrackHeterogeneous tracks = memoryPool::cuda::makeBuffer<PixelTrackHeterogeneous::value_type>(1, stream, where);
 
   auto* soa = tracks.get();
   assert(soa);
@@ -218,7 +219,8 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
 }
 
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const {
-  PixelTrackHeterogeneous tracks(std::make_unique<pixelTrack::TrackSoA>());
+  auto where = memoryPool::onCPU;
+  PixelTrackHeterogeneous tracks = memoryPool::cuda::makeBuffer<PixelTrackHeterogeneous::value_type>(1, nullptr, where);
 
   auto* soa = tracks.get();
   assert(soa);

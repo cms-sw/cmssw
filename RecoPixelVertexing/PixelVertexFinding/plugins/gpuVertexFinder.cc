@@ -1,4 +1,5 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 #include "gpuClusterTracksByDensity.h"
 #include "gpuClusterTracksDBSCAN.h"
@@ -96,26 +97,28 @@ namespace gpuVertexFinder {
 
 #ifdef __CUDACC__
   ZVertexHeterogeneous Producer::makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin, float ptMax) const {
-#ifdef PIXVERTEX_DEBUG_PRODUCE
-    std::cout << "producing Vertices on GPU" << std::endl;
-#endif  // PIXVERTEX_DEBUG_PRODUCE
-    ZVertexHeterogeneous vertices(cms::cuda::make_device_unique<ZVertexSoA>(stream));
+    auto where = memoryPool::onDevice;
 #else
   ZVertexHeterogeneous Producer::make(TkSoA const* tksoa, float ptMin, float ptMax) const {
-#ifdef PIXVERTEX_DEBUG_PRODUCE
-    std::cout << "producing Vertices on  CPU" << std::endl;
-#endif  // PIXVERTEX_DEBUG_PRODUCE
-    ZVertexHeterogeneous vertices(std::make_unique<ZVertexSoA>());
+    cudaStream_t stream = nullptr;
+    auto where = memoryPool::onCPU;
 #endif
+#ifdef PIXVERTEX_DEBUG_PRODUCE
+#ifdef __CUDACC__
+    auto whereName = "GPU";
+#else
+    auto whereName = "CPU";
+#endif
+    std::cout << "producing Vertices on " << whereName << std::endl;
+#endif  // PIXVERTEX_DEBUG_PRODUCE
+
+    ZVertexHeterogeneous vertices = memoryPool::cuda::makeBuffer<ZVertexSoA>(1, stream, where);
+
     assert(tksoa);
     auto* soa = vertices.get();
     assert(soa);
 
-#ifdef __CUDACC__
-    auto ws_d = cms::cuda::make_device_unique<WorkSpace>(stream);
-#else
-    auto ws_d = std::make_unique<WorkSpace>();
-#endif
+    auto ws_d = memoryPool::cuda::makeBuffer<WorkSpace>(1, stream, where);
 
 #ifdef __CUDACC__
     init<<<1, 1, 0, stream>>>(soa, ws_d.get());
