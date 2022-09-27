@@ -16,7 +16,8 @@ def customiseEarlyDelete(process):
 
     (products, references) = customiseEarlyDeleteForSeeding(process, products)
     products = customiseEarlyDeleteForMkFit(process, products)
-    products = customiseEarlyDeleteForCKF(process, products)
+    (products, newReferences) = customiseEarlyDeleteForCKF(process, products)
+    references.update(newReferences)
 
     products = customiseEarlyDeleteForCandIsoDeposits(process, products)
 
