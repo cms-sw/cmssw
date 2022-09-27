@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -21,11 +22,9 @@ RandomFilter::RandomFilter(edm::ParameterSet const& ps) : acceptRate_(ps.getUntr
   }
 }
 
-RandomFilter::~RandomFilter() {}
-
-bool RandomFilter::filter(edm::Event& event, edm::EventSetup const&) {
+bool RandomFilter::filter(edm::StreamID streamID, edm::Event&, edm::EventSetup const&) const {
   Service<RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine& engine = rng->getEngine(event.streamID());
+  CLHEP::HepRandomEngine& engine = rng->getEngine(streamID);
   if (engine.flat() < acceptRate_)
     return true;
   return false;

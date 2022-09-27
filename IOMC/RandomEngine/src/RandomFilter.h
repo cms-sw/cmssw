@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    RandomEngine
+// Package:    IOMC/RandomEngine
 // Class:      RandomFilter
 //
-/**\class RandomFilter RandomFilter.h IOMC/RandomEngine/src/RandomFilter.h
+/**\class edm::RandomFilter
 
  Description: The output of this module is used for test purposes.
 It is a filter module that makes a filter decision based on a
@@ -18,19 +18,15 @@ type and name is "untracked double acceptRate".
 //         Created:  26 March 2007
 //
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
 
-  class RandomFilter : public edm::EDFilter {
+  class RandomFilter : public edm::global::EDFilter<> {
   public:
-    explicit RandomFilter(edm::ParameterSet const& ps);
-    ~RandomFilter() override;
-
-    bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    explicit RandomFilter(edm::ParameterSet const&);
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   private:
     // value between 0 and 1
