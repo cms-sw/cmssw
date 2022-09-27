@@ -7,9 +7,7 @@
 #include <vector>
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -26,7 +24,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
