@@ -7,7 +7,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -17,44 +17,47 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTHcalMETNoiseCleaner : public edm::EDFilter {
+class HLTHcalMETNoiseCleaner : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalMETNoiseCleaner(const edm::ParameterSet&);
   ~HLTHcalMETNoiseCleaner() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMetToken;
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   // parameters
-  edm::InputTag HcalNoiseRBXCollectionTag_;
-  edm::InputTag CaloMetCollectionTag_;
-  double CaloMetCut_;
-  int severity_;
-  int maxNumRBXs_;
-  int numRBXsToConsider_;
-  bool accept2NoiseRBXEvents_;
-  bool needEMFCoincidence_;
-  double minRBXEnergy_;
-  double minRatio_;
-  double maxRatio_;
-  int minHPDHits_;
-  int minRBXHits_;
-  int minHPDNoOtherHits_;
-  int minZeros_;
-  double minHighEHitTime_;
-  double maxHighEHitTime_;
-  double maxRBXEMF_;
+  const edm::InputTag HcalNoiseRBXCollectionTag_;
+  const edm::InputTag CaloMetCollectionTag_;
+  const double CaloMetCut_;
+  const int severity_;
+  const int maxNumRBXs_;
+  const int numRBXsToConsider_;
+  const bool accept2NoiseRBXEvents_;
+  const bool needEMFCoincidence_;
+  const double minRBXEnergy_;
+  const double minRatio_;
+  const double maxRatio_;
+  const int minHPDHits_;
+  const int minRBXHits_;
+  const int minHPDNoOtherHits_;
+  const int minZeros_;
+  const double minHighEHitTime_;
+  const double maxHighEHitTime_;
+  const double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
+  const double minRecHitE_;
+  const double minLowHitE_;
+  const double minHighHitE_;
+  const double minR45HitE_;
 
-  double TS4TS5EnergyThreshold_;
+  const double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
   std::vector<std::pair<double, double> > TS4TS5LowerCut_;
 
-  reco::CaloMET BuildCaloMet(float sumet, float pt, float phi);
+  reco::CaloMET BuildCaloMet(float sumet, float pt, float phi) const;
 
   // helper function to compare noise data energies
   struct noisedatacomp {
