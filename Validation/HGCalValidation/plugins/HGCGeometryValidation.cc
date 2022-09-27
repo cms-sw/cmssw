@@ -5,7 +5,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
@@ -22,18 +21,11 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"
-
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 const double mmtocm = 0.1;
 
@@ -90,7 +82,6 @@ void HGCGeometryValidation::fillDescriptions(edm::ConfigurationDescriptions &des
 }
 
 void HGCGeometryValidation::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  //initiating hgcnumbering
   for (size_t i = 0; i < geometrySource_.size(); i++) {
     hgcGeometry_.emplace_back(&iSetup.getData(geomToken_[i]));
   }
@@ -166,13 +157,13 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
     std::vector<float> hitVtxX = infoLayer->hitvtxX();
     std::vector<float> hitVtxY = infoLayer->hitvtxY();
     std::vector<float> hitVtxZ = infoLayer->hitvtxZ();
-    std::vector<unsigned int> hitDet = infoLayer->hitDets();
-    std::vector<unsigned int> hitIdx = infoLayer->hitIndex();
+    const std::vector<unsigned int> &hitDet = infoLayer->hitDets();
+    const std::vector<unsigned int> &hitIdx = infoLayer->hitIndex();
 
     //energy information
-    std::vector<float> edepLayerEE = infoLayer->eehgcEdep();
-    std::vector<float> edepLayerHE = infoLayer->hefhgcEdep();
-    std::vector<float> edepLayerHB = infoLayer->hebhgcEdep();
+    const std::vector<float> &edepLayerEE = infoLayer->eehgcEdep();
+    const std::vector<float> &edepLayerHE = infoLayer->hefhgcEdep();
+    const std::vector<float> &edepLayerHB = infoLayer->hebhgcEdep();
 
     unsigned int i;
     for (i = 0; i < edepLayerEE.size(); i++) {
