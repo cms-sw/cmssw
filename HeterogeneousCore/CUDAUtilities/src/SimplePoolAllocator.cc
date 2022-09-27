@@ -136,7 +136,7 @@ int SimplePoolAllocator::useOld(int b, void* stream) {
     if (nullptr != m_slots[i]) {  // ops allocated and freed
       assert(m_bucket[i] >= 0);
 #ifdef MEMORY_POOL_DEBUG
-      assert(m_last[i] = -1);
+      assert(m_last[i] == -1);
 #endif
       m_used[i].v = TriState::free;
       continue;
