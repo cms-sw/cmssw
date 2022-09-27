@@ -1590,6 +1590,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   //fill vertices histograms here in a new loop
   for (unsigned int is = 0; is < simpv.size(); is++) {
+    // protect against particle guns with very displaced vertices
+    if (std::isinf(1. / puLineDensity(simpv.at(is).z))) {
+      continue;
+    }
     meSimPVZ_->Fill(simpv.at(is).z, 1. / puLineDensity(simpv.at(is).z));
     if (is == 0 && optionalPlots_) {
       meSimPosInSimOrigCollection_->Fill(simpv.at(is).OriginalIndex);
