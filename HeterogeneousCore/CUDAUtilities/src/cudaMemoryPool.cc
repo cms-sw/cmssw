@@ -50,6 +50,8 @@ struct CudaDeviceAlloc : public CudaAlloc {
     Pointer p = nullptr;
     auto err = cudaMalloc(&p, size);
     // std::cout << "alloc " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
+    auto err2 = cudaGetLastError();
+    assert(err == err2);
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) {

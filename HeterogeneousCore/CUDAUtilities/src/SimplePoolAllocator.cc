@@ -55,9 +55,8 @@ int SimplePoolAllocator::allocImpl(uint64_t s, void* stream) {
 
   // try to create in existing slot (if garbage has been collected)
   ls = useOld(b, stream);
-  if (ls >= 0)
+  if (ls >= -1)
     return ls;
-
   // try to allocate a new slot
   if (m_size >= m_maxSlots)
     return -1;
@@ -83,6 +82,9 @@ int SimplePoolAllocator::createAt(int ls, int b, void* stream) {
     m_bucket[ls] = -1;
     m_stream[ls] = invalidStream;
     m_used[ls].v = TriState::free;
+#ifdef MEMORY_POOL_DEBUG
+    std::cout << "Failed to allocate " << as << " bytes" << std::endl;
+#endif
     return -1;
   }
   assert(m_stream[ls] == invalidStream);
@@ -96,6 +98,9 @@ int SimplePoolAllocator::createAt(int ls, int b, void* stream) {
 }
 
 void SimplePoolAllocator::garbageCollect() {
+#ifdef MEMORY_POOL_DEBUG
+  int64_t freed = 0;
+#endif
   int ls = size();
   for (int i = 0; i < ls; ++i) {
     if (m_used[i].v != TriState::free)
@@ -111,6 +116,9 @@ void SimplePoolAllocator::garbageCollect() {
       doFree(m_slots[i]);
       nFree++;
       totBytes -= poolDetails::bucketSize(m_bucket[i]);
+#ifdef MEMORY_POOL_DEBUG
+      freed += poolDetails::bucketSize(m_bucket[i]);
+#endif
     }
     m_slots[i] = nullptr;
     m_bucket[i] = -1;
@@ -121,6 +129,9 @@ void SimplePoolAllocator::garbageCollect() {
     m_used[i].v = TriState::free;
     ;  // here memory fence as well
   }
+#ifdef MEMORY_POOL_DEBUG
+  std::cout << "garbage freed " << freed << " bytes" << std::endl;
+#endif
 }
 
 int SimplePoolAllocator::useOld(int b, void* stream) {
@@ -147,7 +158,7 @@ int SimplePoolAllocator::useOld(int b, void* stream) {
 #endif
     return createAt(i, b, stream);
   }
-  return -1;
+  return -2;
 }
 
 void SimplePoolAllocator::dumpStat() const {
