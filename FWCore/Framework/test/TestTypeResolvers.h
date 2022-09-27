@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <cstring>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -87,9 +88,12 @@ namespace edm::test {
   public:
     ConfigurableTestTypeResolverMaker() = default;
     std::shared_ptr<ModuleTypeResolverBase const> makeResolver(edm::ParameterSet const& pset) const final {
-      auto variant = pset.getUntrackedParameter<std::string>("variant");
-      if (not variant.empty() and variant != "other" and variant != "cpu") {
-        throw edm::Exception(edm::errors::Configuration) << "variant can be empty, 'other', or 'cpu'. Got " << variant;
+      std::string variant;
+      if (pset.existsAs<std::string>("variant", false)) {
+        variant = pset.getUntrackedParameter<std::string>("variant");
+        if (variant != "other" and variant != "cpu") {
+          throw edm::Exception(edm::errors::Configuration) << "Variant must be 'other' or 'cpu'. Got " << variant;
+        }
       }
       auto found = cache_.find(variant);
       if (found == cache_.end()) {

@@ -109,7 +109,6 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
     SECTION("default behavior") {
-      pset.addUntrackedParameter<std::string>("variant", "");
       edm::test::ConfigurableTestTypeResolverMaker resolver;
       using Catch::Matchers::Contains;
       CHECK_THROWS_WITH(
@@ -196,7 +195,6 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_label", "gen");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
     SECTION("default behavior") {
-      pset.addUntrackedParameter<std::string>("variant", "");
       edm::test::ConfigurableTestTypeResolverMaker resolver;
       REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
       REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
