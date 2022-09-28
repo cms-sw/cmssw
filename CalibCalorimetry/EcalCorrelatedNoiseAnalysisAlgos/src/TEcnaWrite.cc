@@ -382,10 +382,10 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet, TEcnaParEcal* pEcal, 
 //     Int_t    fStexNumber    = super_module
 //
 //-------------------------------------------------------------------------
-TString TEcnaWrite::GetAsciiFileName() { return fAsciiFileName; }
-TString TEcnaWrite::GetRootFileName() { return fRootFileName; }
-TString TEcnaWrite::GetRootFileNameShort() { return fRootFileNameShort; }
-TString TEcnaWrite::GetAnalysisName() { return fAnaType; }
+const TString& TEcnaWrite::GetAsciiFileName() const { return fAsciiFileName; }
+const TString& TEcnaWrite::GetRootFileName() const { return fRootFileName; }
+const TString& TEcnaWrite::GetRootFileNameShort() const { return fRootFileNameShort; }
+const TString& TEcnaWrite::GetAnalysisName() const { return fAnaType; }
 Int_t TEcnaWrite::GetNbOfSamples() { return fNbOfSamples; }
 Int_t TEcnaWrite::GetRunNumber() { return fRunNumber; }
 Int_t TEcnaWrite::GetFirstReqEvtNumber() { return fFirstReqEvtNumber; }
