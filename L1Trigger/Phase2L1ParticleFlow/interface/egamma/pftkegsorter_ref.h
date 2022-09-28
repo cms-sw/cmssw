@@ -5,12 +5,10 @@
 #include <vector>
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../../../utils/dbgPrintf.h"
 #endif
 
 namespace edm {
