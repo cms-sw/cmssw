@@ -27,8 +27,7 @@ def customizeHcalOnlyForProfilingGPUOnly(process):
 def customizeHcalPFOnlyForProfilingGPUOnly(process):
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
-      #eventProducts = cms.untracked.vstring('hbheRecHitProducerGPU')
-      eventProducts = cms.untracked.vstring('particleFlowClusterHBHE')
+      eventProducts = cms.untracked.vstring('particleFlowClusterHBHEOnly')
   )
 
   process.consume_step = cms.EndPath(process.consumer)
