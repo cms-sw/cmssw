@@ -37,8 +37,9 @@ TempTrajectory::TempTrajectory(Trajectory&& traj)
       theCCCThreshold_(traj.cccThreshold()),
       stopReason_(traj.stopReason()) {
   for (auto& it : traj.measurements()) {
-    push(std::move(it));
+    push(it);
   }
+  traj.measurements().clear();
 }
 
 void TempTrajectory::pop() {
