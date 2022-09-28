@@ -11,6 +11,7 @@
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TauReco"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

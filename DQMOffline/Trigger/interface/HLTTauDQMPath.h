@@ -2,6 +2,7 @@
 #ifndef DQMOffline_Trigger_HLTTauDQMPath_h
 #define DQMOffline_Trigger_HLTTauDQMPath_h
 
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <tuple>
@@ -118,6 +119,9 @@ public:
 
   // Get objects associated to a filter, i is the "internal" index
   void getFilterObjects(const trigger::TriggerEvent& triggerEvent, size_t i, std::vector<Object>& retval) const;
+  void getFilterObjects(const pat::TriggerObjectStandAloneCollection& triggerObjects,
+                        size_t i,
+                        std::vector<Object>& retval) const;
 
   // i = filter index
   bool offlineMatching(size_t i,

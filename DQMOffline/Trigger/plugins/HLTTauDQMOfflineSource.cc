@@ -18,6 +18,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
       triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsSrc_)),
       triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
       triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventSrc_)),
+      miniAODTriggerObjectSrc(ps.getUntrackedParameter<edm::InputTag>("MiniAODTriggerObjectSrc", edm::InputTag())),
+      miniAODTriggerObjectToken(consumes<pat::TriggerObjectStandAloneCollection>(miniAODTriggerObjectSrc)),
       pathRegex_(ps.getUntrackedParameter<std::string>("Paths")),
       nPtBins_(ps.getUntrackedParameter<int>("PtHistoBins", 20)),
       nEtaBins_(ps.getUntrackedParameter<int>("EtaHistoBins", 12)),
@@ -195,17 +197,32 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
 
     edm::Handle<trigger::TriggerEvent> triggerEventHandle;
     iEvent.getByToken(triggerEventToken_, triggerEventHandle);
+    edm::Handle<pat::TriggerObjectStandAloneCollection> miniAODTriggerObjects;
+    auto unpackedMiniAODTriggerObjects = std::make_unique<pat::TriggerObjectStandAloneCollection>();
     if (!triggerEventHandle.isValid()) {
-      edm::LogWarning("HLTTauDQMOffline") << "Unable to read trigger::TriggerEvent with label " << triggerEventSrc_;
-      return;
+      iEvent.getByToken(miniAODTriggerObjectToken, miniAODTriggerObjects);
+
+      if (!triggerEventHandle.isValid() && !miniAODTriggerObjects.isValid()) {
+        edm::LogWarning("HLTTauDQMOffline") << "Unable to read trigger::TriggerEvent with label " << triggerEventSrc_;
+        return;
+      }
+
+      const edm::TriggerNames& names = iEvent.triggerNames(*triggerResultsHandle);
+      for (pat::TriggerObjectStandAlone trigObject : *miniAODTriggerObjects) {
+        trigObject.unpackPathNames(names);
+        trigObject.unpackFilterLabels(iEvent, *triggerResultsHandle);
+        unpackedMiniAODTriggerObjects->push_back(trigObject);
+      }
     }
 
     //Create match collections
     HLTTauDQMOfflineObjects refC;
     if (doRefAnalysis_) {
       for (RefObject& refObj : refObjects_) {
+        //std::cout << "check refObj.objID " << refObj.objID << std::endl;
         edm::Handle<LVColl> collHandle;
         iEvent.getByToken(refObj.token, collHandle);
+        //std::cout << "check refObj collHandle.isValid() " << collHandle.isValid() << std::endl;
         if (!collHandle.isValid())
           continue;
 
@@ -221,25 +238,43 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
       }
     }
 
-    //Path Plotters
-    for (auto& pathPlotter : pathPlotters_) {
-      if (pathPlotter.isValid())
-        pathPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
-    }
-
-    if (pathSummaryPlotter_ && pathSummaryPlotter_->isValid()) {
-      pathSummaryPlotter_->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
-    }
-
     //L1 Plotter
     if (l1Plotter_ && l1Plotter_->isValid()) {
       l1Plotter_->analyze(iEvent, iSetup, refC);
     }
 
-    //Tag and probe plotters
-    for (auto& tpPlotter : tagandprobePlotters_) {
-      if (tpPlotter->isValid())
-        tpPlotter->analyze(iEvent, *triggerResultsHandle, *triggerEventHandle, refC);
+    if (triggerEventHandle.isValid()) {
+      //Path Plotters
+      for (auto& pathPlotter : pathPlotters_) {
+        if (pathPlotter.isValid())
+          pathPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+      }
+
+      if (pathSummaryPlotter_ && pathSummaryPlotter_->isValid()) {
+        pathSummaryPlotter_->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+      }
+
+      //Tag and probe plotters
+      for (auto& tpPlotter : tagandprobePlotters_) {
+        if (tpPlotter->isValid())
+          tpPlotter->analyze(iEvent, *triggerResultsHandle, *triggerEventHandle, refC);
+      }
+    } else if (miniAODTriggerObjects.isValid()) {
+      //Path Plotters MiniAOD
+      for (auto& pathPlotter : pathPlotters_) {
+        if (pathPlotter.isValid())
+          pathPlotter.analyze(*triggerResultsHandle, *unpackedMiniAODTriggerObjects, refC);
+      }
+
+      if (pathSummaryPlotter_ && pathSummaryPlotter_->isValid()) {
+        pathSummaryPlotter_->analyze(*triggerResultsHandle, *unpackedMiniAODTriggerObjects, refC);
+      }
+
+      //Tag and probe plotters MiniAOD
+      for (auto& tpPlotter : tagandprobePlotters_) {
+        if (tpPlotter->isValid())
+          tpPlotter->analyze(iEvent, *triggerResultsHandle, *unpackedMiniAODTriggerObjects, refC);
+      }
     }
 
   } else {

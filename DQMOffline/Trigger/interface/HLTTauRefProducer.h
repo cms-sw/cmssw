@@ -24,6 +24,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -32,12 +33,15 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 // MUON includes
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 //Photon Includes
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -46,6 +50,7 @@
 //MET Includes
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include <memory>
 
@@ -68,15 +73,23 @@ private:
   using LorentzVector = math::XYZTLorentzVectorD;
   using LorentzVectorCollection = std::vector<LorentzVector>;
 
+  std::string PFTauType;
+  bool isMiniAODTau;
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer>> PFTauDisCont_;
   std::vector<std::string> PFTauDisContWPs_;
   edm::ProcessHistoryID phID_;
+
+  edm::EDGetTokenT<edm::View<pat::Tau>> MiniAODTauToken;
+  std::vector<std::string> MiniAODTauDiscriminators;
+
   bool doPFTaus_;
   double ptMinPFTau_, etaMinPFTau_, etaMaxPFTau_, phiMinPFTau_, phiMaxPFTau_;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
+  edm::EDGetTokenT<edm::View<pat::Electron>> MiniAODElectronToken;
+
   bool doElectrons_;
   edm::EDGetTokenT<reco::TrackCollection> e_ctfTrackCollection_;
   edm::InputTag e_ctfTrackCollectionSrc_;
@@ -99,6 +112,7 @@ private:
   double ptMinPhoton_;
 
   edm::EDGetTokenT<reco::MuonCollection> Muons_;
+  edm::EDGetTokenT<edm::View<pat::Muon>> MiniAODMuonToken;
   bool doMuons_;
   double ptMinMuon_;
 
@@ -112,6 +126,7 @@ private:
   double towerIsol_;
 
   edm::EDGetTokenT<reco::CaloMETCollection> MET_;
+  edm::EDGetTokenT<edm::View<pat::MET>> MiniAODMETToken;
   bool doMET_;
   double ptMinMET_;
 

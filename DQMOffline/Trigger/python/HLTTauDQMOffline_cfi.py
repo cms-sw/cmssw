@@ -5,22 +5,22 @@ hltTauDQMofflineProcess = "HLT"
 #Ref Objects-------------------------------------------------------------------------------------------------------
 TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
-                    PFTaus = cms.untracked.PSet(
-                            PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
-                            PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
-                            PFTauDiscriminators = cms.untracked.VInputTag(
+                    Taus = cms.untracked.PSet(
+                            TauCollection = cms.untracked.InputTag("hpsPFTauProducer"),
+                            TauDiscriminatorContainers  = cms.untracked.VInputTag(),
+                            TauDiscriminatorContainerWPs  = cms.untracked.vstring(),
+                            TauDiscriminators = cms.untracked.VInputTag(
                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
                                     cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
                                     cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
                                     cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")
                             ),
-                            doPFTaus = cms.untracked.bool(True),
+                            doTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
                             etaMin = cms.untracked.double(-2.5),
                             etaMax = cms.untracked.double(2.5),
                             phiMin = cms.untracked.double(-3.15),
                             phiMax = cms.untracked.double(3.15),
-                            PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                             ),
                     Electrons = cms.untracked.PSet(
                             ElectronCollection = cms.untracked.InputTag("gedGsfElectrons"),
@@ -72,6 +72,21 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     PhiMin = cms.untracked.double(-3.15),
                     PhiMax = cms.untracked.double(3.15)
                   )
+
+MiniAODTauRefProducer = TauRefProducer.clone(
+    Taus = TauRefProducer.Taus.clone(
+        TauCollection = cms.untracked.InputTag("slimmedTaus"),
+        TauDiscriminators = cms.untracked.VInputTag(
+            cms.InputTag("decayModeFinding"),
+            cms.InputTag("byMediumDeepTau2017v2p1VSjet"),
+            cms.InputTag("byVVLooseDeepTau2017v2p1VSe"),
+            cms.InputTag("byTightDeepTau2017v2p1VSmu"),
+        ),
+    ),
+    MET = TauRefProducer.MET.clone(
+        METCollection = cms.untracked.InputTag("slimmedMETs"),
+    )
+)
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
 kEverything = 0
@@ -142,8 +157,8 @@ def TriggerSelectionParameters(hltpaths):
 
 hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
     DQMBaseFolder = "HLT/TAU/TagAndProbe",
-    Matching = cms.PSet(                                                                                                                                                                             
-        doMatching            = cms.untracked.bool(True),                                                                                                                                            
+    Matching = cms.PSet(
+        doMatching            = cms.untracked.bool(True),
         matchFilters          = cms.untracked.VPSet(                                                                                                                                                 
                                     cms.untracked.PSet(                                                                                                                                              
                                         FilterName        = cms.untracked.InputTag("TauRefProducer","PFTaus"),
@@ -253,4 +268,58 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele35_WPTight_Gsf_v*'))
         )
     )
+)
+
+hltTauOfflineMonitor_MiniAODTaus = hltTauOfflineMonitor_PFTaus.clone(
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+    Matching = cms.PSet(
+        doMatching            = cms.untracked.bool(True),
+        matchFilters          = cms.untracked.VPSet(
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","PFTaus"),
+                                        matchObjectID     = cms.untracked.int32(15),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","Electrons"),
+                                        matchObjectID     = cms.untracked.int32(11),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","Muons"),
+                                        matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
+                                    ),
+                                ),
+    ),
+)
+
+hltTauOfflineMonitor_MiniAODInclusive = hltTauOfflineMonitor_Inclusive.clone(
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+)
+
+hltTauOfflineMonitor_MiniAODTagAndProbe = hltTauOfflineMonitor_TagAndProbe.clone(
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+    Matching = cms.PSet(
+        doMatching            = cms.untracked.bool(True),
+        matchFilters          = cms.untracked.VPSet(
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","PFTaus"),
+                                        matchObjectID     = cms.untracked.int32(15),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","Electrons"),
+                                        matchObjectID     = cms.untracked.int32(11),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","Muons"),
+                                        matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("MiniAODTauRefProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
+                                    ),
+                                ),
+    ),
 )

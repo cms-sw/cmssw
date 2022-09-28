@@ -11,6 +11,12 @@ HLTTauDQMOffline = cms.Sequence(TauRefProducer
                                 +hltTauOfflineMonitor_TagAndProbe
                                 )
 
+HLTTauDQMOfflineMiniAOD = cms.Sequence(MiniAODTauRefProducer
+                                +hltTauOfflineMonitor_MiniAODTaus
+                                +hltTauOfflineMonitor_MiniAODInclusive
+                                +hltTauOfflineMonitor_MiniAODTagAndProbe
+                                )
+
 HLTTauDQMOfflineHarvesting = cms.Sequence(HLTTauPostSeq)
 
 HLTTauDQMOfflineQuality = cms.Sequence(hltTauOfflineQualityTests)
