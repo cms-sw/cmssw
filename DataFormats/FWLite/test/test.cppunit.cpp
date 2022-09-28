@@ -176,7 +176,7 @@ void testRefInROOT::testEventBase() {
       edm::Handle<edmtest::OtherThingCollection> pOthers;
       eventBase->getByLabel(tag, pOthers);
       CPPUNIT_ASSERT(pOthers.isValid());
-      pOthers->size();
+      CPPUNIT_ASSERT(pOthers->size() > 0);
     }
 
     {
