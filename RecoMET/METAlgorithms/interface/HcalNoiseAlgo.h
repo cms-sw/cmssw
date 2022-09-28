@@ -15,8 +15,8 @@ public:
                          double minLowHitE,
                          double minHighHitE,
                          double TS4TS5EnergyThreshold,
-                         std::vector<std::pair<double, double> > &TS4TS5UpperCut,
-                         std::vector<std::pair<double, double> > &TS4TS5LowerCut,
+                         std::vector<std::pair<double, double> > const &TS4TS5UpperCut,
+                         std::vector<std::pair<double, double> > const &TS4TS5LowerCut,
                          double MinRBXRechitR45E);
   ~CommonHcalNoiseRBXData() {}
 
@@ -46,7 +46,10 @@ public:
   inline double r45Fraction(void) const { return r45Fraction_; }
   inline double r45EnergyFraction(void) const { return r45EnergyFraction_; }
 
-  bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts, int Side);
+  bool CheckPassFilter(double Charge,
+                       double Discriminant,
+                       std::vector<std::pair<double, double> > const &Cuts,
+                       int Side);
 
 private:
   // values
