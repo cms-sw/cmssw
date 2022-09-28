@@ -77,7 +77,7 @@ private:
   const std::string regionDumpName_;
   bool writeRawHgcalCluster_;
   std::fstream fRegionDump_;
-  std::vector<edm::ParameterSet> patternWriterConfigs_;
+  const std::vector<edm::ParameterSet> patternWriterConfigs_;
   std::vector<std::unique_ptr<L1TCorrelatorLayer1PatternFileWriter>> patternWriters_;
 
   // region of interest debugging
