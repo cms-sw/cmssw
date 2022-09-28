@@ -20,14 +20,17 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,6 +39,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -47,7 +51,13 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TTree.h>
+#include <TVector3.h>
+#include <TSystem.h>
+#include <TFile.h>
 
+#include <cmath>
+#include <memory>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -465,7 +475,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
     int subdet(0), zside, layer, wafer, celltype, cell, wafer2(0), cell2(0);
     if (hgcCons_[idet]->waferHexagon8()) {
       HGCSiliconDetId detId = HGCSiliconDetId(id);
-      subdet = static_cast<int>(detId.det());
+      subdet = (int)(detId.det());
       cell = detId.cellU();
       cell2 = detId.cellV();
       wafer = detId.waferU();
@@ -476,9 +486,9 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       xy = hgcCons_[idet]->locateCell(layer, wafer, wafer2, cell, cell2, false, true);
     } else if (hgcCons_[idet]->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id);
-      subdet = static_cast<int>(detId.det());
-      wafer = detId.ring();
-      cell = detId.iphi();
+      subdet = (int)(detId.det());
+      cell = detId.ietaAbs();
+      wafer = detId.iphi();
       celltype = detId.type();
       layer = detId.layer();
       zside = detId.zside();
