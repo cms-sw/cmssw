@@ -5,6 +5,8 @@
 #include "EventFilter/HcalRawToDigi/plugins/DecodeGPU.h"
 
 #include <cooperative_groups.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
 using namespace cooperative_groups;
 
 namespace hcal {

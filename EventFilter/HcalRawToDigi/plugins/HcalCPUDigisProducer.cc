@@ -11,6 +11,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 class HcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -92,7 +93,7 @@ void HcalCPUDigisProducer::acquire(edm::Event const& event,
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
     using type = typename vector_type::value_type;
-    using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+    using src_data_type = typename std::remove_const<typename std::remove_pointer<decltype(src)>::type>::type;
     static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };

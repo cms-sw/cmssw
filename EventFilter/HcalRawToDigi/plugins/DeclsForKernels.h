@@ -5,8 +5,8 @@
 
 #include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 #include "ElectronicsMappingGPU.h"
 
@@ -46,7 +46,7 @@ namespace hcal {
     struct ScratchDataGPU {
       // depends on the number of output collections
       // that is a statically known predefined number
-      cms::cuda::device::unique_ptr<uint32_t[]> pChannelsCounters;
+      memoryPool::Buffer<uint32_t> pChannelsCounters;
     };
 
     struct OutputDataGPU {
@@ -55,25 +55,27 @@ namespace hcal {
       DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> digisF3HB;
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
-        digisF01HE.data = cms::cuda::make_device_unique<uint16_t[]>(
-            config.maxChannelsF01HE * compute_stride<Flavor1>(config.nsamplesF01HE), cudaStream);
-        digisF01HE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF01HE, cudaStream);
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
+        digisF01HE.data = memoryPool::cuda::makeBuffer<uint16_t>(
+            config.maxChannelsF01HE * compute_stride<Flavor1>(config.nsamplesF01HE), deleter);
+        digisF01HE.ids = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannelsF01HE, deleter);
 
-        digisF5HB.data = cms::cuda::make_device_unique<uint16_t[]>(
-            config.maxChannelsF5HB * compute_stride<Flavor5>(config.nsamplesF5HB), cudaStream);
-        digisF5HB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF5HB, cudaStream);
-        digisF5HB.npresamples = cms::cuda::make_device_unique<uint8_t[]>(config.maxChannelsF5HB, cudaStream);
+        digisF5HB.data = memoryPool::cuda::makeBuffer<uint16_t>(
+            config.maxChannelsF5HB * compute_stride<Flavor5>(config.nsamplesF5HB), deleter);
+        digisF5HB.ids = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannelsF5HB, deleter);
+        digisF5HB.npresamples = memoryPool::cuda::makeBuffer<uint8_t>(config.maxChannelsF5HB, deleter);
 
-        digisF3HB.data = cms::cuda::make_device_unique<uint16_t[]>(
-            config.maxChannelsF3HB * compute_stride<Flavor3>(config.nsamplesF3HB), cudaStream);
-        digisF3HB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF3HB, cudaStream);
+        digisF3HB.data = memoryPool::cuda::makeBuffer<uint16_t>(
+            config.maxChannelsF3HB * compute_stride<Flavor3>(config.nsamplesF3HB), deleter);
+        digisF3HB.ids = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannelsF3HB, deleter);
       }
     };
 
     struct InputDataGPU {
-      cms::cuda::device::unique_ptr<unsigned char[]> data;
-      cms::cuda::device::unique_ptr<uint32_t[]> offsets;
-      cms::cuda::device::unique_ptr<int[]> feds;
+      memoryPool::Buffer<unsigned char> data;
+      memoryPool::Buffer<uint32_t> offsets;
+      memoryPool::Buffer<int> feds;
     };
 
     struct ConditionsProducts {

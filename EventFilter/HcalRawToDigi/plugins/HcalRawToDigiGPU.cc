@@ -12,7 +12,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 #include "DeclsForKernels.h"
 #include "DecodeGPU.h"
@@ -105,7 +105,7 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // scratch
   hcal::raw::ScratchDataGPU scratchGPU = {
-      cms::cuda::make_device_unique<uint32_t[]>(hcal::raw::numOutputCollections, ctx.stream())};
+      memoryPool::cuda::makeBuffer<uint32_t>(hcal::raw::numOutputCollections, ctx.stream(),memoryPool::onDevice)};
 
   // input cpu data
   hcal::raw::InputDataCPU inputCPU = {cms::cuda::make_host_unique<unsigned char[]>(
@@ -114,11 +114,12 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
                                       cms::cuda::make_host_unique<int[]>(hcal::raw::utca_nfeds_max, ctx.stream())};
 
   // input data gpu
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
   hcal::raw::InputDataGPU inputGPU = {
-      cms::cuda::make_device_unique<unsigned char[]>(hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
-                                                     ctx.stream()),
-      cms::cuda::make_device_unique<uint32_t[]>(hcal::raw::utca_nfeds_max, ctx.stream()),
-      cms::cuda::make_device_unique<int[]>(hcal::raw::utca_nfeds_max, ctx.stream())};
+      memoryPool::cuda::makeBuffer<unsigned char>(hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
+                                                     deleter),
+      memoryPool::cuda::makeBuffer<uint32_t>(hcal::raw::utca_nfeds_max, deleter),
+      memoryPool::cuda::makeBuffer<int>(hcal::raw::utca_nfeds_max, deleter)};
 
   // output cpu
   outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(hcal::raw::numOutputCollections, ctx.stream())};

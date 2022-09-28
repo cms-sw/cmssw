@@ -11,6 +11,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 class HcalDigisProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -129,10 +130,11 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
     hf5_.stride = stride;
 
     // flavor5 get device blobs
+    memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df5_.stride = stride;
-    df5_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF5HB * stride, ctx.stream());
-    df5_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF5HB, ctx.stream());
-    df5_.npresamples = cms::cuda::make_device_unique<uint8_t[]>(config_.maxChannelsF5HB, ctx.stream());
+    df5_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF5HB * stride, deleter);
+    df5_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF5HB, deleter);
+    df5_.npresamples = memoryPool::cuda::makeBuffer<uint8_t>(config_.maxChannelsF5HB, deleter);
   }
 
   if (not qie11Digis->empty()) {
@@ -144,14 +146,16 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
     hf3_.stride = stride3;
 
     // flavor 0/1 get devie blobs
+    memoryPool::Deleter deleter1 = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df01_.stride = stride01;
-    df01_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF01HE * stride01, ctx.stream());
-    df01_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF01HE, ctx.stream());
+    df01_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF01HE * stride01, deleter1);
+    df01_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF01HE, deleter1);
 
     // flavor3 get device blobs
+    memoryPool::Deleter deleter3 = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df3_.stride = stride3;
-    df3_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF3HB * stride3, ctx.stream());
-    df3_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF3HB, ctx.stream());
+    df3_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF3HB * stride3, deleter3);
+    df3_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF3HB, deleter3);
   }
 
   for (auto const& hbhe : *hbheDigis) {

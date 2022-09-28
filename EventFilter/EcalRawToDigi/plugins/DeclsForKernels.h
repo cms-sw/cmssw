@@ -9,8 +9,8 @@
 #include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 namespace ecal {
   namespace raw {
@@ -35,25 +35,27 @@ namespace ecal {
       DigisCollection<::calo::common::DevStoragePolicy> digisEB, digisEE;
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
         digisEB.data =
-            cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEB * EcalDataFrame::MAXSAMPLES, cudaStream);
+            memoryPool::cuda::makeBuffer<uint16_t>(config.maxChannelsEB * EcalDataFrame::MAXSAMPLES, deleter);
         digisEE.data =
-            cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEE * EcalDataFrame::MAXSAMPLES, cudaStream);
-        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEB, cudaStream);
-        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEE, cudaStream);
+            memoryPool::cuda::makeBuffer<uint16_t>(config.maxChannelsEE * EcalDataFrame::MAXSAMPLES, deleter);
+        digisEB.ids = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannelsEB, deleter);
+        digisEE.ids = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannelsEE, deleter);
       }
     };
 
     struct ScratchDataGPU {
       // [0] = EB
       // [1] = EE
-      cms::cuda::device::unique_ptr<uint32_t[]> pChannelsCounter;
+      memoryPool::Buffer<uint32_t> pChannelsCounter;
     };
 
     struct InputDataGPU {
-      cms::cuda::device::unique_ptr<unsigned char[]> data;
-      cms::cuda::device::unique_ptr<uint32_t[]> offsets;
-      cms::cuda::device::unique_ptr<int[]> feds;
+      memoryPool::Buffer<unsigned char> data;
+      memoryPool::Buffer<uint32_t> offsets;
+      memoryPool::Buffer<int> feds;
     };
 
     struct ConditionsProducts {

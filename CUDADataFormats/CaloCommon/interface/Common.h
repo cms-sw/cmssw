@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 
 namespace calo {
   namespace common {
@@ -45,7 +45,7 @@ namespace calo {
 
       template <typename T>
       struct StorageSelector {
-        using type = cms::cuda::device::unique_ptr<T[]>;
+        using type = memoryPool::Buffer<T>;;
       };
     };
 
