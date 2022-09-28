@@ -79,6 +79,19 @@ pushd ${LOCAL_TMP_DIR}
   echo "SwitchProducer in a ConditionalTask, test EDAlias with all cases being explicitly consumed, case test2 disabled"
   cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py 2" $?
 
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with a wildcard"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with a wildcard pattern, other module having the wildcard"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py -- --patternOnOtherModule || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --patternOnOtherModule" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with an a wildcard, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py -- --disableTest2 || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --disableTest2" $?
+
+
   
   echo "*************************************************"
   echo "SwitchProducer in a Path"
