@@ -1239,7 +1239,7 @@ namespace evf {
     //copy contents
     const std::size_t buf_sz = 512;
     std::size_t tot_written = 0;
-    std::unique_ptr<char> buf(new char[buf_sz]);
+    std::unique_ptr<char[]> buf(new char[buf_sz]);
 
     ssize_t sz, sz_read = 1, sz_write;
     while (sz_read > 0 && (sz_read = ::read(infile, buf.get(), buf_sz)) > 0) {
