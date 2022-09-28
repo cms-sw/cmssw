@@ -9,17 +9,6 @@
 #include <utility>
 #include <vector>
 
-// Uncomment to enable GPU debugging
-//#define DEBUG_GPU_HCAL
-
-// Uncomment to enable LEGACY inputs
-//#define DEBUG_WithLEGACY
-
-#include <TFile.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TTree.h>
-
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -381,11 +370,9 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     _pfClusterBuilder->reset();
   */
 
-  //#ifdef DEBUG_WithLEGACY
   edm::Handle<reco::PFRecHitCollection> rechits;
   if (_produceLegacy)
     event.getByToken(_rechitsLabel, rechits);
-  //#endif
 
   /* KenH
   _initialClustering->updateEvent(event);
