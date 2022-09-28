@@ -5,12 +5,7 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_sort_ref.h"
-
-#ifdef CMSSW_GIT_HASH
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../utils/dbgPrintf.h"
-#endif
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

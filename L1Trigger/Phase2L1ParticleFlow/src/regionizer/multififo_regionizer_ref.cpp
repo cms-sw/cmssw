@@ -39,7 +39,7 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
       NTK_LINKS(2),
-      NCALO_LINKS(2),
+      NCALO_LINKS(3),
       HCAL_LINKS(0),
       ECAL_LINKS(0),
       NMU_LINKS(1),
@@ -72,15 +72,13 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
   // hgcal
   assert(NCALO_SECTORS == 3 && NTK_SECTORS == 9);  // otherwise math below is broken, but it's hard to make it generic
   for (unsigned int ie = 0; ie < nendcaps; ++ie) {
-    for (unsigned int is = 0; is < NCALO_SECTORS; ++is) {  // NCALO_SECTORS sectors
-      for (unsigned int il = 0; il < NCALO_LINKS; ++il) {  // max clusters per sector per clock
-        for (unsigned int j = 0; j < 3; ++j) {             // PF REGION
-          caloRoutes_.emplace_back(is + 3 * ie, il, 3 * is + j + 9 * ie, il);
-          if (j == 0 || j == 2) {
-            int other = (j == 0) ? 2 : 1;  // pf region 0, takes from prev. pf region 2 takes from next
-            //                       from sector      , from link, to region, to fifo
-            caloRoutes_.emplace_back(
-                (is + other) % 3 + 3 * ie, il, 3 * is + j + 9 * ie, il + 2);  //last 2 = NCALOFIBERS
+    for (unsigned int is = 0; is < NCALO_SECTORS; ++is) {                      // NCALO_SECTORS sectors
+      for (unsigned int il = 0; il < NCALO_LINKS; ++il) {                      // max clusters per sector per clock
+        for (unsigned int j = 0; j < 3; ++j) {                                 // PF REGION
+          caloRoutes_.emplace_back(is + 3 * ie, il, 3 * is + j + 9 * ie, il);  // 4 args are: sector, link, region, fifo
+          if (j != 2) {  // pf regions 0 and 1 take also from previous sector
+            int isprev = (is > 0 ? is - 1 : NCALO_SECTORS - 1);
+            caloRoutes_.emplace_back(isprev + 3 * ie, il, 3 * is + j + 9 * ie, il + NCALO_LINKS);
           }
         }
       }
