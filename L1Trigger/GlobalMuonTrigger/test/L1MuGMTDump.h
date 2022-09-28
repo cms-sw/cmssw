@@ -22,7 +22,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -48,7 +48,7 @@ const int MAXDTBX = 20;
 const int MAXCSC = 20;
 const int MAXGMT = 20;
 
-class L1MuGMTDump : public edm::EDAnalyzer {
+class L1MuGMTDump : public edm::one::EDAnalyzer<> {
 private:
   edm::InputTag m_inputTag;
 
@@ -57,9 +57,9 @@ public:
   explicit L1MuGMTDump(const edm::ParameterSet&);
 
   // fill tree
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void endJob();
+  void endJob() override;
 
 public:
   //GENERAL block
