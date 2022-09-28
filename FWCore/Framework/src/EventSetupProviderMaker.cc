@@ -123,14 +123,6 @@ namespace edm {
       std::string moduleLabel;
       modtype = pset.getParameter<std::string>("@module_type");
       moduleLabel = pset.getParameter<std::string>("@module_label");
-      // Check for the "unlabeled" case
-      // This is an artifact left over from the old configuration language
-      // we were using before switching to the python configuration
-      // This is handled in the validation code and python configuration
-      // files by using a label equal to the module typename.
-      if (moduleLabel == std::string("")) {
-        moduleLabel = modtype;
-      }
 
       std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
           ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
