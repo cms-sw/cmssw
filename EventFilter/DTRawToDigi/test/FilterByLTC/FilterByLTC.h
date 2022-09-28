@@ -8,7 +8,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -17,7 +17,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class FilterByLTC : public edm::EDFilter {
+class FilterByLTC : public edm::one::EDFilter<> {
 public:
   /// Constructor
   FilterByLTC(const edm::ParameterSet& pset);
