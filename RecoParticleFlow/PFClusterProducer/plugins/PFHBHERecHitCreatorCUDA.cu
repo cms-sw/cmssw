@@ -148,6 +148,31 @@ namespace PFRecHit {
       }
     }
 
+
+
+    __global__ void buildDetIdMapHackathon(
+        uint32_t size,
+        uint32_t const* rh_detIdRef,    // Reference table index -> detId
+        int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
+        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index    
+        uint32_t const* recHits_did)    // Input rechit detIds
+        {  
+
+          int first = blockIdx.x*blockDim.x + threadIdx.x;
+          for (int i = first; i < size; i += gridDim.x * blockDim.x) {
+            auto detId = rh_detIdRef[i];
+            for(int j = 0; j< size; ++j)
+            {
+              if(recHits_did[j] == detId)
+              {
+                rh_inputToFullIdx[j] = i;
+                rh_fullToInputIdx[i] = j;
+                return;
+              }
+            }
+          }
+        }
+
     // Build detId map with 1 block per input rechit
     // Searches by detId for the matching index in reference table
     __global__ void buildDetIdMapPerBlock(
@@ -528,9 +553,9 @@ namespace PFRecHit {
       cudaDeviceSynchronize();
       cudaEventRecord(start, cudaStream);
 #endif
-
+      int threadsPerBlock = 256;
       // Initialize scratch arrays
-      initializeArrays<<<(scratchDataGPU.maxSize + 511) / 512, 256, 0, cudaStream>>>(
+      initializeArrays<<<(scratchDataGPU.maxSize + threadsPerBlock-1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn,
           scratchDataGPU.rh_mask.get(),
           scratchDataGPU.rh_inputToFullIdx.get(),
@@ -548,8 +573,16 @@ namespace PFRecHit {
       cudaEventRecord(start, cudaStream);
 #endif
 
+      // // First build the mapping for input rechits to reference table indices
+      // buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
+      //                                                      persistentDataGPU.rh_detId.get(),
+      //                                                      scratchDataGPU.rh_inputToFullIdx.get(),
+      //                                                      scratchDataGPU.rh_fullToInputIdx.get(),
+      //                                                      HBHERecHits_asInput.did.get());
+      // cudaCheck(cudaGetLastError());
+
       // First build the mapping for input rechits to reference table indices
-      buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
+      buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
                                                            persistentDataGPU.rh_detId.get(),
                                                            scratchDataGPU.rh_inputToFullIdx.get(),
                                                            scratchDataGPU.rh_fullToInputIdx.get(),
@@ -569,7 +602,8 @@ namespace PFRecHit {
       // Apply PFRecHit threshold & quality tests
 
       //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
-      applyDepthThresholdQTests<<<(nRHIn + 127) / 128, 256, 0, cudaStream>>>(
+      
+      applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
       cudaCheck(cudaGetLastError());
 
