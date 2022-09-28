@@ -32,7 +32,6 @@
 #include "TFile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
