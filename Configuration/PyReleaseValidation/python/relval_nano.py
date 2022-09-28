@@ -74,11 +74,12 @@ steps['NANO_data8.0']=merge([{'--era':'Run2_2016,run2_miniAOD_80XLegacy',
                              steps['NANO_data']])
 
 ##9.4 INPUT and workflows
-steps['TTbarMINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',
-                                                dataSet='/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM')}
-steps['NANO_mc9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
-                              '--conditions':'auto:phase1_2017_realistic'},
-                             steps['NANO_mc']])
+## de-facto, this input is totally superseeded by 9.4v2
+#steps['TTbarMINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',
+#                                                dataSet='/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM')}
+#steps['NANO_mc9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
+#                              '--conditions':'auto:phase1_2017_realistic'},
+#                             steps['NANO_mc']])
 steps['TTbar2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',
                                                     dataSet='/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM')}
 steps['NANO_2016mc9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
@@ -104,17 +105,18 @@ steps['NANO_2016data9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
                                    steps['NANO_data']])
 
 ##17Nov2017 campaign is CMSSW_9_4_0
-steps['MuonEG2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-                                                     dataSet='/MuonEG/Run2017E-17Nov2017-v1/MINIAOD')}
+## de facto, 9.4v1 mini is deprecated
+#steps['MuonEG2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
+#                                                     dataSet='/MuonEG/Run2017E-17Nov2017-v1/MINIAOD')}
 #steps['JetHT2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                    dataSet='/JetHT/Run2017E-17Nov2017-v1/MINIAOD')}
 #steps['SingleElectron2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                             dataSet='/SingleElectron/Run2017E-17Nov2017-v1/MINIAOD')}
 #steps['SingleMuon2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                         dataSet='/SingleMuon/Run2017E-17Nov2017-v1/MINIAOD')}
-steps['NANO_data9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
-                                '--conditions':'run2_data'},
-                               steps['NANO_data']])
+#steps['NANO_data9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
+#                                '--conditions':'run2_data'},
+#                               steps['NANO_data']])
 
 ##31Mar2018 campaign is CMSSW_9_4_5_cand1 
 steps['MuonEG2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
@@ -287,11 +289,11 @@ workflows[_wfn()] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0']]
 _wfn.next()
 ################
 #9.4 input
-workflows[_wfn()] = ['mc94X', ['TTbarMINIAOD9.4v1','NANO_mc9.4v1']]
+#workflows[_wfn()] = ['mc94X', ['TTbarMINIAOD9.4v1','NANO_mc9.4v1']] ##deprecated input
 workflows[_wfn()] = ['mc94X2016', ['TTbar2016MINIAOD9.4v2','NANO_2016mc9.4v2']]
 workflows[_wfn()] = ['mc94Xv2', ['TTbarMINIAOD9.4v2','NANO_mc9.4v2']]
 _wfn.subnext()
-workflows[_wfn()] = ['data94X', ['MuonEG2017MINIAOD9.4v1','NANO_data9.4v1']]
+#workflows[_wfn()] = ['data94X', ['MuonEG2017MINIAOD9.4v1','NANO_data9.4v1']] ## deprecated
 #workflows[_wfn()] = ['data94X', ['JetHT2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
 #workflows[_wfn()] = ['data94X', ['SingleMuon2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
 #workflows[_wfn()] = ['data94X', ['SingleElectron2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
