@@ -33,6 +33,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 #include "EigenMatrixTypes_gpu.h"
 
@@ -99,35 +100,37 @@ namespace ecal {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
         auto const sizeEB = configParameters.maxNumberHitsEB;
-        recHitsEB.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
-            sizeEB * EcalDataFrame::MAXSAMPLES, cudaStream);
-        recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
-        recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
-        recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.amplitudesAll = memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(
+            sizeEB * EcalDataFrame::MAXSAMPLES, deleter);
+        recHitsEB.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
+        recHitsEB.chi2 = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
+        recHitsEB.pedestal = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
 
         if (configParameters.shouldRunTimingComputation) {
-          recHitsEB.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
-          recHitsEB.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+          recHitsEB.jitter = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
+          recHitsEB.jitterError = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
         }
 
-        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
-        recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
+        recHitsEB.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
+        recHitsEB.flags = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
 
         auto const sizeEE = configParameters.maxNumberHitsEE;
-        recHitsEE.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
-            sizeEE * EcalDataFrame::MAXSAMPLES, cudaStream);
-        recHitsEE.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
-        recHitsEE.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
-        recHitsEE.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.amplitudesAll = memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(
+            sizeEE * EcalDataFrame::MAXSAMPLES, deleter);
+        recHitsEE.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
+        recHitsEE.chi2 = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
+        recHitsEE.pedestal = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
 
         if (configParameters.shouldRunTimingComputation) {
-          recHitsEE.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
-          recHitsEE.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
+          recHitsEE.jitter = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
+          recHitsEE.jitterError = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
         }
 
-        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
-        recHitsEE.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
+        recHitsEE.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
+        recHitsEE.flags = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
       }
     };
 
@@ -143,27 +146,27 @@ namespace ecal {
       using PMT = PulseMatrixType::Scalar;
       using BXVT = BXVectorType::Scalar;
 
-      cms::cuda::device::unique_ptr<SVT[]> samples;
-      cms::cuda::device::unique_ptr<SGVT[]> gainsNoise;
+      memoryPool::Buffer<SVT> samples;
+      memoryPool::Buffer<SGVT> gainsNoise;
 
-      cms::cuda::device::unique_ptr<SMT[]> noisecov;
-      cms::cuda::device::unique_ptr<PMT[]> pulse_matrix;
-      cms::cuda::device::unique_ptr<BXVT[]> activeBXs;
-      cms::cuda::device::unique_ptr<char[]> acState;
+      memoryPool::Buffer<SMT> noisecov;
+      memoryPool::Buffer<PMT> pulse_matrix;
+      memoryPool::Buffer<BXVT> activeBXs;
+      memoryPool::Buffer<char> acState;
 
-      cms::cuda::device::unique_ptr<bool[]> hasSwitchToGain6, hasSwitchToGain1, isSaturated;
+      memoryPool::Buffer<bool> hasSwitchToGain6, hasSwitchToGain1, isSaturated;
 
-      cms::cuda::device::unique_ptr<SVT[]> sample_values, sample_value_errors;
-      cms::cuda::device::unique_ptr<bool[]> useless_sample_values;
-      cms::cuda::device::unique_ptr<SVT[]> chi2sNullHypot;
-      cms::cuda::device::unique_ptr<SVT[]> sum0sNullHypot;
-      cms::cuda::device::unique_ptr<SVT[]> sumAAsNullHypot;
-      cms::cuda::device::unique_ptr<char[]> pedestal_nums;
-      cms::cuda::device::unique_ptr<SVT[]> tMaxAlphaBetas, tMaxErrorAlphaBetas;
-      cms::cuda::device::unique_ptr<SVT[]> accTimeMax, accTimeWgt;
-      cms::cuda::device::unique_ptr<SVT[]> ampMaxAlphaBeta, ampMaxError;
-      cms::cuda::device::unique_ptr<SVT[]> timeMax, timeError;
-      cms::cuda::device::unique_ptr<TimeComputationState[]> tcState;
+      memoryPool::Buffer<SVT> sample_values, sample_value_errors;
+      memoryPool::Buffer<bool> useless_sample_values;
+      memoryPool::Buffer<SVT> chi2sNullHypot;
+      memoryPool::Buffer<SVT> sum0sNullHypot;
+      memoryPool::Buffer<SVT> sumAAsNullHypot;
+      memoryPool::Buffer<char> pedestal_nums;
+      memoryPool::Buffer<SVT> tMaxAlphaBetas, tMaxErrorAlphaBetas;
+      memoryPool::Buffer<SVT> accTimeMax, accTimeWgt;
+      memoryPool::Buffer<SVT> ampMaxAlphaBeta, ampMaxError;
+      memoryPool::Buffer<SVT> timeMax, timeError;
+      memoryPool::Buffer<TimeComputationState> tcState;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         constexpr auto svlength = getLength<SampleVector>();
@@ -172,10 +175,11 @@ namespace ecal {
         constexpr auto pmlength = getLength<PulseMatrixType>();
         constexpr auto bxvlength = getLength<BXVectorType>();
         auto const size = configParameters.maxNumberHitsEB + configParameters.maxNumberHitsEE;
-
-        auto alloc = [cudaStream](auto& var, uint32_t size) {
-          using element_type = typename std::remove_reference_t<decltype(var)>::element_type;
-          var = cms::cuda::make_device_unique<element_type[]>(size, cudaStream);
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
+        auto alloc = [&](auto& var, uint32_t size) {
+          using element_type = typename std::remove_reference_t<decltype(var)>::value_type;
+          var = memoryPool::cuda::makeBuffer<element_type>(size, deleter);
         };
 
         alloc(samples, size * svlength);
@@ -281,22 +285,24 @@ namespace ecal {
       RecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
         //---- configParameters -> needed only to decide if to save the timing information or not
         auto const sizeEB = configParameters.maxNumberHitsEB;
-        recHitsEB.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
-        recHitsEB.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
-        recHitsEB.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
-        recHitsEB.flagBits = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
-        recHitsEB.extra = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
-        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
+        recHitsEB.energy = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
+        recHitsEB.time = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
+        recHitsEB.chi2 = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
+        recHitsEB.flagBits = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
+        recHitsEB.extra = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
+        recHitsEB.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
 
         auto const sizeEE = configParameters.maxNumberHitsEE;
-        recHitsEE.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
-        recHitsEE.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
-        recHitsEE.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
-        recHitsEE.flagBits = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
-        recHitsEE.extra = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
-        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
+        recHitsEE.energy = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);
+        recHitsEE.time = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);
+        recHitsEE.chi2 = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);
+        recHitsEE.flagBits = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
+        recHitsEE.extra = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
+        recHitsEE.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
       }
     };
 

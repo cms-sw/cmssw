@@ -224,23 +224,25 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       pulseOffsets.getValues()};
 
   // scratch mem on device
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+  assert(deleter.pool());
   hcal::reconstruction::ScratchDataGPU scratchGPU = {
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             deleter),
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             deleter),
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             deleter),
+      memoryPool::cuda::makeBuffer<float>(
           configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(
+          deleter),
+      memoryPool::cuda::makeBuffer<float>(
           configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(
+          deleter),
+      memoryPool::cuda::makeBuffer<float>(
           configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
-      cms::cuda::make_device_unique<int8_t[]>(configParameters_.maxChannels, ctx.stream()),
+          deleter),
+      memoryPool::cuda::makeBuffer<int8_t>(configParameters_.maxChannels, deleter),
   };
 
   // output dev mem

@@ -36,8 +36,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
 
@@ -94,18 +94,20 @@ namespace hcal {
       RecHitCollection<::calo::common::DevStoragePolicy> recHits;
 
       void allocate(ConfigParameters const& config, cudaStream_t cudaStream) {
-        recHits.energy = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.chi2 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.energyM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.timeM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.did = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
+        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        assert(deleter.pool());
+        recHits.energy = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
+        recHits.chi2 = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
+        recHits.energyM0 = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
+        recHits.timeM0 = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
+        recHits.did = memoryPool::cuda::makeBuffer<uint32_t>(config.maxChannels, deleter);
       }
     };
 
     struct ScratchDataGPU {
-      cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices,
+      memoryPool::Buffer<float> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices,
           pulseMatricesM, pulseMatricesP;
-      cms::cuda::device::unique_ptr<int8_t[]> soiSamples;
+      memoryPool::Buffer<int8_t> soiSamples;
     };
 
     struct InputDataGPU {

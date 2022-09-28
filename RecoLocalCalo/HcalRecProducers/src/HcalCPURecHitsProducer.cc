@@ -83,7 +83,7 @@ void HcalCPURecHitsProducer::acquire(edm::Event const& event,
 
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
-    using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+    using src_data_type = typename std::remove_const<typename std::remove_pointer<decltype(src)>::type>::type;
     using type = typename vector_type::value_type;
     static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
