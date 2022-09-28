@@ -1326,8 +1326,8 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc) {
 //    Get the ROOT file name (long and short)
 //
 //-------------------------------------------------------------------------
-TString TEcnaRun::GetRootFileName() { return fRootFileName; }
-TString TEcnaRun::GetRootFileNameShort() { return fRootFileNameShort; }
+const TString& TEcnaRun::GetRootFileName() const { return fRootFileName; }
+const TString& TEcnaRun::GetRootFileNameShort() const { return fRootFileNameShort; }
 
 //###################################################################################################
 //
@@ -3426,8 +3426,8 @@ Bool_t TEcnaRun::WriteNewRootFile(const TString& TypAna) {
 //   (called by TEcnaGui in Calculations method)
 //
 //-------------------------------------------------------------------------
-TString TEcnaRun::GetNewRootFileName() { return fNewRootFileName; }
-TString TEcnaRun::GetNewRootFileNameShort() { return fNewRootFileNameShort; }
+const TString& TEcnaRun::GetNewRootFileName() const { return fNewRootFileName; }
+const TString& TEcnaRun::GetNewRootFileNameShort() const { return fNewRootFileNameShort; }
 
 //--------------------------------------------------------------------
 //
