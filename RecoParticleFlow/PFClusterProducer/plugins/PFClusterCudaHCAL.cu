@@ -4391,19 +4391,16 @@ namespace PFClusterCudaHCAL {
       ::PFClustering::HCAL::OutputDataGPU& outputGPU,
       ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
       float (&timer)[8]) {
-    int nRH = inputPFRecHits.size;
-    //int nRH = 10;
-    //    printf("Now in PFRechitToPFCluster_HCAL_entryPoint with nRH = %d\tnEdges = %d\n", nRH, nEdges);
-    if (nRH < 1)
-      return;
-    cudaProfilerStart();
 
 #ifdef DEBUG_GPU_HCAL
+    cudaProfilerStart();
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start, cudaStream);
 #endif
+
+    int nRH = inputPFRecHits.size;
 
     // Combined seeding & topo clustering thresholds, array initialization
 
@@ -4552,12 +4549,11 @@ namespace PFClusterCudaHCAL {
                                                            inputGPU.pfc_prevPos4.get(),
                                                            inputGPU.pfc_energy.get(),
                                                            outputGPU.pfc_iter.get());
-
 #ifdef DEBUG_GPU_HCAL
     cudaEventRecord(stop, cudaStream);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&timer[3], start, stop);
-#endif
     cudaProfilerStop();
+#endif
   }
 }  // namespace PFClusterCudaHCAL
