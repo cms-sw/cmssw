@@ -33,6 +33,7 @@
 
 HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
     : HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
+      m_theHcalNoiseToken(consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_)),
       severity_(iConfig.getParameter<int>("severity")),
       maxNumRBXs_(iConfig.getParameter<int>("maxNumRBXs")),
       numRBXsToConsider_(iConfig.getParameter<int>("numRBXsToConsider")),
@@ -50,7 +51,7 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
       minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
       minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
       minHighHitE_(iConfig.getParameter<double>("minHighHitE")),
-      minR45HitE_(5.0),
+      minR45HitE_(iConfig.getParameter<double>("minR45HitE")),
       TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold")) {
   std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
   std::vector<double> TS4TS5UpperCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperCut");
@@ -64,14 +65,7 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
   for (int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
     TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
   sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
-
-  if (iConfig.existsAs<double>("minR45HitE"))
-    minR45HitE_ = iConfig.getParameter<double>("minR45HitE");
-
-  m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
 }
-
-HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter() = default;
 
 void HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -116,7 +110,7 @@ void HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 // member functions
 //
 
-bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTHcalMETNoiseFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace reco;
 
   // in this case, do not filter anything
