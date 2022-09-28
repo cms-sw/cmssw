@@ -31,7 +31,7 @@ steps['NANO_data'] = merge([{'-s':'NANO,DQM:@nanoAODDQM',
                              '--eventcontent':'NANOAOD,DQM',
                              '--datatier':'NANOAOD,DQMIO',
                              '-n':'10000',
-                             '--customise_command':'process.MessageLogger.cerr.FwkReport.reportEvery=100;process.Timing=cms.Service("Timing",summaryOnly=cms.untracked.bool(True));process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",ignoreTotal=cms.untracked.int32(1))',
+                             '--customise':'"Configuration/DataProcessing/Utils.addMonitoring"'
                          }])
 run2_lumis={ 277168: [[1, 1708]],
              277194: [[913, 913], [916, 916], [919, 919], [932, 932], [939, 939]],
@@ -52,7 +52,7 @@ steps['NANO_mc']= merge([{'-s':'NANO,DQM:@nanoAODDQM',
                           '--eventcontent':'NANOAODSIM,DQM',
                           '--datatier':'NANOAODSIM,DQMIO',
                           '-n':'10000',
-                          '--customise_command':'process.MessageLogger.cerr.FwkReport.reportEvery=100;process.Timing=cms.Service("Timing",summaryOnly=cms.untracked.bool(True));process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",ignoreTotal=cms.untracked.int32(1))',
+                          '--customise':'"Configuration/DataProcessing/Utils.addMonitoring"'
                       }])
 
 ##8.0 INPUT and workflows
