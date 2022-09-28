@@ -99,6 +99,20 @@ LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName, const trigge
   return LV(0, 0, 0, 0);
 }
 
+LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName,
+                                              const pat::TriggerObjectStandAloneCollection& triggerObjects) {
+  for (pat::TriggerObjectStandAlone trigObject : triggerObjects) {
+    // Unpack trigger names into indices
+    //trigObject.unpackPathNames(names);
+    if (trigObject.hasPathName(pathName)) {
+      const unsigned moduleIndex = moduleLabels.size() - 2;
+      if (trigObject.hasFilterLabel(moduleLabels[moduleIndex]))
+        return LV(trigObject.px(), trigObject.py(), trigObject.pz(), trigObject.energy());
+    }
+  }
+  return LV(0, 0, 0, 0);
+}
+/*
 void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
                                           const edm::TriggerResults& triggerResults,
                                           const trigger::TriggerEvent& triggerEvent,
@@ -182,3 +196,4 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
       h_num_phi->Fill(offlineObject.phi());
   }
 }
+*/

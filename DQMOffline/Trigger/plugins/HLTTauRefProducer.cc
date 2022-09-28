@@ -29,21 +29,30 @@ using namespace std;
 HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   //One Parameter Set per Collection
   {
-    auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
-    PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer"));
-    auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
-    auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
-    PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("PFTauDiscriminatorContainerWPs");
+    auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("Taus");
+
+    MiniAODTauToken =
+        consumes<edm::View<pat::Tau>>(pfTau.getUntrackedParameter<InputTag>("TauCollection", edm::InputTag()));
+    auto mdiscs = pfTau.getUntrackedParameter<std::vector<InputTag>>("TauDiscriminators", std::vector<InputTag>());
+    for (auto const& tag : mdiscs) {
+      MiniAODTauDiscriminators.push_back(tag.label());
+    }
+
+    PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("TauCollection"));
+    auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("TauDiscriminators");
+    auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("TauDiscriminatorContainers");
+    PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("TauDiscriminatorContainerWPs");
     if (discConts.size() != PFTauDisContWPs_.size())
-      throw cms::Exception("Configuration") << "HLTTauRefProducer: Input parameters PFTauDiscriminatorContainers and "
-                                               "PFTauDiscriminatorContainerWPs must have the same number of entries!\n";
+      throw cms::Exception("Configuration") << "HLTTauRefProducer: Input parameters TauDiscriminatorContainers and "
+                                               "TauDiscriminatorContainerWPs must have the same number of entries!\n";
     for (auto const& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
     }
     for (auto const& tag : discConts) {
       PFTauDisCont_.push_back(consumes<reco::TauDiscriminatorContainer>(tag));
     }
-    doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus", false);
+
+    doPFTaus_ = pfTau.getUntrackedParameter<bool>("doTaus", false);
     ptMinPFTau_ = pfTau.getUntrackedParameter<double>("ptMin", 15.);
     etaMinPFTau_ = pfTau.getUntrackedParameter<double>("etaMin", -2.5);
     etaMaxPFTau_ = pfTau.getUntrackedParameter<double>("etaMax", 2.5);
@@ -54,6 +63,8 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   {
     auto const& electrons = iConfig.getUntrackedParameter<edm::ParameterSet>("Electrons");
     Electrons_ = consumes<reco::GsfElectronCollection>(electrons.getUntrackedParameter<InputTag>("ElectronCollection"));
+    MiniAODElectronToken = consumes<edm::View<pat::Electron>>(
+        electrons.getUntrackedParameter<InputTag>("MiniAODElectronCollection", edm::InputTag()));
     doElectrons_ = electrons.getUntrackedParameter<bool>("doElectrons", false);
     e_ctfTrackCollectionSrc_ = electrons.getUntrackedParameter<InputTag>("TrackCollection");
     e_ctfTrackCollection_ = consumes<reco::TrackCollection>(e_ctfTrackCollectionSrc_);
@@ -69,6 +80,8 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   {
     auto const& muons = iConfig.getUntrackedParameter<edm::ParameterSet>("Muons");
     Muons_ = consumes<reco::MuonCollection>(muons.getUntrackedParameter<InputTag>("MuonCollection"));
+    MiniAODMuonToken =
+        consumes<edm::View<pat::Muon>>(muons.getUntrackedParameter<InputTag>("MiniAODMuonCollection", edm::InputTag()));
     doMuons_ = muons.getUntrackedParameter<bool>("doMuons", false);
     ptMinMuon_ = muons.getUntrackedParameter<double>("ptMin", 15.);
   }
@@ -99,6 +112,8 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   {
     auto const& met = iConfig.getUntrackedParameter<edm::ParameterSet>("MET");
     MET_ = consumes<reco::CaloMETCollection>(met.getUntrackedParameter<InputTag>("METCollection"));
+    MiniAODMETToken =
+        consumes<edm::View<pat::MET>>(met.getUntrackedParameter<InputTag>("METCollection", edm::InputTag()));
     doMET_ = met.getUntrackedParameter<bool>("doMET", false);
     ptMinMET_ = met.getUntrackedParameter<double>("ptMin", 15.);
   }
@@ -220,6 +235,27 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
         }
       }
     }
+  } else {
+    // MiniAOD Taus
+    edm::Handle<edm::View<pat::Tau>> miniaodTaus;
+    if (iEvent.getByToken(MiniAODTauToken, miniaodTaus)) {
+      for (unsigned int i = 0; i < miniaodTaus->size(); ++i) {
+        const pat::Tau& pftau = miniaodTaus->at(i);
+        if (pftau.pt() > ptMinPFTau_ && pftau.eta() > etaMinPFTau_ && pftau.eta() < etaMaxPFTau_ &&
+            pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
+          bool passAll{true};
+          for (auto const& discriminator : MiniAODTauDiscriminators) {
+            if (pftau.tauID(discriminator) < 0.5) {
+              passAll = false;
+              break;
+            }
+          }
+          if (passAll) {
+            product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());
+          }
+        }
+      }
+    }
   }
   iEvent.put(move(product_PFTaus), "PFTaus");
 }
@@ -267,6 +303,23 @@ void HLTTauRefProducer::doElectrons(edm::Event& iEvent) const {
         }
       }
     }
+  } else {
+    // MiniAOD Electrons
+    edm::Handle<edm::View<pat::Electron>> miniaodObjects;
+    if (iEvent.getByToken(MiniAODElectronToken, miniaodObjects)) {
+      for (unsigned int i = 0; i < miniaodObjects->size(); ++i) {
+        auto const& electron = miniaodObjects->at(i);
+        if (electron.pt() > ptMinElectron_ && fabs(electron.eta()) < etaMax_) {
+          if (e_doTrackIso_) {
+            if (electron.trackIso()) {
+              product_Electrons->emplace_back(electron.px(), electron.py(), electron.pz(), electron.energy());
+            }
+          } else {
+            product_Electrons->emplace_back(electron.px(), electron.py(), electron.pz(), electron.energy());
+          }
+        }
+      }
+    }
   }
   iEvent.put(move(product_Electrons), "Electrons");
 }
@@ -280,6 +333,18 @@ void HLTTauRefProducer::doMuons(edm::Event& iEvent) const {
       if (muon.pt() > ptMinMuon_ && muon.eta() > etaMin_ && muon.eta() < etaMax_ && muon.phi() > phiMin_ &&
           muon.phi() < phiMax_) {
         product_Muons->emplace_back(muon.px(), muon.py(), muon.pz(), muon.energy());
+      }
+    }
+  } else {
+    // MiniAOD Muons
+    edm::Handle<edm::View<pat::Muon>> miniaodObjects;
+    if (iEvent.getByToken(MiniAODMuonToken, miniaodObjects)) {
+      for (unsigned int i = 0; i < miniaodObjects->size(); ++i) {
+        auto const& muon = miniaodObjects->at(i);
+        if (muon.pt() > ptMinMuon_ && muon.eta() > etaMin_ && muon.eta() < etaMax_ && muon.phi() > phiMin_ &&
+            muon.phi() < phiMax_) {
+          product_Muons->emplace_back(muon.px(), muon.py(), muon.pz(), muon.energy());
+        }
       }
     }
   }
@@ -348,6 +413,12 @@ void HLTTauRefProducer::doMET(edm::Event& iEvent) const {
   if (iEvent.getByToken(MET_, met) && !met->empty()) {
     auto const& metMom = met->front().p4();
     product_MET->emplace_back(metMom.Px(), metMom.Py(), 0, metMom.Pt());
+  } else {
+    edm::Handle<edm::View<pat::MET>> miniaodMET;
+    if (iEvent.getByToken(MiniAODMETToken, miniaodMET) && !miniaodMET->empty()) {
+      auto const& metMom = miniaodMET->front().p4();
+      product_MET->emplace_back(metMom.Px(), metMom.Py(), 0, metMom.Pt());
+    }
   }
   iEvent.put(move(product_MET), "MET");
 }

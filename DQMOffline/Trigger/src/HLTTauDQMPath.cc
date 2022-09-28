@@ -579,6 +579,15 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent,
   }
 }
 
+void HLTTauDQMPath::getFilterObjects(const pat::TriggerObjectStandAloneCollection& triggerObjects,
+                                     size_t i,
+                                     std::vector<Object>& retval) const {
+  for (pat::TriggerObjectStandAlone trigObject : triggerObjects) {
+    if (trigObject.hasFilterLabel(getFilterName(i)))
+      retval.emplace_back(Object{trigObject.triggerObject(), trigObject.filterIds()[i]});
+  }
+}
+
 bool HLTTauDQMPath::offlineMatching(size_t i,
                                     const std::vector<Object>& triggerObjects,
                                     const HLTTauDQMOfflineObjects& offlineObjects,

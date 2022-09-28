@@ -435,7 +435,7 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
 }
 
 HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() = default;
-
+/*
 void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
                                    const trigger::TriggerEvent& triggerEvent,
                                    const HLTTauDQMOfflineObjects& refCollection) {
@@ -855,3 +855,4 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
     }
   }
 }
+*/

@@ -1,5 +1,4 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
-#include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
 HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset,
                                                          bool doRefAnalysis,
@@ -33,7 +32,7 @@ void HLTTauDQMPathSummaryPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStor
 
   iBooker.setCurrentFolder(triggerTag());
 }
-
+/*
 void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults,
                                           const trigger::TriggerEvent& triggerEvent,
                                           const HLTTauDQMOfflineObjects& refCollection) {
@@ -74,3 +73,4 @@ void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResu
     }
   }
 }
+*/

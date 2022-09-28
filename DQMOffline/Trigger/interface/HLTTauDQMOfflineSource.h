@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 //Plotters
 #include "DQMOffline/Trigger/interface/HistoWrapper.h"
@@ -43,6 +44,8 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::InputTag triggerEventSrc_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
+  edm::InputTag miniAODTriggerObjectSrc;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> miniAODTriggerObjectToken;
 
   // For path plotters
   const std::string pathRegex_;
