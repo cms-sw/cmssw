@@ -65,7 +65,9 @@ common_MCtruth = cms.PSet(
 ## enable fine calorimeter functionality: must occur *before* common PSet is used below
 from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
 fineCalo.toModify(common_MCtruth,
-    DoFineCalo = True
+    DoFineCalo = True,
+    UseFineCalo = [2],
+    EminFineTrack = cms.double(0.0),
 )
 
 ## enable CaloBoundary information for all Phase2 workflows
