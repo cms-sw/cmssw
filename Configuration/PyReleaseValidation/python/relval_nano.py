@@ -359,6 +359,6 @@ _wfn.next()
 workflows[_wfn()] = ['mc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10']]
 workflows[_wfn()] = ['mc126X', ['TTBarMINIAOD12.6','NANO_mc12.6']]
 _wfn.subnext()
-workflows[_wfn()] = ['mc126X_v10', ['NANO_mc12.6_v10']]
+
 _wfn.next()
 ################
