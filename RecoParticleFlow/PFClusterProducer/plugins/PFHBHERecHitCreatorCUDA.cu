@@ -574,21 +574,29 @@ namespace PFRecHit {
 #endif
 
       // // First build the mapping for input rechits to reference table indices
-      // buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
-      //                                                      persistentDataGPU.rh_detId.get(),
-      //                                                      scratchDataGPU.rh_inputToFullIdx.get(),
-      //                                                      scratchDataGPU.rh_fullToInputIdx.get(),
-      //                                                      HBHERecHits_asInput.did.get());
-      // cudaCheck(cudaGetLastError());
-
-      // First build the mapping for input rechits to reference table indices
-      buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+      buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
                                                            persistentDataGPU.rh_detId.get(),
                                                            scratchDataGPU.rh_inputToFullIdx.get(),
                                                            scratchDataGPU.rh_fullToInputIdx.get(),
                                                            HBHERecHits_asInput.did.get());
       cudaCheck(cudaGetLastError());
 
+      // First build the mapping for input rechits to reference table indices
+      // buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+      //                                                      persistentDataGPU.rh_detId.get(),
+      //                                                      scratchDataGPU.rh_inputToFullIdx.get(),
+      //                                                      scratchDataGPU.rh_fullToInputIdx.get(),
+      //                                                      HBHERecHits_asInput.did.get());
+      // cudaCheck(cudaGetLastError());
+
+
+    // Debugging function used to check the mapping of input index <-> reference table index
+    // testDetIdMap<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+    //                                                        persistentDataGPU.rh_detId.get(),
+    //                                                        scratchDataGPU.rh_inputToFullIdx.get(),
+    //                                                        scratchDataGPU.rh_fullToInputIdx.get(),
+    //                                                        HBHERecHits_asInput.did.get());
+     cudaCheck(cudaGetLastError());
 #ifdef DEBUG_ENABLE
       cudaEventRecord(stop, cudaStream);
       cudaEventSynchronize(stop);
