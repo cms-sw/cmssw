@@ -383,7 +383,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   //#ifdef DEBUG_WithLEGACY
   edm::Handle<reco::PFRecHitCollection> rechits;
-  event.getByToken(_rechitsLabel, rechits);
+  if (_produceLegacy)
+    event.getByToken(_rechitsLabel, rechits);
   //#endif
 
   /* KenH
@@ -463,6 +464,10 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   std::unordered_map<int, std::vector<int>> nTopoRechits;
   std::unordered_map<int, int> nTopoSeeds;
 
+  //auto pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
+  pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
+
+  if (_produceLegacy) {
   for (int rh = 0; rh < nRH; rh++) {
     int topoId = outputCPU.pfrh_topoId[rh];
     if (topoId > -1) {
@@ -473,9 +478,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
       }
     }
   }
-
-  //auto pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
-  pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
 
   // Looping over PFRecHits for creating PFClusters
   for (int n = 0; n < (int)nRH; n++) {
@@ -502,6 +504,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
       pfClustersFromCuda->insert(pfClustersFromCuda->end(), std::move(temp));
     }
   }
+  } // _produceLegacy
 
 }
 
