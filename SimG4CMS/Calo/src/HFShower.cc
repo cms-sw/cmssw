@@ -341,6 +341,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   std::vector<double> momz = cherenkov_->getMom();
 
   for (int i = 0; i < npe; ++i) {
+    hit.depth = depth;
     hit.time = tSlice + time;
     hit.wavelength = wavelength[i];
     hit.momentum = momz[i];
