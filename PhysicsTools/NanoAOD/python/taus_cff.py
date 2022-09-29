@@ -32,6 +32,10 @@ run2_miniAOD_80XLegacy.toModify(finalTaus,
                                 cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT'))")
     )
 
+run3_nanoAOD_124.toModify(finalTaus,
+                          cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"]))
+                      )
+
 ##################### Tables for final output and docs ##########################
 def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
     if from_raw:
@@ -222,6 +226,23 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
            idDeepTau2018v2p5VSmu = None,
            idDeepTau2018v2p5VSjet = None
     )
+
+run3_nanoAOD_124.toModify(
+    tauTable.variables,
+    idDeepTau2018v2p5VSe = _tauIdWPMask("byDeepTau2018v2p5VSeraw",
+                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
+                 doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)",
+                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["e"]),
+    idDeepTau2018v2p5VSmu = _tauIdWPMask("byDeepTau2018v2p5VSmuraw",
+                 choices=("VLoose", "Loose", "Medium", "Tight"),
+                 doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)",
+                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["mu"]),
+    idDeepTau2018v2p5VSjet = _tauIdWPMask("byDeepTau2018v2p5VSjetraw",
+                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
+                 doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)",
+                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"])
+)
+
 
 tauGenJetsForNano = tauGenJets.clone(
     GenParticles = "finalGenParticles",
