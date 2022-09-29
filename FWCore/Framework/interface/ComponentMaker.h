@@ -22,10 +22,14 @@
 #include <memory>
 #include <string>
 
+#include <fmt/format.h>
+
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 
 // forward declarations
 
@@ -49,7 +53,7 @@ namespace edm {
       typedef typename T::base_type base_type;
       virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                                EventSetupProvider& iProvider,
-                                               ParameterSet const& iConfiguration,
+                                               ParameterSet& iConfiguration,
                                                bool replaceExisting) const = 0;
     };
 
@@ -64,7 +68,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                        EventSetupProvider& iProvider,
-                                       ParameterSet const& iConfiguration,
+                                       ParameterSet& iConfiguration,
                                        bool replaceExisting) const override;
 
       // ---------- static member functions --------------------
@@ -92,11 +96,29 @@ namespace edm {
     std::shared_ptr<typename ComponentMaker<T, TComponent>::base_type> ComponentMaker<T, TComponent>::addTo(
         EventSetupsController& esController,
         EventSetupProvider& iProvider,
-        ParameterSet const& iConfiguration,
+        ParameterSet& iConfiguration,
         bool replaceExisting) const {
       // This adds components to the EventSetupProvider for the process. It might
       // make a new component then add it or reuse a component from an earlier
       // SubProcess or the top level process and add that.
+
+      {
+        auto modtype = iConfiguration.getParameter<std::string>("@module_type");
+        auto moduleLabel = iConfiguration.getParameter<std::string>("@module_label");
+        try {
+          edm::convertException::wrap([&]() {
+            ConfigurationDescriptions descriptions(T::baseType(), modtype);
+            fillDetails::fillIfExists<TComponent>(descriptions);
+            fillDetails::prevalidateIfExists<TComponent>(descriptions);
+            descriptions.validate(iConfiguration, moduleLabel);
+            iConfiguration.registerIt();
+          });
+        } catch (cms::Exception& iException) {
+          iException.addContext(fmt::format(
+              "Validating configuration of {} of type {} with label: '{}'", T::baseType(), modtype, moduleLabel));
+          throw;
+        }
+      }
 
       if (!replaceExisting) {
         std::shared_ptr<typename T::base_type> alreadyMadeComponent =
