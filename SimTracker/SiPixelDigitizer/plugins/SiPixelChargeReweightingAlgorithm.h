@@ -51,6 +51,8 @@ private:
   typedef std::vector<edm::ParameterSet> Parameters;
   typedef boost::multi_array<float, 2> array_2d;
 
+  std::vector<SiPixelTemplateStore2D> templateStores_;
+
   // Variables and objects for the charge reweighting using 2D templates
   SiPixelTemplate2D templ2D;
   std::vector<bool> xdouble;
@@ -64,8 +66,6 @@ private:
   const bool PrintTemplates;
 
   static constexpr float cmToMicrons = 10000.f;
-
-  std::vector<SiPixelTemplateStore2D> templateStores_;
 
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_den_token_;
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_num_token_;
