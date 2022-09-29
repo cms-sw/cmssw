@@ -3788,6 +3788,8 @@ namespace PFClusterCudaHCAL {
       if (!notDone)
         break;
 
+      __syncthreads();//!!
+
       if (threadIdx.x == 0) {
         notDone = false;
       }
