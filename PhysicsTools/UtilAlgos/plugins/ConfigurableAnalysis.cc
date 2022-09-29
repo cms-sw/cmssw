@@ -21,14 +21,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -41,13 +41,11 @@
 // class decleration
 //
 
-class ConfigurableAnalysis : public edm::EDFilter {
+class ConfigurableAnalysis : public edm::one::EDFilter<edm::one::SharedResources> {
 public:
   explicit ConfigurableAnalysis(const edm::ParameterSet&);
-  ~ConfigurableAnalysis() override = default;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -71,6 +69,8 @@ private:
 // constructors and destructor
 //
 ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
 
   //configure inputag distributor
@@ -211,9 +211,6 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   else
     return true;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void ConfigurableAnalysis::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void ConfigurableAnalysis::endJob() {

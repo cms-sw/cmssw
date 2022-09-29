@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,20 +29,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //
 // class decleration
 //
 
-class NTuplingDevice : public edm::EDProducer {
+class NTuplingDevice : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit NTuplingDevice(const edm::ParameterSet&);
   ~NTuplingDevice() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   std::unique_ptr<NTupler> ntupler_;
@@ -60,6 +59,7 @@ private:
 // constructors and destructor
 //
 NTuplingDevice::NTuplingDevice(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   //this Ntupler can work with the InputTagDistributor, but should not be configured as such.
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
   std::string ntuplerName = ntPset.getParameter<std::string>("ComponentName");
@@ -79,12 +79,6 @@ void NTuplingDevice::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   ntupler_->fill(iEvent);
   iEvent.put(std::make_unique<double>(0.), "dummy");
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void NTuplingDevice::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void NTuplingDevice::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NTuplingDevice);
