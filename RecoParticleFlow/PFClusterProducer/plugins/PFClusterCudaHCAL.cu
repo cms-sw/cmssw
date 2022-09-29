@@ -69,6 +69,46 @@ namespace PFClusterCudaHCAL {
   //int nTopoLoops = 100;
   int nTopoLoops = 35;
 
+  //
+  // --- kernel summary --
+  // initializeCudaConstants
+  // PFRechitToPFCluster_HCAL_entryPoint
+  //   seedingTopoThreshKernel_HCAL
+  //   prepareTopoInputs
+  //   topoClusterLinking
+  //   topoClusterContraction
+  //   fillRhfIndex
+  //   hcalFastCluster_selection
+  //     dev_hcalFastCluster_optimizedSimple
+  //     dev_hcalFastCluster_optimizedComplex
+  //     dev_hcalFastCluster_original
+  // [aux]
+  //     sortEight
+  //     sortSwap
+  // [not used]
+  //   (fillRhfIndex_serialize) serialized version
+  //   (prepareTopoInputsSerial) serialized version
+  //   [compareEdgeArrays] used only for debugging
+  //   seedingKernel_HCAL
+  //   seedingKernel_HCAL_serialize
+  //   compareEdgeArrays
+  //   topoKernel_HCAL_passTopoThresh
+  //   topoKernel_HCALV2
+  //   topoKernel_HCAL_serialize
+  //   hcalFastCluster_optimizedSimple
+  //   hcalFastCluster_optimizedComplex
+  //   hcalFastCluster_sharedRHList
+  //   hcalFastCluster_original
+  //   hcalFastCluster_serialize
+  //   hcalFastCluster_step1
+  //   hcalFastCluster_step2
+  //   hcalFastCluster_step2
+  //   hcalFastCluster_step1_serialize
+  //   hcalFastCluster_step2_serialize
+  //   passingTopoThreshold
+  //   passingTopoThreshold
+  //   printRhfIndex
+
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
                                const cudaStream_t cudaStream) {
     cudaCheck(cudaMemcpyToSymbolAsync(
