@@ -8,7 +8,7 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -20,7 +20,7 @@
 class TFile;
 class TH1F;
 
-class HLTMuonTurnOnAnalyzer : public edm::EDAnalyzer {
+class HLTMuonTurnOnAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   HLTMuonTurnOnAnalyzer(const edm::ParameterSet& pset);
