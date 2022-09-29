@@ -23,7 +23,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,18 +53,18 @@ const int MAXCSC = 12;
 const int MAXGMT = 12;
 const int MAXGT = 12;
 
-class L1MuGMTTree : public edm::EDAnalyzer {
+class L1MuGMTTree : public edm::one::EDAnalyzer<> {
 public:
   // constructor
   explicit L1MuGMTTree(const edm::ParameterSet&);
-  virtual ~L1MuGMTTree();
+  ~L1MuGMTTree() override;
 
   // fill tree
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void book();
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   //GENERAL block
