@@ -101,7 +101,7 @@ steps['MuonEG2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumi
 #steps['SingleMuon2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                         dataSet='/SingleMuon/Run2016H-17Jul2018-v1/MINIAOD')}
 steps['NANO_2016data9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
-                                    '--conditions':'run2_data'},
+                                    '--conditions':'auto:run2_data'},
                                    steps['NANO_data']])
 
 ##17Nov2017 campaign is CMSSW_9_4_0
@@ -115,7 +115,7 @@ steps['NANO_2016data9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
 #steps['SingleMuon2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                         dataSet='/SingleMuon/Run2017E-17Nov2017-v1/MINIAOD')}
 #steps['NANO_data9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
-#                                '--conditions':'run2_data'},
+#                                '--conditions':'auto:run2_data'},
 #                               steps['NANO_data']])
 
 ##31Mar2018 campaign is CMSSW_9_4_5_cand1 
@@ -128,7 +128,7 @@ steps['MuonEG2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumi
 #steps['SingleMuon2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
 #                                                         dataSet='/SingleMuon/Run2017E-31Mar2018-v1/MINIAOD')}
 steps['NANO_data9.4v2']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv2',
-                                '--conditions':'run2_data'},
+                                '--conditions':'auto:run2_data'},
                                steps['NANO_data']])
 
 ##10.2 INPUT and worflows
