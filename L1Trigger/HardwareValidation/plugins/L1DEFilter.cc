@@ -2,10 +2,8 @@
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 using dedefs::DEnsys;
 
-L1DEFilter::L1DEFilter(const edm::ParameterSet& iConfig) {
+L1DEFilter::L1DEFilter(const edm::ParameterSet& iConfig) : nEvt_{0}, nAgree_{0} {
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  nEvt_ = 0;
-  nAgree_ = 0;
   flagSys_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("FlagSystems");
 }
 
@@ -18,7 +16,7 @@ void L1DEFilter::endJob() {
 }
 
 // ------------ method called on each new Event  ------------
-bool L1DEFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool L1DEFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   nEvt_++;
 
   bool pass = true;
