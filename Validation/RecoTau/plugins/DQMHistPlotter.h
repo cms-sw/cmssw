@@ -9,7 +9,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +24,7 @@
 #include <vector>
 #include <map>
 
-class TauDQMHistPlotter : public edm::EDAnalyzer {
+class TauDQMHistPlotter : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
@@ -158,6 +158,7 @@ public:
   ~TauDQMHistPlotter() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override {}
 
 private:
   std::map<std::string, cfgEntryProcess> processes_;

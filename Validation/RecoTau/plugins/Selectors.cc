@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,15 +57,12 @@ DEFINE_FWK_MODULE(TauValElectronSelector);
 DEFINE_FWK_MODULE(TauValGenPSelector);
 DEFINE_FWK_MODULE(TauValGenPRefSelector);
 
-class ElectronIdFilter : public edm::EDFilter {
+class ElectronIdFilter : public edm::global::EDFilter<> {
 public:
   explicit ElectronIdFilter(const edm::ParameterSet&);
-  ~ElectronIdFilter() override;
 
 private:
-  void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> recoGsfElectronCollectionToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > edmValueMapFloatToken_;
@@ -80,10 +77,10 @@ ElectronIdFilter::ElectronIdFilter(const edm::ParameterSet& iConfig)
       eid_(iConfig.getParameter<int>("eid")) {
   produces<reco::GsfElectronCollection>();
 }
-ElectronIdFilter::~ElectronIdFilter() {}
+
 // ------------ method called to produce the data  ------------
 
-bool ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool ElectronIdFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   //cout << "NonVertexingLeptonFilter:: entering filter" << endl;
 
   edm::Handle<reco::GsfElectronCollection> electrons;
@@ -106,8 +103,5 @@ bool ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(collection));
   return true;
 }
-
-void ElectronIdFilter::beginJob() {}
-void ElectronIdFilter::endJob() {}
 
 DEFINE_FWK_MODULE(ElectronIdFilter);
