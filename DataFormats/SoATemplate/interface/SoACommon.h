@@ -390,7 +390,7 @@ namespace cms::soa {
     }
 
     using ValueType = typename C::Scalar;
-    static constexpr auto valueSize = sizeof(C::Scalar);
+    static constexpr auto valueSize = sizeof(typename C::Scalar);
     SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
   private:
@@ -503,7 +503,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE const C* operator&() const { return &cVal_; }
 
     using ValueType = typename C::Scalar;
-    static constexpr auto valueSize = sizeof(C::Scalar);
+    static constexpr auto valueSize = sizeof(typename C::Scalar);
 
     SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
