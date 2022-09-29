@@ -243,7 +243,7 @@ steps['NANO_mc12.2']=merge([{'--era':'Run3,run3_nanoAOD_122',
 steps['TTbarMINIAOD12.4'] = {'INPUT':InputInfo(location='STD',
                                                ## to be updated as soon as some TTbar appears in a 12.4 campaign
                                                dataSet='/MinBias_TuneCP5_14TeV-pythia8/Run3Summer22MiniAODv3-NoPU_Pilot_124X_mcRun3_2022_realistic_v11-v2/MINIAODSIM ')}
-steps['NANO_mc12.4_v10']=merge([{'--era':'Run3',
+steps['NANO_mc12.4_v10']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                  '--conditions':'auto:phase1_2022_realistic',
                                  ## customise to be updated with V10/V11 decoupling
                                  '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'},
@@ -254,7 +254,7 @@ steps['NANO_mc12.4']=merge([{'--era':'Run3',
 
 steps['MuonEG2022MINIAOD12.4'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis,
                                                     dataSet='/MuonEG/Run2022D-PromptReco-v2/MINIAOD')}
-steps['NANO_data12.4_v10']=merge([{'--era':'Run3',
+steps['NANO_data12.4_v10']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                    '--conditions':'auto:run3_data',
                                    ## customise to be updated with V10/V11 decoupling
                                    '--customise':'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'},
