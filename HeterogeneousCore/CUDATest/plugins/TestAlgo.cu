@@ -9,12 +9,13 @@ namespace cudatest {
   static __global__ void testAlgoKernel(cudatest::TestDeviceCollection::View view, int32_t size) {
     const int32_t thread = blockIdx.x * blockDim.x + threadIdx.x;
     const int32_t stride = blockDim.x * gridDim.x;
+    const cudatest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
 
     if (thread == 0) {
       view.r() = 1.;
     }
     for (auto i = thread; i < size; i += stride) {
-      view[i] = {0., 0., 0., i};
+      view[i] = {0., 0., 0., i, matrix * i};
     }
   }
 

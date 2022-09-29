@@ -6,7 +6,10 @@
 
 namespace cudatest {
 
-  // SoA with x, y, z, id fields in host memory
+  // Eigen matrix
+  using Matrix = portabletest::Matrix;
+
+  // SoA with x, y, z, id fields, r scalar, m matrix, in host memory
   using TestHostCollection = cms::cuda::PortableHostCollection<portabletest::TestSoA>;
 
 }  // namespace cudatest

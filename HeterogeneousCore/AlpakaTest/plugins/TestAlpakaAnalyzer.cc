@@ -68,7 +68,9 @@ public:
           << "  z    @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
           << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size())
           << ",\n"
-          << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n';
+          << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
+          << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::all)
+          << " } ... } \n";
       msg << std::hex << "  [y - x] = 0x"
           << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
                  reinterpret_cast<intptr_t>(view.metadata().addressOf_x())
@@ -80,12 +82,21 @@ public:
                  reinterpret_cast<intptr_t>(view.metadata().addressOf_z())
           << "  [r - id] = 0x"
           << reinterpret_cast<intptr_t>(view.metadata().addressOf_r()) -
-                 reinterpret_cast<intptr_t>(view.metadata().addressOf_id());
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_id())
+          << "  [m - r] = 0x"
+          << reinterpret_cast<intptr_t>(view.metadata().addressOf_m()) -
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_r());
     }
 
-    assert(view.r() == 1);
+    const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
+    assert(view.r() == 1.);
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
-      assert(view[i].id() == i);
+      auto vi = view[i];
+      assert(vi.x() == 0.);
+      assert(vi.y() == 0.);
+      assert(vi.z() == 0.);
+      assert(vi.id() == i);
+      assert(vi.m() == matrix * i);
     }
   }
 

@@ -6,7 +6,10 @@
 
 namespace cudatest {
 
-  // SoA with x, y, z, id fields in device global memory
+  // Eigen matrix
+  using Matrix = portabletest::Matrix;
+
+  // SoA with x, y, z, id fields, r scalar, m matrix, in device global memory
   using TestDeviceCollection = cms::cuda::PortableDeviceCollection<portabletest::TestSoA>;
 
 }  // namespace cudatest
