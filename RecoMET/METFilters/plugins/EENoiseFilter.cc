@@ -1,17 +1,16 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class EENoiseFilter : public edm::EDFilter {
+class EENoiseFilter : public edm::global::EDFilter<> {
 public:
   explicit EENoiseFilter(const edm::ParameterSet& iConfig);
-  ~EENoiseFilter() override {}
 
 private:
-  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  bool filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
   edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
@@ -30,7 +29,7 @@ EENoiseFilter::EENoiseFilter(const edm::ParameterSet& iConfig)
   produces<bool>();
 }
 
-bool EENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool EENoiseFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<EcalRecHitCollection> ebRHs, eeRHs;
   iEvent.getByToken(ebRHSrcToken_, ebRHs);
   iEvent.getByToken(eeRHSrcToken_, eeRHs);

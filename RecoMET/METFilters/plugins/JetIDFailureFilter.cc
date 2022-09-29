@@ -1,19 +1,18 @@
 
 #include <memory>
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-class JetIDFailureFilter : public edm::EDFilter {
+class JetIDFailureFilter : public edm::global::EDFilter<> {
 public:
   explicit JetIDFailureFilter(const edm::ParameterSet& iConfig);
-  ~JetIDFailureFilter() override;
 
 private:
-  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  bool filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
   const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;
@@ -32,9 +31,7 @@ JetIDFailureFilter::JetIDFailureFilter(const edm::ParameterSet& iConfig)
   produces<bool>();
 }
 
-JetIDFailureFilter::~JetIDFailureFilter() {}
-
-bool JetIDFailureFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool JetIDFailureFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // read in the objects
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(theJetToken_, jets);
