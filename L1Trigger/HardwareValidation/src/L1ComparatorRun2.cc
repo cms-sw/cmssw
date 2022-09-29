@@ -25,7 +25,7 @@ L1ComparatorRun2::L1ComparatorRun2(const ParameterSet& ps) {
 
 L1ComparatorRun2::~L1ComparatorRun2() {}
 
-void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
+void L1ComparatorRun2::produce(StreamID, Event& iEvent, const EventSetup& iSetup) const {
   unique_ptr<L1DataEmulResultBxCollection> RESULT(new L1DataEmulResultBxCollection);
 
   if (doLayer2_) {

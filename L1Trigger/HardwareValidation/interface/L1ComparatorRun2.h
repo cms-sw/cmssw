@@ -7,9 +7,7 @@
 #include <string>
 #include <algorithm>
 
-//#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -37,24 +35,24 @@
 
 namespace l1t {
 
-  class L1ComparatorRun2 : public edm::EDProducer {
+  class L1ComparatorRun2 : public edm::global::EDProducer<> {
   public:
     explicit L1ComparatorRun2(const edm::ParameterSet& ps);
     ~L1ComparatorRun2() override;
 
   private:
-    void produce(edm::Event&, edm::EventSetup const&) override;
+    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-    edm::EDGetToken JetDataToken_;
-    edm::EDGetToken JetEmulToken_;
-    edm::EDGetToken EGammaDataToken_;
-    edm::EDGetToken EGammaEmulToken_;
-    edm::EDGetToken TauDataToken_;
-    edm::EDGetToken TauEmulToken_;
-    edm::EDGetToken EtSumDataToken_;
-    edm::EDGetToken EtSumEmulToken_;
-    edm::EDGetToken CaloTowerDataToken_;
-    edm::EDGetToken CaloTowerEmulToken_;
+    edm::EDGetTokenT<JetBxCollection> JetDataToken_;
+    edm::EDGetTokenT<JetBxCollection> JetEmulToken_;
+    edm::EDGetTokenT<EGammaBxCollection> EGammaDataToken_;
+    edm::EDGetTokenT<EGammaBxCollection> EGammaEmulToken_;
+    edm::EDGetTokenT<TauBxCollection> TauDataToken_;
+    edm::EDGetTokenT<TauBxCollection> TauEmulToken_;
+    edm::EDGetTokenT<EtSumBxCollection> EtSumDataToken_;
+    edm::EDGetTokenT<EtSumBxCollection> EtSumEmulToken_;
+    edm::EDGetTokenT<CaloTowerBxCollection> CaloTowerDataToken_;
+    edm::EDGetTokenT<CaloTowerBxCollection> CaloTowerEmulToken_;
 
     int bxMax_;
     int bxMin_;
