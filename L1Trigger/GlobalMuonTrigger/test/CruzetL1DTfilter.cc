@@ -9,7 +9,7 @@
 */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
@@ -17,10 +17,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-class CruzetL1DTfilter : public edm::EDFilter {
+class CruzetL1DTfilter : public edm::global::EDFilter<> {
 public:
   explicit CruzetL1DTfilter(const edm::ParameterSet&);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
 
 private:
   // mode:
@@ -37,7 +37,7 @@ CruzetL1DTfilter::CruzetL1DTfilter(const edm::ParameterSet& ps) {
   _GMTInputTag = ps.getParameter<edm::InputTag>("GMTInputTag");
 }
 
-bool CruzetL1DTfilter::filter(edm::Event& e, const edm::EventSetup& es) {
+bool CruzetL1DTfilter::filter(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
   edm::Handle<L1MuGMTReadoutCollection> gmtrc;
   e.getByLabel(_GMTInputTag, gmtrc);
 
