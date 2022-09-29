@@ -7,7 +7,6 @@
  */
 
 #include <cassert>
-#include <iostream>
 
 #include "SoACommon.h"
 #include "SoAView.h"
@@ -361,7 +360,7 @@
 #define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      /* TODO: implement*/                                                                                             \
+      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
       ,                                                                                                                \
       /* Column */                                                                                                     \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);                \
