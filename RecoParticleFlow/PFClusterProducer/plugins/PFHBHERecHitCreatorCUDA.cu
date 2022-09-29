@@ -45,43 +45,42 @@ namespace PFRecHit {
     //   applyMask
     //   convert_rechits_to_PFRechits
 
-    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants) {
+    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream) {
 
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &cudaConstants.nValidBarrelIds, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &cudaConstants.nValidBarrelIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
 #ifdef DEBUG_ENABLE
       printf("--- HCAL Cuda constant values ---\n");
       uint32_t ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHBarrel, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHBarrel, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
       printf("nValidRHBarrel read from symbol: %u\n", ival);
 #endif
 
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHEndcap, &cudaConstants.nValidEndcapIds, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHEndcap, &cudaConstants.nValidEndcapIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
 #ifdef DEBUG_ENABLE
       ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHEndcap, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHEndcap, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
       printf("nValidRHEndcap read from symbol: %u\n", ival);
 #endif
 
       //uint32_t total = &cudaConstants.nValidBarrelIds + &cudaConstants.nValidEndcapIds;
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHTotal, &cudaConstants.nValidDetIds, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHTotal, &cudaConstants.nValidDetIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
 #ifdef DEBUG_ENABLE
       ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHTotal, sizeof(uint32_t)));
+      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHTotal, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
       printf("nValidRHTotal read from symbol: %u\n", ival);
 #endif
 
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThresh, &cudaConstants.qTestThresh, sizeof(float)));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThresh, &cudaConstants.qTestThresh, sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
 #ifdef DEBUG_ENABLE
       float val = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&val, qTestThresh, sizeof(float)));
+      cudaCheck(cudaMemcpyFromSymbol(&val, qTestThresh, sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
       printf("qTestThresh read from symbol: %f\n\n", val);
 #endif
 
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHB, &cudaConstants.qTestDepthHB, 4*sizeof(uint32_t)));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHE, &cudaConstants.qTestDepthHE, 7*sizeof(uint32_t)));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHB, &cudaConstants.qTestThreshVsDepthHB, 4*sizeof(float)));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHE, &cudaConstants.qTestThreshVsDepthHE, 7*sizeof(float)));
-
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHB, &cudaConstants.qTestDepthHB, 4*sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHE, &cudaConstants.qTestDepthHE, 7*sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHB, &cudaConstants.qTestThreshVsDepthHB, 4*sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHE, &cudaConstants.qTestThreshVsDepthHE, 7*sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
     }
 
     // Initialize arrays used to store temporary values for each event
