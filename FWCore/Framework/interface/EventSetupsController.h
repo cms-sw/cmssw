@@ -45,17 +45,18 @@ namespace edm {
 
     class ESProducerInfo {
     public:
-      ESProducerInfo(ParameterSet const* ps, std::shared_ptr<DataProxyProvider> const& pr)
+      ESProducerInfo(ParameterSet* ps, std::shared_ptr<DataProxyProvider> const& pr)
           : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
-      ParameterSet const* pset() const { return pset_; }
+      ParameterSet const* pset() const { return pset_.get(); }
+      ParameterSet* pset() { return pset_.get(); }
       std::shared_ptr<DataProxyProvider> const& provider() { return get_underlying(provider_); }
       DataProxyProvider const* providerGet() const { return provider_.get(); }
       std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
       std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
-      ParameterSet const* pset_;
+      edm::propagate_const<ParameterSet*> pset_;
       propagate_const<std::shared_ptr<DataProxyProvider>> provider_;
       std::vector<unsigned> subProcessIndexes_;
     };
@@ -116,7 +117,7 @@ namespace edm {
 
       std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
                                                                          unsigned subProcessIndex);
-      void putESProducer(ParameterSet const& pset,
+      void putESProducer(ParameterSet& pset,
                          std::shared_ptr<DataProxyProvider> const& component,
                          unsigned subProcessIndex);
 
@@ -149,7 +150,7 @@ namespace edm {
                                 unsigned subProcessIndex,
                                 unsigned precedingProcessIndex) const;
 
-      ParameterSet const* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) const;
+      ParameterSet* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex);
 
       std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> const& providers() const { return providers_; }
 
