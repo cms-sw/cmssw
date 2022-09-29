@@ -348,11 +348,12 @@ workflows[_wfn()] = ['mc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2']]
 _wfn.next()
 ################
 #12.4 input
-workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10']]
-workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4']]
+## these are borken because of tau configuration in NANO ATM: they should be re-enabled when a fix gets in
+#workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10']]
+#workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4']]
 _wfn.subnext()
-workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10']]
-workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4']]
+#workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10']]
+#workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4']]
 
 _wfn.next()
 ################
