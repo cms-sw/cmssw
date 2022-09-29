@@ -57,32 +57,36 @@ public:
 
   void analyze(edm::Event const& event, edm::EventSetup const&) override {
     portabletest::TestHostCollection const& product = event.get(token_);
-
     auto const& view = product.const_view();
+
+    {
+      edm::LogInfo msg("TestAlpakaAnalyzer");
+      msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
+      msg << "  data @ " << product.buffer().data() << ",\n"
+          << "  x    @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
+          << "  y    @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
+          << "  z    @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
+          << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size())
+          << ",\n"
+          << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n';
+      msg << std::hex << "  [y - x] = 0x"
+          << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_x())
+          << "  [z - y] = 0x"
+          << reinterpret_cast<intptr_t>(view.metadata().addressOf_z()) -
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_y())
+          << "  [id - z] = 0x"
+          << reinterpret_cast<intptr_t>(view.metadata().addressOf_id()) -
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_z())
+          << "  [r - id] = 0x"
+          << reinterpret_cast<intptr_t>(view.metadata().addressOf_r()) -
+                 reinterpret_cast<intptr_t>(view.metadata().addressOf_id());
+    }
+
+    assert(view.r() == 1);
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
       assert(view[i].id() == i);
     }
-
-    edm::LogInfo msg("TestAlpakaAnalyzer");
-    msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
-    msg << "  data @ " << product.buffer().data() << ",\n"
-        << "  x    @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
-        << "  y    @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
-        << "  z    @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
-        << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size()) << ",\n"
-        << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n';
-    msg << std::hex << "  [y - x] = 0x"
-        << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
-               reinterpret_cast<intptr_t>(view.metadata().addressOf_x())
-        << "  [z - y] = 0x"
-        << reinterpret_cast<intptr_t>(view.metadata().addressOf_z()) -
-               reinterpret_cast<intptr_t>(view.metadata().addressOf_y())
-        << "  [id - z] = 0x"
-        << reinterpret_cast<intptr_t>(view.metadata().addressOf_id()) -
-               reinterpret_cast<intptr_t>(view.metadata().addressOf_z())
-        << "  [r - id] = 0x"
-        << reinterpret_cast<intptr_t>(view.metadata().addressOf_r()) -
-               reinterpret_cast<intptr_t>(view.metadata().addressOf_id());
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
