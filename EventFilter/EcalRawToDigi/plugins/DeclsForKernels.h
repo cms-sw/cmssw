@@ -35,7 +35,8 @@ namespace ecal {
       DigisCollection<::calo::common::DevStoragePolicy> digisEB, digisEE;
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         digisEB.data =
             memoryPool::cuda::makeBuffer<uint16_t>(config.maxChannelsEB * EcalDataFrame::MAXSAMPLES, deleter);

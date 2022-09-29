@@ -100,11 +100,12 @@ namespace ecal {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         auto const sizeEB = configParameters.maxNumberHitsEB;
-        recHitsEB.amplitudesAll = memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(
-            sizeEB * EcalDataFrame::MAXSAMPLES, deleter);
+        recHitsEB.amplitudesAll =
+            memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(sizeEB * EcalDataFrame::MAXSAMPLES, deleter);
         recHitsEB.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
         recHitsEB.chi2 = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
         recHitsEB.pedestal = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
@@ -118,8 +119,8 @@ namespace ecal {
         recHitsEB.flags = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
 
         auto const sizeEE = configParameters.maxNumberHitsEE;
-        recHitsEE.amplitudesAll = memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(
-            sizeEE * EcalDataFrame::MAXSAMPLES, deleter);
+        recHitsEE.amplitudesAll =
+            memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(sizeEE * EcalDataFrame::MAXSAMPLES, deleter);
         recHitsEE.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
         recHitsEE.chi2 = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
         recHitsEE.pedestal = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
@@ -175,7 +176,8 @@ namespace ecal {
         constexpr auto pmlength = getLength<PulseMatrixType>();
         constexpr auto bxvlength = getLength<BXVectorType>();
         auto const size = configParameters.maxNumberHitsEB + configParameters.maxNumberHitsEE;
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         auto alloc = [&](auto& var, uint32_t size) {
           using element_type = typename std::remove_reference_t<decltype(var)>::value_type;
@@ -285,7 +287,8 @@ namespace ecal {
       RecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         //---- configParameters -> needed only to decide if to save the timing information or not
         auto const sizeEB = configParameters.maxNumberHitsEB;

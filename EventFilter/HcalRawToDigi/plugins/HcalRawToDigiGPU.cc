@@ -105,7 +105,7 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // scratch
   hcal::raw::ScratchDataGPU scratchGPU = {
-      memoryPool::cuda::makeBuffer<uint32_t>(hcal::raw::numOutputCollections, ctx.stream(),memoryPool::onDevice)};
+      memoryPool::cuda::makeBuffer<uint32_t>(hcal::raw::numOutputCollections, ctx.stream(), memoryPool::onDevice)};
 
   // input cpu data
   hcal::raw::InputDataCPU inputCPU = {cms::cuda::make_host_unique<unsigned char[]>(
@@ -114,10 +114,10 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
                                       cms::cuda::make_host_unique<int[]>(hcal::raw::utca_nfeds_max, ctx.stream())};
 
   // input data gpu
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
   hcal::raw::InputDataGPU inputGPU = {
-      memoryPool::cuda::makeBuffer<unsigned char>(hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
-                                                     deleter),
+      memoryPool::cuda::makeBuffer<unsigned char>(hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max, deleter),
       memoryPool::cuda::makeBuffer<uint32_t>(hcal::raw::utca_nfeds_max, deleter),
       memoryPool::cuda::makeBuffer<int>(hcal::raw::utca_nfeds_max, deleter)};
 

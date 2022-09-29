@@ -55,7 +55,8 @@ namespace hcal {
       DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> digisF3HB;
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         digisF01HE.data = memoryPool::cuda::makeBuffer<uint16_t>(
             config.maxChannelsF01HE * compute_stride<Flavor1>(config.nsamplesF01HE), deleter);

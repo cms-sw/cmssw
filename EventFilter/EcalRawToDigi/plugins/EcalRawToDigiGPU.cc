@@ -85,7 +85,8 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   event.getByToken(rawDataToken_, rawDataHandle);
 
   // scratch
-  ecal::raw::ScratchDataGPU scratchGPU = {memoryPool::cuda::makeBuffer<uint32_t>(2, ctx.stream(), memoryPool::onDevice)};
+  ecal::raw::ScratchDataGPU scratchGPU = {
+      memoryPool::cuda::makeBuffer<uint32_t>(2, ctx.stream(), memoryPool::onDevice)};
 
   // make a first iteration over the FEDs to compute the total buffer size
   uint32_t size = 0;
@@ -108,7 +109,8 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
                                       cms::cuda::make_host_unique<int[]>(feds, ctx.stream())};
 
   // input data gpu
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
   assert(deleter.pool());
   ecal::raw::InputDataGPU inputGPU = {memoryPool::cuda::makeBuffer<unsigned char>(size, deleter),
                                       memoryPool::cuda::makeBuffer<uint32_t>(feds, deleter),

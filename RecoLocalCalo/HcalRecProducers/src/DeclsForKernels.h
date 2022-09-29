@@ -94,7 +94,8 @@ namespace hcal {
       RecHitCollection<::calo::common::DevStoragePolicy> recHits;
 
       void allocate(ConfigParameters const& config, cudaStream_t cudaStream) {
-        memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+        memoryPool::Deleter deleter =
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         recHits.energy = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
         recHits.chi2 = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
@@ -105,8 +106,8 @@ namespace hcal {
     };
 
     struct ScratchDataGPU {
-      memoryPool::Buffer<float> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices,
-          pulseMatricesM, pulseMatricesP;
+      memoryPool::Buffer<float> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices, pulseMatricesM,
+          pulseMatricesP;
       memoryPool::Buffer<int8_t> soiSamples;
     };
 

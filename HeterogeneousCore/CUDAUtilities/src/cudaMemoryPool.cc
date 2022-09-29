@@ -13,14 +13,16 @@
 namespace {
 
   //  free callback
+  /*
   void CUDART_CB freeCallback(cudaStream_t streamId, cudaError_t status, void *p) {
-    //void CUDART_CB freeCallback(void *p) {
     if (status != cudaSuccess) {
       std::cout << "Error in free callaback in stream " << streamId << std::endl;
       auto error = cudaGetErrorName(status);
       auto message = cudaGetErrorString(status);
       std::cout << " error " << error << ": " << message << std::endl;
     }
+  */
+  void CUDART_CB freeCallback(void *p) {
     // std::cout << "free callaback for stream " << streamId << std::endl;
     auto payload = (memoryPool::Payload *)(p);
     poolDetails::freeAsync(payload);
@@ -30,14 +32,11 @@ namespace {
 
 struct CudaAlloc {
   static void scheduleFree(memoryPool::Payload *payload, void *stream) {
-    // std::cout    << "schedule free for stream " <<  stream <<std::endl;
-    if (!stream)
-      std::cout << "???? schedule free for stream " << stream << std::endl;
-    if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
-      poolDetails::freeAsync(payload);
-    else
-      cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
-    // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
+    //if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
+    //  poolDetails::freeAsync(payload);
+    //else
+    //cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
+    cudaCheck(cudaLaunchHostFunc((cudaStream_t)(stream), freeCallback, payload));
   }
 };
 
@@ -110,7 +109,7 @@ namespace memoryPool {
   namespace cuda {
 
     void init(bool onlyCPU) {
-      constexpr int poolSize = 128 * 1024;
+      constexpr int poolSize = 32 * 1024;
       cpuPool = std::make_unique<SimplePoolAllocatorImpl<PosixAlloc>>(poolSize);
       if (onlyCPU)
         return;

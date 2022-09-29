@@ -45,7 +45,8 @@ namespace calo {
 
       template <typename T>
       struct StorageSelector {
-        using type = memoryPool::Buffer<T>;;
+        using type = memoryPool::Buffer<T>;
+        ;
       };
     };
 

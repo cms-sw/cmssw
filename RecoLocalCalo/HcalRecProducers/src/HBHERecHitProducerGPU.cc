@@ -224,24 +224,19 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       pulseOffsets.getValues()};
 
   // scratch mem on device
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
   assert(deleter.pool());
   hcal::reconstruction::ScratchDataGPU scratchGPU = {
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             deleter),
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             deleter),
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             deleter),
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          deleter),
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          deleter),
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          deleter),
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<int8_t>(configParameters_.maxChannels, deleter),
   };
 

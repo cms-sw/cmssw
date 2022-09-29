@@ -130,7 +130,8 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
     hf5_.stride = stride;
 
     // flavor5 get device blobs
-    memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+    memoryPool::Deleter deleter =
+        memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df5_.stride = stride;
     df5_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF5HB * stride, deleter);
     df5_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF5HB, deleter);
@@ -146,13 +147,15 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
     hf3_.stride = stride3;
 
     // flavor 0/1 get devie blobs
-    memoryPool::Deleter deleter1 = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+    memoryPool::Deleter deleter1 =
+        memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df01_.stride = stride01;
     df01_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF01HE * stride01, deleter1);
     df01_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF01HE, deleter1);
 
     // flavor3 get device blobs
-    memoryPool::Deleter deleter3 = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
+    memoryPool::Deleter deleter3 =
+        memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
     df3_.stride = stride3;
     df3_.data = memoryPool::cuda::makeBuffer<uint16_t>(config_.maxChannelsF3HB * stride3, deleter3);
     df3_.ids = memoryPool::cuda::makeBuffer<uint32_t>(config_.maxChannelsF3HB, deleter3);
