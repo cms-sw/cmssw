@@ -6,6 +6,7 @@
     <field name="y_" comment="[elements_]"/>
     <field name="z_" comment="[elements_]"/>
     <field name="id_" comment="[elements_]"/>
+    <field name="m_" comment="[mElementsWithPadding_]"/>
     <field name="r_" comment="[scalar_]"/>
   </class>
   <class name="portabletest::TestSoA::View"/>

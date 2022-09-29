@@ -20,11 +20,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // this example accepts an arbitrary number of blocks and threads, and always uses 1 element per thread
       const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const int32_t stride = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
+      const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
+
       if (thread == 0) {
         view.r() = 1.;
       }
       for (auto i = thread; i < size; i += stride) {
-        view[i] = {0., 0., 0., i};
+        view[i] = {0., 0., 0., i, matrix * i};
       }
     }
   };
