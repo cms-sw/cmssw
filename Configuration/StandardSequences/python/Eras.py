@@ -78,7 +78,7 @@ class Eras (object):
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
                            'run2_miniAOD_devel', 'run2_nanoAOD_102Xv1', 'run2_nanoAOD_106Xv1', 'run2_nanoAOD_106Xv2',
-                           'run3_nanoAOD_devel', 'run3_nanoAOD_122',
+                           'run3_nanoAOD_devel', 'run3_nanoAOD_122', 'run3_nanoAOD_124',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']
