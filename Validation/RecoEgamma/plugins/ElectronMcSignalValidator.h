@@ -166,7 +166,6 @@ private:
   MonitorElement *h1_mc_Z;
   MonitorElement *h2_mc_PtEta;
 
-  MonitorElement *h1_mc_Eta_matched;
   MonitorElement *h1_mc_Eta_Extended_matched;
   MonitorElement *h1_mc_AbsEta_matched;
   MonitorElement *h1_mc_AbsEta_Extended_matched;
@@ -313,7 +312,6 @@ private:
   MonitorElement *h1_ele_foundHits;
   MonitorElement *h1_ele_foundHits_barrel;
   MonitorElement *h1_ele_foundHits_endcaps;
-  MonitorElement *h2_ele_foundHitsVsEta;
   MonitorElement *h2_ele_foundHitsVsEta_Extended;
   MonitorElement *h2_ele_foundHitsVsEta_mAOD;
   MonitorElement *h2_ele_foundHitsVsPhi;
@@ -334,7 +332,6 @@ private:
   MonitorElement *h1_ele_PoPtrue;
   MonitorElement *h1_ele_PoPtrue_barrel;
   MonitorElement *h1_ele_PoPtrue_endcaps;
-  MonitorElement *h2_ele_PoPtrueVsEta;
   MonitorElement *h2_ele_PoPtrueVsEta_Extended;
   MonitorElement *h2_ele_PoPtrueVsPhi;
   MonitorElement *h2_ele_PoPtrueVsPt;
@@ -378,7 +375,6 @@ private:
   MonitorElement *h1_ele_EoP;
   MonitorElement *h1_ele_EoP_barrel;
   MonitorElement *h1_ele_EoP_endcaps;
-  MonitorElement *h2_ele_EoPVsEta;
   MonitorElement *h2_ele_EoPVsEta_Extended;
   MonitorElement *h2_ele_EoPVsPhi;
   MonitorElement *h2_ele_EoPVsE;
