@@ -90,7 +90,7 @@ class MatrixReader(object):
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_premix':True,
-                             'relval_nano':False
+                             'relval_nano':True
                              }
 
         self.relvalModule = None
