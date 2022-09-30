@@ -73,9 +73,9 @@ namespace PFClusterCudaHCAL {
   // --- kernel summary --
   // initializeCudaConstants
   // PFRechitToPFCluster_HCAL_entryPoint
-  //   seedingTopoThreshKernel_HCAL
-  //   prepareTopoInputs
-  //   topoClusterLinking
+  //   seedingTopoThreshKernel_HCAL: apply seeding/topo-clustering threshold to RecHits, also ensure a peak (outputs: pfrh_isSeed, pfrh_passTopoThresh) [OutputDataGPU]
+  //   prepareTopoInputs: prepare "edge" data (output: nEdges, pfrh_edgeId, pfrh_edgeList [nEdges dimension])
+  //   topoClusterLinking:
   //   topoClusterContraction
   //   fillRhfIndex
   //   hcalFastCluster_selection
@@ -3766,7 +3766,7 @@ namespace PFClusterCudaHCAL {
                                      int* pfrh_edgeMask,
                                      const int* pfrh_passTopoThresh,
                                      int* topoIter) {
-    __shared__ bool notDone;
+    __shared__ int notDone; // This is better be bool, but somehow it leads to out of bound
     __shared__ int iter, gridStride, nEdges;
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
@@ -3790,7 +3790,7 @@ namespace PFClusterCudaHCAL {
 
     do {
       if (threadIdx.x == 0) {
-        notDone = false;
+        notDone = 0;
       }
       __syncthreads();
 
@@ -3814,7 +3814,7 @@ namespace PFClusterCudaHCAL {
           // edgeMask set to true if elements of edgeId and edgeList are different
           if (pfrh_edgeId[idx] != pfrh_edgeList[idx]) {
             pfrh_edgeMask[idx] = 1;
-            notDone = true;
+            notDone = 1;
           } else {
             pfrh_edgeMask[idx] = 0;
           }
@@ -3825,13 +3825,13 @@ namespace PFClusterCudaHCAL {
 
       __syncthreads();
 
-      if (!notDone)
+      if (notDone==0)
         break;
 
       __syncthreads();//!!
 
       if (threadIdx.x == 0) {
-        notDone = false;
+        notDone = 0; // KenH is this necessary?
       }
 
       __syncthreads();
@@ -3858,7 +3858,7 @@ namespace PFClusterCudaHCAL {
           // edgeMask set to true if elements of edgeId and edgeList are different
           if (pfrh_edgeId[idx] != pfrh_edgeList[idx]) {
             pfrh_edgeMask[idx] = 1;
-            notDone = true;
+            notDone = 1;
           } else {
             pfrh_edgeMask[idx] = 0;
           }
@@ -3870,7 +3870,7 @@ namespace PFClusterCudaHCAL {
 
       __syncthreads();
 
-    } while (notDone);
+    } while (notDone==1);
 
     *topoIter = iter;
 #ifdef DEBUG_GPU_HCAL
