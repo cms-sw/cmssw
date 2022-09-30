@@ -57,8 +57,10 @@ namespace l1t {
                                                         const edm::EDGetTokenT<RegionalMuonCandBxCollection>& tfToken) {
       edm::Handle<RegionalMuonCandBxCollection> muons;
       event.getByToken(tfToken, muons);
+      unsigned int mucounter = 0;
       for (int bx = muons->getFirstBX(); bx <= muons->getLastBX(); ++bx) {
-        for (auto mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
+        for (auto mu = muons->begin(bx); mu != muons->end(bx) && mucounter < 3; ++mu) {  // maximum 3 muons per link
+          mucounter++;
           objMap[bx][mu->link()].mus.push_back(*mu);
         }
       }
@@ -94,11 +96,6 @@ namespace l1t {
                   payloadMap[linkTimes2].push_back(0);
                 }
               }
-            }
-
-            if (gmtObjects.mus.size() > 3) {
-              edm::LogError("L1T") << "Muon collection for link " << linkMap.first << " has " << gmtObjects.mus.size()
-                                   << " entries, but 3 is the maximum!";
             }
 
             std::array<uint32_t, 6> buf{};  // Making sure contents of buf are initialised to 0.
