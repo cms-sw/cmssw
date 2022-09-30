@@ -109,6 +109,7 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
 
   binariesAvalaible = booker.bookInt("BinariesFound");
   exitCode = booker.bookString("PedeExitCode", "");
+  isVetoed = booker.bookString("IsVetoed", "");
 
   booker.cd();
 }
@@ -131,7 +132,28 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
   binariesAvalaible->Fill(mpReader_->binariesAmount());
   auto theResults = mpReader_->getResults();
   std::string exitCodeStr = theResults.getExitMessage();
+
+  std::string vetoStr{};
+  if (mpReader_->storeAlignments()) {
+    vetoStr = "DB Updated!"; /* easy peasy, fait accompli an alignment is there */
+  } else {
+    if (theResults.isHighGranularity()) { /* HG case */
+      if (theResults.getDBVetoed() && theResults.getDBUpdated()) {
+        vetoStr = "DB Update Vetoed"; /* this can happen in the HG PCL case */
+      } else {
+        vetoStr = "N/A";
+      }
+    } else { /* LG case */
+      if (theResults.exceedsCutoffs()) {
+        vetoStr = "DB Update Vetoed"; /* this can happen in the LG PCL case */
+      } else {
+        vetoStr = "N/A";
+      }  // if the alignment exceeds the cutoffs
+    }    // LG case
+  }      // if the alignment was not stored
+
   exitCode->Fill(exitCodeStr);
+  isVetoed->Fill(vetoStr);
 }
 
 //=============================================================================
