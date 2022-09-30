@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,15 +21,12 @@
 // class declaration
 //
 
-class GreedyMuonPFCandidateFilter : public edm::EDFilter {
+class GreedyMuonPFCandidateFilter : public edm::global::EDFilter<> {
 public:
   explicit GreedyMuonPFCandidateFilter(const edm::ParameterSet&);
-  ~GreedyMuonPFCandidateFilter() override;
 
 private:
-  void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   const edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidates_;
   // ----------member data ---------------------------
@@ -62,17 +59,12 @@ GreedyMuonPFCandidateFilter::GreedyMuonPFCandidateFilter(const edm::ParameterSet
   produces<reco::PFCandidateCollection>("muons");
 }
 
-GreedyMuonPFCandidateFilter::~GreedyMuonPFCandidateFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool GreedyMuonPFCandidateFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace std;
   using namespace edm;
 
@@ -122,12 +114,6 @@ bool GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSet
 
   return taggingMode_ || pass;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void GreedyMuonPFCandidateFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void GreedyMuonPFCandidateFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(GreedyMuonPFCandidateFilter);

@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,15 +34,14 @@
 // class declaration
 //
 
-class CastorInvalidDataFilter : public edm::EDFilter {
+class CastorInvalidDataFilter : public edm::global::EDFilter<> {
 public:
   explicit CastorInvalidDataFilter(const edm::ParameterSet&);
-  ~CastorInvalidDataFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > tok_summary_;
 };
@@ -63,17 +62,12 @@ CastorInvalidDataFilter::CastorInvalidDataFilter(const edm::ParameterSet& iConfi
   tok_summary_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester"));
 }
 
-CastorInvalidDataFilter::~CastorInvalidDataFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool CastorInvalidDataFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   edm::Handle<std::vector<ErrorSummaryEntry> > summary;
@@ -94,10 +88,7 @@ bool CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CastorInvalidDataFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
   descriptions.addDefault(desc);
 }
 //define this as a plug-in

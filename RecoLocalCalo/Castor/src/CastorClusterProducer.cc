@@ -24,7 +24,7 @@
 
 // user include
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -45,15 +45,15 @@
 // class decleration
 //
 
-class CastorClusterProducer : public edm::EDProducer {
+class CastorClusterProducer : public edm::global::EDProducer<> {
 public:
   explicit CastorClusterProducer(const edm::ParameterSet&);
   ~CastorClusterProducer() override;
 
 private:
   void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  double phiangle(double testphi);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  double phiangle(double testphi) const;
   void endJob() override;
 
   // ----------member data ---------------------------
@@ -104,7 +104,7 @@ CastorClusterProducer::~CastorClusterProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void CastorClusterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace reco;
   using namespace TMath;
@@ -239,7 +239,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 // help function to calculate phi within [-pi,+pi]
-double CastorClusterProducer::phiangle(double testphi) {
+double CastorClusterProducer::phiangle(double testphi) const {
   double phi = testphi;
   while (phi > M_PI)
     phi -= (2 * M_PI);
