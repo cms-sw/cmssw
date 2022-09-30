@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Parse.h"
@@ -11,7 +11,7 @@
 
 #include <fstream>
 
-class MultiEventFilter : public edm::EDFilter {
+class MultiEventFilter : public edm::global::EDFilter<> {
   class Event {
   public:
     Event(edm::RunNumber_t r, edm::LuminosityBlockNumber_t l, edm::EventNumber_t e) : run(r), lumi(l), event(e) {}
@@ -22,10 +22,9 @@ class MultiEventFilter : public edm::EDFilter {
 
 public:
   explicit MultiEventFilter(const edm::ParameterSet& iConfig);
-  ~MultiEventFilter() override {}
 
 private:
-  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  bool filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   std::vector<Event> events_;
   const std::vector<std::string> eventList_;
@@ -62,7 +61,7 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet& iConfig)
   produces<bool>();
 }
 
-bool MultiEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool MultiEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   bool pass = true;
 
   for (unsigned int i = 0; i < events_.size(); ++i) {
