@@ -24,14 +24,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -46,25 +43,14 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToModule.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 #include "DataFormats/Math/interface/angle_units.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 

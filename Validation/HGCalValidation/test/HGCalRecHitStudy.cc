@@ -20,8 +20,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
@@ -153,10 +151,8 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       nused++;
       DetId detId = it.id();
       int layer = (ifNose_ ? HFNoseDetId(detId).layer()
-                           : ((detId.det() == DetId::Forward)
-                                  ? HGCalDetId(detId).layer()
-                                  : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
-                                                                      : HGCSiliconDetId(detId).layer())));
+                           : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                               : HGCSiliconDetId(detId).layer()));
       recHitValidation(detId, layer, geom0, &it);
     }
   } else {

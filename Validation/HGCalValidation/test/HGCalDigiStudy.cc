@@ -10,9 +10,7 @@
 #include "TH1D.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -33,8 +31,6 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 class HGCalDigiStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -219,10 +215,8 @@ void HGCalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   layers_ = hgcGeom_->topology().dddConstants().layers(true);
   if (hgcGeom_->topology().waferHexagon8())
     geomType_ = 1;
-  else if (hgcGeom_->topology().tileTrapezoid())
-    geomType_ = 2;
   else
-    geomType_ = 0;
+    geomType_ = 2;
   if (nameDetector_ == "HGCalHFNoseSensitive")
     geomType_ = 3;
   edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: gets Geometry for " << nameDetector_ << " of type "
@@ -243,27 +237,27 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType_ == 0)   ? (HGCalDetId(detId).layer())
-                     : (geomType_ == 1) ? HGCSiliconDetId(detId).layer()
-                                        : HFNoseDetId(detId).layer());
+        int layer =
+            ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
+                              : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer() : HFNoseDetId(detId).layer()));
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t adc = hgcSample.data();
         double charge = adc;
         //      uint16_t   gain      = hgcSample.toa();
         //      double     charge    = adc*gain;
         digiValidation(detId, hgcGeom_, layer, adc, charge);
-        if (geomType_ == 0) {
-          HGCalDetId id = HGCalDetId(detId);
-          h_Ly_->Fill(id.layer());
-          h_W1_->Fill(id.wafer());
-          h_C1_->Fill(id.cell());
-        } else if (geomType_ == 1) {
+        if (geomType_ == 1) {
           HGCSiliconDetId id = HGCSiliconDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.waferU());
           h_W2_->Fill(id.waferV());
           h_C1_->Fill(id.cellU());
           h_C2_->Fill(id.cellV());
+        } else if (geomType_ == 2) {
+          HGCScintillatorDetId id = HGCScintillatorDetId(detId);
+          h_Ly_->Fill(id.layer());
+          h_W1_->Fill(id.ieta());
+          h_C1_->Fill(id.iphi());
         } else {
           HFNoseDetId id = HFNoseDetId(detId);
           h_Ly_->Fill(id.layer());
@@ -288,32 +282,34 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType_ == 0)
-                         ? HGCalDetId(detId).layer()
-                         : ((geomType_ == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        int layer =
+            ((geomType_ == 1) ? HGCSiliconDetId(detId).layer()
+                              : ((geomType_ == 2) ? HGCScintillatorDetId(detId).layer() : HFNoseDetId(detId).layer()));
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t adc = hgcSample.data();
         double charge = adc;
         //      uint16_t   gain      = hgcSample.toa();
         //      double     charge    = adc*gain;
         digiValidation(detId, hgcGeom_, layer, adc, charge);
-        if (geomType_ == 0) {
-          HGCalDetId id = HGCalDetId(detId);
-          h_Ly_->Fill(id.layer());
-          h_W1_->Fill(id.wafer());
-          h_C1_->Fill(id.cell());
-        } else if (geomType_ == 1) {
+        if (geomType_ == 1) {
           HGCSiliconDetId id = HGCSiliconDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.waferU());
           h_W2_->Fill(id.waferV());
           h_C1_->Fill(id.cellU());
           h_C2_->Fill(id.cellV());
-        } else {
+        } else if (geomType_ == 2) {
           HGCScintillatorDetId id = HGCScintillatorDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.ieta());
           h_C1_->Fill(id.iphi());
+        } else {
+          HFNoseDetId id = HFNoseDetId(detId);
+          h_Ly_->Fill(id.layer());
+          h_W1_->Fill(id.waferU());
+          h_W2_->Fill(id.waferV());
+          h_C1_->Fill(id.cellU());
+          h_C2_->Fill(id.cellV());
         }
       }
     } else {

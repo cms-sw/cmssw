@@ -7,9 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
