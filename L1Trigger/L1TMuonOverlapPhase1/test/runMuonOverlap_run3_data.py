@@ -4,7 +4,7 @@ process = cms.Process("L1TMuonEmulation")
 import os
 import sys
 
-loadConfigFrom_sqlite_file = True
+loadConfigFrom_sqlite_file = False
 
 loadConfigFrom_fakeOmtfParams = False
 
@@ -59,9 +59,12 @@ process.source = cms.Source('PoolSource',
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root',
      
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root', # only DT, fw 0x0008
-     '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'  
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/347/053/00000/7b486245-96ea-4b7c-9fe7-76c957968785.root'  #RPC noise only
+     
+     #'file:/eos/cms/store/express/Run2022D/ExpressPhysics/FEVT/Express-v1/000/357/815/00000/ffe8b95d-25cb-45cd-9f45-b96d8e18ed4f.root'
+     'file:/eos/cms/store/data/Run2022C/BTagMu/RAW/v1/000/356/531/00000/9cd8bc50-5bac-487a-b491-848e7ece92fc.root'
      ),             
  )
 	                    
