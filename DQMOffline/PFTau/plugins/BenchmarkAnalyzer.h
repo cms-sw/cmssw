@@ -1,7 +1,6 @@
 #ifndef __DQMOffline_PFTau_BenchmarkAnalyzer__
 #define __DQMOffline_PFTau_BenchmarkAnalyzer__
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"

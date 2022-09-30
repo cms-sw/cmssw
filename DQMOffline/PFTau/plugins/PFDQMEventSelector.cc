@@ -13,6 +13,7 @@
 // -- Constructor
 //
 PFDQMEventSelector::PFDQMEventSelector(const edm::ParameterSet &pset) {
+  usesResource("DQMStore");
   verbose_ = pset.getParameter<bool>("DebugOn");
   inputFileName_ = pset.getParameter<std::string>("InputFileName");
   folderNames_ = pset.getParameter<std::vector<std::string>>("FolderNames");
