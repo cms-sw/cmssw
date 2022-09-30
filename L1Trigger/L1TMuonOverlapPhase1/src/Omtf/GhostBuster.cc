@@ -32,6 +32,9 @@ AlgoMuons GhostBuster::select(AlgoMuons refHitCands, int charge) {
     }
     if ((*it1)->getQ() > 0 && !isGhost)
       refHitCleanCands.emplace_back(new AlgoMuon(**it1));
+
+    if (refHitCleanCands.size() >= 3)
+      break;
   }
 
   while (refHitCleanCands.size() < 3)
