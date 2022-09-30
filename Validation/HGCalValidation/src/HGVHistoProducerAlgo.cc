@@ -1,5 +1,6 @@
 #include <numeric>
 #include <iomanip>
+#include <sstream>
 
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -2328,8 +2329,16 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
 
       std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
       if (itcheck == hitMap.end()) {
+	std::ostringstream st1;
+	if ((rh_detid.det() == DetId::HGCalEE) || (rh_detid.det() == DetId::HGCalHSi)) {
+	  st1 << HGCSiliconDetId(rh_detid);
+	} else if (rh_detid.det() == DetId::HGCalHSc) {
+	  st1 << HGCScintillatorDetId(rh_detid);
+	} else {
+	  st1 << HFNoseDetId(rh_detid);
+	}
         LogDebug("HGCalValidator") << " You shouldn't be here - Unable to find a hit " << rh_detid.rawId() << " "
-                                   << rh_detid.det() << " " << HGCalDetId(rh_detid) << "\n";
+                                   << rh_detid.det() << " " << st1.str() << "\n";
         continue;
       }
 
@@ -2360,8 +2369,16 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       //Let's check the density
       std::map<DetId, float>::const_iterator dit = densities.find(rh_detid);
       if (dit == densities.end()) {
+	std::ostringstream st1;
+	if ((rh_detid.det() == DetId::HGCalEE) || (rh_detid.det() == DetId::HGCalHSi)) {
+	  st1 << HGCSiliconDetId(rh_detid);
+	} else if (rh_detid.det() == DetId::HGCalHSc) {
+	  st1 << HGCScintillatorDetId(rh_detid);
+	} else {
+	  st1 << HFNoseDetId(rh_detid);
+	}
         LogDebug("HGCalValidator") << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " "
-                                   << rh_detid.det() << " " << HGCalDetId(rh_detid) << "\n";
+                                   << rh_detid.det() << " " << st1.str() << "\n";
         continue;
       }
 
