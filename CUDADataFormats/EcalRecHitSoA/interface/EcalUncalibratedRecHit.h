@@ -7,6 +7,7 @@
 #include "CUDADataFormats/CaloCommon/interface/Common.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 namespace ecal {
 
@@ -38,6 +39,20 @@ namespace ecal {
       flags.resize(size);
       jitter.resize(size);
       jitterError.resize(size);
+    }
+
+    template <typename U = typename StoragePolicy::TagType>
+    typename std::enable_if<std::is_same<U, ::calo::common::tags::Vec>::value, void>::type resize(size_t size,
+                                                                                                  cudaStream_t stream) {
+      using cms::cuda::resizeContainer;
+      resizeContainer(amplitudesAll, size * EcalDataFrame::MAXSAMPLES, stream);
+      resizeContainer(amplitude, size, stream);
+      resizeContainer(pedestal, size, stream);
+      resizeContainer(chi2, size, stream);
+      resizeContainer(did, size, stream);
+      resizeContainer(flags, size, stream);
+      resizeContainer(jitter, size, stream);
+      resizeContainer(jitterError, size, stream);
     }
   };
 

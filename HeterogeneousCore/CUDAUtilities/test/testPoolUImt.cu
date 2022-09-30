@@ -1,4 +1,5 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 #include <cmath>
 #include <unistd.h>
@@ -131,6 +132,16 @@ void go() {
       if (stop)
         break;
       iter++;
+
+      std::vector<int, cms::cuda::HostAllocator<int>> v1, v2;
+      assert(nullptr == v1.get_allocator().stream());
+      v1 = std::vector<int, cms::cuda::HostAllocator<int>>(cms::cuda::HostAllocator<int>(stream));
+      assert(stream == v1.get_allocator().stream());
+      v1.resize(10);
+      v2 = v1;
+      assert(stream == v1.get_allocator().stream());
+      assert(stream == v2.get_allocator().stream());
+      assert(v1 == v2);
 
       memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, where));
       auto n = rgen1(eng);

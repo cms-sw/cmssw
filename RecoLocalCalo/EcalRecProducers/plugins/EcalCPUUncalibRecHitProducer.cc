@@ -68,8 +68,8 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   auto const& eeRecHits = ctx.get(eeRecHitsProduct);
 
   // resize the output buffers
-  recHitsEB_.resize(ebRecHits.size);
-  recHitsEE_.resize(eeRecHits.size);
+  recHitsEB_.resize(ebRecHits.size, ctx.stream());
+  recHitsEE_.resize(eeRecHits.size, ctx.stream());
 
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;

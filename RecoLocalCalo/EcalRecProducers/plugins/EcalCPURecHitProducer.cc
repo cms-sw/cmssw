@@ -71,8 +71,8 @@ void EcalCPURecHitProducer::acquire(edm::Event const& event,
   auto const& eeRecHits = ctx.get(eeRecHitsProduct);
 
   // resize the output buffers
-  recHitsEB_.resize(ebRecHits.size);
-  recHitsEE_.resize(eeRecHits.size);
+  recHitsEB_.resize(ebRecHits.size, ctx.stream());
+  recHitsEE_.resize(eeRecHits.size, ctx.stream());
 
 #ifdef ECAL_RECO_CUDA_DEBUG
   std::cout << " [EcalCPURecHitProducer::acquire] ebRecHits.size = " << ebRecHits.size << std::endl;

@@ -144,10 +144,12 @@ void EcalCPUDigisProducer::acquire(edm::Event const& event,
   auto const& eedigis = ctx.get(eedigisProduct);
 
   // resize tmp buffers
-  dataebtmp.resize(ebdigis.size * EcalDataFrame::MAXSAMPLES);
-  dataeetmp.resize(eedigis.size * EcalDataFrame::MAXSAMPLES);
-  idsebtmp.resize(ebdigis.size);
-  idseetmp.resize(eedigis.size);
+  dataebtmp =
+      std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t>>(ebdigis.size * EcalDataFrame::MAXSAMPLES, ctx.stream());
+  dataeetmp =
+      std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t>>(eedigis.size * EcalDataFrame::MAXSAMPLES, ctx.stream());
+  idsebtmp = std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>>(ebdigis.size, ctx.stream());
+  idseetmp = std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>>(eedigis.size, ctx.stream());
 
   // enqeue transfers
   cudaCheck(cudaMemcpyAsync(

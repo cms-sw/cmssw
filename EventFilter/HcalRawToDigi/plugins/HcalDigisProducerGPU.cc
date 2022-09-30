@@ -96,14 +96,6 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
   hf01_.stride = hcal::compute_stride<hcal::Flavor1>(QIE11DigiCollection::MAXSAMPLES);
   hf5_.stride = hcal::compute_stride<hcal::Flavor5>(HBHEDataFrame::MAXSAMPLES);
   hf3_.stride = hcal::compute_stride<hcal::Flavor3>(QIE11DigiCollection::MAXSAMPLES);
-
-  // preallocate pinned host memory only if CUDA is available
-  edm::Service<CUDAService> cs;
-  if (cs and cs->enabled()) {
-    hf01_.reserve(config_.maxChannelsF01HE);
-    hf5_.reserve(config_.maxChannelsF5HB);
-    hf3_.reserve(config_.maxChannelsF3HB);
-  }
 }
 
 void HcalDigisProducerGPU::acquire(edm::Event const& event,
@@ -116,6 +108,9 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   hf01_.clear();
   hf5_.clear();
   hf3_.clear();
+  hf01_.reserve(config_.maxChannelsF01HE, ctx.stream());
+  hf5_.reserve(config_.maxChannelsF5HB, ctx.stream());
+  hf3_.reserve(config_.maxChannelsF3HB, ctx.stream());
 
   // event data
   edm::Handle<HBHEDigiCollection> hbheDigis;

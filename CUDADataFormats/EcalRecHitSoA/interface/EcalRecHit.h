@@ -38,6 +38,18 @@ namespace ecal {
       flagBits.resize(size);
       did.resize(size);
     }
+
+    template <typename U = typename StoragePolicy::TagType>
+    typename std::enable_if<std::is_same<U, ::calo::common::tags::Vec>::value, void>::type resize(size_t size,
+                                                                                                  cudaStream_t stream) {
+      using cms::cuda::resizeContainer;
+      resizeContainer(energy, size, stream);
+      resizeContainer(time, size, stream);
+      resizeContainer(chi2, size, stream);
+      resizeContainer(extra, size, stream);
+      resizeContainer(flagBits, size, stream);
+      resizeContainer(did, size, stream);
+    }
   };
 
 }  // namespace ecal

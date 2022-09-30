@@ -107,6 +107,15 @@ public:
     return i;
   }
 
+  // slow. needed by standard allocators
+  int index(Pointer p) const {
+    int ls = size();
+    for (int i = 0; i < ls; ++i)
+      if (m_slots[i] == p)
+        return i;
+    return -1;
+  }
+
 protected:
   int allocImpl(uint64_t s, void *stream);
   int createAt(int ls, int b, void *stream);

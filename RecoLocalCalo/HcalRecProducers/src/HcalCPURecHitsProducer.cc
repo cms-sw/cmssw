@@ -70,7 +70,7 @@ void HcalCPURecHitsProducer::acquire(edm::Event const& event,
   auto const& recHits = ctx.get(recHitsProduct);
 
   // resize tmp buffers
-  tmpRecHits_.resize(recHits.size);
+  tmpRecHits_.resize(recHits.size, ctx.stream());
 
 #ifdef HCAL_MAHI_CPUDEBUG
   std::cout << "num rec Hits = " << recHits.size << std::endl;

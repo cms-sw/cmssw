@@ -86,9 +86,9 @@ void HcalCPUDigisProducer::acquire(edm::Event const& event,
   digisf01HE_.stride = f01HEDigis.stride;
   digisf5HB_.stride = f5HBDigis.stride;
   digisf3HB_.stride = f3HBDigis.stride;
-  digisf01HE_.resize(f01HEDigis.size);
-  digisf5HB_.resize(f5HBDigis.size);
-  digisf3HB_.resize(f3HBDigis.size);
+  digisf01HE_.resize(f01HEDigis.size, ctx.stream());
+  digisf5HB_.resize(f5HBDigis.size, ctx.stream());
+  digisf3HB_.resize(f3HBDigis.size, ctx.stream());
 
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
