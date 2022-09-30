@@ -85,9 +85,7 @@ HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
   caloParticles_ = consumes<std::vector<CaloParticle>>(caloParticles);
 }
 
-void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
-                                           edm::Run const& iRun,
-                                           edm::EventSetup const&) {
+void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   ibooker.cd();
   ibooker.setCurrentFolder("HGCalShowerSeparation");
   scEnergy_ = ibooker.book1D("SCEnergy", "SCEnergy", 240, 0., 120.);
@@ -148,7 +146,6 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   recHitTools_.setGeometry(iSetup.getData(tok_geom_));
 
   const edm::Handle<std::vector<CaloParticle>>& caloParticleHandle = iEvent.getHandle(caloParticles_);

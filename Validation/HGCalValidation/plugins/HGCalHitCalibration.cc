@@ -165,7 +165,8 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
         << hitid.subdetId() << std::endl;
     return;
   }
-  if ((hitid.det() != DetId::Forward) && (hitid.det() != DetId::HGCalEE) && (hitid.det() != DetId::HGCalHSi) && (hitid.det() != DetId::HGCalHSc)) {
+  if ((hitid.det() != DetId::Forward) && (hitid.det() != DetId::HGCalEE) && (hitid.det() != DetId::HGCalHSi) &&
+      (hitid.det() != DetId::HGCalHSc)) {
     IfLogTrace(debug_ > 0, "HGCalHitCalibration")
         << ">>> Wrong type of detid " << std::hex << hitid.rawId() << std::dec << " Det " << hitid.det() << " Subdet "
         << hitid.subdetId() << std::endl;
@@ -270,7 +271,8 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
         DetId hitid = (it_haf.first);
         // dump raw RecHits and match
         if (rawRecHits_) {
-          if ((hitid.det() == DetId::Forward) || (hitid.det() == DetId::HGCalEE) || (hitid.det() == DetId::HGCalHSi) || (hitid.det() == DetId::HGCalHSc))
+          if ((hitid.det() == DetId::Forward) || (hitid.det() == DetId::HGCalEE) || (hitid.det() == DetId::HGCalHSi) ||
+              (hitid.det() == DetId::HGCalHSc))
             fillWithRecHits(hitmap, hitid, hitlayer, it_haf.second, seedDet, seedEnergy);
         }
       }  // end simHit
@@ -327,7 +329,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       auto closest = std::min_element(ele.begin(), ele.end(), closest_fcn);
       if (closest != ele.end() &&
           ((closest->superCluster()->seed()->seed().det() == DetId::Forward) ||
-	   (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
            (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSi)) &&
           reco::deltaR2(*closest, it_caloPart) < 0.01) {
         seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
@@ -346,7 +348,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       auto closest = std::min_element(photon.begin(), photon.end(), closest_fcn);
       if (closest != photon.end() &&
           ((closest->superCluster()->seed()->seed().det() == DetId::Forward) ||
-	   (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
            (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSi)) &&
           reco::deltaR2(*closest, it_caloPart) < 0.01) {
         seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
