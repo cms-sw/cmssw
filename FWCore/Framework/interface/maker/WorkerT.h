@@ -93,7 +93,11 @@ namespace edm {
     void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskWithArenaHolder&) final;
 
     size_t transformIndex(edm::BranchDescription const&) const final;
-    void implDoTransform(size_t iTransformIndex, EventPrincipal const&, ParentContext const&) final;
+    void implDoTransformAsync(WaitingTaskHolder,
+                              size_t iTransformIndex,
+                              EventPrincipal const&,
+                              ParentContext const&,
+                              ServiceWeakToken const&) final;
     ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const final;
 
     bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) override;

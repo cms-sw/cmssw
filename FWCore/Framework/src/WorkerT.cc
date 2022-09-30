@@ -269,63 +269,84 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implDoTransform(size_t iTransformIndex, EventPrincipal const&, ParentContext const&) {}
-  template <>
-  inline void WorkerT<global::EDFilterBase>::implDoTransform(size_t iTransformIndex,
-                                                             EventPrincipal const& iEvent,
-                                                             ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
+  inline void WorkerT<T>::implDoTransformAsync(WaitingTaskHolder iTask,
+                                               size_t iTransformIndex,
+                                               EventPrincipal const& iEvent,
+                                               ParentContext const& iParent,
+                                               ServiceWeakToken const& weakToken) {
+    try {
+      ServiceRegistry::Operate guard(weakToken.lock());
+
+      ModuleCallingContext mcc(
+          &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+      module_->doTransformAsync(iTask, iTransformIndex, iEvent, activityRegistry(), &mcc, weakToken);
+    } catch (...) {
+      iTask.doneWaiting(std::current_exception());
+      return;
+    }
+    iTask.doneWaiting(std::exception_ptr());
   }
+
   template <>
-  inline void WorkerT<global::EDProducerBase>::implDoTransform(size_t iTransformIndex,
-                                                               EventPrincipal const& iEvent,
-                                                               ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+  inline void WorkerT<EDFilter>::implDoTransformAsync(WaitingTaskHolder task,
+                                                      size_t iTransformIndex,
+                                                      EventPrincipal const& iEvent,
+                                                      ParentContext const& iParent,
+                                                      ServiceWeakToken const& weakToken) {}
   template <>
-  inline void WorkerT<stream::EDProducerAdaptorBase>::implDoTransform(size_t iTransformIndex,
+  inline void WorkerT<EDProducer>::implDoTransformAsync(WaitingTaskHolder task,
+                                                        size_t iTransformIndex,
+                                                        EventPrincipal const& iEvent,
+                                                        ParentContext const& iParent,
+                                                        ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<EDAnalyzer>::implDoTransformAsync(WaitingTaskHolder task,
+                                                        size_t iTransformIndex,
+                                                        EventPrincipal const& iEvent,
+                                                        ParentContext const& iParent,
+                                                        ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<global::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                    size_t iTransformIndex,
+                                                                    EventPrincipal const& iEvent,
+                                                                    ParentContext const& iParent,
+                                                                    ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<global::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                      size_t iTransformIndex,
                                                                       EventPrincipal const& iEvent,
-                                                                      ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+                                                                      ParentContext const& iParent,
+                                                                      ServiceWeakToken const& weakToken) {}
   template <>
-  inline void WorkerT<limited::EDFilterBase>::implDoTransform(size_t iTransformIndex,
-                                                              EventPrincipal const& iEvent,
-                                                              ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+  inline void WorkerT<limited::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                     size_t iTransformIndex,
+                                                                     EventPrincipal const& iEvent,
+                                                                     ParentContext const& iParent,
+                                                                     ServiceWeakToken const& weakToken) {}
   template <>
-  inline void WorkerT<limited::EDProducerBase>::implDoTransform(size_t iTransformIndex,
-                                                                EventPrincipal const& iEvent,
-                                                                ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+  inline void WorkerT<limited::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                       size_t iTransformIndex,
+                                                                       EventPrincipal const& iEvent,
+                                                                       ParentContext const& iParent,
+                                                                       ServiceWeakToken const& weakToken) {}
   template <>
-  inline void WorkerT<one::EDFilterBase>::implDoTransform(size_t iTransformIndex,
-                                                          EventPrincipal const& iEvent,
-                                                          ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+  inline void WorkerT<one::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                 size_t iTransformIndex,
+                                                                 EventPrincipal const& iEvent,
+                                                                 ParentContext const& iParent,
+                                                                 ServiceWeakToken const& weakToken) {}
   template <>
-  inline void WorkerT<one::EDProducerBase>::implDoTransform(size_t iTransformIndex,
-                                                            EventPrincipal const& iEvent,
-                                                            ParentContext const& iParent) {
-    ModuleCallingContext mcc(
-        &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
-    module_->doTransform(iTransformIndex, iEvent, activityRegistry(), &mcc);
-  }
+  inline void WorkerT<one::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                   size_t iTransformIndex,
+                                                                   EventPrincipal const& iEvent,
+                                                                   ParentContext const& iParent,
+                                                                   ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<stream::EDAnalyzerAdaptorBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                           size_t iTransformIndex,
+                                                                           EventPrincipal const& iEvent,
+                                                                           ParentContext const& iParent,
+                                                                           ServiceWeakToken const& weakToken) {}
 
   template <typename T>
   inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const {
