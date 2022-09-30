@@ -251,15 +251,9 @@ namespace edm {
                                       std::exception_ptr const* iExcept) mutable {
       if (iExcept) {
         iTask.doneWaiting(*iExcept);
-      }
-      try {
-        ServiceRegistry::Operate guard(weakToken.lock());
-        implDoTransform(iTransformIndex, iPrincipal, parent);
-      } catch (...) {
-        iTask.doneWaiting(std::current_exception());
         return;
       }
-      iTask.doneWaiting(std::exception_ptr{});
+      implDoTransformAsync(iTask, iTransformIndex, iPrincipal, parent, weakToken);
     });
 
     //NOTE: need different ModuleCallingContext. The ProductResolver will copy the context in order to get
