@@ -27,9 +27,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
 // Root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 
@@ -138,7 +135,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
         ensum += energy;
         map_try[id] = ensum;
         ++i;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
+        edm::LogVerbatim("HGCalValidation") << "HGCalHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
                                             << HGCSiliconDetId(id) << " E " << energy << " time " << time;
       }
       for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
@@ -166,7 +163,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
         hdigOc_->Fill(r, depth);
         hdi2Oc_->Fill(z, r);
         ++kount;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy;
+        edm::LogVerbatim("HGCalValidation") << "HGCalDigit[" << kount << "] ID " << cell << " E " << energy;
       }
     }
   }
