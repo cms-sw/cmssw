@@ -131,6 +131,7 @@ private:  //===================================================================
   MonitorElement* statusResults;
   MonitorElement* binariesAvalaible;
   MonitorElement* exitCode;
+  MonitorElement* isVetoed;
 
   bool isHG_;
 };
