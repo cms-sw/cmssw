@@ -43,6 +43,7 @@ HltComparator::HltComparator(const edm::ParameterSet &iConfig)
   // std::cout << " HERE I AM " << std::endl;
   produces<StringCollection>("failedTriggerDescription");
   // std::cout << " HERE I GO " << std::endl;
+  usesResource(TFileService::kSharedResource);
 }
 
 HltComparator::~HltComparator() {}
