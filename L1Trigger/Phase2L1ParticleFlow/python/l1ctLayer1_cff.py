@@ -112,7 +112,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-1.5, 1.5),
-            phiSlices     = cms.uint32(6),
+            phiSlices     = cms.uint32(3),
             phiZero       = cms.double(0),
         )
     ),
@@ -141,12 +141,12 @@ _hgcalSectors = cms.VPSet(
     cms.PSet( 
         etaBoundaries = cms.vdouble(-3.0, -1.5),
         phiSlices     = cms.uint32(3),
-        phiZero       = cms.double(math.pi/6) # L1 TrackFinder phi sector and HGCal sectors shifted by 30deg,
+        phiZero       = cms.double(math.pi/2) # The edge of the 0th HGCal sectors is at 30 deg, the center at 30+120/2=90 = pi/2
     ),
     cms.PSet( 
         etaBoundaries = cms.vdouble(+1.5, +3.0),
         phiSlices     = cms.uint32(3),
-        phiZero       = cms.double(math.pi/6) # L1 TrackFinder phi sector and HGCal sectors shifted by 30deg,
+        phiZero       = cms.double(math.pi/2) # As above
     )
 
 )
@@ -255,6 +255,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         nEMCALO_EGIN = 10, 
         nEM_EGOUT = 5,
         doBremRecovery=True,
+        doEndcapHwQual=True,
         writeBeforeBremRecovery=False,
         writeEGSta=True),
     tkEgSorterParameters=tkEgSorterParameters.clone(
@@ -340,6 +341,7 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         nEMCALO_EGIN = 10, 
         nEM_EGOUT = 5,
         doBremRecovery=True,
+        doEndcapHwQual=True,
         writeBeforeBremRecovery=False,
         writeEGSta=True),
     tkEgSorterParameters=tkEgSorterParameters.clone(
