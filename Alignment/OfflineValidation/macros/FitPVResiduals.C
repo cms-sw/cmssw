@@ -2360,7 +2360,7 @@ void arrangeBiasCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad = static_cast<TPad *>(canv->GetPad(k + 1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2521,7 +2521,7 @@ void arrangeCanvas(TCanvas *canv,
     current_pad = static_cast<TPad *>(canv->GetPad(0));
   }
 
-  CMS_lumi(current_pad, 4, 33);
+  CMS_lumi(current_pad, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
 
@@ -2567,7 +2567,7 @@ void arrangeCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad2 = static_cast<TPad *>(canv->GetPad(2));
-    CMS_lumi(current_pad2, 4, 33);
+    CMS_lumi(current_pad2, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2805,7 +2805,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
 
   //TkAlStyle::drawStandardTitle(Coll0T15);
   lego->Draw("same");
-  CMS_lumi(canv, 4, 33);
+  CMS_lumi(canv, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
   //pt->Draw("same");
@@ -3868,7 +3868,9 @@ void setStyle() {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text
-  lumi_13TeV = "p-p collisions";
+  lumi_13p6TeV = "pp collisions";
+  lumi_13TeV = "pp collisions";
+  lumi_0p9TeV = "pp collisions";
   extraText = "Internal";
 
   TH1::StatOverflows(kTRUE);
