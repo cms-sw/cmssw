@@ -11,14 +11,14 @@ rm -f test.root
 echo "--------------------------------------------------------------------------------"
 echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/writer.py"
 echo
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/writer.py
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/writer.py || exit $?
 echo
 echo "--------------------------------------------------------------------------------"
 echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/reader.py"
 echo
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/reader.py
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/reader.py || exit $?
 echo
 echo "--------------------------------------------------------------------------------"
 echo "$ edmDumpEventContent test.root"
 echo
-edmDumpEventContent test.root
+edmDumpEventContent test.root || exit $?
