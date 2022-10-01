@@ -102,10 +102,11 @@ namespace hcal {
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(
-        std::size_t size, cudaStream_t stream) {
-      ids = decltype(ids)(typename decltype(ids)::allocator_type(stream));
-      data = decltype(data)(typename decltype(data)::allocator_type(stream));
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(std::size_t size,
+                                                                                                   cudaStream_t stream,
+                                                                                                   bool immediate) {
+      ids = decltype(ids)(typename decltype(ids)::allocator_type(stream, immediate));
+      data = decltype(data)(typename decltype(data)::allocator_type(stream, immediate));
       ids.reserve(size);
       data.reserve(size * stride);
     }
@@ -145,10 +146,11 @@ namespace hcal {
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(
-        std::size_t size, cudaStream_t stream) {
-      DigiCollectionBase<StoragePolicy>::reserve(size, stream);
-      npresamples = decltype(npresamples)(typename decltype(npresamples)::allocator_type(stream));
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(std::size_t size,
+                                                                                                   cudaStream_t stream,
+                                                                                                   bool immediate) {
+      DigiCollectionBase<StoragePolicy>::reserve(size, stream, immediate);
+      npresamples = decltype(npresamples)(typename decltype(npresamples)::allocator_type(stream, immediate));
       npresamples.reserve(size);
     }
 

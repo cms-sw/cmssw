@@ -108,9 +108,10 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   hf01_.clear();
   hf5_.clear();
   hf3_.clear();
-  hf01_.reserve(config_.maxChannelsF01HE, ctx.stream());
-  hf5_.reserve(config_.maxChannelsF5HB, ctx.stream());
-  hf3_.reserve(config_.maxChannelsF3HB, ctx.stream());
+  // in principle we can also do immediate delete as it is freed HERE (not above)
+  hf01_.reserve(config_.maxChannelsF01HE, ctx.stream(), false);
+  hf5_.reserve(config_.maxChannelsF5HB, ctx.stream(), false);
+  hf3_.reserve(config_.maxChannelsF3HB, ctx.stream(), false);
 
   // event data
   edm::Handle<HBHEDigiCollection> hbheDigis;

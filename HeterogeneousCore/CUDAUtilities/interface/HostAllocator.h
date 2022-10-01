@@ -38,10 +38,14 @@ namespace cms {
       typedef std::true_type propagate_on_container_swap;
 
       HostAllocator() = default;
-      HostAllocator(cudaStream_t stream) : m_stream(stream) {}
+      HostAllocator(cudaStream_t stream, bool immediate = true) : m_stream(stream), m_immediateDelete(immediate) {}
 
-      bool operator==(HostAllocator<T, FLAGS> const& rh) const { return (m_stream) == (rh.m_stream); }
-      bool operator!=(HostAllocator<T, FLAGS> const& rh) const { return (m_stream) != (rh.m_stream); }
+      bool operator==(HostAllocator<T, FLAGS> const& rh) const {
+        return m_stream == rh.m_stream && m_immediateDelete == rh.m_immediateDelete;
+      }
+      bool operator!=(HostAllocator<T, FLAGS> const& rh) const {
+        return m_stream != rh.m_stream || m_immediateDelete == rh.m_immediateDelete;
+      }
 
       CMS_THREAD_SAFE T* allocate(std::size_t n) const __attribute__((warn_unused_result)) __attribute__((malloc))
       __attribute__((returns_nonnull)) {
@@ -79,18 +83,24 @@ namespace cms {
           auto i = pool->index(p);
           assert(i >= 0);
           auto c = pool->count(i);
-          memoryPool::cuda::free(stream(), std::vector<std::pair<int, uint64_t>>(1, std::make_pair(i, c)), *pool);
+          if (m_immediateDelete) {
+            pool->setScheduled(i);
+            pool->free(i, c);
+          } else
+            memoryPool::cuda::free(stream(), std::vector<std::pair<int, uint64_t>>(1, std::make_pair(i, c)), *pool);
         }
       }
 
       void setStream(cudaStream_t stream) { m_stream = stream; }
       cudaStream_t stream() const { return m_stream; }
       cudaStream_t m_stream = nullptr;
+      bool m_immediateDelete = true;
     };
 
+    // essentailly all those container are in dataformats: deleted at the end of the event. no need to wait for the stream ...
     template <typename T>
-    void resizeContainer(T& c, size_t size, cudaStream_t stream) {
-      c = T(size, typename T::allocator_type(stream));
+    void resizeContainer(T& c, size_t size, cudaStream_t stream, bool immediate = true) {
+      c = T(size, typename T::allocator_type(stream, immediate));
     }
 
   }  // namespace cuda
