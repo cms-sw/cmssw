@@ -32,9 +32,9 @@ namespace {
 
 struct CudaAlloc {
   static void scheduleFree(memoryPool::Payload *payload, void *stream) {
-    //if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
-    //  poolDetails::freeAsync(payload);
-    //else
+    if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
+      poolDetails::freeAsync(payload);
+    else
     //cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
     cudaCheck(cudaLaunchHostFunc((cudaStream_t)(stream), freeCallback, payload));
   }
