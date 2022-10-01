@@ -3,7 +3,6 @@
  *   Jan Kašpar
  ****************************************************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
