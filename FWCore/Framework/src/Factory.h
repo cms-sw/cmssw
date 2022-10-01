@@ -17,7 +17,7 @@ namespace edm {
 
   class Factory {
   public:
-    typedef std::map<std::string, edm::propagate_const<Maker*>> MakerMap;
+    typedef std::map<std::string, edm::propagate_const<std::unique_ptr<Maker>>> MakerMap;
 
     ~Factory();
 
