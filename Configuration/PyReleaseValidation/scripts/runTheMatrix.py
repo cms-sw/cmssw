@@ -98,13 +98,13 @@ if __name__ == '__main__':
                      13234.0, #2021 ttbar fastsim
                      13434.0, #2021 ttbar PU fastsim
                      12434.0, #2023 ttbar
-                     39434.0, #2026D88 ttbar (2022 new baseline)
-                     39434.75, #2026D88 ttbar with HLT75e33
-                     #39434.911, #2026D88 ttbar DD4hep XML
-                     39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
-                     39496.0, #CE_E_Front_120um D88
-                     39500.0, #CE_H_Coarse_Scint D88
-                     41834.0, #2026D94 ttbar (exercise with HFNose)
+                     20834.0, #2026D88 ttbar (2022 new baseline)
+                     20834.75, #2026D88 ttbar with HLT75e33
+                     #20834.911, #2026D88 ttbar DD4hep XML
+                     21034.999, #2026D88 ttbar premixing stage1+stage2, PU50
+                     20896.0, #CE_E_Front_120um D88
+                     20900.0, #CE_H_Coarse_Scint D88
+                     23234.0, #2026D94 ttbar (exercise with HFNose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
