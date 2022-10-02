@@ -599,10 +599,10 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //L1TrackSelectionProducer
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("l1TracksInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
-  desc.addOptional<edm::InputTag>("l1VerticesInputTag", edm::InputTag("L1VertexFinder", "l1vertices"));
+  desc.add<edm::InputTag>("l1TracksInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.addOptional<edm::InputTag>("l1VerticesInputTag", edm::InputTag("l1tVertexFinder", "l1vertices"));
   desc.addOptional<edm::InputTag>("l1VerticesEmulationInputTag",
-                                  edm::InputTag("L1VertexFinderEmulator", "l1verticesEmulation"));
+                                  edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
   desc.add<std::string>("outputCollectionName", "Level1TTTracksSelected");
   {
     edm::ParameterSetDescription descCutSet;

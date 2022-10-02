@@ -167,7 +167,7 @@ _phase2_siml1emulator.add(l1tTrackJetsEmulation)
 _phase2_siml1emulator.add(l1tTrackJetsExtendedEmulation)
 
 from L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi import *
-l1tTrackerEmuEtMiss.L1VertexInputTag = ("L1VertexFinderEmulator","l1verticesEmulation")
+l1tTrackerEmuEtMiss.L1VertexInputTag = ("l1tVertexFinderEmulator","l1verticesEmulation")
 _phase2_siml1emulator.add(l1tTrackerEmuEtMiss)
 
 from L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi import *
