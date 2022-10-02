@@ -33,6 +33,8 @@ public:
 
   void set_tdcOnsetfC(const double tdcOnset) { tdcOnsetfC_ = tdcOnset; }
 
+  void set_tofDelay(const double tofDelay) { tofDelay_ = tofDelay; }
+
   void set_fCPerMIP(const std::vector<double>& fCPerMIP) {
     if (std::any_of(fCPerMIP.cbegin(), fCPerMIP.cend(), [](double conv) { return conv <= 0.0; })) {
       throw cms::Exception("BadConversionFactor") << "At least one of fCPerMIP is zero!" << std::endl;
@@ -49,7 +51,7 @@ public:
 
   /// Compute HGCUncalibratedRecHit from DataFrame
   virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame) {
-    double amplitude_(-1.), pedestal_(-1.), jitter_(-1.), chi2_(-1.);
+    double amplitude(-1.), pedestal(-1.), jitter(-1.), chi2(-1.);
     uint32_t flag = 0;
 
     constexpr int iSample = 2;  //only in-time sample
@@ -67,40 +69,34 @@ public:
         // need to increment by one so TDC doesn't overlap with ADC last bin
         // LG (11/04/2016):
         // offset the TDC upwards to reflect the bin center
-        amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
-
-        if (sample.getToAValid()) {
-          jitter_ = double(sample.toa()) * toaLSBToNS_;
-        }
+        amplitude = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
       } else {
-        amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
-        if (sample.getToAValid()) {
-          jitter_ = double(sample.toa()) * toaLSBToNS_;
-        }
-      }  //isSiFESim_
-    }    //mode()
-
+        amplitude = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
+      }                                               //isSiFESim_
+      if (sample.getToAValid())
+        jitter = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
+    }  //mode()
     // trivial digitization, i.e. no signal shape
     else {
-      amplitude_ = double(sample.data()) * adcLSB_;
+      amplitude = double(sample.data()) * adcLSB_;
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 0;
-    amplitude_ = amplitude_ / fCPerMIP_[thickness];
+    amplitude = amplitude / fCPerMIP_[thickness];
 
-    LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude_
+    LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude
                                       << ' ' << sample.data() << ' ' << adcLSB_ << ' '
-                                      << "               TDC+: set the ToA to: " << jitter_ << ' ' << sample.toa()
-                                      << ' ' << toaLSBToNS_ << ' ' << tdcLSB_
+                                      << "               TDC+: set the ToA to: " << jitter << ' ' << sample.toa() << ' '
+                                      << toaLSBToNS_ << ' ' << tdcLSB_
                                       << "               getToAValid(): " << sample.getToAValid()
                                       << " mode(): " << sample.mode() << std::endl;
-    LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
+    LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
 
-    return HGCUncalibratedRecHit(dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_, flag);
+    return HGCUncalibratedRecHit(dataFrame.id(), amplitude, pedestal, jitter, chi2, flag);
   }
 
 private:
-  double adcLSB_, tdcLSB_, toaLSBToNS_, tdcOnsetfC_;
+  double adcLSB_, tdcLSB_, toaLSBToNS_, tdcOnsetfC_, tofDelay_;
   bool isSiFESim_;
   std::vector<double> fCPerMIP_;
   const HGCalDDDConstants* ddd_;

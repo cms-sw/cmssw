@@ -22,7 +22,6 @@ _simClusterMapper_HGCal = cms.PSet(
     #filtering out hits outside a cylinder of 10cm radius, built around the center of gravity per each layer
     maxDistance =  cms.double(10.0),
     maxDforTimingSquared = cms.double(4.0),
-    timeOffset = hgceeDigitizer.tofDelay,
     minNHitsforTiming = cms.uint32(3),
     useMCFractionsForExclEnergy = cms.bool(False),
     thresholdsByDetector = cms.VPSet(

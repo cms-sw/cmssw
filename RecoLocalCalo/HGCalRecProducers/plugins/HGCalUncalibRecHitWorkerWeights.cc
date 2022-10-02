@@ -16,6 +16,7 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
   constexpr char tdcOnset[] = "tdcOnset";
   constexpr char toaLSB_ns[] = "toaLSB_ns";
   constexpr char fCPerMIP[] = "fCPerMIP";
+  constexpr char tofDelay[] = "tofDelay";
 
   if (conf.exists(isSiFE)) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
@@ -54,6 +55,12 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
     maker.set_fCPerMIP(conf.getParameter<std::vector<double> >(fCPerMIP));
   } else {
     maker.set_fCPerMIP(std::vector<double>({1.0}));
+  }
+
+  if (conf.exists(tofDelay)) {
+    maker.set_tofDelay(conf.getParameter<double>(tofDelay));
+  } else {
+    maker.set_tofDelay(0.0);
   }
 }
 

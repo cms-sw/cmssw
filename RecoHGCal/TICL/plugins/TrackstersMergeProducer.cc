@@ -84,7 +84,8 @@ private:
   const edm::EDGetTokenT<std::vector<Trackster>> tracksters_clue3d_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
-  const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
+  const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_, mtdTracks_token_;
+  const edm::EDGetTokenT<edm::ValueMap<int>> tracks_assoc_token_;
   const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
   const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
   const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
@@ -142,6 +143,8 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
+      mtdTracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("mtdTracks"))),
+      tracks_assoc_token_(consumes<edm::ValueMap<int>>(ps.getParameter<edm::InputTag>("tracksAssoc"))),
       tracks_time_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"))),
       tracks_time_quality_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"))),
       tracks_time_err_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"))),
@@ -264,10 +267,20 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   const auto &trackTime = evt.get(tracks_time_token_);
   const auto &trackTimeErr = evt.get(tracks_time_err_token_);
   const auto &trackTimeQual = evt.get(tracks_time_quality_token_);
+  const auto &mtdTracks = evt.get(mtdTracks_token_);
+  const auto &trackAssoc = evt.get(tracks_assoc_token_);
 
   // Linking
-  linkingAlgo_->linkTracksters(
-      track_h, trackTime, trackTimeErr, trackTimeQual, muons, trackstersclue3d_h, *resultCandidates, *resultFromTracks);
+  linkingAlgo_->linkTracksters(track_h,
+                               mtdTracks,
+                               trackAssoc,
+                               trackTime,
+                               trackTimeErr,
+                               trackTimeQual,
+                               muons,
+                               trackstersclue3d_h,
+                               *resultCandidates,
+                               *resultFromTracks);
 
   // Print debug info
   LogDebug("TrackstersMergeProducer") << "Results from the linking step : " << std::endl
@@ -589,9 +602,11 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("tracksTime", edm::InputTag("tofPID:t0"));
+  desc.add<edm::InputTag>("mtdTracks", edm::InputTag("trackExtenderWithMTD"));
+  desc.add<edm::InputTag>("tracksAssoc", edm::InputTag("trackExtenderWithMTD:generalTrackassoc"));
+  desc.add<edm::InputTag>("tracksTime", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
   desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
-  desc.add<edm::InputTag>("tracksTimeErr", edm::InputTag("tofPID:sigmat0"));
+  desc.add<edm::InputTag>("tracksTimeErr", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
   desc.add<std::string>("detector", "HGCAL");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");

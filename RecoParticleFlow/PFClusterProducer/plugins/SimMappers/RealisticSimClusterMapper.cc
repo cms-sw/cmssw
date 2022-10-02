@@ -28,7 +28,6 @@ public:
         maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
         maxDistance_(conf.getParameter<double>("maxDistance")),
         maxDforTimingSquared_(conf.getParameter<double>("maxDforTimingSquared")),
-        timeOffset_(conf.getParameter<double>("timeOffset")),
         minNHitsforTiming_(conf.getParameter<unsigned int>("minNHitsforTiming")),
         useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
         calibMinEta_(conf.getParameter<double>("calibMinEta")),
@@ -57,7 +56,6 @@ private:
   const bool maxDistanceFilter_ = false;
   const float maxDistance_ = 10.f;
   const float maxDforTimingSquared_ = 4.0f;
-  const float timeOffset_;
   const unsigned int minNHitsforTiming_ = 3;
   const bool useMCFractionsForExclEnergy_ = false;
   const float calibMinEta_ = 1.4;
@@ -195,7 +193,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             float distanceSquared =
                 std::pow((ref->position().x() - scPosition[0]), 2) + std::pow((ref->position().y() - scPosition[1]), 2);
             if (distanceSquared < maxDforTimingSquared_) {
-              timeHits.push_back(ref->time() - timeOffset_);
+              timeHits.push_back(ref->time());
             }
           }
         }

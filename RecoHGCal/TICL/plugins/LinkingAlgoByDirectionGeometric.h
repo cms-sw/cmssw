@@ -33,6 +33,8 @@ namespace ticl {
                     const edm::ESHandle<Propagator> propH) override;
 
     void linkTracksters(const edm::Handle<std::vector<reco::Track>>,
+                        const reco::TrackCollection &,
+                        const edm::ValueMap<int> &,
                         const edm::ValueMap<float> &,
                         const edm::ValueMap<float> &,
                         const edm::ValueMap<float> &,
@@ -76,6 +78,8 @@ namespace ticl {
                          TICLCandidate &candidate);
 
     void dumpLinksFound(std::vector<std::vector<unsigned>> &resultCollection, const char *label) const;
+
+    static constexpr float c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;
 
     const float tkEnergyCut_ = 2.0f;
     const float maxDeltaT_ = 3.0f;

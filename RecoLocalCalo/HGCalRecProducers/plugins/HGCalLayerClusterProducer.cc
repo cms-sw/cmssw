@@ -53,7 +53,6 @@ private:
   std::string detector;
 
   std::string timeClname;
-  double timeOffset;
   unsigned int nHitsTime;
 };
 
@@ -64,7 +63,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       doSharing(ps.getParameter<bool>("doSharing")),
       detector(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH or "all"
       timeClname(ps.getParameter<std::string>("timeClname")),
-      timeOffset(ps.getParameter<double>("timeOffset")),
       nHitsTime(ps.getParameter<unsigned int>("nHitsTime")) {
   if (detector == "HFNose") {
     hits_hfnose_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HFNoseInput"));
@@ -119,7 +117,6 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   desc.add<std::string>("timeClname", "timeLayerCluster");
-  desc.add<double>("timeOffset", 0.0);
   desc.add<unsigned int>("nHitsTime", 3);
   descriptions.add("hgcalLayerClusters", desc);
 }
@@ -221,7 +218,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         //check on timeError to exclude scintillator
         if (rhTimeE < 0.)
           continue;
-        timeClhits.push_back(rechit->time() - timeOffset);
+        timeClhits.push_back(rechit->time());
         timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
       }
       hgcalsimclustertime::ComputeClusterTime timeEstimator;

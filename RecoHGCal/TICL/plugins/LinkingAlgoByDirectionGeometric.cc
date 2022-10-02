@@ -152,6 +152,10 @@ bool LinkingAlgoByDirectionGeometric::timeAndEnergyCompatible(float &total_raw_e
   if (tsT == -99. or tkTimeQual < timing_quality_threshold_)
     timeCompatible = true;
   else {
+    // back-propagate trackster time to the HGCal front
+    std::array<TICLLayerTile, 2> d;
+    const auto &pos = propagateTrackster(trackster, 0, hgcons_->waferZ(1, true), d);
+    tsT -= (trackster.barycenter() - pos).R() / c_cm_ns;
     timeCompatible = (std::abs(tsT - tkT) < maxDeltaT_ * sqrt(tsTErr * tsTErr + tkTErr * tkTErr));
   }
 
@@ -225,6 +229,8 @@ void LinkingAlgoByDirectionGeometric::buildLayers() {
 }
 
 void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vector<reco::Track>> tkH,
+                                                     const reco::TrackCollection &tkMTD,
+                                                     const edm::ValueMap<int> &tkAssoc,
                                                      const edm::ValueMap<float> &tkTime,
                                                      const edm::ValueMap<float> &tkTimeErr,
                                                      const edm::ValueMap<float> &tkTimeQual,
@@ -394,6 +400,15 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     auto track_time = tkTime[tkRef];
     auto track_timeErr = tkTimeErr[tkRef];
     auto track_timeQual = tkTimeQual[tkRef];
+
+    // propagate MTD time to the HGCal front
+    const auto &mtdTrack = tkAssoc[tkRef] > -1 ? tkMTD[tkAssoc[tkRef]] : tracks[i];
+    const auto &fts = trajectoryStateTransform::outerFreeState(mtdTrack, bFieldProd);
+    const auto &tsos = prop.propagate(fts, firstDisk_[mtdTrack.eta() > 0]->surface());
+    if (tsos.isValid()) {
+      math::XYZPoint posAtHGCAL(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
+      track_time += (posAtHGCAL - mtdTrack.outerPosition()).R() / c_cm_ns;
+    }
 
     for (const unsigned ts3_idx : tsNearTk[i]) {  // tk -> ts
       if (timeAndEnergyCompatible(
