@@ -227,7 +227,7 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
                                               IntercalibConstantsHandle_->getOffset()};
 
   // dev mem
-  eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
+  eventOutputDataGPU_.allocate(neb_, nee_, configParameters_, ctx.stream());
 
   //
   // schedule algorithms

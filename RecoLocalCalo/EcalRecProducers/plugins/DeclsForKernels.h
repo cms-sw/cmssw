@@ -99,11 +99,10 @@ namespace ecal {
     struct EventOutputDataGPU {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
-      void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(int sizeEB, int sizeEE, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
             memoryPool::Deleter(std::make_shared<memoryPool::cuda::ImmediateDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
-        auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.amplitudesAll =
             memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(sizeEB * EcalDataFrame::MAXSAMPLES, deleter);
         recHitsEB.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEB, deleter);
@@ -118,7 +117,6 @@ namespace ecal {
         recHitsEB.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
         recHitsEB.flags = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
 
-        auto const sizeEE = configParameters.maxNumberHitsEE;
         recHitsEE.amplitudesAll =
             memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(sizeEE * EcalDataFrame::MAXSAMPLES, deleter);
         recHitsEE.amplitude = memoryPool::cuda::makeBuffer<reco::StorageScalarType>(sizeEE, deleter);
@@ -169,13 +167,12 @@ namespace ecal {
       memoryPool::Buffer<SVT> timeMax, timeError;
       memoryPool::Buffer<TimeComputationState> tcState;
 
-      void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(int size, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         constexpr auto svlength = getLength<SampleVector>();
         constexpr auto sgvlength = getLength<SampleGainVector>();
         constexpr auto smlength = getLength<SampleMatrix>();
         constexpr auto pmlength = getLength<PulseMatrixType>();
         constexpr auto bxvlength = getLength<BXVectorType>();
-        auto const size = configParameters.maxNumberHitsEB + configParameters.maxNumberHitsEE;
         memoryPool::Deleter deleter =
             memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
@@ -286,12 +283,11 @@ namespace ecal {
     struct EventOutputDataGPU {
       RecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
-      void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(int sizeEB, int sizeEE, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
             memoryPool::Deleter(std::make_shared<memoryPool::cuda::ImmediateDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         //---- configParameters -> needed only to decide if to save the timing information or not
-        auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.energy = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
         recHitsEB.time = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
         recHitsEB.chi2 = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEB, deleter);
@@ -299,7 +295,6 @@ namespace ecal {
         recHitsEB.extra = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
         recHitsEB.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
 
-        auto const sizeEE = configParameters.maxNumberHitsEE;
         recHitsEE.energy = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);
         recHitsEE.time = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);
         recHitsEE.chi2 = memoryPool::cuda::makeBuffer<::ecal::reco::StorageScalarType>(sizeEE, deleter);

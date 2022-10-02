@@ -255,11 +255,11 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
                                                 multifitParameters};
 
   // dev mem
-  eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
+  eventOutputDataGPU_.allocate(neb_, nee_, configParameters_, ctx.stream());
 
   // scratch mem
   ecal::multifit::EventDataForScratchGPU eventDataForScratchGPU;
-  eventDataForScratchGPU.allocate(configParameters_, ctx.stream());
+  eventDataForScratchGPU.allocate(neb_ + nee_, configParameters_, ctx.stream());
 
   //
   // schedule algorithms
