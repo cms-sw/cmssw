@@ -101,7 +101,7 @@ namespace ecal {
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
-            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::ImmediateDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.amplitudesAll =
@@ -288,7 +288,7 @@ namespace ecal {
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
-            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::ImmediateDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         //---- configParameters -> needed only to decide if to save the timing information or not
         auto const sizeEB = configParameters.maxNumberHitsEB;

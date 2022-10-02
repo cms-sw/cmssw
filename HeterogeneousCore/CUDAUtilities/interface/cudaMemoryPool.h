@@ -1,5 +1,6 @@
 #pragma once
 #include "memoryPool.h"
+#include "SimplePoolAllocator.h"
 #include <vector>
 
 // only for cudaStream_t
@@ -45,6 +46,17 @@ namespace memoryPool {
       ~DeleteOne() override = default;
       void operator()(int bucket, uint64_t count) override {
         free(stream(), std::vector<std::pair<int, uint64_t>>(1, std::make_pair(bucket, count)), *pool());
+      }
+    };
+
+    // in DataFormat  is safe to  free immediately as stream sync already happened (what about "strange" early delete???)
+    struct ImmediateDelete final : public CudaDeleterBase {
+      using CudaDeleterBase::CudaDeleterBase;
+
+      ~ImmediateDelete() override = default;
+      void operator()(int bucket, uint64_t count) override {
+        pool()->setScheduled(bucket);
+        pool()->free(bucket, count);
       }
     };
 

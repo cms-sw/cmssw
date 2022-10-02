@@ -95,7 +95,7 @@ namespace hcal {
 
       void allocate(ConfigParameters const& config, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
-            memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(cudaStream, memoryPool::onDevice));
+            memoryPool::Deleter(std::make_shared<memoryPool::cuda::ImmediateDelete>(cudaStream, memoryPool::onDevice));
         assert(deleter.pool());
         recHits.energy = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);
         recHits.chi2 = memoryPool::cuda::makeBuffer<float>(config.maxChannels, deleter);

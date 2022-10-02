@@ -35,8 +35,8 @@ struct CudaAlloc {
     if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
       poolDetails::freeAsync(payload);
     else
-    //cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
-    cudaCheck(cudaLaunchHostFunc((cudaStream_t)(stream), freeCallback, payload));
+      //cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
+      cudaCheck(cudaLaunchHostFunc((cudaStream_t)(stream), freeCallback, payload));
   }
 };
 
