@@ -402,12 +402,14 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     auto track_timeQual = tkTimeQual[tkRef];
 
     // propagate MTD time to the HGCal front
-    const auto &mtdTrack = tkAssoc[tkRef] > -1 ? tkMTD[tkAssoc[tkRef]] : tracks[i];
-    const auto &fts = trajectoryStateTransform::outerFreeState(mtdTrack, bFieldProd);
-    const auto &tsos = prop.propagate(fts, firstDisk_[mtdTrack.eta() > 0]->surface());
-    if (tsos.isValid()) {
-      math::XYZPoint posAtHGCAL(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
-      track_time += (posAtHGCAL - mtdTrack.outerPosition()).R() / c_cm_ns;
+    if (tkAssoc[tkRef] > -1 && track_timeErr > -1) {
+      const auto &mtdTrack = tkMTD[tkAssoc[tkRef]];
+      const auto &fts = trajectoryStateTransform::outerFreeState(mtdTrack, bFieldProd);
+      const auto &tsos = prop.propagate(fts, firstDisk_[mtdTrack.eta() > 0]->surface());
+      if (tsos.isValid()) {
+        math::XYZPoint posAtHGCAL(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
+        track_time += (posAtHGCAL - mtdTrack.outerPosition()).R() / c_cm_ns;
+      }
     }
 
     for (const unsigned ts3_idx : tsNearTk[i]) {  // tk -> ts

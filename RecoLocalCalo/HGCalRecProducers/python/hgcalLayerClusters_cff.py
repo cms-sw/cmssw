@@ -9,7 +9,6 @@ from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibR
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, HGCAL_noises, hgceeDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
 hgcalLayerClusters = hgcalLayerClusters_.clone(
-    timeOffset = hgceeDigitizer.tofDelay,
     plugin = dict(
         dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
@@ -27,7 +26,6 @@ hgcalLayerClusters = hgcalLayerClusters_.clone(
 
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     detector = 'HFNose',
-    timeOffset = hfnoseDigitizer.tofDelay.value(),
     nHitsTime = 3,
     plugin = dict(
         dEdXweights = HGCalRecHit.layerNoseWeights.value(),
