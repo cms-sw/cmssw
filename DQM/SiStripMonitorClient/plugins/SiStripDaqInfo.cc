@@ -30,7 +30,7 @@
 class SiStripFedCabling;
 class TrackerTopology;
 
-class SiStripDaqInfo : public edm::one::EDAnalyzer<> {
+class SiStripDaqInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -38,8 +38,9 @@ public:
   SiStripDaqInfo(edm::ParameterSet const& ps);
 
 private:
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override{};
 
   void readFedIds(const SiStripFedCabling* fedcabling, edm::EventSetup const& iSetup);
   void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);

@@ -25,7 +25,7 @@
 
 class SiStripDetCabling;
 
-class SiStripCertificationInfo : public edm::one::EDAnalyzer<> {
+class SiStripCertificationInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -33,9 +33,10 @@ public:
   SiStripCertificationInfo(const edm::ParameterSet& ps);
 
 private:
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override{};
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   void bookSiStripCertificationMEs(DQMStore& dqm_store);

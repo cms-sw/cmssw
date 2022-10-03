@@ -32,7 +32,7 @@ class SiStripDetVOff;
 class SiStripDetCabling;
 class RunInfo;
 
-class SiStripDcsInfo : public edm::one::EDAnalyzer<> {
+class SiStripDcsInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -41,10 +41,10 @@ public:
 
 private:
   void beginJob() override;
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   void bookStatus(DQMStore& dqm_store);
