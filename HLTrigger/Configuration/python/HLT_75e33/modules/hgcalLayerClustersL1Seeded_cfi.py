@@ -52,6 +52,5 @@ hgcalLayerClustersL1Seeded = cms.EDProducer("HGCalLayerClusterProducer",
         use2x2 = cms.bool(True),
         verbosity = cms.untracked.uint32(3)
     ),
-    timeClname = cms.string('timeLayerCluster'),
-    timeOffset = cms.double(5)
+    timeClname = cms.string('timeLayerCluster')
 )
