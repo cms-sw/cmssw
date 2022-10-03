@@ -2,3 +2,8 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
 </library>
+
+<library file="AlignPCLThresholdsHG_PayloadInspector.cc" name="AlignPCLThresholdsHG_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+</library>

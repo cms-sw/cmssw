@@ -2,7 +2,7 @@
 #define CONDCORE_PCLCONFIGPLUGINS_SIPIXELALIPCLTHRESHOLDSPAYLOADINSPECTORHELPER_H
 
 namespace PCLThresholdsPI {
-  enum types { DELTA, SIG, MAXMOVE, MAXERR, END_OF_TYPES };
+  enum types { DELTA, SIG, MAXMOVE, MAXERR, FRACTION_CUT, END_OF_TYPES };
 
   /************************************************/
   inline const std::string getStringFromCoordEnum(const AlignPCLThresholds::coordType& coord) {
@@ -35,6 +35,8 @@ namespace PCLThresholdsPI {
         return "max. move ";
       case types::MAXERR:
         return "max. err ";
+      case types::FRACTION_CUT:
+        return "fraction cut ";
       default:
         return "should never be here";
     }

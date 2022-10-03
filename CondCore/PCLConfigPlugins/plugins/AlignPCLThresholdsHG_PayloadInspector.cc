@@ -1,6 +1,6 @@
 /*!
-  \file AlignPCLThresholds_PayloadInspector
-  \Payload Inspector Plugin for Alignment PCL thresholds
+  \file AlignPCLThresholdsHG_PayloadInspector
+  \Payload Inspector Plugin for High Granularity Alignment PCL thresholds
   \author M. Musich
   \version $Revision: 1.0 $
   \date $Date: 2017/10/19 12:51:00 $
@@ -11,7 +11,7 @@
 #include "CondCore/CondDB/interface/Time.h"
 
 // the data format of the condition to be inspected
-#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 
 // for the PI Helper
 #include "CondCore/PCLConfigPlugins/interface/SiPixelAliPCLThresholdsPayloadInspectorHelper.h"
@@ -26,8 +26,8 @@
 #include "TH2F.h"
 #include "TLegend.h"
 #include "TCanvas.h"
-#include "TLine.h"
 #include "TLatex.h"
+#include "TLine.h"
 #include "TStyle.h"
 
 namespace {
@@ -35,12 +35,12 @@ namespace {
   using namespace cond::payloadInspector;
 
   /************************************************
-    Display of AlignPCLThresholds
+    Display of AlignPCLThresholdsHG
   *************************************************/
-  class AlignPCLThresholds_Display : public PlotImage<AlignPCLThresholds, SINGLE_IOV> {
+  class AlignPCLThresholdsHG_Display : public PlotImage<AlignPCLThresholdsHG, SINGLE_IOV> {
   public:
-    AlignPCLThresholds_Display()
-        : PlotImage<AlignPCLThresholds, SINGLE_IOV>("Display of threshold parameters for SiPixelAli PCL") {}
+    AlignPCLThresholdsHG_Display()
+        : PlotImage<AlignPCLThresholdsHG, SINGLE_IOV>("Display of threshold parameters for SiPixelAli PCL") {}
 
     bool fill() override {
       // to be able to see zeros
@@ -48,25 +48,25 @@ namespace {
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
-      std::shared_ptr<AlignPCLThresholds> payload = fetchPayload(std::get<1>(iov));
-
+      std::shared_ptr<AlignPCLThresholdsHG> payload = fetchPayload(std::get<1>(iov));
       auto alignables = payload->getAlignableList();
 
       TCanvas canvas("Alignment PCL thresholds summary", "Alignment PCL thresholds summary", 1500, 800);
       canvas.cd();
 
       canvas.SetTopMargin(0.07);
-      canvas.SetBottomMargin(0.06);
+      canvas.SetBottomMargin(0.20);
       canvas.SetLeftMargin(0.11);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
       canvas.SetGrid();
 
-      auto Thresholds = std::make_unique<TH2F>("Thresholds", "", alignables.size(), 0, alignables.size(), 24, 0, 24);
+      auto Thresholds = std::make_unique<TH2F>("Thresholds", "", alignables.size(), 0, alignables.size(), 30, 0, 30);
       Thresholds->SetStats(false);
+      Thresholds->GetXaxis()->SetLabelSize(0.028);
 
-      std::function<float(PCLThresholdsPI::types, std::string, AlignPCLThresholds::coordType)> cutFunctor =
-          [&payload](PCLThresholdsPI::types my_type, std::string alignable, AlignPCLThresholds::coordType coord) {
+      std::function<float(PCLThresholdsPI::types, std::string, AlignPCLThresholdsHG::coordType)> cutFunctor =
+          [&payload](PCLThresholdsPI::types my_type, std::string alignable, AlignPCLThresholdsHG::coordType coord) {
             float ret(-999.);
             switch (my_type) {
               case PCLThresholdsPI::DELTA:
@@ -77,6 +77,14 @@ namespace {
                 return payload->getMaxMoveCut(alignable, coord);
               case PCLThresholdsPI::MAXERR:
                 return payload->getMaxErrorCut(alignable, coord);
+              case PCLThresholdsPI::FRACTION_CUT: {
+                const AlignPCLThresholdsHG::param_map& floatMap = payload->getFloatMap();
+                if (floatMap.find(alignable) != floatMap.end()) {
+                  return payload->getFractionCut(alignable, coord);
+                } else {
+                  return 0.f;
+                }
+              }
               case PCLThresholdsPI::END_OF_TYPES:
                 return ret;
               default:
@@ -91,10 +99,10 @@ namespace {
         auto xLabel =
             PCLThresholdsPI::replaceAll(PCLThresholdsPI::replaceAll(alignable, "minus", "(-)"), "plus", "(+)");
         Thresholds->GetXaxis()->SetBinLabel(xBin, (xLabel).c_str());
-        unsigned int yBin = 24;
-        for (int foo = AlignPCLThresholds::X; foo != AlignPCLThresholds::extra_DOF; foo++) {
-          AlignPCLThresholds::coordType coord = static_cast<AlignPCLThresholds::coordType>(foo);
-          for (int bar = PCLThresholdsPI::DELTA; bar != PCLThresholdsPI::FRACTION_CUT; bar++) {
+        unsigned int yBin = 30;
+        for (int foo = AlignPCLThresholdsHG::X; foo != AlignPCLThresholdsHG::extra_DOF; foo++) {
+          AlignPCLThresholdsHG::coordType coord = static_cast<AlignPCLThresholdsHG::coordType>(foo);
+          for (int bar = PCLThresholdsPI::DELTA; bar != PCLThresholdsPI::END_OF_TYPES; bar++) {
             PCLThresholdsPI::types type = static_cast<PCLThresholdsPI::types>(bar);
             std::string theLabel =
                 PCLThresholdsPI::getStringFromTypeEnum(type) + PCLThresholdsPI::getStringFromCoordEnum(coord);
@@ -109,7 +117,7 @@ namespace {
         }    // loop on coordinates
       }      // loop on alignables
 
-      Thresholds->GetXaxis()->LabelsOption("h");
+      Thresholds->GetXaxis()->LabelsOption("v");
       Thresholds->Draw("TEXT");
 
       auto ltx = TLatex();
@@ -129,13 +137,13 @@ namespace {
   };
 
   /************************************************
-    Compare AlignPCLThresholds mapping
+    Compare AlignPCLThresholdsHG mapping
   *************************************************/
   template <IOVMultiplicity nIOVs, int ntags>
-  class AlignPCLThresholds_CompareBase : public PlotImage<AlignPCLThresholds, nIOVs, ntags> {
+  class AlignPCLThresholdsHG_CompareBase : public PlotImage<AlignPCLThresholdsHG, nIOVs, ntags> {
   public:
-    AlignPCLThresholds_CompareBase()
-        : PlotImage<AlignPCLThresholds, nIOVs, ntags>("Table of AlignPCLThresholds comparison") {}
+    AlignPCLThresholdsHG_CompareBase()
+        : PlotImage<AlignPCLThresholdsHG, nIOVs, ntags>("Table of AlignPCLThresholdsHG comparison") {}
 
     bool fill() override {
       gStyle->SetPalette(kTemperatureMap);
@@ -161,8 +169,8 @@ namespace {
         lastiov = theIOVs.back();
       }
 
-      std::shared_ptr<AlignPCLThresholds> l_payload = this->fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<AlignPCLThresholds> f_payload = this->fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<AlignPCLThresholdsHG> l_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<AlignPCLThresholdsHG> f_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -171,8 +179,8 @@ namespace {
       const auto& alignables2 = f_payload->getAlignableList();
 
       if (!isEqual(alignables, alignables2)) {
-        edm::LogError("AlignPCLThresholds_PayloadInspector")
-            << "Cannot compare the two AlignPCLThresholds objects, as the list of alignables differs";
+        edm::LogError("AlignPCLThresholdsHG_PayloadInspector")
+            << "Cannot compare the two AlignPCLThresholdsHG objects, as the list of alignables differs";
         return false;
       }
 
@@ -180,21 +188,24 @@ namespace {
       canvas.cd();
 
       canvas.SetTopMargin(0.07);
-      canvas.SetBottomMargin(0.06);
+      canvas.SetBottomMargin(0.20);
       canvas.SetLeftMargin(0.11);
       canvas.SetRightMargin(0.12);
       canvas.Modified();
       canvas.SetGrid();
 
-      auto Thresholds = std::make_unique<TH2F>("Thresholds", "", alignables.size(), 0, alignables.size(), 24, 0, 24);
+      auto Thresholds = std::make_unique<TH2F>("Thresholds", "", alignables.size(), 0, alignables.size(), 30, 0, 30);
       Thresholds->SetStats(false);
-      auto ThresholdsColor =
-          std::make_unique<TH2F>("ThresholdsC", "", alignables.size(), 0, alignables.size(), 24, 0, 24);
-      ThresholdsColor->SetStats(false);
+      Thresholds->GetXaxis()->SetLabelSize(0.028);
 
-      std::function<float(PCLThresholdsPI::types, std::string, AlignPCLThresholds::coordType)> cutFunctor =
+      auto ThresholdsColor =
+          std::make_unique<TH2F>("ThresholdsC", "", alignables.size(), 0, alignables.size(), 30, 0, 30);
+      ThresholdsColor->SetStats(false);
+      ThresholdsColor->GetXaxis()->SetLabelSize(0.028);
+
+      std::function<float(PCLThresholdsPI::types, std::string, AlignPCLThresholdsHG::coordType)> cutFunctor =
           [&f_payload, &l_payload](
-              PCLThresholdsPI::types my_type, std::string alignable, AlignPCLThresholds::coordType coord) {
+              PCLThresholdsPI::types my_type, std::string alignable, AlignPCLThresholdsHG::coordType coord) {
             float ret(-999.);
             switch (my_type) {
               case PCLThresholdsPI::DELTA:
@@ -205,6 +216,15 @@ namespace {
                 return l_payload->getMaxMoveCut(alignable, coord) - f_payload->getMaxMoveCut(alignable, coord);
               case PCLThresholdsPI::MAXERR:
                 return l_payload->getMaxErrorCut(alignable, coord) - f_payload->getMaxErrorCut(alignable, coord);
+              case PCLThresholdsPI::FRACTION_CUT: {
+                const AlignPCLThresholdsHG::param_map& f_floatMap = f_payload->getFloatMap();
+                const AlignPCLThresholdsHG::param_map& l_floatMap = l_payload->getFloatMap();
+                if (f_floatMap.find(alignable) != f_floatMap.end() && l_floatMap.find(alignable) != l_floatMap.end()) {
+                  return l_payload->getFractionCut(alignable, coord) - f_payload->getFractionCut(alignable, coord);
+                } else {
+                  return +999.f;
+                }
+              }
               case PCLThresholdsPI::END_OF_TYPES:
                 return ret;
               default:
@@ -220,10 +240,10 @@ namespace {
             PCLThresholdsPI::replaceAll(PCLThresholdsPI::replaceAll(alignable, "minus", "(-)"), "plus", "(+)");
         Thresholds->GetXaxis()->SetBinLabel(xBin, (xLabel).c_str());
         ThresholdsColor->GetXaxis()->SetBinLabel(xBin, (xLabel).c_str());
-        unsigned int yBin = 24;
-        for (int foo = AlignPCLThresholds::X; foo != AlignPCLThresholds::extra_DOF; foo++) {
-          AlignPCLThresholds::coordType coord = static_cast<AlignPCLThresholds::coordType>(foo);
-          for (int bar = PCLThresholdsPI::DELTA; bar != PCLThresholdsPI::FRACTION_CUT; bar++) {
+        unsigned int yBin = 30;
+        for (int foo = AlignPCLThresholdsHG::X; foo != AlignPCLThresholdsHG::extra_DOF; foo++) {
+          AlignPCLThresholdsHG::coordType coord = static_cast<AlignPCLThresholdsHG::coordType>(foo);
+          for (int bar = PCLThresholdsPI::DELTA; bar != PCLThresholdsPI::END_OF_TYPES; bar++) {
             PCLThresholdsPI::types type = static_cast<PCLThresholdsPI::types>(bar);
             std::string theLabel =
                 PCLThresholdsPI::getStringFromTypeEnum(type) + PCLThresholdsPI::getStringFromCoordEnum(coord);
@@ -242,9 +262,9 @@ namespace {
       }      // loop on alignables
 
       ThresholdsColor->Draw("COLZ0");
-      ThresholdsColor->GetXaxis()->LabelsOption("h");
+      ThresholdsColor->GetXaxis()->LabelsOption("v");
       Thresholds->Draw("TEXTsame");
-      Thresholds->GetXaxis()->LabelsOption("h");
+      Thresholds->GetXaxis()->LabelsOption("v");
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -279,14 +299,14 @@ namespace {
     }
   };
 
-  using AlignPCLThresholds_Compare = AlignPCLThresholds_CompareBase<MULTI_IOV, 1>;
-  using AlignPCLThresholds_CompareTwoTags = AlignPCLThresholds_CompareBase<SINGLE_IOV, 2>;
+  using AlignPCLThresholdsHG_Compare = AlignPCLThresholdsHG_CompareBase<MULTI_IOV, 1>;
+  using AlignPCLThresholdsHG_CompareTwoTags = AlignPCLThresholdsHG_CompareBase<SINGLE_IOV, 2>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(AlignPCLThresholds) {
-  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholds_Display);
-  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholds_Compare);
-  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholds_CompareTwoTags);
+PAYLOAD_INSPECTOR_MODULE(AlignPCLThresholdsHG) {
+  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholdsHG_Display);
+  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholdsHG_Compare);
+  PAYLOAD_INSPECTOR_CLASS(AlignPCLThresholdsHG_CompareTwoTags);
 }
