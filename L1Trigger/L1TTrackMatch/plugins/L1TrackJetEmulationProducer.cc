@@ -243,6 +243,10 @@ void L1TrackJetEmulationProducer::produce(Event &iEvent, const EventSetup &iSetu
     delete[] mzb.clusters;
   } else if (L1TrkPtrs_.empty()) {
     edm::LogWarning("L1TrackJetEmulationProducer") << "L1TrkPtrs Not Assigned!\n";
+    if (displaced_)
+      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+    else
+      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
   }
 }
 
