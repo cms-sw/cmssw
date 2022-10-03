@@ -90,15 +90,15 @@ namespace ecal {
       std::array<uint32_t, 3> kernelMinimizeThreads;
 
       bool shouldRunTimingComputation;
-
-      uint32_t maxNumberHitsEB;
-      uint32_t maxNumberHitsEE;
     };
 
     struct EventOutputDataGPU {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
-      void allocate(int sizeEB, int sizeEE, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(ConfigurationParameters const& configParameters,
+                    uint32_t sizeEB,
+                    uint32_t sizeEE,
+                    cudaStream_t cudaStream) {
         recHitsEB.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
             sizeEB * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
@@ -163,13 +163,16 @@ namespace ecal {
       cms::cuda::device::unique_ptr<SVT[]> timeMax, timeError;
       cms::cuda::device::unique_ptr<TimeComputationState[]> tcState;
 
-      void allocate(int size, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(ConfigurationParameters const& configParameters,
+                    uint32_t sizeEB,
+                    uint32_t sizeEE,
+                    cudaStream_t cudaStream) {
         constexpr auto svlength = getLength<SampleVector>();
         constexpr auto sgvlength = getLength<SampleGainVector>();
         constexpr auto smlength = getLength<SampleMatrix>();
         constexpr auto pmlength = getLength<PulseMatrixType>();
         constexpr auto bxvlength = getLength<BXVectorType>();
-        auto const size = configParameters.maxNumberHitsEB + configParameters.maxNumberHitsEE;
+        auto const size = sizeEB + sizeEE;
 
         auto alloc = [cudaStream](auto& var, uint32_t size) {
           using element_type = typename std::remove_reference_t<decltype(var)>::element_type;
@@ -271,16 +274,16 @@ namespace ecal {
       uint32_t expanded_v_DB_reco_flagsSize;
 
       uint32_t flagmask;
-      uint32_t maxNumberHitsEB;
-      uint32_t maxNumberHitsEE;
     };
 
     struct EventOutputDataGPU {
       RecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
-      void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
+      void allocate(ConfigurationParameters const& configParameters,
+                    uint32_t sizeEB,
+                    uint32_t sizeEE,
+                    cudaStream_t cudaStream) {
         //---- configParameters -> needed only to decide if to save the timing information or not
-        auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
@@ -288,7 +291,6 @@ namespace ecal {
         recHitsEB.extra = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
         recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
 
-        auto const sizeEE = configParameters.maxNumberHitsEE;
         recHitsEE.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
         recHitsEE.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
         recHitsEE.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
