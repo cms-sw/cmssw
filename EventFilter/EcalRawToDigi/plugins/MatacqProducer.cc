@@ -11,7 +11,7 @@
 #include <cstdio>
 #endif  //USE_STORAGE_MANAGER defined
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
@@ -34,7 +34,7 @@ struct NullOut {
   }
 };
 
-class MatacqProducer : public edm::EDProducer {
+class MatacqProducer : public edm::one::EDProducer<> {
 public:
   enum calibTrigType_t { laserType = 4, ledType = 5, tpType = 6, pedType = 7 };
 
