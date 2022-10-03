@@ -29,7 +29,7 @@ void RPCOccupancyTest::beginJob(std::string& workingFolder) {
 
   totalStrips_ = 0.;
   totalActive_ = 0.;
-  
+
   Active_Dead = nullptr;
   Active_Fraction = nullptr;
 }
