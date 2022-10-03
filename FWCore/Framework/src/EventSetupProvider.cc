@@ -505,7 +505,7 @@ namespace edm {
         ParameterSetID const& psetID = candidate.first;
         bool canBeShared = candidate.second;
         if (canBeShared) {
-          ParameterSet const& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
+          ParameterSet const& pset = esController.getESProducerPSet(psetID, subProcessIndex_);
           logInfoWhenSharing(pset);
           ParameterSetIDHolder psetIDHolder(psetID);
           sharingCheckDone.insert(psetIDHolder);
@@ -530,7 +530,7 @@ namespace edm {
           }
         } else {
           if (esController.isLastMatch(psetID, subProcessIndex_, precedingESProvider.subProcessIndex_)) {
-            ParameterSet& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
+            ParameterSet& pset = esController.getESProducerPSet(psetID, subProcessIndex_);
             ModuleFactory::get()->addTo(esController, *this, pset, resolver, true);
           }
         }

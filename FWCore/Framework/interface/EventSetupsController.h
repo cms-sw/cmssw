@@ -150,7 +150,7 @@ namespace edm {
                                 unsigned subProcessIndex,
                                 unsigned precedingProcessIndex) const;
 
-      ParameterSet* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex);
+      ParameterSet& getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex);
 
       std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> const& providers() const { return providers_; }
 
