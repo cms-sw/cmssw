@@ -336,7 +336,7 @@ namespace edm {
       return false;
     }
 
-    ParameterSet* EventSetupsController::getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) {
+    ParameterSet& EventSetupsController::getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) {
       auto elements = esproducers_.equal_range(psetID);
       for (auto it = elements.first; it != elements.second; ++it) {
         std::vector<unsigned> const& subProcessIndexes = it->second.subProcessIndexes();
@@ -345,12 +345,11 @@ namespace edm {
         if (iFound == subProcessIndexes.end()) {
           continue;
         }
-        return it->second.pset();
+        return *it->second.pset();
       }
       throw edm::Exception(edm::errors::LogicError) << "EventSetupsController::getESProducerPSet\n"
                                                     << "Subprocess index not found. This should never happen\n"
                                                     << "Please report this to a Framework Developer\n";
-      return nullptr;
     }
 
     void EventSetupsController::checkESProducerSharing() {
