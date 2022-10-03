@@ -317,6 +317,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   nRH_ = PFRecHits.size;
   if (nRH_ == 0) return;
+  if (nRH_>3000) std::cout << "nRH(PFRecHitSize)>3000: " << nRH_ << std::endl;
 
   const int numbytes_int = nRH_ * sizeof(int);
   int totalNeighbours = 0;  // Running count of 8 neighbour edges for edgeId, edgeList

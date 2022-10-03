@@ -161,7 +161,7 @@ namespace PFRecHit {
 namespace PFClustering {
   namespace HCAL {
     struct ConfigurationParameters {
-      uint32_t maxRH = 3000;          // previously: 2000
+      uint32_t maxRH = 4000;          // previously: 2000
       uint32_t maxPFCFracs = 600000;  // previously: 80000
       uint32_t maxNeighbors = 8;
     };
@@ -332,6 +332,7 @@ namespace PFClustering {
       }
     };
   }  // namespace HCAL
+
 }  // namespace PFClustering
 
 #endif  // RecoParticleFlow_PFClusterProducer_plugins_DeclsForKernels_h
