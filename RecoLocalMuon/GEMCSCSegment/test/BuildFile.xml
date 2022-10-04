@@ -9,12 +9,15 @@
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="rootcore"/>
 <use name="rootgraphics"/>
 <use name="Root"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>
 <library file="TestGEMCSCSegmentAnalyzer.cc" name="testGEMCSCSegmentAnalyzer">
+</library>
+<library file="GEMCSCCoincidenceRateAnalyzer.cc" name="GEMCSCCoincidenceRateAnalyzer">
 </library>
 
 <export>

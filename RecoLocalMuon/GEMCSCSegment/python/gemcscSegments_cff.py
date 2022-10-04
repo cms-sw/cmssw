@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi import gemcscSegments
+
+from Configuration.ProcessModifiers.gemcscSegmentsTesting_cff import gemcscSegmentsTesting
+gemcscSegmentsTesting.toModify(gemcscSegments, enableME21GE21=True)
