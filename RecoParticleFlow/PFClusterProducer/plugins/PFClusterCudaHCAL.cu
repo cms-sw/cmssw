@@ -3851,7 +3851,7 @@ namespace PFClusterCudaHCAL {
       __syncthreads();//!!
 
       if (threadIdx.x == 0) {
-        notDone = 0; // KenH is this necessary?
+        notDone = 0;
       }
 
       __syncthreads();
@@ -3949,7 +3949,12 @@ namespace PFClusterCudaHCAL {
     //   // }
     // }
 
-    // __syncthreads();
+    // Explicitly initialize pfrh_parent
+    for (int i = start; i < nRH; i += gridStride) {
+      pfrh_parent[i] = i;
+    }
+
+    __syncthreads();
 
     // for notDone
     if (threadIdx.x == 0) {
@@ -3976,25 +3981,25 @@ namespace PFClusterCudaHCAL {
 
       // for notDone
       if (threadIdx.x == 0) {
-	notDone2 = 0;
+    	notDone2 = 0;
       }
 
       // Follow parents of parents .... to contract parent structure
       do {
-	volatile bool threadNotDone = false;
-	for (int i = threadIdx.x; i < nRH; i += blockDim.x) {
-	  int parent = pfrh_parent[i];
-	  if (parent >= 0 && parent != pfrh_parent[parent]) {
-	    threadNotDone = true;
-	    pfrh_parent[i] = pfrh_parent[parent];
-	  }
-	}
-	if (threadIdx.x == 0)
-	  notDone = 0;
-	__syncthreads();
+    	volatile bool threadNotDone = false;
+    	for (int i = threadIdx.x; i < nRH; i += blockDim.x) {
+    	  int parent = pfrh_parent[i];
+    	  if (parent >= 0 && parent != pfrh_parent[parent]) {
+    	    threadNotDone = true;
+    	    pfrh_parent[i] = pfrh_parent[parent];
+    	  }
+    	}
+    	if (threadIdx.x == 0)
+    	  notDone = 0;
+    	__syncthreads();
 
-	atomicAdd(&notDone, (int)threadNotDone);
-	__syncthreads();
+    	atomicAdd(&notDone, (int)threadNotDone);
+    	__syncthreads();
 
       } while (notDone);
 
@@ -4014,25 +4019,25 @@ namespace PFClusterCudaHCAL {
       // __syncthreads();
 
       for (int idx = start; idx < nEdges; idx += gridStride) {
-	//for (int idx = 0; idx < nEdges; idx++) {
-	int i = pfrh_edgeId[idx];    // Get edge topo id
-	int j = pfrh_edgeList[idx];  // Get edge neighbor list
-	int parent_target = pfrh_parent[i];
-	int parent_neighbor = pfrh_parent[j];
-	if (parent_target!=parent_neighbor){
-	  notDone2 = 1;
-	  //printf("hmm. they should have the same parent, but they don't. why... %d %d %d\n",i,j,ii);
-	  int min_parent = (int)min(parent_target,parent_neighbor);
-	  int max_parent = (int)max(parent_target,parent_neighbor);
-	  int idx_max = i;
-	  if (parent_neighbor == max_parent) idx_max = j;
-	  pfrh_parent[idx_max] = min_parent;
-	}
+      	//for (int idx = 0; idx < nEdges; idx++) {
+      	int i = pfrh_edgeId[idx];    // Get edge topo id
+      	int j = pfrh_edgeList[idx];  // Get edge neighbor list
+      	int parent_target = pfrh_parent[i];
+      	int parent_neighbor = pfrh_parent[j];
+      	if (parent_target!=parent_neighbor){
+      	  notDone2 = 1;
+      	  //printf("hmm. they should have the same parent, but they don't. why... %d %d %d\n",i,j,ii);
+      	  int min_parent = (int)min(parent_target,parent_neighbor);
+      	  int max_parent = (int)max(parent_target,parent_neighbor);
+      	  int idx_max = i;
+      	  if (parent_neighbor == max_parent) idx_max = j;
+      	  pfrh_parent[idx_max] = min_parent;
+      	}
       }
 
       __syncthreads();
       if (notDone2==0) // if topocluster finding is converged, terminate the for-ii loop
-	break;
+    	break;
 
     } // for-loop ii
 
@@ -4057,9 +4062,9 @@ namespace PFClusterCudaHCAL {
 
     } while (notDone);
 
-    //__syncthreads();
+    // __syncthreads();
 
-    // Print out debugging info
+    // // Print out debugging info
     // if (threadIdx.x == 0) {
     //   int nnode=0;
     //   for (int i = 0; i < nRH; i++) {
@@ -4665,23 +4670,23 @@ namespace PFClusterCudaHCAL {
     cudaEventRecord(start, cudaStream);
 #endif
 
-       prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
-           nRH,
-           outputGPU.nEdges.get(),
-           outputGPU.pfrh_passTopoThresh.get(),
-           inputPFRecHits.pfrh_neighbours.get(),
-           scratchGPU.pfrh_edgeId.get(),
-           scratchGPU.pfrh_edgeList.get());
+       // prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
+       //     nRH,
+       //     outputGPU.nEdges.get(),
+       //     outputGPU.pfrh_passTopoThresh.get(),
+       //     inputPFRecHits.pfrh_neighbours.get(),
+       //     scratchGPU.pfrh_edgeId.get(),
+       //     scratchGPU.pfrh_edgeList.get());
 
     // Topo clustering
     // Fill edgeId, edgeList arrays with rechit neighbors
     // Has a bug when using more than 128 threads..
-    // prepareTopoInputs<<<1, 128, 128 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
-    //                                                                        outputGPU.nEdges.get(),
-    //                                                                        outputGPU.pfrh_passTopoThresh.get(),
-    //                                                                        inputPFRecHits.pfrh_neighbours.get(),
-    //                                                                        scratchGPU.pfrh_edgeId.get(),
-    //                                                                        scratchGPU.pfrh_edgeList.get());
+    prepareTopoInputs<<<1, 128, 128 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
+                                                                           outputGPU.nEdges.get(),
+                                                                           outputGPU.pfrh_passTopoThresh.get(),
+                                                                           inputPFRecHits.pfrh_neighbours.get(),
+                                                                           scratchGPU.pfrh_edgeId.get(),
+                                                                           scratchGPU.pfrh_edgeList.get());
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
     //    prepareTopoInputs<<<1, 256, 256 * (8+4) * sizeof(int), cudaStream>>>(
@@ -4712,6 +4717,7 @@ namespace PFClusterCudaHCAL {
 #endif
 
     // Topo clustering
+    //topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
     topoClusterLinkingKH<<<1, 512, 0, cudaStream>>>(nRH,
 						    outputGPU.nEdges.get(),
 						    //inputPFRecHits.pfrh_energy.get(), // temporary entry for debugging
