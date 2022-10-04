@@ -49,7 +49,7 @@ using namespace std;
 //
 // constructors and destructor
 //
-ConeIsolation::ConeIsolation(const edm::ParameterSet& iConfig) {
+ConeIsolation::ConeIsolation(const edm::ParameterSet& iConfig) : m_algo{iConfig} {
   jetTrackTag = iConfig.getParameter<InputTag>("JetTrackSrc");
   jetTrackToken = consumes<reco::JetTracksAssociationCollection>(jetTrackTag);
   vertexTag = iConfig.getParameter<InputTag>("vertexSrc");
@@ -58,13 +58,9 @@ ConeIsolation::ConeIsolation(const edm::ParameterSet& iConfig) {
   beamSpotToken = consumes<reco::BeamSpot>(beamSpotTag);
   usingBeamSpot = iConfig.getParameter<bool>("useBeamSpot");  //If false the OfflinePrimaryVertex will be used.
 
-  m_algo = new ConeIsolationAlgorithm(iConfig);
-
   produces<reco::JetTagCollection>();
   produces<reco::IsolatedTauTagInfoCollection>();
 }
-
-ConeIsolation::~ConeIsolation() { delete m_algo; }
 
 //
 // member functions
@@ -81,7 +77,7 @@ void ConeIsolation::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 // ------------ method called to produce the data  ------------
-void ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ConeIsolation::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   //Get jets with tracks
   Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
@@ -129,7 +125,7 @@ void ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   for (unsigned int i = 0; i < jetTracksAssociation->size(); ++i) {
     pair<float, IsolatedTauTagInfo> myPair =
-        m_algo->tag(edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation, i), myPV);
+        m_algo.tag(edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation, i), myPV);
     tagCollection->setValue(i, myPair.first);
     extCollection->push_back(myPair.second);
   }
