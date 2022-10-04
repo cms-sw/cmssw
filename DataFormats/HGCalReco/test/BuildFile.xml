@@ -1,3 +1,4 @@
 <bin   name="EtaPhiSearchInTile" file="EtaPhiSearchInTile_t.cpp">
+  <use name="catch2"/>
   <use name="DataFormats/HGCalReco" />
 </bin>
