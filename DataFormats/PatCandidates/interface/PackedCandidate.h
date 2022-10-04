@@ -1023,7 +1023,7 @@ namespace pat {
     void packVtx(bool unpackAfterwards = true);
     void unpackVtx() const;
     void packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards = true);
-    void unpackCovariance(bool forcePosDef = true) const;
+    void unpackCovariance(bool forcePosDef = false) const;
     void maybeUnpackBoth() const {
       if (!p4c_)
         unpack();
