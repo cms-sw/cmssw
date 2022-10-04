@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackProducer = cms.EDProducer("TrackProducer",
-    useSimpleMF = cms.bool(False),
-    SimpleMagneticField = cms.string(""),
+    useSimpleMF = cms.bool(True),
+    SimpleMagneticField = cms.string("ParabolicMf"),
     src = cms.InputTag("ckfTrackCandidates"),
     clusterRemovalInfo = cms.InputTag(""),
     beamSpot = cms.InputTag("offlineBeamSpot"),
@@ -12,7 +12,7 @@ TrackProducer = cms.EDProducer("TrackProducer",
     TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
-    Propagator = cms.string('RungeKuttaTrackerPropagator'),
+    Propagator = cms.string('PropagatorWithMaterialParabolicMf'),
 
     # this parameter decides if the propagation to the beam line
     # for the track parameters defiition is from the first hit

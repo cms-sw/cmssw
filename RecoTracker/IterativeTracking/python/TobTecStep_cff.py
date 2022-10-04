@@ -379,8 +379,8 @@ tobTecFlexibleKFFittingSmoother = TrackingTools.TrackFitters.FlexibleKFFittingSm
 
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+tobTecStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'tobTecStepTrackCandidates',
     AlgorithmName = 'tobTecStep',
     #Fitter = 'tobTecStepFitterSmoother',

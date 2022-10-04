@@ -354,8 +354,8 @@ trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShare
 
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'pixelLessStepTrackCandidates',
     AlgorithmName = 'pixelLessStep',
     Fitter        = 'FlexibleKFFittingSmoother'
