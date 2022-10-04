@@ -93,14 +93,27 @@ namespace edm {
                                                        unsigned int maxConcurrentIOVs = 0,
                                                        bool dumpOptions = false);
 
+      // The main purpose of this function is to call eventSetupForInstanceAsync. It might
+      // be called immediately or we might need to wait until all the currently active
+      // IOVs end. If there is an exception, then a signal is emitted and the exception
+      // is propagated.
+      void runOrQueueEventSetupForInstanceAsync(IOVSyncValue const&,
+                                                WaitingTaskHolder& taskToStartAfterIOVInit,
+                                                WaitingTaskList& endIOVWaitingTasks,
+                                                std::vector<std::shared_ptr<const EventSetupImpl>>&,
+                                                edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
+                                                ActivityRegistry*,
+                                                bool iForceCacheClear = false);
+
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).
       // Pass in a WaitingTaskHolder that allows the EventSetup to communicate when all
       // the IOVs are ready to process this IOVSyncValue. Note this preparation is often
       // done in asynchronous tasks and the function might return before all the preparation
       // is complete.
-      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi to notify
-      // the EventSetup when the lumi is done and no longer needs its EventSetup IOVs.
+      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi or
+      // run to notify the EventSetup system when a lumi or run transition is done and no
+      // longer needs its EventSetup IOVs.
       // Pass in a vector of EventSetupImpl that gets filled and is used to give clients
       // of EventSetup access to the EventSetup system such that for each record the IOV
       // associated with this IOVSyncValue will be used. The first element of the vector
