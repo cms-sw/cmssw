@@ -28,6 +28,7 @@ class DefaultLHEMerger(BaseLHEMerger):
         super(DefaultLHEMerger, self).__init__(input_files, output_file)
 
         self.bypass_check = kwargs.get('bypass_check', False)
+        self.number_events = kwargs.get('number_events', False)
         # line-by-line iterator for each input file
         self._f = [self.file_iterator(name) for name in self.input_files]
         self._header_str = []
@@ -222,6 +223,8 @@ class DefaultLHEMerger(BaseLHEMerger):
                         line = next(self._f[i])
                         if re.search('\s*</event>', line):
                             nevent += 1
+                            if self.number_events:
+                                _fwtmp.write("<event num> " + str(sum(self._nevent) + nevent) +  "</event num>\n")
                         if re.search('\s*</LesHouchesEvents>', line):
                             break
                         _fwtmp.write(line)
@@ -366,6 +369,8 @@ def main(argv = None):
                         help=("Bypass the compatibility check for the headers. If true, the header and init block "
                              "will be just a duplicate from the first input file, and events are concatenated without "
                              "modification."))
+    parser.add_argument("-n", "--number-events", action='store_true',
+                        help=("Add a tag to number each lhe event. Needed for Herwig to find correct lhe events"))
     parser.add_argument("--debug", action='store_true',
                         help="Use the debug mode.")
     args = parser.parse_args(argv)
@@ -408,7 +413,8 @@ def main(argv = None):
     elif args.force_cpp_merger:
         lhe_merger = ExternalCppLHEMerger(input_files, args.output_file)
     else:
-        lhe_merger = DefaultLHEMerger(input_files, args.output_file, bypass_check=args.bypass_check)
+        lhe_merger = DefaultLHEMerger(
+            input_files, args.output_file, bypass_check=args.bypass_check, number_events=args.number_events)
 
     # Do merging
     lhe_merger.merge()
