@@ -23,9 +23,9 @@ l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegioniz
                                         outii,
                                         pauseii,
                                         useAlsoVtxCoords),
-      tkBuffers_(2 * NTK_SECTORS),
-      caloBuffers_(2 * NCALO_SECTORS),
-      muBuffers_(2) {}
+      tkBuffers_(ntk ? 2 * NTK_SECTORS : 0),
+      caloBuffers_(ncalo ? 2 * NCALO_SECTORS : 0),
+      muBuffers_(nmu ? 2 : 0) {}
 
 l1ct::BufferedFoldedMultififoRegionizerEmulator::~BufferedFoldedMultififoRegionizerEmulator() {}
 
@@ -49,26 +49,20 @@ void l1ct::BufferedFoldedMultififoRegionizerEmulator::initSectorsAndRegions(cons
   for (int ie = 0; ie < 2; ++ie) {
     l1ct::glbeta_t etaMin, etaMax;
     findEtaBounds_(fold_[ie].sectors.track[0].region, fold_[ie].regions, etaMin, etaMax);
-    for (unsigned int isec = 0; isec < NTK_SECTORS; ++isec) {
+    for (unsigned int isec = 0; ntk_ > 0 && isec < NTK_SECTORS; ++isec) {
       tkBuffers_[2 * isec + ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::TkObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.hadcalo[0].region, fold_[ie].regions, etaMin, etaMax);
-    for (unsigned int isec = 0; isec < NCALO_SECTORS; ++isec) {
+    for (unsigned int isec = 0; ncalo_ > 0 && isec < NCALO_SECTORS; ++isec) {
       caloBuffers_[2 * isec + ie] =
           l1ct::multififo_regionizer::EtaBuffer<l1ct::HadCaloObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.muon.region, fold_[ie].regions, etaMin, etaMax);
-    muBuffers_[ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
+    if (nmu_ > 0) {
+      muBuffers_[ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
+    }
   }
 }
-// clock-cycle emulation
-#if 0
-bool l1ct::BufferedFoldedMultififoRegionizerEmulator::step(bool newEvent,
-                                                   const std::vector<l1ct::HadCaloObjEmu>& links,
-                                                   std::vector<l1ct::HadCaloObjEmu>& out,
-                                                   bool mux) {
-}
-#endif
 
 template <typename T>
 void l1ct::BufferedFoldedMultififoRegionizerEmulator::fillLinksPosNeg_(
@@ -153,15 +147,15 @@ bool l1ct::BufferedFoldedMultififoRegionizerEmulator::step(bool newEvent,
       b.writeNewEvent();
   }
 
-  assert(links_tk.size() == tkBuffers_.size());
-  for (unsigned int i = 0; i < 2 * NTK_SECTORS; ++i) {
+  assert(links_tk.size() == tkBuffers_.size() || ntk_ == 0);
+  for (unsigned int i = 0; ntk_ > 0 && i < 2 * NTK_SECTORS; ++i) {
     tkBuffers_[i].maybe_push(links_tk[i]);
   }
-  assert(links_hadCalo.size() == caloBuffers_.size());
-  for (unsigned int i = 0; i < 2 * NCALO_SECTORS; ++i) {
+  assert(links_hadCalo.size() == caloBuffers_.size() || ncalo_ == 0);
+  for (unsigned int i = 0; ncalo_ > 0 && i < 2 * NCALO_SECTORS; ++i) {
     caloBuffers_[i].maybe_push(links_hadCalo[i]);
   }
-  for (unsigned int i = 0; i < 2; ++i) {
+  for (unsigned int i = 0; nmu_ > 0 && i < 2; ++i) {
     muBuffers_[i].maybe_push(links_mu[0]);
   }
   if (newSubEvent && !newEvent) {
@@ -172,17 +166,19 @@ bool l1ct::BufferedFoldedMultififoRegionizerEmulator::step(bool newEvent,
     for (auto& b : muBuffers_)
       b.readNewEvent();
   }
-  std::vector<l1ct::TkObjEmu> mylinks_tk(NTK_SECTORS);
-  std::vector<l1ct::HadCaloObjEmu> mylinks_hadCalo(NCALO_SECTORS);
+  std::vector<l1ct::TkObjEmu> mylinks_tk(ntk_ ? NTK_SECTORS : 0);
+  std::vector<l1ct::HadCaloObjEmu> mylinks_hadCalo(ncalo_ ? NCALO_SECTORS : 0);
   std::vector<l1ct::EmCaloObjEmu> mylinks_emCalo(0);
-  std::vector<l1ct::MuObjEmu> mylinks_mu(1);
-  for (unsigned int i = 0, ib = 1 - ifold; i < NTK_SECTORS; ++i, ib += 2) {
+  std::vector<l1ct::MuObjEmu> mylinks_mu(nmu_ ? 1 : 0);
+  for (unsigned int i = 0, ib = 1 - ifold; ntk_ > 0 && i < NTK_SECTORS; ++i, ib += 2) {
     mylinks_tk[i] = tkBuffers_[ib].pop();
   }
-  for (unsigned int i = 0, ib = 1 - ifold; i < NCALO_SECTORS; ++i, ib += 2) {
+  for (unsigned int i = 0, ib = 1 - ifold; ncalo_ > 0 && i < NCALO_SECTORS; ++i, ib += 2) {
     mylinks_hadCalo[i] = caloBuffers_[ib].pop();
   }
-  mylinks_mu[0] = muBuffers_[1 - ifold].pop();
+  if (nmu_) {
+    mylinks_mu[0] = muBuffers_[1 - ifold].pop();
+  }
 
   bool ret = false;
   if (!mux) {
