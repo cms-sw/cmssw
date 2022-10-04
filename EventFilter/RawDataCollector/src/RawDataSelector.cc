@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +17,7 @@
 
 #include "EventFilter/RawDataCollector/interface/RawDataFEDSelector.h"
 
-class RawDataSelector : public edm::EDProducer {
+class RawDataSelector : public edm::stream::EDProducer<> {
 public:
   explicit RawDataSelector(const edm::ParameterSet&);
 
