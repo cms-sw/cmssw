@@ -11,8 +11,8 @@
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::ParameterSet& iConfig)
     : MultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nEndcaps"),
                                   iConfig.getParameter<uint32_t>("nClocks"),
-                                  2,
-                                  3,
+                                  iConfig.getParameter<uint32_t>("nTkLinks"),
+                                  iConfig.getParameter<uint32_t>("nCaloLinks"),
                                   iConfig.getParameter<uint32_t>("nTrack"),
                                   iConfig.getParameter<uint32_t>("nCalo"),
                                   iConfig.getParameter<uint32_t>("nEmCalo"),

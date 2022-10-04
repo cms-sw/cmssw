@@ -124,14 +124,6 @@ void l1ct::FoldedMultififoRegionizerEmulator::initSectorsAndRegions(const Region
   }
   nregions_ = out.size();
 }
-// clock-cycle emulation
-#if 0
-bool l1ct::FoldedMultififoRegionizerEmulator::step(bool newEvent,
-                                                   const std::vector<l1ct::HadCaloObjEmu>& links,
-                                                   std::vector<l1ct::HadCaloObjEmu>& out,
-                                                   bool mux) {
-}
-#endif
 
 bool l1ct::FoldedMultififoRegionizerEmulator::step(bool newEvent,
                                                    const std::vector<l1ct::TkObjEmu>& links_tk,

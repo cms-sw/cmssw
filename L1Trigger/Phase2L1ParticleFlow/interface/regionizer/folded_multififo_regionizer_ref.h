@@ -3,14 +3,8 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include <memory>
-#include <deque>
-
-namespace edm {
-  class ParameterSet;
-}
 
 namespace l1ct {
-  class EGInputSelectorEmulator;
   struct EGInputSelectorEmuConfig;
 }  // namespace l1ct
 
@@ -31,24 +25,6 @@ namespace l1ct {
                                       unsigned int pauseii,
                                       bool useAlsoVtxCoords);
 
-#if 0
-    MultififoRegionizerEmulator(MultififoRegionizerEmulator::BarrelSetup barrelSetup,
-                                unsigned int nHCalLinks,
-                                unsigned int nECalLinks,
-                                unsigned int nclocks,
-                                unsigned int ntk,
-                                unsigned int ncalo,
-                                unsigned int nem,
-                                unsigned int nmu,
-                                bool streaming,
-                                unsigned int outii,
-                                unsigned int pauseii,
-                                bool useAlsoVtxCoords);
-#endif
-
-    // note: this one will work only in CMSSW
-    FoldedMultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
-
     ~FoldedMultififoRegionizerEmulator() override;
 
     void setEgInterceptMode(bool afterFifo, const l1ct::EGInputSelectorEmuConfig& interceptorConfig);
@@ -56,13 +32,7 @@ namespace l1ct {
 
     void run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) override;
 
-// clock-cycle emulation
-#if 0
-    bool step(bool newEvent,
-              const std::vector<l1ct::HadCaloObjEmu>& links,
-              std::vector<l1ct::HadCaloObjEmu>& out,
-              bool mux = true);
-#endif
+    // clock-cycle emulation
     bool step(bool newEvent,
               const std::vector<l1ct::TkObjEmu>& links_tk,
               const std::vector<l1ct::HadCaloObjEmu>& links_hadCalo,

@@ -2,16 +2,9 @@
 #define buffered_folded_multififo_regionizer_ref_h
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/folded_multififo_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 #include <memory>
-
-namespace edm {
-  class ParameterSet;
-}
-
-namespace l1ct {
-  class EGInputSelectorEmulator;
-  struct EGInputSelectorEmuConfig;
-}  // namespace l1ct
+#include <deque>
 
 namespace l1ct {
   namespace multififo_regionizer {
@@ -71,13 +64,7 @@ namespace l1ct {
     void fillLinks(unsigned int iclock, std::vector<l1ct::EmCaloObjEmu>& links, std::vector<bool>& valid);
     void fillLinks(unsigned int iclock, std::vector<l1ct::MuObjEmu>& links, std::vector<bool>& valid);
 
-// clock-cycle emulation
-#if 0
-    bool step(bool newEvent,
-              const std::vector<l1ct::HadCaloObjEmu>& links,
-              std::vector<l1ct::HadCaloObjEmu>& out,
-              bool mux = true);
-#endif
+    // clock-cycle emulation
     bool step(bool newEvent,
               const std::vector<l1ct::TkObjEmu>& links_tk,
               const std::vector<l1ct::HadCaloObjEmu>& links_hadCalo,
@@ -134,8 +121,9 @@ void l1ct::multififo_regionizer::EtaBuffer<T>::maybe_push(const T& t) {
     if (items_[iwrite_].size() < size_) {
       items_[iwrite_].push_back(t);
     } else {
-      std::cout << "WARNING: sector buffer is full for " << typeid(T).name() << ", pt = " << t.intPt()
-                << ", eta = " << t.intEta() << ", phi = " << t.intPhi() << std::endl;
+      // uncommenting the message below may be useful for debugging
+      //dbgCout() << "WARNING: sector buffer is full for " << typeid(T).name() << ", pt = " << t.intPt()
+      //          << ", eta = " << t.intEta() << ", phi = " << t.intPhi() << "\n";
     }
   }
 }
