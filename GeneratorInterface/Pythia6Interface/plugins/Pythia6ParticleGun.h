@@ -11,15 +11,6 @@
 #include <vector>
 
 #include "Pythia6Gun.h"
-// #include "HepMC/GenEvent.h"
-
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "FWCore/Framework/interface/EDProducer.h"
-
-//#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-//#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
-
-// #include "HepPID/ParticleIDTranslations.hh"
 
 namespace gen {
 
