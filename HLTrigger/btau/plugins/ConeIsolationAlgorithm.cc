@@ -49,7 +49,7 @@ void ConeIsolationAlgorithm::fillDescription(edm::ParameterSetDescription& desc)
 }
 
 pair<float, IsolatedTauTagInfo> ConeIsolationAlgorithm::tag(const JetTracksAssociationRef& jetTracks,
-                                                            const Vertex& pv) {
+                                                            const Vertex& pv) const {
   const edm::RefVector<reco::TrackCollection>& tracks = jetTracks->second;
   edm::RefVector<reco::TrackCollection> myTracks;
 
