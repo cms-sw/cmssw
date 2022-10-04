@@ -243,7 +243,7 @@ class ConfigBuilder(object):
                 raise ValueError(f"Step definition {step} invalid")
             self.stepKeys.append(stepName)
 
-        print(f"map of steps is: {self.stepMap}")
+        #print(f"map of steps is: {self.stepMap}")
 
         self.with_output = with_output
         self.process=process
