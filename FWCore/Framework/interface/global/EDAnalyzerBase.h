@@ -111,6 +111,8 @@ namespace edm {
       virtual void endJob() {}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocRuns(unsigned int);
+      virtual void preallocRunsSummary(unsigned int);
       virtual void preallocLumis(unsigned int);
       virtual void preallocLumisSummary(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
