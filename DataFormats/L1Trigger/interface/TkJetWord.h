@@ -1,6 +1,9 @@
 #ifndef FIRMWARE_TkJetWord_h
 #define FIRMWARE_TkJetWord_h
 
+// Class to store the 96-bit TkJet word for L1 Track Trigger.
+// Author: Emily MacDonald, updated by Benjamin Radburn-Smith (September 2022)
+
 #include <vector>
 #include <ap_int.h>
 #include <cassert>
@@ -61,28 +64,7 @@ namespace l1t {
   public:
     // ----------Constructors --------------------------
     TkJetWord() {}
-    TkJetWord(pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned) {
-      std::string word = "";
-      word.append(TkJetBitWidths::kUnassignedSize - (unassigned.to_string().length() - 2), '0');
-      word = word + (unassigned.to_string().substr(2, unassigned.to_string().length() - 2));
-      word.append(TkJetBitWidths::kXtSize - (nx.to_string().length() - 2), '0');
-      word = word + (nx.to_string().substr(2, nx.to_string().length() - 2));
-      word.append(TkJetBitWidths::kNtSize - (nt.to_string().length() - 2), '0');
-      word = word + (nt.to_string().substr(2, nt.to_string().length() - 2));
-      word.append(TkJetBitWidths::kZ0Size - (z0.to_string().length() - 2), '0');
-      word = word + (z0.to_string().substr(2, z0.to_string().length() - 2));
-      word.append(TkJetBitWidths::kGlbPhiSize - (phi.to_string().length() - 2), '0');
-      word = word + (phi.to_string().substr(2, phi.to_string().length() - 2));
-      word.append(TkJetBitWidths::kGlbEtaSize - (eta.to_string().length() - 2), '0');
-      word = word + (eta.to_string().substr(2, eta.to_string().length() - 2));
-      ap_ufixed<kPtSize + 5, kPtMagSize + 5, AP_TRN, AP_SAT> pt_2 = pt;
-      ap_uint<kPtSize> pt_temp = pt_2 << 5;
-      word.append(TkJetBitWidths::kPtSize - (pt_temp.to_string().length() - 2), '0');
-      word = word + (pt_temp.to_string().substr(2, pt_temp.to_string().length() - 2));
-
-      tkjetword_bs_t tmp(word);
-      tkJetWord_ = tmp;
-    }
+    TkJetWord(pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned);
 
     ~TkJetWord() {}
 
