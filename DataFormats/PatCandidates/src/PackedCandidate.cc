@@ -112,36 +112,34 @@ void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
     if (forcePosDef) {
       //      std::cout<<"unpacking enforcing positive-definite cov matrix"<<std::endl;
       //calculate the determinant and verify positivity
-      double det_(0);
-      bool computed_ = m->Det(det_);
-      //      std::cout<<"during unpacking, the determinant is: "<<det_<<std::endl;
-      if (computed_ && det_ < 0) {
+      double det = 0;
+      bool notPosDef = (!m->Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det<0)
+	|| (!m->Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det<0)
+	|| (!m->Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det<0)
+	|| (!m->Det(det) || det<0);
+      //      std::cout<<"during unpacking, the determinant is: "<<det<<std::endl;
+      if (notPosDef) {
         //if not positive-definite, alter values to allow for pos-def
-        TMatrixDSym COV(5);
+        TMatrixDSym eigenCov(5);
         for (int i = 0; i < 5; i++) {
           for (int j = 0; j < 5; j++) {
-            if (std::isnan((*m)(i, j)) || std::isinf((*m)(i, j))) {
-              COV(i, j) = 1e-6;
-            } else {
-              COV(i, j) = (*m)(i, j);
-            }
+            if (std::isnan((*m)(i, j)) || std::isinf((*m)(i, j)))
+              eigenCov(i, j) = 1e-6;
+	    else
+              eigenCov(i, j) = (*m)(i, j);
           }
         }
-        TVectorD EIG(5);
-        COV.EigenVectors(EIG);
-        double MIN_EIG = 100000;
-        double DELTA = 1e-6;
-        for (int i = 0; i < 5; i++) {
-          if (EIG(i) < MIN_EIG)
-            MIN_EIG = EIG(i);
-        }
-        if (MIN_EIG < 0) {
+        TVectorD eigenValues(5);
+        eigenCov.EigenVectors(eigenValues);
+        double minEigenValue = eigenValues.Min();
+        double delta = 1e-6;
+        if (minEigenValue < 0) {
           for (int i = 0; i < 5; i++)
-            (*m)(i, i) += DELTA - MIN_EIG;
+            (*m)(i, i) += delta - minEigenValue;
         }
 
-        computed_ = m->Det(det_);
-        //	std::cout<<"    the determinant of the corrected covariance matrix is: "<<det_<<std::endl;
+	//        computed_ = m->Det(det);
+        //	std::cout<<"    the determinant of the corrected covariance matrix is: "<<det<<std::endl;
       }
     }
 
