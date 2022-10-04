@@ -65,7 +65,7 @@ namespace {
       desc.add<int>("MaxNumberOfOutliers", 3);
       desc.add<int>("MinDof", 2);
       desc.add<bool>("NoOutliersBeginEnd", false);
-      desc.add<int>("MinNumberOfHits", 5);
+      desc.add<int>("MinNumberOfHits", 3);
       desc.add<int>("MinNumberOfHitsHighEta", 5);
       desc.add<double>("HighEtaSwitch", 5.0);
       desc.add<bool>("RejectTracks", true);

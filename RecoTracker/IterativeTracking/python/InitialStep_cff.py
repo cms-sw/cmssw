@@ -268,8 +268,8 @@ fastSim.toReplaceWith(initialStepTrackCandidates,
 
 
 # fitting
-import RecoTracker.TrackProducer.TrackProducer_cfi
-initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+initialStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'initialStepTrackCandidates',
     AlgorithmName = 'initialStep',
     Fitter        = 'FlexibleKFFittingSmoother'
