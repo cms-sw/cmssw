@@ -12,7 +12,6 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
