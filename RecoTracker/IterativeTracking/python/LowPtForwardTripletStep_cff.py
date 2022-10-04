@@ -76,8 +76,8 @@ lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidat
 )
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-lowPtForwardTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+lowPtForwardTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'lowPtForwardTripletStepTrackCandidates',
     AlgorithmName = 'lowPtTripletStep'
 )
