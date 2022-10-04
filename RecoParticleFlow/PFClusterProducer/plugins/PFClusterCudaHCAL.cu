@@ -3524,7 +3524,6 @@ namespace PFClusterCudaHCAL {
   __global__ void topoClusterContraction(size_t size,
                                          int* pfrh_parent,
                                          int* pfrh_isSeed,
-                                         //const int* pfrh_neighbours, // temporary inputs for debuggi
                                          int* rhCount,
                                          int* topoSeedCount,
                                          int* topoRHCount,
@@ -3560,30 +3559,6 @@ namespace PFClusterCudaHCAL {
       __syncthreads();
 
     } while (notDone);
-
-    // // debugging printing block
-    // __syncthreads();
-    // if (threadIdx.x == 0) {
-    //   int nnode=0;
-    //   for (int i = 0; i < size; i++) {
-    // 	//printf("final pfrh_id,parent: %d %d\n",i,pfrh_parent[i]);
-    // 	if (i==pfrh_parent[i]) nnode++;
-    //   }
-    //   printf("pfrh_parent 3 multiplicity: %d\n",nnode);
-    //   for (int pos = 0; pos < size; pos++) {
-    // 	int parent_target = pfrh_parent[pos];
-    // 	for (int i = 0; i < 8; i++) {
-    // 	  int neighbor_id = pfrh_neighbours[pos * 8 + i];
-    // 	  if (neighbor_id>-1){ // valid neighbors
-    // 	    int parent_neighbor = pfrh_parent[neighbor_id];
-    // 	    if (parent_target!=parent_neighbor){
-    // 	      printf("hmm. they should have the same parent, but they don't. why... %d %d\n",pos,neighbor_id);
-    // 	    }
-    // 	  }
-    // 	}
-    //   }
-    //   }
-    // __syncthreads();
 
     // Now determine the number of seeds and rechits in each topo cluster
     for (int rhIdx = threadIdx.x; rhIdx < size; rhIdx += blockDim.x) {
@@ -3907,7 +3882,6 @@ namespace PFClusterCudaHCAL {
 
   __global__ void topoClusterLinkingKH(int nRH,
                                        int* nEdgesIn,
-                                       //float* pfrh_energy, // Temporary entry for debugging
                                        int* pfrh_parent,
                                        int* pfrh_edgeId,
                                        int* pfrh_edgeList,
@@ -3940,18 +3914,6 @@ namespace PFClusterCudaHCAL {
     // }
 
     // __syncthreads();
-
-    // // Print out debugging info
-    // if (threadIdx.x == 0) {
-    //   // for (int idx = 0; idx < nEdges; idx++) {
-    //   // 	printf("initial edge id, list, mask: %d %d %d\n",pfrh_edgeId[idx],pfrh_edgeList[idx],pfrh_edgeMask[idx]);
-    //   // 	//printf("initial edge id, list, mask: %d %d\n",pfrh_edgeId[idx],pfrh_edgeList[idx]);
-    //   //  }
-    //   printf("number of eges %d\n",nEdges);
-    //   // for (int i = 0; i < nRH; i++) {
-    //   // 	printf("initial pfrh_id,parent,energy: %d %d %8.3f\n",i,pfrh_parent[i],pfrh_energy[i]);
-    //   // }
-    // }
 
     // Explicitly initialize pfrh_parent
     for (int i = start; i < nRH; i += gridStride) {
@@ -4009,19 +3971,7 @@ namespace PFClusterCudaHCAL {
 
       __syncthreads();
 
-      // Print out debugging info
-      // Connect remaining links
-      // if (threadIdx.x == 0) {
-      // 	int nnode=0;
-      // 	for (int i = 0; i < nRH; i++) {
-      // 	  //printf("middle pfrh_id,parent: %d %d\n",i,pfrh_parent[i]);
-      // 	  if (i==pfrh_parent[i]) nnode++;
-      // 	}
-      // 	printf("pfrh_parent multiplicity: %d\n",nnode);
-      // }
-
-      // __syncthreads();
-
+      // All rechit pairs in edge id-list have the same topo cluster label?
       for (int idx = start; idx < nEdges; idx += gridStride) {
       	//for (int idx = 0; idx < nEdges; idx++) {
       	int i = pfrh_edgeId[idx];    // Get edge topo id
@@ -4065,18 +4015,6 @@ namespace PFClusterCudaHCAL {
       __syncthreads();
 
     } while (notDone);
-
-    // __syncthreads();
-
-    // // Print out debugging info
-    // if (threadIdx.x == 0) {
-    //   int nnode=0;
-    //   for (int i = 0; i < nRH; i++) {
-    // 	//printf("middle2 pfrh_id,parent: %d %d\n",i,pfrh_parent[i]);
-    // 	if (i==pfrh_parent[i]) nnode++;
-    //   }
-    //   printf("pfrh_parent 2 multiplicity: %d\n",nnode);
-    // }
 
   }
 
@@ -4659,29 +4597,10 @@ namespace PFClusterCudaHCAL {
                                                                          outputGPU.topoSeedList.get(),
                                                                          outputGPU.pfc_iter.get());
 
-<<<<<<< HEAD
-    cudaCheck(cudaStreamSynchronize(cudaStream));
-
-#ifdef DEBUG_GPU_HCAL
-    cudaEventRecord(stop, cudaStream);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&timer[0], start, stop);
-    cudaEventRecord(start, cudaStream);
-#endif
-
-       // prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
-       //     nRH,
-       //     outputGPU.nEdges.get(),
-       //     outputGPU.pfrh_passTopoThresh.get(),
-       //     inputPFRecHits.pfrh_neighbours.get(),
-       //     scratchGPU.pfrh_edgeId.get(),
-       //     scratchGPU.pfrh_edgeList.get());
-
-=======
->>>>>>> 8189a9f0f08 (more syncthreads calls in topoClusterLinking kernel)
     // Topo clustering
     // Fill edgeId, edgeList arrays with rechit neighbors
     // Has a bug when using more than 128 threads..
+    // prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
     prepareTopoInputs<<<1, 128, 128 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
                                                                            outputGPU.nEdges.get(),
                                                                            outputGPU.pfrh_passTopoThresh.get(),
@@ -4690,34 +4609,19 @@ namespace PFClusterCudaHCAL {
                                                                            scratchGPU.pfrh_edgeList.get());
 
     // Topo clustering
-<<<<<<< HEAD
     //topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
     topoClusterLinkingKH<<<1, 512, 0, cudaStream>>>(nRH,
 						    outputGPU.nEdges.get(),
-						    //inputPFRecHits.pfrh_energy.get(), // temporary entry for debugging
 						    outputGPU.pfrh_topoId.get(),
 						    scratchGPU.pfrh_edgeId.get(),
 						    scratchGPU.pfrh_edgeList.get(),
 						    scratchGPU.pfrh_edgeMask.get(),
-						    //inputGPU.pfrh_edgeMask.get(),
 						    outputGPU.pfrh_passTopoThresh.get(),
 						    outputGPU.topoIter.get());
-    cudaCheck(cudaStreamSynchronize(cudaStream));
-=======
-    topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
-                                                  outputGPU.nEdges.get(),
-                                                  outputGPU.pfrh_topoId.get(),
-                                                  scratchGPU.pfrh_edgeId.get(),
-                                                  scratchGPU.pfrh_edgeList.get(),
-                                                  scratchGPU.pfrh_edgeMask.get(),
-                                                  outputGPU.pfrh_passTopoThresh.get(),
-                                                  outputGPU.topoIter.get());
->>>>>>> 8189a9f0f08 (more syncthreads calls in topoClusterLinking kernel)
 
     topoClusterContraction<<<1, 512, 0, cudaStream>>>(nRH,
                                                       outputGPU.pfrh_topoId.get(),
                                                       outputGPU.pfrh_isSeed.get(),
-                                                      //inputPFRecHits.pfrh_neighbours.get(), // temporary entry for debugging
                                                       scratchGPU.rhcount.get(),
                                                       outputGPU.topoSeedCount.get(),
                                                       outputGPU.topoRHCount.get(),
