@@ -1038,7 +1038,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
 
     // store bit and clock accurate TB output
     if (settings_.storeTrackBuilderOutput() && bestTracklet) {
-      // add gap if enough layer to form track
+      // add gap if TrackBuilder rejected track (due to too few stub layers).
       if (!bestTracklet->fit()) {
         static const string invalid = "0";
         streamTrackRaw.emplace_back(invalid);
@@ -1074,7 +1074,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
           streamsStubRaw[ihit++].emplace_back(seedType, *stub, valid + r + phi + rz);
         }
       }
-      // fill all layer with no stubs with gaps
+      // fill all layers that have no stubs with gaps
       while (ihit < streamsStubRaw.size()) {
         streamsStubRaw[ihit++].emplace_back();
       }
