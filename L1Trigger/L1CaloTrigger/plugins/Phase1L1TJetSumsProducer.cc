@@ -182,7 +182,7 @@ l1t::EtSum Phase1L1TJetSumsProducer::computeMHT(const edm::Handle<std::vector<re
 void Phase1L1TJetSumsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetCollectionTag",
-                          edm::InputTag("Phase1L1TJetCalibrator", "Phase1L1TJetFromPfCandidates"));
+                          edm::InputTag("l1tPhase1JetCalibrator", "Phase1L1TJetFromPfCandidates"));
   desc.add<std::vector<double> >("sinPhi");
   desc.add<std::vector<double> >("cosPhi");
   desc.add<unsigned int>("nBinsPhi", 72);
