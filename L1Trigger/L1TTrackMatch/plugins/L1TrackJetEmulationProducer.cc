@@ -1,11 +1,12 @@
 /* Software to emulate the hardware 2-layer jet-finding algorithm (fixed-point). *Layers 1 and 2*
  *
- * 2021
- *
  * Created based on Rishi Patel's L1TrackJetProducer.cc file.
- * Authors: Samuel Edwin Leigh, Tyler Wu
- * Rutgers, the State University of New Jersey
- *  Revolutionary for 250 years
+ *      Authors: Samuel Edwin Leigh, Tyler Wu
+ *               Rutgers, the State University of New Jersey
+ *      Modifications: Georgios Karathanasis
+ *                     georgios.karathanasis@cern.ch, CU Boulder
+ *
+ * Last update: 19-9-2022 (by GK)     
  */
 
 //Holds data from tracks, converted from their integer versions.
@@ -243,6 +244,10 @@ void L1TrackJetEmulationProducer::produce(Event &iEvent, const EventSetup &iSetu
     delete[] mzb.clusters;
   } else if (L1TrkPtrs_.empty()) {
     edm::LogWarning("L1TrackJetEmulationProducer") << "L1TrkPtrs Not Assigned!\n";
+    if (displaced_)
+      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+    else
+      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
   }
 }
 
