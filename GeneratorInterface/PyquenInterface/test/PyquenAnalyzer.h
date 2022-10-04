@@ -7,7 +7,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-//#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
