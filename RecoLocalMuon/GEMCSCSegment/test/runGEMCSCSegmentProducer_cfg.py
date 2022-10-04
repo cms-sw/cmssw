@@ -94,7 +94,7 @@ process.options = cms.untracked.PSet(
 process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
 
-process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi')
+process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

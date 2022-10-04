@@ -80,6 +80,7 @@ protected:
 
 private:
   std::unique_ptr<GEMCSCSegmentAlgorithm> algo;
+  const bool enable_me21_ge21_;
   const GEMGeometry* gemgeom_;
   const CSCGeometry* cscgeom_;
 };
