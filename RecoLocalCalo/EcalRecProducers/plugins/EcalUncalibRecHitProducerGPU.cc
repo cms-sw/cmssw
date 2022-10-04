@@ -88,8 +88,6 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("outOfTimeThresholdGain61mEE", 1000);
   desc.add<double>("amplitudeThresholdEB", 10);
   desc.add<double>("amplitudeThresholdEE", 10);
-  desc.add<uint32_t>("maxNumberHitsEB", 61200);
-  desc.add<uint32_t>("maxNumberHitsEE", 14648);
   desc.addUntracked<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
   desc.add<bool>("shouldRunTimingComputation", true);
   confDesc.addWithDefaultLabel(desc);
@@ -131,10 +129,6 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
   auto outOfTimeThreshG61mEE = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
   auto amplitudeThreshEB = ps.getParameter<double>("amplitudeThresholdEB");
   auto amplitudeThreshEE = ps.getParameter<double>("amplitudeThresholdEE");
-
-  // max number of digis to allocate for
-  configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
-  configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
 
   // switch to run timing computation kernels
   configParameters_.shouldRunTimingComputation = ps.getParameter<bool>("shouldRunTimingComputation");
@@ -203,13 +197,6 @@ void EcalUncalibRecHitProducerGPU::produce(edm::Event& event, edm::EventSetup co
 
   // stop here if there are no digis
   if (neb + nee > 0) {
-    if ((neb > configParameters_.maxNumberHitsEB) || (nee > configParameters_.maxNumberHitsEE)) {
-      edm::LogError("EcalUncalibRecHitProducerGPU")
-          << "Max number of channels exceeded in barrel or endcap. Number of barrel channels: " << neb
-          << " with maxNumberHitsEB=" << configParameters_.maxNumberHitsEB << ", number of endcap channels: " << nee
-          << " with maxNumberHitsEE=" << configParameters_.maxNumberHitsEE;
-    }
-
     // conditions
     auto const& timeCalibConstantsData = setup.getData(timeCalibConstantsToken_);
     auto const& sampleMaskData = setup.getData(sampleMaskToken_);
@@ -247,11 +234,11 @@ void EcalUncalibRecHitProducerGPU::produce(edm::Event& event, edm::EventSetup co
                                                   multifitParameters};
 
     // dev mem
-    eventOutputDataGPU.allocate(configParameters_, ctx.stream());
+    eventOutputDataGPU.allocate(configParameters_, neb, nee, ctx.stream());
 
     // scratch mem
     ecal::multifit::EventDataForScratchGPU eventDataForScratchGPU;
-    eventDataForScratchGPU.allocate(configParameters_, ctx.stream());
+    eventDataForScratchGPU.allocate(configParameters_, neb, nee, ctx.stream());
 
     //
     // schedule algorithms
