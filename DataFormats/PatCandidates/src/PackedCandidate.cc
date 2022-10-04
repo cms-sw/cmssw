@@ -113,10 +113,9 @@ void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
       //      std::cout<<"unpacking enforcing positive-definite cov matrix"<<std::endl;
       //calculate the determinant and verify positivity
       double det = 0;
-      bool notPosDef = (!m->Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det<0)
-	|| (!m->Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det<0)
-	|| (!m->Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det<0)
-	|| (!m->Det(det) || det<0);
+      bool notPosDef = (!m->Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
+                       (!m->Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
+                       (!m->Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!m->Det(det) || det < 0);
       //      std::cout<<"during unpacking, the determinant is: "<<det<<std::endl;
       if (notPosDef) {
         //if not positive-definite, alter values to allow for pos-def
@@ -125,7 +124,7 @@ void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
           for (int j = 0; j < 5; j++) {
             if (std::isnan((*m)(i, j)) || std::isinf((*m)(i, j)))
               eigenCov(i, j) = 1e-6;
-	    else
+            else
               eigenCov(i, j) = (*m)(i, j);
           }
         }
@@ -138,7 +137,7 @@ void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
             (*m)(i, i) += delta - minEigenValue;
         }
 
-	//        computed_ = m->Det(det);
+        //        computed_ = m->Det(det);
         //	std::cout<<"    the determinant of the corrected covariance matrix is: "<<det<<std::endl;
       }
     }
