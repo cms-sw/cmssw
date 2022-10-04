@@ -46,7 +46,6 @@
 #include "TH2.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 using namespace edm;
