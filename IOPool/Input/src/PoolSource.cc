@@ -191,11 +191,9 @@ namespace edm {
       if (found) {
         std::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
         checkConsistency(runPrincipal.aux(), *secondaryAuxiliary);
-        secondaryRunPrincipal_ = std::make_shared<RunPrincipal>(secondaryAuxiliary,
-                                                                secondaryFileSequence_->fileProductRegistry(),
-                                                                processConfiguration(),
-                                                                nullptr,
-                                                                runPrincipal.index());
+        secondaryRunPrincipal_ = std::make_shared<RunPrincipal>(
+            secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr, runPrincipal.index());
+        secondaryRunPrincipal_->setAux(*secondaryAuxiliary);
         secondaryFileSequence_->readRun_(*secondaryRunPrincipal_);
         checkHistoryConsistency(runPrincipal, *secondaryRunPrincipal_);
         runPrincipal.recombine(*secondaryRunPrincipal_, branchIDsToReplace_[InRun]);

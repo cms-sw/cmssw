@@ -85,6 +85,7 @@ namespace edm {
                        ActivityRegistry*,
                        ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocRuns(unsigned int);
       virtual void preallocLumis(unsigned int);
       void doBeginJob();
       void doEndJob();

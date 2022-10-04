@@ -65,6 +65,7 @@ namespace edm {
     void ProducingModuleAdaptorBase<T>::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       m_streamModules.resize(iPrealloc.numberOfStreams(), static_cast<T*>(nullptr));
       setupStreamModules();
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
