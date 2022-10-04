@@ -5,6 +5,9 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DataFormats/Math/interface/liblogintpack.h"
+
+#include "TMatrixDSym.h"
+#include "TVectorD.h"
 using namespace logintpack;
 
 CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
@@ -89,7 +92,7 @@ void pat::PackedCandidate::packCovariance(const reco::TrackBase::CovarianceMatri
     unpackCovariance();
 }
 
-void pat::PackedCandidate::unpackCovariance() const {
+void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
   const CovarianceParameterization &p = covarianceParameterization();
   if (p.isValid()) {
     auto m = std::make_unique<reco::TrackBase::CovarianceMatrix>();
@@ -105,6 +108,43 @@ void pat::PackedCandidate::unpackCovariance() const {
     unpackCovarianceElement(*m, packedCovariance_.dxydz, 3, 4);
     unpackCovarianceElement(*m, packedCovariance_.dlambdadz, 1, 4);
     unpackCovarianceElement(*m, packedCovariance_.dphidxy, 2, 3);
+
+    if (forcePosDef){
+      //      std::cout<<"unpacking enforcing positive-definite cov matrix"<<std::endl;
+      //calculate the determinant and verify positivity
+      double det_(0);
+      bool computed_ = m->Det(det_);
+      //      std::cout<<"during unpacking, the determinant is: "<<det_<<std::endl;
+      if (computed_ && det_<0){
+	//if not positive-definite, alter values to allow for pos-def
+	TMatrixDSym COV(5);
+	for (int i = 0; i < 5; i++){
+	  for (int j = 0; j < 5; j++){
+	    if (std::isnan((*m)(i,j)) || std::isinf((*m)(i,j))){
+	      COV(i, j) = 1e-6;
+	    }else{
+	      COV(i,j) = (*m)(i,j);
+	    }
+	  }
+	}
+	TVectorD EIG(5);
+	COV.EigenVectors(EIG);
+	double MIN_EIG = 100000;
+	double DELTA = 1e-6;
+	for (int i = 0; i < 5; i++){
+	  if (EIG(i) < MIN_EIG)
+	    MIN_EIG = EIG(i);
+	}
+	if (MIN_EIG<0) { 
+	  for (int i = 0; i < 5; i++)
+	    (*m)(i,i) += DELTA - MIN_EIG;
+	}
+
+	computed_ = m->Det(det_);
+	//	std::cout<<"    the determinant of the corrected covariance matrix is: "<<det_<<std::endl;
+      }
+    }
+
     reco::TrackBase::CovarianceMatrix *expected = nullptr;
     if (m_.compare_exchange_strong(expected, m.get())) {
       m.release();
@@ -161,10 +201,10 @@ float pat::PackedCandidate::dz(const Point &p) const {
          ((vertex_.load()->X() - p.X()) * std::cos(phi) + (vertex_.load()->Y() - p.Y()) * std::sin(phi)) * pzpt;
 }
 
-void pat::PackedCandidate::unpackTrk() const {
+void pat::PackedCandidate::unpackTrk(bool forcePosDef) const {
   maybeUnpackBoth();
   math::RhoEtaPhiVector p3(ptTrk(), etaAtVtx(), phiAtVtx());
-  maybeUnpackCovariance();
+  maybeUnpackCovariance(forcePosDef);
   int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
   int numberOfPixelHits = this->numberOfPixelHits();
   int numberOfHits = this->numberOfHits();

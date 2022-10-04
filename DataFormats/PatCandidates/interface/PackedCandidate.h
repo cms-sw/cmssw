@@ -782,10 +782,14 @@ namespace pat {
 
     /// Return reference to a pseudo track made with candidate kinematics,
     /// parameterized error for eta,phi,pt and full IP covariance
-    virtual const reco::Track &pseudoTrack() const {
+    virtual const reco::Track &pseudoTrack(bool forcePosDef=false) const {
       if (!track_)
-        unpackTrk();
+        unpackTrk(forcePosDef);
       return *track_;
+    }
+    virtual void resetPseudoTrack() const {
+      delete m_.exchange(nullptr);
+      delete track_.exchange(nullptr);
     }
 
     /// return a pointer to the track if present. otherwise, return a null pointer
@@ -1019,7 +1023,7 @@ namespace pat {
     void packVtx(bool unpackAfterwards = true);
     void unpackVtx() const;
     void packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards = true);
-    void unpackCovariance() const;
+    void unpackCovariance(bool forcePosDef = true) const;
     void maybeUnpackBoth() const {
       if (!p4c_)
         unpack();
@@ -1030,9 +1034,9 @@ namespace pat {
       if (!track_)
         unpackTrk();
     }
-    void maybeUnpackCovariance() const {
+    void maybeUnpackCovariance(bool forcePosDef=false) const {
       if (!m_)
-        unpackCovariance();
+        unpackCovariance(forcePosDef);
     }
     void packBoth() {
       pack(false);
@@ -1044,7 +1048,7 @@ namespace pat {
       unpackVtx();
     }  // do it this way, so that we don't loose precision on the angles before
     // computing dxy,dz
-    void unpackTrk() const;
+    void unpackTrk(bool forcePosDef=false) const;
 
     uint8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_;  // storing the DIFFERENCE of (all - "no
