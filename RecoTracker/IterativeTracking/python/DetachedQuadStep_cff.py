@@ -224,8 +224,8 @@ _fastSim_detachedQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidat
 fastSim.toReplaceWith(detachedQuadStepTrackCandidates,_fastSim_detachedQuadStepTrackCandidates)
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     AlgorithmName = 'detachedQuadStep',
     src           = 'detachedQuadStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother',
