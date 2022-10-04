@@ -254,8 +254,8 @@ fastSim.toReplaceWith(detachedTripletStepTrackCandidates,_fastSim_detachedTriple
 
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     AlgorithmName = 'detachedTripletStep',
     src           = 'detachedTripletStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother'

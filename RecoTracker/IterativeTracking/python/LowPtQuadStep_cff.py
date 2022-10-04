@@ -214,8 +214,8 @@ _fastSim_lowPtQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidatePr
 fastSim.toReplaceWith(lowPtQuadStepTrackCandidates,_fastSim_lowPtQuadStepTrackCandidates)
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'lowPtQuadStepTrackCandidates',
     AlgorithmName = 'lowPtQuadStep',
     Fitter        = 'FlexibleKFFittingSmoother',
