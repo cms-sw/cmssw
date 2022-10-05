@@ -23,7 +23,7 @@ def customizeHcalOnlyForProfilingGPUOnly(process):
 # Currently, this means:
 #   - running the unpacker on CPU, converting the digis into SoA format and copying them to GPU
 #   - running the HBHE local reconstruction, including MAHI, on GPU.
-#   - running the HBHE PFRecHit and PFCluster producers on GPU [including copy of them to host, as we cannot untangle the copy back at a moment]
+#   - running the HBHE PFRecHit and PFCluster producers on GPU [without copy of them to host]
 def customizeHcalPFOnlyForProfilingGPUOnly(process):
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
@@ -33,8 +33,8 @@ def customizeHcalPFOnlyForProfilingGPUOnly(process):
   process.consume_step = cms.EndPath(process.consumer)
 
   process.schedule = cms.Schedule(process.raw2digi_step, process.reconstruction_step, process.consume_step)
-  #process.particleFlowClusterHBHEOnly.cuda.produceLegacy = cms.bool(False)
-  #process.particleFlowRecHitHBHEOnly.cuda.produceLegacy = cms.bool(False)
+  process.particleFlowClusterHBHEOnly.cuda.produceLegacy = cms.bool(False)
+  process.particleFlowRecHitHBHEOnly.cuda.produceLegacy = cms.bool(False)
 
   return process
 
