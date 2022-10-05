@@ -293,8 +293,8 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
       int idx = std::distance(eeHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "EEHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
                                      << std::get<0>(itr->second) << "; Position"
-                                     << " (" << std::get<1>(itr->second).x() << ", " << std::get<1>(itr->second).y() << ", "
-                                     << std::get<1>(itr->second).z() << ")";
+                                     << " (" << std::get<1>(itr->second).x() << ", " << std::get<1>(itr->second).y()
+                                     << ", " << std::get<1>(itr->second).z() << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
@@ -308,8 +308,8 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
       int idx = std::distance(fhHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "FHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
                                      << std::get<0>(itr->second) << "; Position"
-                                     << " (" << std::get<1>(itr->second).x() << ", " << std::get<1>(itr->second).y() << ", "
-                                     << std::get<1>(itr->second).z() << ")";
+                                     << " (" << std::get<1>(itr->second).x() << ", " << std::get<1>(itr->second).y()
+                                     << ", " << std::get<1>(itr->second).z() << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
@@ -322,8 +322,9 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
       int idx = std::distance(bhHitRefs.begin(), itr);
       edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
-                                     << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second).x() << ", "
-                                     << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z() << ")";
+                                     << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second).x()
+                                     << ", " << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z()
+                                     << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
@@ -361,8 +362,8 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
         }
         edm::LogVerbatim("HGCalValid") << "EEHit: " << std::hex << it->id().rawId() << std::dec << " Sim ("
                                        << std::get<0>(itr->second) << ", " << std::get<1>(itr->second).x() << ", "
-                                       << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z() << ") Rec ("
-                                       << energy << ", " << xyz.x() << ", " << xyz.y() << ", " << xyz.z();
+                                       << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z()
+                                       << ") Rec (" << energy << ", " << xyz.x() << ", " << xyz.y() << ", " << xyz.z();
       }
     }
   } else {
@@ -401,8 +402,8 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
         }
         edm::LogVerbatim("HGCalValid") << "FHHit: " << std::hex << it->id().rawId() << std::dec << " Sim ("
                                        << std::get<0>(itr->second) << ", " << std::get<1>(itr->second).x() << ", "
-                                       << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z() << ") Rec ("
-                                       << energy << "," << xyz.x() << ", " << xyz.y() << ", " << xyz.z();
+                                       << std::get<1>(itr->second).y() << ", " << std::get<1>(itr->second).z()
+                                       << ") Rec (" << energy << "," << xyz.x() << ", " << xyz.y() << ", " << xyz.z();
       }
     }
   } else {
@@ -473,7 +474,8 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       ok = false;
     }
 
-    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id << std::dec << " " << st1.str() << " at " << p << " Flag " << ok;
+    edm::LogVerbatim("HGCalValid") << "SimHit: " << std::hex << id << std::dec << " " << st1.str() << " at " << p
+                                   << " Flag " << ok;
 
     if (ok) {
       float energy = simHit.energy();
@@ -512,7 +514,7 @@ void HGCHitValidation::analyzeHGCalRecHit(T1 const &theHits, std::map<unsigned i
         hebSimY_->push_back(yp);
         hebSimZ_->push_back(std::get<1>(itr->second).z());
         hebSimEnergy_->push_back(std::get<0>(itr->second));
-	hebSimEta_->push_back(std::get<1>(itr->second).eta());
+        hebSimEta_->push_back(std::get<1>(itr->second).eta());
         hebRecEta_->push_back(xyz.eta());
         hebSimPhi_->push_back(angs);
         hebRecPhi_->push_back(ang3);

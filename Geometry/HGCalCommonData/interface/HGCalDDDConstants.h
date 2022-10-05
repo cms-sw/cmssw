@@ -38,7 +38,8 @@ public:
   ~HGCalDDDConstants() = default;
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
-  std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend = false, bool debug = false) const;
+  std::array<int, 5> assignCellHex(
+      float x, float y, int zside, int lay, bool reco, bool extend = false, bool debug = false) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
@@ -89,10 +90,11 @@ public:
   inline int layerType(int lay) const {
     return ((hgpar_->layerType_.empty()) ? HGCalTypes::WaferCenter : hgpar_->layerType_[lay - hgpar_->firstLayer_]);
   }
-  std::pair<float, float> localToGlobal8(int zside, int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
+  std::pair<float, float> localToGlobal8(
+      int zside, int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
   std::pair<float, float> locateCell(int zside,
-				     int lay,
+                                     int lay,
                                      int waferU,
                                      int waferV,
                                      int cellU,
@@ -147,7 +149,7 @@ public:
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;
   void waferFromPosition(const double x,
                          const double y,
-			 const int zside,
+                         const int zside,
                          const int layer,
                          int& waferU,
                          int& waferV,

@@ -84,8 +84,8 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
       edm::LogVerbatim("HGCSim") << "Original " << pos.x() << ":" << pos.y() << " return " << xy.first << ":"
                                  << xy.second;
       if ((DetId(index).det() == DetId::Forward) && (DetId(index).subdetId() == static_cast<int>(HFNose))) {
-	int zside = (pos.z() > 0) ? 1 : -1;
-	double wt = 0, xx = (zside * pos.x());
+        int zside = (pos.z() > 0) ? 1 : -1;
+        double wt = 0, xx = (zside * pos.x());
         int waferU, waferV, cellU, cellV, waferType;
         hgcons_.waferFromPosition(xx, pos.y(), lay, zside, waferU, waferV, cellU, cellV, waferType, wt, true);
         xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, true);

@@ -168,7 +168,7 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
         }
         double xp = p.x();
-        double yp =p.y();
+        double yp = p.y();
         int ll = layer - layerMnSim_[k];
         if (verbosity_ > 1)
           edm::LogVerbatim("HGCalValidation")

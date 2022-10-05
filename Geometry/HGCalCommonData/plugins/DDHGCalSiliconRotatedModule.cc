@@ -424,7 +424,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
     double phi = std::atan2(ypos, xpos);
-    edm::LogVerbatim("HGCalGeom") << " Cassette " << cassette << " in layer " << (layer + 1) << " zside 1 at " << convertRadToDeg(phi) << " Shift " << cshift.first << ":" << cshift.second;
+    edm::LogVerbatim("HGCalGeom") << " Cassette " << cassette << " in layer " << (layer + 1) << " zside 1 at "
+                                  << convertRadToDeg(phi) << " Shift " << cshift.first << ":" << cshift.second;
 #endif
     std::string wafer;
     int i(999);

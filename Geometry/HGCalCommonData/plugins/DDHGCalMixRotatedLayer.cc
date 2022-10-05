@@ -471,7 +471,7 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << ":" << (layer + 1) << " zside 1 iR "
                                     << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
-                                     << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R " << r1 << ":"
+                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R " << r1 << ":"
                                     << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
                                     << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette
                                     << " Shift " << cshift.first << ":" << cshift.second;
@@ -548,7 +548,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
     double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
     double phi = std::atan2(ypos, xpos);
-    edm::LogVerbatim("HGCalGeom") << " Cassette " << cassette << " in layer " << (layer + 1) << " zside 1 at " << convertRadToDeg(phi) << " Shift " << cshift.first << ":" << cshift.second;
+    edm::LogVerbatim("HGCalGeom") << " Cassette " << cassette << " in layer " << (layer + 1) << " zside 1 at "
+                                  << convertRadToDeg(phi) << " Shift " << cshift.first << ":" << cshift.second;
 #endif
     std::string wafer;
     int i(999);

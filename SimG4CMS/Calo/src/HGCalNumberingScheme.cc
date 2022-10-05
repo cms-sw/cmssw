@@ -62,12 +62,13 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
           int layer = std::atoi(items[1].c_str());
           int zside = std::atoi(items[2].c_str());
           int cassette = std::atoi(items[3].c_str());
-	  dumpCassette_.emplace_back(HGCalCassette::cassetteIndex(idet, layer, zside, cassette));
+          dumpCassette_.emplace_back(HGCalCassette::cassetteIndex(idet, layer, zside, cassette));
         }
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << ":" << dumpDets_.size() << ":" << dumpCassette_.size()
-                                   << " component information from " << filetmp2 << " Layer Offset " << firstLayer_;
+      edm::LogVerbatim("HGCalSim") << "Reads in " << indices_.size() << ":" << dumpDets_.size() << ":"
+                                   << dumpCassette_.size() << " component information from " << filetmp2
+                                   << " Layer Offset " << firstLayer_;
 #endif
       fInput.close();
     }
@@ -114,11 +115,14 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       }
       if (!dumpCassette_.empty()) {
         int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, wU, wV, false);
-	auto ktr = hgcons_.getParameter() ->waferInfoMap_.find(indx);
-	if (ktr != hgcons_.getParameter() ->waferInfoMap_.end()) {
-	  if (std::find(dumpCassette_.begin(), dumpCassette_.end(), HGCalCassette::cassetteIndex(det_, firstLayer_ + layer, zside, (ktr->second).cassette)) != dumpCassette_.end()) 
-	    debug = true;
-	}
+        auto ktr = hgcons_.getParameter()->waferInfoMap_.find(indx);
+        if (ktr != hgcons_.getParameter()->waferInfoMap_.end()) {
+          if (std::find(dumpCassette_.begin(),
+                        dumpCassette_.end(),
+                        HGCalCassette::cassetteIndex(det_, firstLayer_ + layer, zside, (ktr->second).cassette)) !=
+              dumpCassette_.end())
+            debug = true;
+        }
       }
       hgcons_.waferFromPosition(xx, pos.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
     }
@@ -234,7 +238,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
       edm::LogVerbatim("HGCSim") << "Original " << pos.x() << ":" << pos.y() << " return " << xy.first << ":"
                                  << xy.second;
       if ((DetId(index).det() == DetId::HGCalEE) || (DetId(index).det() == DetId::HGCalHSi)) {
-	int zside = (pos.z() > 0) ? 1 : -1;
+        int zside = (pos.z() > 0) ? 1 : -1;
         double wt(0), xx(zside * pos.x());
         int waferU, waferV, cellU, cellV, waferType;
         hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, false, false);

@@ -139,7 +139,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
       double rr = sqrt(xx * xx + yy * yy);
       DetId hid(hitIdx[i]);
       if (((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) &&
-	   (hid.subdetId() == static_cast<int>(ForwardSubdetector::HFNose))) ||
+           (hid.subdetId() == static_cast<int>(ForwardSubdetector::HFNose))) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
