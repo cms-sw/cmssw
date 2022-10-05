@@ -132,7 +132,6 @@ namespace edm {
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
-      virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}
 
       //For now this is a placeholder
