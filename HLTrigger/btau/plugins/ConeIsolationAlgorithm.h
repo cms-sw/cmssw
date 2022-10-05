@@ -28,7 +28,7 @@ public:
   static void fillDescription(edm::ParameterSetDescription& desc);
 
   std::pair<float, reco::IsolatedTauTagInfo> tag(const reco::JetTracksAssociationRef& jetTracks,
-                                                 const reco::Vertex& pv);
+                                                 const reco::Vertex& pv) const;
 
 private:
   // algorithm parameters
