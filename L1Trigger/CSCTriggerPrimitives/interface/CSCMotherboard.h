@@ -162,7 +162,7 @@ protected:
   std::vector<int> preferred_bx_match_;
 
   /* sort CLCT by bx if true, otherwise sort CLCT by quality+bending */
-  bool sort_clct_bx_; 
+  bool sort_clct_bx_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;

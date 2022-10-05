@@ -108,7 +108,7 @@ protected:
   CSCShowerDigi cathode_showers_[CSCConstants::MAX_CLCT_TBINS];
   //CSCShowerDigi shower_;
 
- /* flag of shower around best CLCT in each BX */
+  /* flag of shower around best CLCT in each BX */
   bool localShowerFlag[CSCConstants::MAX_CLCT_TBINS];
 
   /** Access routines to comparator digis. */
@@ -169,8 +169,8 @@ protected:
       const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
 
   /* check whether there is a shower around best CLCT */
-  void checkLocalShower(int zone,
-    const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+  void checkLocalShower(
+      int zone, const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   void encodeHighMultiplicityBits();
 
