@@ -193,7 +193,7 @@ class UpgradeWorkflow_NanoV10(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if stepDict[step][k] != None:
             if 'RecoNano' in step:
-                stepDict[stepName][k] = merge([{'--customise': 'PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'}, stepDict[step][k]])
+                stepDict[stepName][k] = merge([{'-s': stepDict[step][k]['-s'].replace('NANO','NANO:PhysicsTools/NanoAOD/V10/nano_cff')}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['NanoV10'] = UpgradeWorkflow_NanoV10(
