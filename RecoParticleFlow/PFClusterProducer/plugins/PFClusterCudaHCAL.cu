@@ -3917,19 +3917,14 @@ namespace PFClusterCudaHCAL {
 
     // __syncthreads();
 
-    // Explicitly initialize pfrh_parent
-    for (int i = start; i < nRH; i += gridStride) {
-      pfrh_parent[i] = i;
-    }
-
-    __syncthreads();
-
-    // (1) First attempt
+    // First attempt of topo clustering
     // First edge [set parents to those smaller numbers]
     for (int idx = start; idx < nEdges; idx += gridStride) {
       int i = pfrh_edgeId[idx];  // Get edge topo id
       if (pfrh_edgeMask[idx] > 0 && isLeftEdgeKH(idx, nEdges, pfrh_edgeId, pfrh_edgeMask)) { // isLeftEdgeKH
 	pfrh_parent[i] = (int)min(i, pfrh_edgeList[idx]);
+      } else {
+	pfrh_parent[i] = i;
       }
     }
 
@@ -3988,27 +3983,6 @@ namespace PFClusterCudaHCAL {
     	break;
 
     } // for-loop ii
-
-    __syncthreads();
-
-    // Follow parents of parents .... to contract parent structure
-    do {
-      volatile bool threadNotDone = false;
-      for (int i = threadIdx.x; i < nRH; i += blockDim.x) {
-        int parent = pfrh_parent[i];
-        if (parent >= 0 && parent != pfrh_parent[parent]) {
-          threadNotDone = true;
-          pfrh_parent[i] = pfrh_parent[parent];
-        }
-      }
-      if (threadIdx.x == 0)
-        notDone = 0;
-      __syncthreads();
-
-      atomicAdd(&notDone, (int)threadNotDone);
-      __syncthreads();
-
-    } while (notDone);
 
   }
 
