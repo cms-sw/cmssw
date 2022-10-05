@@ -7,7 +7,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
 
@@ -17,16 +17,7 @@
 namespace PFRecHit {
   namespace HCAL {
 
-    __constant__ uint32_t nValidRHBarrel;
-    __constant__ uint32_t nValidRHEndcap;
-    __constant__ uint32_t nValidRHTotal;
-    __constant__ float qTestThresh;
-    __constant__ uint32_t qTestDepthHB[4];
-    __constant__ uint32_t qTestDepthHE[7];
-    __constant__ float qTestThreshVsDepthHB[4];
-    __constant__ float qTestThreshVsDepthHE[7];
-
-    //
+    __constant__ Constants constantsGPU_d;
     // member methods:
     //  initializeCudaConstants [called from producer]
     //  initializeArrays
@@ -46,41 +37,7 @@ namespace PFRecHit {
     //   convert_rechits_to_PFRechits
 
     void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream) {
-
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHBarrel, &cudaConstants.nValidBarrelIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_ENABLE
-      printf("--- HCAL Cuda constant values ---\n");
-      uint32_t ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHBarrel, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-      printf("nValidRHBarrel read from symbol: %u\n", ival);
-#endif
-
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHEndcap, &cudaConstants.nValidEndcapIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_ENABLE
-      ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHEndcap, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-      printf("nValidRHEndcap read from symbol: %u\n", ival);
-#endif
-
-      //uint32_t total = &cudaConstants.nValidBarrelIds + &cudaConstants.nValidEndcapIds;
-      cudaCheck(cudaMemcpyToSymbolAsync(nValidRHTotal, &cudaConstants.nValidDetIds, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_ENABLE
-      ival = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&ival, nValidRHTotal, sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-      printf("nValidRHTotal read from symbol: %u\n", ival);
-#endif
-
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThresh, &cudaConstants.qTestThresh, sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_ENABLE
-      float val = 0;
-      cudaCheck(cudaMemcpyFromSymbol(&val, qTestThresh, sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
-      printf("qTestThresh read from symbol: %f\n\n", val);
-#endif
-
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHB, &cudaConstants.qTestDepthHB, 4*sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestDepthHE, &cudaConstants.qTestDepthHE, 7*sizeof(uint32_t), 0, cudaMemcpyHostToDevice, cudaStream));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHB, &cudaConstants.qTestThreshVsDepthHB, 4*sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
-      cudaCheck(cudaMemcpyToSymbolAsync(qTestThreshVsDepthHE, &cudaConstants.qTestThreshVsDepthHE, 7*sizeof(float), 0, cudaMemcpyHostToDevice, cudaStream));
+        cudaCheck(cudaMemcpyToSymbol(constantsGPU_d, &cudaConstants, sizeof(cudaConstants)));
     }
 
     // Initialize arrays used to store temporary values for each event
@@ -92,7 +49,7 @@ namespace PFRecHit {
                                      int* inputToPFRHIdx) {   // Mapping of input rechit index -> output PFRecHit index
 
       // Reset mappings of reference table index. Total length = number of all valid HCAL detIds
-      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nValidRHTotal; i += blockDim.x * gridDim.x) {
+      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds); i += blockDim.x * gridDim.x) {
         rh_inputToFullIdx[i] = -1;
         rh_fullToInputIdx[i] = -1;
       }
@@ -123,10 +80,10 @@ namespace PFRecHit {
           subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
           if (subdet == HcalBarrel) {
             minval = 0;
-            maxval = nValidRHBarrel;
+            maxval = constantsGPU_d.nValidBarrelIds;
           } else if (subdet == HcalEndcap) {
-            minval = nValidRHEndcap;
-            maxval = nValidRHTotal;
+            minval = constantsGPU_d.nValidEndcapIds;
+            maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
           } else {
             printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
             return;
@@ -191,10 +148,10 @@ namespace PFRecHit {
         subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
         if (subdet == HcalBarrel) {
           minval = 0;
-          maxval = nValidRHBarrel;
+          maxval = constantsGPU_d.nValidBarrelIds;
         } else if (subdet == HcalEndcap) {
-          minval = nValidRHEndcap;
-          maxval = nValidRHTotal;
+          minval = constantsGPU_d.nValidEndcapIds;
+          maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
         } else {
           printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
           return;
@@ -230,7 +187,7 @@ namespace PFRecHit {
       if (fullToInputIdx != i) {
         printf("Rechit %d detId %u doesn't match index from rh_fullToInputIdx %d!\n", i, detId, fullToInputIdx);
       }
-      if (index >= nValidRHTotal || detId != rh_detIdRef[index])
+      if (index >= (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds) || detId != rh_detIdRef[index])
         printf(
             "Rechit %u detId %u MISMATCH with reference table index %u detId %u\n", i, detId, index, rh_detIdRef[index]);
     }
@@ -241,7 +198,7 @@ namespace PFRecHit {
                                 const uint32_t* recHits_did,
                                 const float* recHits_energy) {
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += gridDim.x * blockDim.x) {
-        rh_mask[i] = (recHits_energy[i] > qTestThresh);
+        rh_mask[i] = (recHits_energy[i] > constantsGPU_d.qTestThresh);
       }
     }
 
@@ -259,8 +216,8 @@ namespace PFRecHit {
         if (subdet == HcalBarrel) {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
-	    if (depth == qTestDepthHB[j]){
-	      threshold = qTestThreshVsDepthHB[j];
+	    if (depth == constantsGPU_d.qTestDepthHB[j]){
+	      threshold = constantsGPU_d.qTestThreshVsDepthHB[j];
 	      found = true; // found depth and threshold
 	    }
 	  }
@@ -269,8 +226,8 @@ namespace PFRecHit {
         } else if (subdet == HcalEndcap) {
 	  bool found = false;
 	  for (uint32_t j=0; j<7; j++){
-	    if (depth == qTestDepthHE[j]){
-	      threshold = qTestThreshVsDepthHE[j];
+	    if (depth == constantsGPU_d.qTestDepthHE[j]){
+	      threshold = constantsGPU_d.qTestThreshVsDepthHE[j];
 	      found = true; // found depth and threshold
 	    }
 	  }
@@ -638,8 +595,10 @@ namespace PFRecHit {
       cudaEventElapsedTime(&timer[3], start, stop);
       printf("\napplyMask took %f ms\n\n", timer[3]);
 #endif
-      cudaCheck(cudaMemcpyAsync(h_nPFRHOut.get(), d_nPFRHOut.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
-      cudaCheck(cudaMemcpyAsync(h_nPFRHCleaned.get(), d_nPFRHCleaned.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      //cudaCheck(cudaMemcpyAsync(h_nPFRHOut.get(), d_nPFRHOut.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      cms::cuda::copyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaStream);
+      //cudaCheck(cudaMemcpyAsync(h_nPFRHCleaned.get(), d_nPFRHCleaned.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      cms::cuda::copyAsync(h_nPFRHCleaned, d_nPFRHCleaned, sizeof(uint32_t), cudaStream);
 
 #ifdef DEBUG_ENABLE
       cudaDeviceSynchronize();
