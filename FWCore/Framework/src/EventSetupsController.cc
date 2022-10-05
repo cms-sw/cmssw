@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -100,6 +102,7 @@ namespace edm {
         std::vector<std::shared_ptr<const EventSetupImpl>>& eventSetupImpls,
         edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
         ActivityRegistry* actReg,
+        ServiceToken const& iToken,
         bool iForceCacheClear) {
       auto asyncEventSetup =
           [this, &endIOVWaitingTasks, &eventSetupImpls, &queueWhichWaitsForIOVsToFinish, actReg, iForceCacheClear](
@@ -123,9 +126,12 @@ namespace edm {
         // and the new sync value is outside the current IOV of that module.
         // Also at beginRun when forcing caches to clear.
         auto group = taskToStartAfterIOVInit.group();
-        queueWhichWaitsForIOVsToFinish.push(*group, [iSync, taskToStartAfterIOVInit, asyncEventSetup]() mutable {
-          asyncEventSetup(iSync, taskToStartAfterIOVInit);
-        });
+        ServiceWeakToken weakToken = iToken;
+        queueWhichWaitsForIOVsToFinish.push(*group,
+                                            [iSync, taskToStartAfterIOVInit, asyncEventSetup, weakToken]() mutable {
+                                              ServiceRegistry::Operate operate(weakToken.lock());
+                                              asyncEventSetup(iSync, taskToStartAfterIOVInit);
+                                            });
       } else {
         asyncEventSetup(iSync, taskToStartAfterIOVInit);
       }
