@@ -33,6 +33,8 @@ def customizeHcalPFOnlyForProfilingGPUOnly(process):
   process.consume_step = cms.EndPath(process.consumer)
 
   process.schedule = cms.Schedule(process.raw2digi_step, process.reconstruction_step, process.consume_step)
+  #process.particleFlowClusterHBHEOnly.cuda.produceLegacy = cms.bool(False)
+  #process.particleFlowRecHitHBHEOnly.cuda.produceLegacy = cms.bool(False)
 
   return process
 

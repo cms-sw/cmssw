@@ -44,6 +44,10 @@ _module_pset = cms.PSet(
 
 _module_pset_cuda = _module_pset.clone()
 _module_pset_cuda.producers[0].src= "hbheRecHitProducerGPU" # use GPU version as input instead of legacy version
+_module_pset_cuda.produceSoA = cms.bool(True)
+_module_pset_cuda.produceLegacy = cms.bool(True)
+_module_pset_cuda.produceCleanedLegacy = cms.bool(True)
+
 for idx, x in enumerate(_module_pset_cuda.producers):
     for idy, y in enumerate(x.qualityTests):
         if y.name._value == "PFRecHitQTestHCALThresholdVsDepth": # when applying phase1 depth-dependent HCAL thresholds

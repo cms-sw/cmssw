@@ -75,7 +75,7 @@ namespace PFClusterCudaHCAL {
   // PFRechitToPFCluster_HCAL_entryPoint
   //   seedingTopoThreshKernel_HCAL: apply seeding/topo-clustering threshold to RecHits, also ensure a peak (outputs: pfrh_isSeed, pfrh_passTopoThresh) [OutputDataGPU]
   //   prepareTopoInputs: prepare "edge" data (outputs: nEdges, pfrh_edgeId, pfrh_edgeList [nEdges dimension])
-  //   topoClusterLinking: run topo clustering (output: pfrh_topoId)
+  //   topoClusterLinking(KH): run topo clustering (output: pfrh_topoId)
   //   topoClusterContraction: find parent of parent (or parent (of parent ...)) (outputs: pfrh_parent, topoSeedCount, topoSeedOffsets, topoSeedList, seedFracOffsets, pcrhfracind, pcrhfrac)
   //   fillRhfIndex: fill rhfracind (PFCluster RecHitFraction constituent PFRecHit indices)
   //   hcalFastCluster_selection
@@ -3899,6 +3899,8 @@ namespace PFClusterCudaHCAL {
       *topoIter = 0;
       nEdges = *nEdgesIn;
       gridStride = blockDim.x * gridDim.x;  // For single block kernel this is the number of threads
+      notDone = 0;
+      notDone2 = 0;
     }
 
     __syncthreads();
@@ -3922,15 +3924,6 @@ namespace PFClusterCudaHCAL {
 
     __syncthreads();
 
-    // for notDone
-    if (threadIdx.x == 0) {
-      notDone = 0;
-      notDone2 = 0;
-      //printf("gridStride, blockDim.x %d %d\n",gridStride,blockDim.x);
-    }
-
-    __syncthreads();
-
     // (1) First attempt
     // First edge [set parents to those smaller numbers]
     for (int idx = start; idx < nEdges; idx += gridStride) {
@@ -3942,8 +3935,9 @@ namespace PFClusterCudaHCAL {
 
     __syncthreads();
 
-    // KenH
-    for (int ii=0; ii<100; ii++) { // loop until topo clustering iteration converges
+    //
+    // loop until topo clustering iteration converges
+    for (int ii=0; ii<100; ii++) {
 
       // for notDone
       if (threadIdx.x == 0) {

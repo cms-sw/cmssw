@@ -111,11 +111,14 @@ _module_config = cms.PSet(
     positionReCalc = cms.PSet(),
     energyCorrector = cms.PSet()
 )
+_module_config_cuda = _module_config.clone()
 
 #### PF CLUSTER HCAL ####
 _particleFlowClusterHBHE_cpu = cms.EDProducer("PFClusterProducer", _module_config.clone())
 _particleFlowClusterHBHE_cuda = cms.EDProducer("PFClusterProducerCudaHCAL", _module_config.clone())
 _particleFlowClusterHBHE_cuda.PFRecHitsLabelIn = cms.InputTag("particleFlowRecHitHBHE","")
+_particleFlowClusterHBHE_cuda.produceLegacy = cms.bool(True)
+_particleFlowClusterHBHE_cuda.produceSoA = cms.bool(True)
 
 #####
 
