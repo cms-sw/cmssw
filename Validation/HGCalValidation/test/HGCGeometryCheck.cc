@@ -3,6 +3,9 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
@@ -17,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -121,11 +125,11 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   if (infoLayer.isValid()) {
     //step vertex information
-    const std::vector<float> &hitVtxX = infoLayer->hitvtxX();
-    const std::vector<float> &hitVtxY = infoLayer->hitvtxY();
-    const std::vector<float> &hitVtxZ = infoLayer->hitvtxZ();
-    const std::vector<unsigned int> &hitDet = infoLayer->hitDets();
-    const std::vector<unsigned int> &hitIdx = infoLayer->hitIndex();
+    std::vector<float> hitVtxX = infoLayer->hitvtxX();
+    std::vector<float> hitVtxY = infoLayer->hitvtxY();
+    std::vector<float> hitVtxZ = infoLayer->hitvtxZ();
+    std::vector<unsigned int> hitDet = infoLayer->hitDets();
+    std::vector<unsigned int> hitIdx = infoLayer->hitIndex();
 
     //loop over all hits
     for (unsigned int i = 0; i < hitVtxZ.size(); i++) {
@@ -133,20 +137,26 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
       double yy = mmTocm_ * hitVtxY[i];
       double zz = mmTocm_ * hitVtxZ[i];
       double rr = sqrt(xx * xx + yy * yy);
-      if ((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) ||
+      DetId hid(hitIdx[i]);
+      if (((hitDet[i] == static_cast<unsigned int>(DetId::Forward)) &&
+	   (hid.subdetId() == static_cast<int>(ForwardSubdetector::HFNose))) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi)) ||
           (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc))) {
         int dtype(0), layer(0), zside(1);
         if ((hitDet[i] == static_cast<unsigned int>(DetId::HGCalEE)) ||
             (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSi))) {
-          HGCSiliconDetId id(hitIdx[i]);
+          HGCSiliconDetId id(hid);
           dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
           layer = id.layer();
           zside = id.zside();
-        } else {
-          HGCScintillatorDetId id(hitIdx[i]);
+        } else if (hitDet[i] == static_cast<unsigned int>(DetId::HGCalHSc)) {
+          HGCScintillatorDetId id(hid);
           dtype = 2;
+          layer = id.layer();
+          zside = id.zside();
+        } else {
+          HFNoseDetId id(hid);
           layer = id.layer();
           zside = id.zside();
         }

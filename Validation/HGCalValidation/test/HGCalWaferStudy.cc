@@ -8,9 +8,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -26,7 +24,6 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -158,29 +155,20 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       int kount(0);
       for (auto const& hit : *(theCaloHitContainers)) {
         unsigned int id = hit.id();
-        std::pair<float, float> xy;
-        int layer(0), zside(1);
+        const GlobalPoint& p = hgeoms_[k]->getPosition(DetId(id));
+        int layer(0);
         bool wvtype(true);
         if (ifNose_) {
           HFNoseDetId detId = HFNoseDetId(id);
           layer = detId.layer();
-          zside = detId.zside();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-          xy = hgcons_[k]->locateCell(layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true);
-        } else if (hgcons_[k]->waferHexagon8()) {
+        } else {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
-          zside = detId.zside();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-          xy = hgcons_[k]->locateCell(layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true);
-        } else {
-          int subdet, sector, type, cell;
-          HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);
-          xy = hgcons_[k]->locateCell(cell, layer, sector, false);
-          wvtype = hgcons_[k]->waferVirtual(layer, sector, 0);
         }
-        double xp = (zside < 0) ? -xy.first : xy.first;
-        double yp = xy.second;
+        double xp = p.x();
+        double yp =p.y();
         int ll = layer - layerMnSim_[k];
         if (verbosity_ > 1)
           edm::LogVerbatim("HGCalValidation")
@@ -217,15 +205,10 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           HFNoseDetId detId = HFNoseDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-        } else if (hgcons_[k]->waferHexagon8()) {
+        } else {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-        } else {
-          HGCalDetId detId = HGCalDetId(id);
-          layer = detId.layer();
-          int wafer = detId.wafer();
-          wvtype = hgcons_[k]->waferVirtual(layer, wafer, 0);
         }
         int ll = layer - layerMnDig_[k];
         const GlobalPoint& gcoord = hgeoms_[k]->getPosition(id);

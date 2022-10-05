@@ -12,6 +12,7 @@ public:
 
   void setParameter(int cassette, const std::vector<double>& shifts);
   std::pair<double, double> getShift(int layer, int zside, int cassette) const;
+  static int cassetteIndex(int det, int layer, int zside, int cassette);
 
 private:
   const std::vector<int> positEE_ = {2, 1, 0, 5, 4, 3};
@@ -19,6 +20,7 @@ private:
   int cassette_;
   bool typeHE_;
   std::vector<double> shifts_;
+  static constexpr int32_t factor_ = 100;
 };
 
 #endif
