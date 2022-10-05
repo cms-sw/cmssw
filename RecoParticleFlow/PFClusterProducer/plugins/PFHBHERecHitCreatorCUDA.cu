@@ -596,8 +596,9 @@ namespace PFRecHit {
       printf("\napplyMask took %f ms\n\n", timer[3]);
 #endif
       //cudaCheck(cudaMemcpyAsync(h_nPFRHOut.get(), d_nPFRHOut.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
-      cms::cuda::copyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaStream);
       //cudaCheck(cudaMemcpyAsync(h_nPFRHCleaned.get(), d_nPFRHCleaned.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      
+      cms::cuda::copyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaStream);
       cms::cuda::copyAsync(h_nPFRHCleaned, d_nPFRHCleaned, sizeof(uint32_t), cudaStream);
 
 #ifdef DEBUG_ENABLE
