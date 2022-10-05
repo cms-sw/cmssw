@@ -1183,6 +1183,7 @@ namespace edm {
                                                            status->eventSetupImpls(),
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
+                                                           serviceToken_,
                                                            forceESCacheClearOnNewRun_);
     }) | chain::then([this, status, iSync](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
@@ -1428,7 +1429,8 @@ namespace edm {
                                                            iRunStatus->endIOVWaitingTasksEndRun(),
                                                            iRunStatus->eventSetupImplsEndRun(),
                                                            queueWhichWaitsForIOVsToFinish_,
-                                                           actReg_.get());
+                                                           actReg_.get(),
+                                                           serviceToken_);
     }) | chain::then([this, iRunStatus, ts](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
@@ -1632,7 +1634,8 @@ namespace edm {
                                                            status->endIOVWaitingTasks(),
                                                            status->eventSetupImpls(),
                                                            queueWhichWaitsForIOVsToFinish_,
-                                                           actReg_.get());
+                                                           actReg_.get(),
+                                                           serviceToken_);
     }) | chain::then([this, status, iRunStatus, iSync](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
