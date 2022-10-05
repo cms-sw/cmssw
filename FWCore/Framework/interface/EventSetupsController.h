@@ -35,6 +35,7 @@ namespace edm {
   class ParameterSet;
   class IOVSyncValue;
   class ModuleTypeResolverBase;
+  class ServiceToken;
   class WaitingTaskHolder;
   class WaitingTaskList;
 
@@ -103,6 +104,7 @@ namespace edm {
                                                 std::vector<std::shared_ptr<const EventSetupImpl>>&,
                                                 edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
                                                 ActivityRegistry*,
+                                                ServiceToken const&,
                                                 bool iForceCacheClear = false);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
