@@ -44,29 +44,31 @@ for filePath in options.inputFiles:
 
 process = cms.Process("GTTFileWriter")
 
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(inputFiles) )
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(inputFiles),
+    inputCommands = cms.untracked.vstring("keep *", "drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__*")
+)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.threads),
     numberOfStreams = cms.untracked.uint32(options.streams if options.streams>0 else 0)
 )
 
-process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
-process.load('L1Trigger.VertexFinder.VertexProducer_cff')
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.load('L1Trigger.DemonstratorTools.GTTFileWriter_cff')
 
 process.L1GTTInputProducer.debug = cms.int32(options.debug)
-process.VertexProducer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
-process.VertexProducer.VertexReconstruction.Algorithm = cms.string("FastHistoEmulation")
+process.VertexProducer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
+process.VertexProducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
 process.VertexProducer.VertexReconstruction.VxMinTrackPt = cms.double(0.0)
 process.VertexProducer.debug = options.debug
 if options.debug:
@@ -78,4 +80,4 @@ process.GTTFileWriter.format = cms.untracked.string(options.format)
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-process.p = cms.Path(process.L1HybridTracks * process.L1GTTInputProducer * process.VertexProducer * process.GTTFileWriter)
+process.p = cms.Path(process.l1tGTTInputProducer * process.l1tVertexProducer * process.GTTFileWriter)
