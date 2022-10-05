@@ -8,12 +8,12 @@
  *  $Revision: 1.4 $
  *  \author M. Zanetti - INFN Padova
  */
-#include "FWCore/Framework/interface/EDProducer.h"
-#include <IORawData/DTCommissioning/plugins/RawFile.h>
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "IORawData/DTCommissioning/plugins/RawFile.h"
 #include "IORawData/DTCommissioning/plugins/DTSpy.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
@@ -21,7 +21,7 @@
 #include <fstream>
 #include <cstdint>
 
-class DTSpyReader : public edm::EDProducer {
+class DTSpyReader : public edm::one::EDProducer<> {
 public:
   /// Constructor
   DTSpyReader(const edm::ParameterSet& pset);
