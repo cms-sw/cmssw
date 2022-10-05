@@ -23,6 +23,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 // system include files
 #include <vector>
@@ -61,10 +62,10 @@ namespace edm {
     template <typename T>
     T& get() const {
       if (nullptr == manager_.get()) {
-        Exception::throwThis(
-            errors::NotFound,
-            "No ServiceRegistry has been set for this thread. Tried to get a Service with compiler type name ",
-            typeid(T).name());
+        auto demangled = typeDemangle(typeid(T).name());
+        Exception::throwThis(errors::NotFound,
+                             "No ServiceRegistry has been set for this thread. Tried to get a Service ",
+                             demangled.c_str());
       }
       return manager_->template get<T>();
     }
@@ -72,10 +73,10 @@ namespace edm {
     template <typename T>
     bool isAvailable() const {
       if (nullptr == manager_.get()) {
+        auto demangled = typeDemangle(typeid(T).name());
         Exception::throwThis(errors::NotFound,
-                             "No ServiceRegistry has been set for this thread. Tried to ask availability of a Service "
-                             "with compiler type name ",
-                             typeid(T).name());
+                             "No ServiceRegistry has been set for this thread. Tried to ask availability of a Service ",
+                             demangled.c_str());
       }
       return manager_->template isAvailable<T>();
     }
