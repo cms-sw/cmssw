@@ -7,8 +7,6 @@ using namespace std;
 //
 // constants, enums and typedefs
 //
-double puCent[11] = {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
-double medianPtkt[12];
 
 //
 // static data member definitions
@@ -39,16 +37,15 @@ HiL1Subtractor::HiL1Subtractor(const edm::ParameterSet& iConfig)
   }
 }
 
-HiL1Subtractor::~HiL1Subtractor() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HiL1Subtractor::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // get the input jet collection and create output jet collection
 
+  double medianPtkt[12] = {0};
   // right now, identical loop for calo and PF jets, should template
   if (jetType_ == "GenJet") {
     auto jets = std::make_unique<reco::GenJetCollection>();
@@ -237,12 +234,6 @@ void HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     iEvent.put(std::move(jets));
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void HiL1Subtractor::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HiL1Subtractor::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HiL1Subtractor);
