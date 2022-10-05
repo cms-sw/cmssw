@@ -44,15 +44,26 @@ public:
                         uint32_t gainIdx = 0,
                         float maxADC = -1,
                         int thickness = 1,
-                        float tdcOnsetAuto = -1) {
+                        float tdcOnsetAuto = -1,
+                        float noiseWidth = -1) {
     switch (fwVersion_) {
       case SIMPLE: {
         runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC, adcPulse);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(
-            dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse);
+        runShaperWithToT(dataFrame,
+                         chargeColl,
+                         toa,
+                         engine,
+                         thrADC,
+                         lsbADC,
+                         gainIdx,
+                         maxADC,
+                         thickness,
+                         tdcOnsetAuto,
+                         noiseWidth,
+                         adcPulse);
         break;
       }
       default: {
@@ -77,12 +88,9 @@ public:
     noise_fC_.insert(noise_fC_.end(), noise_fC.begin(), noise_fC.end());
   };
 
-  float getTimeJitter(float totalCharge, int thickness) {
-    float A2 = jitterNoise2_ns_.at(thickness - 1);
-    float C2 = jitterConstant2_ns_.at(thickness - 1);
-    float X2 = pow((totalCharge / noise_fC_.at(thickness - 1)), 2.);
-    float jitter2 = A2 / X2 + C2;
-    return sqrt(jitter2);
+  void generateTimeOffset(CLHEP::HepRandomEngine* engine) {
+    for (int i = 0; i < 3; i++)
+      eventTimeOffset_ns_[i] = CLHEP::RandGaussQ::shoot(engine, 0, jitterConstant_ns_[i]);
   };
 
   /**
@@ -139,6 +147,7 @@ public:
                         float maxADC,
                         int thickness,
                         float tdcOnsetAuto,
+                        float noiseWidth,
                         const hgc_digi::FEADCPulseShape& adcPulse);
   void runShaperWithToT(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
@@ -149,9 +158,20 @@ public:
                         uint32_t gainIdx,
                         float maxADC,
                         int thickness,
-                        float tdcOnsetAuto) {
-    runShaperWithToT(
-        dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse_);
+                        float tdcOnsetAuto,
+                        float noiseWidth) {
+    runShaperWithToT(dataFrame,
+                     chargeColl,
+                     toa,
+                     engine,
+                     thrADC,
+                     lsbADC,
+                     gainIdx,
+                     maxADC,
+                     thickness,
+                     tdcOnsetAuto,
+                     noiseWidth,
+                     adcPulse_);
   }
 
   /**
@@ -178,7 +198,7 @@ private:
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_,
       tdcResolutionInNs_;
   uint32_t targetMIPvalue_ADC_;
-  std::array<float, 3> jitterNoise2_ns_, jitterConstant2_ns_;
+  std::array<float, 3> jitterNoise_ns_, jitterConstant_ns_, eventTimeOffset_ns_;
   std::vector<float> noise_fC_;
   uint32_t toaMode_;
   uint32_t tdcNbits_;
