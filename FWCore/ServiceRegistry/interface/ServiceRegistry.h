@@ -61,9 +61,10 @@ namespace edm {
     template <typename T>
     T& get() const {
       if (nullptr == manager_.get()) {
-        Exception::throwThis(errors::NotFound,
-                             "Service"
-                             " no ServiceRegistry has been set for this thread");
+        Exception::throwThis(
+            errors::NotFound,
+            "No ServiceRegistry has been set for this thread. Tried to get a Service with compiler type name ",
+            typeid(T).name());
       }
       return manager_->template get<T>();
     }
@@ -72,8 +73,9 @@ namespace edm {
     bool isAvailable() const {
       if (nullptr == manager_.get()) {
         Exception::throwThis(errors::NotFound,
-                             "Service"
-                             " no ServiceRegistry has been set for this thread");
+                             "No ServiceRegistry has been set for this thread. Tried to ask availability of a Service "
+                             "with compiler type name ",
+                             typeid(T).name());
       }
       return manager_->template isAvailable<T>();
     }
