@@ -34,6 +34,9 @@ from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 
+# ParticleNet jet flavor tagging monitoring
+from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cff import *
+
 # vertexing
 from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 
@@ -192,7 +195,8 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
     egmTrackingMonitorHLT *           # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
-    vertexingMonitorHLT               # vertexing
+    vertexingMonitorHLT *             # vertexing
+    particleNetMonitoringHLT          # HIG: monitoring of HLT PNET taggers (incl. comparisons to Offline PNET)
 )
 
 # sequences run @tier0 on HLTMonitor PD

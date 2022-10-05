@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_4_0/PIon/V110 (CMSSW_12_4_0)
+# /dev/CMSSW_12_4_0/PIon/V138 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V110')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V138')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4916,26 +4916,35 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
 )
 process.MessageLogger = cms.Service( "MessageLogger",
-    suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
-      'hltCtf3HitL1SeededWithMaterialTracks',
-      'hltL3MuonsOIState',
-      'hltPixelTracksForHighMult',
-      'hltHITPixelTracksHE',
-      'hltHITPixelTracksHB',
-      'hltCtfL1SeededWithMaterialTracks',
-      'hltRegionalTracksForL3MuonIsolation',
-      'hltSiPixelClusters',
-      'hltActivityStartUpElectronPixelSeeds',
-      'hltLightPFTracks',
-      'hltPixelVertices3DbbPhi',
+    suppressWarning = cms.untracked.vstring( 'hltIterL3GlbdTksDisplacedMuons',
+      'hltIterL3GlbMuon',
+      'hltIterL3OIMuCtfWithMaterialTracks',
+      'hltIterL3OIMuCtfWithMaterialTracksNoVtx',
+      'hltIterL3OISeedsFromL2Muons',
+      'hltIterL3OITrackCandidates',
+      'hltIterL3OITrackCandidatesNoVtx',
+      'hltIterL3OITrackCandidatesOpenMu',
+      'hltL3GlbDisplacedMuonsIterL3OI',
       'hltL3MuonsIOHit',
-      'hltPixelTracks',
-      'hltSiPixelDigis',
+      'hltL3MuonsIterL3OI',
+      'hltL3MuonsIterL3OINoVtx',
       'hltL3MuonsOIHit',
-      'hltL1SeededElectronGsfTracks',
-      'hltL1SeededStartUpElectronPixelSeeds',
-      'hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV',
-      'hltCtfActivityWithMaterialTracks' ),
+      'hltL3MuonsOIState',
+      'hltL3NoFiltersNoVtxMuonsOIHit',
+      'hltL3NoFiltersNoVtxMuonsOIState',
+      'hltL3NoFiltersTkTracksFromL2IOHitNoVtx',
+      'hltL3NoFiltersTkTracksFromL2OIHitNoVtx',
+      'hltL3NoFiltersTrackCandidateFromL2OIHitNoVtx',
+      'hltL3TkTracksFromL2OIStateNoVtx',
+      'hltL3TrackCandidateFromL2OIHit',
+      'hltL3TrackCandidateFromL2OIState',
+      'hltL3TrackCandidateFromL2OIStateNoVtx',
+      'hltLightPFTracks',
+      'hltOnlineBeamSpot',
+      'hltPixelTracks',
+      'hltPixelTracksForHighMult',
+      'hltSiPixelClusters',
+      'hltSiPixelDigis' ),
     suppressFwkInfo = cms.untracked.vstring(  ),
     suppressInfo = cms.untracked.vstring(  ),
     suppressDebug = cms.untracked.vstring(  ),
@@ -4956,12 +4965,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
       ),
       threshold = cms.untracked.string( "INFO" ),
     ),
-    suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
-      'hltL3MuonCandidates',
+    suppressError = cms.untracked.vstring( 'hltL3TkTracksFromL2IOHit',
+      'hltL3TkTracksFromL2OIHit',
       'hltL3TkTracksFromL2OIState',
-      'hltPFJetCtfWithMaterialTracks',
-      'hltL3TkTracksFromL2IOHit',
-      'hltL3TkTracksFromL2OIHit' )
+      'hltOnlineBeamSpot' )
 )
 process.ThroughputService = cms.Service( "ThroughputService",
     eventRange = cms.untracked.uint32( 10000 ),
@@ -5174,6 +5181,8 @@ process.statusOnGPU = SwitchProducerCUDA(
 
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -5208,6 +5217,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsCommissioning.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),

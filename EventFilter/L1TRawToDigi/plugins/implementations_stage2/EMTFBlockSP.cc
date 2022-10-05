@@ -577,6 +577,18 @@ namespace l1t {
         //   std::cout << "***********************************************************\n\n" << std::endl;
         // }
 
+        // Reject tracks with out-of-range BX values. This needs to be adjusted if we increase l1a_window parameter in EMTF config - EY 03.08.2022
+        if (Track_.BX() > 3 or Track_.BX() < -3) {
+          edm::LogWarning("L1T|EMTF") << "EMTF unpacked track with out-of-range BX! BX: " << Track_.BX()
+                                      << " endcap: " << (Track_.Endcap() == 1 ? 1 : 2) << " sector: " << Track_.Sector()
+                                      << " address: " << Track_.PtLUT().address << " mode: " << Track_.Mode()
+                                      << " eta: " << (Track_.GMT_eta() >= 0 ? Track_.GMT_eta() : Track_.GMT_eta() + 512)
+                                      << " phi: " << Track_.GMT_phi() << " charge: " << Track_.GMT_charge()
+                                      << " qual: " << Track_.GMT_quality() << " pt: " << Track_.Pt()
+                                      << " pt_dxy: " << Track_.Pt_dxy() << std::endl;
+          return true;
+        }
+
         (res->at(iOut)).push_SP(SP_);
 
         res_track->push_back(Track_);

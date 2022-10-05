@@ -481,6 +481,8 @@ steps['RunSingleMuon2022A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022A-v1/
 Run2022B={355130: [[1, 40]]}
 steps['RunSingleMuon2022B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunZeroBias2022B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
+Run2022B={355680: [[21, 24]]}
+steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
 
 # Highstat HLTPhysics
@@ -2039,7 +2041,7 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
 
-steps['TIER0PROMPTRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt+@allForExpress,DQM:@express,ENDJOB',
+steps['TIER0PROMPTRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt+@allForExpress,DQM:@allForPrompt,ENDJOB',
                           '--process':'RECO',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
@@ -3167,6 +3169,18 @@ steps['HARVESTHI18MINIAOD']=merge([{'-s':'HARVESTING:@miniAODDQM',
                                     '--era' : 'Run2_2018_pp_on_AA',
                                     '--filetype':'DQM',
                                     '-n':100},hiDefaults2018_ppReco])
+                                    
+steps['HARVESTDRUN3']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM',
+                   '--conditions':'auto:run3_data',
+                   '--data':'',
+                   '--filetype':'DQM',
+                   '--scenario':'pp'}
+
+steps['HARVESTPROMPTRUN3']=merge([{'--data':'', '-s':'HARVESTING:@allForPrompt','--era':'Run3'},steps['HARVESTDRUN3']])
+
+
+steps['HARVESTRUN3']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
+
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',

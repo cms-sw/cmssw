@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 import DQMOffline.Alignment.DiMuonVertexMonitor_cfi
+import DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi
 
 #Below all DQM modules for TrackerAlignment AlCaRecos are instantiated.
 ######################################################
@@ -90,7 +91,12 @@ ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi
     maxSVdist = 50
 )
 
-ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM)
+ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__trackCollName,
+    FolderName = "AlCaReco/"+__selectionName
+)
+
+ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM)
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
@@ -180,6 +186,7 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     TrackPtMax = 50
 )
 
+
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import ALCARECOTkAlJpsiMuMuHLT
 #ALCARECOTkAlJpsiMuMuHLTDQM = hltMonBitSummary.clone(
 #    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
@@ -189,7 +196,22 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import ALCARECOT
 #)
 
 #ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuHLTDQM)
-ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
+
+ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "J/#psi",
+    vertices = 'offlinePrimaryVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+    maxSVdist = 50
+)
+
+ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    decayMotherName = 'J/#psi',
+    DiMuMassConfig = dict(ymin = 2.7 ,ymax = 3.4))
+
+ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuVtxDQM + ALCARECOTkAlJpsiMassBiasDQM)
 
 #########################################################
 #############---  TkAlJpsiMuMuHI ---#####################
@@ -263,7 +285,22 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import ALCARE
 #)
 
 #ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuHLTDQM)
-ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM )
+
+ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    decayMotherName = "#Upsilon",
+    vertices = 'offlinePrimaryVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+    maxSVdist = 50
+)
+
+ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    decayMotherName = '#Upsilon',
+    DiMuMassConfig = dict(ymin = 8.9 ,ymax = 9.9))
+
+ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuVtxDQM + ALCARECOTkAlUpsilonMassBiasDQM)
 
 ############################################################
 #############---  TkAlUpsilonMuMuHI ---#####################

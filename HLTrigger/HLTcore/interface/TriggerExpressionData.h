@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionData_h
-#define HLTrigger_HLTfilters_TriggerExpressionData_h
+#ifndef HLTrigger_HLTcore_TriggerExpressionData_h
+#define HLTrigger_HLTcore_TriggerExpressionData_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -220,4 +220,4 @@ namespace triggerExpression {
 
 }  // namespace triggerExpression
 
-#endif  // HLTrigger_HLTfilters_TriggerExpressionData_h
+#endif  // HLTrigger_HLTcore_TriggerExpressionData_h

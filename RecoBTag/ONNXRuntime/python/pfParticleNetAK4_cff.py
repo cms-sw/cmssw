@@ -5,10 +5,16 @@ from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONN
 from RecoBTag.ONNXRuntime.pfParticleNetAK4DiscriminatorsJetTags_cfi import pfParticleNetAK4DiscriminatorsJetTags
 
 pfParticleNetAK4TagInfos = pfDeepBoostedJetTagInfos.clone(
+    jets = "ak4PFJetsCHS",
     jet_radius = 0.4,
     min_jet_pt = 15,
     min_puppi_wgt = -1,
     use_puppiP4 = False,
+)
+
+pfParticleNetAK4TagInfosForRECO = pfParticleNetAK4TagInfos.clone(
+    min_jet_pt = 25,
+    max_jet_eta = 2.5,
 )
 
 pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
@@ -18,12 +24,26 @@ pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
     flav_names = ["probb",  "probbb",  "probc",   "probcc",  "probuds", "probg", "probundef", "probpu"],
 )
 
+pfParticleNetAK4JetTagsForRECO = pfParticleNetAK4JetTags.clone(
+    src = 'pfParticleNetAK4TagInfosForRECO',
+)
+
+pfParticleNetAK4DiscriminatorsJetTagsForRECO = pfParticleNetAK4DiscriminatorsJetTags.clone()
+for discriminator in pfParticleNetAK4DiscriminatorsJetTagsForRECO.discriminators:
+    for num in discriminator.numerator:
+        num.setModuleLabel("pfParticleNetAK4JetTagsForRECO");
+    for den in discriminator.denominator:
+        den.setModuleLabel("pfParticleNetAK4JetTagsForRECO");
+
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import primaryVertexAssociation
 
 # This task is not used, useful only if we run it from RECO jets (RECO/AOD)
 pfParticleNetAK4Task = cms.Task(puppi, primaryVertexAssociation, pfParticleNetAK4TagInfos,
                                 pfParticleNetAK4JetTags, pfParticleNetAK4DiscriminatorsJetTags)
+
+pfParticleNetAK4TaskForRECO = cms.Task(puppi, primaryVertexAssociation, pfParticleNetAK4TagInfosForRECO,
+                                pfParticleNetAK4JetTagsForRECO, pfParticleNetAK4DiscriminatorsJetTagsForRECO)
 
 # declare all the discriminators
 # probs
