@@ -2,6 +2,7 @@
 #define __L1Trigger_VertexFinder_VertexFinder_h__
 
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -10,6 +11,7 @@
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include <vector>
 
