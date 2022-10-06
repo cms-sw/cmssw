@@ -44,10 +44,6 @@ namespace edmtest {
         mutable std::atomic<unsigned int> run;
         mutable std::atomic<unsigned int> lumi;
       };
-      struct SummaryCache {
-        // Intentionally not thread safe, not atomic
-        unsigned int value = 0;
-      };
       struct TestGlobalCacheAn {
         CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenBegin_;
         CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenEnd_;
@@ -57,7 +53,6 @@ namespace edmtest {
     }  // namespace cache
 
     using Cache = cache::Cache;
-    using SummaryCache = cache::SummaryCache;
     using TestGlobalCacheAn = cache::TestGlobalCacheAn;
 
     class GlobalIntAnalyzer : public edm::stream::EDAnalyzer<edm::GlobalCache<Cache>> {
@@ -110,6 +105,10 @@ namespace edmtest {
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
       static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+      bool br;
+      bool er;
 
       RunIntAnalyzer(edm::ParameterSet const& p) {
         trans_ = p.getParameter<int>("transitions");
@@ -127,13 +126,17 @@ namespace edmtest {
 
       static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
         ++m_count;
+        gbr = true;
+        ger = false;
         auto pCache = std::make_shared<Cache>();
-        pCache->run = iRun.runAuxiliary().run();
+        ++(pCache->run);
         return pCache;
       }
 
-      void beginRun(edm::Run const& iRun, edm::EventSetup const&) override {
-        if (runCache()->run != iRun.runAuxiliary().run()) {
+      void beginRun(edm::Run const&, edm::EventSetup const&) override {
+        br = true;
+        er = true;
+        if (!gbr) {
           throw cms::Exception("begin out of sequence") << "beginRun seen before globalBeginRun";
         }
       }
@@ -141,17 +144,20 @@ namespace edmtest {
       static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
         ++m_count;
         auto pCache = iContext->run();
-        if (pCache->run != iRun.runAuxiliary().run()) {
+        if (pCache->run != 1) {
           throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
         }
-        pCache->run = 0;
+        ger = true;
+        gbr = false;
         if (iContext->run()->value != cvalue_) {
           throw cms::Exception("cache value") << iContext->run()->value << " but it was supposed to be " << cvalue_;
         }
       }
 
-      void endRun(edm::Run const& iRun, edm::EventSetup const&) override {
-        if (runCache()->run != iRun.runAuxiliary().run()) {
+      void endRun(edm::Run const&, edm::EventSetup const&) override {
+        er = true;
+        br = false;
+        if (ger) {
           throw cms::Exception("end out of sequence") << "globalEndRun seen before endRun";
         }
       }
@@ -168,6 +174,10 @@ namespace edmtest {
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
       static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+      static std::atomic<bool> bl;
+      static std::atomic<bool> el;
 
       LumiIntAnalyzer(edm::ParameterSet const& p) {
         trans_ = p.getParameter<int>("transitions");
@@ -189,15 +199,17 @@ namespace edmtest {
                                                                edm::EventSetup const&,
                                                                RunContext const*) {
         ++m_count;
+        gbl = true;
+        gel = false;
         auto pCache = std::make_shared<Cache>();
-        pCache->run = iLB.luminosityBlockAuxiliary().run();
-        pCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
+        ++(pCache->lumi);
         return pCache;
       }
 
-      void beginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) override {
-        if (luminosityBlockCache()->run != iLB.luminosityBlockAuxiliary().run() ||
-            luminosityBlockCache()->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
+        bl = true;
+        el = false;
+        if (!gbl) {
           throw cms::Exception("begin out of sequence")
               << "beginLuminosityBlock seen before globalBeginLuminosityBlock";
         }
@@ -208,23 +220,23 @@ namespace edmtest {
                                            LuminosityBlockContext const* iLBContext) {
         ++m_count;
         auto pCache = iLBContext->luminosityBlock();
-        if (pCache->run != iLB.luminosityBlockAuxiliary().run() ||
-            pCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+        if (pCache->lumi != 1) {
           throw cms::Exception("end out of sequence")
               << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock"
               << iLB.luminosityBlock();
         }
-        pCache->run = 0;
-        pCache->lumi = 0;
+        gel = true;
+        gbl = false;
         if (iLBContext->luminosityBlock()->value != cvalue_) {
           throw cms::Exception("cache value")
               << iLBContext->luminosityBlock()->value << " but it was supposed to be " << cvalue_;
         }
       }
 
-      void endLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) override {
-        if (luminosityBlockCache()->run != iLB.luminosityBlockAuxiliary().run() ||
-            luminosityBlockCache()->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
+      static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+        el = true;
+        bl = false;
+        if (gel) {
           throw cms::Exception("end out of sequence") << "globalEndLuminosityBlock seen before endLuminosityBlock";
         }
       }
@@ -236,15 +248,19 @@ namespace edmtest {
       }
     };
 
-    class RunSummaryIntAnalyzer
-        : public edm::stream::EDAnalyzer<edm::RunCache<Cache>, edm::RunSummaryCache<SummaryCache>> {
+    class RunSummaryIntAnalyzer : public edm::stream::EDAnalyzer<edm::RunCache<Cache>, edm::RunSummaryCache<Cache>> {
     public:
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
       static std::atomic<unsigned int> cvalue_;
-      static std::atomic<bool> globalBeginRunCalled_;
-      unsigned int valueAccumulatedForStream_ = 0;
-      bool endRunWasCalled_ = false;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+      static std::atomic<bool> gbrs;
+      static std::atomic<bool> gers;
+      static std::atomic<bool> brs;
+      static std::atomic<bool> ers;
+      static std::atomic<bool> br;
+      static std::atomic<bool> er;
 
       RunSummaryIntAnalyzer(edm::ParameterSet const& p) {
         trans_ = p.getParameter<int>("transitions");
@@ -255,63 +271,70 @@ namespace edmtest {
       void analyze(edm::Event const&, edm::EventSetup const&) override {
         ++m_count;
         ++(runCache()->value);
-        ++valueAccumulatedForStream_;
       }
 
       void beginRun(edm::Run const&, edm::EventSetup const&) override {
-        valueAccumulatedForStream_ = 0;
-        endRunWasCalled_ = false;
+        br = true;
+        er = false;
       }
 
       static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
         ++m_count;
-        globalBeginRunCalled_ = true;
+        gbr = true;
+        ger = false;
         auto pCache = std::make_shared<Cache>();
         ++(pCache->run);
         return pCache;
       }
 
-      static std::shared_ptr<SummaryCache> globalBeginRunSummary(edm::Run const&,
-                                                                 edm::EventSetup const&,
-                                                                 GlobalCache const*) {
+      static std::shared_ptr<Cache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&, GlobalCache const*) {
         ++m_count;
-        if (!globalBeginRunCalled_) {
+        gbrs = true;
+        gers = false;
+        brs = true;
+        ers = false;
+        if (!gbr) {
           throw cms::Exception("begin out of sequence") << "globalBeginRunSummary seen before globalBeginRun";
         }
-        return std::make_shared<SummaryCache>();
+        return std::make_shared<Cache>();
       }
 
-      void endRunSummary(edm::Run const&, edm::EventSetup const&, SummaryCache* runSummaryCache) const override {
-        runSummaryCache->value += valueAccumulatedForStream_;
-        if (!endRunWasCalled_) {
+      void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
+        brs = false;
+        ers = true;
+        gCache->value += runCache()->value;
+        runCache()->value = 0;
+        if (!er) {
           throw cms::Exception("end out of sequence") << "endRunSummary seen before endRun";
         }
       }
 
-      static void globalEndRunSummary(edm::Run const&,
-                                      edm::EventSetup const&,
-                                      RunContext const*,
-                                      SummaryCache* runSummaryCache) {
+      static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, Cache* gCache) {
         ++m_count;
-        if (runSummaryCache->value != cvalue_) {
-          throw cms::Exception("unexpectedValue")
-              << "run summary cache value = " << runSummaryCache->value << " but it was supposed to be " << cvalue_;
+        gbrs = false;
+        gers = true;
+        if (!ers) {
+          throw cms::Exception("end out of sequence") << "globalEndRunSummary seen before endRunSummary";
+        }
+        if (gCache->value != cvalue_) {
+          throw cms::Exception("cache value") << gCache->value << " but it was supposed to be " << cvalue_;
         }
       }
 
       static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
         ++m_count;
+        gbr = false;
+        ger = true;
         auto pCache = iContext->run();
-        if (pCache->value != cvalue_) {
-          throw cms::Exception("unExpectedValue")
-              << "run cache value " << pCache->value << " but it was supposed to be " << cvalue_;
-        }
         if (pCache->run != 1) {
           throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
         }
       }
 
-      void endRun(edm::Run const&, edm::EventSetup const&) override { endRunWasCalled_ = true; }
+      void endRun(edm::Run const&, edm::EventSetup const&) override {
+        er = true;
+        br = false;
+      }
 
       ~RunSummaryIntAnalyzer() {
         if (m_count != trans_) {
@@ -320,15 +343,21 @@ namespace edmtest {
       }
     };
 
-    class LumiSummaryIntAnalyzer : public edm::stream::EDAnalyzer<edm::LuminosityBlockCache<Cache>,
-                                                                  edm::LuminosityBlockSummaryCache<SummaryCache>> {
+    class LumiSummaryIntAnalyzer
+        : public edm::stream::EDAnalyzer<edm::LuminosityBlockCache<Cache>, edm::LuminosityBlockSummaryCache<Cache>> {
     public:
       static std::atomic<unsigned int> m_count;
+      static std::atomic<unsigned int> m_lumiSumCalls;
       unsigned int trans_;
       static std::atomic<unsigned int> cvalue_;
-      static std::atomic<bool> globalBeginLumiCalled_;
-      unsigned int valueAccumulatedForStream_ = 0;
-      bool endLumiWasCalled_ = false;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+      static std::atomic<bool> gbls;
+      static std::atomic<bool> gels;
+      static std::atomic<bool> bls;
+      static std::atomic<bool> els;
+      static std::atomic<bool> bl;
+      static std::atomic<bool> el;
 
       LumiSummaryIntAnalyzer(edm::ParameterSet const& p) {
         trans_ = p.getParameter<int>("transitions");
@@ -339,57 +368,69 @@ namespace edmtest {
       void analyze(edm::Event const&, edm::EventSetup const&) override {
         ++m_count;
         ++(luminosityBlockCache()->value);
-        ++valueAccumulatedForStream_;
       }
 
       void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
-        valueAccumulatedForStream_ = 0;
-        endLumiWasCalled_ = false;
+        bl = true;
+        el = false;
       }
 
       static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,
                                                                edm::EventSetup const&,
                                                                RunContext const*) {
         ++m_count;
-        globalBeginLumiCalled_ = true;
+        gbl = true;
+        gel = false;
         auto pCache = std::make_shared<Cache>();
         ++(pCache->lumi);
         return pCache;
       }
 
-      static std::shared_ptr<SummaryCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                                             edm::EventSetup const&,
-                                                                             LuminosityBlockContext const*) {
+      static std::shared_ptr<Cache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                                                      edm::EventSetup const&,
+                                                                      LuminosityBlockContext const*) {
         ++m_count;
-        if (!globalBeginLumiCalled_) {
+        gbls = true;
+        gels = false;
+        bls = true;
+        els = false;
+        if (!gbl) {
           throw cms::Exception("begin out of sequence")
               << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
         }
-        globalBeginLumiCalled_ = false;
-        return std::make_shared<SummaryCache>();
+        return std::make_shared<Cache>();
       }
 
       void endLuminosityBlockSummary(edm::LuminosityBlock const&,
                                      edm::EventSetup const&,
-                                     SummaryCache* lumiSummaryCache) const override {
-        lumiSummaryCache->value += valueAccumulatedForStream_;
-        if (!endLumiWasCalled_) {
-          throw cms::Exception("end out of sequence") << "endLuminosityBlockSummary seen before endLuminosityBlock";
+                                     Cache* gCache) const override {
+        ++m_lumiSumCalls;
+        bls = false;
+        els = true;
+        //This routine could be called at the same time as another stream is calling analyze so must do the change atomically
+        auto v = luminosityBlockCache()->value.exchange(0);
+        gCache->value += v;
+        if (el) {
+          throw cms::Exception("end out of sequence") << "endLuminosityBlock seen before endLuminosityBlockSummary";
         }
       }
 
       static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                   edm::EventSetup const&,
-                                                  LuminosityBlockContext const* iLBContext,
-                                                  SummaryCache* lumiSummaryCache) {
+                                                  LuminosityBlockContext const*,
+                                                  Cache* gCache) {
         ++m_count;
-        if (lumiSummaryCache->value != cvalue_) {
-          throw cms::Exception("unexpectedValue")
-              << "lumi summary cache value = " << lumiSummaryCache->value << " but it was supposed to be " << cvalue_;
+        auto nLumis = m_lumiSumCalls.load();
+        gbls = false;
+        gels = true;
+        if (!els) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlockSummary seen before endLuminosityBlockSummary";
         }
-        auto pCache = iLBContext->luminosityBlock();
-        // Add one so globalEndLuminosityBlock can check this function was called first
-        ++pCache->value;
+        if (gCache->value != cvalue_) {
+          throw cms::Exception("cache value")
+              << gCache->value << " but it was supposed to be " << cvalue_ << " endLumiBlockSummary called " << nLumis;
+        }
       }
 
       static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,
@@ -397,19 +438,22 @@ namespace edmtest {
                                            LuminosityBlockContext const* iLBContext) {
         ++m_count;
         auto pCache = iLBContext->luminosityBlock();
-        if (pCache->value != cvalue_ + 1) {
-          throw cms::Exception("unexpectedValue")
-              << "lumi cache value " << pCache->value << " but it was supposed to be " << cvalue_ + 1;
-        }
         if (pCache->lumi != 1) {
           throw cms::Exception("end out of sequence")
               << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock"
               << iLB.luminosityBlock();
         }
+        gel = true;
+        gbl = false;
+        if (!gels) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlockSummary seen before globalEndLuminosityBlock";
+        }
       }
 
-      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
-        endLumiWasCalled_ = true;
+      static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+        el = true;
+        bl = false;
       }
 
       ~LumiSummaryIntAnalyzer() {
@@ -774,13 +818,34 @@ std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_count{0};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_lumiSumCalls{0};
 std::atomic<unsigned int> edmtest::stream::GlobalIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::cvalue_{0};
-std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::globalBeginRunCalled_{false};
-std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::globalBeginLumiCalled_{false};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::el{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbrs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::brs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::br{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::er{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gels{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::els{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::el{false};
 DEFINE_FWK_MODULE(edmtest::stream::GlobalIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::RunIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntAnalyzer);

@@ -175,6 +175,7 @@ namespace edm {
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processContext_.setProcessConfiguration(processConfiguration_.get());
+      principalCache_.setProcessHistoryRegistry(processHistoryRegistry_);
 
       principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
@@ -189,10 +190,7 @@ namespace edm {
                                                    index);
         principalCache_.insert(std::move(ep));
       }
-      for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
-        principalCache_.insert(std::move(rp));
-      }
+
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
         auto lp =
             std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
@@ -308,7 +306,8 @@ namespace edm {
         esHelper_->resetAllProxies();
       }
 
-      return edm::test::Run(runPrincipal_, labelOfTestModule_, processConfiguration_->processName());
+      return edm::test::Run(
+          principalCache_.runPrincipalPtr(), labelOfTestModule_, processConfiguration_->processName());
     }
     edm::test::Run TestProcessor::testEndRunImpl() {
       //using a return value from arena_.execute lead to double delete of shared_ptr
@@ -442,17 +441,19 @@ namespace edm {
     }
 
     void TestProcessor::beginRun() {
-      runPrincipal_ = principalCache_.getAvailableRunPrincipalPtr();
-      runPrincipal_->clearPrincipal();
-      assert(runPrincipal_);
-      runPrincipal_->setAux(edm::RunAuxiliary(runNumber_, Timestamp(), Timestamp()));
+      ProcessHistoryID phid;
+      auto aux = std::make_shared<RunAuxiliary>(runNumber_, Timestamp(), Timestamp());
+      auto rp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, historyAppender_.get(), 0);
 
-      IOVSyncValue ts(EventID(runPrincipal_->run(), 0, 0), runPrincipal_->beginTime());
+      principalCache_.insert(rp);
+      RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
+
+      IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0), runPrincipal.beginTime());
       eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
       auto const& es = esp_->eventSetupImpl();
 
-      RunTransitionInfo transitionInfo(*runPrincipal_, es, nullptr);
+      RunTransitionInfo transitionInfo(runPrincipal, es);
 
       std::vector<edm::SubProcess> emptyList;
       {
@@ -485,7 +486,7 @@ namespace edm {
       assert(lumiPrincipal_);
       lumiPrincipal_->setAux(aux);
 
-      lumiPrincipal_->setRunPrincipal(runPrincipal_);
+      lumiPrincipal_->setRunPrincipal(principalCache_.runPrincipalPtr());
 
       IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal_->beginTime());
       eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
@@ -598,24 +599,25 @@ namespace edm {
           globalWaitTask.wait();
         }
       }
-      lumiPrincipal->setRunPrincipal(std::shared_ptr<RunPrincipal>());
       return lumiPrincipal;
     }
 
     std::shared_ptr<edm::RunPrincipal> TestProcessor::endRun() {
-      auto runPrincipal = runPrincipal_;
-      runPrincipal_.reset();
+      std::shared_ptr<RunPrincipal> rp;
       if (beginRunCalled_) {
         beginRunCalled_ = false;
+        ProcessHistoryID phid;
+        rp = principalCache_.runPrincipalPtr(phid, runNumber_);
+        RunPrincipal& runPrincipal = *rp;
 
         IOVSyncValue ts(
-            EventID(runPrincipal->run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
-            runPrincipal->endTime());
+            EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
+            runPrincipal.endTime());
         eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
         auto const& es = esp_->eventSetupImpl();
 
-        RunTransitionInfo transitionInfo(*runPrincipal, es);
+        RunTransitionInfo transitionInfo(runPrincipal, es);
 
         std::vector<edm::SubProcess> emptyList;
 
@@ -647,8 +649,10 @@ namespace edm {
                                            false);
           globalWaitTask.wait();
         }
+
+        principalCache_.deleteRun(phid, runNumber_);
       }
-      return runPrincipal;
+      return rp;
     }
 
     ProcessBlockPrincipal const* TestProcessor::endProcessBlock() {

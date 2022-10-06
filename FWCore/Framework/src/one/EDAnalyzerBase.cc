@@ -82,12 +82,9 @@ namespace edm {
     void EDAnalyzerBase::doEndJob() { this->endJob(); }
 
     void EDAnalyzerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
-      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
-
-    void EDAnalyzerBase::preallocRuns(unsigned int) {}
-    void EDAnalyzerBase::preallocLumis(unsigned int) {}
+    void EDAnalyzerBase::preallocLumis(unsigned int){};
 
     void EDAnalyzerBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
       ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
