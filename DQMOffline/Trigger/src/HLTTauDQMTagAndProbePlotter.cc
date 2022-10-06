@@ -101,7 +101,7 @@ LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName, const trigge
 
 LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName,
                                               const pat::TriggerObjectStandAloneCollection& triggerObjects) {
-  for (pat::TriggerObjectStandAlone trigObject : triggerObjects) {
+  for (const pat::TriggerObjectStandAlone& trigObject : triggerObjects) {
     // Unpack trigger names into indices
     //trigObject.unpackPathNames(names);
     if (trigObject.hasPathName(pathName)) {
