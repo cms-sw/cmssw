@@ -1338,15 +1338,11 @@ def PrepJMECustomNanoAOD(process,runOnMC):
 
   return process
 
-from PhysicsTools.NanoAOD.V10.nano_cff import nanoAOD_customizeV10
-
 def PrepJMECustomNanoAOD_MC(process):
-  process = nanoAOD_customizeV10(process)
   process = PrepJMECustomNanoAOD(process,runOnMC=True)
 
   return process
 
 def PrepJMECustomNanoAOD_Data(process):
-  process = nanoAOD_customizeV10(process)
   process = PrepJMECustomNanoAOD(process,runOnMC=False)
   return process
