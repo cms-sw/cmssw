@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,12 +38,11 @@
 // class declaration
 //
 
-class LTCRawToDigi : public edm::EDProducer {
+class LTCRawToDigi : public edm::global::EDProducer<> {
 public:
   explicit LTCRawToDigi(const edm::ParameterSet&);
-  ~LTCRawToDigi() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
@@ -65,17 +64,12 @@ LTCRawToDigi::LTCRawToDigi(const edm::ParameterSet& iConfig) {
   produces<LTCDigiCollection>();
 }
 
-LTCRawToDigi::~LTCRawToDigi() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void LTCRawToDigi::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   const int LTCFedIDLo = 815;
   const int LTCFedIDHi = 823;
