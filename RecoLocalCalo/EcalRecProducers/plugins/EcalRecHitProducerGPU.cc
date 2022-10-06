@@ -104,8 +104,10 @@ void EcalRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& con
   desc.add<double>("EBLaserMAX", 30.0);
   desc.add<double>("EELaserMAX", 30.0);
 
-  desc.add<uint32_t>("maxNumberHitsEB", 61200);
-  desc.add<uint32_t>("maxNumberHitsEE", 14648);
+  desc.addOptionalNode(edm::ParameterDescription<uint32_t>("maxNumberHitsEB", true, true), 61200u)
+      ->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<uint32_t>("maxNumberHitsEE", true, true), 14648u)
+      ->setComment("This parameter is obsolete and will be ignored.");
 }
 
 EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
@@ -124,10 +126,6 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   configParameters_.EELaserMIN = ps.getParameter<double>("EELaserMIN");
   configParameters_.EBLaserMAX = ps.getParameter<double>("EBLaserMAX");
   configParameters_.EELaserMAX = ps.getParameter<double>("EELaserMAX");
-
-  // max number of digis to allocate for
-  configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
-  configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
 
   flagmask_ = 0;
   flagmask_ |= 0x1 << EcalRecHit::kNeighboursRecovered;
@@ -182,11 +180,6 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   if (neb_ + nee_ == 0)
     return;
 
-  if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
-    edm::LogError("EcalRecHitProducerGPU")
-        << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
-  }
-
   int nchannelsEB = ebUncalibRecHits.size;  // --> offsetForInput, first EB and then EE
 
   // conditions
@@ -227,7 +220,7 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
                                               IntercalibConstantsHandle_->getOffset()};
 
   // dev mem
-  eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
+  eventOutputDataGPU_.allocate(configParameters_, neb_, nee_, ctx.stream());
 
   //
   // schedule algorithms
