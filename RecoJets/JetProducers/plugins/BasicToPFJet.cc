@@ -36,15 +36,13 @@ BasicToPFJet::BasicToPFJet(const edm::ParameterSet& PSet)
   produces<reco::PFJetCollection>();
 }
 
-BasicToPFJet::~BasicToPFJet() {}
-
 void BasicToPFJet::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag(""));
   descriptions.add("BasicToPFJet", desc);
 }
 
-void BasicToPFJet::produce(edm::Event& Event, const edm::EventSetup& EventSetup) {
+void BasicToPFJet::produce(edm::StreamID, edm::Event& Event, const edm::EventSetup& EventSetup) const {
   //first get the basic jet collection
   edm::Handle<reco::BasicJetCollection> BasicJetColl;
   Event.getByToken(inputToken_, BasicJetColl);
