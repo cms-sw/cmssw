@@ -274,7 +274,7 @@ namespace edm {
                                                EventPrincipal const& iEvent,
                                                ParentContext const& iParent,
                                                ServiceWeakToken const& weakToken) {
-    try {
+    CMS_SA_ALLOW try {
       ServiceRegistry::Operate guard(weakToken.lock());
 
       ModuleCallingContext mcc(

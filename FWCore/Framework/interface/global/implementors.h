@@ -494,8 +494,8 @@ namespace edm {
                 return std::any(p(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product(), std::move(iHolder)));
               },
               [f = std::move(iF)](std::any const& iCache) {
-                auto cache = std::any_cast<CacheTypeT>(iCache);
-                return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{}, f(cache));
+                return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{},
+                                                                   f(std::any_cast<CacheTypeT>(iCache)));
               });
         }
 
