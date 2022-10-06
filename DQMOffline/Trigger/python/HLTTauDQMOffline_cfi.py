@@ -271,7 +271,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
 )
 
 hltTauOfflineMonitor_MiniAODTaus = hltTauOfflineMonitor_PFTaus.clone(
-    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger"),
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(True),
         matchFilters          = cms.untracked.VPSet(
@@ -296,11 +296,11 @@ hltTauOfflineMonitor_MiniAODTaus = hltTauOfflineMonitor_PFTaus.clone(
 )
 
 hltTauOfflineMonitor_MiniAODInclusive = hltTauOfflineMonitor_Inclusive.clone(
-    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger"),
 )
 
 hltTauOfflineMonitor_MiniAODTagAndProbe = hltTauOfflineMonitor_TagAndProbe.clone(
-    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger", "", "PAT"),
+    MiniAODTriggerObjectSrc = cms.untracked.InputTag("slimmedPatTrigger"),
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(True),
         matchFilters          = cms.untracked.VPSet(
