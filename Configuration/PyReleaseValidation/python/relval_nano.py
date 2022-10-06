@@ -263,7 +263,7 @@ steps['NANO_mc12.4_v10']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                  '--conditions':'auto:phase1_2022_realistic',
                                  '-s':'NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@nanoAODDQM'},
                                 _NANO_mc])
-steps['NANO_mc12.4']=merge([{'--era':'Run3',
+steps['NANO_mc12.4']=merge([{'--era':'Run3,run3_nanoAOD_124',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
@@ -273,7 +273,7 @@ steps['NANO_data12.4_v10']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                    '--conditions':'auto:run3_data',
                                    '-s':'NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@nanoAODDQM'},
                                   _NANO_data])
-steps['NANO_data12.4']=merge([{'--era':'Run3',
+steps['NANO_data12.4']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
 
@@ -362,11 +362,11 @@ _wfn.next()
 ################
 #12.4 input
 ## these are borken because of tau configuration in NANO ATM: they should be re-enabled when a fix gets in
-#workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
-#workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
 _wfn.subnext()
-#workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
+workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
 
 _wfn.next()
 ################
