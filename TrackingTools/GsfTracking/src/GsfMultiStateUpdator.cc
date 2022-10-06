@@ -32,7 +32,13 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(tsosI, aRecHit);
 
     double det = 0;
+    double det22 = 0;
+    double det33 = 0;
+    double det44 = 0;
     if (updatedTSOS.isValid() && updatedTSOS.localError().valid() && updatedTSOS.localError().posDef() &&
+        (updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix22>(0, 0).Det(det22) && det22 > 0) &&
+        (updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix33>(0, 0).Det(det33) && det33 > 0) &&
+        (updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix44>(0, 0).Det(det44) && det44 > 0) &&
         (updatedTSOS.curvilinearError().matrix().Det2(det)) && det > 0) {
       result.addState(TrajectoryStateOnSurface(weights[i],
                                                updatedTSOS.localParameters(),
