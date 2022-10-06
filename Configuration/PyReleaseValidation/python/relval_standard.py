@@ -252,8 +252,6 @@ workflows[136.779] = ['',['RunMuOnia2016H','HLTDR2_2016','RECODR2_2016reHLT_skim
 # reminiAOD wf on 2016H input
 workflows[136.7721] = ['',['RunJetHT2016H_reminiaod','REMINIAOD_data2016','HARVESTDR2_REMINIAOD_data2016']]
 workflows[136.77211] = ['',['RunJetHT2016H_reminiaodUL','REMINIAOD_data2016UL','HARVESTDR2_REMINIAOD_data2016UL']]
-# nanoAOD wf on 2016H 80X input
-#workflows[136.7722] = ['',['RunJetHT2016H_nano','NANOEDM2016_80X','HARVESTNANOAOD2016_80X']]
 
 ### run 2017B ###
 workflows[136.780] = ['',['RunHLTPhy2017B','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -341,8 +339,6 @@ workflows[136.848] = ['',['RunCharmonium2017F','HLTDR2_2017','RECODR2_2017reHLT_
 workflows[136.8311] = ['',['RunJetHT2017F_reminiaod','REMINIAOD_data2017','HARVEST2017_REMINIAOD_data2017']]
 workflows[136.83111] = ['',['RunJetHT2017F_reminiaodUL','REMINIAOD_data2017UL','HARVEST2017_REMINIAOD_data2017UL']]
 
-# NANOAOD wf on 2017C miniAODv2 94X input
-#workflows[136.7952] = ['',['RunJetHT2017C_94Xv2NanoAODINPUT','NANOEDM2017_94XMiniAODv2','HARVESTNANOAOD2017_94XMiniAODv2']]
 
 ### run 2018A ###
 workflows[136.849] = ['',['RunHLTPhy2018A','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
@@ -361,11 +357,6 @@ workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_
 workflows[136.8501] = ['',['RunEGamma2018A','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Offline','HARVEST2018_skimParkingBPH']]
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Offline_hBStar','HARVEST2018_hBStar']]
 workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Offline_hBStar','HARVEST2018_hBStar']]
-
-### NANOAOD wf on 2018 prompt reco MINIADD
-#workflows[136.8521] = ['',['RunJetHT2018A_nano','NANOEDM2018_102Xv1','HARVESTNANOAOD2018_102Xv1']]
-#workflows[136.8522] = ['',['RunJetHT2018A_nanoUL','NANOEDM2018_106Xv1','HARVESTNANOAOD2018_106Xv1']]
-#workflows[136.8523] = ['',['RunJetHT2018C_nanoULremini','NANOEDM2018_106Xv2','HARVESTNANOAOD2018_106Xv2']]
 
 ### run 2018B ###
 workflows[136.861] = ['',['RunHLTPhy2018B','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
@@ -662,23 +653,10 @@ workflows[1325.517] = ['', ['TTbar_13_reminiaod2017UL_INPUT','REMINIAOD_mc2017UL
 workflows[1325.518] = ['', ['TTbar_13_reminiaod2018UL_INPUT','REMINIAOD_mc2018UL','HARVESTUP18_REMINIAOD_mc2018UL']]
 
 
-# nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
-#workflows[1325.6] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOAODMC2017_94XMiniAODv1']]
-# nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
-#workflows[1325.7] = ['', ['TTbar_13_94Xv2NanoAODINPUT','NANOEDMMC2017_94XMiniAODv2','HARVESTNANOAODMC2017_94XMiniAODv2']]
-#workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAODv1','HARVESTNANOAODMC2017_94XMiniAODv1']]
-
 # special workflow including the SiStrip APV dynamic gain simulation for 2016 MC
 workflows[1325.9] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15','HARVESTUP15','ALCATTUP15']]
 workflows[1325.91] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15_HIPM','HARVESTUP15','ALCATTUP15']]
 
-# nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
-#workflows[1325.61] = ['', ['TTbar_13_106Xv1NanoAODINPUT','NANOAODMC2017_106XMiniAODv1']]
-# nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
-#workflows[1325.81] = ['', ['TTbar_13_106Xv1NanoAODINPUT','NANOEDMMC2017_106XMiniAODv1','HARVESTNANOAODMC2017_106XMiniAODv1']]
-
-#using ZEE as I cannot find TT at CERN
-#workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
 
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15_L1TEgDQM','HARVESTUP15_L1TEgDQM','NANOUP15']]

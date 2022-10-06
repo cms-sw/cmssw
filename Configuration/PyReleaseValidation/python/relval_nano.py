@@ -68,35 +68,21 @@ steps['HRV_NANO_mc'] = _HARVEST_mc
 steps['HRV_NANO_data'] = _HARVEST_data
 
 ##8.0 INPUT and workflows
-_spec80Xmc = {'--era':'Run2_2016,run2_miniAOD_80XLegacy',
-              '--conditions':'auto:run2_mc'}
-_spec80Xd = {'--era':'Run2_2016,run2_miniAOD_80XLegacy',
-             '--conditions':'auto:run2_data'}
 steps['TTbarMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',
                                               dataSet='/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM')}
-steps['NANO_mc8.0']=merge([_spec80Xmc,
+steps['NANO_mc8.0']=merge([{'--era':'Run2_2016,run2_miniAOD_80XLegacy',
+                            '--conditions':'auto:run2_mc'},
                            _NANO_mc])
+
 steps['MuonEG2016HMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                    dataSet='/MuonEG/Run2016H-03Feb2017_ver2-v1/MINIAOD ')}
-#steps['JetHT2016HMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                   dataSet='/JetHT/Run2016H-03Feb2017_ver2-v1/MINIAOD')}
-#steps['SingleMuon2016HMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                        dataSet='/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD')}
-#steps['SingleElectron2016HMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                            dataSet='/SingleElectron/Run2016H-03Feb2017_ver2-v1/MINIAOD')}
-
-steps['NANO_data8.0']=merge([_spec80Xd,
+steps['NANO_data8.0']=merge([{'--era':'Run2_2016,run2_miniAOD_80XLegacy',
+                              '--conditions':'auto:run2_data'},
                              _NANO_data])
-#steps['HRV_NANO_data8.8']=merge([_spec80Xd,
-#                                 _HARVEST_data])
+
 
 ##9.4 INPUT and workflows
-## de-facto, this input is totally superseeded by 9.4v2
-#steps['TTbarMINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',
-#                                                dataSet='/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM')}
-#steps['NANO_mc9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
-#                              '--conditions':'auto:phase1_2017_realistic'},
-#                             _NANO_mc])
+## de facto, 9.4v1 mini is deprecated
 steps['TTbar2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',
                                                     dataSet='/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM')}
 steps['NANO_2016mc9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
@@ -111,39 +97,16 @@ steps['NANO_mc9.4v2']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv2',
 ##17Jul2018 campaign is CMSSW_9_4_9
 steps['MuonEG2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                     dataSet='/MuonEG/Run2016H-17Jul2018-v1/MINIAOD')}
-#steps['JetHT2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                    dataSet='/JetHT/Run2016H-17Jul2018-v1/MINIAOD')}
-#steps['SingleElectron2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                             dataSet='/SingleElectron/Run2016H-17Jul2018-v1/MINIAOD')}
-#steps['SingleMuon2016MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                         dataSet='/SingleMuon/Run2016H-17Jul2018-v1/MINIAOD')}
 steps['NANO_2016data9.4v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_94X2016',
                                     '--conditions':'auto:run2_data'},
                                    _NANO_data])
 
 ##17Nov2017 campaign is CMSSW_9_4_0
 ## de facto, 9.4v1 mini is deprecated
-#steps['MuonEG2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                     dataSet='/MuonEG/Run2017E-17Nov2017-v1/MINIAOD')}
-#steps['JetHT2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                    dataSet='/JetHT/Run2017E-17Nov2017-v1/MINIAOD')}
-#steps['SingleElectron2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                             dataSet='/SingleElectron/Run2017E-17Nov2017-v1/MINIAOD')}
-#steps['SingleMuon2017MINIAOD9.4v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                         dataSet='/SingleMuon/Run2017E-17Nov2017-v1/MINIAOD')}
-#steps['NANO_data9.4v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv1',
-#                                '--conditions':'auto:run2_data'},
-#                               _NANO_data])
 
 ##31Mar2018 campaign is CMSSW_9_4_5_cand1 
 steps['MuonEG2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                      dataSet='/MuonEG/Run2017E-31Mar2018-v1/MINIAOD')}
-#steps['JetHT2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                    dataSet='/JetHT/Run2017E-31Mar2018-v1/MINIAOD')}
-#steps['SingleElectron2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                             dataSet='/SingleElectron/Run2017E-31Mar2018-v1/MINIAOD')}
-#steps['SingleMuon2017MINIAOD9.4v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                         dataSet='/SingleMuon/Run2017E-31Mar2018-v1/MINIAOD')}
 steps['NANO_data9.4v2']=merge([{'--era':'Run2_2017,run2_nanoAOD_94XMiniAODv2',
                                 '--conditions':'auto:run2_data'},
                                _NANO_data])
@@ -154,11 +117,10 @@ steps['TTbarMINIAOD10.2'] = {'INPUT':InputInfo(location='STD',
 steps['NANO_mc10.2']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1',
                              '--conditions':'auto:phase1_2018_realistic'},
                             _NANO_mc])
+
 ##17Sep2018 campaign is CMSSW_10_2_4_patch1 
 steps['MuonEG2018MINIAOD10.2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                     dataSet='/MuonEG/Run2018A-17Sep2018-v1/MINIAOD')}
-#steps['JetHT2018MINIAOD10.2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                   dataSet='/JetHT/Run2018A-17Sep2018-v1/MINIAOD')}
 steps['NANO_data10.2']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1',
                                '--conditions':'auto:run2_data'},
                               _NANO_data])
@@ -206,8 +168,6 @@ steps['NANO_data10.6ul16v1']=merge([{'--era':'Run2_2016,run2_nanoAOD_106Xv1,trac
 ##09Aug2019 campaign is CMSSW_10_6_2 
 steps['MuonEG2017MINIAOD10.6v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                       dataSet='/MuonEG/Run2017F-09Aug2019_UL2017-v1/MINIAOD')}
-#steps['DoubleMuon2017MINIAOD10.6v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                          dataSet='/DoubleMuon/Run2017F-09Aug2019_UL2017-v1/MINIAOD')}
 steps['NANO_data10.6ul17v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_106Xv1',
                                      '--conditions':'auto:run2_data'},
                                     _NANO_data])
@@ -215,8 +175,6 @@ steps['NANO_data10.6ul17v1']=merge([{'--era':'Run2_2017,run2_nanoAOD_106Xv1',
 ##12Nov2019 campaign is CMSSW_10_6_4_patch1 
 steps['MuonEG2018MINIAOD10.6v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                       dataSet='/MuonEG/Run2018A-12Nov2019_UL2018_rsb-v1/MINIAOD')}
-#steps['DoubleMuon2018MINIAOD10.6v1'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                          dataSet='/DoubleMuon/Run2018D-12Nov2019_UL2018-v3/MINIAOD')}
 steps['NANO_data10.6ul18v1']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv1',
                                      '--conditions':'auto:run2_data'},
                                     _NANO_data])
@@ -230,8 +188,6 @@ steps['NANO_data10.6ul16v2']=merge([{'--era':'Run2_2016,run2_nanoAOD_106Xv2,trac
 ##UL2017_MiniAODv2 campaign is CMSSW_10_6_20 
 steps['MuonEG2017MINIAOD10.6v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                       dataSet='/MuonEG/Run2017F-UL2017_MiniAODv2-v1/MINIAOD')}
-#steps['DoubleEG2017MINIAOD10.6v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                        dataSet='/DoubleEG/Run2017F-UL2017_MiniAODv2-v2/MINIAOD')}
 steps['NANO_data10.6ul17v2']=merge([{'--era':'Run2_2017,run2_nanoAOD_106Xv2',
                                      '--conditions':'auto:run2_data'},
                                     _NANO_data])
@@ -239,8 +195,6 @@ steps['NANO_data10.6ul17v2']=merge([{'--era':'Run2_2017,run2_nanoAOD_106Xv2',
 ##UL2018_MiniAODv2 campaign is CMSSW_10_6_20 
 steps['MuonEG2018MINIAOD10.6v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
                                                       dataSet='/MuonEG/Run2018D-UL2018_MiniAODv2-v1/MINIAOD')}
-#steps['DoubleMuon2018MINIAOD10.6v2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis,
-#                                                        dataSet='/DoubleMuon/Run2018D-UL2018_MiniAODv2-v1/MINIAOD')}
 steps['NANO_data10.6ul18v2']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv2',
                                      '--conditions':'auto:run2_data'},
                                     _NANO_data])
@@ -295,9 +249,6 @@ _wfn=WFN()
 #8.X input
 workflows[_wfn()] = ['mc80X', ['TTbarMINIAOD8.0','NANO_mc8.0', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data80X', ['JetHT2016HMINIAOD8.0','NANO_data8.0']] ##redundant
-#workflows[_wfn()] = ['data80X', ['SingleMuon2016HMINIAOD8.0','NANO_data8.0']] ##redundant
-#workflows[_wfn()] = ['data80X', ['SingleElectron2016HMINIAOD8.0','NANO_data8.0']] ##redundant
 
 _wfn.next()
 ################
@@ -307,19 +258,10 @@ workflows[_wfn()] = ['mc94X2016', ['TTbar2016MINIAOD9.4v2','NANO_2016mc9.4v2', '
 workflows[_wfn()] = ['mc94Xv2', ['TTbarMINIAOD9.4v2','NANO_mc9.4v2', 'HRV_NANO_mc']]
 _wfn.subnext()
 #workflows[_wfn()] = ['data94X', ['MuonEG2017MINIAOD9.4v1','NANO_data9.4v1']] ## deprecated
-#workflows[_wfn()] = ['data94X', ['JetHT2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
-#workflows[_wfn()] = ['data94X', ['SingleMuon2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
-#workflows[_wfn()] = ['data94X', ['SingleElectron2017MINIAOD9.4v1','NANO_data9.4v1']] ##redundant
 _wfn.subnext()
 workflows[_wfn()] = ['data94X2016', ['MuonEG2016MINIAOD9.4v2','NANO_2016data9.4v2', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data94X2016', ['JetHT2016MINIAOD9.4v2','NANO_2016data9.4v2']] ##redundant
-#workflows[_wfn()] = ['data94X2016', ['SingleMuon2016MINIAOD9.4v2','NANO_2016data9.4v2']] ##redundant
-#workflows[_wfn()] = ['data94X2016', ['SingleElectron2016MINIAOD9.4v2','NANO_2016data9.4v2']] ##redundant
 _wfn.subnext()
 workflows[_wfn()] = ['data94Xv2', ['MuonEG2017MINIAOD9.4v2','NANO_data9.4v2', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data94Xv2', ['JetHT2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
-#workflows[_wfn()] = ['data94Xv2', ['SingleMuon2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
-#workflows[_wfn()] = ['data94Xv2', ['SingleElectron2017MINIAOD9.4v2','NANO_data9.4v2']] ##redundant
 
 _wfn.next()
 ################
@@ -327,7 +269,6 @@ _wfn.next()
 workflows[_wfn()] = ['mc102X', ['TTbarMINIAOD10.2','NANO_mc10.2', 'HRV_NANO_mc']]
 _wfn.subnext()
 workflows[_wfn()] = ['data102X', ['MuonEG2018MINIAOD10.2','NANO_data10.2', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data102X', ['JetHT2018MINIAOD10.2','NANO_data10.2']] ##redundant
 
 _wfn.next()
 ################
@@ -342,15 +283,11 @@ workflows[_wfn()] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18
 _wfn.subnext()
 workflows[_wfn()] = ['data106Xul16', ['MuonEG2016MINIAOD10.6v1', 'NANO_data10.6ul16v1', 'HRV_NANO_data']]
 workflows[_wfn()] = ['data106Xul17', ['MuonEG2017MINIAOD10.6v1', 'NANO_data10.6ul17v1', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data106Xul17', ['DoubleMuon2017MINIAOD10.6v1', 'NANO_data10.6ul17v1']] ##redundant
 workflows[_wfn()] = ['data106Xul18', ['MuonEG2018MINIAOD10.6v1', 'NANO_data10.6ul18v1', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data106Xul18', ['DoubleMuon2018MINIAOD10.6v1', 'NANO_data10.6ul18v1']] ##redundant
 _wfn.subnext()
 workflows[_wfn()] = ['data106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
 workflows[_wfn()] = ['data106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data106Xul17v2', ['DoubleEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2']] ##redundant
 workflows[_wfn()] = ['data106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
-#workflows[_wfn()] = ['data106Xul18v2', ['DoubleMuon2018MINIAOD10.6v2', 'NANO_data10.6ul18v2']] ##redundant
 
 _wfn.next()
 ################
