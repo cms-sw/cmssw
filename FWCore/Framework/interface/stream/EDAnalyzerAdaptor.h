@@ -96,10 +96,6 @@ namespace edm {
         m_pset = nullptr;
       }
 
-      void preallocRuns(unsigned int iNRuns) final {
-        m_runs.resize(iNRuns);
-        m_runSummaries.resize(iNRuns);
-      }
       void preallocLumis(unsigned int iNLumis) final {
         m_lumis.resize(iNLumis);
         m_lumiSummaries.resize(iNLumis);

@@ -156,7 +156,6 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
-    unsigned int numberOfConcurrentLumis_;
   };
 
   template <typename T>
@@ -214,11 +213,7 @@ namespace edm {
             }
             iHolder.doneWaiting(excpt);
           });
-      unsigned int managerIndex = principal.index();
-      if constexpr (T::branchType_ == InRun) {
-        managerIndex += numberOfConcurrentLumis_;
-      }
-      WorkerManager& workerManager = workerManagers_[managerIndex];
+      WorkerManager& workerManager = workerManagers_[principal.index()];
       workerManager.resetAll();
 
       ParentContext parentContext(globalContext.get());
