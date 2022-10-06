@@ -94,6 +94,7 @@ Fast Timing system:
 * I13: Starting from I11, new ETL layout from post MTD TDR (2 sectors per disc face)
 * I14: Same as I13, updated sensor structure, disc z location and passive materials
 * I15: Same as I14, addition of notch and revision of envelope
+* I16: Starting from I15, revised BTL with complete passive material description, it needs Tracker T31 or newer
 
 The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
@@ -118,3 +119,5 @@ Several detector combinations have been generated:
 * D92 = T24+C18+M10+I15+O9+F6
 * D93 = T24+C19+M10+I15+O9+F6
 * D94 = T24+C20+M10+I15+O9+F8
+* D95 = T31+C17+M10+I16+O9+F6
+* D96 = T31+C18+M10+I16+O9+F6
