@@ -65,10 +65,11 @@ namespace edm {
                                           std::size_t iIndex,
                                           ProducerBase const& iBase,
                                           edm::EventForTransformer& iEvent) const {
-    if (transformInfo_.get<3>(iIndex)) {
-      std::optional<decltype(iEvent.get(transformInfo_.get<1>(iIndex), transformInfo_.get<0>(iIndex)))> handle;
-      try {
-        handle = iEvent.get(transformInfo_.get<1>(iIndex), transformInfo_.get<0>(iIndex));
+    if (transformInfo_.get<kPreTransform>(iIndex)) {
+      std::optional<decltype(iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex)))>
+          handle;
+      CMS_SA_ALLOW try {
+        handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
       } catch (...) {
         iHolder.doneWaiting(std::current_exception());
         return;
@@ -81,26 +82,26 @@ namespace edm {
               if (iPtr) {
                 holder.doneWaiting(*iPtr);
               } else {
-                iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<2>(iIndex).index()],
-                           transformInfo_.get<4>(iIndex)(*cache),
+                iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
+                           transformInfo_.get<kTransform>(iIndex)(std::move(*cache)),
                            handle);
               }
             });
         WaitingTaskWithArenaHolder wta(*iHolder.group(), nextTask);
-        try {
-          *cache = transformInfo_.get<3>(iIndex)(*(handle->wrapper()), wta);
+        CMS_SA_ALLOW try {
+          *cache = transformInfo_.get<kPreTransform>(iIndex)(*(handle->wrapper()), wta);
         } catch (...) {
           wta.doneWaiting(std::current_exception());
         }
       }
     } else {
-      try {
-        auto handle = iEvent.get(transformInfo_.get<1>(iIndex), transformInfo_.get<0>(iIndex));
+      CMS_SA_ALLOW try {
+        auto handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
 
         if (handle.wrapper()) {
           std::any v = handle.wrapper();
-          iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<2>(iIndex).index()],
-                     transformInfo_.get<4>(iIndex)(v),
+          iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
+                     transformInfo_.get<kTransform>(iIndex)(std::move(v)),
                      handle);
         }
       } catch (...) {
