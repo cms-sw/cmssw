@@ -91,13 +91,11 @@ namespace ecal {
       std::array<uint32_t, 3> kernelMinimizeThreads;
 
       bool shouldRunTimingComputation;
-
-      uint32_t maxNumberHitsEB;
-      uint32_t maxNumberHitsEE;
     };
 
     struct EventOutputDataGPU {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
+
 
       void allocate(int sizeEB, int sizeEE, ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         memoryPool::Deleter deleter =
@@ -116,6 +114,7 @@ namespace ecal {
 
         recHitsEB.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
         recHitsEB.flags = memoryPool::cuda::makeBuffer<uint32_t>(sizeEB, deleter);
+
 
         recHitsEE.amplitudesAll =
             memoryPool::cuda::makeBuffer<reco::ComputationScalarType>(sizeEE * EcalDataFrame::MAXSAMPLES, deleter);
@@ -144,6 +143,7 @@ namespace ecal {
       using SMT = SampleMatrix::Scalar;
       using PMT = PulseMatrixType::Scalar;
       using BXVT = BXVectorType::Scalar;
+
 
       memoryPool::Buffer<SVT> samples;
       memoryPool::Buffer<SGVT> gainsNoise;
@@ -276,8 +276,6 @@ namespace ecal {
       uint32_t expanded_v_DB_reco_flagsSize;
 
       uint32_t flagmask;
-      uint32_t maxNumberHitsEB;
-      uint32_t maxNumberHitsEE;
     };
 
     struct EventOutputDataGPU {
@@ -301,6 +299,7 @@ namespace ecal {
         recHitsEE.flagBits = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
         recHitsEE.extra = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
         recHitsEE.did = memoryPool::cuda::makeBuffer<uint32_t>(sizeEE, deleter);
+
       }
     };
 

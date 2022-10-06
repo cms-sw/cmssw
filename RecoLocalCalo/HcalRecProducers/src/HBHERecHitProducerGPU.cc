@@ -80,7 +80,6 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
       sipmCharacteristicsToken_{esConsumes()},
       chQualProductToken_{esConsumes()},
       pulseOffsetsToken_{esConsumes()} {
-  configParameters_.maxChannels = ps.getParameter<uint32_t>("maxChannels");
   configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
   configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
   configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");
@@ -115,7 +114,8 @@ HBHERecHitProducerGPU::~HBHERecHitProducerGPU() {}
 
 void HBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
-  desc.add<uint32_t>("maxChannels", 10000u);
+  desc.addOptionalNode(edm::ParameterDescription<uint32_t>("maxChannels", true, true), 10000u)
+      ->setComment("This parameter is obsolete and will be ignored.");
   desc.add<uint32_t>("maxTimeSamples", 10);
   desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
   desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});
@@ -156,6 +156,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& f01HEDigis = ctx.get(f01HEProduct);
   auto const& f5HBDigis = ctx.get(f5HBProduct);
   auto const& f3HBDigis = ctx.get(f3HBProduct);
+  auto const totalChannels = f01HEDigis.size + f5HBDigis.size + f3HBDigis.size;
 
   hcal::reconstruction::InputDataGPU inputGPU{f01HEDigis, f5HBDigis, f3HBDigis};
 
@@ -228,20 +229,20 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
       memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(ctx.stream(), memoryPool::onDevice));
   assert(deleter.pool());
   hcal::reconstruction::ScratchDataGPU scratchGPU = {
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
-      memoryPool::cuda::makeBuffer<float>(configParameters_.maxChannels * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<float>(totalChannels * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<float>(totalChannels * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<float>(totalChannels * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
       memoryPool::cuda::makeBuffer<float>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
-      memoryPool::cuda::makeBuffer<int8_t>(configParameters_.maxChannels, deleter),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, deleter),
+      memoryPool::cuda::makeBuffer<int8_t>(totalChannels, deleter),
   };
 
   // output dev mem
-  outputGPU_.allocate(configParameters_, ctx.stream());
+  outputGPU_.allocate(configParameters_, totalChannels, ctx.stream());
 
   hcal::reconstruction::entryPoint(inputGPU, outputGPU_, conditions, scratchGPU, configParameters_, ctx.stream());
 
