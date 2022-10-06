@@ -33,11 +33,10 @@ public:
 };
 
 template <typename TrackerTraits>
-class PixelTrackSoAT{
+class PixelTrackSoAT {
 public:
-
   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
-  static constexpr int32_t H = TrackerTraits::maxHitsOnTrack; // Average hits rather than max?
+  static constexpr int32_t H = TrackerTraits::maxHitsOnTrack;  // Average hits rather than max?
   static constexpr int32_t stride() { return S; }
 
   using hindex_type = uint32_t;  //TrackerTraits::hindex_type ?
@@ -102,13 +101,12 @@ public:
 
 private:
   int nTracks_;
-
 };
 
 namespace pixelTrack {
 
   using namespace pixelTopology;
-  
+
 #ifdef GPU_SMALL_EVENTS
   // kept for testing and debugging
   constexpr uint32_t maxNumber() { return 2 * 1024; }
@@ -134,7 +132,7 @@ namespace pixelTrack {
   struct QualityCutsT {};
 
   template <typename TrackerTraits>
-  struct QualityCutsT<TrackerTraits, isPhase1Topology<TrackerTraits>>{
+  struct QualityCutsT<TrackerTraits, isPhase1Topology<TrackerTraits>> {
     // chi2 cut = chi2Scale * (chi2Coeff[0] + pT/GeV * (chi2Coeff[1] + pT/GeV * (chi2Coeff[2] + pT/GeV * chi2Coeff[3])))
     float chi2Coeff[4];
     float chi2MaxPt;  // GeV
@@ -162,8 +160,7 @@ namespace pixelTrack {
              (std::abs(tracks->zip(it)) < region.maxZip);
     }
 
-    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks,
-                                              int it) const {
+    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks, int it) const {
       auto roughLog = [](float x) {
         // max diff [0.5,12] at 1.25 0.16143
         // average diff  0.0662998
@@ -198,7 +195,7 @@ namespace pixelTrack {
   };
 
   template <typename TrackerTraits>
-  struct QualityCutsT<TrackerTraits, isPhase2Topology<TrackerTraits>>{
+  struct QualityCutsT<TrackerTraits, isPhase2Topology<TrackerTraits>> {
     float maxChi2;
     float minPt;
     float maxTip;
@@ -209,8 +206,7 @@ namespace pixelTrack {
                                          int it) const {
       return (std::abs(tracks->tip(it)) < maxTip) and (tracks->pt(it) > minPt) and (std::abs(tracks->zip(it)) < maxZip);
     }
-    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks,
-                                              int it) const {
+    __device__ __forceinline__ bool strictCut(PixelTrackSoAT<TrackerTraits> const *__restrict__ tracks, int it) const {
       return tracks->chi2(it) >= maxChi2;
     }
   };

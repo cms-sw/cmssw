@@ -108,10 +108,6 @@ protected:
   int16_t* m_iphi;
 };
 
-
-
-
-
 // TrackingRecHit2DGPU/CPU/Host derived classes workaround to have partial specialization.
 // This is neeeded since one could not partially specialize a single method without specializing the whole class.
 // So simply having an alias such as
@@ -149,7 +145,6 @@ public:
   cms::cuda::host::unique_ptr<float[]> store32ToHostAsync(cudaStream_t stream) const;
 };
 
-
 //CPU
 template <typename TrackerTraits>
 class TrackingRecHit2DCPUBaseT<cms::cudacompat::CPUTraits, TrackerTraits>
@@ -161,14 +156,14 @@ public:
   cms::cuda::host::unique_ptr<float[]> store32ToHostAsync(cudaStream_t stream) const;
 };
 
-
 //HOST
 template <typename TrackerTraits>
 class TrackingRecHit2DHostBaseT<cms::cudacompat::HostTraits, TrackerTraits>
     : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
-  void copyFromGPU(TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits,TrackerTraits> const* input, cudaStream_t stream);
+  void copyFromGPU(TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits> const* input,
+                   cudaStream_t stream);
 };
 
 // Aliases to avoid bringing Host/CPU/GPU traits around

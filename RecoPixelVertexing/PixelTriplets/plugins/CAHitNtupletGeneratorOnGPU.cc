@@ -67,7 +67,7 @@ namespace {
     };
 
     static constexpr QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
-      auto coeff = pset.getParameter<std::array<double,2>>("chi2Coeff");
+      auto coeff = pset.getParameter<std::array<double, 2>>("chi2Coeff");
       auto ptMax = pset.getParameter<double>("chi2MaxPt");
       // if (coeff.size() != 2) {
       //   throw edm::Exception(edm::errors::Configuration,

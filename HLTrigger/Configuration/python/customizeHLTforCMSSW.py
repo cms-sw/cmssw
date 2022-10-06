@@ -210,7 +210,32 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor99999(process):
+
+
+# Reduce the ECAL and HCAL GPU memory usage (#39577)
+# Remove the obsolete configuration parameters
+def customizeHLTfor39577(process):
+    for producer in producers_by_type(process, "EcalUncalibRecHitProducerGPU"):
+        if hasattr(producer, "maxNumberHitsEB"):
+            delattr(producer, "maxNumberHitsEB")
+        if hasattr(producer, "maxNumberHitsEE"):
+            delattr(producer, "maxNumberHitsEE")
+
+    for producer in producers_by_type(process, "EcalRecHitProducerGPU"):
+        if hasattr(producer, "maxNumberHitsEB"):
+            delattr(producer, "maxNumberHitsEB")
+        if hasattr(producer, "maxNumberHitsEE"):
+            delattr(producer, "maxNumberHitsEE")
+
+    for producer in producers_by_type(process, "HBHERecHitProducerGPU"):
+        if hasattr(producer, "maxChannels"):
+            delattr(producer, "maxChannels")
+
+    return process
+
+
+def customizeHLTfor38761(process):
+
      for producer in producers_by_type(process, "SiPixelRecHitSoAFromLegacy"):
          if hasattr(producer, "isPhase2"):
              delattr(producer, "isPhase2")
@@ -236,13 +261,7 @@ def customizeHLTfor99999(process):
          if hasattr(producer, "Upgrade"):
              setattr(producer,"isPhase2",getattr(producer,"Upgrade"))
              delattr(producer, "Upgrade")
-         #else:
-             #setattr(producer,"isPhase2",False)
              
-     # for producer insproducers_by_type(process, "PixelCPEGeneric"):
-     #     if hasattr(producer, "Upgrade"):
-     #         setattr(producer,"isPhase2",getattr(producer,"Upgrade"))
-     #         delattr(producer, "Upgrade")
      return process
 
 # CMSSW version specific customizations
@@ -252,7 +271,10 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor99999(process)
+
+    process = customizeHLTfor39577(process)
+    process = customizeHLTfor38761(process)
+
 
 
     return process
