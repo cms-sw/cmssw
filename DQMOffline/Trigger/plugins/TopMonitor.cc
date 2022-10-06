@@ -1,4 +1,3 @@
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
