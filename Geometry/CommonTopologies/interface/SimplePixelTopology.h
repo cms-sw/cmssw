@@ -4,12 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <type_traits>
-
-#ifdef __CUDA_ARCH__
-#define DEVICECONST __device__ constexpr
-#else
-#define DEVICECONST constexpr
-#endif
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
 namespace pixelTopology {
 
@@ -151,7 +146,7 @@ namespace phase1PixelTopology {
   constexpr float barrel_z_length = 26.f;
   constexpr float forward_z_begin = 32.f;
 
-  DEVICECONST uint8_t layerPairs[2 * nPairs] = {
+  HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairs] = {
       0, 1, 0, 4, 0, 7,              // BPIX1 (3)
       1, 2, 1, 4, 1, 7,              // BPIX2 (6)
       4, 5, 7, 8,                    // FPIX1 (8)
@@ -161,30 +156,31 @@ namespace phase1PixelTopology {
       4, 6, 7, 9                     // Jumping Forward (19)
   };
 
-  DEVICECONST int16_t phicuts[nPairs]{phi0p05,
-                                      phi0p07,
-                                      phi0p07,
-                                      phi0p05,
-                                      phi0p06,
-                                      phi0p06,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p06,
-                                      phi0p06,
-                                      phi0p06,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05,
-                                      phi0p05};
-  DEVICECONST float minz[nPairs] = {
+  HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{phi0p05,
+                                               phi0p07,
+                                               phi0p07,
+                                               phi0p05,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05};
+  HOST_DEVICE_CONSTANT float minz[nPairs] = {
       -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., -70., -70.};
-  DEVICECONST float maxz[nPairs] = {
+  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
       20., 30., 0., 22., 30., -10., 70., 70., 22., 30., -15., 70., 70., 20., 22., 30., 0., 70., 70.};
-  DEVICECONST float maxr[nPairs] = {20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
+  HOST_DEVICE_CONSTANT float maxr[nPairs] = {
+      20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                               96,
@@ -210,7 +206,7 @@ namespace phase2PixelTopology {
   constexpr int nPairs = 23 + 6 + 14 + 8 + 4;  // include far forward layer pairs
   constexpr uint16_t numberOfModules = 3892;
 
-  DEVICECONST uint8_t layerPairs[2 * nPairs] = {
+  HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairs] = {
 
       0,  1,  0,  4,  0,  16,  //BPIX1 (3)
       1,  2,  1,  4,  1,  16,  //BPIX2 (6)
@@ -228,60 +224,60 @@ namespace phase2PixelTopology {
       4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  //POS Jump (48)
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  //NEG Jump (55)
   };
-  DEVICECONST uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                         108,
-                                                         324,
-                                                         504,  //Barrel
-                                                         756,
-                                                         864,
-                                                         972,
-                                                         1080,
-                                                         1188,
-                                                         1296,
-                                                         1404,
-                                                         1512,
-                                                         1620,
-                                                         1796,
-                                                         1972,
-                                                         2148,  //Fp
-                                                         2324,
-                                                         2432,
-                                                         2540,
-                                                         2648,
-                                                         2756,
-                                                         2864,
-                                                         2972,
-                                                         3080,
-                                                         3188,
-                                                         3364,
-                                                         3540,
-                                                         3716,  //Np
-                                                         numberOfModules};
+  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
+                                                                  108,
+                                                                  324,
+                                                                  504,  //Barrel
+                                                                  756,
+                                                                  864,
+                                                                  972,
+                                                                  1080,
+                                                                  1188,
+                                                                  1296,
+                                                                  1404,
+                                                                  1512,
+                                                                  1620,
+                                                                  1796,
+                                                                  1972,
+                                                                  2148,  //Fp
+                                                                  2324,
+                                                                  2432,
+                                                                  2540,
+                                                                  2648,
+                                                                  2756,
+                                                                  2864,
+                                                                  2972,
+                                                                  3080,
+                                                                  3188,
+                                                                  3364,
+                                                                  3540,
+                                                                  3716,  //Np
+                                                                  numberOfModules};
 
-  DEVICECONST int16_t phicuts[nPairs]{
+  HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
       phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
       phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05,
       phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p07, phi0p07, phi0p07, phi0p07,
       phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07,
       phi0p07, phi0p07, phi0p07, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05};
 
-  DEVICECONST float minz[nPairs] = {-16.0,  4.0,   -22.0, -17.0, 6.0,    -22.0,  -18.0,  11.0,   -22.0, 23.0,  30.0,
-                                    39.0,   50.0,  65.0,  82.0,  109.0,  -28.0,  -35.0,  -44.0,  -55.0, -70.0, -87.0,
-                                    -113.0, -16.,  7.0,   -22.0, 11.0,   -22.0,  -17.0,  9.0,    -22.0, 13.0,  -22.0,
-                                    137.0,  173.0, 199.0, 229.0, -142.0, -177.0, -203.0, -233.0, 23.0,  30.0,  39.0,
-                                    50.0,   65.0,  82.0,  109.0, -28.0,  -35.0,  -44.0,  -55.0,  -70.0, -87.0, -113.0};
+  HOST_DEVICE_CONSTANT float minz[nPairs] = {
+      -16.0, 4.0,   -22.0, -17.0, 6.0,   -22.0, -18.0, 11.0,  -22.0,  23.0,   30.0,   39.0,   50.0,   65.0,
+      82.0,  109.0, -28.0, -35.0, -44.0, -55.0, -70.0, -87.0, -113.0, -16.,   7.0,    -22.0,  11.0,   -22.0,
+      -17.0, 9.0,   -22.0, 13.0,  -22.0, 137.0, 173.0, 199.0, 229.0,  -142.0, -177.0, -203.0, -233.0, 23.0,
+      30.0,  39.0,  50.0,  65.0,  82.0,  109.0, -28.0, -35.0, -44.0,  -55.0,  -70.0,  -87.0,  -113.0};
 
-  DEVICECONST float maxz[nPairs] = {
+  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
 
       17.0, 22.0,  -4.0,  17.0,  22.0,  -6.0,  18.0,  22.0,  -11.0,  28.0,   35.0,   44.0,   55.0,   70.0,
       87.0, 113.0, -23.0, -30.0, -39.0, -50.0, -65.0, -82.0, -109.0, 17.0,   22.0,   -7.0,   22.0,   -10.0,
       17.0, 22.0,  -9.0,  22.0,  -13.0, 142.0, 177.0, 203.0, 233.0,  -137.0, -173.0, -199.0, -229.0, 28.0,
       35.0, 44.0,  55.0,  70.0,  87.0,  113.0, -23.0, -30.0, -39.0,  -50.0,  -65.0,  -82.0,  -109.0};
 
-  DEVICECONST float maxr[nPairs] = {5.0, 5.0, 5.0, 7.0, 8.0, 8.0,  7.0, 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 5.0,
-                                    6.0, 5.0, 6.0, 6.0, 6.0, 6.0,  5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,
-                                    5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
-                                    9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
+  HOST_DEVICE_CONSTANT float maxr[nPairs] = {5.0, 5.0, 5.0, 7.0, 8.0, 8.0,  7.0, 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 5.0,
+                                             6.0, 5.0, 6.0, 6.0, 6.0, 6.0,  5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,
+                                             5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
+                                             9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
 }  // namespace phase2PixelTopology
 
 namespace pixelTopology {
