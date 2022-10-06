@@ -2,10 +2,7 @@
 #define CommonTools_RecoAlgos_PrimaryVertexSorting_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
