@@ -8,7 +8,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -17,7 +17,7 @@
 // class decleration
 //
 
-class AnalysisJV : public edm::EDAnalyzer {
+class AnalysisJV : public edm::one::EDAnalyzer<> {
 public:
   explicit AnalysisJV(const edm::ParameterSet&);
   ~AnalysisJV();

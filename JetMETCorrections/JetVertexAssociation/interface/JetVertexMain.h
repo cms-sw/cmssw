@@ -19,11 +19,11 @@ public:
   std::pair<double, bool> Main(const reco::CaloJet& jet,
                                edm::Handle<reco::TrackCollection> tracks,
                                double SIGNAL_V_Z,
-                               double SIGNAL_V_Z_Error);
+                               double SIGNAL_V_Z_Error) const;
 
 private:
-  double DeltaR(double eta1, double eta2, double phi1, double phi2);
-  double Track_Pt(double px, double py);
+  double DeltaR(double eta1, double eta2, double phi1, double phi2) const;
+  double Track_Pt(double px, double py) const;
 
   //algorithm parameters
   double cutSigmaZ;
@@ -32,7 +32,6 @@ private:
   double cone_size;
   int Algo;
   std::string cutType;
-  bool discriminator;
 };
 
 #endif
