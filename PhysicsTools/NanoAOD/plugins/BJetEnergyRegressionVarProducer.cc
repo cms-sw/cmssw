@@ -132,16 +132,12 @@ template <typename T>
 void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
                                                  edm::Event& iEvent,
                                                  const edm::EventSetup& iSetup) const {
-  edm::Handle<edm::View<pat::Jet>> srcJet;
-  iEvent.getByToken(srcJet_, srcJet);
-  edm::Handle<std::vector<reco::Vertex>> srcVtx;
-  iEvent.getByToken(srcVtx_, srcVtx);
-  edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> srcSV;
-  iEvent.getByToken(srcSV_, srcSV);
-  edm::Handle<std::vector<reco::GenParticle>> srcGP;
-  iEvent.getByToken(srcGP_, srcGP);
+  const auto& srcJet = iEvent.getHandle(srcJet_);
+  const auto& vtxProd = iEvent.get(srcVtx_);
+  const auto& svProd = iEvent.get(srcSV_);
+  const auto& gpProd = iEvent.get(srcGP_);
 
-  unsigned int nJet = srcJet->size();
+  auto nJet = srcJet->size();
   //   unsigned int nLep = srcLep->size();
 
   std::vector<float> leptonPtRel(nJet, 0);
@@ -162,14 +158,14 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
   std::vector<float> ptD(nJet, 0);
   std::vector<float> genPtwNu(nJet, 0);
 
-  const auto& pv = (*srcVtx)[0];
+  const auto& pv = vtxProd.at(0);
   for (unsigned int ij = 0; ij < nJet; ij++) {
     auto jet = srcJet->ptrAt(ij);
 
     if (jet->genJet() != nullptr) {
       auto genp4 = jet->genJet()->p4();
       auto gep4wNu = genp4;
-      for (const auto& gp : *srcGP) {
+      for (const auto& gp : gpProd) {
         if ((abs(gp.pdgId()) == 12 || abs(gp.pdgId()) == 14 || abs(gp.pdgId()) == 16) && gp.status() == 1) {
           if (reco::deltaR(genp4, gp.p4()) < 0.4) {
             //                    std::cout<<" from "<<gep4wNu.pt()<<std::endl;
@@ -228,7 +224,7 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
     vtx3deL[ij] = 0;
     vtxNtrk[ij] = 0;
 
-    for (const auto& sv : *srcSV) {
+    for (const auto& sv : svProd) {
       GlobalVector flightDir(sv.vertex().x() - pv.x(), sv.vertex().y() - pv.y(), sv.vertex().z() - pv.z());
       GlobalVector jetDir(jet->px(), jet->py(), jet->pz());
       if (reco::deltaR2(flightDir, jetDir) < 0.09) {
