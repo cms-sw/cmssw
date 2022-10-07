@@ -782,15 +782,15 @@ namespace pat {
 
     /// Return reference to a pseudo track made with candidate kinematics,
     /// parameterized error for eta,phi,pt and full IP covariance
-    virtual const reco::Track &pseudoTrack(bool forcePosDef = false) const {
+    virtual const reco::Track &pseudoTrack() const {
       if (!track_)
-        unpackTrk(forcePosDef);
+        unpackTrk();
       return *track_;
     }
-    virtual void resetPseudoTrack() const {
-      delete m_.exchange(nullptr);
-      delete track_.exchange(nullptr);
-    }
+    /// Return reference to a pseudo track made with candidate kinematics,
+    /// parameterized error for eta,phi,pt and full IP covariance
+    /// and the coviriance matrix is forced to be positive definite according to BPH recommandations
+    virtual const reco::Track pseudoPosDefTrack() const;
 
     /// return a pointer to the track if present. otherwise, return a null pointer
     const reco::Track *bestTrack() const override {
@@ -1023,7 +1023,7 @@ namespace pat {
     void packVtx(bool unpackAfterwards = true);
     void unpackVtx() const;
     void packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards = true);
-    void unpackCovariance(bool forcePosDef = false) const;
+    void unpackCovariance() const;
     void maybeUnpackBoth() const {
       if (!p4c_)
         unpack();
@@ -1034,9 +1034,9 @@ namespace pat {
       if (!track_)
         unpackTrk();
     }
-    void maybeUnpackCovariance(bool forcePosDef = false) const {
+    void maybeUnpackCovariance() const {
       if (!m_)
-        unpackCovariance(forcePosDef);
+        unpackCovariance();
     }
     void packBoth() {
       pack(false);
@@ -1048,7 +1048,7 @@ namespace pat {
       unpackVtx();
     }  // do it this way, so that we don't loose precision on the angles before
     // computing dxy,dz
-    void unpackTrk(bool forcePosDef = false) const;
+    void unpackTrk() const;
 
     uint8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_;  // storing the DIFFERENCE of (all - "no
