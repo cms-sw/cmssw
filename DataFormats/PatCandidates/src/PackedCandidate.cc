@@ -179,7 +179,7 @@ const reco::Track pat::PackedCandidate::pseudoPosDefTrack() const {
                    (!(*m_).Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!(*m_).Det(det) || det < 0);
 
   if (notPosDef) {
-    std::cout << "during unpacking, the determinant is: " << det << std::endl;
+    //    std::cout << "during unpacking, the determinant is: " << det << std::endl;
     reco::TrackBase::CovarianceMatrix m(*m_);
     //if not positive-definite, alter values to allow for pos-def
     TMatrixDSym eigenCov(5);
@@ -200,10 +200,10 @@ const reco::Track pat::PackedCandidate::pseudoPosDefTrack() const {
         m(i, i) += delta - minEigenValue;
     }
 
-    bool notPosDef = (!m.Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
-                     (!m.Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
-                     (!m.Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!m.Det(det) || det < 0);
-    std::cout << "    the determinant of the corrected covariance matrix is: " << det << std::endl;
+    //    bool notPosDef = (!m.Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
+    //                 (!m.Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
+    //                 (!m.Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!m.Det(det) || det < 0);
+    //    std::cout << "    the determinant of the corrected covariance matrix is: " << det << std::endl;
     // make a track object with pos def covariance matrix
     return reco::Track(normalizedChi2_ * (*track_).ndof(),
                        (*track_).ndof(),
