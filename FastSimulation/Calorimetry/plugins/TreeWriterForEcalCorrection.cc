@@ -20,7 +20,7 @@
 
 #include "TTree.h"
 
-class TreeWriterForEcalCorrection : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class TreeWriterForEcalCorrection : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TreeWriterForEcalCorrection(const edm::ParameterSet&);
   ~TreeWriterForEcalCorrection() override = default;
@@ -34,21 +34,21 @@ private:
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ebf_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_eef_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_esf_;
-  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ebs_;  
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ebs_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ees_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ess_;
   TTree* tree_;
   float tree_e_, tree_eta_, tree_response_;
 };
 
-TreeWriterForEcalCorrection::TreeWriterForEcalCorrection(const edm::ParameterSet& iConfig) 
-  : tok_gen_(consumes<reco::GenParticleCollectio>(edm::InputTag("genParticles", ""))),
-    tok_ebf_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsEB"))),
-    tok_eef_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsEE"))),
-    tok_esf_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsES"))),
-    tok_ebs_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"))),
-    tok_ees_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"))),
-    tok_ess_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsES"))) {
+TreeWriterForEcalCorrection::TreeWriterForEcalCorrection(const edm::ParameterSet& iConfig)
+    : tok_gen_(consumes<reco::GenParticleCollectio>(edm::InputTag("genParticles", ""))),
+      tok_ebf_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsEB"))),
+      tok_eef_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsEE"))),
+      tok_esf_(consumes<edm::PCaloHitContainer>(edm::InputTag("fastSimProducer", "EcalHitsES"))),
+      tok_ebs_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"))),
+      tok_ees_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"))),
+      tok_ess_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsES"))) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> file;
   tree_ = file->make<TTree>("responseTree", "same info as 3dhisto");
@@ -82,8 +82,10 @@ void TreeWriterForEcalCorrection::analyze(const edm::Event& iEvent, const edm::E
   bool isFastSim = SimHitsEB.isValid();
   if (!isFastSim)
     SimHitsEB = iEvent.getHandle(tok_ebs_);
-  const edm::Handle<edm::PCaloHitContainer> SimHitsEE = isFastSim ? iEvent.getHandle(tok_eef_) : iEvent.getHandle(tok_ees_);
-  const edm::Handle<edm::PCaloHitContainer> SimHitsES = isFastSim ? iEvent.getHandle(tok_esf_) : iEvent.getHandle(tok_ess_);
+  const edm::Handle<edm::PCaloHitContainer> SimHitsEE =
+      isFastSim ? iEvent.getHandle(tok_eef_) : iEvent.getHandle(tok_ees_);
+  const edm::Handle<edm::PCaloHitContainer> SimHitsES =
+      isFastSim ? iEvent.getHandle(tok_esf_) : iEvent.getHandle(tok_ess_);
 
   // merge them into one single vector
   auto SimHits = *(SimHitsEB.product());
