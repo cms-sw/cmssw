@@ -162,7 +162,7 @@ namespace PFClustering {
   namespace HCAL {
     struct ConfigurationParameters {
       uint32_t maxRH = 4000;          // previously: 2000
-      uint32_t maxPFCFracs = 200000;  // previously: 80000
+      uint32_t maxPFCFracs = 300000;  // previously: 80000
       uint32_t maxNeighbors = 8;
     };
 
