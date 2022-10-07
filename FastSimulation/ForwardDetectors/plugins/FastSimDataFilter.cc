@@ -15,9 +15,9 @@
 using namespace std;
 namespace cms {
 
-  FastSimDataFilter::FastSimDataFilter(const edm::ParameterSet& conf) 
-    : tokTowers_(consumes<CaloTowerCollection>(edm::InputTag("towerMaker"))),
-      towercut(conf.getUntrackedParameter<double>("towercut", 1.4)) { }
+  FastSimDataFilter::FastSimDataFilter(const edm::ParameterSet& conf)
+      : tokTowers_(consumes<CaloTowerCollection>(edm::InputTag("towerMaker"))),
+        towercut(conf.getUntrackedParameter<double>("towercut", 1.4)) {}
 
   void FastSimDataFilter::beginJob() {
     ntotal = 0;

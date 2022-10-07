@@ -27,30 +27,29 @@
 
 /** read (and verify) parameters */
 
-ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p) 
-  : tokGen_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
-    tokPile_(consumes<edm::HepMCProduct>(edm::InputTag("famosPileUp", "PileUpEvents"))),
-    beam1mode(p.getParameter<unsigned int>("beam1mode")),
-    beam2mode(p.getParameter<unsigned int>("beam2mode")),
-    beamCombiningMode(p.getParameter<unsigned int>("beamCombiningMode")) {
-
+ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
+    : tokGen_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+      tokPile_(consumes<edm::HepMCProduct>(edm::InputTag("famosPileUp", "PileUpEvents"))),
+      beam1mode(p.getParameter<unsigned int>("beam1mode")),
+      beam2mode(p.getParameter<unsigned int>("beam2mode")),
+      beamCombiningMode(p.getParameter<unsigned int>("beamCombiningMode")) {
   edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Initializing ...";
 
   switch (beam1mode) {
     case 0:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: ingnore" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: ingnore";
       break;
     case 1:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420";
       break;
     case 2:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 220";
       break;
     case 3:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420 and 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420 and 220";
       break;
     case 4:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420 or 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 1: 420 or 220";
       break;
     default:
       throw cms::Exception("FastSimulation/ProtonTaggers") << "Error: beam1mode cannot be " << beam1mode;
@@ -58,19 +57,19 @@ ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
 
   switch (beam2mode) {
     case 0:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: ingnore" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: ingnore";
       break;
     case 1:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420";
       break;
     case 2:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 220";
       break;
     case 3:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420 and 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420 and 220";
       break;
     case 4:
-      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420 or 220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen for beam 2: 420 or 220";
       break;
     default:
       throw cms::Exception("FastSimulation/ProtonTaggers") << "Error: beam2mode cannot be " << beam2mode;
@@ -78,16 +77,16 @@ ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
 
   switch (beamCombiningMode) {
     case 1:
-      edm::LogVerbatim("FastSim") << "Option chosen: one proton is sufficient" ;
+      edm::LogVerbatim("FastSim") << "Option chosen: one proton is sufficient";
       break;
     case 2:
-      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged" ;
+      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged";
       break;
     case 3:
-      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged as 220+220 or 420+420" ;
+      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged as 220+220 or 420+420";
       break;
     case 4:
-      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged as 220+420 or 420+220" ;
+      edm::LogVerbatim("FastSim") << "Option chosen: two protons should be tagged as 220+420 or 420+220";
       break;
     default:
       throw cms::Exception("FastSimulation/ProtonTaggers")
@@ -96,35 +95,35 @@ ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
 
   if (((beam1mode != 4) || (beam2mode != 4)) && (beamCombiningMode > 2)) {
     edm::LogWarning("FastSim") << "Warning: beamCombiningMode = " << beamCombiningMode
-              << " only makes sence with beam1mode = beam2mode = 4" ;
+                               << " only makes sence with beam1mode = beam2mode = 4";
   }
 
   if (((beam1mode == 0) || (beam2mode == 0)) && (beamCombiningMode > 1)) {
-     edm::LogWarning("FastSim") << "Warning: You ask for 2 protons while one of the beams is set to ignore" ;
+    edm::LogWarning("FastSim") << "Warning: You ask for 2 protons while one of the beams is set to ignore";
   }
 
   if ((beam1mode == 0) && (beam2mode == 0)) {
-     edm::LogWarning("FastSim") << "Warning: Both beams are set to ignore." ;
+    edm::LogWarning("FastSim") << "Warning: Both beams are set to ignore.";
   }
 
-  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Initialized" ;
+  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Initialized";
 }
 
 /** initialize detector acceptance table */
 
 void ProtonTaggerFilter::beginJob() {
-  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Getting ready ..." ;
+  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Getting ready ...";
 
   edm::FileInPath myDataFile("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
   std::string fullPath = myDataFile.fullPath();
 
-  edm::LogVerbatim("FastSim") << "Opening " << fullPath ;
+  edm::LogVerbatim("FastSim") << "Opening " << fullPath;
   TFile f(fullPath.c_str());
 
   if (f.Get("description") != nullptr)
-    edm::LogVerbatim("FastSim") << "Description found: " << f.Get("description")->GetTitle() ;
+    edm::LogVerbatim("FastSim") << "Description found: " << f.Get("description")->GetTitle();
 
-  edm::LogVerbatim("FastSim") << "Reading acceptance tables @#@#%@$%@$#%@%" ;
+  edm::LogVerbatim("FastSim") << "Reading acceptance tables @#@#%@$%@$#%@%";
 
   helper420beam1.Init(f, "a420");
   helper420beam2.Init(f, "a420_b2");
@@ -137,20 +136,20 @@ void ProtonTaggerFilter::beginJob() {
 
   f.Close();
 
-  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Ready" ;
+  edm::LogVerbatim("FastSim") << "ProtonTaggerFilter: Ready";
 }
 
 /** Compute the detector acceptances and decide whether to filter the event */
 
 bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
   // ... get generated event
-  
+
   const edm::Handle<edm::HepMCProduct>& evtSource = iEvent.getHandle(tokGen_);
   const HepMC::GenEvent* genEvent = evtSource->GetEvent();
 
   //edm::LogVerbatim("FastSim") << "event contains " << genEvent->particles_size() << " particles " ;
   if (genEvent->particles_empty()) {
-    edm::LogVerbatim("FastSim") << "empty source event" ;
+    edm::LogVerbatim("FastSim") << "empty source event";
     return false;
   }
 
@@ -295,14 +294,16 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
         nP1at220m++;
 
       if ((p->pdg_id() != 2212) && (res220 || res420 || res420and220)) {
-        edm::LogVerbatim("FastSim") << " !!! P got proton 1 at 420 m: pz = " << pz ;
+        edm::LogVerbatim("FastSim") << " !!! P got proton 1 at 420 m: pz = " << pz;
         if (res220)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 220 m along beam 1, pz = " << pz ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 220 m along beam 1, pz = " << pz;
         if (res420)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 420 m along beam 1, pz = " << pz ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 420 m along beam 1, pz = " << pz;
         if (res420and220)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 220 m & 420 m  along beam 1, pz = " << pz
-                    ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 220 m & 420 m  along beam 1, pz = " << pz;
       }
     }
 
@@ -330,14 +331,16 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
         nP2at220m++;
 
       if ((p->pdg_id() != 2212) && (res220 || res420 || res420and220)) {
-        edm::LogVerbatim("FastSim") << " !!! P got proton 1 at 420 m: pz = " << pz ;
+        edm::LogVerbatim("FastSim") << " !!! P got proton 1 at 420 m: pz = " << pz;
         if (res220)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 220 m along beam 2, pz = " << pz ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 220 m along beam 2, pz = " << pz;
         if (res420)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 420 m along beam 2, pz = " << pz ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 420 m along beam 2, pz = " << pz;
         if (res420and220)
-          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id() << " at 220 m & 420 m along beam 2, pz = " << pz
-                    ;
+          edm::LogVerbatim("FastSim") << "got a particle with pid" << p->pdg_id()
+                                      << " at 220 m & 420 m along beam 2, pz = " << pz;
       }
     }
   }
@@ -350,13 +353,13 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
   bool p2at420m = (nP2at420m > 0) ? true : false;
 
   if ((nP1at220m > 1) && (beam1mode != 1))
-    edm::LogVerbatim("FastSim") << " !!! " << nP1at220m << " proton(s) from beam 1 at 220 m" ;
+    edm::LogVerbatim("FastSim") << " !!! " << nP1at220m << " proton(s) from beam 1 at 220 m";
   if ((nP1at420m > 1) && (beam1mode != 2))
-    edm::LogVerbatim("FastSim") << " !!! " << nP1at420m << " proton(s) from beam 1 at 420 m" ;
+    edm::LogVerbatim("FastSim") << " !!! " << nP1at420m << " proton(s) from beam 1 at 420 m";
   if ((nP2at220m > 1) && (beam2mode != 1))
-    edm::LogVerbatim("FastSim") << " !!! " << nP2at220m << " proton(s) from beam 2 at 220 m" ;
+    edm::LogVerbatim("FastSim") << " !!! " << nP2at220m << " proton(s) from beam 2 at 220 m";
   if ((nP2at420m > 1) && (beam2mode != 2))
-    edm::LogVerbatim("FastSim") << " !!! " << nP2at420m << " proton(s) from beam 2 at 420 m" ;
+    edm::LogVerbatim("FastSim") << " !!! " << nP2at420m << " proton(s) from beam 2 at 420 m";
 
   // ... make a decision based on requested filter configuration
 
