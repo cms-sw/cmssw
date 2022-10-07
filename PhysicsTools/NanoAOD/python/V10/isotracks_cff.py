@@ -20,7 +20,6 @@ isoForIsoTk = cms.EDProducer("IsoTrackIsoValueMapProducer",
 
 isFromLostTrackForIsoTk = cms.EDProducer("IsFromLostTrackMapProducer",
     srcIsoTracks = cms.InputTag("finalIsolatedTracks"),
-    packedPFCandidates = cms.InputTag("packedPFCandidates"),
     lostTracks = cms.InputTag("lostTracks"),
 )
 
