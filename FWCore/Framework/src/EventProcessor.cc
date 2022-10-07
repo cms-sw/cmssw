@@ -99,6 +99,17 @@
 #include <sched.h>
 #endif
 
+namespace {
+  class PauseQueueSentry {
+  public:
+    PauseQueueSentry(edm::SerialTaskQueue& queue) : queue_(queue) { queue_.pause(); }
+    ~PauseQueueSentry() { queue_.resume(); }
+
+  private:
+    edm::SerialTaskQueue& queue_;
+  };
+}  // namespace
+
 namespace edm {
 
   namespace chain = waiting_task::chain;
@@ -1313,11 +1324,10 @@ namespace edm {
 
                           ServiceRegistry::Operate operate(serviceToken_);
 
-                          // Call this before inserting into the stream queues so that stream begin run
-                          // is executed before global begin lumi in a single threaded job. This is not
-                          // required or necessary, but it is desirable to preserve the pre-concurrent run
-                          // behavior. In a multi-threaded job these things might run concurrently.
-                          handleNextItemAfterMergingRunEntries(status, holder);
+                          // The only purpose of the pause is to cause stream begin run to execute before
+                          // global begin lumi in the single threaded case (maintains consistency with
+                          // the order that existed before concurrent runs were implemented).
+                          PauseQueueSentry pauseQueueSentry(streamQueuesInserter_);
 
                           CMS_SA_ALLOW try {
                             streamQueuesInserter_.push(
@@ -1348,6 +1358,7 @@ namespace edm {
                             queueWhichWaitsForIOVsToFinish_.resume();
                             exceptionRunStatus_ = status;
                           }
+                          handleNextItemAfterMergingRunEntries(status, holder);
                         }) | runLast(postSourceTask);
                       } catch (...) {
                         status->resetBeginResources();
