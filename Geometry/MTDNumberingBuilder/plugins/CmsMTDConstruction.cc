@@ -79,7 +79,7 @@ void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv, Geom
     constexpr char positive[] = "PositiveZ";
     constexpr char negative[] = "NegativeZ";
 
-    const std::string modname(fv.name());
+    const std::string& modname(fv.name());
     size_t delim1 = modname.find("BModule");
     size_t delim2 = modname.find("Layer");
     module_number += atoi(modname.substr(delim1 + CmsMTDStringToEnum::kModStrLen, delim2).c_str()) - 1;
