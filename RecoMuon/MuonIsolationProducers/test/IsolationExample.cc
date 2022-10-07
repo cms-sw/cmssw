@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -16,13 +16,10 @@
 
 using namespace std;
 
-class IsolationExample : public edm::EDAnalyzer {
+class IsolationExample : public edm::one::EDAnalyzer<> {
 public:
   IsolationExample(const edm::ParameterSet& conf);
-  ~IsolationExample();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag theMuonTag;
@@ -44,10 +41,6 @@ IsolationExample::IsolationExample(const edm::ParameterSet& conf)
       theEventCount(0) {
   LogDebug("IsolationExample") << " CTOR" << endl;
 }
-
-IsolationExample::~IsolationExample() {}
-
-void IsolationExample::beginJob() {}
 
 void IsolationExample::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   static const std::string metname = "IsolationExample";
