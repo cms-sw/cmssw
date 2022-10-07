@@ -92,7 +92,7 @@ void pat::PackedCandidate::packCovariance(const reco::TrackBase::CovarianceMatri
     unpackCovariance();
 }
 
-void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
+void pat::PackedCandidate::unpackCovariance() const {
   const CovarianceParameterization &p = covarianceParameterization();
   if (p.isValid()) {
     auto m = std::make_unique<reco::TrackBase::CovarianceMatrix>();
@@ -108,39 +108,6 @@ void pat::PackedCandidate::unpackCovariance(bool forcePosDef) const {
     unpackCovarianceElement(*m, packedCovariance_.dxydz, 3, 4);
     unpackCovarianceElement(*m, packedCovariance_.dlambdadz, 1, 4);
     unpackCovarianceElement(*m, packedCovariance_.dphidxy, 2, 3);
-
-    if (forcePosDef) {
-      //      std::cout<<"unpacking enforcing positive-definite cov matrix"<<std::endl;
-      //calculate the determinant and verify positivity
-      double det = 0;
-      bool notPosDef = (!m->Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
-                       (!m->Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
-                       (!m->Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!m->Det(det) || det < 0);
-      //      std::cout<<"during unpacking, the determinant is: "<<det<<std::endl;
-      if (notPosDef) {
-        //if not positive-definite, alter values to allow for pos-def
-        TMatrixDSym eigenCov(5);
-        for (int i = 0; i < 5; i++) {
-          for (int j = 0; j < 5; j++) {
-            if (std::isnan((*m)(i, j)) || std::isinf((*m)(i, j)))
-              eigenCov(i, j) = 1e-6;
-            else
-              eigenCov(i, j) = (*m)(i, j);
-          }
-        }
-        TVectorD eigenValues(5);
-        eigenCov.EigenVectors(eigenValues);
-        double minEigenValue = eigenValues.Min();
-        double delta = 1e-6;
-        if (minEigenValue < 0) {
-          for (int i = 0; i < 5; i++)
-            (*m)(i, i) += delta - minEigenValue;
-        }
-
-        //        computed_ = m->Det(det);
-        //	std::cout<<"    the determinant of the corrected covariance matrix is: "<<det<<std::endl;
-      }
-    }
 
     reco::TrackBase::CovarianceMatrix *expected = nullptr;
     if (m_.compare_exchange_strong(expected, m.get())) {
@@ -198,10 +165,64 @@ float pat::PackedCandidate::dz(const Point &p) const {
          ((vertex_.load()->X() - p.X()) * std::cos(phi) + (vertex_.load()->Y() - p.Y()) * std::sin(phi)) * pzpt;
 }
 
-void pat::PackedCandidate::unpackTrk(bool forcePosDef) const {
+const reco::Track pat::PackedCandidate::pseudoPosDefTrack() const {
+  //if (posdeftrack_) return *posdeftrack_;
+  // perform the regular unpacking of the track
+  if (!track_)
+    unpackTrk();
+
+  //      std::cout<<"unpacking enforcing positive-definite cov matrix"<<std::endl;
+  //calculate the determinant and verify positivity
+  double det = 0;
+  bool notPosDef = (!(*m_).Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
+                   (!(*m_).Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
+                   (!(*m_).Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!(*m_).Det(det) || det < 0);
+
+  if (notPosDef) {
+    std::cout << "during unpacking, the determinant is: " << det << std::endl;
+    reco::TrackBase::CovarianceMatrix m(*m_);
+    //if not positive-definite, alter values to allow for pos-def
+    TMatrixDSym eigenCov(5);
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        if (std::isnan((m)(i, j)) || std::isinf((m)(i, j)))
+          eigenCov(i, j) = 1e-6;
+        else
+          eigenCov(i, j) = (m)(i, j);
+      }
+    }
+    TVectorD eigenValues(5);
+    eigenCov.EigenVectors(eigenValues);
+    double minEigenValue = eigenValues.Min();
+    double delta = 1e-6;
+    if (minEigenValue < 0) {
+      for (int i = 0; i < 5; i++)
+        m(i, i) += delta - minEigenValue;
+    }
+
+    bool notPosDef = (!m.Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
+                     (!m.Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
+                     (!m.Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!m.Det(det) || det < 0);
+    std::cout << "    the determinant of the corrected covariance matrix is: " << det << std::endl;
+    // make a track object with pos def covariance matrix
+    return reco::Track(normalizedChi2_ * (*track_).ndof(),
+                       (*track_).ndof(),
+                       *vertex_,
+                       (*track_).momentum(),
+                       (*track_).charge(),
+                       m,
+                       reco::TrackBase::undefAlgorithm,
+                       reco::TrackBase::loose);
+  } else {
+    // just return a copy of the unpacked track
+    return reco::Track(*track_);
+  }
+}
+
+void pat::PackedCandidate::unpackTrk() const {
   maybeUnpackBoth();
   math::RhoEtaPhiVector p3(ptTrk(), etaAtVtx(), phiAtVtx());
-  maybeUnpackCovariance(forcePosDef);
+  maybeUnpackCovariance();
   int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
   int numberOfPixelHits = this->numberOfPixelHits();
   int numberOfHits = this->numberOfHits();
