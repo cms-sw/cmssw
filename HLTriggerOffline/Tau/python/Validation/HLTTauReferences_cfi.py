@@ -17,22 +17,21 @@ TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
 
 #Create LorentzVectors for offline objects
 TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
-
-                                PFTaus = cms.untracked.PSet(
-                                   PFTauDiscriminators = cms.untracked.VInputTag(
+                                Taus = cms.untracked.PSet(
+                                   TauCollection = cms.untracked.InputTag("hpsPFTauProducer"),
+                                   TauDiscriminators = cms.untracked.VInputTag(
                                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
                                    ),
-                                   PFTauDiscriminatorContainers = cms.untracked.VInputTag(
+                                   TauDiscriminatorContainers = cms.untracked.VInputTag(
                                                     cms.InputTag("hpsPFTauBasicDiscriminators")
                                    ),
-                                   PFTauDiscriminatorContainerWPs =  cms.untracked.vstring("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
+                                   TauDiscriminatorContainerWPs =  cms.untracked.vstring("ByLooseCombinedIsolationDBSumPtCorr3Hits"),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(15.0),
                                    etaMin = cms.untracked.double(-2.5),
                                    etaMax = cms.untracked.double(2.5),
                                    phiMin = cms.untracked.double(-3.15),
                                    phiMax = cms.untracked.double(3.15),
-                                   PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                                    ),
                                 Electrons = cms.untracked.PSet(
                                    ElectronCollection = cms.untracked.InputTag("gsfElectrons"),
