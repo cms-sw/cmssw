@@ -2,8 +2,8 @@
 
 HLTriggerFirstPath
 
-Status_OnCPU	#	CMSHLT-2206
-Status_OnGPU	#	CMSHLT-2206
+Status_OnCPU   # CMSHLT-2206
+Status_OnGPU   # CMSHLT-2206
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
 HLT_HIPhysics_v*
@@ -245,63 +245,6 @@ HLT_HIFullTracks_Multiplicity2040_HF1AND_v*
 HLT_HIFullTracks_Multiplicity4060_v*
 HLT_HIFullTracks_Multiplicity6080_v*
 HLT_HIFullTracks_Multiplicity80100_v*
-HLT_HIUPC_Mu8_Mu13_v*
-HLT_HIUPC_Mu8_Mu13_MaxPixelTrack_v*
-HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelTrack_v*
-HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelTrack_v*
-HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v*
-HLT_HIUPC_DoubleMuOpen_NotMBHF2OR_MaxPixelTrack_v*
-HLT_HIUPC_DoubleMuOpen_NotMBHF2OR_v*
-HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v*
-HLT_HIUPC_SingleMu0_NotMBHF2OR_MaxPixelTrack_v*
-HLT_HIUPC_SingleMu0_NotMBHF2AND_MaxPixelTrack_v*
-HLT_HIUPC_SingleMu0_NotMBHF2AND_v*
-HLT_HIUPC_DoubleMu0_NotMBHF2OR_MaxPixelTrack_v*
-HLT_HIUPC_DoubleMu0_NotMBHF2AND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleMu0_NotMBHF2AND_v*
-HLT_HIUPC_DoubleMu0_NotMBHF2OR_v*
-HLT_HIUPC_SingleMu0_NotMBHF2OR_v*
-HLT_HIUPC_SingleMu3_NotMBHF2OR_MaxPixelTrack_v*
-HLT_HIUPC_SingleMu3_NotMBHF2OR_v*
-HLT_HIUPC_SingleMu0_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleMu0_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_SingleMu3_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2AND_v*
-HLT_HIUPC_NotMBHF2OR_BptxAND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_NotMBHF2AND_SinglePixelTrack_v*
-HLT_HIUPC_NotMBHF2AND_v*
-HLT_HIUPC_NotMBHF2OR_BptxAND_SinglePixelTrack_v*
-HLT_HIUPC_ZeroBias_SinglePixelTrack_v*
-HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2OR_SinglePixelTrack_v*
-HLT_HIUPC_DoubleEG2_NotMBHF2OR_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*
-HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2OR_SinglePixelTrack_v*
-HLT_HIUPC_DoubleEG5_NotMBHF2OR_v*
-HLT_HIUPC_SingleEG5_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_v*
-HLT_HIUPC_SingleEG5_NotMBHF2AND_v*
-HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2AND_v*
-HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_v*
-HLT_HIUPC_SingleEG3_NotMBHF2OR_v*
-HLT_HIUPC_SingleEG5_NotMBHF2OR_SinglePixelTrack_v*
-HLT_HIUPC_SingleEG5_NotMBHF2OR_v*
 HLT_HICsAK4PFJet60Eta1p5_v*
 HLT_HICsAK4PFJet80Eta1p5_v*
 HLT_HICsAK4PFJet100Eta1p5_v*
@@ -399,9 +342,6 @@ HLT_HIPuAK4CaloJet100Eta2p4_CSVv2WP0p75_v*
 HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v*
 HLT_HIL3Mu2p5NHitQ10_L2Mu2_M7toinf_v*
 
-HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_v*
-HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_SinglePixelTrack_v*
-
 HLT_HIL1NotBptxOR_v*
 HLT_HIL1UnpairedBunchBptxMinus_v*
 HLT_HIL1UnpairedBunchBptxPlus_v*
@@ -411,11 +351,60 @@ HLT_HIL1_ZDC_AND_OR_MinimumBiasHF2_AND_BptxAND_v*
 
 HLT_HIFullTracks_Multiplicity335_HF1OR_v*
 
-HLT_HIUPC_ZeroBias_MaxPixelCluster_v*
-HLT_HIUPC_SingleEG3_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_SingleEG5_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG2_BptxAND_MaxPixelTrack_v*
-HLT_HIUPC_DoubleEG5_BptxAND_MaxPixelTrack_v*
+HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
+HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_DoubleEG2_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
+HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelTrack_v*                          # CMSHLT-2471
+HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelTrack_v*                      # CMSHLT-2471
+HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v*                                    # CMSHLT-2471
+HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelTrack_v*                            # CMSHLT-2471
+HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelTrack_v*                        # CMSHLT-2471
+HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
+HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v*                          # CMSHLT-2471
+HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v*                          # CMSHLT-2471
+HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v*                          # CMSHLT-2471
+HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity20400_v*                          # CMSHLT-2471
+HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity30400_v*                          # CMSHLT-2471
+HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity40400_v*                          # CMSHLT-2471
+HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v*  # CMSHLT-2471
+HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
+HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_SingleEG3_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*           # CMSHLT-2471
+HLT_HIUPC_SingleEG3_NotMBHF2OR_v*                                          # CMSHLT-2471
+HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
+HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_SingleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelTrack_v*                          # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelTrack_v*                      # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v*                                    # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelTrack_v*                       # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v*                                     # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelTrack_v*                            # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelTrack_v*                        # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelTrack_v*                         # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v*                                       # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelTrack_v*     # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelTrack_v* # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v*               # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelTrack_v*  # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v*                # CMSHLT-2471
+HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v*               # CMSHLT-2471
+HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v*              # CMSHLT-2471
+HLT_HIUPC_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v*                        # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity20_v*                    # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity30_v*                    # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity40_v*                    # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v*                    # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity30_v*                    # CMSHLT-2471
+HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v*                    # CMSHLT-2471
+HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v*              # CMSHLT-2471
+HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v*             # CMSHLT-2471
+HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v*                       # CMSHLT-2471
 
 HLT_HIOnlineMonitorGroup_v* # CMSHLT-2245
 
