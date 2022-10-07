@@ -110,9 +110,9 @@ namespace PFRecHit {
         uint32_t size,
         uint32_t const* rh_detIdRef,    // Reference table index -> detId
         int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
-        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index    
+        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
         uint32_t const* recHits_did)    // Input rechit detIds
-        {  
+        {
 
           int first = blockIdx.x*blockDim.x + threadIdx.x;
           for (int i = first; i < size; i += gridDim.x * blockDim.x) {
@@ -127,6 +127,46 @@ namespace PFRecHit {
               }
             }
           }
+        }
+
+    __global__ void buildDetIdMapKH(
+        uint32_t size,
+        uint32_t const* rh_detIdRef,    // Reference table index -> detId
+        int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
+        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
+        uint32_t const* recHits_did)    // Input rechit detIds
+        {
+
+          int first = blockIdx.x*blockDim.x + threadIdx.x;
+          for (int i = first; i < size; i += gridDim.x * blockDim.x) {
+            auto detId = recHits_did[i];
+
+            // Get subdetector encoded in detId to narrow the range of reference table values to search
+            // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
+            uint32_t subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+            uint32_t minval, maxval;
+            if (subdet == HcalBarrel) {
+              minval = 0;
+              maxval = constantsGPU_d.nValidBarrelIds;
+            } else if (subdet == HcalEndcap) {
+              minval = constantsGPU_d.nValidEndcapIds;
+              maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
+            } else {
+              printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
+              return;
+            }
+
+            // Search all valid rechits for matching detId
+            for (uint32_t j = minval; j < maxval; j += 1) {
+              if (detId == rh_detIdRef[j]) {
+                // Found it
+                rh_inputToFullIdx[i] = j;  // Input rechit index -> reference table index
+                rh_fullToInputIdx[j] = i;  // Reference table index -> input rechit index
+                return;
+              }
+            }
+          }
+
         }
 
     // Build detId map with 1 block per input rechit
@@ -495,7 +535,7 @@ namespace PFRecHit {
       cms::cuda::device::unique_ptr<uint32_t[]> d_nPFRHCleaned; // Number of cleaned PFRecHits
       cms::cuda::host::unique_ptr<uint32_t[]> h_nPFRHOut;
       cms::cuda::host::unique_ptr<uint32_t[]> h_nPFRHCleaned;
-      
+
       d_nPFRHOut = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
       d_nPFRHCleaned = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t) , cudaStream);
 
@@ -530,20 +570,21 @@ namespace PFRecHit {
 #endif
 
       // // First build the mapping for input rechits to reference table indices
-      buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
-                                                           persistentDataGPU.rh_detId.get(),
-                                                           scratchDataGPU.rh_inputToFullIdx.get(),
-                                                           scratchDataGPU.rh_fullToInputIdx.get(),
-                                                           HBHERecHits_asInput.did.get());
-      cudaCheck(cudaGetLastError());
-
-      // First build the mapping for input rechits to reference table indices
-      // buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+      // buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
       //                                                      persistentDataGPU.rh_detId.get(),
       //                                                      scratchDataGPU.rh_inputToFullIdx.get(),
       //                                                      scratchDataGPU.rh_fullToInputIdx.get(),
       //                                                      HBHERecHits_asInput.did.get());
       // cudaCheck(cudaGetLastError());
+
+      // First build the mapping for input rechits to reference table indices
+      // buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+      buildDetIdMapKH<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+                                                           persistentDataGPU.rh_detId.get(),
+                                                           scratchDataGPU.rh_inputToFullIdx.get(),
+                                                           scratchDataGPU.rh_fullToInputIdx.get(),
+                                                           HBHERecHits_asInput.did.get());
+      cudaCheck(cudaGetLastError());
 
 
     // Debugging function used to check the mapping of input index <-> reference table index
@@ -566,7 +607,7 @@ namespace PFRecHit {
       // Apply PFRecHit threshold & quality tests
 
       //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
-      
+
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
       cudaCheck(cudaGetLastError());
@@ -595,7 +636,7 @@ namespace PFRecHit {
       cudaEventElapsedTime(&timer[3], start, stop);
       printf("\napplyMask took %f ms\n\n", timer[3]);
 #endif
-      
+
       cms::cuda::copyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaStream);
       cms::cuda::copyAsync(h_nPFRHCleaned, d_nPFRHCleaned, sizeof(uint32_t), cudaStream);
 
