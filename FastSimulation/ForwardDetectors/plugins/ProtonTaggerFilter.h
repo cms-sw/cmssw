@@ -27,6 +27,7 @@
 
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
 
 #include "TFile.h"
@@ -37,26 +38,30 @@ public:
   explicit ProtonTaggerFilter(edm::ParameterSet const& p);
 
   /// empty destructor
-  ~ProtonTaggerFilter() override;
+  ~ProtonTaggerFilter() override = default;
 
   /// startup function of the EDFilter
   virtual void beginJob();
 
   /// endjob function of the EDFilter
-  virtual void endJob();
+  virtual void endJob() {}
 
   /// decide if the event is accepted by the proton taggers
   bool filter(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  /// tokens to access the collections
+  const edm::EDGetTokenT<edm::HepMCProduct> tokGen_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tokPile_;
+
   /// choose which of the detectors (FP420/TOTEM/both) will be used for beam 1
-  unsigned int beam1mode;
+  const unsigned int beam1mode;
 
   /// choose which of the detectors (FP420/TOTEM/both) will be used for beam 2
-  unsigned int beam2mode;
+  const unsigned int beam2mode;
 
   /// choose how to combine data from the two beams (ask for 1/2 proton)
-  unsigned int beamCombiningMode;
+  const unsigned int beamCombiningMode;
 
   /// Objects which actually compute the acceptance (one per detector or combination of detectors)
   AcceptanceTableHelper helper420beam1;
