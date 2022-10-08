@@ -82,17 +82,12 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
   }
 }
 
-PF_PU_FirstVertexTracks::~PF_PU_FirstVertexTracks() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PF_PU_FirstVertexTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   unique_ptr<TrackCollection> t2v_firstvertextracks(new TrackCollection());
   unique_ptr<TrackCollection> v2t_firstvertextracks(new TrackCollection());
 
@@ -139,7 +134,7 @@ void PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup&
         for (unsigned int index_input_trck = 0; index_input_trck < input_trckcollH->size(); index_input_trck++) {
           TrackRef input_trackref = TrackRef(input_trckcollH, index_input_trck);
 
-          if (TrackMatch(*AMtrkref, *input_trackref)) {
+          if (trackMatch(*AMtrkref, *input_trackref)) {
             t2v_firstvertextracks->push_back(*AMtrkref);
             break;
           }
@@ -165,7 +160,7 @@ void PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup&
       for (unsigned int index_input_trck = 0; index_input_trck < input_trckcollH->size(); index_input_trck++) {
         TrackRef input_trackref = TrackRef(input_trckcollH, index_input_trck);
 
-        if (TrackMatch(*AMtrkref, *input_trackref)) {
+        if (trackMatch(*AMtrkref, *input_trackref)) {
           for (unsigned v_ite = 0; v_ite < (v2t_ite->val).size(); v_ite++) {
             VertexRef vtxref = (v2t_ite->val)[v_ite].first;
             float quality = (v2t_ite->val)[v_ite].second;
@@ -182,7 +177,7 @@ void PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 }
 
-bool PF_PU_FirstVertexTracks::TrackMatch(const Track& track1, const Track& track2) {
+bool PF_PU_FirstVertexTracks::trackMatch(const Track& track1, const Track& track2) const {
   return ((track1).eta() == (track2).eta() && (track1).phi() == (track2).phi() && (track1).chi2() == (track2).chi2() &&
           (track1).ndof() == (track2).ndof() && (track1).p() == (track2).p());
 }
@@ -192,7 +187,14 @@ void PF_PU_FirstVertexTracks::fillDescriptions(edm::ConfigurationDescriptions& d
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  using namespace edm;
+  desc.add<InputTag>("AssociationType");
+  desc.add<InputTag>("AssociationMap");
+  desc.add<InputTag>("TrackCollection");
+  desc.add<InputTag>("VertexCollection");
+  desc.add<int>("MinQuality");
+
   descriptions.addDefault(desc);
 }
 
