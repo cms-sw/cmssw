@@ -153,9 +153,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0)
-                         ? HGCalDetId(detId).layer()
-                         : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();
