@@ -10,19 +10,34 @@ streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass0_selecto
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass0_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass0_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass0_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass1_selector
@@ -30,19 +45,34 @@ streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass1_selecto
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass1_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass1_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass0_datasetParkingDoubleElectronLowMass1_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 
@@ -53,19 +83,34 @@ streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass2_selecto
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass2_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass2_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass2_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass3_selector
@@ -73,19 +118,34 @@ streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass3_selecto
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass3_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass3_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass1_datasetParkingDoubleElectronLowMass3_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 
@@ -96,19 +156,34 @@ streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass4_selecto
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass4_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass4_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass4_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass5_selector
@@ -116,19 +191,34 @@ streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass5_selecto
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass5_selector.l1tResults = cms.InputTag('')
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass5_selector.throw      = cms.bool(False)
 streamParkingDoubleElectronLowMass2_datasetParkingDoubleElectronLowMass5_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleEle10_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle10_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4_eta1p22_mMax6_v2',
+    'HLT_DoubleEle4p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle4p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle5p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle5p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6_eta1p22_mMax6_v2',
+    'HLT_DoubleEle6p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle6p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7_eta1p22_mMax6_v2',
+    'HLT_DoubleEle7p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle7p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8_eta1p22_mMax6_v2',
+    'HLT_DoubleEle8p5_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle8p5_eta1p22_mMax6_v2',
+    'HLT_DoubleEle9_eta1p22_mMax6_dz0p8_v1',
     'HLT_DoubleEle9_eta1p22_mMax6_v2',
-    'HLT_DoubleEle9p5_eta1p22_mMax6_v2'
+    'HLT_DoubleEle9p5_eta1p22_mMax6_dz0p8_v1',
+    'HLT_DoubleEle9p5_eta1p22_mMax6_v2',
+    'HLT_SingleEle8_SingleEGL1_v1',
+    'HLT_SingleEle8_v1'
 )
 
 
