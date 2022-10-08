@@ -21,5 +21,7 @@ process.demo = cms.EDAnalyzer('TestPythiaDecays',
                               outputFile = cms.string(options.outputFile)
 )
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string(options.outputFile))
 
 process.p = cms.Path(process.demo)
