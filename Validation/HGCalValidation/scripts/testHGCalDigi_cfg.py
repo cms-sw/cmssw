@@ -1,8 +1,11 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalDigi_cfg.py geometry=D92
+#   cmsRun testHGCalDigi_cfg.py geometry=D92 type=mu noise=none threshold=none
 #
 #   Options for geometry D88, D92, D93
+#               type mu, tt
+#               noise none, ok
+#               threshold none, ok
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,6 +20,21 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D88, D92, D93")
+options.register('type',
+                 "mu",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "type of operations: mu, tt")
+options.register('noise',
+                 "ok",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                 "noise of operations: none, ok")
+options.register('threshold',
+                 "ok",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                 "threshold of operations: none, ok")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -25,13 +43,13 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('SingleMuonDigi',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('Digi',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
-inFile = "file:step1" + options.geometry + ".root"
-outFile = "file:step2" + options.geometry + ".root"
+inFile = "file:step1" + options.geometry + options.type + ".root"
+outFile = "file:step2" + options.geometry + options.type + ".root"
 
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
@@ -44,6 +62,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load(geomFile)
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
@@ -149,6 +168,14 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+
+if (options.noise == "none"):
+    process.HGCAL_noise_fC.values = [0,0,0]
+
+if (options.threshold == "none"):
+    process.theDigitizersValid.hgceeDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
+    process.theDigitizersValid.hgchefrontDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
+    process.theDigitizersValid.hgchebackDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
 
 # Schedule definition
 # process.schedule imported from cff in HLTrigger.Configuration
