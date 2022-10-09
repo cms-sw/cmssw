@@ -14,7 +14,6 @@
 // user include files
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
