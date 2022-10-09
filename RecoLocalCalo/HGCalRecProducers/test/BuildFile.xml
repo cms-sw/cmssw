@@ -1,3 +1,4 @@
 <bin   name="EtaPhiSearchInTileLC" file="EtaPhiSearchInTile_t.cpp">
   <use name="RecoLocalCalo/HGCalRecProducers" />
+  <use name="catch2" />
 </bin>
