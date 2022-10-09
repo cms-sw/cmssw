@@ -56,6 +56,11 @@ print("Global Tag:    ", globalTag)
 print("Input file:    ", inFile)
 print("Output file:   ", outFile)
 
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgchefrontDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgchebackDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcROCParameters_cfi import hgcROCSettings
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -173,9 +178,9 @@ if (options.noise == "none"):
     process.HGCAL_noise_fC.values = [0,0,0]
 
 if (options.threshold == "none"):
-    process.theDigitizersValid.hgceeDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
-    process.theDigitizersValid.hgchefrontDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
-    process.theDigitizersValid.hgchebackDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
+    process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
+    process.mix.digitizers.hgchefrontDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
+    process.mix.digitizers.hgchebackDigitizer.digiCfg.feCfg.adcThreshold_fC = 0.0
 
 # Schedule definition
 # process.schedule imported from cff in HLTrigger.Configuration
