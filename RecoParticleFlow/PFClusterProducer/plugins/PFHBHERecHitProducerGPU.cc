@@ -85,6 +85,7 @@ private:
   PFRecHit::HCAL::Constants cudaConstants;
 
   uint32_t nValidDetIds = 0;
+  uint32_t nDenseIdsInRange = 0;
   std::vector<std::vector<DetId>>* neighboursHcal_;
   std::vector<unsigned>* vDenseIdHcal;
   std::unordered_map<unsigned, unsigned>
@@ -95,6 +96,12 @@ private:
 
   bool initCuda = true;
   std::array<float, 5> GPU_timers;
+
+  unsigned int getIdx(const unsigned int denseid) const {
+    unsigned index = denseid - denseIdHcalMin_;
+    return index;
+  }
+
 };
 
 PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
@@ -199,8 +206,19 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   nValidDetIds = cudaConstants.nValidBarrelIds + cudaConstants.nValidEndcapIds;
   cudaConstants.nValidDetIds = nValidDetIds;
 
-//  std::cout << "Found nValidBarrelIds = " << cudaConstants.nValidBarrelIds
-//	    << "\tnValidEndcapIds = " << cudaConstants.nValidEndcapIds << std::endl;
+  // std::cout << "Found nValidBarrelIds = " << cudaConstants.nValidBarrelIds
+  // 	    << "\tnValidEndcapIds = " << cudaConstants.nValidEndcapIds << std::endl;
+
+  vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
+  //std::cout << "Found vDenseIdHcal->size() = " << vDenseIdHcal->size() << std::endl;
+
+  // Fill a vector of cell neighbours
+  denseIdHcalMax_ = *std::max_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
+  denseIdHcalMin_ = *std::min_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
+  //std::cout << denseIdHcalMax_ << " " << - denseIdHcalMin_ << std::endl;
+  nDenseIdsInRange = denseIdHcalMax_ - denseIdHcalMin_ + 1;
+  cudaConstants.nDenseIdsInRange = nDenseIdsInRange;
+  cudaConstants.denseIdHcalMin = denseIdHcalMin_;
 
   detIdToIndex.clear();
   validDetIdPositions.clear();
@@ -208,12 +226,10 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   detIdToIndex.reserve(nValidDetIds);
   validDetIdPositions.reserve(nValidDetIds);
 
-  vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
-//  std::cout << "Found vDenseIdHcal->size() = " << vDenseIdHcal->size() << std::endl;
-
   for (const auto& denseid : *vDenseIdHcal) {
     DetId detid_c = topology_.get()->denseId2detId(denseid);
     HcalDetId hid_c = HcalDetId(detid_c);
+    //unsigned int denseid_c = topology_.get()->detId2denseId(detid_c);
 
     if (hid_c.subdet() == HcalBarrel)
       validDetIdPositions.emplace_back(hcalBarrelGeo->getGeometry(detid_c)->getPosition());
@@ -221,6 +237,21 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
       validDetIdPositions.emplace_back(hcalEndcapGeo->getGeometry(detid_c)->getPosition());
     else
       std::cout << "Invalid subdetector found for detId " << hid_c.rawId() << ": " << hid_c.subdet() << std::endl;
+
+    // if (hid_c.rawId()==1158697012) {
+    // 	if (hid_c.subdet() == HcalBarrel) {
+    // 	  std::cout << "aaa " << denseid << " " << denseid_c << " "
+    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().x() << " "
+    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().y() << " "
+    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().z() << std::endl;
+    // 	}
+    // 	else if (hid_c.subdet() == HcalEndcap) {
+    // 	  std::cout << "aaa " << denseid << " " << denseid_c << " "
+    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().x() << " "
+    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().y() << " "
+    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().z() << std::endl;
+    // 	}
+    //   }
 
     detIdToIndex[hid_c.rawId()] = detIdToIndex.size();
   }
@@ -239,19 +270,20 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   if (initCuda) {
     // Initialize persistent arrays for rechit positions
-    persistentDataCPU.allocate(nValidDetIds, ctx.stream());
-    persistentDataGPU.allocate(nValidDetIds, ctx.stream());
+    persistentDataCPU.allocate(nDenseIdsInRange, ctx.stream());
+    persistentDataGPU.allocate(nDenseIdsInRange, ctx.stream());
     scratchDataGPU.allocate(nValidDetIds, ctx.stream());
 
     uint32_t nRHTotal = 0;
     for (const auto& denseId : *vDenseIdHcal) {
       DetId detId = topology_.get()->denseId2detId(denseId);
       HcalDetId hid(detId.rawId());
+      unsigned index = getIdx(denseId);
 
-      persistentDataCPU.rh_pos[nRHTotal] = make_float3(validDetIdPositions.at(nRHTotal).x(),
+      persistentDataCPU.rh_pos[index] = make_float3(validDetIdPositions.at(nRHTotal).x(),
                                                        validDetIdPositions.at(nRHTotal).y(),
                                                        validDetIdPositions.at(nRHTotal).z());
-      persistentDataCPU.rh_detId[nRHTotal] = hid.rawId();
+      persistentDataCPU.rh_detId[index] = hid.rawId();
       auto neigh = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getNeighbours(denseId);
       for (uint32_t n = 0; n < 8; n++) {
         // cmssdt.cern.ch/lxr/source/RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h#0087
@@ -261,10 +293,12 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
         // Some neighbors from HF included! Need to test if these are included in the map!
         //auto neighDetId = neighboursHcal_[centerIndex][n+1].rawId();
         auto neighDetId = neigh[n + 1].rawId();
-        if (neighDetId > 0 && detIdToIndex.find(neighDetId) != detIdToIndex.end()) {
-          persistentDataCPU.rh_neighbours[nRHTotal * 8 + n] = detIdToIndex[neighDetId];
+        //if (neighDetId > 0 && detIdToIndex.find(neighDetId) != detIdToIndex.end()) {
+          //persistentDataCPU.rh_neighbours[index * 8 + n] = detIdToIndex[neighDetId];
+        if (neighDetId > 0 && topology_.get()->detId2denseId(neighDetId)>=denseIdHcalMin_ && topology_.get()->detId2denseId(neighDetId)<=denseIdHcalMax_) {
+          persistentDataCPU.rh_neighbours[index * 8 + n] = getIdx(topology_.get()->detId2denseId(neighDetId));
         } else
-          persistentDataCPU.rh_neighbours[nRHTotal * 8 + n] = -1;
+          persistentDataCPU.rh_neighbours[index * 8 + n] = -1;
       }
       nRHTotal++;
     }
@@ -273,17 +307,17 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     // Copy to GPU
     cudaCheck(cudaMemcpyAsync(persistentDataGPU.rh_pos.get(),
                               persistentDataCPU.rh_pos.get(),
-                              nRHTotal * sizeof(float3),
+                              nDenseIdsInRange * sizeof(float3),
                               cudaMemcpyHostToDevice,
                               ctx.stream()));
     cudaCheck(cudaMemcpyAsync(persistentDataGPU.rh_detId.get(),
                               persistentDataCPU.rh_detId.get(),
-                              nRHTotal * sizeof(uint32_t),
+                              nDenseIdsInRange * sizeof(uint32_t),
                               cudaMemcpyHostToDevice,
                               ctx.stream()));
     cudaCheck(cudaMemcpyAsync(persistentDataGPU.rh_neighbours.get(),
                               persistentDataCPU.rh_neighbours.get(),
-                              8 * nRHTotal * sizeof(int),
+                              8 * nDenseIdsInRange * sizeof(int),
                               cudaMemcpyHostToDevice,
                               ctx.stream()));
 
@@ -302,7 +336,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   // Entry point for GPU calls
   GPU_timers.fill(0.0);
-  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, cudaConstants, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(ctx.stream()));

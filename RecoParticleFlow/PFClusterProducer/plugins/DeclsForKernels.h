@@ -82,6 +82,8 @@ namespace PFRecHit {
       uint32_t nValidBarrelIds;
       uint32_t nValidEndcapIds;
       uint32_t nValidDetIds;
+      uint32_t nDenseIdsInRange;
+      uint32_t denseIdHcalMin;
       float qTestThresh;
       uint32_t qTestDepthHB[4];
       uint32_t qTestDepthHE[7];
