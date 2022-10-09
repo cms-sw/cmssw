@@ -748,7 +748,7 @@ namespace PFRecHit {
 #endif
 
       // Apply rechit mask and determine output PFRecHit order
-      applyMask<<<1, 256, nRHIn * sizeof(int), cudaStream>>>(nRHIn,
+      applyMask<<<1, threadsPerBlock, nRHIn * sizeof(int), cudaStream>>>(nRHIn,
                                                              d_nPFRHOut.get(),
                                                              d_nPFRHCleaned.get(),
                                                              scratchDataGPU.rh_mask.get(),
@@ -772,8 +772,8 @@ namespace PFRecHit {
 #endif
 
       // Fill output PFRecHit arrays
-      //convert_rechits_to_PFRechits<<<(nRHIn + 31) / 32, 128, 0, cudaStream>>>(
-      convert_rechits_to_PFRechits<<<1, 1, 0, cudaStream>>>(
+      convert_rechits_to_PFRechits<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
+      //convert_rechits_to_PFRechits<<<1, 1, 0, cudaStream>>>(
           nRHIn,
           d_nPFRHOut.get(),
           d_nPFRHCleaned.get(),
