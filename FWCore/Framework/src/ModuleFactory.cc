@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 
 //
 // constants, enums and typedefs
@@ -27,6 +28,7 @@ namespace edm {
     // static member functions
     //
     std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
+    std::string const& ModuleMakerTraits::baseType() { return ParameterSetDescriptionFillerBase::kBaseForESProducer; }
     void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
                                   std::shared_ptr<DataProxyProvider> iComponent,
                                   ParameterSet const&,
@@ -45,7 +47,7 @@ namespace edm {
     }
 
     void ModuleMakerTraits::putComponent(EventSetupsController& esController,
-                                         ParameterSet const& iConfiguration,
+                                         ParameterSet& iConfiguration,
                                          std::shared_ptr<base_type> const& component) {
       esController.putESProducer(iConfiguration, component, esController.indexOfNextProcess());
     }

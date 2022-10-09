@@ -162,7 +162,7 @@ namespace edm {
       return std::shared_ptr<DataProxyProvider>();
     }
 
-    void EventSetupsController::putESProducer(ParameterSet const& pset,
+    void EventSetupsController::putESProducer(ParameterSet& pset,
                                               std::shared_ptr<DataProxyProvider> const& component,
                                               unsigned subProcessIndex) {
       auto newElement =
@@ -336,8 +336,7 @@ namespace edm {
       return false;
     }
 
-    ParameterSet const* EventSetupsController::getESProducerPSet(ParameterSetID const& psetID,
-                                                                 unsigned subProcessIndex) const {
+    ParameterSet& EventSetupsController::getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) {
       auto elements = esproducers_.equal_range(psetID);
       for (auto it = elements.first; it != elements.second; ++it) {
         std::vector<unsigned> const& subProcessIndexes = it->second.subProcessIndexes();
@@ -346,12 +345,11 @@ namespace edm {
         if (iFound == subProcessIndexes.end()) {
           continue;
         }
-        return it->second.pset();
+        return *it->second.pset();
       }
       throw edm::Exception(edm::errors::LogicError) << "EventSetupsController::getESProducerPSet\n"
                                                     << "Subprocess index not found. This should never happen\n"
                                                     << "Please report this to a Framework Developer\n";
-      return nullptr;
     }
 
     void EventSetupsController::checkESProducerSharing() {
