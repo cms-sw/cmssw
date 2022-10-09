@@ -78,12 +78,13 @@ namespace edm {
 
     // ---------- member functions ---------------------------
 
-  protected:
-    static const std::string kEmpty;
-    static const std::string kBaseForService;
     static const std::string kBaseForESSource;
     static const std::string kBaseForESProducer;
     static const std::string kBaseForEDLooper;
+
+  protected:
+    static const std::string kEmpty;
+    static const std::string kBaseForService;
     static const std::string kExtendedBaseForEDAnalyzer;
     static const std::string kExtendedBaseForEDProducer;
     static const std::string kExtendedBaseForEDFilter;

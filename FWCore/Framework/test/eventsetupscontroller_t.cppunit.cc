@@ -226,10 +226,10 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
   CPPUNIT_ASSERT(!esController.isMatchingESProducer(pset4.id(), 5, 2));
   CPPUNIT_ASSERT_THROW(esController.isMatchingESProducer(pset4.id(), 6, 4), cms::Exception);
 
-  CPPUNIT_ASSERT(esController.getESProducerPSet(pset1.id(), 0) == &pset1);
-  CPPUNIT_ASSERT(esController.getESProducerPSet(pset2.id(), 2) == &pset2);
-  CPPUNIT_ASSERT(esController.getESProducerPSet(pset3.id(), 3) == &pset3);
-  CPPUNIT_ASSERT(esController.getESProducerPSet(pset4.id(), 5) == &pset4);
+  CPPUNIT_ASSERT(&esController.getESProducerPSet(pset1.id(), 0) == &pset1);
+  CPPUNIT_ASSERT(&esController.getESProducerPSet(pset2.id(), 2) == &pset2);
+  CPPUNIT_ASSERT(&esController.getESProducerPSet(pset3.id(), 3) == &pset3);
+  CPPUNIT_ASSERT(&esController.getESProducerPSet(pset4.id(), 5) == &pset4);
   CPPUNIT_ASSERT_THROW(esController.getESProducerPSet(pset4.id(), 6), cms::Exception);
 
   esController.clearComponents();
