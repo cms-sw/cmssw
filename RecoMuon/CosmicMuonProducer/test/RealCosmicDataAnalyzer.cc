@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,7 +54,7 @@
 using namespace std;
 using namespace edm;
 
-class RealCosmicDataAnalyzer : public edm::EDAnalyzer {
+class RealCosmicDataAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit RealCosmicDataAnalyzer(const edm::ParameterSet&);
   ~RealCosmicDataAnalyzer();
@@ -107,6 +107,8 @@ RealCosmicDataAnalyzer::RealCosmicDataAnalyzer(const edm::ParameterSet& iConfig)
   nEvent = 0;
   successR = 0;
   nNoSignal = 0;
+
+  usesResource(TFileService::kSharedResource);
 }
 
 RealCosmicDataAnalyzer::~RealCosmicDataAnalyzer() {

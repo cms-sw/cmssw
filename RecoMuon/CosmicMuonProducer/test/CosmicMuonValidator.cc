@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,7 +59,7 @@
 using namespace std;
 using namespace edm;
 
-class CosmicMuonValidator : public edm::EDAnalyzer {
+class CosmicMuonValidator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CosmicMuonValidator(const edm::ParameterSet&);
   ~CosmicMuonValidator();
@@ -115,6 +115,8 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig) {
   trackLabel_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   simTrackLabel_ = iConfig.getParameter<edm::InputTag>("SimTrackLabel");
   theDrawOption = iConfig.getUntrackedParameter<int>("DrawOption", 1);
+
+  usesResource(TFileService::kSharedResource);
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
