@@ -83,10 +83,12 @@ ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
       edm::LogVerbatim("FastSimProtonTaggerFilter") << "Option chosen: two protons should be tagged";
       break;
     case 3:
-      edm::LogVerbatim("FastSimProtonTaggerFilter") << "Option chosen: two protons should be tagged as 220+220 or 420+420";
+      edm::LogVerbatim("FastSimProtonTaggerFilter")
+          << "Option chosen: two protons should be tagged as 220+220 or 420+420";
       break;
     case 4:
-      edm::LogVerbatim("FastSimProtonTaggerFilter") << "Option chosen: two protons should be tagged as 220+420 or 420+220";
+      edm::LogVerbatim("FastSimProtonTaggerFilter")
+          << "Option chosen: two protons should be tagged as 220+420 or 420+220";
       break;
     default:
       throw cms::Exception("FastSimulation/ProtonTaggers")
@@ -94,12 +96,13 @@ ProtonTaggerFilter::ProtonTaggerFilter(edm::ParameterSet const& p)
   }
 
   if (((beam1mode != 4) || (beam2mode != 4)) && (beamCombiningMode > 2)) {
-    edm::LogWarning("FastSimProtonTaggerFilter") << "Warning: beamCombiningMode = " << beamCombiningMode
-                               << " only makes sence with beam1mode = beam2mode = 4";
+    edm::LogWarning("FastSimProtonTaggerFilter")
+        << "Warning: beamCombiningMode = " << beamCombiningMode << " only makes sence with beam1mode = beam2mode = 4";
   }
 
   if (((beam1mode == 0) || (beam2mode == 0)) && (beamCombiningMode > 1)) {
-    edm::LogWarning("FastSimProtonTaggerFilter") << "Warning: You ask for 2 protons while one of the beams is set to ignore";
+    edm::LogWarning("FastSimProtonTaggerFilter")
+        << "Warning: You ask for 2 protons while one of the beams is set to ignore";
   }
 
   if ((beam1mode == 0) && (beam2mode == 0)) {
@@ -279,7 +282,9 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
 
       acc420or220b1 = acc420b1 + acc220b1 - acc420and220b1;
 
-      edm::LogVerbatim("FastSimProtonTaggerFilter") << "+acc420b1: " << acc420b1 << " acc220b1: " << acc220b1 << " acc420and220b1: " << acc420and220b1 << " acc420or220b1: " << acc420or220b1;
+      edm::LogVerbatim("FastSimProtonTaggerFilter")
+          << "+acc420b1: " << acc420b1 << " acc220b1: " << acc220b1 << " acc420and220b1: " << acc420and220b1
+          << " acc420or220b1: " << acc420or220b1;
 
       bool res420and220 = (acc420and220b1 > acceptThreshold);
       bool res420 = (acc420b1 > acceptThreshold);
@@ -296,14 +301,14 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       if ((p->pdg_id() != 2212) && (res220 || res420 || res420and220)) {
         edm::LogVerbatim("FastSimProtonTaggerFilter") << " !!! P got proton 1 at 420 m: pz = " << pz;
         if (res220)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 220 m along beam 1, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 220 m along beam 1, pz = " << pz;
         if (res420)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 420 m along beam 1, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 420 m along beam 1, pz = " << pz;
         if (res420and220)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 220 m & 420 m  along beam 1, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 220 m & 420 m  along beam 1, pz = " << pz;
       }
     }
 
@@ -316,7 +321,9 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
 
       acc420or220b2 = acc420b2 + acc220b2 - acc420and220b2;
 
-      edm::LogVerbatim("FastSimProtonTaggerFilter") << "+acc420b2: " << acc420b2 << " acc220b2: " << acc220b2 << " acc420and220b2: " << acc420and220b2 << " acc420or220b2: " << acc420or220b2;
+      edm::LogVerbatim("FastSimProtonTaggerFilter")
+          << "+acc420b2: " << acc420b2 << " acc220b2: " << acc220b2 << " acc420and220b2: " << acc420and220b2
+          << " acc420or220b2: " << acc420or220b2;
 
       bool res420and220 = (acc420and220b2 > acceptThreshold);
       bool res420 = (acc420b2 > acceptThreshold);
@@ -333,14 +340,14 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       if ((p->pdg_id() != 2212) && (res220 || res420 || res420and220)) {
         edm::LogVerbatim("FastSimProtonTaggerFilter") << " !!! P got proton 1 at 420 m: pz = " << pz;
         if (res220)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 220 m along beam 2, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 220 m along beam 2, pz = " << pz;
         if (res420)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 420 m along beam 2, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 420 m along beam 2, pz = " << pz;
         if (res420and220)
-          edm::LogVerbatim("FastSimProtonTaggerFilter") << "got a particle with pid" << p->pdg_id()
-                                      << " at 220 m & 420 m along beam 2, pz = " << pz;
+          edm::LogVerbatim("FastSimProtonTaggerFilter")
+              << "got a particle with pid" << p->pdg_id() << " at 220 m & 420 m along beam 2, pz = " << pz;
       }
     }
   }
