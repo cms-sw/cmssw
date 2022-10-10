@@ -238,7 +238,7 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
                    points.push_back(p2);
             }
 
-           v = WeightedMeanFitter::weightedMeanOutlierRejection(points, *iclus);
+           v = WeightedMeanFitter::weightedMeanOutlierRejectionBeamSpot(points, *iclus, beamSpot);
            if ((v.positionError().matrix())(2,2) != (WeightedMeanFitter::startError*WeightedMeanFitter::startError)) pvs.push_back(v);
         }
         else if (!(algorithm->useBeamConstraint) && (iclus->size() > 1)) {
