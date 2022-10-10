@@ -24,6 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMakerBase.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeIDBase.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -80,9 +81,10 @@ namespace edm {
           //do on demand building of the service
           if (nullptr == type2Maker_.get() ||
               type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
+            auto demangled = typeDemangle(typeid(T).name());
             Exception::throwThis(errors::NotFound,
                                  "Service Request unable to find requested service with compiler type name '",
-                                 typeid(T).name(),
+                                 demangled.c_str(),
                                  "'.\n");
           } else {
             const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
