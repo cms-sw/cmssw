@@ -73,7 +73,8 @@ TrackingLayer TrackingLayer::createFromDetId(const DetId& detId, const TrackerTo
     throw cms::Exception("FastSimulation/Tracking")
         << "Cannot determine seeding layer from DetId:" << trackerTopology.print(detId).c_str() << std::endl;
   }
-  edm::LogVerbatim("TrackingLayer") << "LayerSpec::createFromDetId: " << trackerTopology.print(detId).c_str() << ", parsed=" << trackingLayer._layerNumber;
+  edm::LogVerbatim("TrackingLayer") << "LayerSpec::createFromDetId: " << trackerTopology.print(detId).c_str()
+                                    << ", parsed=" << trackingLayer._layerNumber;
   return trackingLayer;
 }
 
@@ -169,7 +170,8 @@ TrackingLayer TrackingLayer::createFromString(std::string layerSpecification) {
         << "no case sensitive name of ['BPix','FPix','TIB','MTIB','TID','MTID','TOB','TEC','MTEC'] matches '"
         << layerSpecification.c_str() << "'";
   }
-  edm::LogVerbatim("TrackingLayer")  << "LayerSpec::createFromString: " << layerSpecification.c_str() << ", parsed=" << trackingLayer._layerNumber;
+  edm::LogVerbatim("TrackingLayer") << "LayerSpec::createFromString: " << layerSpecification.c_str()
+                                    << ", parsed=" << trackingLayer._layerNumber;
 
   return trackingLayer;
 }
