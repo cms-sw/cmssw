@@ -67,7 +67,7 @@ from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
 fineCalo.toModify(common_MCtruth,
     DoFineCalo = True,
     UseFineCalo = [2],
-    EminFineTrack = cms.double(0.0),
+    EminFineTrack = 0.0,
 )
 
 ## enable CaloBoundary information for all Phase2 workflows
