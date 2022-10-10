@@ -88,8 +88,6 @@ private:
   uint32_t nDenseIdsInRange = 0;
   std::vector<std::vector<DetId>>* neighboursHcal_;
   std::vector<unsigned>* vDenseIdHcal;
-  std::unordered_map<unsigned, unsigned>
-      detIdToIndex;  // Mapping of detId to index. Use this index instead of raw detId to encode neighbours
   std::vector<GlobalPoint> validDetIdPositions;
   unsigned denseIdHcalMax_ = 0;
   unsigned denseIdHcalMin_ = 0;
@@ -215,21 +213,17 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   // Fill a vector of cell neighbours
   denseIdHcalMax_ = *std::max_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
   denseIdHcalMin_ = *std::min_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
-  //std::cout << denseIdHcalMax_ << " " << - denseIdHcalMin_ << std::endl;
+  //std::cout << denseIdHcalMax_ << " " << denseIdHcalMin_ << std::endl;
   nDenseIdsInRange = denseIdHcalMax_ - denseIdHcalMin_ + 1;
   cudaConstants.nDenseIdsInRange = nDenseIdsInRange;
   cudaConstants.denseIdHcalMin = denseIdHcalMin_;
 
-  detIdToIndex.clear();
   validDetIdPositions.clear();
-
-  detIdToIndex.reserve(nValidDetIds);
   validDetIdPositions.reserve(nValidDetIds);
 
   for (const auto& denseid : *vDenseIdHcal) {
     DetId detid_c = topology_.get()->denseId2detId(denseid);
     HcalDetId hid_c = HcalDetId(detid_c);
-    //unsigned int denseid_c = topology_.get()->detId2denseId(detid_c);
 
     if (hid_c.subdet() == HcalBarrel)
       validDetIdPositions.emplace_back(hcalBarrelGeo->getGeometry(detid_c)->getPosition());
@@ -237,25 +231,8 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
       validDetIdPositions.emplace_back(hcalEndcapGeo->getGeometry(detid_c)->getPosition());
     else
       std::cout << "Invalid subdetector found for detId " << hid_c.rawId() << ": " << hid_c.subdet() << std::endl;
-
-    // if (hid_c.rawId()==1158697012) {
-    // 	if (hid_c.subdet() == HcalBarrel) {
-    // 	  std::cout << "aaa " << denseid << " " << denseid_c << " "
-    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().x() << " "
-    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().y() << " "
-    // 	    << hcalBarrelGeo->getGeometry(detid_c)->getPosition().z() << std::endl;
-    // 	}
-    // 	else if (hid_c.subdet() == HcalEndcap) {
-    // 	  std::cout << "aaa " << denseid << " " << denseid_c << " "
-    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().x() << " "
-    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().y() << " "
-    // 	    << hcalEndcapGeo->getGeometry(detid_c)->getPosition().z() << std::endl;
-    // 	}
-    //   }
-
-    detIdToIndex[hid_c.rawId()] = detIdToIndex.size();
   }
-  // -> vDenseIdHcal, detIdToIndex, validDetIdPositions
+  // -> vDenseIdHcal, validDetIdPositions
 
   initCuda = true;  // (Re)initialize cuda arrays
 }
@@ -291,11 +268,10 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
         // neighboursHcal_[centerIndex][0] is the rechit itself. Skip for neighbour array
         // If no neighbour exists in a direction, the value will be 0
         // Some neighbors from HF included! Need to test if these are included in the map!
-        //auto neighDetId = neighboursHcal_[centerIndex][n+1].rawId();
         auto neighDetId = neigh[n + 1].rawId();
-        //if (neighDetId > 0 && detIdToIndex.find(neighDetId) != detIdToIndex.end()) {
-          //persistentDataCPU.rh_neighbours[index * 8 + n] = detIdToIndex[neighDetId];
-        if (neighDetId > 0 && topology_.get()->detId2denseId(neighDetId)>=denseIdHcalMin_ && topology_.get()->detId2denseId(neighDetId)<=denseIdHcalMax_) {
+        if (neighDetId > 0
+	    && topology_.get()->detId2denseId(neighDetId)>=denseIdHcalMin_
+	    && topology_.get()->detId2denseId(neighDetId)<=denseIdHcalMax_) {
           persistentDataCPU.rh_neighbours[index * 8 + n] = getIdx(topology_.get()->detId2denseId(neighDetId));
         } else
           persistentDataCPU.rh_neighbours[index * 8 + n] = -1;
@@ -340,6 +316,8 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(ctx.stream()));
+
+  if (!produceLegacy_ && !produceCleanedLegacy_) return; // do device->host transfer only when we are producing Legacy data
 
   // Copy back PFRecHit SoA data to CPU
   auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {

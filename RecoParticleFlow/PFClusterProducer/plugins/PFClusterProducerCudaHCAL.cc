@@ -268,13 +268,6 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PFClusterProducerCudaHCAL::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
-  /* KenH
-  _initialClustering->update(es);
-  if (_pfClusterBuilder)
-    _pfClusterBuilder->update(es);
-  if (_positionReCalc)
-    _positionReCalc->update(es);
-  */
   initCuda_ = true;  // (Re)initialize cuda arrays
 }
 
@@ -305,16 +298,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     initCuda_ = false;
   }
 
-  /* KenH
-  _initialClustering->reset();
-  if (_pfClusterBuilder)
-    _pfClusterBuilder->reset();
-  */
-
-  /* KenH
-  _initialClustering->updateEvent(event);
-  */
-
   nRH_ = PFRecHits.size;
   if (nRH_ == 0) return;
   if (nRH_>4000) std::cout << "nRH(PFRecHitSize)>4000: " << nRH_ << std::endl;
@@ -329,6 +312,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   // Calling cuda kernels
   PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, inputGPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+
+  if (!_produceLegacy) return; // do device->host transfer only when we are producing Legacy data
 
   // Data transfer from GPU
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
@@ -448,6 +433,7 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
 
     event.put(std::move(pfClustersFromCuda));
   }
+
 }
 
 DEFINE_FWK_MODULE(PFClusterProducerCudaHCAL);
