@@ -135,7 +135,8 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
   const auto& srcJet = iEvent.getHandle(srcJet_);
   const auto& vtxProd = iEvent.get(srcVtx_);
   const auto& svProd = iEvent.get(srcSV_);
-  const auto& gpProd = iEvent.get(srcGP_);
+  // genParticles might not be present
+  auto gpProd = iEvent.getHandle(srcGP_);
 
   auto nJet = srcJet->size();
   //   unsigned int nLep = srcLep->size();
@@ -165,7 +166,7 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
     if (jet->genJet() != nullptr) {
       auto genp4 = jet->genJet()->p4();
       auto gep4wNu = genp4;
-      for (const auto& gp : gpProd) {
+      for (const auto& gp : *gpProd) {
         if ((abs(gp.pdgId()) == 12 || abs(gp.pdgId()) == 14 || abs(gp.pdgId()) == 16) && gp.status() == 1) {
           if (reco::deltaR(genp4, gp.p4()) < 0.4) {
             //                    std::cout<<" from "<<gep4wNu.pt()<<std::endl;
