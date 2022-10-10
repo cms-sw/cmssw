@@ -379,12 +379,22 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
                                         int idet,
                                         std::map<unsigned int, HGCHitTuple> const &hitRefs) {
   std::vector<unsigned int> ids;
-  for (auto it = theHits->begin(); it != theHits->end(); ++it)
+  for (auto it = theHits->begin(); it != theHits->end(); ++it) {
     ids.emplace_back((it->id().rawId()));
+    if (!(hgcGeometry_[idet]->topology()).valid(it->id())) {
+      std::ostringstream st1;
+      if ((it->id()).det() == DetId::HGCalHSc)
+        st1 << HGCScintillatorDetId(it->id());
+      else
+        st1 << HGCSiliconDetId(it->id());
+      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str(); 
+    }
+  }
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
     double eta = std::get<1>(it->second).eta();
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
+      bool ok = (hgcGeometry_[idet]->topology()).valid(DetId(it->first));
       missedHitsDE_[idet]->Fill(std::get<0>(it->second));
       missedHitsDT_[idet]->Fill(eta);
       std::ostringstream st1;
@@ -395,7 +405,7 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
                                     << " SimHit (E = " << std::get<0>(it->second)
                                     << ", Position = " << std::get<1>(it->second)
-                                    << ") is missing in the Digi collection";
+                                    << ") Valid " << ok << " is missing in the Digi collection";
     } else {
       goodHitsDE_[idet]->Fill(std::get<0>(it->second));
       goodHitsDT_[idet]->Fill(eta);
@@ -408,12 +418,22 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
                                           int idet,
                                           std::map<unsigned int, HGCHitTuple> const &hitRefs) {
   std::vector<unsigned int> ids;
-  for (auto it = theHits->begin(); it != theHits->end(); ++it)
+  for (auto it = theHits->begin(); it != theHits->end(); ++it) {
     ids.emplace_back((it->id().rawId()));
+    if (!(hgcGeometry_[idet]->topology()).valid(it->id())) {
+      std::ostringstream st1;
+      if ((it->id()).det() == DetId::HGCalHSc)
+        st1 << HGCScintillatorDetId(it->id());
+      else
+        st1 << HGCSiliconDetId(it->id());
+      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str(); 
+    }
+  }
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
     double eta = std::get<1>(it->second).eta();
     auto itr = std::find(ids.begin(), ids.end(), it->first);
     if (itr == ids.end()) {
+      bool ok = (hgcGeometry_[idet]->topology()).valid(DetId(it->first));
       missedHitsRE_[idet]->Fill(std::get<0>(it->second));
       missedHitsRT_[idet]->Fill(eta);
       std::ostringstream st1;
@@ -424,7 +444,7 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
                                     << " SimHit (E = " << std::get<0>(it->second)
                                     << ", Position = " << std::get<1>(it->second)
-                                    << ") is missing in the RecHit collection";
+                                    << ") Valid " << ok << " is missing in the RecHit collection";
     } else {
       goodHitsRE_[idet]->Fill(std::get<0>(it->second));
       goodHitsRT_[idet]->Fill(eta);
