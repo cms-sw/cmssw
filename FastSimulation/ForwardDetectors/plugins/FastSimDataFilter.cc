@@ -24,7 +24,7 @@ namespace cms {
     npassed = 0;
   }
   void FastSimDataFilter::endJob() {
-    edm::LogVerbatim("FastSim") << " FastSimDataFilter: accepted " << npassed << "  out of total " << ntotal;
+    edm::LogVerbatim("FastSimDataFilter") << " FastSimDataFilter: accepted " << npassed << "  out of total " << ntotal;
   }
 
   bool FastSimDataFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
