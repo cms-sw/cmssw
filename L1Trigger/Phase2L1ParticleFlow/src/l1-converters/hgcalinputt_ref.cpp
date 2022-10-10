@@ -17,5 +17,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const ap_uint<256>
   out.hwEmPt = w_empt * l1ct::pt_t(l1ct::Scales::INTPT_LSB);
   out.hwEmID = w_qual;
 
+  // FIXME: cluster-shape variables use by composite-ID need to be added here
+
   return out;
 }

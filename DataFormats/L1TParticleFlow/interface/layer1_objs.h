@@ -12,10 +12,13 @@ namespace l1ct {
     phi_t hwPhi;  // relative to the region center, at calo
     pt_t hwEmPt;
     emid_t hwEmID;
+    srrtot_t hwSrrTot;
+    meanz_t hwMeanZ;
+    hoe_t hwHoe;
 
     inline bool operator==(const HadCaloObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwEmPt == other.hwEmPt &&
-             hwEmID == other.hwEmID;
+             hwEmID == other.hwEmID && hwSrrTot == other.hwSrrTot && hwMeanZ == other.hwMeanZ && hwHoe == other.hwHoe;
     }
 
     inline bool operator>(const HadCaloObj &other) const { return hwPt > other.hwPt; }
@@ -27,6 +30,9 @@ namespace l1ct {
       hwPhi = 0;
       hwEmPt = 0;
       hwEmID = 0;
+      hwSrrTot = 0;
+      hwMeanZ = 0;
+      hwHoe = 0;
     }
 
     int intPt() const { return Scales::intPt(hwPt); }
@@ -37,10 +43,14 @@ namespace l1ct {
     float floatEmPt() const { return Scales::floatPt(hwEmPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
+    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
+    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
+    float floatHoe() const { return Scales::floatHoe(hwHoe); };
 
     bool hwIsEM() const { return hwEmID != 0; }
 
-    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + pt_t::width + emid_t::width;
+    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + pt_t::width + emid_t::width +
+                                srrtot_t::width + meanz_t::width + hoe_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -49,6 +59,9 @@ namespace l1ct {
       pack_into_bits(ret, start, hwPhi);
       pack_into_bits(ret, start, hwEmPt);
       pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwSrrTot);
+      pack_into_bits(ret, start, hwMeanZ);
+      pack_into_bits(ret, start, hwHoe);
       return ret;
     }
     inline static HadCaloObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -59,6 +72,9 @@ namespace l1ct {
       unpack_from_bits(src, start, ret.hwPhi);
       unpack_from_bits(src, start, ret.hwEmPt);
       unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwSrrTot);
+      unpack_from_bits(src, start, ret.hwMeanZ);
+      unpack_from_bits(src, start, ret.hwHoe);
       return ret;
     }
   };
@@ -70,10 +86,13 @@ namespace l1ct {
     eta_t hwEta;  // relative to the region center, at calo
     phi_t hwPhi;  // relative to the region center, at calo
     emid_t hwEmID;
+    srrtot_t hwSrrTot;
+    meanz_t hwMeanZ;
+    hoe_t hwHoe;
 
     inline bool operator==(const EmCaloObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwPtErr == other.hwPtErr &&
-             hwEmID == other.hwEmID;
+             hwEmID == other.hwEmID && hwSrrTot == other.hwSrrTot && hwMeanZ == other.hwMeanZ && hwHoe == other.hwHoe;
     }
 
     inline bool operator>(const EmCaloObj &other) const { return hwPt > other.hwPt; }
@@ -85,6 +104,9 @@ namespace l1ct {
       hwEta = 0;
       hwPhi = 0;
       hwEmID = 0;
+      hwSrrTot = 0;
+      hwMeanZ = 0;
+      hwHoe = 0;
     }
 
     int intPt() const { return Scales::intPt(hwPt); }
@@ -95,8 +117,12 @@ namespace l1ct {
     float floatPtErr() const { return Scales::floatPt(hwPtErr); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
+    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
+    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
+    float floatHoe() const { return Scales::floatHoe(hwHoe); };
 
-    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + pt_t::width + emid_t::width;
+    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + pt_t::width + emid_t::width +
+                                srrtot_t::width + meanz_t::width + hoe_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -105,6 +131,9 @@ namespace l1ct {
       pack_into_bits(ret, start, hwPhi);
       pack_into_bits(ret, start, hwPtErr);
       pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwSrrTot);
+      pack_into_bits(ret, start, hwMeanZ);
+      pack_into_bits(ret, start, hwHoe);
       return ret;
     }
     inline static EmCaloObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -115,6 +144,10 @@ namespace l1ct {
       unpack_from_bits(src, start, ret.hwPhi);
       unpack_from_bits(src, start, ret.hwPtErr);
       unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwSrrTot);
+      unpack_from_bits(src, start, ret.hwMeanZ);
+      unpack_from_bits(src, start, ret.hwHoe);
+
       return ret;
     }
   };
@@ -130,6 +163,9 @@ namespace l1ct {
     z0_t hwZ0;
     dxy_t hwDxy;
     tkquality_t hwQuality;
+    // FIXME: these variables are actually not in the track word or not in this format...
+    stub_t hwStubs;
+    chi2_t hwChi2;
 
     enum TkQuality { PFLOOSE = 1, PFTIGHT = 2 };
     bool isPFLoose() const { return hwQuality[0]; }
@@ -140,7 +176,7 @@ namespace l1ct {
     inline bool operator==(const TkObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwDEta == other.hwDEta &&
              hwDPhi == other.hwDPhi && hwZ0 == other.hwZ0 && hwDxy == other.hwDxy && hwCharge == other.hwCharge &&
-             hwQuality == other.hwQuality;
+             hwQuality == other.hwQuality && hwChi2 == other.hwChi2 && hwStubs == other.hwStubs;
     }
 
     inline bool operator>(const TkObj &other) const { return hwPt > other.hwPt; }
@@ -156,6 +192,8 @@ namespace l1ct {
       hwDxy = 0;
       hwCharge = false;
       hwQuality = 0;
+      hwStubs = 0;
+      hwChi2 = 0;
     }
 
     int intPt() const { return Scales::intPt(hwPt); }
@@ -173,9 +211,10 @@ namespace l1ct {
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
     float floatDxy() const { return Scales::floatDxy(hwDxy); }
+    float floatChi2() const { return Scales::floatChi2(hwChi2); }
 
     static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + tkdeta_t::width + tkdphi_t::width + 1 +
-                                z0_t::width + dxy_t::width + tkquality_t::width;
+                                z0_t::width + dxy_t::width + tkquality_t::width + stub_t::width + chi2_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -188,6 +227,8 @@ namespace l1ct {
       pack_into_bits(ret, start, hwZ0);
       pack_into_bits(ret, start, hwDxy);
       pack_into_bits(ret, start, hwQuality);
+      pack_into_bits(ret, start, hwStubs);
+      pack_into_bits(ret, start, hwChi2);
       return ret;
     }
     inline static TkObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -202,6 +243,8 @@ namespace l1ct {
       unpack_from_bits(src, start, ret.hwZ0);
       unpack_from_bits(src, start, ret.hwDxy);
       unpack_from_bits(src, start, ret.hwQuality);
+      unpack_from_bits(src, start, ret.hwStubs);
+      unpack_from_bits(src, start, ret.hwChi2);
       return ret;
     }
   };

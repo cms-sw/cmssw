@@ -38,6 +38,7 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TCorrelatorLayer1Producer : public edm::stream::EDProducer<> {
@@ -72,7 +73,6 @@ private:
   std::unique_ptr<l1ct::PFTkEGAlgoEmulator> l1tkegalgo_;
   std::unique_ptr<l1ct::PFTkEGSorterEmulator> l1tkegsorter_;
 
-  bool writeEgSta_;
   // Region dump
   const std::string regionDumpName_;
   bool writeRawHgcalCluster_;
@@ -176,7 +176,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 #if 0  // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
-#if 1  // LATER
+#if 0  // LATER
   produces<std::vector<l1t::PFTrack>>("DecodedTK");
 #endif
 
@@ -369,7 +369,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.put(fetchHadCalo(), "Calo");
   iEvent.put(fetchTracks(), "TK");
   
-  #if 1
+  #if 0
     iEvent.put(fetchDecodedTracks(), "DecodedTK");
   #endif
 
@@ -643,7 +643,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
     tkAndSel.second = t.quality() > 0;
   }
   // CMSSW-only extra info
-  tkAndSel.first.hwChi2 = round(t.chi2() * 10);
+  tkAndSel.first.hwChi2 =  l1ct::Scales::makeChi2(t.chi2());
   tkAndSel.first.hwStubs = t.nStubs();
   tkAndSel.first.simPt = t.pt();
   tkAndSel.first.simCaloEta = t.caloEta();
@@ -653,6 +653,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
   tkAndSel.first.simZ0 = t.vertex().Z();
   tkAndSel.first.simD0 = t.vertex().Rho();
   tkAndSel.first.src = &t;
+  
   // If the track fails, we set its pT to zero, so that the decoded tracks are still aligned with the raw tracks
   // Downstream, the regionizer will just ignore zero-momentum tracks
   if (!tkAndSel.second)
@@ -688,6 +689,9 @@ void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::H
   calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
   calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
   calo.hwEmID = c.hwEmID();
+  calo.hwSrrTot = l1ct::Scales::makeSrrTot(c.sigmaRR());
+- calo.hwMeanZ = l1ct::Scales::makeMeanZ(c.absZBarycenter());
+- calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
   calo.src = &c;
   sec.obj.push_back(calo);
 }
@@ -707,12 +711,16 @@ void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uin
   cwrd(81, 73) = w_phi;
   cwrd(115, 106) = w_qual;
 
+  // FIXME: cluster-shape variables use by composite-ID need to be added here
+
   sec.obj.push_back(cwrd);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
                                                    const l1t::PFCluster &c) {
   l1ct::EmCaloObjEmu calo;
+  // set the endcap-sepcific variables to default value:
+  calo.clear();
   calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
   calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
                sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value

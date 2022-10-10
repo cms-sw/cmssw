@@ -7,9 +7,12 @@
 #include <memory>
 #include <iostream>
 #include <bitset>
+#include <vector>
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
-#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
+#include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
+
+
 using namespace l1ct;
 
 #ifdef CMSSW_GIT_HASH
@@ -32,6 +35,8 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
       dEtaValues(pset.getParameter<std::vector<double>>("dEtaValues")),
       dPhiValues(pset.getParameter<std::vector<double>>("dPhiValues")),
       trkQualityPtMin(pset.getParameter<double>("trkQualityPtMin")),
+      doCompositeTkEle(pset.getParameter<bool>("doCompositeTkEle")),
+      nCOMPCAND_PER_CLUSTER(pset.getParameter<uint32_t>("nCOMPCAND_PER_CLUSTER")),
       writeEgSta(pset.getParameter<bool>("writeEGSta")),
       tkIsoParams_tkEle(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEle")),
       tkIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEm")),
@@ -41,8 +46,7 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
       doPfIso(pset.getParameter<bool>("doPfIso")),
       hwIsoTypeTkEle(static_cast<EGIsoEleObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
       hwIsoTypeTkEm(static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))),
-      doCompositeTkEle(pset.getParameter<bool>("doCompositeTkEle")),
-      myCompIDparams(pset.getParameter<edm::ParameterSet>("compositeParametersTkEle")),
+      compIDparams(pset.getParameter<edm::ParameterSet>("compositeParametersTkEle")),
       debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
 
 l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
@@ -82,8 +86,14 @@ composite_bdt_(nullptr),
 debug_(cfg.debug) {
   if(cfg.doCompositeTkEle) {
     //FIXME: make the name of the file configurable
-    auto resolvedFileName = edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json").fullPath();
-    composite_bdt_ = std::make_unique<conifer::BDT<ap_fixed<22,3,AP_RND_CONV,AP_SAT>,ap_fixed<22,3,AP_RND_CONV,AP_SAT>,0>> (resolvedFileName);
+#ifdef CMSSW_GIT_HASH
+	  auto resolvedFileName = edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json").fullPath();
+#else
+          auto resolvedFileName = "compositeID.json";      
+#endif
+    std::cout<<resolvedFileName<<std::endl;
+	  composite_bdt_ = new conifer::BDT<ap_fixed<22,3,AP_RND_CONV,AP_SAT>,ap_fixed<22,3,AP_RND_CONV,AP_SAT>,0> (resolvedFileName);
+    std::cout<<"declared bdt"<<std::endl;
   }
 }
 
@@ -191,15 +201,16 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
                                         const std::vector<TkObjEmu> &track,
                                         std::vector<int> &emCalo2tk, 
                                         std::vector<float> &emCaloTkBdtScore) const {
-  //FIXME: should be configurable
-  const int nCAND_PER_CLUSTER = 4;
   unsigned int nTrackMax = std::min<unsigned>(track.size(), cfg.nTRACK_EGIN);
+  std::cout<<"doing loose dR matching"<<std::endl;
   for (int ic = 0, nc = emcalo.size(); ic < nc; ++ic) {
+    std::cout<<"cluster "<<ic<<std::endl;
     auto &calo = emcalo[ic];
 
     std::vector<CompositeCandidate> candidates;
 
     for (unsigned int itk = 0; itk < nTrackMax; ++itk) {
+      std::cout<<"track "<<itk<<std::endl;
       const auto &tk = track[itk];
       if (tk.floatPt() <= cfg.trkQualityPtMin)
         continue;
@@ -217,22 +228,23 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
           candidates.push_back(cand);
       }
     }
+    std::cout << "Constructed candidates, now sorting" << std::endl;
     // FIXME: find best sort criteria, for now we use dpt
     std::sort(candidates.begin(), candidates.end(), 
               [](const CompositeCandidate & a, const CompositeCandidate & b) -> bool
                 { return a.dpt < b.dpt; });
-    unsigned int nCandPerCluster = std::min<unsigned int>(candidates.size(), nCAND_PER_CLUSTER);
-    std::cout << "# composit candidates: " << nCandPerCluster << std::endl;
+    unsigned int nCandPerCluster = std::min<unsigned int>(candidates.size(), cfg.nCOMPCAND_PER_CLUSTER);
+    std::cout << "# composite candidates: " << nCandPerCluster << std::endl;
     if(nCandPerCluster == 0) continue;
 
-    float bdtWP_MVA = cfg.myCompIDparams.BDTcut_wp97p5;
+    float bdtWP_MVA = cfg.compIDparams.BDTcut_wp97p5;
     float bdtWP_XGB = 1. / (1. + std::sqrt((1. - bdtWP_MVA) / (1. + bdtWP_MVA))); // Convert WP value from ROOT.TMVA to XGboost
     float maxScore = -999;
     int ibest = -1;
     for(unsigned int icand = 0; icand < nCandPerCluster; icand++) {
       auto &cand = candidates[icand];
       std::vector<EmCaloObjEmu> emcalo_sel = emcalo;
-      float score = compute_composite_score(cand, emcalo_sel, track, cfg.myCompIDparams);
+      float score = compute_composite_score(cand, emcalo_sel, track, cfg.compIDparams);
       if(score > maxScore) {
       // if((score > bdtWP_XGB) && (score > maxScore)) {
         maxScore = score;
@@ -255,37 +267,23 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   const auto &calo = emcalo[cand.cluster_idx];
   const auto &tk = track[cand.track_idx];
 
-  // FIXME: using these two floats crashes code...
-  float srrtot_f = dynamic_cast<const l1t::HGCalMulticluster*>(calo.src->constituentsAndFractions()[0].first.get())->sigmaRRTot();
-  float meanz_f = abs(dynamic_cast<const l1t::HGCalMulticluster*>(calo.src->constituentsAndFractions()[0].first.get())->zBarycenter());
-
   // Call and normalize input feature values, then cast to ap_fixed.
   // Note that for some features (e.g. track pT) we call the floating point representation, but that's already quantized!
   // Several other features, such as chi2 or most cluster features, are not quantized before casting them to ap_fixed.
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> hoe = (calo.src->hOverE()-params.hoeMin)/(params.hoeMax-params.hoeMin);
+  ap_fixed<22,3,AP_RND_CONV,AP_SAT> hoe = (calo.floatHoe()-params.hoeMin)/(params.hoeMax-params.hoeMin);
   ap_fixed<22,3,AP_RND_CONV,AP_SAT> tkpt = (tk.floatPt()-params.tkptMin)/(params.tkptMax-params.tkptMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> srrtot = (srrtot_f-params.srrtotMin)/(params.srrtotMax-params.srrtotMin);
+  ap_fixed<22,3,AP_RND_CONV,AP_SAT> srrtot = (calo.floatSrrTot()-params.srrtotMin)/(params.srrtotMax-params.srrtotMin);
   ap_fixed<22,3,AP_RND_CONV,AP_SAT> deta = (tk.floatEta() - calo.floatEta()-params.detaMin)/(params.detaMax-params.detaMin);
   // FIXME: do we really need dpt to be a ratio?
   ap_fixed<22,3,AP_RND_CONV,AP_SAT> dpt = ((tk.floatPt()/calo.floatPt())-params.dptMin)/(params.dptMax-params.dptMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> meanz = (meanz_f-params.meanzMin)/(params.meanzMax-params.meanzMin);
+  ap_fixed<22,3,AP_RND_CONV,AP_SAT> meanz = (calo.floatMeanZ()-params.meanzMin)/(params.meanzMax-params.meanzMin);
   ap_fixed<22,3,AP_RND_CONV,AP_SAT> dphi = (deltaPhi(tk.floatPhi(), calo.floatPhi()) -params.dphiMin)/(params.dphiMax-params.dphiMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> chi2 = (tk.src->chi2()-params.tkchi2Min)/(params.tkchi2Max-params.tkchi2Min);
+  ap_fixed<22,3,AP_RND_CONV,AP_SAT> chi2 = (tk.floatChi2()-params.tkchi2Min)/(params.tkchi2Max-params.tkchi2Min);
   ap_fixed<22,3,AP_RND_CONV,AP_SAT> tkz0 = (tk.floatZ0()-params.tkz0Min)/(params.tkz0Max-params.tkz0Min);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> nstubs = (tk.src->nStubs()-params.tknstubsMin)/(params.tknstubsMax-params.tknstubsMin);
-  // std::cout<<"hoe\t"<<calo.src->hOverE()<<"\t"<<(calo.src->hOverE()-params.hoeMin)/(params.hoeMax-params.hoeMin)<<std::endl;
-  // std::cout<<"tkpt\t"<<tk.floatPt()<<"\t"<<(tk.floatPt()-params.tkptMin)/(params.tkptMax-params.tkptMin)<<std::endl;
-  // std::cout<<"srrtot\t"<<srrtot<<"\t"<<(srrtot-params.srrtotMin)/(params.srrtotMax-params.srrtotMin)<<std::endl;
-  // std::cout<<"deta\t"<<tk.floatEta()-calo.floatEta()<<"\t"<<(tk.floatEta()-calo.floatEta()-params.detaMin)/(params.detaMax-params.detaMin)<<std::endl;
-  // std::cout<<"dpt\t"<<tk.floatPt()/calo.floatPt()<<"\t"<<((tk.floatPt()/calo.floatPt())-params.dptMin)/(params.dptMax-params.dptMin)<<std::endl;
-  // std::cout<<"meanz\t"<<meanz<<"\t"<<(meanz-params.meanzMin)/(params.meanzMax-params.meanzMin)<<std::endl;
-  // std::cout<<"dphi\t"<<deltaPhi(tk.floatPhi(), calo.floatPhi())<<"\t"<<(deltaPhi(tk.floatPhi(), calo.floatPhi()) -params.dphiMin)/(params.dphiMax-params.dphiMin)<<std::endl;
-  // std::cout<<"chi2\t"<<tk.src->chi2()<<"\t"<<(tk.src->chi2()-params.tkchi2Min)/(params.tkchi2Max-params.tkchi2Min)<<std::endl;
-  // std::cout<<"tkz0\t"<<tk.floatZ0()<<"\t"<<(tk.floatZ0()-params.tkz0Min)/(params.tkz0Max-params.tkz0Min)<<std::endl;
-  // std::cout<<"nstubs\t"<<tk.src->nStubs()<<"\t"<<(tk.src->nStubs()-params.tknstubsMin)/(params.tknstubsMax-params.tknstubsMin)<<std::endl;
-
+  ap_fixed<22,3,AP_RND_CONV,AP_SAT> nstubs = (tk.hwStubs-params.tknstubsMin)/(params.tknstubsMax-params.tknstubsMin);
+  
   // Run BDT inference
-  vector<ap_fixed<22,3,AP_RND_CONV,AP_SAT>> inputs = { hoe, tkpt, srrtot, deta, dpt, meanz, dphi, chi2, tkz0, nstubs } ;
+  std::vector<ap_fixed<22,3,AP_RND_CONV,AP_SAT>> inputs = { hoe, tkpt, srrtot, deta, dpt, meanz, dphi, chi2, tkz0, nstubs } ;
   auto bdt_score = composite_bdt_->decision_function(inputs);
 
   float bdt_score_CON = bdt_score[0];
@@ -321,7 +319,7 @@ void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
                   << std::endl;
     }
   }
-
+  std::cout<<"running"<<std::endl;
   // FIXME: can be removed in the endcap since now running with the "interceptor".
   // Might still be needed in barrel
   // filter and select first N elements of input clusters
@@ -334,6 +332,7 @@ void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
 
   std::vector<int> emCalo2tk(emcalo_sel.size(), -1);
   std::vector<float> emCaloTkBdtScore(emcalo_sel.size(), -999);
+  std::cout<<"about to start matching"<<std::endl;
 
   if(cfg.doCompositeTkEle) {
     link_emCalo2tk_composite(in.region, emcalo_sel, in.track, emCalo2tk, emCaloTkBdtScore);

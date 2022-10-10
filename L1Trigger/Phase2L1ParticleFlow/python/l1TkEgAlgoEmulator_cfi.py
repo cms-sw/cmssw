@@ -52,6 +52,7 @@ tkEgAlgoParameters = cms.PSet(
     hwIsoTypeTkEle=cms.uint32(0),
     hwIsoTypeTkEm=cms.uint32(2),
     doCompositeTkEle=cms.bool(False),
+    nCOMPCAND_PER_CLUSTER=cms.uint32(3),
     compositeParametersTkEle=cms.PSet( # Parameters used to normalize input features
         hoeMin=cms.double(-1.0),
         hoeMax=cms.double(1566.547607421875),
