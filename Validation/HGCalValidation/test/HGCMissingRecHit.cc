@@ -387,7 +387,7 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
         st1 << HGCScintillatorDetId(it->id());
       else
         st1 << HGCSiliconDetId(it->id());
-      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str(); 
+      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str();
     }
   }
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
@@ -404,8 +404,8 @@ void HGCMissingRecHit::analyzeHGCalDigi(T1 const &theHits,
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
                                     << " SimHit (E = " << std::get<0>(it->second)
-                                    << ", Position = " << std::get<1>(it->second)
-                                    << ") Valid " << ok << " is missing in the Digi collection";
+                                    << ", Position = " << std::get<1>(it->second) << ") Valid " << ok
+                                    << " is missing in the Digi collection";
     } else {
       goodHitsDE_[idet]->Fill(std::get<0>(it->second));
       goodHitsDT_[idet]->Fill(eta);
@@ -426,7 +426,7 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
         st1 << HGCScintillatorDetId(it->id());
       else
         st1 << HGCSiliconDetId(it->id());
-      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str(); 
+      edm::LogVerbatim("HGCalError") << "Invalid Hit " << st1.str();
     }
   }
   for (auto it = hitRefs.begin(); it != hitRefs.end(); ++it) {
@@ -443,8 +443,8 @@ void HGCMissingRecHit::analyzeHGCalRecHit(T1 const &theHits,
         st1 << HGCSiliconDetId(it->first);
       edm::LogVerbatim("HGCalMiss") << "Hit: " << std::hex << (it->first) << std::dec << " " << st1.str()
                                     << " SimHit (E = " << std::get<0>(it->second)
-                                    << ", Position = " << std::get<1>(it->second)
-                                    << ") Valid " << ok << " is missing in the RecHit collection";
+                                    << ", Position = " << std::get<1>(it->second) << ") Valid " << ok
+                                    << " is missing in the RecHit collection";
     } else {
       goodHitsRE_[idet]->Fill(std::get<0>(it->second));
       goodHitsRT_[idet]->Fill(eta);
