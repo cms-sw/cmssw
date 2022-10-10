@@ -113,7 +113,7 @@ private:
 
 // ------------ method called to produce the data  ------------
 void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const auto& trigObjs = iEvent.get(src_);
+  const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
   for (const auto &obj : trigObjs) {
@@ -143,23 +143,23 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     }
   }
 
-  const auto& l1EG = iEvent.get(l1EG_);
-  const auto& l1Sum = iEvent.get(l1Sum_);
-  const auto& l1Jet = iEvent.get(l1Jet_);
-  const auto& l1Muon = iEvent.get(l1Muon_);
-  const auto& l1Tau = iEvent.get(l1Tau_);
+  const auto &l1EG = iEvent.get(l1EG_);
+  const auto &l1Sum = iEvent.get(l1Sum_);
+  const auto &l1Jet = iEvent.get(l1Jet_);
+  const auto &l1Muon = iEvent.get(l1Muon_);
+  const auto &l1Tau = iEvent.get(l1Tau_);
 
   std::vector<pair<pat::TriggerObjectStandAlone, int>> l1Objects;
   l1Objects.reserve(l1EG.size() + l1Sum.size() + l1Jet.size() + l1Muon.size() + l1Tau.size());
 
-  for (const auto& obj: l1EG) {
+  for (const auto &obj : l1EG) {
     pat::TriggerObjectStandAlone l1obj(obj.p4());
     l1obj.setCollection("L1EG");
     l1obj.addTriggerObjectType(trigger::TriggerL1EG);
     l1Objects.emplace_back(l1obj, obj.hwIso());
   }
 
-  for (const auto& obj: l1Sum) {
+  for (const auto &obj : l1Sum) {
     pat::TriggerObjectStandAlone l1obj(obj.p4());
 
     switch (obj.getType()) {
@@ -210,14 +210,14 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, obj.hwIso());
   }
 
-  for (const auto& obj: l1Jet) {
+  for (const auto &obj : l1Jet) {
     pat::TriggerObjectStandAlone l1obj(obj.p4());
     l1obj.setCollection("L1Jet");
     l1obj.addTriggerObjectType(trigger::TriggerL1Jet);
     l1Objects.emplace_back(l1obj, obj.hwIso());
   }
 
-  for (const auto& obj: l1Muon) {
+  for (const auto &obj : l1Muon) {
     pat::TriggerObjectStandAlone l1obj(obj.p4());
     l1obj.setCollection("L1Mu");
     l1obj.addTriggerObjectType(trigger::TriggerL1Mu);
@@ -225,7 +225,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, obj.hwIso());
   }
 
-  for (const auto& obj: l1Tau) {
+  for (const auto &obj : l1Tau) {
     pat::TriggerObjectStandAlone l1obj(obj.p4());
     l1obj.setCollection("L1Tau");
     l1obj.addTriggerObjectType(trigger::TriggerL1Tau);

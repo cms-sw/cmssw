@@ -65,8 +65,8 @@ template <typename T>
 void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   // needs jet collection (srcJet), leptons collection
   auto srcJet = iEvent.getHandle(srcJet_);
-  const auto& eleProd = iEvent.get(srcEle_);
-  const auto& muProd = iEvent.get(srcMu_);
+  const auto &eleProd = iEvent.get(srcEle_);
+  const auto &muProd = iEvent.get(srcMu_);
 
   unsigned int nJet = srcJet->size();
   unsigned int nEle = eleProd.size();
@@ -95,7 +95,7 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
     // match to leading and closest electron or muon
     double dRmin(0.8), dRele(999), dRmu(999), dRtmp(999);
     for (unsigned int il(0); il < nEle; il++) {
-      const auto& lep = eleProd.at(il);
+      const auto &lep = eleProd.at(il);
       if (matchByCommonSourceCandidatePtr(lep, itJet)) {
         dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), lep.eta(), lep.phi());
         if (dRtmp < dRmin && dRtmp < dRele && lep.pt() > lepPt) {
