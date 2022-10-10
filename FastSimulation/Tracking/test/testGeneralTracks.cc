@@ -44,8 +44,8 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
   const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken;
-  const edm::EDGetTokenT<std::vector<SimTrack> > tokSimTrack_;
-  const edm::EDGetTokenT<std::vector<SimVertex> > tokSimVertex_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tokSimTrack_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tokSimVertex_;
 
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
@@ -80,8 +80,8 @@ private:
 testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p)
     : geomToken(esConsumes()),
       pdtToken(esConsumes()),
-      tokSimTrack_(consumes<std::vector<SimTrack> >(edm::InputTag("fastSimProducer"))),
-      tokSimVertex_(consumes<std::vector<SimVertex> >(edm::InputTag("fastSimProducer"))),
+      tokSimTrack_(consumes<std::vector<SimTrack>>(edm::InputTag("fastSimProducer"))),
+      tokSimVertex_(consumes<std::vector<SimVertex>>(edm::InputTag("fastSimProducer"))),
       mySimEvent(2, static_cast<FSimEvent*>(0)),
       h0(2, static_cast<MonitorElement*>(0)),
       TracksvsEtaP(2, static_cast<MonitorElement*>(0)),
@@ -157,8 +157,8 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
-  const edm::Handle<std::vector<SimTrack> >& fastSimTracks = iEvent.getHandle(tokSimTrack_);
-  const edm::Handle<std::vector<SimVertex> >& fastSimVertices = iEvent.getHandle(tokSimVertex_);
+  const edm::Handle<std::vector<SimTrack>>& fastSimTracks = iEvent.getHandle(tokSimTrack_);
+  const edm::Handle<std::vector<SimVertex>>& fastSimVertices = iEvent.getHandle(tokSimVertex_);
   mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
 
   if (!mySimEvent[1]->nVertices())
