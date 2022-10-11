@@ -15,9 +15,7 @@ FakeGctInputProducer::FakeGctInputProducer(const edm::ParameterSet& iConfig) {
   niemMode_ = iConfig.getUntrackedParameter<int>("nonIsoEmMode", 0);
 }
 
-FakeGctInputProducer::~FakeGctInputProducer() {}
-
-void FakeGctInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void FakeGctInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   // containers
