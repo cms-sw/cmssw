@@ -325,8 +325,8 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     // Initialize Cuda constants
     PFRecHit::HCAL::initializeCudaConstants(cudaConstants, ctx.stream());
 
-    if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
-      cudaCheck(cudaStreamSynchronize(ctx.stream()));
+    // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
+    //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
     initCuda = false;
   }
@@ -339,8 +339,8 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   GPU_timers.fill(0.0);
   PFRecHit::HCAL::entryPoint(HBHERecHitSoA, cudaConstants, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
-  if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(ctx.stream()));
+  // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
+  //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
   if (!produceLegacy_ && !produceCleanedLegacy_) return; // do device->host transfer only when we are producing Legacy data
 
@@ -360,8 +360,9 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, outputGPU.PFRecHits.pfrh_neighbours.get(), 8 * num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_time, outputGPU.PFRecHits.pfrh_time.get(), num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), num_rechits);
-  if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(ctx.stream()));
+  // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
+  //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
+
 }
 
 void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {

@@ -348,8 +348,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_topoId.get(), outputGPU.pfrh_topoId.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
-  if (cudaStreamQuery(cudaStream) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(cudaStream));
+  // if (cudaStreamQuery(cudaStream) != cudaSuccess)
+  //   cudaCheck(cudaStreamSynchronize(cudaStream));
 }
 
 void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup& setup) {
