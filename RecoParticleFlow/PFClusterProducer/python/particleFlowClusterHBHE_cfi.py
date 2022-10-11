@@ -134,6 +134,15 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
     ),
 )
+(run2_HE_2018 & ~run2_HECollapse_2018).toModify(_particleFlowClusterHBHE_cuda,
+    seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThreshold = _seedingThresholdsHEphase1) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThreshold = _thresholdsHEphase1) } ),
+    pfClusterBuilder = dict(
+        recHitEnergyNorms = {1 : dict(recHitEnergyNorm = _thresholdsHEphase1) },
+        positionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
+        allCellsPositionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
+    ),
+)
 
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
