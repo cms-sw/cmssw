@@ -32,11 +32,6 @@ FakeGctInputTester::FakeGctInputTester(const edm::ParameterSet& iConfig) {
   hFileName_ = iConfig.getUntrackedParameter<string>("histoFile", "FakeRctTest.root");
 }
 
-FakeGctInputTester::~FakeGctInputTester() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
