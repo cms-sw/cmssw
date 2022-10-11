@@ -112,19 +112,7 @@ The script also handles the common and forward elements of the geometry:
 * F8: same as F6 or F7 without BRM
 
 Several detector combinations have been generated:
-* D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
-* D60 = T15+C10+M4+I10+O4+F3 (With HFNose)
-* D68 = T21+C11+M6+I11+O5+F4 (For HGCAL study on evolution of detector)
-* D70 = T21+C13+M7+I11+O6+F6 (For HGCAL study on evolution of detector)
-* D76 = T21+C14+M9+I13+O7+F6
-* D77 = T24+C14+M9+I13+O7+F6 (Current default scenario)
-* D80 = T25+C14+M9+I13+O7+F6
-* D81 = T26+C14+M9+I13+O7+F6
-* D82 = T21+C15+M9+I13+O7+F7
-* D83 = T24+C16+M9+I13+O7+F6
-* D84 = T24+C13+M7+I11+O6+F6 (For HGCAL study on evolution of HGCal replacing D70)
-* D85 = T24+C14+M9+I14+O7+F6
-* D86 = T24+C17+M10+I14+O8+F6
+* D86 = T24+C17+M10+I14+O8+F6 (Current Phase-2 baseline)
 * D88 = T24+C17+M10+I15+O9+F6
 * D91 = T30+C17+M10+I15+O9+F6
 * D92 = T24+C18+M10+I15+O9+F6
