@@ -302,8 +302,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   float kernelTimers[8] = {0.0};
 
-  if (cudaStreamQuery(cudaStream) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(cudaStream));
+  // if (cudaStreamQuery(cudaStream) != cudaSuccess)
+  //   cudaCheck(cudaStreamSynchronize(cudaStream));
 
   // Calling cuda kernels
   PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputGPU, scratchGPU, kernelTimers);
