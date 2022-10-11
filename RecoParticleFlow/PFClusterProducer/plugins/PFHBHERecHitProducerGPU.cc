@@ -235,7 +235,8 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
   }
   // -> vDenseIdHcal, validDetIdPositions
 
-  initCuda = true;  // (Re)initialize cuda arrays
+  //initCuda = true;  // (Re)initialize cuda arrays
+  //KenH: for now comment this out, as we know we don't change the channel status on lumisection basis
 }
 
 void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,

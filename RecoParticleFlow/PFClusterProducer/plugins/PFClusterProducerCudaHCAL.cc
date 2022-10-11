@@ -265,7 +265,8 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PFClusterProducerCudaHCAL::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
-  initCuda_ = true;  // (Re)initialize cuda arrays
+  //initCuda_ = true;  // (Re)initialize cuda arrays
+  //KenH: for now comment this out, as we know we don't change the channel status on lumisection basis
 }
 
 void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
