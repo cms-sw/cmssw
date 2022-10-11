@@ -16,11 +16,6 @@ public:
                                       const std::vector<double>& planeShift,
                                       const std::vector<double>& zPosition);
 
-  ~EcalTBHodoscopeRecInfoAlgo() {
-    if (myGeometry_)
-      delete myGeometry_;
-  };
-
   EcalTBHodoscopeRecInfo reconstruct(const EcalTBHodoscopeRawInfo& hodoscopeRawInfo) const;
 
 private:
@@ -70,7 +65,7 @@ private:
   std::vector<double> zPosition_;
 
   //for the moment mantaining it here
-  EcalTBHodoscopeGeometry* myGeometry_;
+  EcalTBHodoscopeGeometry myGeometry_;
 };
 
 #endif
