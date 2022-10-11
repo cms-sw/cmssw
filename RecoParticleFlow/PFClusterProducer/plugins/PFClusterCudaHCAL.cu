@@ -4532,8 +4532,6 @@ namespace PFClusterCudaHCAL {
       cudaStream_t cudaStream,
       int nEdges,
       ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> const& inputPFRecHits,
-      ::PFClustering::HCAL::InputDataGPU& inputGPU,
-      ::PFClustering::HCAL::OutputDataCPU& outputCPU,
       ::PFClustering::HCAL::OutputDataGPU& outputGPU,
       ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
       float (&timer)[8]) {
@@ -4620,16 +4618,16 @@ namespace PFClusterCudaHCAL {
                                                            inputPFRecHits.pfrh_neighbours.get(),
                                                            outputGPU.pcrh_frac.get(),
                                                            outputGPU.pcrh_fracInd.get(),
-                                                           inputGPU.pcrh_fracSum.get(),
+                                                           scratchGPU.pcrh_fracSum.get(),
                                                            scratchGPU.rhcount.get(),
                                                            outputGPU.topoSeedCount.get(),
                                                            outputGPU.topoRHCount.get(),
                                                            outputGPU.seedFracOffsets.get(),
                                                            outputGPU.topoSeedOffsets.get(),
                                                            outputGPU.topoSeedList.get(),
-                                                           inputGPU.pfc_pos4.get(),
-                                                           inputGPU.pfc_prevPos4.get(),
-                                                           inputGPU.pfc_energy.get(),
+                                                           outputGPU.pfc_pos4.get(),
+                                                           scratchGPU.pfc_prevPos4.get(),
+                                                           outputGPU.pfc_energy.get(),
                                                            outputGPU.pfc_iter.get());
   }
 }  // namespace PFClusterCudaHCAL

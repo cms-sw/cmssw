@@ -51,6 +51,7 @@ private:
   const bool produceSoA_;            // PFRecHits in SoA format
   const bool produceLegacy_;         // PFRecHits in legacy format
   const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
+  const bool simplifiedLegacy_ = true; // Store minimal information to legacy format data
 
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
@@ -329,16 +330,11 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   };
 
   tmpPFRecHits.resize(num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_depth, outputGPU.PFRecHits.pfrh_depth.get(), num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_layer, outputGPU.PFRecHits.pfrh_layer.get(), num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_detId, outputGPU.PFRecHits.pfrh_detId.get(), num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, outputGPU.PFRecHits.pfrh_neighbours.get(), 8 * num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbourInfos, outputGPU.PFRecHits.pfrh_neighbourInfos.get(), 8 * num_rechits);
+  if (!simplifiedLegacy_)
+    lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, outputGPU.PFRecHits.pfrh_neighbours.get(), 8 * num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_time, outputGPU.PFRecHits.pfrh_time.get(), num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_x, outputGPU.PFRecHits.pfrh_x.get(), num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_y, outputGPU.PFRecHits.pfrh_y.get(), num_rechits);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_z, outputGPU.PFRecHits.pfrh_z.get(), num_rechits);
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(ctx.stream()));
 }
@@ -386,6 +382,8 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
       pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
       pfrh.setDepth(hid.depth());
 
+      // simplified PF rechits without neighbor info (shouldn't be necessary when PFCluster is produced on GPU)
+      if (!simplifiedLegacy_) {
       std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
       std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
       std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
@@ -394,6 +392,7 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 	if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
 	  pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
       }
+      } // !simplifiedLegacy
 
       if (i < tmpPFRecHits.size)
 	pfrhLegacy->push_back(pfrh);
