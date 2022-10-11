@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,7 +33,7 @@
 // forward declarations
 
 // class declaration
-class L1GtTextToRaw : public edm::EDProducer {
+class L1GtTextToRaw : public edm::one::EDProducer<> {
 public:
   /// constructor(s)
   explicit L1GtTextToRaw(const edm::ParameterSet&);
