@@ -341,7 +341,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
                             cudaStream));
 
   cudaCheck(cudaMemcpyAsync(
-      outputCPU.pcrh_frac.get(), outputGPU.pcrh_frac.get(), sizeof(int) * nFracs, cudaMemcpyDeviceToHost, cudaStream));
+      outputCPU.pcrh_frac.get(), outputGPU.pcrh_frac.get(), sizeof(float) * nFracs, cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_isSeed.get(), outputGPU.pfrh_isSeed.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(
@@ -354,7 +354,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup& setup) {
   // cms::cuda::ScopedContextProduce ctx{cudaState_};
   // if (_produceSoA)
-  //   ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFClusters)); // SoA "PFClusters" still need to be defined.
+  //   ctx.emplace(event, OutputPFClusterSoA_Token_, std::move(outputGPU.PFClusters)); // SoA "PFClusters" still need to be defined.
 
   if (_produceLegacy) {
 
