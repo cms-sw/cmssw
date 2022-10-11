@@ -2,6 +2,8 @@
 #define SimPPS_RPDigiProducer_RP_DET_DIGITIZER_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -20,13 +22,16 @@
 namespace CLHEP {
   class HepRandomEngine;
 }
+class CTPPSRPAlignmentCorrectionsData;
+class CTPPSGeometry;
 
 class RPDetDigitizer {
 public:
   RPDetDigitizer(const edm::ParameterSet &params,
                  CLHEP::HepRandomEngine &eng,
                  RPDetId det_id,
-                 const edm::EventSetup &iSetup);
+                 const CTPPSRPAlignmentCorrectionsData *alignments,
+                 const CTPPSGeometry &geom);
   void run(const std::vector<PSimHit> &input,
            const std::vector<int> &input_links,
            std::vector<TotemRPDigi> &output_digi,
