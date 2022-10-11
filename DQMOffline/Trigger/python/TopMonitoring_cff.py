@@ -12,6 +12,7 @@ from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTcond
 
 topEleJet_jet = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleJet/JetMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 1,
@@ -32,6 +33,7 @@ topEleJet_jet = hltTOPmonitoring.clone(
 
 topEleJet_ele = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleJet/ElectronMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 1,
@@ -58,6 +60,7 @@ topEleJet_ele = hltTOPmonitoring.clone(
 ### ---
 topEleJet_all = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleJet/GlobalMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 1,
@@ -78,6 +81,7 @@ topEleJet_all = hltTOPmonitoring.clone(
 
 topEleHT_ht = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleHT/HTMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 2,
@@ -101,6 +105,7 @@ topEleHT_ht = hltTOPmonitoring.clone(
 
 topEleHT_ele = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleHT/ElectronMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 2,
@@ -129,6 +134,7 @@ topEleHT_ele = hltTOPmonitoring.clone(
 
 topEleHT_all = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/EleHT/GlobalMonitor',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 1,
     njets = 2,
@@ -152,6 +158,7 @@ topEleHT_all = hltTOPmonitoring.clone(
 
 topSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/SingleLepton/SingleMuon/Mu24/',
+    enable2DPlots = False,
     nmuons = 1,
     nelectrons = 0,
     njets = 0,
@@ -164,6 +171,7 @@ topSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone(
 
 topSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/SingleLepton/SingleMuon/Mu27/',
+    enable2DPlots = False,
     nmuons = 1,
     nelectrons = 0,
     njets = 0,
@@ -176,6 +184,7 @@ topSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone(
 
 topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/SingleLepton/SingleMuon/Mu50/',
+    enable2DPlots = False,
     nmuons = 1,
     nelectrons = 0,
     njets = 0,
@@ -190,6 +199,7 @@ topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone(
 
 topDiElectronHLTMonitor = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/DiElectron/Ele23Ele12/',
+    enable2DPlots = False,
     nmuons = 0,
     nelectrons = 2,
     njets = 0,
@@ -210,6 +220,7 @@ topDiElectronHLTMonitor_Dz = topDiElectronHLTMonitor.clone(
 
 topDiMuonHLTMonitor_noDz = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mu17_Mu8/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -222,6 +233,7 @@ topDiMuonHLTMonitor_noDz = hltTOPmonitoring.clone(
 
 topDiMuonHLTMonitor_Dz = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Dz/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -241,6 +253,7 @@ topDiMuonHLTMonitor_Dz_Mu17_Mu8 = topDiMuonHLTMonitor_Dz.clone(
 
 topDiMuonHLTMonitor_Mass8 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mass8/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -253,6 +266,7 @@ topDiMuonHLTMonitor_Mass8 = hltTOPmonitoring.clone(
 
 topDiMuonHLTMonitor_Mass3p8 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mass3p8/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -264,8 +278,8 @@ topDiMuonHLTMonitor_Mass3p8 = hltTOPmonitoring.clone(
 ### ---
 
 topDiMuonHLTMonitor_Mass8Mon = hltTOPmonitoring.clone(
-    #FolderName = 'HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/',
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -278,8 +292,8 @@ topDiMuonHLTMonitor_Mass8Mon = hltTOPmonitoring.clone(
 ### ---
 
 topDiMuonHLTMonitor_Mass3p8Mon = hltTOPmonitoring.clone(
-    #FolderName = 'HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/',
     FolderName = 'HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/',
+    enable2DPlots = False,
     nmuons = 2,
     nelectrons = 0,
     njets = 0,
@@ -295,6 +309,7 @@ topDiMuonHLTMonitor_Mass3p8Mon = hltTOPmonitoring.clone(
 
 topElecMuonHLTMonitor = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/DiLepton/ElecMuon/OR/',
+    enable2DPlots = False,
     nmuons = 1,
     nelectrons = 1,
     njets = 0,
@@ -371,6 +386,7 @@ topElecMuonHLTMonitor_Mu23Ele12_ref = topElecMuonHLTMonitor.clone(
 
 fullyhadronic_ref350 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/FullyHadronic/Reference/PFHT350Monitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     HTdefinition     = 'pt>30 & abs(eta)<2.4',
@@ -386,6 +402,7 @@ fullyhadronic_ref350 = hltTOPmonitoring.clone(
 
 fullyhadronic_ref370 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/FullyHadronic/Reference/PFHT370Monitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     HTdefinition     = 'pt>30 & abs(eta)<2.4',
@@ -401,6 +418,7 @@ fullyhadronic_ref370 = hltTOPmonitoring.clone(
 
 fullyhadronic_ref430 = hltTOPmonitoring.clone(
     FolderName = 'HLT/TOP/FullyHadronic/Reference/PFHT430Monitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     HTdefinition     = 'pt>30 & abs(eta)<2.4',
@@ -416,6 +434,7 @@ fullyhadronic_ref430 = hltTOPmonitoring.clone(
 
 fullyhadronic_DoubleBTag_all = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTag/GlobalMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -448,8 +467,58 @@ run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_all, workingpoint = 0.
 run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*'])
 ### ---
 
+fullyhadronic_DoubleBTag_DeepJet_all = hltTOPmonitoring.clone(
+    FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTagDeepJet/GlobalMonitor/',
+    enable2DPlots = False,
+    # Selections
+    leptJetDeltaRmin = 0.0,
+    njets            = 6,
+    jetSelection     = 'pt>40 & abs(eta)<2.4',
+    HTdefinition     = 'pt>30 & abs(eta)<2.4',
+    HTcut            = 500,
+    nbjets           = 2,
+    bjetSelection    = 'pt>40 & abs(eta)<2.4',
+    btagAlgos        = ["pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"],
+    workingpoint     = 0.4941, # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
+    #btagAlgos        = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb"],
+    #workingpoint     = 0.2770, # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X )
+    # Binning
+    histoPSet = dict(htPSet = dict(nbins= 50, xmin= 0.0, xmax= 1000),
+                     jetPtBinning = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200],
+                     HTBinning    = [0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900]),
+    # Triggers 
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v*']),
+    denGenericTriggerEventPSet = dict(hltPaths = ['HLT_IsoMu27_v*'])
+)
+
+fullyhadronic_DoubleBTag_DeepJet_bjet = hltTOPmonitoring.clone(
+    FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTagDeepJet/BJetMonitor/',
+    enable2DPlots = False,
+    # Selections
+    leptJetDeltaRmin = 0.0,
+    njets            = 6,
+    jetSelection     = 'pt>40 & abs(eta)<2.4',
+    HTdefinition     = 'pt>30 & abs(eta)<2.4',
+    HTcut            = 500,
+    nbjets           = 2,
+    bjetSelection    = 'pt>40 & abs(eta)<2.4',
+    btagAlgos        = ["pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"],
+    workingpoint     = 0.1522, # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
+    #btagAlgos        = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb"],
+    #workingpoint     = 0.0494, # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X )
+    # Binning
+    histoPSet = dict(htPSet = dict(nbins= 50, xmin= 0.0, xmax= 1000),
+                     jetPtBinning = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200],
+                     HTBinning    = [0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900]),
+    # Triggers
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v*']),
+    denGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT400_SixPFJet32_v*'])
+)
+### ---
+
 fullyhadronic_DoubleBTag_jet = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTag/JetMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -487,6 +556,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_jet.denGenericTriggerE
 
 fullyhadronic_DoubleBTag_bjet = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTag/BJetMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -525,6 +595,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_bjet.denGenericTrigger
 
 fullyhadronic_DoubleBTag_ref = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/DoubleBTag/RefMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -560,6 +631,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_ref.numGenericTriggerE
 
 fullyhadronic_SingleBTag_all = hltTOPmonitoring.clone(
     FolderName= 'HLT/TOP/FullyHadronic/SingleBTag/GlobalMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -593,8 +665,59 @@ run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_all.numGenericTriggerE
 
 ### ---
 
+fullyhadronic_SingleBTagDeepJet_all = hltTOPmonitoring.clone(
+    FolderName= 'HLT/TOP/FullyHadronic/SingleBTagDeepJet/GlobalMonitor/',
+    enable2DPlots = False,
+    # Selections
+    leptJetDeltaRmin = 0.0,
+    njets            = 6,
+    jetSelection     = 'pt>40 & abs(eta)<2.4',
+    HTdefinition     = 'pt>30 & abs(eta)<2.4',
+    HTcut            = 500,
+    nbjets           = 2,
+    bjetSelection    = 'pt>40 & abs(eta)<2.4',
+    btagAlgos        = ["pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"],
+    workingpoint     = 0.4941, # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
+    #btagAlgos        = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb"],
+    #workingpoint     = 0.2770, 
+    # Binning
+    histoPSet = dict(htPSet = dict(nbins= 50, xmin= 0.0, xmax= 1000),
+                     jetPtBinning = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200],
+                     HTBinning    = [0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900]),
+    # Triggers
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*']),
+    denGenericTriggerEventPSet = dict(hltPaths = ['HLT_IsoMu27_v*']),
+)
+
+fullyhadronic_SingleBTagDeepJet_bjet = hltTOPmonitoring.clone(
+    FolderName= 'HLT/TOP/FullyHadronic/SingleBTagDeepJet/BJetMonitor/',
+    enable2DPlots = False,
+    # Selection
+    leptJetDeltaRmin = 0.0,
+    njets            = 6,
+    jetSelection     = 'pt>40 & abs(eta)<2.4',
+    HTdefinition     = 'pt>30 & abs(eta)<2.4',
+    HTcut            = 500,
+    nbjets           = 2,
+    bjetSelection    = 'pt>40 & abs(eta)<2.4',
+    btagAlgos        = ["pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"],
+    workingpoint     = 0.1522, # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
+    #btagAlgos        = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb"],
+    #workingpoint     = 0.0494, # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X )
+    # Binning
+    histoPSet = dict(htPSet = dict(nbins= 50, xmin= 0.0, xmax= 1000),
+                     jetPtBinning = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200],
+                     HTBinning    = [0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900]),
+    # Triggers
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*']),
+    denGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT450_SixPFJet36_v*'])
+)
+
+### ---
+
 fullyhadronic_SingleBTag_jet = hltTOPmonitoring.clone(
     FolderName= 'HLT/TOP/FullyHadronic/SingleBTag/JetMonitor/',
+    enable2DPlots = False,
     # Selection
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -633,6 +756,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_jet.denGenericTriggerE
 
 fullyhadronic_SingleBTag_bjet = hltTOPmonitoring.clone(
     FolderName= 'HLT/TOP/FullyHadronic/SingleBTag/BJetMonitor/',
+    enable2DPlots = False,
     # Selection
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -651,6 +775,7 @@ fullyhadronic_SingleBTag_bjet = hltTOPmonitoring.clone(
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59_v*']),
     denGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFHT450_SixPFJet36_v*'])
 )
+
 # conditions 2016
 run2_HLTconditions_2016.toModify(fullyhadronic_SingleBTag_bjet, btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"])
 run2_HLTconditions_2016.toModify(fullyhadronic_SingleBTag_bjet, workingpoint = 0.5426)
@@ -671,6 +796,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_bjet.denGenericTrigger
 
 fullyhadronic_SingleBTag_ref = hltTOPmonitoring.clone(
     FolderName= 'HLT/TOP/FullyHadronic/SingleBTag/RefMonitor/',
+    enable2DPlots = False,
     # Selection
     leptJetDeltaRmin = 0.0,
     njets            = 6,
@@ -706,6 +832,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_ref.numGenericTriggerE
 
 fullyhadronic_TripleBTag_all = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/TripleBTag/GlobalMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 4,
@@ -736,6 +863,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_all.numGenericTriggerE
 
 fullyhadronic_TripleBTag_jet = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/TripleBTag/JetMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 4,
@@ -767,6 +895,7 @@ run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_jet.numGenericTriggerE
 
 fullyhadronic_TripleBTag_bjet = hltTOPmonitoring.clone(
     FolderName   = 'HLT/TOP/FullyHadronic/TripleBTag/BJetMonitor/',
+    enable2DPlots = False,
     # Selections
     leptJetDeltaRmin = 0.0,
     njets            = 4,
@@ -840,18 +969,26 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_ref350
     + fullyhadronic_ref370
     + fullyhadronic_ref430
-    + fullyhadronic_DoubleBTag_all
+
+    + fullyhadronic_DoubleBTag_all  
     + fullyhadronic_DoubleBTag_jet
     + fullyhadronic_DoubleBTag_bjet
     + fullyhadronic_DoubleBTag_ref
+
+    + fullyhadronic_DoubleBTag_DeepJet_all
+    + fullyhadronic_DoubleBTag_DeepJet_bjet
+
     + fullyhadronic_SingleBTag_all
     + fullyhadronic_SingleBTag_jet
     + fullyhadronic_SingleBTag_bjet
     + fullyhadronic_SingleBTag_ref
+
+    + fullyhadronic_SingleBTagDeepJet_all
+    + fullyhadronic_SingleBTagDeepJet_bjet
+
     + fullyhadronic_TripleBTag_all
     + fullyhadronic_TripleBTag_jet
     + fullyhadronic_TripleBTag_bjet
-
     , cms.Task(egmGsfElectronIDsForDQM) # Use of electron VID requires this module being executed first
 )
 
