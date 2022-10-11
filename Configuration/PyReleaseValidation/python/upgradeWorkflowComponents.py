@@ -50,7 +50,9 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,38600],[39000,39400],[39800,40600],[50000,51000]]
+numWFConflict = [[20400,20800], #D87
+                 [21200,22000], #D89-D90
+                 [50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -1509,7 +1511,7 @@ class UpgradeWorkflowAging(UpgradeWorkflow):
         if 'Digi' in step or 'Reco' in step:
             stepDict[stepName][k] = merge([{'--customise': 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_'+self.lumi}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2026' in key
+        return '2026' in key
 # define several of them
 upgradeWFs['Aging1000'] = UpgradeWorkflowAging(
     steps =  [
