@@ -51,7 +51,7 @@ private:
   const bool produceSoA_;            // PFRecHits in SoA format
   const bool produceLegacy_;         // PFRecHits in legacy format
   const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
-  const bool simplifiedLegacy_ = true; // Store minimal information to legacy format data
+  const bool fullLegacy_ = false; // Store full information to legacy format data
 
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
@@ -356,7 +356,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   num_rechits = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned; // transfer only what become PFRecHits
   tmpPFRecHits.resize(num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_detId, outputGPU.PFRecHits.pfrh_detId.get(), num_rechits);
-  if (!simplifiedLegacy_)
+  if (fullLegacy_)
     lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, outputGPU.PFRecHits.pfrh_neighbours.get(), 8 * num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_time, outputGPU.PFRecHits.pfrh_time.get(), num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), num_rechits);
@@ -375,6 +375,7 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
     auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
 
+    //Use pre-filled unordered_map, but we may go back to directly using geometry
     //const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
     //const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
@@ -393,13 +394,13 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
       PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
       switch (hid.subdet()) {
         case HcalBarrel:
-          //thisCell = hcalBarrelGeo->getGeometry(hid);
+	   //thisCell = hcalBarrelGeo->getGeometry(hid);
 	  layer = PFLayer::HCAL_BARREL1;
 	  break;
 
         case HcalEndcap:
-	  //thisCell = hcalEndcapGeo->getGeometry(hid);
 	  layer = PFLayer::HCAL_ENDCAP;
+	  //thisCell = hcalEndcapGeo->getGeometry(hid);
 	  break;
         default:
 	  break;
@@ -409,8 +410,8 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
       pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
       pfrh.setDepth(hid.depth());
 
-      // simplified PF rechits without neighbor info (shouldn't be necessary when PFCluster is produced on GPU)
-      if (!simplifiedLegacy_) {
+      // store full PF rechits including neighbor info (neighbor info is not necessary in legacy format when PFCluster is produced on GPU)
+      if (fullLegacy_) {
       std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
       std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
       std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
@@ -419,7 +420,7 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 	if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
 	  pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
       }
-      } // !simplifiedLegacy
+      } // fullLegacy
 
       if (i < tmpPFRecHits.size)
 	pfrhLegacy->push_back(pfrh);
@@ -431,7 +432,8 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     if (produceLegacy_) event.put(std::move(pfrhLegacy), "");
     if (produceCleanedLegacy_) event.put(std::move(pfrhLegacyCleaned), "Cleaned");
 
-    tmpPFRecHits.resize(0);
+    //tmpPFRecHits.resize(0); // clear the temporary collection for the next event
+    //KenH: comment out for now
   } // if (produceLegacy_ || produceCleanedLegacy_)
 }
 
