@@ -42,12 +42,15 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
-  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tokSimTrack_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tokSimVertex_;
 
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
-  std::vector<edm::InputTag> allTracks;
+  std::vector<edm::InputTag> allTracks_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection>> allTrackToken_;
   bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
@@ -77,6 +80,8 @@ private:
 testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p)
     : geomToken(esConsumes()),
       pdtToken(esConsumes()),
+      tokSimTrack_(consumes<std::vector<SimTrack>>(edm::InputTag("fastSimProducer"))),
+      tokSimVertex_(consumes<std::vector<SimVertex>>(edm::InputTag("fastSimProducer"))),
       mySimEvent(2, static_cast<FSimEvent*>(0)),
       h0(2, static_cast<MonitorElement*>(0)),
       TracksvsEtaP(2, static_cast<MonitorElement*>(0)),
@@ -84,15 +89,15 @@ testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p)
       HitsvsEta(2, static_cast<MonitorElement*>(0)),
       LayersvsP(2, static_cast<MonitorElement*>(0)),
       LayersvsEta(2, static_cast<MonitorElement*>(0)),
-
       Num(2, static_cast<MonitorElement*>(0)),
-
       totalNEvt(0) {
   // Let's just initialize the SimEvent's
   particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");
 
-  allTracks.push_back(p.getParameter<edm::InputTag>("Full"));
-  allTracks.push_back(p.getParameter<edm::InputTag>("Fast"));
+  allTracks_.emplace_back(p.getParameter<edm::InputTag>("Full"));
+  allTracks_.emplace_back(p.getParameter<edm::InputTag>("Fast"));
+  for (const auto& tag : allTracks_)
+    allTrackToken_.emplace_back(consumes<reco::TrackCollection>(tag));
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
@@ -152,10 +157,8 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("fastSimProducer", fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("fastSimProducer", fastSimVertices);
+  const edm::Handle<std::vector<SimTrack>>& fastSimTracks = iEvent.getHandle(tokSimTrack_);
+  const edm::Handle<std::vector<SimVertex>>& fastSimVertices = iEvent.getHandle(tokSimVertex_);
   mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
 
   if (!mySimEvent[1]->nVertices())
@@ -177,9 +180,8 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<bool> firstSeed(2, static_cast<bool>(false));
   std::vector<bool> secondSeed(2, static_cast<bool>(false));
 
-  for (unsigned ievt = 0; ievt < 2; ++ievt) {
-    edm::Handle<reco::TrackCollection> tkRef0;
-    iEvent.getByLabel(allTracks[ievt], tkRef0);
+  for (unsigned ievt = 0; ievt < allTracks_.size(); ++ievt) {
+    const edm::Handle<reco::TrackCollection>& tkRef0 = iEvent.getHandle(allTrackToken_[ievt]);
     std::vector<const reco::TrackCollection*> tkColl;
     tkColl.push_back(tkRef0.product());
 
