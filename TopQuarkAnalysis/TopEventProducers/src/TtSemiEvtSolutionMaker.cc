@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-class TtSemiEvtSolutionMaker : public edm::EDProducer {
+class TtSemiEvtSolutionMaker : public edm::stream::EDProducer<> {
 public:
   explicit TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig);
   ~TtSemiEvtSolutionMaker() override;
