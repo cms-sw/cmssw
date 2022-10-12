@@ -270,20 +270,22 @@ namespace edm {
         ~RunCacheHolder() noexcept(false) override{};
 
       protected:
-        C* runCache(edm::RunIndex iID) { return cache_.get(); }
-        C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
+        void preallocRuns(unsigned int iNRuns) final { caches_.reset(new std::shared_ptr<C>[iNRuns]); }
+
+        C* runCache(edm::RunIndex iID) { return caches_[iID].get(); }
+        C const* runCache(edm::RunIndex iID) const { return caches_[iID].get(); }
 
       private:
-        void doBeginRun_(Run const& rp, EventSetup const& c) final { cache_ = globalBeginRun(rp, c); }
+        void doBeginRun_(Run const& rp, EventSetup const& c) final { caches_[rp.index()] = globalBeginRun(rp, c); }
         void doEndRun_(Run const& rp, EventSetup const& c) final {
           globalEndRun(rp, c);
-          cache_ = nullptr;  // propagate_const<T> has no reset() function
+          caches_[rp.index()].reset();
         }
 
         virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
         virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) = 0;
-        //When threaded we will have a container for N items whre N is # of simultaneous runs
-        edm::propagate_const<std::shared_ptr<C>> cache_;
+
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };
 
       template <typename T, typename C>
