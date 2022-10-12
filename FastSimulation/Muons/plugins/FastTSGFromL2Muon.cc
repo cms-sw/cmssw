@@ -59,7 +59,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   // Loop on L2 muons
   unsigned int imu = 0;
   unsigned int imuMax = l2muonH->size();
-  edm::LogVerbatim("FastSim") << "Found " << imuMax << " L2 muons";
+  edm::LogVerbatim("FastTSGFromL2Muon") << "Found " << imuMax << " L2 muons";
   for (; imu != imuMax; ++imu) {
     // Make a ref to l2 muon
     reco::TrackRef muRef(l2muonH, imu);
@@ -109,7 +109,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   }  // End of l2 muon loop
 
-  edm::LogVerbatim("FastSim") << "Found " << result->size() << " seeds for muons";
+  edm::LogVerbatim("FastTSGFromL2Muon") << "Found " << result->size() << " seeds for muons";
 
   //put in the event
   ev.put(std::move(result));
