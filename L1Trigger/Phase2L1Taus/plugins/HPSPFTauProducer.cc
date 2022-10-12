@@ -220,7 +220,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minSeedJetPt", 30.0);
   desc.add<double>("maxChargedRelIso", 1.0);
   desc.add<double>("minSeedChargedPFCandPt", 5.0);
-  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1ctLayer1", "PF"));
+  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1tLayer1", "PF"));
   desc.add<double>("stripSizeEta", 0.05);
   desc.add<double>("maxLeadChargedPFCandEta", 2.4);
   desc.add<double>("deltaRCleaning", 0.4);
@@ -230,7 +230,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedChargedPFCandEta", 2.4);
   desc.add<bool>("applyPreselection", false);
   desc.add<double>("isolationConeSize", 0.4);
-  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("L1VertexFinderEmulator", "l1verticesEmulation"));
+  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
   desc.add<double>("maxChargedIso", 1000.0);
   {
     edm::ParameterSetDescription psd0;

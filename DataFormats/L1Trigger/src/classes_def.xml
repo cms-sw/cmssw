@@ -309,5 +309,7 @@
   </class>
   <class name="std::vector<l1t::TkJetWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkJetWord> >"/>
+  <class name="edm::Wrapper<l1t::TkJetWordCollection>"/>
+  <class name="std::bitset<70>"/>
 
 </lcgdict>
