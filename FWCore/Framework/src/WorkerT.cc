@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
@@ -169,14 +168,6 @@ namespace edm {
   }
   template <>
   SerialTaskQueue* WorkerT<EDProducer>::globalLuminosityBlocksQueue() {
-    return module_->globalLuminosityBlocksQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<EDFilter>::globalRunsQueue() {
-    return module_->globalRunsQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<EDFilter>::globalLuminosityBlocksQueue() {
     return module_->globalLuminosityBlocksQueue();
   }
   template <>
@@ -674,10 +665,6 @@ namespace edm {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
   template <>
-  Worker::TaskQueueAdaptor WorkerT<EDFilter>::serializeRunModule() {
-    return &(module_->sharedResourcesAcquirer().serialQueueChain());
-  }
-  template <>
   Worker::TaskQueueAdaptor WorkerT<EDProducer>::serializeRunModule() {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
@@ -724,10 +711,6 @@ namespace edm {
     }
     template <>
     bool mustPrefetchMayGet<EDProducer>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<EDFilter>() {
       return true;
     }
 
@@ -862,10 +845,6 @@ namespace edm {
     return Worker::kProducer;
   }
   template <>
-  Worker::Types WorkerT<EDFilter>::moduleType() const {
-    return Worker::kFilter;
-  }
-  template <>
   Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const {
     return Worker::kProducer;
   }
@@ -938,10 +917,6 @@ namespace edm {
     return Worker::kLegacy;
   }
   template <>
-  Worker::ConcurrencyTypes WorkerT<EDFilter>::moduleConcurrencyType() const {
-    return Worker::kLegacy;
-  }
-  template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
     return Worker::kOne;
   }
@@ -1008,7 +983,6 @@ namespace edm {
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<EDProducer>;
-  template class WorkerT<EDFilter>;
   template class WorkerT<EDAnalyzer>;
   template class WorkerT<one::EDProducerBase>;
   template class WorkerT<one::EDFilterBase>;

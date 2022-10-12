@@ -29,7 +29,6 @@ namespace edm {
   class Run;
 
   class EDProducer;
-  class EDFilter;
   namespace one {
     class EDProducerBase;
     class EDFilterBase;
