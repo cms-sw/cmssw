@@ -2,8 +2,6 @@
 #define SimPPS_RPDigiProducer_RP_DET_DIGITIZER_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
