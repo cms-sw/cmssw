@@ -21,6 +21,7 @@
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 #include <fstream>
+#include <memory>
 
 namespace Phase2L1GMT {
 
@@ -58,22 +59,22 @@ namespace Phase2L1GMT {
   }  // -----  end of function TopoAlgo::load  -----
 
   inline void TopoAlgo::DumpInputs() {
-    static int nevti = 0;
+    static std::atomic<int> nevti = 0;
+    auto evti = nevti++;
     int totalsize = 0;
     // Current setting
     int constexpr exptotal = 12 + 18 * 100;  // N_Muon + N_TRK_LINKS * NTRKperlinks
     for (unsigned int i = 0; i < 12; ++i) {
       if (i < trkMus->size())
-        dumpInput << " " << nevti << " 0 " << i << " " << trkMus->at(i).hwPt() * LSBpt << " "
+        dumpInput << " " << evti << " 0 " << i << " " << trkMus->at(i).hwPt() * LSBpt << " "
                   << trkMus->at(i).hwEta() * LSBeta << " " << trkMus->at(i).hwPhi() * LSBphi << " "
                   << trkMus->at(i).hwZ0() * LSBGTz0 << " " << trkMus->at(i).charge() << std::endl;
       else
-        dumpInput << " " << nevti << " 0 " << i << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0
-                  << std::endl;
+        dumpInput << " " << evti << " 0 " << i << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << std::endl;
       totalsize++;
     }
     for (unsigned int i = 0; i < convertedTracks->size(); ++i) {
-      dumpInput << " " << nevti << " 1 " << i << " " << convertedTracks->at(i).pt() * LSBpt << " "
+      dumpInput << " " << evti << " 1 " << i << " " << convertedTracks->at(i).pt() * LSBpt << " "
                 << convertedTracks->at(i).eta() * LSBeta << " " << convertedTracks->at(i).phi() * LSBphi << " "
                 << convertedTracks->at(i).z0() * LSBGTz0 << " " << convertedTracks->at(i).charge() << " "
                 << convertedTracks->at(i).quality() << std::endl;
@@ -82,11 +83,10 @@ namespace Phase2L1GMT {
     int ntrks = convertedTracks->size();
     // Pat the remaining
     while (totalsize < exptotal) {
-      dumpInput << " " << nevti << " 1 " << ntrks++ << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " "
+      dumpInput << " " << evti << " 1 " << ntrks++ << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " "
                 << 0 << std::endl;
       totalsize++;
     }
-    nevti++;
   }
 
   inline int TopoAlgo::deltaEta(const int eta1, const int eta2) {

@@ -19,6 +19,7 @@
 #include "TopologicalAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <atomic>
 
 namespace Phase2L1GMT {
   class Isolation : public TopoAlgo {
@@ -82,7 +83,8 @@ namespace Phase2L1GMT {
   inline Isolation::Isolation(const Isolation &cpy) : TopoAlgo(cpy) {}
 
   inline void Isolation::DumpOutputs(std::vector<l1t::TrackerMuon> &trkMus) {
-    static int nevto = 0;
+    static std::atomic<int> nevto = 0;
+    auto evto = nevto++;
     for (unsigned int i = 0; i < trkMus.size(); ++i) {
       auto mu = trkMus.at(i);
       if (mu.hwPt() != 0) {
@@ -90,11 +92,10 @@ namespace Phase2L1GMT {
         if (convertphi > M_PI) {
           convertphi -= 2 * M_PI;
         }
-        dumpOutput << nevto << " " << i << " " << mu.hwPt() * LSBpt << " " << mu.hwEta() * LSBeta << " " << convertphi
+        dumpOutput << evto << " " << i << " " << mu.hwPt() * LSBpt << " " << mu.hwEta() * LSBeta << " " << convertphi
                    << " " << mu.hwZ0() * LSBGTz0 << " " << mu.hwIso() << endl;
       }
     }
-    nevto++;
   }
 
   inline int Isolation::SetAbsIsolationBits(int accum) {
@@ -143,7 +144,7 @@ namespace Phase2L1GMT {
       DumpInputs();
     }
 
-    static int itest = 0;
+    static std::atomic<int> itest = 0;
     if (verbose_) {
       edm::LogInfo("Isolation") << "........ RUNNING TEST NUMBER .......... " << itest++;
     }
