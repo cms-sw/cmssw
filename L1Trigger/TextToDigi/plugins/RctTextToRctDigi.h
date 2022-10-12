@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -36,7 +36,7 @@
 #include <fstream>
 #include <iostream>
 
-class RctTextToRctDigi : public edm::EDProducer {
+class RctTextToRctDigi : public edm::one::EDProducer<> {
 public:
   explicit RctTextToRctDigi(const edm::ParameterSet &);
   ~RctTextToRctDigi() override;

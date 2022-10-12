@@ -25,7 +25,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@
 #include <fstream>
 #include <iostream>
 
-class RctDigiToSourceCardText : public edm::EDAnalyzer {
+class RctDigiToSourceCardText : public edm::one::EDAnalyzer<> {
 public:
   explicit RctDigiToSourceCardText(const edm::ParameterSet &);
   ~RctDigiToSourceCardText() override;
