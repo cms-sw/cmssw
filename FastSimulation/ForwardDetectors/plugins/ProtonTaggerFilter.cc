@@ -22,8 +22,9 @@
 
 //#include "CLHEP/Random/RandGaussQ.h"
 
-#include <iostream>
 #include <list>
+
+//#define EDM_ML_DEBUG
 
 /** read (and verify) parameters */
 
@@ -172,8 +173,10 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
     //edm::LogVerbatim("FastSimProtonTaggerFilter") << "no pileup in the event" ;
   }
 
-  //if (isPileUp) edm::LogVerbatim("FastSimProtonTaggerFilter") << "event contains " << pileUpEvent->particles_size() << " pileup particles " ;
-
+#ifdef EDM_ML_DEBUG
+  if (isPileUp) 
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << "event contains " << pileUpEvent->particles_size() << " pileup particles " ;
+#endif
   // ... some constants
 
   const double mp = 0.938272029;      // just a proton mass
@@ -192,15 +195,19 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
     float pz = p->momentum().pz();
     if (((pz > pzCut) || (pz < -pzCut)) && ((p->status() == 0) || (p->status() == 1))) {
       veryForwardParicles.push_back(p);
-      //edm::LogVerbatim("FastSimProtonTaggerFilter") << "pdgid: " << p->pdg_id() << " status: " << p->status() ;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("FastSimProtonTaggerFilter") << "pdgid: " << p->pdg_id() << " status: " << p->status() ;
+#endif
     }
   }
 
-  //edm::LogVerbatim("FastSimProtonTaggerFilter") << "# generated forward particles  : " << veryForwardParicles.size() ;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FastSimProtonTaggerFilter") << "# generated forward particles  : " << veryForwardParicles.size() ;
+#endif
   if (isPileUp) {
-    //edm::LogVerbatim("FastSimProtonTaggerFilter") << "Adding pileup " ;
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << "Adding pileup " ;
+#endif
     for (HepMC::GenEvent::particle_const_iterator piter = pileUpEvent->particles_begin();
          piter != pileUpEvent->particles_end();
          ++piter) {
@@ -209,13 +216,16 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       float pz = p->momentum().pz();
       if (((pz > pzCut) || (pz < -pzCut)) && ((p->status() == 0) || (p->status() == 1))) {
         veryForwardParicles.push_back(p);
-        //edm::LogVerbatim("FastSimProtonTaggerFilter") << "pdgid: " << p->pdg_id() << " status: " << p->status() ;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("FastSimProtonTaggerFilter") << "pdgid: " << p->pdg_id() << " status: " << p->status() ;
+#endif
       }
     }
   }
 
-  //edm::LogVerbatim("FastSimProtonTaggerFilter") << "# forward particles to be tried: " << veryForwardParicles.size() ;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FastSimProtonTaggerFilter") << "# forward particles to be tried: " << veryForwardParicles.size() ;
+#endif
   // ... return false if no forward protons found
 
   if (veryForwardParicles.empty())
@@ -257,11 +267,10 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
 
     double t = (-pt * pt - mp * mp * xi * xi) / (1 - xi);  // "t"
 
-    //edm::LogVerbatim("FastSimProtonTaggerFilter") << " pdg_id: "  << p->pdg_id() << " eta: " << p->momentum().eta() << " e: "
-    //          <<  p->momentum().e() ;
-    //edm::LogVerbatim("FastSimProtonTaggerFilter") << "pz: " << pz << " pt: " <<  pt << " xi: " << xi
-    //          << " t: " << t << " phi: " << phi ;
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << " pdg_id: "  << p->pdg_id() << " eta: " << p->momentum().eta() << " e: " <<  p->momentum().e() ;
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << "pz: " << pz << " pt: " <<  pt << " xi: " << xi << " t: " << t << " phi: " << phi ;
+#endif
     if (xi < 0.0)
       xi = -10.0;
     if (xi > 1.0)
@@ -277,12 +286,12 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       acc220b1 = helper220beam1.GetAcceptance(t, xi, phi);
       acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);
 
+#ifdef EDM_ML_DEBUG
       float acc420or220b1 = acc420b1 + acc220b1 - acc420and220b1;
-
       edm::LogVerbatim("FastSimProtonTaggerFilter")
           << "+acc420b1: " << acc420b1 << " acc220b1: " << acc220b1 << " acc420and220b1: " << acc420and220b1
           << " acc420or220b1: " << acc420or220b1;
-
+#endif
       bool res420and220 = (acc420and220b1 > acceptThreshold);
       bool res420 = (acc420b1 > acceptThreshold);
       bool res220 = (acc220b1 > acceptThreshold);
@@ -316,12 +325,12 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       acc220b2 = helper220beam2.GetAcceptance(t, xi, phi);
       acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);
 
+#ifdef EDM_ML_DEBUG
       float acc420or220b2 = acc420b2 + acc220b2 - acc420and220b2;
-
       edm::LogVerbatim("FastSimProtonTaggerFilter")
           << "+acc420b2: " << acc420b2 << " acc220b2: " << acc220b2 << " acc420and220b2: " << acc420and220b2
           << " acc420or220b2: " << acc420or220b2;
-
+#endif
       bool res420and220 = (acc420and220b2 > acceptThreshold);
       bool res420 = (acc420b2 > acceptThreshold);
       bool res220 = (acc220b2 > acceptThreshold);
@@ -388,9 +397,12 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
   if ((beam2mode == 4) && (p2at220m || p2at420m))
     p2accepted = true;
 
-  //if (p1accepted) edm::LogVerbatim("FastSimProtonTaggerFilter") << "proton 1 accepted" ;
-  //if (p2accepted) edm::LogVerbatim("FastSimProtonTaggerFilter") << "proton 2 accepted" ;
-
+#ifdef EDM_ML_DEBUG
+  if (p1accepted)
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << "proton 1 accepted" ;
+  if (p2accepted) 
+    edm::LogVerbatim("FastSimProtonTaggerFilter") << "proton 2 accepted" ;
+#endif
   switch (beamCombiningMode) {
     case 1:  // ... either of two protons
       if (p1accepted || p2accepted)
