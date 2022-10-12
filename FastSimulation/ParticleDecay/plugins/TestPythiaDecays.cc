@@ -128,7 +128,7 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
 
     // get particle data
     if (!pdt.isParticle(pid)) {
-      edm::LogError("FastSim") << "ERROR: BAD PARTICLE, pythia is not aware of pid " << pid;
+      edm::LogError("TestPythiaDecays") << "ERROR: BAD PARTICLE, pythia is not aware of pid " << pid;
       throw cms::Exception("Unknown", "FastSim") << "Bad Particle Type " << pid << "\n";
       std::exit(1);
     }
