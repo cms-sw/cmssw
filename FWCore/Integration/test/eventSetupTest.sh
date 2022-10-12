@@ -41,4 +41,10 @@ echo EventSetupIncorrectConsumes_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/EventSetupIncorrectConsumes_cfg.py &> testEventSetupIncorrectConsumes.txt && die 'Failed EventSetupIncorrectConsumes_cfg.py, the configuration succeeded while it should have failed' 1
 grep "A module declared it consumes an EventSetup product after its constructor" testEventSetupIncorrectConsumes.txt >/dev/null || diecat 'Failed EventSetupIncorrectConsumes_cfg.py, the configuration failed but in an unexpected way' $? testEventSetupIncorrectConsumes.txt
 
+echo testConcurrentIOVsAndRuns_cfg.py
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRuns_cfg.py || die 'Failed in testConcurrentIOVsAndRuns_cfg.py' $?
+
+echo testConcurrentIOVsAndRunsRead_cfg.py
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRunsRead_cfg.py || die 'Failed in testConcurrentIOVsAndRunsRead_cfg.py' $?
+
 popd

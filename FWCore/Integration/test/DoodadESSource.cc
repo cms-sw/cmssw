@@ -97,7 +97,8 @@ namespace edmtest {
                                       edm::ValidityInterval& iInterval) {
     //Be valid for 3 runs
     edm::EventID newTime = edm::EventID((iTime.eventID().run() - 1) - ((iTime.eventID().run() - 1) % 3) + 1, 1, 1);
-    edm::EventID endTime = newTime.nextRun(1).nextRun(1).nextRun(1).previousRunLastEvent(1);
+    edm::EventID endTime =
+        newTime.nextRun(1).nextRun(1).nextRun(1).previousRunLastEvent(edm::EventID::maxLuminosityBlockNumber());
     iInterval = edm::ValidityInterval(edm::IOVSyncValue(newTime), edm::IOVSyncValue(endTime));
   }
 

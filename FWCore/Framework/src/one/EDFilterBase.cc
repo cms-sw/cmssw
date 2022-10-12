@@ -95,9 +95,12 @@ namespace edm {
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
-    void EDFilterBase::preallocLumis(unsigned int){};
+
+    void EDFilterBase::preallocRuns(unsigned int) {}
+    void EDFilterBase::preallocLumis(unsigned int) {}
 
     void EDFilterBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
       ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
