@@ -3,9 +3,9 @@
 //#define EDM_ML_DEBUG
 
 JetComparison::JetComparison(edm::ParameterSet const& conf)
-  : jetToken_(consumes<reco::CaloJetCollection>(edm::InputTag("iterativeCone5CaloJets"))),
-    genjetToken_(consumes<reco::GenJetCollection>(edm::InputTag("ak4GenJets"))), 
-    fMinEnergy(conf.getParameter<double>("MinEnergy")) {
+    : jetToken_(consumes<reco::CaloJetCollection>(edm::InputTag("iterativeCone5CaloJets"))),
+      genjetToken_(consumes<reco::GenJetCollection>(edm::InputTag("ak4GenJets"))),
+      fMinEnergy(conf.getParameter<double>("MinEnergy")) {
   usesResource(TFileService::kSharedResource);
 
   nEvent = 0;
@@ -19,31 +19,32 @@ JetComparison::JetComparison(edm::ParameterSet const& conf)
   meEtaJet = tf->make<TH1F>("jet_eta", "jet_eta", 500, 0., 5.);
   meEtaGen = tf->make<TH1F>("gen_eta", "gen_eta", 500, 0., 5.);
   meRatio = tf->make<TH2F>("ratio_jet_gen_vs_eta", "ratio_jet_gen_vs_eta", 50, 0., 5., 20000, 0., 5.);
-  meHadronicFrac_vs_eta = tf->make<TH2F>("hadronic_fraction_vs_eta", "hadronic_fraction_vs_eta", 50, 0., 5., 1000, 0., 1.);
+  meHadronicFrac_vs_eta =
+      tf->make<TH2F>("hadronic_fraction_vs_eta", "hadronic_fraction_vs_eta", 50, 0., 5., 1000, 0., 1.);
   meNTowers60_vs_eta = tf->make<TH2F>("number_of_towers_with_60_percents_energy_vs_eta",
-                                "number_of_towers_with_60_percents_energy_vs_eta",
-                                50,
-                                0.,
-                                5.,
-                                100,
-                                -0.5,
-                                99.5);
+                                      "number_of_towers_with_60_percents_energy_vs_eta",
+                                      50,
+                                      0.,
+                                      5.,
+                                      100,
+                                      -0.5,
+                                      99.5);
   meNTowers90_vs_eta = tf->make<TH2F>("number_of_towers_with_90_percents_energy_vs_eta",
-                                "number_of_towers_with_90_percents_energy_vs_eta",
-                                50,
-                                0.,
-                                5.,
-                                100,
-                                -0.5,
-                                99.5);
+                                      "number_of_towers_with_90_percents_energy_vs_eta",
+                                      50,
+                                      0.,
+                                      5.,
+                                      100,
+                                      -0.5,
+                                      99.5);
   meDistR = tf->make<TH1F>("distance_R_between_matched_jets", "distance_R_between_matched_jets", 300, 0., 0.3);
   meDistR_vs_eta = tf->make<TH2F>(
       "distance_R_between_matched_jets_vs_eta", "stance_R_between_matched_jets_vs_eta", 50, 0., 5., 300, 0., 0.3);
-  meNTowers_vs_eta = tf->make<TH2F>("number_of_calotowers_vs_eta", "number_of_calotowers_vs_eta", 50, 0., 5., 51, -0.5, 50.5);
+  meNTowers_vs_eta =
+      tf->make<TH2F>("number_of_calotowers_vs_eta", "number_of_calotowers_vs_eta", 50, 0., 5., 51, -0.5, 50.5);
 }
 
 void JetComparison::endJob() {
-
   meNumberJet->Scale(1. / nEvent);
   Float_t x[50];
   Float_t y[50];
@@ -124,8 +125,10 @@ void JetComparison::analyze(edm::Event const& event, edm::EventSetup const& c) {
         meNTowers_vs_eta->Fill(fabs(etaGen), nCaloTower);
         meDistR->Fill(rDist);
         meDistR_vs_eta->Fill(fabs(etaGen), rDist);
-        edm::LogVerbatim("JetComparison") << "  JETS energy = " << (*jets)[ijet].et() << " ETA = " << etaJet << " PHI = " << phiJet;
-        edm::LogVerbatim("JetComparison") << "  GENS energy = " << (*jetsgen)[igen].et() << " ETA = " << etaGen << " PHI = " << phiGen;
+        edm::LogVerbatim("JetComparison")
+            << "  JETS energy = " << (*jets)[ijet].et() << " ETA = " << etaJet << " PHI = " << phiJet;
+        edm::LogVerbatim("JetComparison")
+            << "  GENS energy = " << (*jetsgen)[igen].et() << " ETA = " << etaGen << " PHI = " << phiGen;
         edm::LogVerbatim("JetComparison") << "Jets matched ";
         meRatio->Fill(fabs(etaGen), etJet / etGen);
         meEtJetMatched->Fill(etJet);
