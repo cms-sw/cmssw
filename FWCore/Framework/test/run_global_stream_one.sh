@@ -20,6 +20,9 @@ grep "one::SharedResourcesAnalyzer TriggerResults" log_test_one_modules > /dev/n
 (cmsRun $F4 ) >& log_test_limited_modules || die "Failure using $F4" $? log_test_limited_modules
 grep "limited::StreamIntAnalyzer TriggerResults" log_test_limited_modules > /dev/null || die "grep failed to find 'limited::StreamIntAnalyzer TriggerResults'" $? log_test_limited_modules
 
+echo cmsRun FWCore/Framework/test/testRunLumiCaches_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/testRunLumiCaches_cfg.py >& testRunLumiCaches_cfg.log || die "Failure using testRunLumiCaches_cfg.py" $? testRunLumiCaches_cfg.log
+
 #the last few lines of the output are the printout from the
 # ConcurrentModuleTimer service detailing how much time was
 # spent in 2,3 or 4 modules running simultaneously.

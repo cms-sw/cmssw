@@ -80,6 +80,7 @@ void EDAnalyzerAdaptorBase::deleteModulesEarly() {
 void EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
   m_streamModules.resize(iPrealloc.numberOfStreams(), static_cast<stream::EDAnalyzerBase*>(nullptr));
   setupStreamModules();
+  preallocRuns(iPrealloc.numberOfRuns());
   preallocLumis(iPrealloc.numberOfLuminosityBlocks());
 }
 

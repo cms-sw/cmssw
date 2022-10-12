@@ -162,6 +162,7 @@ namespace edm {
 
     private:
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
       virtual void doBeginJob() = 0;
