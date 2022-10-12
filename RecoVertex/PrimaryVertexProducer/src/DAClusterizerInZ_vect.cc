@@ -1007,7 +1007,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices_in_blocks(const vector<r
     for (unsigned int i = begin; i < end ; i++) {
       block_tracks.push_back(sorted_tracks[i]);
     }
-    if (block_tracks.size() == 0) {
+    if (block_tracks.empty()) {
       continue;
     }
 

@@ -266,6 +266,7 @@ class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         return result
+
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
         'Reco',
@@ -462,22 +463,88 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
 
 # WeightedMeanFitter vertexing workflows
 class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
+    def __init__(self, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflow_weightedVertex, self).__init__(
+            steps = [
+                'Reco',
+                'HARVEST',
+                'RecoGlobal',
+                'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+            ],
+            PU = [
+                'Reco',
+                'HARVEST',
+                'RecoGlobal',
+                'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+            ],
+            **kwargs)
+        self.__reco = reco
+        self.__harvest = harvest
+
     def setup_(self, step, stepName, stepDict, k, properties):
-        stepDict[stepName][k] = merge([{'--procModifiers': 'weightedVertexing'}, stepDict[step][k]])
+        # temporarily remove trigger & downstream steps
+        if 'Reco' in step:
+            mod = {'--procModifiers': 'weightedVertexing', '--datatier':'GEN-SIM-RECO,DQMIO',
+            '--eventcontent':'RECOSIM,DQM'}
+            stepDict[stepName][k] = merge([mod,self.step3, stepDict[step][k]])
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = merge([self.step4,stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and ('2026' or '2022') in key
-upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
-    steps = [
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
+        # select only a subset of the workflows
+        selected = [
+            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
+            ('2024' in key and fragment == "TTbar_14TeV"),
+            ('2026' in key and fragment == "TTbar_14TeV")
+        ]
+        result = any(selected) and hasHarvest
+
+        return result
+
+
+upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex(
+    # steps = [
+    #     'Reco',
+    #     'RecoGlobal',
+    #     'RecoNano',
+    #     'RecoFakeHLT',
+    # ],
+    # PU = [
+    #     'Reco',
+    #     'RecoGlobal',
+    #     'RecoNano',
+    #     'RecoFakeHLT',
+    # ],
     suffix = '_weightedVertex',
     offset = 0.278,
 )
+
+upgradeWFs['weightedVertex'].step3 = {}
+upgradeWFs['weightedVertex'].step4 = {}
+
+upgradeWFs['weightedVertexTrackingOnly'] = UpgradeWorkflow_weightedVertex(
+    suffix = '_weightedVertexTrackingOnly',
+    offset = 0.279,
+)
+
+upgradeWFs['weightedVertexTrackingOnly'].step3 = {
+    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
+    '--datatier':'GEN-SIM-RECO,DQMIO',
+    '--eventcontent':'RECOSIM,DQM',
+}
+
+upgradeWFs['weightedVertexTrackingOnly'].step4 = {
+    '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+}
 
 # Special TICL Pattern recognition Workflows
 class UpgradeWorkflow_ticl_clue3D(UpgradeWorkflow):
