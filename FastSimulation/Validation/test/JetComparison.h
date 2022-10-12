@@ -41,7 +41,7 @@ public:
   ~JetComparison() override = default;
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void endJob() override;
   double deltaR2(double eta0, double phi0, double eta, double phi);
 
 private:
