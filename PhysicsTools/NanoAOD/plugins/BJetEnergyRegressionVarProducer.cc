@@ -71,7 +71,6 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::tuple<float, float, float> calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet) const;
   std::tuple<float, float, float> calculatePtRatioRelSimple(edm::Ptr<reco::Candidate> lep,
                                                             edm::Ptr<pat::Jet> jet) const;  //old version?
 
