@@ -223,11 +223,8 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
 
   // ... set all acceptances to zero
 
-  float acc420b1, acc220b1, acc420and220b1, acc420or220b1;  // beam 1 (clockwise)
-  float acc420b2, acc220b2, acc420and220b2, acc420or220b2;  // beam 2 (anti-clockwise)
-
-  acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;
-  acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;
+  float acc420b1(0), acc220b1(0), acc420and220b1(0);  // beam 1 (clockwise)
+  float acc420b2(0), acc220b2(0), acc420and220b2(0);  // beam 2 (anti-clockwise)
 
   int nP1at220m = 0;
   int nP1at420m = 0;
@@ -280,7 +277,7 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       acc220b1 = helper220beam1.GetAcceptance(t, xi, phi);
       acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);
 
-      acc420or220b1 = acc420b1 + acc220b1 - acc420and220b1;
+      float acc420or220b1 = acc420b1 + acc220b1 - acc420and220b1;
 
       edm::LogVerbatim("FastSimProtonTaggerFilter")
           << "+acc420b1: " << acc420b1 << " acc220b1: " << acc220b1 << " acc420and220b1: " << acc420and220b1
@@ -319,7 +316,7 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
       acc220b2 = helper220beam2.GetAcceptance(t, xi, phi);
       acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);
 
-      acc420or220b2 = acc420b2 + acc220b2 - acc420and220b2;
+      float acc420or220b2 = acc420b2 + acc220b2 - acc420and220b2;
 
       edm::LogVerbatim("FastSimProtonTaggerFilter")
           << "+acc420b2: " << acc420b2 << " acc220b2: " << acc220b2 << " acc420and220b2: " << acc420and220b2
