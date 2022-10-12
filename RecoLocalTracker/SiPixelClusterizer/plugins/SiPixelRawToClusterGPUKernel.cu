@@ -120,36 +120,37 @@ namespace pixelgpudetails {
   }
 
   // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
-  __device__ uint8_t conversionError(uint8_t fedId, uint8_t status, bool debug = false) {
+  template <bool debug = false>
+  __device__ uint8_t conversionError(uint8_t fedId, uint8_t status) {
     uint8_t errorType = 0;
 
     switch (status) {
       case (1): {
-        if (debug)
+        if constexpr (debug)
           printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId);
         errorType = 35;
         break;
       }
       case (2): {
-        if (debug)
+        if constexpr (debug)
           printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
         errorType = 36;
         break;
       }
       case (3): {
-        if (debug)
+        if constexpr (debug)
           printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
         errorType = 37;
         break;
       }
       case (4): {
-        if (debug)
+        if constexpr (debug)
           printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
         errorType = 38;
         break;
       }
       default:
-        if (debug)
+        if constexpr (debug)
           printf("Cabling check returned unexpected result, status = %i\n", status);
     };
 
@@ -164,11 +165,9 @@ namespace pixelgpudetails {
   __device__ bool dcolIsValid(uint32_t dcol, uint32_t pxid) { return ((dcol < 26) & (2 <= pxid) & (pxid < 162)); }
 
   // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
-  __device__ uint8_t checkROC(uint32_t errorWord,
-                              uint8_t fedId,
-                              uint32_t link,
-                              const SiPixelROCsStatusAndMapping *cablingMap,
-                              bool debug = false) {
+  template <bool debug = false>
+  __device__ uint8_t
+  checkROC(uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelROCsStatusAndMapping *cablingMap) {
     uint8_t errorType = (errorWord >> sipixelconstants::ROC_shift) & sipixelconstants::ERROR_mask;
     if (errorType < 25)
       return 0;
@@ -182,47 +181,48 @@ namespace pixelgpudetails {
           if (!(link == cablingMap->link[index] && 1 == cablingMap->roc[index]))
             errorFound = false;
         }
-        if (debug and errorFound)
-          printf("Invalid ROC = 25 found (errorType = 25)\n");
+        if constexpr (debug)
+          if (errorFound)
+            printf("Invalid ROC = 25 found (errorType = 25)\n");
         break;
       }
       case (26): {
-        if (debug)
+        if constexpr (debug)
           printf("Gap word found (errorType = 26)\n");
         errorFound = true;
         break;
       }
       case (27): {
-        if (debug)
+        if constexpr (debug)
           printf("Dummy word found (errorType = 27)\n");
         errorFound = true;
         break;
       }
       case (28): {
-        if (debug)
+        if constexpr (debug)
           printf("Error fifo nearly full (errorType = 28)\n");
         errorFound = true;
         break;
       }
       case (29): {
-        if (debug)
+        if constexpr (debug)
           printf("Timeout on a channel (errorType = 29)\n");
         if ((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask) {
-          if (debug)
+          if constexpr (debug)
             printf("...first errorType=29 error, this gets masked out\n");
         }
         errorFound = true;
         break;
       }
       case (30): {
-        if (debug)
+        if constexpr (debug)
           printf("TBM error trailer (errorType = 30)\n");
         int stateMatch_bits = 4;
         int stateMatch_shift = 8;
         uint32_t stateMatch_mask = ~(~uint32_t(0) << stateMatch_bits);
         int stateMatch = (errorWord >> stateMatch_shift) & stateMatch_mask;
         if (stateMatch != 1 && stateMatch != 8) {
-          if (debug)
+          if constexpr (debug)
             printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
         }
         if (stateMatch == 1)
@@ -231,7 +231,7 @@ namespace pixelgpudetails {
         break;
       }
       case (31): {
-        if (debug)
+        if constexpr (debug)
           printf("Event number error (errorType = 31)\n");
         errorFound = true;
         break;
@@ -244,11 +244,9 @@ namespace pixelgpudetails {
   }
 
   // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
-  __device__ uint32_t getErrRawID(uint8_t fedId,
-                                  uint32_t errWord,
-                                  uint32_t errorType,
-                                  const SiPixelROCsStatusAndMapping *cablingMap,
-                                  bool debug = false) {
+  template <bool debug = false>
+  __device__ uint32_t
+  getErrRawID(uint8_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelROCsStatusAndMapping *cablingMap) {
     uint32_t rID = 0xffffffff;
 
     switch (errorType) {
@@ -314,6 +312,7 @@ namespace pixelgpudetails {
   }
 
   // Kernel to perform Raw to Digi conversion
+  template <bool debug = false>
   __global__ void RawToDigi_kernel(const SiPixelROCsStatusAndMapping *cablingMap,
                                    const unsigned char *modToUnp,
                                    const uint32_t wordCounter,
@@ -327,8 +326,7 @@ namespace pixelgpudetails {
                                    uint16_t *moduleId,
                                    cms::cuda::SimpleVector<SiPixelErrorCompact> *err,
                                    bool useQualityInfo,
-                                   bool includeErrors,
-                                   bool debug) {
+                                   bool includeErrors) {
     //if (threadIdx.x==0) printf("Event: %u blockIdx.x: %u start: %u end: %u\n", eventno, blockIdx.x, begin, end);
 
     int32_t first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -357,17 +355,17 @@ namespace pixelgpudetails {
       pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
       uint32_t rawId = detId.rawId;
 
-      uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
+      uint8_t errorType = checkROC<debug>(ww, fedId, link, cablingMap);
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC) {
-        uint32_t rID = getErrRawID(fedId, ww, errorType, cablingMap, debug);
+        uint32_t rID = getErrRawID<debug>(fedId, ww, errorType, cablingMap);
         err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
         continue;
       }
 
       // check for spurious channels
       if (roc > MAX_ROC or link > MAX_LINK) {
-        if (debug) {
+        if constexpr (debug) {
           printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
         }
         continue;
@@ -407,9 +405,9 @@ namespace pixelgpudetails {
         localPix.col = col;
         if (includeErrors) {
           if (not rocRowColIsValid(row, col)) {
-            uint8_t error = conversionError(fedId, 3, debug);  //use the device function and fill the arrays
+            uint8_t error = conversionError<debug>(fedId, 3);  //use the device function and fill the arrays
             err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
-            if (debug)
+            if constexpr (debug)
               printf("BPIX1  Error status: %i\n", error);
             continue;
           }
@@ -423,9 +421,9 @@ namespace pixelgpudetails {
         localPix.row = row;
         localPix.col = col;
         if (includeErrors and not dcolIsValid(dcol, pxid)) {
-          uint8_t error = conversionError(fedId, 3, debug);
+          uint8_t error = conversionError<debug>(fedId, 3);
           err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
-          if (debug)
+          if constexpr (debug)
             printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
           continue;
         }
@@ -441,6 +439,7 @@ namespace pixelgpudetails {
     }  // end of loop (gIndex < end)
 
   }  // end of Raw to Digi kernel
+
   template <bool isPhase2>
   __global__ void fillHitsModuleStart(uint32_t const *__restrict__ clusInModule,
                                       uint32_t *__restrict__ moduleStart,
@@ -569,22 +568,38 @@ namespace pixelgpudetails {
           fedId_d.get(), wordFed.fedId(), wordCounter * sizeof(uint8_t) / 2, cudaMemcpyDefault, stream));
 
       // Launch rawToDigi kernel
-      RawToDigi_kernel<<<blocks, threadsPerBlock, 0, stream>>>(
-          cablingMap,
-          modToUnp,
-          wordCounter,
-          word_d.get(),
-          fedId_d.get(),
-          digis_d.view().xx(),
-          digis_d.view().yy(),
-          digis_d.view().adc(),
-          digis_d.view().pdigi(),
-          digis_d.view().rawIdArr(),
-          digis_d.view().moduleInd(),
-          digiErrors_d.error(),  // returns nullptr if default-constructed
-          useQualityInfo,
-          includeErrors,
-          debug);
+      if (debug)
+        RawToDigi_kernel<true><<<blocks, threadsPerBlock, 0, stream>>>(  //
+            cablingMap,
+            modToUnp,
+            wordCounter,
+            word_d.get(),
+            fedId_d.get(),
+            digis_d.view().xx(),
+            digis_d.view().yy(),
+            digis_d.view().adc(),
+            digis_d.view().pdigi(),
+            digis_d.view().rawIdArr(),
+            digis_d.view().moduleInd(),
+            digiErrors_d.error(),  // returns nullptr if default-constructed
+            useQualityInfo,
+            includeErrors);
+      else
+        RawToDigi_kernel<false><<<blocks, threadsPerBlock, 0, stream>>>(  //
+            cablingMap,
+            modToUnp,
+            wordCounter,
+            word_d.get(),
+            fedId_d.get(),
+            digis_d.view().xx(),
+            digis_d.view().yy(),
+            digis_d.view().adc(),
+            digis_d.view().pdigi(),
+            digis_d.view().rawIdArr(),
+            digis_d.view().moduleInd(),
+            digiErrors_d.error(),  // returns nullptr if default-constructed
+            useQualityInfo,
+            includeErrors);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
       cudaCheck(cudaStreamSynchronize(stream));
