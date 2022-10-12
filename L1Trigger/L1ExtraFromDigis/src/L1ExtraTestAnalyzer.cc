@@ -20,7 +20,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -51,7 +51,7 @@ using namespace std;
 // class decleration
 //
 
-class L1ExtraTestAnalyzer : public edm::EDAnalyzer {
+class L1ExtraTestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1ExtraTestAnalyzer(const edm::ParameterSet &);
   ~L1ExtraTestAnalyzer() override;
