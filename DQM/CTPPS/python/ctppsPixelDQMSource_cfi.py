@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ctppsPixelDQMSource = DQMEDAnalyzer('CTPPSPixelDQMSource',
     tagRPixDigi = cms.untracked.InputTag("ctppsPixelDigis", ""),
+    tagRPixError = cms.untracked.InputTag("ctppsPixelDigis", ""),
     tagRPixCluster = cms.untracked.InputTag("ctppsPixelClusters", ""),  
     tagRPixLTrack = cms.untracked.InputTag("ctppsPixelLocalTracks", ""),  
     RPStatusWord = cms.untracked.uint32(0x8008), # rpots in readout:220_fr_hr; 210_fr_hr
@@ -16,6 +17,7 @@ ctppsPixelDQMSource = DQMEDAnalyzer('CTPPSPixelDQMSource',
 
 ctppsPixelDQMOfflineSource = DQMEDAnalyzer('CTPPSPixelDQMSource',
     tagRPixDigi = cms.untracked.InputTag("ctppsPixelDigis", ""),
+    tagRPixError = cms.untracked.InputTag("ctppsPixelDigis", ""),
     tagRPixCluster = cms.untracked.InputTag("ctppsPixelClusters", ""),  
     tagRPixLTrack = cms.untracked.InputTag("ctppsPixelLocalTracks", ""),  
     RPStatusWord = cms.untracked.uint32(0x8008), # rpots in readout: 220_fr_hr; 210_fr_hr
