@@ -15,7 +15,7 @@ namespace WeightedMeanFitter {
   constexpr float corr_z = 1.4;
   constexpr int maxIterations = 50;
 
-  std::pair<GlobalPoint, double> nearestPoint(const GlobalPoint& vertex, reco::Track iclus){
+  inline std::pair<GlobalPoint, double> nearestPoint(const GlobalPoint& vertex, reco::Track iclus){
       double ox = iclus.vx();
       double oy = iclus.vy();
       double oz = iclus.vz();
@@ -35,7 +35,7 @@ namespace WeightedMeanFitter {
       return std::pair<GlobalPoint, double>(p, std::sqrt( std::pow( p.x() - vertex.x() , 2) + std::pow( p.y() - vertex.y() , 2) + std::pow( p.z() - vertex.z() , 2) ));
   }
 
-  TransientVertex weightedMeanOutlierRejection(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<reco::TransientTrack> iclus){
+  inline TransientVertex weightedMeanOutlierRejection(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<reco::TransientTrack> iclus){
        float x=0., y=0., z=0.;
        float s_wx=0., s_wz=0.;
        float s2_wx=0., s2_wz=0.;
@@ -154,7 +154,7 @@ namespace WeightedMeanFitter {
 
 
 
-TransientVertex weightedMeanOutlierRejectionBeamSpot(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<reco::TransientTrack> iclus, const reco::BeamSpot& beamSpot){
+inline TransientVertex weightedMeanOutlierRejectionBeamSpot(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<reco::TransientTrack> iclus, const reco::BeamSpot& beamSpot){
      float x=0., y=0., z=0.;
      float s_wx=0., s_wz=0.;
      float s2_wx=0., s2_wz=0.;
@@ -303,7 +303,7 @@ TransientVertex weightedMeanOutlierRejectionBeamSpot(const std::vector<std::pair
      return v;
 }
 
-  TransientVertex weightedMeanOutlierRejectionVarianceAsError(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<std::vector<reco::TransientTrack>>::const_iterator iclus){
+  inline TransientVertex weightedMeanOutlierRejectionVarianceAsError(const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points, std::vector<std::vector<reco::TransientTrack>>::const_iterator iclus){
        float x=0, y=0, z=0, s_wx=0, s_wy=0, s_wz=0, s2_wx=0, s2_wy=0, s2_wz=0, wx=0, wy=0, wz=0, chi2=0;
        float ndof_x = 0;
        AlgebraicSymMatrix33 err;
