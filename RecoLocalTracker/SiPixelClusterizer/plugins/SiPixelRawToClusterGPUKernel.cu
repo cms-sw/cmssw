@@ -353,8 +353,9 @@ namespace pixelgpudetails {
       }
 
       uint32_t link = sipixelconstants::getLink(ww);  // Extract link
-      uint32_t roc = sipixelconstants::getROC(ww);    // Extract Roc in link
+      uint32_t roc = sipixelconstants::getROC(ww);    // Extract ROC in link
       pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
+      uint32_t rawId = detId.rawId;
 
       uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
@@ -364,9 +365,13 @@ namespace pixelgpudetails {
         continue;
       }
 
-      uint32_t rawId = detId.rawId;
-      uint32_t rocIdInDetUnit = detId.rocInDet;
-      bool barrel = isBarrel(rawId);
+      // check for spurious channels
+      if (roc > MAX_ROC or link > MAX_LINK) {
+        if (debug) {
+          printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
+        }
+        continue;
+      }
 
       uint32_t index = fedId * MAX_LINK * MAX_ROC + (link - 1) * MAX_ROC + roc;
       if (useQualityInfo) {
@@ -381,6 +386,7 @@ namespace pixelgpudetails {
       uint32_t layer = 0;
       int side = 0, panel = 0, module = 0;
 
+      bool barrel = isBarrel(rawId);
       if (barrel) {
         layer = (rawId >> pixelgpudetails::layerStartBit) & pixelgpudetails::layerMask;
         module = (rawId >> pixelgpudetails::moduleStartBit) & pixelgpudetails::moduleMask;
@@ -425,7 +431,7 @@ namespace pixelgpudetails {
         }
       }
 
-      pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+      pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, detId.rocInDet, localPix);
       xx[gIndex] = globalPix.row;  // origin shifting by 1 0-159
       yy[gIndex] = globalPix.col;  // origin shifting by 1 0-415
       adc[gIndex] = sipixelconstants::getADC(ww);
