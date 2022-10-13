@@ -234,10 +234,10 @@ upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
 # some commonalities among tracking WFs
 class UpgradeWorkflowTracking(UpgradeWorkflow):
     # skip the PU argument since PU workflows never used here
-    def __init__(self, steps, suffix, offset):
+    def __init__(self, steps, PU, suffix, offset):
         # always include some steps that will be skipped
         steps = steps + ["ALCA","Nano"]
-        super().__init__(steps, [], suffix, offset)
+        super().__init__(steps, PU, suffix, offset)
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         return result
@@ -256,6 +256,9 @@ class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
+        return result
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
         'Reco',
@@ -267,6 +270,18 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
         'RecoFakeHLT',
         'HARVESTFakeHLT',
     ],
+    PU = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'RecoNano',
+        'HARVESTNano',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT'
+    ],
+    
+   
     suffix = '_trackingOnly',
     offset = 0.1,
 )
@@ -289,6 +304,7 @@ upgradeWFs['trackingRun2'] = UpgradeWorkflow_trackingRun2(
         'Reco',
         'RecoFakeHLT',
     ],
+    PU = [],
     suffix = '_trackingRun2',
     offset = 0.2,
 )
@@ -307,6 +323,7 @@ upgradeWFs['trackingOnlyRun2'] = UpgradeWorkflow_trackingOnlyRun2(
         'RecoFakeHLT',
         'HARVESTFakeHLT',
     ],
+    PU = [],
     suffix = '_trackingOnlyRun2',
     offset = 0.3,
 )
@@ -323,6 +340,7 @@ upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
         'Reco',
         'RecoFakeHLT',
     ],
+    PU = [],
     suffix = '_trackingLowPU',
     offset = 0.4,
 )
@@ -344,6 +362,7 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
         'RecoFakeHLT',
         'HARVESTFakeHLT',
     ],
+    PU = [],
     suffix = '_pixelTrackingOnly',
     offset = 0.5,
 )
@@ -368,6 +387,7 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
         'RecoNano',
         'RecoFakeHLT',
     ],
+    PU = [],
     suffix = '_trackingMkFit',
     offset = 0.7,
 )
