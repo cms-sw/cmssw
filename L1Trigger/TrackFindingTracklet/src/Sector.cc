@@ -28,6 +28,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TripletEngine.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ProjectionRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/MatchEngine.h"
@@ -35,12 +36,15 @@
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FitTrack.h"
 #include "L1Trigger/TrackFindingTracklet/interface/PurgeDuplicate.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
+
+#include <deque>
 
 using namespace std;
 using namespace trklet;
@@ -93,7 +97,8 @@ bool Sector::addStub(L1TStub stub, string dtc) {
     nadd++;
   }
 
-  assert(nadd == 1);
+  if (!(settings_.reduced()))
+    assert(nadd == 1);
 
   return true;
 }
@@ -154,6 +159,8 @@ void Sector::addProc(string procType, string procName) {
     addProcToVec(TC_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessor:") {
     addProcToVec(TP_, procName, settings_, globals_);
+  } else if (procType == "TrackletProcessorDisplaced:") {
+    addProcToVec(TPD_, procName, settings_, globals_);
   } else if (procType == "TrackletCalculatorDisplaced:") {
     addProcToVec(TCD_, procName, settings_, globals_);
   } else if (procType == "ProjectionRouter:") {
@@ -338,7 +345,7 @@ void Sector::executeVMR() {
     i->execute();
   }
   for (auto& i : VMRCM_) {
-    i->execute();
+    i->execute(isector_);
   }
 }
 
@@ -362,6 +369,12 @@ void Sector::executeTRE() {
 
 void Sector::executeTP() {
   for (auto& i : TP_) {
+    i->execute(isector_, phimin_, phimax_);
+  }
+}
+
+void Sector::executeTPD() {
+  for (auto& i : TPD_) {
     i->execute(isector_, phimin_, phimax_);
   }
 }
@@ -393,13 +406,13 @@ void Sector::executePR() {
 
 void Sector::executeME() {
   for (auto& i : ME_) {
-    i->execute();
+    i->execute(isector_);
   }
 }
 
 void Sector::executeMC() {
   for (auto& i : MC_) {
-    i->execute(phimin_);
+    i->execute(isector_, phimin_);
   }
 }
 
@@ -409,12 +422,33 @@ void Sector::executeMP() {
   }
 }
 
-void Sector::executeFT() {
+// Order here reflects Tracklet algo that calls FitTrack before PurgeDuplicates.
+// If using Hybrid, then PurgeDuplicates runs both duplicate removal & KF steps.
+// (unless duplicate removal disabled, in which case FitTrack runs KF).
+
+void Sector::executeFT(vector<vector<string>>& streamsTrackRaw, vector<vector<StubStreamData>>& streamsStubRaw) {
+  const int numChannels = streamsTrackRaw.size() / N_SECTOR;
+  const int maxNumProjectionLayers = streamsStubRaw.size() / streamsTrackRaw.size();
+  const int offsetTrack = isector_ * numChannels;
+  int channelTrack(0);
+
   for (auto& i : FT_) {
-    i->execute(isector_);
+    // Temporary streams for a single TrackBuilder (i.e. seed type)
+    deque<string> streamTrackTmp;
+    vector<deque<StubStreamData>> streamsStubTmp(maxNumProjectionLayers);
+    i->execute(streamTrackTmp, streamsStubTmp, isector_);
+    if (!settings_.storeTrackBuilderOutput())
+      continue;
+    const int offsetStub = (offsetTrack + channelTrack) * maxNumProjectionLayers;
+    streamsTrackRaw[offsetTrack + channelTrack] = vector<string>(streamTrackTmp.begin(), streamTrackTmp.end());
+    channelTrack++;
+    int channelStub(0);
+    for (auto& stream : streamsStubTmp)
+      streamsStubRaw[offsetStub + channelStub++] = vector<StubStreamData>(stream.begin(), stream.end());
   }
 }
 
+// Returns tracks reconstructed by L1 track chain.
 void Sector::executePD(std::vector<Track>& tracks) {
   for (auto& i : PD_) {
     i->execute(tracks, isector_);

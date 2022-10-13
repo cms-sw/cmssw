@@ -6,7 +6,7 @@
 //////////////////////////////
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -28,16 +28,18 @@
 //                          //
 //////////////////////////////
 
-class AnalyzerPrintGeomInfo : public edm::EDAnalyzer {
+class AnalyzerPrintGeomInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   /// Public methods
 public:
   /// Constructor/destructor
   explicit AnalyzerPrintGeomInfo(const edm::ParameterSet& iConfig);
-  virtual ~AnalyzerPrintGeomInfo();
+  ~AnalyzerPrintGeomInfo() override;
   // Typical methods used on Loops over events
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
+  void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   /// Private methods and variables
 private:
@@ -93,6 +95,7 @@ private:
 // CONSTRUCTOR
 AnalyzerPrintGeomInfo::AnalyzerPrintGeomInfo(edm::ParameterSet const& iConfig) : config(iConfig) {
   /// Insert here what you need to initialize
+  usesResource("TFileService");
   TextOutput = iConfig.getParameter<std::string>("TextOutput");
   DebugMode = iConfig.getParameter<bool>("DebugMode");
 

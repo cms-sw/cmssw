@@ -7,6 +7,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -24,9 +25,8 @@ TrackletEventProcessor::~TrackletEventProcessor() {
   }
 }
 
-void TrackletEventProcessor::init(Settings const& theSettings) {
+void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* setup) {
   settings_ = &theSettings;
-
   globals_ = make_unique<Globals>(*settings_);
 
   //Verify consistency
@@ -80,7 +80,7 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
 
   sector_ = make_unique<Sector>(*settings_, globals_.get());
 
-  if (settings_->extended()) {
+  if (settings_->extended() || settings_->reduced()) {
     ifstream inmem(settings_->memoryModulesFile().c_str());
     assert(inmem.good());
 
@@ -93,7 +93,7 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
     configure(inwire, inmem, inproc);
 
   } else {
-    TrackletConfigBuilder config(*settings_);
+    TrackletConfigBuilder config(*settings_, setup);
 
     //Write configurations to file.
     if (settings_->writeConfig()) {
@@ -173,7 +173,9 @@ void TrackletEventProcessor::configure(istream& inwire, istream& inmem, istream&
   }
 }
 
-void TrackletEventProcessor::event(SLHCEvent& ev) {
+void TrackletEventProcessor::event(SLHCEvent& ev,
+                                   vector<vector<string>>& streamsTrackRaw,
+                                   vector<vector<StubStreamData>>& streamsStubRaw) {
   globals_->event() = &ev;
 
   tracks_.clear();
@@ -279,44 +281,47 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
     sector_->executeTC();
     TCTimer_.stop();
 
-    int nTP = globals_->event()->nsimtracks();
-    for (int iTP = 0; iTP < nTP; iTP++) {
-      L1SimTrack simtrk = globals_->event()->simtrack(iTP);
-      if (simtrk.pt() < 2.0)
-        continue;
-      if (std::abs(simtrk.vz()) > 15.0)
-        continue;
-      if (hypot(simtrk.vx(), simtrk.vy()) > 0.1)
-        continue;
-      bool electron = (abs(simtrk.type()) == 11);
-      bool muon = (abs(simtrk.type()) == 13);
-      bool pion = (abs(simtrk.type()) == 211);
-      bool kaon = (abs(simtrk.type()) == 321);
-      bool proton = (abs(simtrk.type()) == 2212);
-      if (!(electron || muon || pion || kaon || proton))
-        continue;
-      int nlayers = 0;
-      int ndisks = 0;
-      int simtrackid = simtrk.trackid();
-      unsigned int hitmask = ev.layersHit(simtrackid, nlayers, ndisks);
-      if (nlayers + ndisks < 4)
-        continue;
+    if (settings_->writeMonitorData("HitEff") || settings_->bookHistos()) {
+      int nTP = globals_->event()->nsimtracks();
+      for (int iTP = 0; iTP < nTP; iTP++) {
+        L1SimTrack simtrk = globals_->event()->simtrack(iTP);
+        if (simtrk.pt() < 2.0)
+          continue;
+        if (std::abs(simtrk.vz()) > 15.0)
+          continue;
+        if (hypot(simtrk.vx(), simtrk.vy()) > 0.1)
+          continue;
+        bool electron = (abs(simtrk.type()) == 11);
+        bool muon = (abs(simtrk.type()) == 13);
+        bool pion = (abs(simtrk.type()) == 211);
+        bool kaon = (abs(simtrk.type()) == 321);
+        bool proton = (abs(simtrk.type()) == 2212);
+        if (!(electron || muon || pion || kaon || proton))
+          continue;
+        int nlayers = 0;
+        int ndisks = 0;
+        int simtrackid = simtrk.trackid();
+        unsigned int hitmask = 0;
+        hitmask = ev.layersHit(simtrackid, nlayers, ndisks);  // FIX CPU use.
+        if (nlayers + ndisks < 4)
+          continue;
 
-      if (settings_->writeMonitorData("HitEff")) {
-        static ofstream outhit("hiteff.txt");
-        outhit << simtrk.eta() << " " << (hitmask & 1) << " " << (hitmask & 2) << " " << (hitmask & 4) << " "
-               << (hitmask & 8) << " " << (hitmask & 16) << " " << (hitmask & 32) << " " << (hitmask & 64) << " "
-               << (hitmask & 128) << " " << (hitmask & 256) << " " << (hitmask & 512) << " " << (hitmask & 1024)
-               << endl;
-      }
+        if (settings_->writeMonitorData("HitEff")) {
+          static ofstream outhit("hiteff.txt");
+          outhit << simtrk.eta() << " " << (hitmask & 1) << " " << (hitmask & 2) << " " << (hitmask & 4) << " "
+                 << (hitmask & 8) << " " << (hitmask & 16) << " " << (hitmask & 32) << " " << (hitmask & 64) << " "
+                 << (hitmask & 128) << " " << (hitmask & 256) << " " << (hitmask & 512) << " " << (hitmask & 1024)
+                 << endl;
+        }
 
-      std::unordered_set<int> matchseed;
-      std::unordered_set<int> matchseedtmp = sector_->seedMatch(iTP);
-      matchseed.insert(matchseedtmp.begin(), matchseedtmp.end());
-      if (settings_->bookHistos()) {
-        for (int iseed = 0; iseed < 8; iseed++) {
-          bool eff = matchseed.find(iseed) != matchseed.end();
-          globals_->histograms()->fillSeedEff(iseed, simtrk.eta(), eff);
+        std::unordered_set<int> matchseed;
+        std::unordered_set<int> matchseedtmp = sector_->seedMatch(iTP);
+        matchseed.insert(matchseedtmp.begin(), matchseedtmp.end());
+        if (settings_->bookHistos()) {
+          for (int iseed = 0; iseed < 8; iseed++) {
+            bool eff = matchseed.find(iseed) != matchseed.end();
+            globals_->histograms()->fillSeedEff(iseed, simtrk.eta(), eff);
+          }
         }
       }
     }
@@ -325,6 +330,11 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
     TCDTimer_.start();
     sector_->executeTCD();
     TCDTimer_.stop();
+
+    // tracklet processor displaced
+    TPDTimer_.start();
+    sector_->executeTPD();
+    TPDTimer_.stop();
 
     if (settings_->writeMem() && k == settings_->writememsect()) {
       sector_->writeTPAR(first);
@@ -364,7 +374,7 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
 
     // fit track
     FTTimer_.start();
-    sector_->executeFT();
+    sector_->executeFT(streamsTrackRaw, streamsStubRaw);
     if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
       sector_->writeTF(first);
     }
@@ -420,7 +430,11 @@ void TrackletEventProcessor::printSummary() {
                                    << TRETimer_.tottime() << "\n"
                                    << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20)
                                    << setprecision(3) << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
-                                   << TCDTimer_.tottime();
+                                   << TCDTimer_.tottime() << "\n"
+                                   << TCDTimer_.tottime() << "\n"
+                                   << "TrackletProcessorDisplaced" << setw(10) << TPDTimer_.ntimes() << setw(20)
+                                   << setprecision(3) << TPDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                   << TPDTimer_.tottime();
     }
     edm::LogVerbatim("Tracklet") << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20)
                                  << setprecision(3) << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)

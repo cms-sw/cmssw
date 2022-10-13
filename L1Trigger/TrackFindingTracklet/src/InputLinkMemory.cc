@@ -23,9 +23,7 @@ void InputLinkMemory::writeStubs(bool first, unsigned int iSector) {
 
   for (unsigned int j = 0; j < stubs_.size(); j++) {
     string stub = stubs_[j]->str();
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << stub << " " << trklet::hexFormat(stub) << endl;
+    out_ << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
   }
   out_.close();
 }

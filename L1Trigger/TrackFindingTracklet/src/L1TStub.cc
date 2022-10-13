@@ -11,6 +11,10 @@ L1TStub::L1TStub(std::string DTClink,
                  std::string stubword,
                  int isPSmodule,
                  int isFlipped,
+                 bool tiltedBarrel,
+                 unsigned int tiltedRingId,
+                 unsigned int endcapRingId,
+                 unsigned int detId,
                  double x,
                  double y,
                  double z,
@@ -32,8 +36,6 @@ L1TStub::L1TStub(std::string DTClink,
       layer_ += 1000;
   }
 
-  ladder_ = -1;
-  module_ = -1;
   strip_ = strip;
   x_ = x;
   y_ = y;
@@ -44,6 +46,10 @@ L1TStub::L1TStub(std::string DTClink,
   bend_ = bend;
   isPSmodule_ = isPSmodule;
   isFlipped_ = isFlipped;
+  tiltedBarrel_ = tiltedBarrel;
+  tiltedRingId_ = tiltedRingId;
+  endcapRingId_ = endcapRingId;
+  detId_ = detId;
 
   allstubindex_ = 999;
 }
@@ -59,8 +65,7 @@ void L1TStub::write(ofstream& out) {
 }
 
 bool L1TStub::operator==(const L1TStub& other) const {
-  return (other.iphi() == iphi_ && other.iz() == iz_ && other.layer() == layer_ && other.ladder() == ladder_ &&
-          other.module() == module_);
+  return (other.iphi() == iphi_ && other.iz() == iz_ && other.layer() == layer_ && other.detId() == detId_);
 }
 
 void L1TStub::lorentzcor(double shift) {
@@ -121,16 +126,4 @@ bool L1TStub::tpmatch2(int tp) const {
   }
 
   return match1 && match2;
-}
-
-bool L1TStub::isTilted() const {
-  //here layer_ runs 0-5 for barrel, >1000 for disk
-  //disk modules and outer barrel modules are not tilted by construction
-  if (layer_ >= N_PSLAYER)
-    return false;
-
-  assert(layer_ < N_PSLAYER);  // safety for acccessing # modules/plank
-  if ((module_ <= N_TILTED_RINGS) || (module_ >= N_TILTED_RINGS + N_MOD_PLANK.at(layer_)))
-    return true;
-  return false;
 }
