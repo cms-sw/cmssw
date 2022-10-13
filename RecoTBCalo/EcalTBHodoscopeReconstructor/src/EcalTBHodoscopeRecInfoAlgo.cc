@@ -6,25 +6,22 @@
 EcalTBHodoscopeRecInfoAlgo::EcalTBHodoscopeRecInfoAlgo(int fitMethod,
                                                        const std::vector<double>& planeShift,
                                                        const std::vector<double>& zPosition)
-    : fitMethod_(fitMethod), planeShift_(planeShift), zPosition_(zPosition) {
-  myGeometry_ = new EcalTBHodoscopeGeometry();
-}
+    : fitMethod_(fitMethod), planeShift_(planeShift), zPosition_(zPosition), myGeometry_() {}
 
 void EcalTBHodoscopeRecInfoAlgo::clusterPos(
     float& x, float& xQuality, const int& ipl, const int& xclus, const int& width) const {
   if (width == 1) {
     // Single fiber
-    x = (myGeometry_->getFibreLp(ipl, xclus) + myGeometry_->getFibreRp(ipl, xclus)) / 2.0 - planeShift_[ipl];
-    xQuality = (myGeometry_->getFibreRp(ipl, xclus) - myGeometry_->getFibreLp(ipl, xclus));
+    x = (myGeometry_.getFibreLp(ipl, xclus) + myGeometry_.getFibreRp(ipl, xclus)) / 2.0 - planeShift_[ipl];
+    xQuality = (myGeometry_.getFibreRp(ipl, xclus) - myGeometry_.getFibreLp(ipl, xclus));
   } else if (width == 2) {
     // Two half overlapped fibers
-    x = (myGeometry_->getFibreLp(ipl, xclus + 1) + myGeometry_->getFibreRp(ipl, xclus)) / 2.0 - planeShift_[ipl];
-    xQuality = (myGeometry_->getFibreRp(ipl, xclus) - myGeometry_->getFibreLp(ipl, xclus + 1));
+    x = (myGeometry_.getFibreLp(ipl, xclus + 1) + myGeometry_.getFibreRp(ipl, xclus)) / 2.0 - planeShift_[ipl];
+    xQuality = (myGeometry_.getFibreRp(ipl, xclus) - myGeometry_.getFibreLp(ipl, xclus + 1));
   } else {
     // More then two fibers case
-    x = (myGeometry_->getFibreLp(ipl, xclus) + myGeometry_->getFibreRp(ipl, xclus + width - 1)) / 2.0 -
-        planeShift_[ipl];
-    xQuality = (myGeometry_->getFibreRp(ipl, xclus + width - 1) - myGeometry_->getFibreLp(ipl, xclus));
+    x = (myGeometry_.getFibreLp(ipl, xclus) + myGeometry_.getFibreRp(ipl, xclus + width - 1)) / 2.0 - planeShift_[ipl];
+    xQuality = (myGeometry_.getFibreRp(ipl, xclus + width - 1) - myGeometry_.getFibreLp(ipl, xclus));
   }
 }
 
@@ -104,7 +101,7 @@ EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodos
   std::vector<int> xclus[4];
   std::vector<int> wclus[4];
 
-  for (int ipl = 0; ipl < myGeometry_->getNPlanes(); ipl++) {
+  for (int ipl = 0; ipl < myGeometry_.getNPlanes(); ipl++) {
     int nhits = hodoscopeRawInfo[ipl].numberOfFiredHits();
     // Finding clusters
     nclus[ipl] = 0;
@@ -118,18 +115,18 @@ EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodos
         last = first + 1;
         nh--;
         do {
-          while (last < myGeometry_->getNFibres() && hodoscopeRawInfo[ipl][last]) {
+          while (last < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last]) {
             last++;
             nh--;
-          }                                                                               //end
-          if (last + 1 < myGeometry_->getNFibres() && hodoscopeRawInfo[ipl][last + 1]) {  //Skip 1 fibre hole
+          }                                                                              //end
+          if (last + 1 < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last + 1]) {  //Skip 1 fibre hole
             last += 2;
             nh--;
             //std::cout << "Skip fibre " << ipl << " " << first << " "<< last << std::endl;
           } else {
             break;
           }
-        } while (nh > 0 && last < myGeometry_->getNFibres());
+        } while (nh > 0 && last < myGeometry_.getNFibres());
         wclus[ipl].push_back(last - first);
         xclus[ipl].push_back(first);  // Left edge !!!
         nclus[ipl]++;
