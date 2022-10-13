@@ -256,7 +256,8 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
 
   if (m_verbose)
     edm::LogInfo("L1TMuonDQMOffline") << "Computing efficiencies with " << m_MuonGmtPairs.size() << " muonGmtPairs, "
-         << m_TightMuons.size() << " tight muons, " << m_ProbeMuons.size() << " probe muons" << endl;
+                                      << m_TightMuons.size() << " tight muons, " << m_ProbeMuons.size()
+                                      << " probe muons" << endl;
 
   vector<MuonGmtPair>::const_iterator muonGmtPairsIt = m_MuonGmtPairs.begin();
   vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
@@ -284,8 +285,9 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
               std::get<2>(histoKeyRes) = qualLevel;
               m_ResolutionHistos[histoKeyRes]->Fill(varToFill);
               if (m_verbose)
-                edm::LogInfo("L1TMuonDQMOffline") << "Filled resolution histo[" << std::get<0>(histoKeyRes) << ", "
-                     << std::get<1>(histoKeyRes) << ", " << std::get<2>(histoKeyRes) << "] with " << varToFill << endl;
+                edm::LogInfo("L1TMuonDQMOffline")
+                    << "Filled resolution histo[" << std::get<0>(histoKeyRes) << ", " << std::get<1>(histoKeyRes)
+                    << ", " << std::get<2>(histoKeyRes) << "] with " << varToFill << endl;
             }
           }
         }
@@ -320,7 +322,8 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
           if (var == kEffEta) {
             m_EfficiencyDenEtaHistos[gmtPtCut]->Fill(varToFill);
             if (m_verbose)
-              edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom eta histo[" << gmtPtCut << "] with " << varToFill << endl;
+              edm::LogInfo("L1TMuonDQMOffline")
+                  << "Filled eff denom eta histo[" << gmtPtCut << "] with " << varToFill << endl;
           } else {
             std::get<0>(histoKeyEffDenVar) = var;
             // Fill for the global eta and for TF eta region that the probe muon is in
@@ -329,16 +332,16 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
                 if (cutsCounter == 0) {
                   m_EfficiencyDenPtHistos[regToFill]->Fill(varToFill);
                   if (m_verbose)
-                    edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom pT histo[" << regToFill << "] with " << varToFill
-                         << endl;
+                    edm::LogInfo("L1TMuonDQMOffline")
+                        << "Filled eff denom pT histo[" << regToFill << "] with " << varToFill << endl;
                 }
               } else {
                 std::get<2>(histoKeyEffDenVar) = regToFill;
                 m_EfficiencyDenVarHistos[histoKeyEffDenVar]->Fill(varToFill);
                 if (m_verbose)
-                  edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom histo[" << std::get<0>(histoKeyEffDenVar) << ", "
-                       << std::get<1>(histoKeyEffDenVar) << ", " << std::get<2>(histoKeyEffDenVar) << "] with "
-                       << varToFill << endl;
+                  edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom histo[" << std::get<0>(histoKeyEffDenVar)
+                                                    << ", " << std::get<1>(histoKeyEffDenVar) << ", "
+                                                    << std::get<2>(histoKeyEffDenVar) << "] with " << varToFill << endl;
               }
             }
           }
@@ -350,8 +353,9 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
               m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
               m_EfficiencyNumEtaHistos[histoKeyEffNumEta]->Fill(varToFill);
               if (m_verbose)
-                edm::LogInfo("L1TMuonDQMOffline") << "Filled eff num eta histo[" << std::get<0>(histoKeyEffNumEta) << ", "
-                     << std::get<1>(histoKeyEffNumEta) << "] with " << varToFill << endl;
+                edm::LogInfo("L1TMuonDQMOffline")
+                    << "Filled eff num eta histo[" << std::get<0>(histoKeyEffNumEta) << ", "
+                    << std::get<1>(histoKeyEffNumEta) << "] with " << varToFill << endl;
             } else {
               std::get<3>(histoKeyEffNumVar) = qualLevel;
               // Fill for the global eta and for TF eta region that the probe muon is in
@@ -359,9 +363,10 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
                 std::get<2>(histoKeyEffNumVar) = regToFill;
                 m_EfficiencyNumVarHistos[histoKeyEffNumVar]->Fill(varToFill);
                 if (m_verbose)
-                  edm::LogInfo("L1TMuonDQMOffline") << "Filled eff num histo[" << std::get<0>(histoKeyEffNumVar) << ", "
-                       << std::get<1>(histoKeyEffNumVar) << ", " << std::get<2>(histoKeyEffNumVar) << ", "
-                       << std::get<3>(histoKeyEffNumVar) << "] with " << varToFill << endl;
+                  edm::LogInfo("L1TMuonDQMOffline")
+                      << "Filled eff num histo[" << std::get<0>(histoKeyEffNumVar) << ", "
+                      << std::get<1>(histoKeyEffNumVar) << ", " << std::get<2>(histoKeyEffNumVar) << ", "
+                      << std::get<3>(histoKeyEffNumVar) << "] with " << varToFill << endl;
               }
             }
           }
@@ -665,10 +670,10 @@ double L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>& triggerEvent, cons
         const TriggerObject trigObject = trigObjs[triggerKeys[iTrig]];
         if (m_verbose)
           edm::LogInfo("L1TMuonDQMOffline") << "Found trigObject with pt = " << trigObject.pt()
-               << ", eta = " << trigObject.eta() << ", phi = " << trigObject.phi() << endl;
+                                            << ", eta = " << trigObject.eta() << ", phi = " << trigObject.phi() << endl;
         if (m_verbose)
           edm::LogInfo("L1TMuonDQMOffline") << "Compare to muon with pt = " << (*mu).pt() << ", eta = " << (*mu).eta()
-               << ", phi = " << (*mu).phi() << endl;
+                                            << ", phi = " << (*mu).phi() << endl;
         double dRtmp = deltaR((*mu), trigObject);
         if (dRtmp < matchDeltaR)
           matchDeltaR = dRtmp;
