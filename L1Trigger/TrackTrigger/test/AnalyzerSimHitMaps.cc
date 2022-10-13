@@ -6,7 +6,7 @@
 ////////////////////////////
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -26,19 +26,23 @@
 //                          //
 //////////////////////////////
 
-class AnalyzerSimHitMaps : public edm::EDAnalyzer {
+class AnalyzerSimHitMaps : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   /// Public methods
 public:
   /// Constructor/destructor
   explicit AnalyzerSimHitMaps(const edm::ParameterSet& iConfig);
-  virtual ~AnalyzerSimHitMaps();
+  ~AnalyzerSimHitMaps() override;
   // Typical methods used on Loops over events
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
+  void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   /// Private methods and variables
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeometry_;
+
   /// Global Position of SimHits
   TH2D* hSimHit_Barrel_XY;
   TH2D* hSimHit_Barrel_XY_Zoom;
@@ -60,8 +64,10 @@ private:
 
 //////////////
 // CONSTRUCTOR
-AnalyzerSimHitMaps::AnalyzerSimHitMaps(edm::ParameterSet const& iConfig) {
+AnalyzerSimHitMaps::AnalyzerSimHitMaps(edm::ParameterSet const& iConfig)
+    : getTokenTrackerGeometry_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
   /// Insert here what you need to initialize
+  usesResource("TFileService");
 }
 
 /////////////
@@ -161,13 +167,8 @@ void AnalyzerSimHitMaps::beginJob() {
 // ANALYZE
 void AnalyzerSimHitMaps::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   /// Geometry handles etc
-  edm::ESHandle<TrackerGeometry> geometryHandle;
-  const TrackerGeometry* theGeometry;
-
-  /// Geometry setup
-  /// Set pointers to Geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  theGeometry = &(*geometryHandle);
+  edm::ESHandle<TrackerGeometry> geometryHandle = iSetup.getHandle(getTokenTrackerGeometry_);
+  const TrackerGeometry* theGeometry = &(*geometryHandle);
 
   //////////////////
   // GET SIM HITS //

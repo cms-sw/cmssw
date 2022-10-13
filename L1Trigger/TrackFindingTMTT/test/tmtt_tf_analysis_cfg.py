@@ -11,14 +11,18 @@ import os
 
 process = cms.Process("Demo")
 
-GEOMETRY = "D49"
+GEOMETRY = "D76"
 
-if GEOMETRY == "D49":
-  process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+if GEOMETRY == "D49": 
+    print("using geometry " + GEOMETRY + " (tilted)")
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+elif GEOMETRY == "D76": 
+    print("using geometry " + GEOMETRY + " (tilted)")
+    process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
 else:
-  print "this is not a valid geometry!!!"
-  exit
+    print("this is not a valid geometry!!!")
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -32,15 +36,18 @@ options = VarParsing.VarParsing ('analysis')
 
 #--- Specify input MC
 
-#--- To use MCsamples scripts, defining functions get*data*(), 
-#--- follow instructions https://cernbox.cern.ch/index.php/s/enCnnfUZ4cpK7mT
+#--- To use MCsamples scripts, defining functions get*data*() for easy MC access,
+#--- follow instructions in https://github.com/cms-L1TK/MCsamples
 
 #from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
 if GEOMETRY == "D49":
+  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"] 
+
+elif GEOMETRY == "D76":
   # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1120.PU200_TTbar_14TeV_cfi import *
+  #from MCsamples.RelVal_1130_D76.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
 
   # Or read .root files from directory on local computer:
@@ -48,11 +55,15 @@ if GEOMETRY == "D49":
   #inputMC=getCMSlocaldata(dirName)
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_11_2_0_pre5-PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/GEN-SIM-DIGI-RAW"
+  #dataName="/RelValTTbar_14TeV/CMSSW_11_3_0_pre6-PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/GEN-SIM-DIGI-RAW"
   #inputMC=getCMSdata(dataName)
 
   # Or read specified .root file:
-  inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"] 
+  inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
+
+else:
+  print("this is not a valid geometry!!!")
+
 
 #--- Specify number of events to process.
 options.register('Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")
@@ -108,9 +119,9 @@ process.p = cms.Path(process.TMTrackProducer)
 
 # Optionally (re)make the stubs on the fly
 if options.makeStubs == 1:
-	process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
-	process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
-	process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
+        process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+        process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
+        process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
         LOOSE_STUBS = False
 
@@ -168,7 +179,7 @@ if options.makeStubs == 1:
               )
           ) 
 
-	process.p = cms.Path(process.TrackTriggerClustersStubs * process.TrackTriggerAssociatorClustersStubs * process.TMTrackProducer)
+        process.p = cms.Path(process.TrackTriggerClustersStubs * process.TrackTriggerAssociatorClustersStubs * process.TMTrackProducer)
 
 # Optionally create output GEN-SIM-DIGI-RAW dataset containing TMTT L1 tracks & associators.
 if options.outputDataset == 1:
