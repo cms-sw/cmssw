@@ -2390,9 +2390,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       else
         edm::LogWarning("DataNotFound") << "\nWarning: tkMET handle not found" << std::endl;
 
-      if (L1TkMETEmuHandle.isValid())
-        trkMETEmu = L1TkMETEmuHandle->begin()->hwPt() * l1tmetemu::kStepMET;
-      else
+      if (L1TkMETEmuHandle.isValid()) {
+        trkMETEmu = L1TkMETEmuHandle->begin()->hwPt() * l1tmetemu::kStepMETwordEt;
+        trkMETEmuPhi = L1TkMETEmuHandle->begin()->hwPhi() * l1tmetemu::kStepMETwordPhi;
+      } else {
         edm::LogWarning("DataNotFound") << "\nWarning: tkMETEmu handle not found" << std::endl;
 
       if (L1TkMHTHandle.isValid()) {
@@ -2402,8 +2403,8 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         edm::LogWarning("DataNotFound") << "\nWarning: tkMHT handle not found" << std::endl;
 
       if (L1TkMHTEmuHandle.isValid()) {
-        trkMHTEmu = L1TkMHTEmuHandle->begin()->p4().energy() * l1tmhtemu::kStepMHT;
-        trkHTEmu = L1TkMHTEmuHandle->begin()->hwPt() * l1tmhtemu::kStepPt;
+        trkMHTEmu = L1TkMHTEmuHandle->begin()->p4().energy();
+        trkHTEmu = L1TkMHTEmuHandle->begin()->hwPt() * l1tmhtemu::kStepMHT;
         trkMHTEmuPhi = L1TkMHTEmuHandle->begin()->hwPhi() * l1tmhtemu::kStepMHTPhi - M_PI;
       } else
         edm::LogWarning("DataNotFound") << "\nWarning: tkMHTEmu handle not found" << std::endl;
@@ -2422,9 +2423,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         edm::LogWarning("DataNotFound") << "\nWarning: tkMHTExtended handle not found" << std::endl;
 
       if (L1TkMHTEmuExtendedHandle.isValid()) {
-        trkMHTEmuExt = L1TkMHTEmuExtendedHandle->begin()->p4().energy() * l1tmhtemu::kStepMHT;
-        trkHTEmuExt = L1TkMHTEmuExtendedHandle->begin()->hwPt() * l1tmhtemu::kStepPt;
-        trkMHTEmuPhiExt = L1TkMHTEmuExtendedHandle->begin()->hwPhi() * l1tmhtemu::kStepMHTPhi - M_PI;
+        trkMHTEmuExt = L1TkMHTEmuExtendedHandle->begin()->p4().energy();
+        trkHTEmuExt = L1TkMHTEmuExtendedHandle->begin()->hwPt() * l1tmhtemu::kStepMHT;
+        trkMHTEmuPhiExt = L1TkMHTEmuExtendedHandle->begin()->hwPhi() * l1tmhtemu::kStepMHTPhi;
       } else
         edm::LogWarning("DataNotFound") << "\nWarning: tkMHTEmuExtended handle not found" << std::endl;
     }  //end displaced-track quantities
