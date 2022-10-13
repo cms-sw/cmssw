@@ -25,7 +25,8 @@
 
 class SiStripDetCabling;
 
-class SiStripCertificationInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class SiStripCertificationInfo
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -73,6 +74,7 @@ SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&)
     : detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
       tTopoToken_(esConsumes<edm::Transition::EndRun>()),
       runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
+  usesResource("DQMStore");
   consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
   consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
 }

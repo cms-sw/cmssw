@@ -30,7 +30,7 @@
 class SiStripFedCabling;
 class TrackerTopology;
 
-class SiStripDaqInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class SiStripDaqInfo : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -73,6 +73,7 @@ SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const&)
     : fedCablingToken_{esConsumes<edm::Transition::BeginRun>()},
       tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
       runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
+  usesResource("DQMStore");
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 }
 

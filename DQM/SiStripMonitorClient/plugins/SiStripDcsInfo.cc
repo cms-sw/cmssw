@@ -32,7 +32,8 @@ class SiStripDetVOff;
 class SiStripDetCabling;
 class RunInfo;
 
-class SiStripDcsInfo : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class SiStripDcsInfo
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -98,6 +99,7 @@ SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet)
       detVOffToken2_(esConsumes<edm::Transition::EndRun>()),
       detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
       runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
+  usesResource("DQMStore");
   LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 }
 
