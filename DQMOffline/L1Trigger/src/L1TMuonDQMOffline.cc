@@ -155,7 +155,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet& ps)
       m_minTagProbeDR(0.5),
       m_maxHltMuonDR(0.1) {
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "____________ Storage initialization ____________ " << endl;
 
   for (const auto& cutsPSet : m_cutsVPSet) {
     const auto qCut = cutsPSet.getUntrackedParameter<int>("qualCut");
@@ -176,7 +176,7 @@ L1TMuonDQMOffline::~L1TMuonDQMOffline() {}
 //----------------------------------------------------------------------
 void L1TMuonDQMOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Called beginRun." << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Called beginRun." << endl;
   bool changed = true;
   m_hltConfig.init(run, iSetup, m_trigProcess, changed);
 }
@@ -202,18 +202,18 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
         tIndex = int(ipath);
         m_trigIndices.push_back(tIndex);
         if (m_verbose)
-          cout << "[L1TMuonDQMOffline:] Found trigger " << tmpName << " with index " << tIndex << endl;
+          edm::LogInfo("L1TMuonDQMOffline") << "Found trigger " << tmpName << " with index " << tIndex << endl;
       }
     }
     if (tIndex < 0 && m_verbose)
-      cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;
+      edm::LogInfo("L1TMuonDQMOffline") << "Warning: Could not find trigger " << (*trigNamesIt) << endl;
   }
 }
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetup) {
   if (m_verbose)
-    cout << "\n[L1TMuonDQMOffline:] Processing new event in analyze" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "\nProcessing new event in analyze" << endl;
 
   auto const propagator = m_propagatorSetup.init(eventSetup);
 
@@ -235,14 +235,14 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
   for (const auto& tIndex : m_trigIndices) {
     if (trigResults->accept(tIndex)) {
       if (m_verbose)
-        cout << "[L1TMuonDQMOffline:] Fired trigger " << m_hltConfig.triggerName(tIndex) << endl;
+        edm::LogInfo("L1TMuonDQMOffline") << "Fired trigger " << m_hltConfig.triggerName(tIndex) << endl;
       pass_HLT = true;
       break;
     }
   }
   if (not pass_HLT) {
     if (m_verbose)
-      cout << "[L1TMuonDQMOffline:] Did not fire any triggers - quitting" << endl;
+      edm::LogInfo("L1TMuonDQMOffline") << "Did not fire any triggers - quitting" << endl;
     return;
   }
 
@@ -255,7 +255,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
   getMuonGmtPairs(gmtCands, propagator);
 
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Computing efficiencies with " << m_MuonGmtPairs.size() << " muonGmtPairs, "
+    edm::LogInfo("L1TMuonDQMOffline") << "Computing efficiencies with " << m_MuonGmtPairs.size() << " muonGmtPairs, "
          << m_TightMuons.size() << " tight muons, " << m_ProbeMuons.size() << " probe muons" << endl;
 
   vector<MuonGmtPair>::const_iterator muonGmtPairsIt = m_MuonGmtPairs.begin();
@@ -284,7 +284,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
               std::get<2>(histoKeyRes) = qualLevel;
               m_ResolutionHistos[histoKeyRes]->Fill(varToFill);
               if (m_verbose)
-                cout << "[L1TMuonDQMOffline:] Filled resolution histo[" << std::get<0>(histoKeyRes) << ", "
+                edm::LogInfo("L1TMuonDQMOffline") << "Filled resolution histo[" << std::get<0>(histoKeyRes) << ", "
                      << std::get<1>(histoKeyRes) << ", " << std::get<2>(histoKeyRes) << "] with " << varToFill << endl;
             }
           }
@@ -320,7 +320,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
           if (var == kEffEta) {
             m_EfficiencyDenEtaHistos[gmtPtCut]->Fill(varToFill);
             if (m_verbose)
-              cout << "[L1TMuonDQMOffline:] Filled eff denom eta histo[" << gmtPtCut << "] with " << varToFill << endl;
+              edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom eta histo[" << gmtPtCut << "] with " << varToFill << endl;
           } else {
             std::get<0>(histoKeyEffDenVar) = var;
             // Fill for the global eta and for TF eta region that the probe muon is in
@@ -329,14 +329,14 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
                 if (cutsCounter == 0) {
                   m_EfficiencyDenPtHistos[regToFill]->Fill(varToFill);
                   if (m_verbose)
-                    cout << "[L1TMuonDQMOffline:] Filled eff denom pT histo[" << regToFill << "] with " << varToFill
+                    edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom pT histo[" << regToFill << "] with " << varToFill
                          << endl;
                 }
               } else {
                 std::get<2>(histoKeyEffDenVar) = regToFill;
                 m_EfficiencyDenVarHistos[histoKeyEffDenVar]->Fill(varToFill);
                 if (m_verbose)
-                  cout << "[L1TMuonDQMOffline:] Filled eff denom histo[" << std::get<0>(histoKeyEffDenVar) << ", "
+                  edm::LogInfo("L1TMuonDQMOffline") << "Filled eff denom histo[" << std::get<0>(histoKeyEffDenVar) << ", "
                        << std::get<1>(histoKeyEffDenVar) << ", " << std::get<2>(histoKeyEffDenVar) << "] with "
                        << varToFill << endl;
               }
@@ -350,7 +350,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
               m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
               m_EfficiencyNumEtaHistos[histoKeyEffNumEta]->Fill(varToFill);
               if (m_verbose)
-                cout << "[L1TMuonDQMOffline:] Filled eff num eta histo[" << std::get<0>(histoKeyEffNumEta) << ", "
+                edm::LogInfo("L1TMuonDQMOffline") << "Filled eff num eta histo[" << std::get<0>(histoKeyEffNumEta) << ", "
                      << std::get<1>(histoKeyEffNumEta) << "] with " << varToFill << endl;
             } else {
               std::get<3>(histoKeyEffNumVar) = qualLevel;
@@ -359,7 +359,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
                 std::get<2>(histoKeyEffNumVar) = regToFill;
                 m_EfficiencyNumVarHistos[histoKeyEffNumVar]->Fill(varToFill);
                 if (m_verbose)
-                  cout << "[L1TMuonDQMOffline:] Filled eff num histo[" << std::get<0>(histoKeyEffNumVar) << ", "
+                  edm::LogInfo("L1TMuonDQMOffline") << "Filled eff num histo[" << std::get<0>(histoKeyEffNumVar) << ", "
                        << std::get<1>(histoKeyEffNumVar) << ", " << std::get<2>(histoKeyEffNumVar) << ", "
                        << std::get<3>(histoKeyEffNumVar) << "] with " << varToFill << endl;
               }
@@ -372,13 +372,13 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
   }
 
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Computation finished" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Computation finished" << endl;
 }
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Booking Control Plot Histos" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Booking Control Plot Histos" << endl;
 
   ibooker.setCurrentFolder(m_HistFolder + "/control_variables");
 
@@ -453,7 +453,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker) {
 
 void L1TMuonDQMOffline::bookResolutionHistos(DQMStore::IBooker& ibooker) {
   if (m_verbose)
-    cout << "[L1TMuonOffline:] Booking Resolution Plot Histos" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Booking Resolution Plot Histos" << endl;
   ibooker.setCurrentFolder(m_HistFolder + "/resolution");
 
   for (const auto var : m_resTypes) {
@@ -519,7 +519,7 @@ const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex(Handle<VertexCollection>&
 //_____________________________________________________________________
 void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection>& muons, const Vertex& vertex) {
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Getting tight muons" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Getting tight muons" << endl;
   m_TightMuons.clear();
   MuonCollection::const_iterator muonIt = muons->begin();
   MuonCollection::const_iterator muonEnd = muons->end();
@@ -536,7 +536,7 @@ void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection>& muons, 
 void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults>& trigResults,
                                       edm::Handle<trigger::TriggerEvent>& trigEvent) {
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "getting probe muons" << endl;
   m_ProbeMuons.clear();
   std::vector<const reco::Muon*> tagMuonsInHist;
 
@@ -598,7 +598,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtC
                                         PropagateToMuon const& propagator) {
   m_MuonGmtPairs.clear();
   if (m_verbose)
-    cout << "[L1TMuonDQMOffline:] Getting muon GMT pairs" << endl;
+    edm::LogInfo("L1TMuonDQMOffline") << "Getting muon GMT pairs" << endl;
 
   vector<const reco::Muon*>::const_iterator probeMuIt = m_ProbeMuons.begin();
   vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
@@ -650,7 +650,7 @@ double L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>& triggerEvent, cons
       }
     }
     if (moduleIndex == 999999) {
-      edm::LogError("L1TMuonDQMOffline") << " Found no module label in trigger " << (*trigIndexIt) << std::endl;
+      edm::LogError("L1TMuonDQMOffline") << "Found no module label in trigger " << (*trigIndexIt) << endl;
       continue;
     }
 
@@ -664,10 +664,10 @@ double L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>& triggerEvent, cons
       for (size_t iTrig = 0; iTrig < nTriggers; ++iTrig) {
         const TriggerObject trigObject = trigObjs[triggerKeys[iTrig]];
         if (m_verbose)
-          cout << "[L1TMuonDQMOffline:] Found trigObject with pt = " << trigObject.pt()
+          edm::LogInfo("L1TMuonDQMOffline") << "Found trigObject with pt = " << trigObject.pt()
                << ", eta = " << trigObject.eta() << ", phi = " << trigObject.phi() << endl;
         if (m_verbose)
-          cout << "[L1TMuonDQMOffline:] Compare to muon with pt = " << (*mu).pt() << ", eta = " << (*mu).eta()
+          edm::LogInfo("L1TMuonDQMOffline") << "Compare to muon with pt = " << (*mu).pt() << ", eta = " << (*mu).eta()
                << ", phi = " << (*mu).phi() << endl;
         double dRtmp = deltaR((*mu), trigObject);
         if (dRtmp < matchDeltaR)
