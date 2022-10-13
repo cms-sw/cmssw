@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,13 +15,10 @@
 
 using namespace std;
 
-class MuIsoDepositAnalyzer : public edm::EDAnalyzer {
+class MuIsoDepositAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   MuIsoDepositAnalyzer(const edm::ParameterSet& conf);
-  ~MuIsoDepositAnalyzer();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag theMuonLabel;
@@ -35,10 +32,6 @@ MuIsoDepositAnalyzer::MuIsoDepositAnalyzer(const edm::ParameterSet& conf)
       theEventCount(0) {
   LogDebug("MuIsoDepositAnalyzer") << " CTOR" << endl;
 }
-
-MuIsoDepositAnalyzer::~MuIsoDepositAnalyzer() {}
-
-void MuIsoDepositAnalyzer::beginJob() {}
 
 void MuIsoDepositAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   LogDebug("MuIsoDepositAnalyzer::analyze") << " ============== analysis of event: " << ++theEventCount;
