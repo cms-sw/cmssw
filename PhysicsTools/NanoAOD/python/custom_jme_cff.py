@@ -920,20 +920,14 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
 
   (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats,
     leadTrackPt = None,
-    leptonPtRel = None,
-    leptonPtRatio = None,
-    leptonPtRelInv = None,
     leptonPtRelv0 = None,
-    leptonPtRatiov0 = None,
     leptonPtRelInvv0 = None,
     leptonDeltaR = None,
-    leptonPt = None,
     vtxPt = None,
     vtxMass = None,
     vtx3dL = None,
     vtx3deL = None,
     ptD = None,
-    genPtwNu = None
   )
 
   (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userInts,

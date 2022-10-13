@@ -113,11 +113,10 @@ private:
 
 // ------------ method called to produce the data  ------------
 void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::Handle<std::vector<pat::TriggerObjectStandAlone>> src;
-  iEvent.getByToken(src_, src);
+  const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
-  for (const auto &obj : *src) {
+  for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
       if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
         selected.emplace_back(&obj, &sel);
@@ -144,27 +143,24 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     }
   }
 
-  edm::Handle<l1t::EGammaBxCollection> l1EG;
-  edm::Handle<l1t::EtSumBxCollection> l1Sum;
-  edm::Handle<l1t::JetBxCollection> l1Jet;
-  edm::Handle<l1t::MuonBxCollection> l1Muon;
-  edm::Handle<l1t::TauBxCollection> l1Tau;
-  iEvent.getByToken(l1EG_, l1EG);
-  iEvent.getByToken(l1Sum_, l1Sum);
-  iEvent.getByToken(l1Jet_, l1Jet);
-  iEvent.getByToken(l1Muon_, l1Muon);
-  iEvent.getByToken(l1Tau_, l1Tau);
+  const auto &l1EG = iEvent.get(l1EG_);
+  const auto &l1Sum = iEvent.get(l1Sum_);
+  const auto &l1Jet = iEvent.get(l1Jet_);
+  const auto &l1Muon = iEvent.get(l1Muon_);
+  const auto &l1Tau = iEvent.get(l1Tau_);
 
   std::vector<pair<pat::TriggerObjectStandAlone, int>> l1Objects;
+  l1Objects.reserve(l1EG.size(0) + l1Sum.size(0) + l1Jet.size(0) + l1Muon.size(0) + l1Tau.size(0));
 
-  for (l1t::EGammaBxCollection::const_iterator it = l1EG->begin(0); it != l1EG->end(0); it++) {
+  // no range-based for because we want bx=0 only
+  for (l1t::EGammaBxCollection::const_iterator it = l1EG.begin(0); it != l1EG.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1EG");
     l1obj.addTriggerObjectType(trigger::TriggerL1EG);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::EtSumBxCollection::const_iterator it = l1Sum->begin(0); it != l1Sum->end(0); it++) {
+  for (l1t::EtSumBxCollection::const_iterator it = l1Sum.begin(0); it != l1Sum.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
 
     switch (it->getType()) {
@@ -215,14 +211,14 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::JetBxCollection::const_iterator it = l1Jet->begin(0); it != l1Jet->end(0); it++) {
+  for (l1t::JetBxCollection::const_iterator it = l1Jet.begin(0); it != l1Jet.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Jet");
     l1obj.addTriggerObjectType(trigger::TriggerL1Jet);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::MuonBxCollection::const_iterator it = l1Muon->begin(0); it != l1Muon->end(0); it++) {
+  for (l1t::MuonBxCollection::const_iterator it = l1Muon.begin(0); it != l1Muon.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Mu");
     l1obj.addTriggerObjectType(trigger::TriggerL1Mu);
@@ -230,7 +226,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::TauBxCollection::const_iterator it = l1Tau->begin(0); it != l1Tau->end(0); it++) {
+  for (l1t::TauBxCollection::const_iterator it = l1Tau.begin(0); it != l1Tau.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Tau");
     l1obj.addTriggerObjectType(trigger::TriggerL1Tau);
@@ -272,7 +268,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     }
     if (sel.l2DR2 > 0) {
       float best = sel.l2DR2;
-      for (const auto &seed : *src) {
+      for (const auto &seed : trigObjs) {
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l2cut(seed)) {
           l2pt[i] = seed.pt();

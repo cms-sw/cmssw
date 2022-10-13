@@ -68,29 +68,24 @@ GenJetGenPartMerger::~GenJetGenPartMerger() {}
 // ------------ method called to produce the data  ------------
 void GenJetGenPartMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::unique_ptr<reco::GenJetCollection> merged(new reco::GenJetCollection);
+  auto merged = std::make_unique<reco::GenJetCollection>();
 
   std::vector<bool> hasTauAncValues;
 
-  edm::Handle<reco::GenJetCollection> jetHandle;
-  iEvent.getByToken(jetToken_, jetHandle);
-
-  edm::Handle<reco::GenParticleCollection> partHandle;
-  iEvent.getByToken(partToken_, partHandle);
-
-  edm::Handle<edm::ValueMap<bool>> tauAncHandle;
-  iEvent.getByToken(tauAncToken_, tauAncHandle);
+  auto jetHandle = iEvent.getHandle(jetToken_);
+  const auto& partProd = iEvent.get(partToken_);
+  const auto& tauAncProd = iEvent.get(tauAncToken_);
 
   for (unsigned int ijet = 0; ijet < jetHandle->size(); ++ijet) {
     auto jet = jetHandle->at(ijet);
     if (cut_(jet)) {
       merged->push_back(reco::GenJet(jet));
       reco::GenJetRef jetRef(jetHandle, ijet);
-      hasTauAncValues.push_back((*tauAncHandle)[jetRef]);
+      hasTauAncValues.push_back(tauAncProd[jetRef]);
     }
   }
 
-  for (auto& part : *partHandle) {
+  for (const auto& part : partProd) {
     reco::GenJet jet;
     jet.setP4(part.p4());
     jet.setPdgId(part.pdgId());
@@ -101,7 +96,7 @@ void GenJetGenPartMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   auto newmerged = iEvent.put(std::move(merged), "merged");
 
-  std::unique_ptr<edm::ValueMap<bool>> out(new edm::ValueMap<bool>());
+  auto out = std::make_unique<edm::ValueMap<bool>>();
   edm::ValueMap<bool>::Filler filler(*out);
   filler.insert(newmerged, hasTauAncValues.begin(), hasTauAncValues.end());
   filler.fill();
