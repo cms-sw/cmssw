@@ -92,9 +92,6 @@ HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf)
     tdcUnpacker_.setCalib(calibLines_);
 }
 
-// Virtual destructor needed.
-HcalTBObjectUnpacker::~HcalTBObjectUnpacker() {}
-
 // Functions that gets called by framework every event
 void HcalTBObjectUnpacker::produce(edm::Event& e, const edm::EventSetup&) {
   // Step A: Get Inputs
