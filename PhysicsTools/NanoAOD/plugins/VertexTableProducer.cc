@@ -112,10 +112,9 @@ VertexTableProducer::~VertexTableProducer() {
 
 void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  edm::Handle<edm::ValueMap<float>> pvsScoreIn;
-  edm::Handle<std::vector<reco::Vertex>> pvsIn;
-  iEvent.getByToken(pvs_, pvsIn);
-  iEvent.getByToken(pvsScore_, pvsScoreIn);
+  const auto& pvsScoreProd = iEvent.get(pvsScore_);
+  auto pvsIn = iEvent.getHandle(pvs_);
+
   auto pvTable = std::make_unique<nanoaod::FlatTable>(1, pvName_, true);
   pvTable->addColumnValue<float>("ndof", (*pvsIn)[0].ndof(), "main primary vertex number of degree of freedom", 8);
   pvTable->addColumnValue<float>("x", (*pvsIn)[0].position().x(), "main primary vertex position x coordinate", 10);
@@ -130,7 +129,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   pvTable->addColumnValue<int>(
       "npvsGood", goodPVs, "number of good reconstructed primary vertices. selection:" + goodPvCutString_);
   pvTable->addColumnValue<float>(
-      "score", pvsScoreIn->get(pvsIn.id(), 0), "main primary vertex score, i.e. sum pt2 of clustered objects", 8);
+      "score", pvsScoreProd.get(pvsIn.id(), 0), "main primary vertex score, i.e. sum pt2 of clustered objects", 8);
 
   auto otherPVsTable =
       std::make_unique<nanoaod::FlatTable>((*pvsIn).size() > 4 ? 3 : (*pvsIn).size() - 1, "Other" + pvName_, false);
@@ -138,13 +137,12 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<float> pvscores;
   for (size_t i = 1; i < (*pvsIn).size() && i < 4; i++) {
     pvsz.push_back((*pvsIn)[i].position().z());
-    pvscores.push_back((*pvsScoreIn).get(pvsIn.id(), i));
+    pvscores.push_back(pvsScoreProd.get(pvsIn.id(), i));
   }
   otherPVsTable->addColumn<float>("z", pvsz, "Z position of other primary vertices, excluding the main PV", 8);
   otherPVsTable->addColumn<float>("score", pvscores, "scores of other primary vertices, excluding the main PV", 8);
 
-  edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> svsIn;
-  iEvent.getByToken(svs_, svsIn);
+  const auto& svsProd = iEvent.get(svs_);
   auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
   std::vector<float> dlen, dlenSig, pAngle, dxy, dxySig;
   std::vector<int> charge;
@@ -153,14 +151,14 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   size_t i = 0;
   const auto& PV0 = pvsIn->front();
-  for (const auto& sv : *svsIn) {
+  for (const auto& sv : svsProd) {
     if (svCut_(sv)) {
       Measurement1D dl =
           vdist.distance(PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
       if (dl.value() > dlenMin_ and dl.significance() > dlenSigMin_) {
         dlen.push_back(dl.value());
         dlenSig.push_back(dl.significance());
-        edm::Ptr<reco::Candidate> c = svsIn->ptrAt(i);
+        edm::Ptr<reco::Candidate> c = svsProd.ptrAt(i);
         selCandSv->push_back(c);
         double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
         double pdotv = (dx * sv.px() + dy * sv.py() + dz * sv.pz()) / sv.p() / sqrt(dx * dx + dy * dy + dz * dz);

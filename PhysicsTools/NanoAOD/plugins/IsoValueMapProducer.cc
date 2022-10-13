@@ -133,10 +133,8 @@ void IsoValueMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent,
 
 template <typename T>
 void IsoValueMapProducer<T>::doMiniIso(edm::Event& iEvent) const {
-  edm::Handle<edm::View<T>> src;
-  iEvent.getByToken(src_, src);
-  edm::Handle<double> rho;
-  iEvent.getByToken(rho_miniiso_, rho);
+  auto src = iEvent.getHandle(src_);
+  const auto& rho = iEvent.get(rho_miniiso_);
 
   unsigned int nInput = src->size();
 
@@ -154,14 +152,14 @@ void IsoValueMapProducer<T>::doMiniIso(edm::Event& iEvent) const {
     ea *= std::pow(R / 0.3, 2);
     float scale = relative_ ? 1.0 / obj.pt() : 1;
     miniIsoChg.push_back(scale * chg);
-    miniIsoAll.push_back(scale * (chg + std::max(0.0, neu + pho - (*rho) * ea)));
+    miniIsoAll.push_back(scale * (chg + std::max(0.0, neu + pho - rho * ea)));
   }
 
-  std::unique_ptr<edm::ValueMap<float>> miniIsoChgV(new edm::ValueMap<float>());
+  auto miniIsoChgV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerChg(*miniIsoChgV);
   fillerChg.insert(src, miniIsoChg.begin(), miniIsoChg.end());
   fillerChg.fill();
-  std::unique_ptr<edm::ValueMap<float>> miniIsoAllV(new edm::ValueMap<float>());
+  auto miniIsoAllV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerAll(*miniIsoAllV);
   fillerAll.insert(src, miniIsoAll.begin(), miniIsoAll.end());
   fillerAll.fill();
@@ -180,8 +178,7 @@ template <>
 void IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const {
   edm::Handle<edm::View<pat::Electron>> src;
   iEvent.getByToken(src_, src);
-  edm::Handle<double> rho;
-  iEvent.getByToken(rho_pfiso_, rho);
+  const auto& rho = iEvent.get(rho_pfiso_);
 
   unsigned int nInput = src->size();
 
@@ -198,20 +195,20 @@ void IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const {
     auto ea = ea_pfiso_->getEffectiveArea(fabs(getEtaForEA(&obj)));
     float scale = relative_ ? 1.0 / obj.pt() : 1;
     PFIsoChg.push_back(scale * chg);
-    PFIsoAll.push_back(scale * (chg + std::max(0.0, neu + pho - (*rho) * ea)));
+    PFIsoAll.push_back(scale * (chg + std::max(0.0, neu + pho - rho * ea)));
     PFIsoAll04.push_back(scale * (obj.chargedHadronIso() +
-                                  std::max(0.0, obj.neutralHadronIso() + obj.photonIso() - (*rho) * ea * 16. / 9.)));
+                                  std::max(0.0, obj.neutralHadronIso() + obj.photonIso() - rho * ea * 16. / 9.)));
   }
 
-  std::unique_ptr<edm::ValueMap<float>> PFIsoChgV(new edm::ValueMap<float>());
+  auto PFIsoChgV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerChg(*PFIsoChgV);
   fillerChg.insert(src, PFIsoChg.begin(), PFIsoChg.end());
   fillerChg.fill();
-  std::unique_ptr<edm::ValueMap<float>> PFIsoAllV(new edm::ValueMap<float>());
+  auto PFIsoAllV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerAll(*PFIsoAllV);
   fillerAll.insert(src, PFIsoAll.begin(), PFIsoAll.end());
   fillerAll.fill();
-  std::unique_ptr<edm::ValueMap<float>> PFIsoAll04V(new edm::ValueMap<float>());
+  auto PFIsoAll04V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerAll04(*PFIsoAll04V);
   fillerAll04.insert(src, PFIsoAll04.begin(), PFIsoAll04.end());
   fillerAll04.fill();
@@ -228,8 +225,7 @@ template <>
 void IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   edm::Handle<edm::View<pat::Photon>> src;
   iEvent.getByToken(src_, src);
-  edm::Handle<double> rho;
-  iEvent.getByToken(rho_pfiso_, rho);
+  const auto& rho = iEvent.get(rho_pfiso_);
 
   unsigned int nInput = src->size();
 
@@ -245,16 +241,16 @@ void IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
     auto ea_neu = ea_pfiso_neu_->getEffectiveArea(fabs(getEtaForEA(&obj)));
     auto ea_pho = ea_pfiso_pho_->getEffectiveArea(fabs(getEtaForEA(&obj)));
     float scale = relative_ ? 1.0 / obj.pt() : 1;
-    PFIsoChg.push_back(scale * std::max(0.0, chg - (*rho) * ea_chg));
+    PFIsoChg.push_back(scale * std::max(0.0, chg - rho * ea_chg));
     PFIsoAll.push_back(PFIsoChg.back() +
-                       scale * (std::max(0.0, neu - (*rho) * ea_neu) + std::max(0.0, pho - (*rho) * ea_pho)));
+                       scale * (std::max(0.0, neu - rho * ea_neu) + std::max(0.0, pho - rho * ea_pho)));
   }
 
-  std::unique_ptr<edm::ValueMap<float>> PFIsoChgV(new edm::ValueMap<float>());
+  auto PFIsoChgV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerChg(*PFIsoChgV);
   fillerChg.insert(src, PFIsoChg.begin(), PFIsoChg.end());
   fillerChg.fill();
-  std::unique_ptr<edm::ValueMap<float>> PFIsoAllV(new edm::ValueMap<float>());
+  auto PFIsoAllV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerAll(*PFIsoAllV);
   fillerAll.insert(src, PFIsoAll.begin(), PFIsoAll.end());
   fillerAll.fill();
