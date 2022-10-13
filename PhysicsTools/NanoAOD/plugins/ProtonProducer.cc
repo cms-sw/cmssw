@@ -60,15 +60,11 @@ public:
   // ------------ method called to produce the data  ------------
   void produce(edm::StreamID id, edm::Event &iEvent, const edm::EventSetup &iSetup) const override {
     // Get Forward Proton handle
-    edm::Handle<reco::ForwardProtonCollection> hRecoProtonsMultiRP;
-    iEvent.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
-
-    edm::Handle<reco::ForwardProtonCollection> hRecoProtonsSingleRP;
-    iEvent.getByToken(tokenRecoProtonsSingleRP_, hRecoProtonsSingleRP);
+    auto hRecoProtonsMultiRP = iEvent.getHandle(tokenRecoProtonsMultiRP_);
+    auto hRecoProtonsSingleRP = iEvent.getHandle(tokenRecoProtonsSingleRP_);
 
     // Get PPS Local Track handle
-    edm::Handle<std::vector<CTPPSLocalTrackLite>> ppsTracksLite;
-    iEvent.getByToken(tokenTracksLite_, ppsTracksLite);
+    auto ppsTracksLite = iEvent.getHandle(tokenTracksLite_);
 
     // book output variables for protons
     std::vector<int> multiRP_arm;

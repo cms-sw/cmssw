@@ -88,12 +88,9 @@ private:
 // ------------ method called to produce the data  ------------
 template <typename T>
 void LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<edm::View<pat::Jet>> srcJet;
-  iEvent.getByToken(srcJet_, srcJet);
-  edm::Handle<edm::View<T>> srcLep;
-  iEvent.getByToken(srcLep_, srcLep);
-  edm::Handle<std::vector<reco::Vertex>> srcVtx;
-  iEvent.getByToken(srcVtx_, srcVtx);
+  auto srcJet = iEvent.getHandle(srcJet_);
+  auto srcLep = iEvent.getHandle(srcLep_);
+  const auto& vtxProd = iEvent.get(srcVtx_);
 
   unsigned int nJet = srcJet->size();
   unsigned int nLep = srcLep->size();
@@ -103,7 +100,7 @@ void LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent
   std::vector<float> jetNDauChargedMVASel(nLep, 0);
   std::vector<reco::CandidatePtr> jetForLepJetVar(nLep, reco::CandidatePtr());
 
-  const auto& pv = (*srcVtx)[0];
+  const auto& pv = vtxProd.at(0);
 
   for (unsigned int il = 0; il < nLep; il++) {
     for (unsigned int ij = 0; ij < nJet; ij++) {
@@ -120,25 +117,25 @@ void LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent
     }
   }
 
-  std::unique_ptr<edm::ValueMap<float>> ptRatioV(new edm::ValueMap<float>());
+  auto ptRatioV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerRatio(*ptRatioV);
   fillerRatio.insert(srcLep, ptRatio.begin(), ptRatio.end());
   fillerRatio.fill();
   iEvent.put(std::move(ptRatioV), "ptRatio");
 
-  std::unique_ptr<edm::ValueMap<float>> ptRelV(new edm::ValueMap<float>());
+  auto ptRelV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerRel(*ptRelV);
   fillerRel.insert(srcLep, ptRel.begin(), ptRel.end());
   fillerRel.fill();
   iEvent.put(std::move(ptRelV), "ptRel");
 
-  std::unique_ptr<edm::ValueMap<float>> jetNDauChargedMVASelV(new edm::ValueMap<float>());
+  auto jetNDauChargedMVASelV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerNDau(*jetNDauChargedMVASelV);
   fillerNDau.insert(srcLep, jetNDauChargedMVASel.begin(), jetNDauChargedMVASel.end());
   fillerNDau.fill();
   iEvent.put(std::move(jetNDauChargedMVASelV), "jetNDauChargedMVASel");
 
-  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> jetForLepJetVarV(new edm::ValueMap<reco::CandidatePtr>());
+  auto jetForLepJetVarV = std::make_unique<edm::ValueMap<reco::CandidatePtr>>();
   edm::ValueMap<reco::CandidatePtr>::Filler fillerjetForLepJetVar(*jetForLepJetVarV);
   fillerjetForLepJetVar.insert(srcLep, jetForLepJetVar.begin(), jetForLepJetVar.end());
   fillerjetForLepJetVar.fill();
