@@ -77,6 +77,7 @@ process.l1tVertexProducer.VertexReconstruction.VxMinTrackPt = cms.double(0.0)
 process.l1tVertexProducer.debug = options.debug
 process.l1tTrackSelectionProducer.processSimulatedTracks = cms.bool(False)
 process.l1tTrackSelectionProducer.l1VerticesEmulationInputTag = cms.InputTag("l1tVertexProducer", "l1verticesEmulation")
+process.l1tTrackSelectionProducer.debug = options.debug
 process.l1tTrackJetsEmulation.VertexInputTag = cms.InputTag("l1tVertexProducer", "l1verticesEmulation")
 process.l1tTrackerEmuEtMiss.L1VertexInputTag = cms.InputTag("l1tVertexProducer", "l1verticesEmulation")
 process.l1tTrackerEmuEtMiss.debug = options.debug
