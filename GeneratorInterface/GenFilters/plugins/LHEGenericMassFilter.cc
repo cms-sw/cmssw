@@ -59,7 +59,8 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
   double E = 0.;
 
   for (int i = 0; i < EvtHandle->hepeup().NUP; ++i) {
-    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
+    // if requiredOutgoingStatus_ keep only outgoing particles, otherwise keep them all
+    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {  
       continue;
     }
     for (unsigned int j = 0; j < particleID_.size(); ++j) {
