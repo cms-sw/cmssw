@@ -9,9 +9,11 @@
 
 namespace mkfit {
 
+  class BeamSpot;
   class EventOfHits;
   class TrackerInfo;
   class Track;
+  class TrackCand;
 
   typedef std::vector<Track> TrackVec;
 
@@ -140,16 +142,21 @@ namespace mkfit {
 
   class IterationConfig {
   public:
-    using clean_seeds_foo = void(const TrackerInfo &, const IterationConfig &, const TrackVec &, const EventOfHits &);
-
-    using partition_seeds_foo = void(const TrackerInfo &,
-                                     const TrackVec &,
-                                     const EventOfHits &,
-                                     IterationSeedPartition &);
-
-    using filter_candidates_foo = void();  // XXXX Determine args
-
-    using filter_duplicates_foo = void();  // XXXX Determine args
+    // Called directly.
+    using clean_seeds_cf = int(TrackVec &, const IterationConfig &, const BeamSpot &);
+    using clean_seeds_func = std::function<clean_seeds_cf>;
+    // Called from MkBuilder::find_tracks_load_seeds().
+    using partition_seeds_cf = void(const TrackerInfo &,
+                                    const TrackVec &,
+                                    const EventOfHits &,
+                                    IterationSeedPartition &);
+    using partition_seeds_func = std::function<partition_seeds_cf>;
+    // Passed to MkBuilder::filter_comb_cands().
+    using filter_candidates_cf = void(const TrackCand &);
+    using filter_candidates_func = std::function<filter_candidates_cf>;
+    // Called directly.
+    using filter_duplicates_cf = void(TrackVec &, const IterationConfig &);
+    using filter_duplicates_func = std::function<filter_duplicates_cf>;
 
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
@@ -172,19 +179,17 @@ namespace mkfit {
     std::vector<SteeringParams> m_steering_params;
     std::vector<IterationLayerConfig> m_layer_configs;
 
-    std::function<partition_seeds_foo> m_seed_partitioner;
-    std::function<clean_seeds_foo> m_seed_cleaner;
-    std::function<filter_candidates_foo> m_pre_bkfit_filter, m_post_bkfit_filter;
-    std::function<filter_duplicates_foo> m_duplicate_cleaner;
+    // Standard functions
+    clean_seeds_func m_seed_cleaner;
+    partition_seeds_func m_seed_partitioner;
+    filter_candidates_func m_pre_bkfit_filter, m_post_bkfit_filter;
+    filter_duplicates_func m_duplicate_cleaner;
 
-    // Names for functions that get saved to / loaded from JSON.
-    // XXXX Need a place where those can be registered and looked up,
-    // like a mkfit::FunctorStore that can get filled up with static object initializers.
-    std::string m_seed_partitioner_name;
+    // Names for Standard functions that get saved to / loaded from JSON.
     std::string m_seed_cleaner_name;
+    std::string m_seed_partitioner_name;
     std::string m_pre_bkfit_filter_name, m_post_bkfit_filter_name;
     std::string m_duplicate_cleaner_name;
-    // XXXX Add these strings to JSON schema.
 
     //----------------------------------------------------------------------------
 
@@ -197,19 +202,27 @@ namespace mkfit {
 
     bool merge_seed_hits_during_cleaning() const { return m_backward_search && m_backward_drop_seed_hits; }
 
-    // -------- Setup function
+    // -------- Setup functions
+
+    void setupStandardFunctionsFromNames();
 
     void cloneLayerSteerCore(const IterationConfig &o) {
       // Clone common settings for an iteration.
       // m_iteration_index, m_track_algorithm, cleaning and bkw-search flags,
       // and IterationParams are not copied.
+      // Standard functions are also not copied, only their names so one should
+      // call setupStandardFunctionsFromNames() later on.
 
       m_n_regions = o.m_n_regions;
       m_region_order = o.m_region_order;
       m_steering_params = o.m_steering_params;
       m_layer_configs = o.m_layer_configs;
 
-      m_seed_partitioner = o.m_seed_partitioner;
+      m_seed_cleaner_name = o.m_seed_cleaner_name;
+      m_seed_partitioner_name = o.m_seed_partitioner_name;
+      m_pre_bkfit_filter_name = o.m_pre_bkfit_filter_name;
+      m_post_bkfit_filter_name = o.m_post_bkfit_filter_name;
+      m_duplicate_cleaner_name = o.m_duplicate_cleaner_name;
     }
 
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {
@@ -264,6 +277,17 @@ namespace mkfit {
         m_steering_params[i].m_region = i;
       m_layer_configs.resize(nlay);
     }
+
+    // Catalog of Standard functions
+    static void register_seed_cleaner(const std::string &name, clean_seeds_func func);
+    static void register_seed_partitioner(const std::string &name, partition_seeds_func func);
+    static void register_candidate_filter(const std::string &name, filter_candidates_func func);
+    static void register_duplicate_cleaner(const std::string &name, filter_duplicates_func func);
+
+    static clean_seeds_func get_seed_cleaner(const std::string &name);
+    static partition_seeds_func get_seed_partitioner(const std::string &name);
+    static filter_candidates_func get_candidate_filter(const std::string &name);
+    static filter_duplicates_func get_duplicate_cleaner(const std::string &name);
   };
 
   //==============================================================================
@@ -282,6 +306,10 @@ namespace mkfit {
 
     IterationConfig &operator[](int i) { return m_iterations[i]; }
     const IterationConfig &operator[](int i) const { return m_iterations[i]; }
+
+    void setupStandardFunctionsFromNames() {
+      for (auto &i : m_iterations) i.setupStandardFunctionsFromNames();
+    }
   };
 
   //==============================================================================

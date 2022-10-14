@@ -104,6 +104,8 @@ void initGeom() {
         Config::ItrInfo, Config::json_save_iters_fname_fmt, Config::json_save_iters_include_iter_info_preamble);
   }
 
+  Config::ItrInfo.setupStandardFunctionsFromNames();
+
   // Test functions for ConfigJsonPatcher
   // cj.test_Direct (Config::ItrInfo[0]);
   // cj.test_Patcher(Config::ItrInfo[0]);
@@ -217,6 +219,10 @@ void test_standard() {
   initGeom();
   if (Config::useDeadModules) {
     init_deadvectors();
+  }
+
+  if (Config::nEvents <= 0) {
+    return;
   }
 
   DataFile data_file;
