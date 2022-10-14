@@ -5,6 +5,7 @@
 #include "nlohmann/json.hpp"
 
 #include <fstream>
+#include <mutex>
 #include <regex>
 #include <iostream>
 #include <iomanip>
@@ -87,6 +88,11 @@ namespace mkfit {
       mkfit::IterationConfig,
       /* int */ m_iteration_index,
       /* int */ m_track_algorithm,
+      /* std::string */ m_seed_cleaner_name,
+      /* std::string */ m_seed_partitioner_name,
+      /* std::string */ m_pre_bkfit_filter_name,
+      /* std::string */ m_post_bkfit_filter_name,
+      /* std::string */ m_duplicate_cleaner_name,
       /* bool */ m_requires_seed_hit_sorting,
       /* bool */ m_requires_quality_filter,
       /* bool */ m_requires_dupclean_tight,
@@ -99,13 +105,77 @@ namespace mkfit {
       /* vector<int> */ m_region_order,
       /* vector<mkfit::SteeringParams> */ m_steering_params,
       /* vector<mkfit::IterationLayerConfig> */ m_layer_configs
-      // /* function<void(const TrackerInfo&,const TrackVec&,const EventOfHits&,IterationSeedPartition&)> */   m_seed_partitioner
   )
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationsInfo,
                                    /* vector<mkfit::IterationConfig> */ m_iterations)
 
   // End AUTO code.
+
+  // Begin IterationConfig function catalogs
+
+  namespace {
+    struct FuncCatalog {
+      std::map<std::string, IterationConfig::clean_seeds_func> seed_cleaners;
+      std::map<std::string, IterationConfig::partition_seeds_func> seed_partitioners;
+      std::map<std::string, IterationConfig::filter_candidates_func> candidate_filters;
+      std::map<std::string, IterationConfig::filter_duplicates_func> duplicate_cleaners;
+
+      std::mutex catalog_mutex;
+    };
+
+    FuncCatalog& get_catalog() {
+      static FuncCatalog func_catalog;
+      return func_catalog;
+    }
+  }
+
+  #define GET_FC auto& fc = get_catalog(); \
+                 const std::lock_guard<std::mutex> lock(fc.catalog_mutex)
+
+  void IterationConfig::register_seed_cleaner(const std::string& name, clean_seeds_func func) {
+    GET_FC;
+    fc.seed_cleaners.insert({name, func});
+  }
+  void IterationConfig::register_seed_partitioner(const std::string& name, partition_seeds_func func) {
+    GET_FC;
+    fc.seed_partitioners.insert({name, func});
+  }
+  void IterationConfig::register_candidate_filter(const std::string& name, filter_candidates_func func) {
+    GET_FC;
+    fc.candidate_filters.insert({name, func});
+  }
+  void IterationConfig::register_duplicate_cleaner(const std::string& name, filter_duplicates_func func) {
+    GET_FC;
+    fc.duplicate_cleaners.insert({name, func});
+  }
+
+  IterationConfig::clean_seeds_func IterationConfig::get_seed_cleaner(const std::string& name) {
+    GET_FC;
+    return fc.seed_cleaners[name];
+  }
+  IterationConfig::partition_seeds_func IterationConfig::get_seed_partitioner(const std::string& name) {
+    GET_FC;
+    return fc.seed_partitioners[name];
+  }
+  IterationConfig::filter_candidates_func IterationConfig::get_candidate_filter(const std::string& name) {
+    GET_FC;
+    return fc.candidate_filters[name];
+  }
+  IterationConfig::filter_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string& name) {
+    GET_FC;
+    return fc.duplicate_cleaners[name];
+  }
+
+  #undef GET_FC
+
+  // End IterationConfig function catalogs
+
+  void IterationConfig::setupStandardFunctionsFromNames() {
+    m_seed_partitioner = get_seed_partitioner(m_seed_partitioner_name);
+    printf(" Set seed_partitioner for '%s' %s\n",
+           m_seed_partitioner_name.c_str(), m_seed_partitioner ? "SUCCESS" : "FAIL");
+  }
 
   // ============================================================================
   // ConfigJsonPatcher
