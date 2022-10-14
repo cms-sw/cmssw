@@ -155,7 +155,8 @@ private:
     TTTrackWordAbsZ0MaxSelector(const edm::ParameterSet& cfg)
         : absZ0Max_(cfg.template getParameter<double>("absZ0Max")) {}
     bool operator()(const L1Track& t) const {
-      double floatZ0 = t.undigitizeSignedValue(t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+      double floatZ0 = t.undigitizeSignedValue(
+          t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
       return std::abs(floatZ0) <= absZ0Max_;
     }
 
@@ -290,10 +291,11 @@ private:
           deltaZMaxEtaBounds_.begin() - 1;
       if (etaIndex > deltaZMax_.size() - 1)
         etaIndex = deltaZMax_.size() - 1;
-      l1t::VertexWord::vtxz0_t fixedTkZ0 = t.undigitizeSignedValue(t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+      l1t::VertexWord::vtxz0_t fixedTkZ0 = t.undigitizeSignedValue(
+          t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
 
       ap_uint<TrackBitWidths::kPtSize> ptEmulationBits = t.getTrackWord()(
-      TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
+          TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<TrackBitWidths::kPtSize, TrackBitWidths::kPtMagSize> ptEmulation;
       ptEmulation.V = ptEmulationBits.range();
       return std::abs(v.z0() - fixedTkZ0.to_double()) <= deltaZMax_[etaIndex];
@@ -506,8 +508,10 @@ void L1TrackSelectionProducer::printTrackInfo(edm::LogInfo& log, const L1Track& 
     TTTrack_TrackWord::tanl_t etaEmulationBits = track.getTanlWord();
     ap_fixed<TrackBitWidths::kEtaSize, TrackBitWidths::kEtaMagSize> etaEmulation;
     etaEmulation.V = etaEmulationBits.range();
-    double floatTkZ0 = track.undigitizeSignedValue(track.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
-    double floatTkPhi = track.undigitizeSignedValue(track.getPhiBits(), TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0, 0.0);
+    double floatTkZ0 = track.undigitizeSignedValue(
+        track.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+    double floatTkPhi = track.undigitizeSignedValue(
+        track.getPhiBits(), TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0, 0.0);
     log << "\t\t(" << ptEmulation.to_double() << ", " << etaEmulation.to_double() << ", " << floatTkPhi << ", "
         << track.getNStubs() << ", " << track.getBendChi2() << ", " << track.getChi2RZ() << ", " << track.getChi2RPhi()
         << ", " << floatTkZ0 << ")\n";
