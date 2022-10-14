@@ -87,5 +87,16 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
   return false;
 }
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void LHEGenericMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("NumRequired", 1);
+  desc.add<std::vector<int>>("ParticleID", 1);
+  desc.add<double>("MinMass", 0.0);
+  desc.add<double>("MaxMass", 1.0);
+  desc.add<bool>("RequiredOutgoingStatus", true);
+  descriptions.addDefault(desc);
+}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(LHEGenericMassFilter);
