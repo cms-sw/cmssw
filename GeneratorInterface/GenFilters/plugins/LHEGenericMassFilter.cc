@@ -24,6 +24,7 @@ class LHEGenericMassFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEGenericMassFilter(const edm::ParameterSet&);
   ~LHEGenericMassFilter() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
@@ -91,7 +92,7 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
 void LHEGenericMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("NumRequired", 1);
-  desc.add<std::vector<int>>("ParticleID", 1);
+  desc.add<vector<int>>("ParticleID", std::vector<int>{1});
   desc.add<double>("MinMass", 0.0);
   desc.add<double>("MaxMass", 1.0);
   desc.add<bool>("RequiredOutgoingStatus", true);
