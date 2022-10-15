@@ -42,7 +42,7 @@ private:
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
     : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
       numRequired_(iConfig.getParameter<int>("NumRequired")),
-      particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
+      particleID_(iConfig.getParameter<std::vector<int>>("ParticleID")),
       minMass_(iConfig.getParameter<double>("MinMass")),
       maxMass_(iConfig.getParameter<double>("MaxMass")),
       requiredOutgoingStatus_(iConfig.getParameter<bool>("RequiredOutgoingStatus")) {}
@@ -61,7 +61,7 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
 
   for (int i = 0; i < EvtHandle->hepeup().NUP; ++i) {
     // if requiredOutgoingStatus_ keep only outgoing particles, otherwise keep them all
-    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {  
+    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {
       continue;
     }
     for (unsigned int j = 0; j < particleID_.size(); ++j) {
