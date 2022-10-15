@@ -54,6 +54,32 @@ finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
     cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
 )
 
+muonMVAID= cms.EDProducer("EvaluateMuonMVAID",
+    src = cms.InputTag("linkedObjects","muons"),
+    weightFile =  cms.FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"),
+    isClassifier = cms.bool(False),
+    backend = cms.string('ONNX'),
+    name = cms.string("muonMVAID"),
+    outputTensorName= cms.string("probabilities"),
+    inputTensorName= cms.string("float_input"),
+    outputNames = cms.vstring(["probBAD","probGOOD"]),
+    batch_eval =cms.bool(True),
+    outputFormulas = cms.vstring(["1.0*at(0)","at(1)"]),
+    variablesOrder = cms.vstring(["LepGood_global_muon","LepGood_validFraction","Muon_norm_chi2_extended","LepGood_local_chi2","LepGood_kink","LepGood_segmentComp","Muon_n_Valid_hits_extended","LepGood_n_MatchedStations","LepGood_Valid_pixel","LepGood_tracker_layers","LepGood_pt","LepGood_eta"]),
+    variables = cms.PSet(
+        LepGood_global_muon = cms.string("isGlobalMuon"),
+        LepGood_validFraction = cms.string("?innerTrack.isNonnull?innerTrack().validFraction:-99"),
+        LepGood_local_chi2 = cms.string("combinedQuality().chi2LocalPosition"),
+        LepGood_kink = cms.string("combinedQuality().trkKink"),
+        LepGood_segmentComp = cms.string("segmentCompatibility"),
+        LepGood_n_MatchedStations = cms.string("numberOfMatchedStations()"),
+        LepGood_Valid_pixel = cms.string("?innerTrack.isNonnull()?innerTrack().hitPattern().numberOfValidPixelHits():-99"),
+        LepGood_tracker_layers = cms.string("?innerTrack.isNonnull()?innerTrack().hitPattern().trackerLayersWithMeasurement():-99"),
+        LepGood_pt = cms.string("pt"),
+        LepGood_eta = cms.string("eta"),
+    ) 
+)
+
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml"),
@@ -129,9 +155,11 @@ muonTable = simpleCandidateFlatTableProducer.clone(
         highPtId = Var("?passed('CutBasedIdGlobalHighPt')?2:passed('CutBasedIdTrkHighPt')","uint8",doc="high-pT cut-based ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)"),
         pfIsoId = Var("passed('PFIsoVeryLoose')+passed('PFIsoLoose')+passed('PFIsoMedium')+passed('PFIsoTight')+passed('PFIsoVeryTight')+passed('PFIsoVeryVeryTight')","uint8",doc="PFIso ID from miniAOD selector (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)"),
         tkIsoId = Var("?passed('TkIsoTight')?2:passed('TkIsoLoose')","uint8",doc="TkIso ID (1=TkIsoLoose, 2=TkIsoTight)"),
-        mvaId = Var("passed('MvaLoose')+passed('MvaMedium')+passed('MvaTight')+passed('MvaVTight')+passed('MvaVVTight')","uint8",doc="Mva ID from miniAOD selector (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)"),
+        mvaId = Var("passed('MvaLoose')+passed('MvaMedium')+passed('MvaTight')+passed('MvaVTight')+passed('MvaVVTight')","uint8",doc="Mva for ID of prompt leptons from miniAOD selector (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)"),
         mvaLowPtId = Var("passed('LowPtMvaLoose')+passed('LowPtMvaMedium')","uint8", doc="Low Pt Mva ID from miniAOD selector (1=LowPtMvaLoose, 2=LowPtMvaMedium)"),
         miniIsoId = Var("passed('MiniIsoLoose')+passed('MiniIsoMedium')+passed('MiniIsoTight')+passed('MiniIsoVeryTight')","uint8",doc="MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)"),
+        mvaIDMuon = Var("mvaIDValue()",float,doc="MVA-based ID score (from miniAOD)",precision=14),
+        mvaIDMuon_WP = Var("passed('MvaIDwpMedium')+passed('MvaIDwpTight')","uint8",doc="MVA-based ID selector WPs (1=MVAIDwpMedium,2=MVAIDwpTight)"),
         multiIsoId = Var("?passed('MultiIsoMedium')?2:passed('MultiIsoLoose')","uint8",doc="MultiIsoId from miniAOD selector (1=MultiIsoLoose, 2=MultiIsoMedium)"),
         puppiIsoId = Var("passed('PuppiIsoLoose')+passed('PuppiIsoMedium')+passed('PuppiIsoTight')", "uint8", doc="PuppiIsoId from miniAOD selector (1=Loose, 2=Medium, 3=Tight)"),
         triggerIdLoose = Var("passed('TriggerIdLoose')",bool,doc="TriggerIdLoose ID"),
@@ -145,6 +173,12 @@ muonTable = simpleCandidateFlatTableProducer.clone(
     ),
 )
 
+
+
+for modifier in (run2_nanoAOD_106Xv2 | run3_nanoAOD_122):
+    modifier.toModify(muonTable.variables,mvaIDMuon=None )
+    modifier.toModify(muonTable.variables,mvaIDMuon_WP=None )
+    modifier.toModify(muonTable.externalVariables, mvaIDMuon = ExtVar(cms.InputTag("muonMVAID:probGOOD"),float, doc="MVA-based ID score (from nanoAOD)",precision=14))
 
 # Revert back to AK4 CHS jets for Run 2
 run2_nanoAOD_ANY.toModify(
@@ -176,3 +210,6 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
 muonTablesTask = cms.Task(muonMVATTH,muonMVALowPt,muonTable)
+for modifier in (run2_nanoAOD_106Xv2 | run3_nanoAOD_122):
+    modifier.toModify(muonTablesTask,muonTablesTask.add(muonMVAID))
+
