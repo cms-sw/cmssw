@@ -1398,12 +1398,12 @@ namespace edm {
   }
 
   void EventProcessor::releaseBeginRunResources(unsigned int iStream) {
-    streamQueues_[iStream].resume();
     auto& status = streamRunStatus_[iStream];
     if (status->streamFinishedBeginRun()) {
       status->resetBeginResources();
       queueWhichWaitsForIOVsToFinish_.resume();
     }
+    streamQueues_[iStream].resume();
   }
 
   void EventProcessor::endRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus, WaitingTaskHolder iHolder) {
