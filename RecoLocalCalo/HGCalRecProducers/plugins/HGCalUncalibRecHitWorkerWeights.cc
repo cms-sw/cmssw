@@ -76,7 +76,7 @@ bool HGCalUncalibRecHitWorkerWeights::run(const edm::ESHandle<HGCalGeometry>& ge
                                           HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame>& uncalibMaker,
                                           edm::SortedCollection<HGCUncalibratedRecHit>& result) {
   uncalibMaker.setGeometry(geom);
-  result.reserve(digis.size());
+  result.reserve(result.size() + digis.size());
   for (const auto& digi : digis)
     result.push_back(uncalibMaker.makeRecHit(digi));
   return true;

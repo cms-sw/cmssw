@@ -42,12 +42,13 @@ public:
     fCPerMIP_ = fCPerMIP;
   }
 
-  void setGeometry(const edm::ESHandle<HGCalGeometry>& geom) {
+  bool setGeometry(const edm::ESHandle<HGCalGeometry>& geom) {
     geom_ = geom.isValid() ? geom.product() : nullptr;
     if (isSiFESim_ && geom_)
       ddd_ = &(geom_->topology().dddConstants());
     else
       ddd_ = nullptr;
+    return geom_ != nullptr;
   }
 
   /// Compute HGCUncalibratedRecHit from DataFrame
