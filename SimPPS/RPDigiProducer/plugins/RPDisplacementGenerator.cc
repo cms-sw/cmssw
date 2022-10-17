@@ -17,15 +17,7 @@ RPDisplacementGenerator::RPDisplacementGenerator(bool iIsOn,
                                                  const CTPPSRPAlignmentCorrectionsData *alignments,
                                                  const CTPPSGeometry &geom)
     : detId_(_detId) {
-  isOn_ = iIsOn;  //ps.getParameter<bool>("RPDisplacementOn");
-
-  // read the alignment correction
-  /*
-  ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
-  if (auto rec = iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) {
-    iSetup.get<VeryForwardMisalignedGeometryRecord>().get(alignments);
-  }
-  */
+  isOn_ = iIsOn;
 
   unsigned int decId = rawToDecId(detId_);
 
@@ -40,8 +32,6 @@ RPDisplacementGenerator::RPDisplacementGenerator(bool iIsOn,
     isOn_ = false;
 
   // transform shift and rotation to the local coordinate frame
-  //ESHandle<CTPPSGeometry> geom;
-  //iSetup.get<VeryForwardRealGeometryRecord>().get(geom);
   const DetGeomDesc *g = geom.sensor(detId_);
   const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
