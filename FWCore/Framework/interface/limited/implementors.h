@@ -28,6 +28,8 @@
 
 // user include files
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
@@ -44,6 +46,7 @@
 
 // forward declarations
 namespace edm {
+  class ServiceWeakToken;
 
   namespace limited {
     namespace impl {
@@ -460,15 +463,38 @@ namespace edm {
         void registerTransform(edm::EDPutTokenT<G> iToken, F iF, std::string productInstance = std::string()) {
           using ReturnTypeT = decltype(iF(std::declval<G>()));
           TypeID returnType(typeid(ReturnTypeT));
-          TransformerBase::registerTransformImp(*this,
-                                                EDPutToken(iToken),
-                                                returnType,
-                                                std::move(productInstance),
-                                                [f = std::move(iF)](edm::WrapperBase const& iGotProduct) {
-                                                  return std::make_unique<edm::Wrapper<ReturnTypeT>>(
-                                                      WrapperBase::Emplace{},
-                                                      f(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product()));
-                                                });
+          TransformerBase::registerTransformImp(
+              *this,
+              EDPutToken(iToken),
+              returnType,
+              std::move(productInstance),
+              [f = std::move(iF)](std::any const& iGotProduct) {
+                auto pGotProduct = std::any_cast<edm::WrapperBase const*>(iGotProduct);
+                return std::make_unique<edm::Wrapper<ReturnTypeT>>(
+                    WrapperBase::Emplace{}, f(*static_cast<edm::Wrapper<G> const*>(pGotProduct)->product()));
+              });
+        }
+
+        template <typename G, typename P, typename F>
+        void registerTransformAsync(edm::EDPutTokenT<G> iToken,
+                                    P iPre,
+                                    F iF,
+                                    std::string productInstance = std::string()) {
+          using CacheTypeT = decltype(iPre(std::declval<G>(), WaitingTaskWithArenaHolder()));
+          using ReturnTypeT = decltype(iF(std::declval<CacheTypeT>()));
+          TypeID returnType(typeid(ReturnTypeT));
+          TransformerBase::registerTransformAsyncImp(
+              *this,
+              EDPutToken(iToken),
+              returnType,
+              std::move(productInstance),
+              [p = std::move(iPre)](edm::WrapperBase const& iGotProduct, WaitingTaskWithArenaHolder iHolder) {
+                return std::any(p(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product(), std::move(iHolder)));
+              },
+              [f = std::move(iF)](std::any const& iCache) {
+                auto cache = std::any_cast<CacheTypeT>(iCache);
+                return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{}, f(cache));
+              });
         }
 
       private:
@@ -478,8 +504,11 @@ namespace edm {
         ProductResolverIndex transformPrefetch_(std::size_t iIndex) const final {
           return TransformerBase::prefetchImp(iIndex);
         }
-        void transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const final {
-          return TransformerBase::transformImp(iIndex, *this, iEvent);
+        void transformAsync_(WaitingTaskHolder iTask,
+                             std::size_t iIndex,
+                             edm::EventForTransformer& iEvent,
+                             ServiceWeakToken const& iToken) const final {
+          return TransformerBase::transformImpAsync(std::move(iTask), iIndex, *this, iEvent);
         }
         void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) override {
           if (iBranchType == InEvent) {

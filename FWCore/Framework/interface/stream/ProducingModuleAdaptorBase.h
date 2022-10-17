@@ -54,6 +54,8 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
   class ActivityRegistry;
+  class WaitingTaskHolder;
+  class ServiceWeakToken;
 
   namespace maker {
     template <typename T>
@@ -128,10 +130,12 @@ namespace edm {
 
       ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const;
       size_t transformIndex_(edm::BranchDescription const& iBranch) const;
-      void doTransform(size_t iTransformIndex,
-                       EventPrincipal const& iEvent,
-                       ActivityRegistry*,
-                       ModuleCallingContext const*);
+      void doTransformAsync(WaitingTaskHolder iTask,
+                            size_t iTransformIndex,
+                            EventPrincipal const& iEvent,
+                            ActivityRegistry*,
+                            ModuleCallingContext const*,
+                            ServiceWeakToken const&);
 
     protected:
       template <typename F>
