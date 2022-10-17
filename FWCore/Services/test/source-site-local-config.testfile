@@ -1,6 +1,6 @@
 <site-local-config>
 <site name="DUMMY">
-<subsite name="DUMMY_SUB_SITE">
+  <subsite name="DUMMY_SUB_SITE"/>
   <event-data>
     <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=dcap"/>
   </event-data>
@@ -27,6 +27,5 @@
       <protocol prefix="file"/>
     </native-protocols>
   </source-config>
-</subsite>
 </site>
 </site-local-config>
