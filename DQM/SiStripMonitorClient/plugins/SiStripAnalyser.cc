@@ -40,7 +40,8 @@ class SiStripDetCabling;
 class SiStripClassToMonitorCondData;
 class FEDRawDataCollection;
 
-class SiStripAnalyser : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class SiStripAnalyser
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -104,6 +105,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
       tkDetMapTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
       tkDetMapTokenBR_(esConsumes<edm::Transition::BeginRun>()),
       printFaultyModuleList_{ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)} {
+  usesResource("DQMStore");
   std::string const localPath{"DQM/SiStripMonitorClient/test/loader.html"};
   std::ifstream fin{edm::FileInPath(localPath).fullPath(), std::ios::in};
   if (!fin) {
