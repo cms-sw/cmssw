@@ -1,8 +1,10 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalDigi_cfg.py geometry=D92
+#   cmsRun testHGCalDigi_cfg.py geometry=D92 type=mu tag=Def
 #
 #   Options for geometry D88, D92, D93
+#               type mu, tt
+#               tag Def, Thr, 0Noise
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +19,16 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D88, D92, D93")
-
+options.register('type',
+                 "mu",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "type of operations: mu, tt")
+options.register('tag',
+                 "Def",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "tag of operations: Def, Thr, 0Noise")
 ### get and parse the command line arguments
 options.parseArguments()
 
@@ -25,18 +36,20 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('SingleMuonReco',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('TestReco',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
-inFile = "file:step2" + options.geometry + ".root"
-outFile = "file:step3" + options.geometry + ".root"
+inFile = "file:step2" + options.geometry + options.type + ".root"
+outFile = "file:step3" + options.geometry + options.type  + ".root"
+fileName = "missing" + options.geometry + options.type  + options.tag + ".root"
 
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
 print("Input file:    ", inFile)
 print("Output file:   ", outFile)
+print("Root file:     ", fileName)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -44,18 +57,18 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load(geomFile)
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Validation.HGCalValidation.hgcalRecHitPartial_cff')
+process.load('Validation.HGCalValidation.hgcMissingRecHit_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 #if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.ValidHGCal=dict()
-#    process.MessageLogger.HGCalGeom=dict()
-#    process.MessageLogger.HGCalSim=dict()
+#    process.MessageLogger.HGCalMiss=dict()
+#    process.MessageLogger.HGCalError=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
@@ -122,6 +135,9 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string(fileName),
+                                   closeFileFast = cms.untracked.bool(True) )
 
 # Other statements
 process.mix.playback = True
@@ -135,7 +151,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.recosim_step = cms.Path(process.recosim)
-process.analysis_step = cms.Path(process.hgcalRecHitPartialEE+process.hgcalRecHitPartialHE)
+process.analysis_step = cms.Path(process.hgcMissingRecHit)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
