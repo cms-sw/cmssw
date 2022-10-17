@@ -391,6 +391,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
     float gem_matched = false;  // fill detailed plots only for probes matching GEM
 
+    std::cout<<"Muon Number: "<<(*muons).size()<<std::endl;
     for (const auto& chambMatch : (*muons).at(i).matches()) {
       // look in GEMs
       if (chambMatch.detector() == MuonSubdetId::GEM) {
@@ -487,8 +488,8 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           probe_GEM_pt.push_back(pt);
           probe_GEM_eta.push_back(eta);
           probe_GEM_phi.push_back(phi);
-          //probe_GEM_dx.push_back(smallestDx);
-          probe_GEM_dx.push_back(smallestDx_seg);
+          probe_GEM_dx.push_back(smallestDx);
+          //probe_GEM_dx.push_back(smallestDx_seg);
           //probe_GEM_dx_seg.push_back(smallestDx_seg);
 
           if (station==0)
