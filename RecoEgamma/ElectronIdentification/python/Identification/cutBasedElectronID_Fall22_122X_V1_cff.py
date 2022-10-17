@@ -170,10 +170,10 @@ central_id_registry.register(cutBasedElectronID_Fall22_122X_V1_medium.idName, '6
 central_id_registry.register(cutBasedElectronID_Fall22_122X_V1_tight.idName,  '715df1da203dff03f39a347f658b2471472120d9')
 
 ### for now until we have a database...
-cutBasedElectronID_Fall17_94X_V2_veto.isPOGApproved   = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V2_loose.isPOGApproved  = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V2_medium.isPOGApproved = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V2_tight.isPOGApproved  = cms.untracked.bool(True)
+cutBasedElectronID_Fall22_122X_V1_veto.isPOGApproved   = cms.untracked.bool(True)
+cutBasedElectronID_Fall22_122X_V1_loose.isPOGApproved  = cms.untracked.bool(True)
+cutBasedElectronID_Fall22_122X_V1_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall22_122X_V1_tight.isPOGApproved  = cms.untracked.bool(True)
 
 ### 94X_v2 registry values
 #central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_veto.idName,   '74e217e3ece16b49bd337026a29fc3e9')
