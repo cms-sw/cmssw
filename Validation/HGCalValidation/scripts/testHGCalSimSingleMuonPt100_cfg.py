@@ -26,12 +26,12 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('SingleMuon',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('SingleMuonSim',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
-outFile = "file:step1" + options.geometry + ".root"
+outFile = "file:step1" + options.geometry + "mu.root"
 
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
