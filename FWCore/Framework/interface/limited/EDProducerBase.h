@@ -40,6 +40,7 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
   class EventForTransformer;
+  class ServiceWeakToken;
 
   namespace maker {
     template <typename T>
@@ -81,10 +82,12 @@ namespace edm {
 
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doTransform(size_t iTransformIndex,
-                       EventPrincipal const& iEvent,
-                       ActivityRegistry*,
-                       ModuleCallingContext const*);
+      void doTransformAsync(WaitingTaskHolder iTask,
+                            size_t iTransformIndex,
+                            EventPrincipal const& iEvent,
+                            ActivityRegistry*,
+                            ModuleCallingContext const*,
+                            ServiceWeakToken const&);
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
       void doEndJob();
@@ -160,7 +163,10 @@ namespace edm {
 
       virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const;
       virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const;
-      virtual void transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const;
+      virtual void transformAsync_(WaitingTaskHolder iTask,
+                                   std::size_t iIndex,
+                                   edm::EventForTransformer& iEvent,
+                                   ServiceWeakToken const& iToken) const;
 
       virtual void clearInputProcessBlockCaches();
       virtual bool hasAccumulator() const { return false; }
