@@ -1,9 +1,5 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -16,24 +12,19 @@
 using namespace std;
 using namespace edm;
 
-RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
+RPDisplacementGenerator::RPDisplacementGenerator(bool iIsOn,
                                                  RPDetId _detId,
-                                                 const edm::EventSetup &iSetup)
+                                                 const CTPPSRPAlignmentCorrectionsData *alignments,
+                                                 const CTPPSGeometry &geom)
     : detId_(_detId) {
-  isOn_ = ps.getParameter<bool>("RPDisplacementOn");
-
-  // read the alignment correction
-  ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
-  if (auto rec = iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) {
-    iSetup.get<VeryForwardMisalignedGeometryRecord>().get(alignments);
-  }
+  isOn_ = iIsOn;
 
   unsigned int decId = rawToDecId(detId_);
 
   math::XYZVectorD S_m;
   RotationMatrix R_m;
 
-  if (alignments.isValid()) {
+  if (alignments) {
     const CTPPSRPAlignmentCorrectionData &ac = alignments->getFullSensorCorrection(decId);
     S_m = ac.getTranslation();
     R_m = ac.getRotationMatrix();
@@ -41,9 +32,7 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
     isOn_ = false;
 
   // transform shift and rotation to the local coordinate frame
-  ESHandle<CTPPSGeometry> geom;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geom);
-  const DetGeomDesc *g = geom->sensor(detId_);
+  const DetGeomDesc *g = geom.sensor(detId_);
   const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;
