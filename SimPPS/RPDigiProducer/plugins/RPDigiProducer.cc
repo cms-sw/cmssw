@@ -1,7 +1,7 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,6 +31,9 @@
 #include "SimPPS/RPDigiProducer/plugins/RPDetDigitizer.h"
 #include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
 
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
 // system include files
 #include <memory>
 #include <vector>
@@ -49,7 +52,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public edm::EDProducer {
+class RPDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
   ~RPDigiProducer() override = default;
@@ -85,6 +88,8 @@ private:
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFrameTotemRP;
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> alignmentToken;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomToken;
 };
 
 RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -105,6 +110,8 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
   if (simulateDeadChannels) {
     tokenAnalysisMask = esConsumes();
   }
+  alignmentToken = esConsumes();
+  geomToken = esConsumes();
 }
 
 //
@@ -168,11 +175,17 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   DigiVector.reserve(400);
   DigiVector.clear();
 
+  CTPPSRPAlignmentCorrectionsData const* alignments = nullptr;
+  if (auto rec = iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) {
+    alignments = &iSetup.getData(alignmentToken);
+  }
+  auto const& geom = iSetup.getData(geomToken);
+
   for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, alignments, geom);
     }
 
     std::vector<int> input_links;
