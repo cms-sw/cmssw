@@ -1554,6 +1554,7 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, Run const& iRun
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(10, "MINUIT stat.");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(11, "MINUIT stat.");
   statusCounter->getTH1()->GetYaxis()->SetBinLabel(12, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetRangeUser(-6.5, 5.5);
 
   fitResults = ibooker.book2D("A - fit results", "Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
   fitResults->setAxisTitle("Ongoing: bootstrapping", 1);
