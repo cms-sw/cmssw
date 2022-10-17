@@ -124,7 +124,7 @@ public:
       if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
         prob = 1;
       } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
-        warningOutOfBoundProb("Q", prob, qualWord);
+        //warningOutOfBoundProb("Q", prob, qualWord);
         prob = 0;
       }
       double draw = (prob <= 1E-5) ? 255 : -log((double)prob) * probY_1_over_log_units;
