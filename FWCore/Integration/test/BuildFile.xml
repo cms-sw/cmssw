@@ -440,18 +440,25 @@
     <use name="FWCore/MessageLogger"/>
     <use name="clhep"/>
   </library>
-  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
+  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc, TransformAsyncIntProducer.cc, TransformAsyncIntStreamProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
+  <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async_"/>
   <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath"/>
+  <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --onPath"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --onPath --aysync_"/>
   <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream"/>
+  <test name="testFWCoreIntegrationTransform_stream_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --async_"/>
   <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath"/>
+  <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut"/>
+  <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut --async_"/>
 
 
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>

@@ -68,17 +68,22 @@ namespace edm {
       return true;
     }
 
-    void EDProducerBase::doTransform(size_t iTransformIndex,
-                                     EventPrincipal const& iEvent,
-                                     ActivityRegistry*,
-                                     ModuleCallingContext const* iMCC) {
+    void EDProducerBase::doTransformAsync(WaitingTaskHolder iTask,
+                                          size_t iTransformIndex,
+                                          EventPrincipal const& iEvent,
+                                          ActivityRegistry*,
+                                          ModuleCallingContext const* iMCC,
+                                          ServiceWeakToken const& iToken) {
       EventForTransformer ev(iEvent, iMCC);
-      transform_(iTransformIndex, ev);
+      transformAsync_(iTask, iTransformIndex, ev, iToken);
     }
 
     size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
     ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
-    void EDProducerBase::transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const {}
+    void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
+                                         std::size_t iIndex,
+                                         edm::EventForTransformer& iEvent,
+                                         ServiceWeakToken const& iToken) const {}
 
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();

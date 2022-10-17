@@ -12,6 +12,7 @@ parser.add_argument("--noTransform", help="do not consume transform", action="st
 parser.add_argument("--stream", help="use stream module", action="store_true")
 parser.add_argument("--noPut", help="do not put data used by transform", action="store_true")
 parser.add_argument("--addTracer", help="add Tracer service", action="store_true")
+parser.add_argument("--async_", help="use asynchronous module", action="store_true")
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -27,9 +28,15 @@ process.maxEvents.input = 4
 
 process.start = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
 if args.stream:
-  process.t = cms.EDProducer("TransformIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
+  if args.async_:
+    process.t = cms.EDProducer("TransformAsyncIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
+  else:
+    process.t = cms.EDProducer("TransformIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
 else:
-  process.t = cms.EDProducer("TransformIntProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
+  if args.async_:
+    process.t = cms.EDProducer("TransformAsyncIntProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
+  else:
+    process.t = cms.EDProducer("TransformIntProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
 
 process.tester = cms.EDAnalyzer("IntTestAnalyzer",
                                 moduleLabel = cms.untracked.InputTag("t","transform"),

@@ -192,10 +192,12 @@ namespace edm {
       return 0;
     }
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::doTransform(size_t iTransformIndex,
-                                                    EventPrincipal const& iEvent,
-                                                    ActivityRegistry*,
-                                                    ModuleCallingContext const* iMCC) {}
+    void ProducingModuleAdaptorBase<T>::doTransformAsync(WaitingTaskHolder iTask,
+                                                         size_t iTransformIndex,
+                                                         EventPrincipal const& iEvent,
+                                                         ActivityRegistry*,
+                                                         ModuleCallingContext const* iMCC,
+                                                         ServiceWeakToken const&) {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {
