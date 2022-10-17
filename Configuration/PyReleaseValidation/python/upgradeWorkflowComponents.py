@@ -1336,6 +1336,23 @@ upgradeWFs['HLT75e33'] = UpgradeWorkflow_HLT75e33(
     offset = 0.75,
 )
 
+class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'DigiTrigger' in step:
+            stepDict[stepName][k] = merge([{'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@relval2026'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
+    steps = [
+        'DigiTrigger',
+    ],
+    PU = [
+        'DigiTrigger',
+    ],
+    suffix = '_HLTwDIGI75e33',
+    offset = 0.76,
+)
+
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
