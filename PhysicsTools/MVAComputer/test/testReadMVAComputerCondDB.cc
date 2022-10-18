@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,21 +21,22 @@
 
 using namespace PhysicsTools;
 
-class testReadMVAComputerCondDB : public edm::EDAnalyzer {
+class testReadMVAComputerCondDB : public edm::one::EDAnalyzer<> {
 public:
   explicit testReadMVAComputerCondDB(const edm::ParameterSet& params);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual void endJob();
+  void endJob() override;
+
+private:
+  edm::ESGetToken<Calibration::MVAComputerContainer, BTauGenericMVAJetTagComputerRcd> m_token;
 };
 
-testReadMVAComputerCondDB::testReadMVAComputerCondDB(const edm::ParameterSet& params) {}
+testReadMVAComputerCondDB::testReadMVAComputerCondDB(const edm::ParameterSet& params) : m_token(esConsumes()) {}
 
 void testReadMVAComputerCondDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<Calibration::MVAComputerContainer> calib;
-  iSetup.get<BTauGenericMVAJetTagComputerRcd>().get(calib);
-  MVAComputer computer(&calib.product()->find("test"));
+  MVAComputer computer(&iSetup.getData(m_token).find("test"));
 
   Variable::Value values[] = {
       Variable::Value("toast", 4.4), Variable::Value("toast", 4.5), Variable::Value("test", 4.6),
