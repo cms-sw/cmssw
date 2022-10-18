@@ -2,7 +2,7 @@
 // Package:    SiPixelPhase1CompareTrackSoA
 // Class:      SiPixelPhase1CompareTrackSoA
 //
-/**\class SiPixelPhase1CompareTrackSoA SiPixelPhase1CompareTrackSoA.cc 
+/**\class SiPixelPhase1CompareTrackSoA SiPixelPhase1CompareTrackSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -64,6 +64,7 @@ namespace {
 
 class SiPixelPhase1CompareTrackSoA : public DQMEDAnalyzer {
 public:
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
   explicit SiPixelPhase1CompareTrackSoA(const edm::ParameterSet&);
   ~SiPixelPhase1CompareTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;

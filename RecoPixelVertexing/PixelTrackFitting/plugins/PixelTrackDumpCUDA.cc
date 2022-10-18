@@ -20,10 +20,12 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
-class PixelTrackDumpCUDA : public edm::global::EDAnalyzer<> {
+template <typename TrackerTraits>
+class PixelTrackDumpCUDAT : public edm::global::EDAnalyzer<> {
 public:
-  explicit PixelTrackDumpCUDA(const edm::ParameterSet& iConfig);
-  ~PixelTrackDumpCUDA() override = default;
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  explicit PixelTrackDumpCUDAT(const edm::ParameterSet& iConfig);
+  ~PixelTrackDumpCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,7 +38,8 @@ private:
   edm::EDGetTokenT<ZVertexHeterogeneous> tokenSoAVertex_;
 };
 
-PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+PixelTrackDumpCUDAT<TrackerTraits>::PixelTrackDumpCUDAT(const edm::ParameterSet& iConfig)
     : m_onGPU(iConfig.getParameter<bool>("onGPU")) {
   if (m_onGPU) {
     tokenGPUTrack_ =
@@ -49,18 +52,22 @@ PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig)
   }
 }
 
-void PixelTrackDumpCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void PixelTrackDumpCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("onGPU", true);
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesCUDA"));
-  descriptions.add("pixelTrackDumpCUDA", desc);
+  std::string label = "PixelTrackDumpCUDA";
+  label += TrackerTraits::nameModifier;
+  descriptions.add(label, desc);
 }
 
-void PixelTrackDumpCUDA::analyze(edm::StreamID streamID,
-                                 edm::Event const& iEvent,
-                                 const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void PixelTrackDumpCUDAT<TrackerTraits>::analyze(edm::StreamID streamID,
+                                                 edm::Event const& iEvent,
+                                                 const edm::EventSetup& iSetup) const {
   if (m_onGPU) {
     auto const& hTracks = iEvent.get(tokenGPUTrack_);
     cms::cuda::ScopedContextProduce ctx{hTracks};
@@ -82,4 +89,7 @@ void PixelTrackDumpCUDA::analyze(edm::StreamID streamID,
   }
 }
 
+using PixelTrackDumpCUDA = PixelTrackDumpCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackDumpCUDA);
+using PixelTrackDumpCUDAPhase2 = PixelTrackDumpCUDAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase2);

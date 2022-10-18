@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorTrackSoA
 // Class:      SiPixelPhase1MonitorTrackSoA
 //
-/**\class SiPixelPhase1MonitorTrackSoA SiPixelPhase1MonitorTrackSoA.cc 
+/**\class SiPixelPhase1MonitorTrackSoA SiPixelPhase1MonitorTrackSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -27,6 +27,7 @@
 
 class SiPixelPhase1MonitorTrackSoA : public DQMEDAnalyzer {
 public:
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
   explicit SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet&);
   ~SiPixelPhase1MonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;

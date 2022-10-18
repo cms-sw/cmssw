@@ -29,20 +29,24 @@
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 #include "storeTracks.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 
 /**
  * This class creates "leagcy"  reco::Track
- * objects from the output of SoA CA. 
+ * objects from the output of SoA CA.
  */
-class PixelTrackProducerFromSoA : public edm::global::EDProducer<> {
+template <typename TrackerTraits>
+class PixelTrackProducerFromSoAT : public edm::global::EDProducer<> {
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+
 public:
   using IndToEdm = std::vector<uint16_t>;
 
-  explicit PixelTrackProducerFromSoA(const edm::ParameterSet &iConfig);
-  ~PixelTrackProducerFromSoA() override = default;
+  explicit PixelTrackProducerFromSoAT(const edm::ParameterSet &iConfig);
+  ~PixelTrackProducerFromSoAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -65,7 +69,8 @@ private:
   pixelTrack::Quality const minQuality_;
 };
 
-PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iConfig)
+template <typename TrackerTraits>
+PixelTrackProducerFromSoAT<TrackerTraits>::PixelTrackProducerFromSoAT(const edm::ParameterSet &iConfig)
     : tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       tokenTrack_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("trackSrc"))),
       cpuHits_(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
@@ -91,19 +96,23 @@ PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iC
   produces<IndToEdm>();
 }
 
-void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+template <typename TrackerTraits>
+void PixelTrackProducerFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTracksSoA"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
-  descriptions.addWithDefaultLabel(desc);
+  std::string label = "pixelTrackProducerFromSoA";
+  label += TrackerTraits::nameModifier;
+  descriptions.add(label, desc);
 }
 
-void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
-                                        edm::Event &iEvent,
-                                        const edm::EventSetup &iSetup) const {
+template <typename TrackerTraits>
+void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                        edm::Event &iEvent,
+                                                        const edm::EventSetup &iSetup) const {
   // enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity };
   reco::TrackBase::TrackQuality recoQuality[] = {reco::TrackBase::undefQuality,
                                                  reco::TrackBase::undefQuality,
@@ -244,4 +253,8 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   iEvent.put(std::move(indToEdmP));
 }
 
+using PixelTrackProducerFromSoA = PixelTrackProducerFromSoAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackProducerFromSoA);
+
+using PixelTrackProducerFromSoAPhase2 = PixelTrackProducerFromSoAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(PixelTrackProducerFromSoAPhase2);

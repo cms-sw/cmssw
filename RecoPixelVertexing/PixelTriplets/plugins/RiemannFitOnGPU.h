@@ -14,15 +14,20 @@
 
 #include "HelixFitOnGPU.h"
 
-using HitsOnGPU = TrackingRecHit2DSOAView;
-using Tuples = pixelTrack::HitContainer;
-using OutputSoA = pixelTrack::TrackSoA;
+template <typename TrackerTraits>
+using HitsOnGPU = TrackingRecHit2DSOAViewT<TrackerTraits>;
+template <typename TrackerTraits>
+using Tuples = pixelTrack::HitContainerT<TrackerTraits>;
+template <typename TrackerTraits>
+using OutputSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+template <typename TrackerTraits>
+using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
-template <int N>
-__global__ void kernel_FastFit(Tuples const *__restrict__ foundNtuplets,
-                               caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+template <int N, typename TrackerTraits>
+__global__ void kernel_FastFit(Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
+                               TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                uint32_t nHits,
-                               HitsOnGPU const *__restrict__ hhp,
+                               HitsOnGPU<TrackerTraits> const *__restrict__ hhp,
                                double *__restrict__ phits,
                                float *__restrict__ phits_ge,
                                double *__restrict__ pfast_fit,
@@ -51,7 +56,7 @@ __global__ void kernel_FastFit(Tuples const *__restrict__ foundNtuplets,
 
     // get it from the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
-    assert(tkid < foundNtuplets->nOnes());
+    assert(int(tkid) < foundNtuplets->nOnes());
 
     assert(foundNtuplets->size(tkid) == nHits);
 
@@ -83,8 +88,8 @@ __global__ void kernel_FastFit(Tuples const *__restrict__ foundNtuplets,
   }
 }
 
-template <int N>
-__global__ void kernel_CircleFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+template <int N, typename TrackerTraits>
+__global__ void kernel_CircleFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                  uint32_t nHits,
                                  double bField,
                                  double *__restrict__ phits,
@@ -124,11 +129,11 @@ __global__ void kernel_CircleFit(caConstants::TupleMultiplicity const *__restric
   }
 }
 
-template <int N>
-__global__ void kernel_LineFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+template <int N, typename TrackerTraits>
+__global__ void kernel_LineFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                uint32_t nHits,
                                double bField,
-                               OutputSoA *results,
+                               OutputSoA<TrackerTraits> *results,
                                double *__restrict__ phits,
                                float *__restrict__ phits_ge,
                                double *__restrict__ pfast_fit_input,

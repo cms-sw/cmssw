@@ -19,10 +19,14 @@
 // Switch on to enable checks and printout for found tracks
 // #define PIXEL_DEBUG_PRODUCE
 
-class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
+template <typename TrackerTraits>
+class PixelTrackSoAFromCUDAT : public edm::stream::EDProducer<edm::ExternalWork> {
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  using TrackSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+
 public:
-  explicit PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig);
-  ~PixelTrackSoAFromCUDA() override = default;
+  explicit PixelTrackSoAFromCUDAT(const edm::ParameterSet& iConfig);
+  ~PixelTrackSoAFromCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -35,23 +39,28 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
 
-  cms::cuda::host::unique_ptr<pixelTrack::TrackSoA> soa_;
+  cms::cuda::host::unique_ptr<TrackSoA> soa_;
 };
 
-PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+PixelTrackSoAFromCUDAT<TrackerTraits>::PixelTrackSoAFromCUDAT(const edm::ParameterSet& iConfig)
     : tokenCUDA_(consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenSOA_(produces<PixelTrackHeterogeneous>()) {}
 
-void PixelTrackSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void PixelTrackSoAFromCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("src", edm::InputTag("pixelTracksCUDA"));
-  descriptions.add("pixelTracksSoA", desc);
+  std::string label = "pixelTracksSoA";
+  label += TrackerTraits::nameModifier;
+  descriptions.add(label, desc);
 }
 
-void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
-                                    edm::EventSetup const& iSetup,
-                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+template <typename TrackerTraits>
+void PixelTrackSoAFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
+                                                    edm::EventSetup const& iSetup,
+                                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::Product<PixelTrackHeterogeneous> const& inputDataWrapped = iEvent.get(tokenCUDA_);
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
@@ -59,18 +68,13 @@ void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
   soa_ = inputData.toHostAsync(ctx.stream());
 }
 
-void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  // check that the fixed-size SoA does not overflow
+template <typename TrackerTraits>
+void PixelTrackSoAFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+#ifdef PIXEL_DEBUG_PRODUCE
   auto const& tsoa = *soa_;
   auto maxTracks = tsoa.stride();
-  auto nTracks = tsoa.nTracks();
-  assert(nTracks < maxTracks);
-  if (nTracks == maxTracks - 1) {
-    edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
-                                   << " candidates";
-  }
 
-#ifdef PIXEL_DEBUG_PRODUCE
+  auto nTracks = tsoa.nTracks();
   std::cout << "size of SoA " << sizeof(tsoa) << " stride " << maxTracks << std::endl;
   std::cout << "found " << nTracks << " tracks in cpu SoA at " << &tsoa << std::endl;
 
@@ -86,9 +90,13 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, std::move(soa_));
+  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
 
   assert(!soa_);
 }
 
+using PixelTrackSoAFromCUDA = PixelTrackSoAFromCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDA);
+
+using PixelTrackSoAFromCUDAPhase2 = PixelTrackSoAFromCUDAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(PixelTrackSoAFromCUDAPhase2);
