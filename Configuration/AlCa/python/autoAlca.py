@@ -51,7 +51,7 @@ def buildList(pdList, matrix):
 
 # Update the lists anytime a new PD is added to the matrix
 autoAlca = { 'allForPrompt'         : buildList(['Charmonium', 'Commissioning', 'DoubleMuParked', 'DoubleMuon', 'DoubleMuonLowMass', 'EGamma', 'HLTPhysics', 'HcalNZS', 'JetHT', 'MET', 'MinimumBias', 'MuOnia', 'MuOniaParked', 'NoBPTX', 'SingleMuon', 'ZeroBias'], AlCaRecoMatrix),
-             'allForExpress'        : buildList(['StreamExpress', 'ALCALumiPixelsCountsExpress'], AlCaRecoMatrix),
+             'allForExpress'        : buildList(['StreamExpress'], AlCaRecoMatrix),
              'allForExpressHI'      : buildList(['StreamExpressHI'], AlCaRecoMatrix),
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }
