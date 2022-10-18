@@ -3,8 +3,8 @@
 # isolation for an electron object.
 #   Documentation:
 # 
-#https://indico.cern.ch/event/1204274/contributions/5064338/attachments/2525303/4343179/Electron_cutbasedID_20221010.pdf
-#   (slides 4 to 6)
+#https://indico.cern.ch/event/1204275/contributions/5064343/attachments/2529616/4353987/Electron_cutbasedID_preliminaryID.pdf
+#   (slides 4 to 7)
 # 
 #  The effective areas are based on 90% efficient contours
 #
