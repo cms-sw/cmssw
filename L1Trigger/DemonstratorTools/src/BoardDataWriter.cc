@@ -90,9 +90,9 @@ namespace l1t::demo {
 
       // Override flags for start & end of event
       BoardData::Channel::iterator it(boardData_.at(chanIndex).end() - 1);
-      it->end = true;
+      it->endOfPacket = true;
       it -= (channelData.size() - 1);
-      it->start = true;
+      it->startOfPacket = true;
 
       // Pad link with non-valid frames
       boardData_.at(chanIndex).insert(
@@ -113,6 +113,16 @@ namespace l1t::demo {
     // Pad any channels that aren't full with invalid frames
     for (auto& x : boardData_)
       x.second.resize(maxFramesPerFile_);
+
+    // For each channel: Assert start_of_orbit for first clock cycle that start is asserted
+    for (auto& x : boardData_) {
+      for (auto& frame : x.second) {
+        if (frame.startOfPacket) {
+          frame.startOfOrbit = true;
+          break;
+        }
+      }
+    }
 
     // Write board data object to file
     const std::string filePath = filePathGen_(fileNames_.size());
