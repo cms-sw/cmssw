@@ -72,18 +72,17 @@ public:
             compFunc(std::less<float>()) {}
 
       bool operator()(const reco::RecoEcalCandidate& cand, float value) const {
-	if(!doAnd) {
-	  if (compFunc(value, cut))
-	    return true;
-	  else {
-	    float energyInv = useEt ? 1. / cand.et() : 1. / cand.energy();
-	    return compFunc(value * energyInv, cutOverE) || compFunc(value * energyInv * energyInv, cutOverE2);
-	  }
-	}
-	else {
-	  float energy = useEt ? cand.et() : cand.energy();
-	  return compFunc(value, cut + cutOverE*energy + cutOverE2*energy*energy);
-	}
+        if (!doAnd) {
+          if (compFunc(value, cut))
+            return true;
+          else {
+            float energyInv = useEt ? 1. / cand.et() : 1. / cand.energy();
+            return compFunc(value * energyInv, cutOverE) || compFunc(value * energyInv * energyInv, cutOverE2);
+          }
+        } else {
+          float energy = useEt ? cand.et() : cand.energy();
+          return compFunc(value, cut + cutOverE * energy + cutOverE2 * energy * energy);
+        }
       }
     };
 
