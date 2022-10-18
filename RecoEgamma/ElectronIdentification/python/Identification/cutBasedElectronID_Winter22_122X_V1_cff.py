@@ -15,8 +15,8 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
 #
 
 # Veto working point Barrel and Endcap
-#122X V1 IDs for Run3(first set of IDs for Run3) 
-idName = "cutBasedElectronID-Winter22-122X-V1-veto"
+#Winter22_122X V1 IDs for Run3(first set of IDs for Run3) 
+idName = "cutBasedElectronID-RunIIIWinter22-V1-veto"
 WP_Veto_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0117  , # full5x5_sigmaIEtaIEtaCut
@@ -48,7 +48,7 @@ WP_Veto_EE = EleWorkingPoint_V5(
     )
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedElectronID-Winter22-122X-V1-loose"
+idName = "cutBasedElectronID-RunIIIWinter22-V1-loose"
 WP_Loose_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0107  , # full5x5_sigmaIEtaIEtaCut
@@ -80,7 +80,7 @@ WP_Loose_EE = EleWorkingPoint_V5(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedElectronID-Winter22-122X-V1-medium"
+idName = "cutBasedElectronID-RunIIIWinter22-V1-medium"
 WP_Medium_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0103  , # full5x5_sigmaIEtaIEtaCut
@@ -112,7 +112,7 @@ WP_Medium_EE = EleWorkingPoint_V5(
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedElectronID-Winter22-122X-V1-tight"
+idName = "cutBasedElectronID-RunIIIWinter22-V1-tight"
 WP_Tight_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0101  , # full5x5_sigmaIEtaIEtaCut
@@ -149,10 +149,10 @@ isoEffAreas = "RecoEgamma/ElectronIdentification/data/Run3_Winter22/effAreaElect
 #
 # Set up VID configuration for all cuts and working points
 #
-cutBasedElectronID_Winter22_122X_V1_veto   = configureVIDCutBasedEleID_V5(WP_Veto_EB,   WP_Veto_EE, isoEffAreas)
-cutBasedElectronID_Winter22_122X_V1_loose  = configureVIDCutBasedEleID_V5(WP_Loose_EB,  WP_Loose_EE, isoEffAreas)
-cutBasedElectronID_Winter22_122X_V1_medium = configureVIDCutBasedEleID_V5(WP_Medium_EB, WP_Medium_EE, isoEffAreas)
-cutBasedElectronID_Winter22_122X_V1_tight  = configureVIDCutBasedEleID_V5(WP_Tight_EB,  WP_Tight_EE, isoEffAreas)
+cutBasedElectronID_RunIIIWinter22_V1_veto   = configureVIDCutBasedEleID_V5(WP_Veto_EB,   WP_Veto_EE, isoEffAreas)
+cutBasedElectronID_RunIIIWinter22_V1_loose  = configureVIDCutBasedEleID_V5(WP_Loose_EB,  WP_Loose_EE, isoEffAreas)
+cutBasedElectronID_RunIIIWinter22_V1_medium = configureVIDCutBasedEleID_V5(WP_Medium_EB, WP_Medium_EE, isoEffAreas)
+cutBasedElectronID_RunIIIWinter22_V1_tight  = configureVIDCutBasedEleID_V5(WP_Tight_EB,  WP_Tight_EE, isoEffAreas)
 
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -160,24 +160,14 @@ cutBasedElectronID_Winter22_122X_V1_tight  = configureVIDCutBasedEleID_V5(WP_Tig
 # 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
-central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_veto.idName,   '4bb256706c8c197a7b2b030467579016d62b7193')
-central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_loose.idName,  'cffebbe12b51b8eefd73ee24636a81bb7d16f94f')
-central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_medium.idName, '8c7fcc45de0208efb136838e640b64376c01a707')
-central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_tight.idName,  '7977ea7c97914acdb1905fca688e1fa0d8989553')
+#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_veto.idName,   '04d495d199252c2017d5019ae8b478a7d8aebc79')
+#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_loose.idName,  '648b0cc1957047ffe3f027111389dcf5aa941edc')
+#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_medium.idName, '2626edc1ad1dc1673c0713c557df78f3e90a66f5')
+#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_tight.idName,  '2331bfa0b099f80090aa1d48df03b7a134cf788e')
 
 ### for now until we have a database...
-cutBasedElectronID_Winter22_122X_V1_veto.isPOGApproved   = cms.untracked.bool(True)
-cutBasedElectronID_Winter22_122X_V1_loose.isPOGApproved  = cms.untracked.bool(True)
-cutBasedElectronID_Winter22_122X_V1_medium.isPOGApproved = cms.untracked.bool(True)
-cutBasedElectronID_Winter22_122X_V1_tight.isPOGApproved  = cms.untracked.bool(True)
+#cutBasedElectronID_RunIIIWinter22_V1_veto.isPOGApproved   = cms.untracked.bool(True)
+#cutBasedElectronID_RunIIIWinter22_V1_loose.isPOGApproved  = cms.untracked.bool(True)
+#cutBasedElectronID_RunIIIWinter22_V1_medium.isPOGApproved = cms.untracked.bool(True)
+#cutBasedElectronID_RunIIIWinter22_V1_tight.isPOGApproved  = cms.untracked.bool(True)
 
-#central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_veto.idName,   'f2bdd2bd67779f62ee94df103c8632efa0e4e9e3')
-#central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_loose.idName,  '002bb55c0a6176fa07ffce0672a5e82843e83738')
-#central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_medium.idName, '6eeb1197bf3a564d089c6a8213c895292f97de02')
-#central_id_registry.register(cutBasedElectronID_Winter22_122X_V1_tight.idName,  '715df1da203dff03f39a347f658b2471472120d9')
-
-### 94X_v2 registry values
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_veto.idName,   '74e217e3ece16b49bd337026a29fc3e9')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_loose.idName,  '5547e2c8b5c222192519c41bff05bc2e')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_medium.idName, '48702f025a8df2c527f53927af8b66d0')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_tight.idName,  'c06761e199f084f5b0f7868ac48a3e19')
