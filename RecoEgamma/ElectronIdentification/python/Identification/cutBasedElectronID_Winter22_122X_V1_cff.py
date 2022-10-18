@@ -160,14 +160,14 @@ cutBasedElectronID_RunIIIWinter22_V1_tight  = configureVIDCutBasedEleID_V5(WP_Ti
 # 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
-#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_veto.idName,   '04d495d199252c2017d5019ae8b478a7d8aebc79')
-#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_loose.idName,  '648b0cc1957047ffe3f027111389dcf5aa941edc')
-#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_medium.idName, '2626edc1ad1dc1673c0713c557df78f3e90a66f5')
-#central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_tight.idName,  '2331bfa0b099f80090aa1d48df03b7a134cf788e')
+central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_veto.idName,   '04d495d199252c2017d5019ae8b478a7d8aebc79')
+central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_loose.idName,  '648b0cc1957047ffe3f027111389dcf5aa941edc')
+central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_medium.idName, '2626edc1ad1dc1673c0713c557df78f3e90a66f5')
+central_id_registry.register(cutBasedElectronID_RunIIIWinter22_V1_tight.idName,  '2331bfa0b099f80090aa1d48df03b7a134cf788e')
 
 ### for now until we have a database...
-#cutBasedElectronID_RunIIIWinter22_V1_veto.isPOGApproved   = cms.untracked.bool(True)
-#cutBasedElectronID_RunIIIWinter22_V1_loose.isPOGApproved  = cms.untracked.bool(True)
-#cutBasedElectronID_RunIIIWinter22_V1_medium.isPOGApproved = cms.untracked.bool(True)
-#cutBasedElectronID_RunIIIWinter22_V1_tight.isPOGApproved  = cms.untracked.bool(True)
+cutBasedElectronID_RunIIIWinter22_V1_veto.isPOGApproved   = cms.untracked.bool(True)
+cutBasedElectronID_RunIIIWinter22_V1_loose.isPOGApproved  = cms.untracked.bool(True)
+cutBasedElectronID_RunIIIWinter22_V1_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_RunIIIWinter22_V1_tight.isPOGApproved  = cms.untracked.bool(True)
 
