@@ -468,22 +468,35 @@ steps['RunRawPPS2022A']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022A-v1/RAW',la
 steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
 
 #### run3 ####
-Run2022B={355351: [[712, 768]]}
+Run2022A={353015: [[1, 100]]}
+steps['RunMinimumBias2022A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunSingleMuon2022A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunZeroBias2022A']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunBTagMu2022A']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunNoBPTX2022A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunHcalNZS2022A']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunHLTPhysics2022A']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunCommissioning2022A']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunJetHT2022A']={'INPUT':InputInfo(dataSet='/JetHT/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunCosmics2022A']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDisplacedJet2022A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunMET2022A']={'INPUT':InputInfo(dataSet='/MET/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunEGamma2022A']={'INPUT':InputInfo(dataSet='/EGamma/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunTau2022A']={'INPUT':InputInfo(dataSet='/Tau/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDoubleMuon2022A']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunMuonEG2022A']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+
+Run2022B={355769: [[1, 106]]}
 steps['RunMinimumBias2022B']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355680: [[21, 24]]}
 steps['RunSingleMuon2022B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunZeroBias2022B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355456: [[446, 467]]}
 steps['RunBTagMu2022B']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunNoBPTX2022B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunHcalNZS2022B']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunHLTPhysics2022B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunCommissioning2022B']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355383: [[267, 269]]}
 steps['RunJetHT2022B']={'INPUT':InputInfo(dataSet='/JetHT/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355727: [[55, 108]]}
 steps['RunCosmics2022B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355680: [[21, 24]]}
 steps['RunDisplacedJet2022B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunMET2022B']={'INPUT':InputInfo(dataSet='/MET/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunEGamma2022B']={'INPUT':InputInfo(dataSet='/EGamma/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
@@ -492,24 +505,39 @@ steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/
 steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 #steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
-Run2022C={356531: [[1, 56]]}
+Run2022C={356381: [[1, 1193]]}
 steps['RunMinimumBias2022C']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunSingleMuon2022C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 steps['RunZeroBias2022C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunJetMET2022C']={'INPUT':InputInfo(dataSet='/JetMET/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunEGamma2022C']={'INPUT':InputInfo(dataSet='/EGamma/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunMuon2022C']={'INPUT':InputInfo(dataSet='/Muon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunTau2022C']={'INPUT':InputInfo(dataSet='/Tau/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 steps['RunBTagMu2022C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunNoBPTX2022C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunHcalNZS2022C']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunHLTPhysics2022C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunCommissioning2022C']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunJetHT2022C']={'INPUT':InputInfo(dataSet='/JetHT/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunCosmics2022C']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunDisplacedJet2022C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunMET2022C']={'INPUT':InputInfo(dataSet='/MET/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunEGamma2022C']={'INPUT':InputInfo(dataSet='/EGamma/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunTau2022C']={'INPUT':InputInfo(dataSet='/Tau/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunDoubleMuon2022C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunMuonEG2022C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 
-
-Run2022D={357538: [[39, 63]]}
+Run2022D={357735: [[1, 366]]}
 steps['RunMinimumBias2022D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunZeroBias2022D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunJetMET2022D']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 steps['RunMuon2022D']={'INPUT':InputInfo(dataSet='/Muon/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunZeroBias2022D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 steps['RunBTagMu2022D']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunNoBPTX2022D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunHcalNZS2022D']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunHLTPhysics2022D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunCommissioning2022D']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunJetMET2022D']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunCosmics2022D']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunDisplacedJet2022D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
