@@ -349,6 +349,9 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
       evt->add_vertex(sub_vertices);
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
+      if (isub >= static_cast<int>(index.size())) {
+        index.resize(isub + 1);
+      }
       index[isub] = ihy - 1;
       isub_l = isub;
     }
