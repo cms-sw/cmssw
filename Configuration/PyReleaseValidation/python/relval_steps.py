@@ -2762,7 +2762,7 @@ steps['RECODR3_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCa
 steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
 steps['RECODR3_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_2021']])
 
-steps['RECONANORUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@miniAODDQM+@nanoAODDQM'},steps['RECODR3']])
+steps['RECONANORUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['RECODR3']])
 steps['RECOCOSMRUN3']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3']])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
