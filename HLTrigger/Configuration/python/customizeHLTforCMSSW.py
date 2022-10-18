@@ -210,6 +210,40 @@ def customiseForOffline(process):
 
     return process
 
+def customizeHLTfor99999(process):
+     for producer in producers_by_type(process, "SiPixelRecHitSoAFromLegacy"):
+         if hasattr(producer, "isPhase2"):
+             delattr(producer, "isPhase2")
+     for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
+         if hasattr(producer, "isPhase2"):
+             delattr(producer, "isPhase2")
+     for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
+         if hasattr(producer, "isPhase2"):
+             delattr(producer, "isPhase2")
+     if 'hltSiPixelRecHitsSoA' in process.__dict__:
+         process.hltSiPixelRecHitsSoA.cpu =  cms.EDAlias(hltSiPixelRecHitsFromLegacy = cms.VPSet(
+            cms.PSet(
+                type = cms.string('cmscudacompatCPUTraitspixelTopologyPhase1TrackingRecHit2DCPUBaseT')
+            ),
+            cms.PSet(
+                type = cms.string('uintAsHostProduct')
+            )))
+
+     for producer in esproducers_by_type(process, "PixelCPEFastESProducer"):
+         if hasattr(producer, "isPhase2"):
+             delattr(producer, "isPhase2")
+     for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
+         if hasattr(producer, "Upgrade"):
+             setattr(producer,"isPhase2",getattr(producer,"Upgrade"))
+             delattr(producer, "Upgrade")
+         #else:
+             #setattr(producer,"isPhase2",False)
+             
+     # for producer insproducers_by_type(process, "PixelCPEGeneric"):
+     #     if hasattr(producer, "Upgrade"):
+     #         setattr(producer,"isPhase2",getattr(producer,"Upgrade"))
+     #         delattr(producer, "Upgrade")
+     return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -218,5 +252,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customizeHLTfor99999(process)
+
 
     return process

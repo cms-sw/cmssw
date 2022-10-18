@@ -13,30 +13,31 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDASOAView.h"
 
+//#define GPU_DEBUG 1
 namespace gpuPixelRecHits {
 
-  __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const* __restrict__ cpeParams,
+  template <typename TrackerTraits>
+  __global__ void getHits(pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* __restrict__ cpeParams,
                           BeamSpotPOD const* __restrict__ bs,
                           SiPixelDigisCUDASOAView const digis,
                           int numElements,
                           SiPixelClustersCUDA::SiPixelClustersCUDASOAView const* __restrict__ pclusters,
-                          TrackingRecHit2DSOAView* phits) {
+                          TrackingRecHit2DSOAViewT<TrackerTraits>* phits) {
     // FIXME
     // the compiler seems NOT to optimize loads from views (even in a simple test case)
     // The whole gimnastic here of copying or not is a pure heuristic exercise that seems to produce the fastest code with the above signature
     // not using views (passing a gazzilion of array pointers) seems to produce the fastest code (but it is harder to mantain)
+
     assert(phits);
     assert(cpeParams);
     auto& hits = *phits;
 
     auto const& clusters = *pclusters;
-    auto isPhase2 = cpeParams->commonParams().isPhase2;
     // copy average geometry corrected by beamspot . FIXME (move it somewhere else???)
     if (0 == blockIdx.x) {
       auto& agc = hits.averageGeometry();
       auto const& ag = cpeParams->averageGeometry();
-      auto nLadders =
-          isPhase2 ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
+      auto nLadders = TrackerTraits::numberOfLaddersInBarrel;
 
       for (int il = threadIdx.x, nl = nLadders; il < nl; il += blockDim.x) {
         agc.ladderZ[il] = ag.ladderZ[il] - bs->z;
@@ -68,19 +69,20 @@ namespace gpuPixelRecHits {
 
     if (0 == nclus)
       return;
-#ifdef GPU_DEBUG
-    if (threadIdx.x == 0) {
-      auto k = clusters.moduleStart(1 + blockIdx.x);
-      while (digis.moduleInd(k) == invalidModuleId)
-        ++k;
-      assert(digis.moduleInd(k) == me);
-    }
-#endif
+// #ifdef GPU_DEBUG
+//     if (threadIdx.x == 0) {
+//       auto k = clusters.moduleStart(1 + blockIdx.x);
+//       while (digis.moduleInd(k) == invalidModuleId)
+//         ++k;
+//       assert(digis.moduleInd(k) == me);
+//     }
+// #endif
 #ifdef GPU_DEBUG
     if (me % 100 == 1)
       if (threadIdx.x == 0)
         printf("hitbuilder: %d clusters in module %d. will write at %d\n", nclus, me, clusters.clusModuleStart(me));
 #endif
+
     for (int startClus = 0, endClus = nclus; startClus < endClus; startClus += MaxHitsInIter) {
       int nClusInIter = std::min(MaxHitsInIter, endClus - startClus);
       int lastClus = startClus + nClusInIter;
@@ -168,11 +170,9 @@ namespace gpuPixelRecHits {
         assert(h < hits.nHits());
         assert(h < clusters.clusModuleStart(me + 1));
 
-        pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
-        if (!isPhase2)
-          pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
-        else
-          pixelCPEforGPU::errorFromSize(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+        pixelCPEforGPU::position<TrackerTraits>(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+
+        pixelCPEforGPU::errorFromDB<TrackerTraits>(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
         // store it
         hits.setChargeAndStatus(h, clusParams.charge[ic], clusParams.status[ic]);

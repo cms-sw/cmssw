@@ -10,8 +10,6 @@
 namespace gpuVertexFinder {
 
   using ZVertices = ZVertexSoA;
-  using TkSoA = pixelTrack::TrackSoA;
-
   // workspace used in the vertex reco algos
   struct WorkSpace {
     static constexpr uint32_t MAXTRACKS = ZVertexSoA::MAXTRACKS;
@@ -38,21 +36,22 @@ namespace gpuVertexFinder {
     pws->init();
   }
 
-  class Producer {
+  template <typename TrackerTraits>
+  class ProducerT {
   public:
     using ZVertices = ZVertexSoA;
     using WorkSpace = gpuVertexFinder::WorkSpace;
-    using TkSoA = pixelTrack::TrackSoA;
+    using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
 
-    Producer(bool oneKernel,
-             bool useDensity,
-             bool useDBSCAN,
-             bool useIterative,
-             int iminT,      // min number of neighbours to be "core"
-             float ieps,     // max absolute distance to cluster
-             float ierrmax,  // max error to be "seed"
-             float ichi2max  // max normalized distance to cluster
-             )
+    ProducerT(bool oneKernel,
+              bool useDensity,
+              bool useDBSCAN,
+              bool useIterative,
+              int iminT,      // min number of neighbours to be "core"
+              float ieps,     // max absolute distance to cluster
+              float ierrmax,  // max error to be "seed"
+              float ichi2max  // max normalized distance to cluster
+              )
         : oneKernel_(oneKernel && !(useDBSCAN || useIterative)),
           useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
@@ -62,7 +61,7 @@ namespace gpuVertexFinder {
           errmax(ierrmax),
           chi2max(ichi2max) {}
 
-    ~Producer() = default;
+    ~ProducerT() = default;
 
     ZVertexHeterogeneous makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin, float ptMax) const;
     ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin, float ptMax) const;

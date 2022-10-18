@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorVertexSoA
 // Class:      SiPixelPhase1MonitorVertexSoA
 //
-/**\class SiPixelPhase1MonitorVertexSoA SiPixelPhase1MonitorVertexSoA.cc 
+/**\class SiPixelPhase1MonitorVertexSoA SiPixelPhase1MonitorVertexSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -81,11 +81,13 @@ void SiPixelPhase1MonitorVertexSoA::analyze(const edm::Event& iEvent, const edm:
     dxdz = bs.dxdz();
     dydz = bs.dydz();
   }
+
   for (int iv = 0; iv < nVertices; iv++) {
     auto si = vsoa.sortInd[iv];
     auto z = vsoa.zv[si];
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
+
     z += z0;
     hx->Fill(x);
     hy->Fill(y);

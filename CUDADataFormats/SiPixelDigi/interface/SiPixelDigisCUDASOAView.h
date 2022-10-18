@@ -12,7 +12,10 @@
 class SiPixelDigisCUDASOAView {
 public:
   friend class SiPixelDigisCUDA;
-  friend class SiPixelRecHitSoAFromLegacy;
+
+  template <typename TrackerTraits>
+  friend class SiPixelRecHitSoAFromLegacyT;
+
   enum class StorageLocation {
     kCLUS = 0,
     kPDIGI = 2,
