@@ -664,7 +664,7 @@ void AnalyzeLepTree::bookHisto() {
           ++book1;
         }
         for (int vbin = 0; vbin < nVxBins(); ++vbin) {
-          char vtx[12];
+          char vtx[24];
           if ((mode_ / 2) % 2 == 1) {
             sprintf(vtx, "N_{vtx}=%d:%d", npvbin_[vbin], npvbin_[vbin + 1]);
           } else {
@@ -879,7 +879,7 @@ void AnalyzeLepTree::writeMeanError(const char* outfile) {
           if (itr != h_nv2_.end()) {
             double mean = (itr->second)->GetMean();
             double error = (itr->second)->GetMeanError();
-            char vtx[12];
+            char vtx[24];
             if ((mode_ / 2) % 2 == 1) {
               sprintf(vtx, "Nvtx=%3d:%3d", npvbin_[vbin], npvbin_[vbin + 1]);
             } else {
