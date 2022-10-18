@@ -165,11 +165,7 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
   using namespace edm;
   // Getting filtered generator jets
 
-  //Handle<reco::GenParticleCollection> genParticelesCollection;
-  //iEvent.getByToken(m_GenParticleCollection, genParticelesCollection);
-  //const vector<reco::GenParticle>* genParticles = genParticelesCollection.product();
   auto const& genParticles = iEvent.get(m_GenParticleCollection);
-  vector<const reco::GenParticle*> filGenLep = filterGenLeptons(&genParticles);
 
   vector<const reco::GenParticle*> filGenPhotons = filterGenPhotons(&genParticles);
 
@@ -181,9 +177,7 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
   if (ptMin < 0)
     return true;
 
-  //Handle<vector<reco::GenJet> > handleGenJets;
-  //iEvent.getByToken(m_GenJetCollection, handleGenJets);
-  //const vector<reco::GenJet>* genJets = handleGenJets.product();
+  vector<const reco::GenParticle*> filGenLep = filterGenLeptons(&genParticles);
   auto const& genJets = iEvent.get(m_GenJetCollection);
 
   vector<const reco::GenJet*> filGenJets = filterGenJets(&genJets);
@@ -194,9 +188,10 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
     bool cleanJet = true;
     const math::XYZTLorentzVector& p4J = j->p4();
     for (auto const& p : filGenLep)
-      if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep)
+      if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep){
         cleanJet = false;
-
+        break;
+      }  
     if (cleanJet) {
       if (genJetsWithoutLeptonsP4.size() < 2)
         genJetsWithoutLeptonsP4.push_back(p4J);
