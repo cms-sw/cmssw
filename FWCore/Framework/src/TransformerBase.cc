@@ -7,6 +7,8 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include <optional>
+
 namespace edm {
   void TransformerBase::registerTransformImp(
       ProducerBase& iBase, EDPutToken iToken, const TypeID& id, std::string instanceName, TransformFunction iFunc) {
