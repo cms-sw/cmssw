@@ -2,7 +2,7 @@
 #define JetComparison_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,7 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -33,19 +35,20 @@
 #include <TH1.h>
 #include <TH2.h>
 
-class JetComparison : public edm::stream::EDAnalyzer<> {
+class JetComparison : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   JetComparison(edm::ParameterSet const& conf);
-  ~JetComparison();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  ~JetComparison() override = default;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void endJob() override;
   double deltaR2(double eta0, double phi0, double eta, double phi);
 
 private:
-  std::string outputFile_;
+  const edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> genjetToken_;
+  const float fMinEnergy;
 
-  TFile* fFile;
   TGraphErrors* gr;
 
   int nEvent;
@@ -71,7 +74,6 @@ private:
   TH2F* meNTowers90_vs_eta;
   TH2F* meNTowers60_vs_eta;
   TH2F* meNTowers_vs_eta;
-  float fMinEnergy;
 };
 
 #endif
