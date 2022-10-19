@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.filteredLayerClustersEML1Seeded_cfi import *
+from ..modules.filteredLayerClustersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hgcalDigis_cfi import *
 from ..modules.hgcalDigisL1Seeded_cfi import *
 from ..modules.hgcalLayerClustersL1Seeded_cfi import *
@@ -14,12 +14,12 @@ from ..modules.particleFlowRecHitHGCL1Seeded_cfi import *
 from ..modules.particleFlowSuperClusterHGCalFromTICLL1Seeded_cfi import *
 from ..modules.ticlLayerTileProducerL1Seeded_cfi import *
 from ..modules.ticlSeedingL1_cfi import *
-from ..modules.ticlTrackstersEML1_cfi import *
+from ..modules.ticlTrackstersCLUE3DHighL1Seeded_cfi import *
 
 HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     HGCalRecHitL1Seeded,
     HGCalUncalibRecHitL1Seeded,
-    filteredLayerClustersEML1Seeded,
+    filteredLayerClustersCLUE3DHighL1Seeded,
     hgcalDigis,
     hgcalDigisL1Seeded,
     hgcalLayerClustersL1Seeded,
@@ -31,5 +31,6 @@ HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     particleFlowSuperClusterHGCalFromTICLL1Seeded,
     ticlLayerTileProducerL1Seeded,
     ticlSeedingL1,
-    ticlTrackstersEML1
+    #ticlTrackstersEML1
+    ticlTrackstersCLUE3DHighL1Seeded
 )
