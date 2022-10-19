@@ -70,10 +70,11 @@ namespace Phase2L1GMT {
   const float maxTanl_ = 8.0;
   const float maxZ0_ = 30.;
   const float maxD0_ = 15.4;
-  const int barrelLimit0_ = 181 / 4;
-  const int barrelLimit1_ = 160 / 4;
-  const int barrelLimit2_ = 140 / 4;
-  const int barrelLimit3_ = 110 / 4;
+  // Updated barrelLimit according to Karol, https://indico.cern.ch/event/1113802/#1-phase2-gmt-performance-and-i
+  const int barrelLimit0_ = 1.4 / 0.00076699039 / 8;
+  const int barrelLimit1_ = 1.1 / 0.00076699039 / 8;
+  const int barrelLimit2_ = 0.95 / 0.00076699039 / 8;
+  const int barrelLimit3_ = 0.95 / 0.00076699039 / 8;
   const int barrelLimit4_ = 0;
 
   // LSB
