@@ -32,8 +32,6 @@ namespace {
 
   constexpr std::array<double, 4> occupancyGuesses = {{0.5, 0.2, 0.2, 0.8}};
 
-  float getPositionDistance(const HGCalGeometry* geom, const DetId& id) { return geom->getPosition(id).mag(); }
-
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
     return (1 + dddConst.waferType(detid));
@@ -243,7 +241,6 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
       hitToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, hitCollection_))),
       geomToken_(iC.esConsumes()),
       verbosity_(ps.getUntrackedParameter<uint32_t>("verbosity", 0)),
-      refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
       tofDelay_(ps.getParameter<double>("tofDelay")),
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
@@ -462,8 +459,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     const PCaloHit& hit = hits->at(hitidx);
     const float charge = hit.energy() * 1e6 * keV2fC;  // * getCCE(geom, id, cce_);
 
-    const float dist2center(getPositionDistance(geom, id));
-    const float tof = toa - dist2center / refSpeed_ + tofDelay_;
+    const float tof = toa + tofDelay_;
     const int itime = std::floor(tof / bxTime_) + 9;
 
     if (itime < 0 || itime > (int)maxBx_)
@@ -597,12 +593,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     const PCaloHit& hit = hits->at(hitidx);
     const float charge = hit.energy() * 1e6 * keV2fC;
 
-    //distance to the center of the detector
-    const float dist2center(getPositionDistance(geom, id));
-
-    //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
+    //hit time: [time()]=ns + delay
     //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const float tof = toa - dist2center / refSpeed_ + tofDelay_;
+    const float tof = toa + tofDelay_;
     const int itime = std::floor(tof / bxTime_) + 9;
 
     //no need to add bx crossing - tof comes already corrected from the mixing module
