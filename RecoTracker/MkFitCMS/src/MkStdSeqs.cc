@@ -81,7 +81,7 @@ namespace mkfit {
     //=========================================================================
     // Seed cleaning (multi-iter)
     //=========================================================================
-    int clean_cms_seedtracks_iter(TrackVec *seed_ptr, const IterationConfig &itrcfg, const BeamSpot &bspot) {
+    int clean_cms_seedtracks_iter(TrackVec &seeds, const IterationConfig &itrcfg, const BeamSpot &bspot) {
       using Algo = TrackBase::TrackAlgorithm;
 
       const float etamax_brl = Config::c_etamax_brl;
@@ -114,9 +114,8 @@ namespace mkfit {
       const float ptmax_merge_lowPtQuad = 0.2;
       const float etamin_merge_lowPtQuad = 1.5;
 
-      if (seed_ptr == nullptr)
+      if (seeds.empty())
         return 0;
-      TrackVec &seeds = *seed_ptr;
 
       const int ns = seeds.size();
 #ifdef DEBUG
@@ -335,11 +334,24 @@ namespace mkfit {
       return seeds.size();
     }
 
+    namespace {
+      struct register_seed_cleaners {
+        register_seed_cleaners() {
+            IterationConfig::register_seed_cleaner("2017:default", clean_cms_seedtracks_iter);
+        }
+      } rsc_instance;
+    }
+
     //=========================================================================
     // Duplicate cleaning
     //=========================================================================
 
-    void find_duplicates(TrackVec &tracks) {
+    void remove_duplicates(TrackVec &tracks) {
+      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
+                   tracks.end());
+    }
+
+    void find_duplicates(TrackVec &tracks, const IterationConfig &) {
       const auto ntracks = tracks.size();
       float eta1, phi1, pt1, deta, dphi, dr2;
 
@@ -350,6 +362,7 @@ namespace mkfit {
         auto &track = tracks[itrack];
         using Algo = TrackBase::TrackAlgorithm;
         auto const algo = track.algorithm();
+        // MT QQQQ What do we do here?
         if (algo == Algo::pixelLessStep || algo == Algo::tobTecStep)
           continue;
         eta1 = track.momEta();
@@ -421,18 +434,16 @@ namespace mkfit {
           }    //end of else
         }      //end of loop over track2
       }        //end of loop over track1
-    }
 
-    void remove_duplicates(TrackVec &tracks) {
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
     }
 
     //=========================================================================
     // SHARED HITS DUPLICATE CLEANING
     //=========================================================================
 
-    void find_duplicates_sharedhits(TrackVec &tracks, const float fraction) {
+    void find_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
+      const float fraction = itconf.m_params.fracSharedHits;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
@@ -492,15 +503,14 @@ namespace mkfit {
         }  // end sharing hits loop
       }    // end trk loop
 
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
     }
 
-    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks,
-                                              const float fraction,
-                                              const float drth_central,
-                                              const float drth_obarrel,
-                                              const float drth_forward) {
+    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
+      const float fraction = itconf.m_params.fracSharedHits;
+      const float drth_central = itconf.m_params.drth_central;
+      const float drth_obarrel = itconf.m_params.drth_obarrel;
+      const float drth_forward = itconf.m_params.drth_forward;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
@@ -586,30 +596,38 @@ namespace mkfit {
         }
       }  //end loop one over tracks
 
-      //removal here
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
+    }
+
+    namespace {
+      // MT QQQQ - rename tags and functions; maybe move them to a separate cc file.
+      struct register_duplicate_cleaners {
+        register_duplicate_cleaners() {
+            IterationConfig::register_duplicate_cleaner("2017:find_duplicates", find_duplicates);
+            IterationConfig::register_duplicate_cleaner("2017:find_duplicates_sharedhits",
+                                                        find_duplicates_sharedhits);
+            IterationConfig::register_duplicate_cleaner("2017:find_duplicates_sharedhits_pixelseed",
+                                                         find_duplicates_sharedhits_pixelseed);
+        }
+      } rdc_instance;
     }
 
     //=========================================================================
     //
     //=========================================================================
 
+    // MT QQQQ Original logic for remove_duplicates. To be removed.
+    /*
     void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf) {
 #ifdef DEBUG
       std::cout << " find_and_remove_duplicates: input track size " << tracks.size() << std::endl;
 #endif
       if (itconf.m_requires_quality_filter && !(itconf.m_requires_dupclean_tight)) {
-        find_duplicates_sharedhits(tracks, itconf.m_params.fracSharedHits);
+        find_duplicates_sharedhits(tracks, itconf);
       } else if (itconf.m_requires_dupclean_tight) {
-        find_duplicates_sharedhits_pixelseed(tracks,
-                                             itconf.m_params.fracSharedHits,
-                                             itconf.m_params.drth_central,
-                                             itconf.m_params.drth_obarrel,
-                                             itconf.m_params.drth_forward);
+        find_duplicates_sharedhits_pixelseed(tracks, itconf);
       } else {
-        find_duplicates(tracks);
-        remove_duplicates(tracks);
+        find_duplicates(tracks, itconf);
       }
 
 #ifdef DEBUG
@@ -619,6 +637,6 @@ namespace mkfit {
       }
 #endif
     }
-
+    */
   }  // namespace StdSeq
 }  // namespace mkfit

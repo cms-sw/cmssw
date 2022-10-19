@@ -95,7 +95,6 @@ namespace mkfit {
       /* std::string */ m_duplicate_cleaner_name,
       /* bool */ m_requires_seed_hit_sorting,
       /* bool */ m_requires_quality_filter,
-      /* bool */ m_requires_dupclean_tight,
       /* bool */ m_backward_search,
       /* bool */ m_backward_drop_seed_hits,
       /* int */ m_backward_fit_min_hits,
@@ -172,9 +171,25 @@ namespace mkfit {
   // End IterationConfig function catalogs
 
   void IterationConfig::setupStandardFunctionsFromNames() {
+    m_seed_cleaner = get_seed_cleaner(m_seed_cleaner_name);
+    printf(" Set seed_cleaner for '%s' %s\n",
+           m_seed_cleaner_name.c_str(), m_seed_cleaner ? "SET" : "NOT SET");
+
     m_seed_partitioner = get_seed_partitioner(m_seed_partitioner_name);
     printf(" Set seed_partitioner for '%s' %s\n",
-           m_seed_partitioner_name.c_str(), m_seed_partitioner ? "SUCCESS" : "FAIL");
+           m_seed_partitioner_name.c_str(), m_seed_partitioner ? "SET" : "NOT SET");
+
+    m_pre_bkfit_filter = get_candidate_filter(m_pre_bkfit_filter_name);
+    printf(" Set pre_bkfit_filter for '%s' %s\n",
+           m_pre_bkfit_filter_name.c_str(), m_pre_bkfit_filter ? "SET" : "NOT SET");
+
+    m_post_bkfit_filter = get_candidate_filter(m_post_bkfit_filter_name);
+    printf(" Set post_bkfit_filter for '%s' %s\n",
+           m_post_bkfit_filter_name.c_str(), m_post_bkfit_filter ? "SET" : "NOT SET");
+
+    m_duplicate_cleaner = get_duplicate_cleaner(m_duplicate_cleaner_name);
+    printf(" Set duplicate_cleaner for '%s' %s\n",
+           m_duplicate_cleaner_name.c_str(), m_duplicate_cleaner ? "SET" : "NOT SET");;
   }
 
   // ============================================================================

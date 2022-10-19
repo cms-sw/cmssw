@@ -29,7 +29,8 @@ namespace mkfit {
       eoh.setBeamSpot(ev.beamSpot_);
     }
 
-    void handle_duplicates(Event *event) {
+    void handle_duplicates(Event *) {
+      /*
       // Mark tracks as duplicates; if within CMSSW, remove duplicate tracks from fit or candidate track collection
       if (Config::removeDuplicates) {
         if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
@@ -43,6 +44,7 @@ namespace mkfit {
           find_duplicates(event->candidateTracks_);
         }
       }
+      */
     }
 
     //=========================================================================

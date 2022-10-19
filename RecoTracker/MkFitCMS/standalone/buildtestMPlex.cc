@@ -163,9 +163,9 @@ namespace mkfit {
     // For best hit, the candidateTracks_ vector is the direct input to the backward fit so only need to do find_duplicates once
     if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
       //Mark tracks as duplicates; if within CMSSW, remove duplicate tracks before backward fit
-      if (Config::removeDuplicates) {
-        StdSeq::find_duplicates(ev.candidateTracks_);
-      }
+      // CCCC if (Config::removeDuplicates) {
+      // CCCC   StdSeq::find_duplicates(ev.candidateTracks_);
+      // CCCC }
     }
 
     // now do backwards fit... do we want to time this section?
@@ -259,7 +259,7 @@ namespace mkfit {
       check_nan_n_silly_bkfit(ev);
     }
 
-    StdSeq::handle_duplicates(&ev);
+    // CCCC StdSeq::handle_duplicates(&ev);
 
     if (Config::quality_val) {
       StdSeq::Quality qval;
@@ -349,7 +349,7 @@ namespace mkfit {
       check_nan_n_silly_bkfit(ev);
     }
 
-    StdSeq::handle_duplicates(&ev);
+    // CCCC StdSeq::handle_duplicates(&ev);
 
     // validation section
     if (Config::quality_val) {
@@ -440,10 +440,10 @@ namespace mkfit {
         }
       }
 
-      bool do_seed_clean = itconf.m_requires_dupclean_tight;
+      bool do_seed_clean = bool(itconf.m_seed_cleaner);
 
       if (do_seed_clean)
-        StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
+        itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
 
       builder.seed_post_cleaning(seeds);
 
@@ -483,7 +483,8 @@ namespace mkfit {
 
       {
         builder.export_tracks(tmp_tvec);
-        StdSeq::find_and_remove_duplicates(tmp_tvec, itconf);
+        if (itconf.m_duplicate_cleaner)
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
         ev.candidateTracks_.reserve(ev.candidateTracks_.size() + tmp_tvec.size());
         for (auto &&t : tmp_tvec)
           ev.candidateTracks_.emplace_back(std::move(t));
@@ -530,7 +531,9 @@ namespace mkfit {
 
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 
-        StdSeq::find_and_remove_duplicates(builder.ref_tracks_nc(), itconf);
+        if (itconf.m_duplicate_cleaner)
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
+
         builder.export_tracks(ev.fitTracks_);
       }
 
