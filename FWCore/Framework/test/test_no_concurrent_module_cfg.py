@@ -12,11 +12,12 @@ process.options = dict(
 
 process.maxEvents.input = 20
 
-process.i1 = cms.EDProducer("BusyWaitIntLegacyProducer", ivalue = cms.int32(1),
-  iterations = cms.uint32(300*1000))
-process.i2 = cms.EDProducer("BusyWaitIntLegacyProducer", ivalue = cms.int32(2),
-  iterations = cms.uint32(300*1000))
-
+process.i1 = cms.EDProducer("BusyWaitIntOneSharedProducer", ivalue = cms.int32(1),
+  iterations = cms.uint32(300*1000),
+  resourceNames = cms.untracked.vstring("foo"))
+process.i2 = cms.EDProducer("BusyWaitIntOneSharedProducer", ivalue = cms.int32(2),
+  iterations = cms.uint32(300*1000),
+  resourceNames = cms.untracked.vstring("foo"))
 process.c1 = cms.EDAnalyzer("ConsumingOneSharedResourceAnalyzer",
                             valueMustMatch = cms.untracked.int32(1),
                             moduleLabel = cms.untracked.InputTag("i1"),

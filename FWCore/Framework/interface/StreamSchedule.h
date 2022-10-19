@@ -66,7 +66,6 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
