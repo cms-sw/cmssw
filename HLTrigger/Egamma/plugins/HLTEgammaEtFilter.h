@@ -31,9 +31,11 @@ public:
 private:
   edm::InputTag inputTag_;  // input tag identifying product contains egammas
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
-  double etcutEB_;  // Barrel Et threshold in GeV
-  double etcutEE_;  // Endcap Et threshold in GeV
-  int ncandcut_;    // number of egammas required
+  double etcutEB_;    // Barrel Et threshold in GeV
+  double etcutEE_;    // Endcap Et threshold in GeV
+  double minEtaCut_;  // Min pseudorapidity cut
+  double maxEtaCut_;  // Max pseudorapidity cut
+  int ncandcut_;      // number of egammas required
 
   edm::InputTag l1EGTag_;
 };
