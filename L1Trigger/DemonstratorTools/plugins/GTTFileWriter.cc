@@ -126,15 +126,15 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<edm::View<Track_t>> tracksToken_;
-  edm::EDGetTokenT<edm::View<Track_t>> convertedTracksToken_;
-  edm::EDGetTokenT<TrackCollection_t> convertedTrackCollectionToken_;
-  edm::EDGetTokenT<TrackRefCollection_t> selectedTracksToken_;
-  edm::EDGetTokenT<TrackRefCollection_t> vertexAssociatedTracksToken_;
-  edm::EDGetTokenT<edm::View<l1t::VertexWord>> verticesToken_;
-  edm::EDGetTokenT<edm::View<l1t::TkJetWord>> jetsToken_;
-  edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissToken_;
-  edm::EDGetTokenT<edm::View<l1t::EtSum>> etMissToken_;
+  const edm::EDGetTokenT<edm::View<Track_t>> tracksToken_;
+  const edm::EDGetTokenT<edm::View<Track_t>> convertedTracksToken_;
+  const edm::EDGetTokenT<TrackCollection_t> convertedTrackCollectionToken_;
+  const edm::EDGetTokenT<TrackRefCollection_t> selectedTracksToken_;
+  const edm::EDGetTokenT<TrackRefCollection_t> vertexAssociatedTracksToken_;
+  const edm::EDGetTokenT<edm::View<l1t::VertexWord>> verticesToken_;
+  const edm::EDGetTokenT<edm::View<l1t::TkJetWord>> jetsToken_;
+  const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissToken_;
+  const edm::EDGetTokenT<edm::View<l1t::EtSum>> etMissToken_;
 
   l1t::demo::BoardDataWriter fileWriterInputTracks_;
   l1t::demo::BoardDataWriter fileWriterConvertedTracks_;
