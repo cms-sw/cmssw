@@ -61,10 +61,10 @@ private:
   MonitorElement* hFcharge;
   MonitorElement* hFsizex;
   MonitorElement* hFsizey;
-  MonitorElement* hFposXYD[2][3];
-  MonitorElement* hFchargeD[2][3];
-  MonitorElement* hFsizexD[2][3];
-  MonitorElement* hFsizeyD[2][3];
+  MonitorElement* hFposXYD[2][12];
+  MonitorElement* hFchargeD[2][12];
+  MonitorElement* hFsizexD[2][12];
+  MonitorElement* hFsizeyD[2][12];
 };
 
 //
