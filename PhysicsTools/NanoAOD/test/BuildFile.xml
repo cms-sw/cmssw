@@ -1,9 +1,0 @@
-<export>
-</export>
-<environment>
-  <bin file="runtestPhysicsToolsNanoAOD.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/NanoAOD/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
