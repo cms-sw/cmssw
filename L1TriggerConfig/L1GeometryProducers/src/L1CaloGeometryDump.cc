@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -40,17 +40,15 @@
 // class decleration
 //
 
-class L1CaloGeometryDump : public edm::EDAnalyzer {
+class L1CaloGeometryDump : public edm::global::EDAnalyzer<> {
 public:
   explicit L1CaloGeometryDump(const edm::ParameterSet &);
-  ~L1CaloGeometryDump() override;
 
 private:
-  void beginJob() override;
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
+  void analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> geomToken_;
 };
 
 //
@@ -64,15 +62,8 @@ private:
 //
 // constructors and destructor
 //
-L1CaloGeometryDump::L1CaloGeometryDump(const edm::ParameterSet &iConfig)
-
-{
+L1CaloGeometryDump::L1CaloGeometryDump(const edm::ParameterSet &iConfig) : geomToken_(esConsumes()) {
   // now do what ever initialization is needed
-}
-
-L1CaloGeometryDump::~L1CaloGeometryDump() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -80,22 +71,9 @@ L1CaloGeometryDump::~L1CaloGeometryDump() {
 //
 
 // ------------ method called to for each event  ------------
-void L1CaloGeometryDump::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  using namespace edm;
-
-  ESHandle<L1CaloGeometry> pGeom;
-  iSetup.get<L1CaloGeometryRecord>().get(pGeom);
-
-  LogDebug("L1CaloGeometryDump") << *pGeom << std::endl;
+void L1CaloGeometryDump::analyze(edm::StreamID, const edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+  LogDebug("L1CaloGeometryDump") << iSetup.getData(geomToken_) << std::endl;
 }
-
-// ------------ method called once each job just before starting event loop
-// ------------
-void L1CaloGeometryDump::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void L1CaloGeometryDump::endJob() {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(L1CaloGeometryDump);
