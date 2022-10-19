@@ -160,11 +160,11 @@ namespace mkfit {
     // Hack, get the tracks out.
     ev.candidateTracks_ = builder.ref_tracks();
 
-    // For best hit, the candidateTracks_ vector is the direct input to the backward fit so only need to do find_duplicates once
+    // For best hit, the candidateTracks_ vector is the direct input to the backward fit so only need to do clean_duplicates once
     if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
       //Mark tracks as duplicates; if within CMSSW, remove duplicate tracks before backward fit
       // CCCC if (Config::removeDuplicates) {
-      // CCCC   StdSeq::find_duplicates(ev.candidateTracks_);
+      // CCCC   StdSeq::clean_duplicates(ev.candidateTracks_);
       // CCCC }
     }
 

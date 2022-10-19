@@ -28,9 +28,9 @@ namespace mkfit {
 
     void remove_duplicates(TrackVec &tracks);
 
-    void find_duplicates(TrackVec &tracks, const IterationConfig &itconf);
-    void find_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf);
-    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf);
+    void clean_duplicates(TrackVec &tracks, const IterationConfig &itconf);
+    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf);
+    void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf);
 
     // quality filter for n hits with seed hit "penalty" for strip-based seeds
     //   this implicitly separates triplets and doublet seeds with glued layers
@@ -124,8 +124,6 @@ namespace mkfit {
     bool qfilter_nan_n_silly(const TRACK &t) {
       return !(t.hasNanNSillyValues());
     }
-
-   // QQQQ to remove void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf);
 
   }  // namespace StdSeq
 
