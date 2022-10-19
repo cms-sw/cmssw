@@ -24,17 +24,13 @@ namespace mkfit {
     void cmssw_Map_TrackHitIndices(const EventOfHits &eoh, TrackVec &seeds);
     void cmssw_ReMap_TrackHitIndices(const EventOfHits &eoh, TrackVec &out_tracks);
 
-    int clean_cms_seedtracks_iter(TrackVec *seed_ptr, const IterationConfig &itrcfg, const BeamSpot &bspot);
+    int clean_cms_seedtracks_iter(TrackVec &seeds, const IterationConfig &itrcfg, const BeamSpot &bspot);
 
-    void find_duplicates(TrackVec &tracks);
     void remove_duplicates(TrackVec &tracks);
 
-    void find_duplicates_sharedhits(TrackVec &tracks, const float fraction);
-    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks,
-                                              const float fraction,
-                                              const float drth_central,
-                                              const float drth_obarrel,
-                                              const float drth_forward);
+    void find_duplicates(TrackVec &tracks, const IterationConfig &itconf);
+    void find_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf);
+    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf);
 
     // quality filter for n hits with seed hit "penalty" for strip-based seeds
     //   this implicitly separates triplets and doublet seeds with glued layers
@@ -129,7 +125,7 @@ namespace mkfit {
       return !(t.hasNanNSillyValues());
     }
 
-    void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf);
+   // QQQQ to remove void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf);
 
   }  // namespace StdSeq
 

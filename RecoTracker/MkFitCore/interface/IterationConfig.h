@@ -162,8 +162,7 @@ namespace mkfit {
     int m_track_algorithm = -1;
 
     bool m_requires_seed_hit_sorting = false;
-    bool m_requires_quality_filter = false;
-    bool m_requires_dupclean_tight = false;
+    bool m_requires_quality_filter = false; // MT QQQQ To be removed once filters are converted
 
     bool m_backward_search = false;
     bool m_backward_drop_seed_hits = false;
@@ -230,17 +229,10 @@ namespace mkfit {
       m_track_algorithm = trk_alg;
     }
 
-    void set_qf_flags() {
-      m_requires_seed_hit_sorting = true;
-      m_requires_quality_filter = true;
-    }
-
     void set_qf_params(int minHits, float sharedFrac) {
       m_params.minHitsQF = minHits;
       m_params.fracSharedHits = sharedFrac;
     }
-
-    void set_dupclean_flag() { m_requires_dupclean_tight = true; }
 
     void set_dupl_params(float sharedFrac, float drthCentral, float drthObarrel, float drthForward) {
       m_params.fracSharedHits = sharedFrac;

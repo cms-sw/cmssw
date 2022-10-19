@@ -42,11 +42,11 @@ namespace mkfit {
 
     builder.begin_event(&job, nullptr, __func__);
 
-    // Seed cleaning not done on pixelLess / tobTec iters
-    do_seed_clean = do_seed_clean && itconf.m_requires_dupclean_tight;
+    // Seed cleaning not done on all iterations.
+    do_seed_clean = do_seed_clean && itconf.m_seed_cleaner;
 
     if (do_seed_clean)
-      StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
+      itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
 
     // Check nans in seeds -- this should not be needed when Slava fixes
     // the track parameter coordinate transformation.
@@ -103,8 +103,8 @@ namespace mkfit {
 
     builder.export_best_comb_cands(out_tracks, true);
 
-    if (do_remove_duplicates) {
-      StdSeq::find_and_remove_duplicates(out_tracks, itconf);
+    if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
+      itconf.m_duplicate_cleaner(out_tracks, itconf);
     }
 
     builder.end_event();
