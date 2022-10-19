@@ -232,12 +232,15 @@ std::shared_ptr<HLTriggerJSONMonitoringData::run> HLTriggerJSONMonitoring::globa
     for (auto i = 0u; i < triggersSize; ++i) {
       rundata->posL1s[i] = -1;
       rundata->posPre[i] = -1;
-      auto const& moduleLabels = rundata->hltConfig.moduleLabels(i);
+      auto const trigNameIndx = rundata->indicesOfTriggerPaths[i];
+      auto const& moduleLabels = rundata->hltConfig.moduleLabels(trigNameIndx);
       for (auto j = 0u; j < moduleLabels.size(); ++j) {
-        auto const& label = rundata->hltConfig.moduleType(moduleLabels[j]);
-        if (label == "HLTL1TSeed")
+        auto const& moduleLabel = moduleLabels[j];
+        auto const& moduleType = rundata->hltConfig.moduleType(moduleLabel);
+        //the logic here is that it finds the first non ignored HLTL1TSeed module, ignored modules have - at the start of their name
+        if (rundata->posL1s[i] == -1 && moduleLabel.rfind('-', 0) != 0 && moduleType == "HLTL1TSeed") {
           rundata->posL1s[i] = j;
-        else if (label == "HLTPrescaler")
+        } else if (moduleType == "HLTPrescaler")
           rundata->posPre[i] = j;
       }
     }
