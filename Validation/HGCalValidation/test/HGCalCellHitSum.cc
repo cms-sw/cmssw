@@ -83,8 +83,7 @@ public:
     //v15 format : layer, u, v, type ; where type = 0 (partial wafer) and 1 (full wafer)
     //v16 format : index, layer, u, v, prop, thickness, cuttype, orientation ; where cuttype = "full" for full wafers and all others are partial wafers
     //v17 format : index, layer, u, v, prop, thickness, cuttype, orientation, cassette ; where cuttype = "full" for full wafers and all others are partial wafers
-    int layer, u, v, type; 
-    
+    int layer, u, v, type;
   };
 
   struct hitsinfo {
@@ -118,7 +117,7 @@ private:
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   const std::string layers_;
-  
+
   TH1D *hCharge;
   TH1D *hChargeLowELoss;
 
@@ -228,7 +227,7 @@ private:
   std::vector<TH2D *> hEPFailhitsCN1;
   std::vector<TH2D *> hEPFailhitsCK1;
   std::vector<TH2D *> hEPFailhitsB1;
-  
+
   std::vector<TH1D *> hELossLayerF0;
   std::vector<TH1D *> hELossLayerCN0;
   std::vector<TH1D *> hELossLayerCK0;
@@ -246,7 +245,6 @@ private:
   std::vector<TH2D *> hNHxXYhitsF;
   std::vector<TH2D *> hNHxXYhitsCN;
   std::vector<TH2D *> hNHxXYhitsCK;
-
 
   // For rechittool z positions. The 0 and 1 are for -ve and +ve, respectively.
   std::vector<TGraph *> grXYhitsF0;
@@ -346,9 +344,8 @@ private:
   TH1D *hDiffZ;
 
   TH1D *hCellThickness;
-  
+
   std::vector<Int_t> layerList;
-  
 
   hgcal::RecHitTools rhtools_;
   std::vector<waferinfo> winfo;
@@ -372,49 +369,47 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   edm::LogVerbatim("ValidHGCal") << "HGCalCellHitSum::Initialize for " << name_ << " using " << geometryFileName_
                                  << " and collections for simTrack:" << iConfig.getParameter<edm::InputTag>("simtrack")
                                  << " and for hits " << iConfig.getParameter<edm::InputTag>("simhits")
-				 << " and for layers " << layers_;
+                                 << " and for layers " << layers_;
 
   layerList.clear();
-  
-  if(layers_.find("-")!=std::string::npos){
-    
-    std::vector <std::string> tokens;
+
+  if (layers_.find("-") != std::string::npos) {
+    std::vector<std::string> tokens;
     std::stringstream check1(layers_);
     std::string intermediate;
-    while(getline(check1, intermediate, '-'))
+    while (getline(check1, intermediate, '-'))
       tokens.push_back(intermediate);
-    int minLayer = (stoi(tokens[0])<1)? 1 : stoi(tokens[0]) ;
-    int maxLayer = (stoi(tokens[1])>47)? 47 : stoi(tokens[1]) ;
-    for(int i = minLayer; i <= maxLayer; i++){
+    int minLayer = (stoi(tokens[0]) < 1) ? 1 : stoi(tokens[0]);
+    int maxLayer = (stoi(tokens[1]) > 47) ? 47 : stoi(tokens[1]);
+    for (int i = minLayer; i <= maxLayer; i++) {
       layerList.push_back(i);
       //std::cout << tokens[i] << '\n';
     }
     tokens.clear();
 
-  }else if(layers_.find(",")!=std::string::npos){
-
-    std::vector <std::string> tokens;
+  } else if (layers_.find(",") != std::string::npos) {
+    std::vector<std::string> tokens;
     std::stringstream check1(layers_);
     std::string intermediate;
-    while(getline(check1, intermediate, ','))
+    while (getline(check1, intermediate, ','))
       tokens.push_back(intermediate);
-    for(unsigned int i = 0; i < tokens.size(); i++){
-      if(stoi(tokens[i])>=1 and stoi(tokens[i])<=47)
-	layerList.push_back(stoi(tokens[i]));
+    for (unsigned int i = 0; i < tokens.size(); i++) {
+      if (stoi(tokens[i]) >= 1 and stoi(tokens[i]) <= 47)
+        layerList.push_back(stoi(tokens[i]));
       //std::cout << tokens[i] << '\n';
     }
     tokens.clear();
-    
-  }else{
-    if(stoi(layers_)>=1 and stoi(layers_)<=47)
+
+  } else {
+    if (stoi(layers_) >= 1 and stoi(layers_) <= 47)
       layerList.push_back(stoi(layers_));
   }
-  
+
   // for(unsigned int i = 0; i < layerList.size(); i++){
   //   std::cout << layerList[i] << "," ;
   // }
   // std::cout << std::endl;
-  
+
   edm::Service<TFileService> fs;
 
   hCharge = fs->make<TH1D>("charge", "Charges", 200, -20, 20);
@@ -455,7 +450,8 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   hELossCSinBunchHEFF = fs->make<TH1D>("hELossCSinBunchHEFF", "hELossCSinBunchHEFF", 1000, 0., 1000.);
   hELossCSinBunchHEFCN = fs->make<TH1D>("hELossCSinBunchHEFCN", "hELossCSinBunchHEFCN", 1000, 0., 1000.);
   hELossCSinBunchHEFCK = fs->make<TH1D>("hELossCSinBunchHEFCK", "hELossCSinBunchHEFCK", 1000, 0., 1000.);
-  hELossCSinBunchHEFCNFiltered = fs->make<TH1D>("hELossCSinBunchHEFCNFiltered", "hELossCSinBunchHEFCNFiltered", 1000, 0., 1000.);
+  hELossCSinBunchHEFCNFiltered =
+      fs->make<TH1D>("hELossCSinBunchHEFCNFiltered", "hELossCSinBunchHEFCNFiltered", 1000, 0., 1000.);
   hELossCSinBunchHEFCNNoise = fs->make<TH1D>("hELossCSinBunchHEFCNNoise", "hELossCSinBunchHEFCNNoise", 1000, 0., 1000.);
 
   hELossCSmissedEE = fs->make<TH1D>("hELossCSmissedEE", "hELossCSmissedEE", 1000, 0., 1000.);
@@ -483,123 +479,464 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   hNHxELossCSMaxF = fs->make<TH1D>("hNHxELossCSMaxF", "hNHxELossCSMaxF", 1000, 0., 1000.);
   hNHxELossCSMaxCN = fs->make<TH1D>("hNHxELossCSMaxCN", "hNHxELossCSMaxCN", 1000, 0., 1000.);
   hNHxELossCSMaxCK = fs->make<TH1D>("hNHxELossCSMaxCK", "hNHxELossCSMaxCK", 1000, 0., 1000.);
-  
+
   for (unsigned int i = 0; i < layerList.size(); i++) {
-    hELCSMaxF.emplace_back(fs->make<TH1D>(Form("hELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hELCSMaxCN.emplace_back(fs->make<TH1D>(Form("hELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hELCSMaxCK.emplace_back(fs->make<TH1D>(Form("hELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hELCSMaxF.emplace_back(fs->make<TH1D>(
+        Form("hELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hELCSMaxCN.emplace_back(fs->make<TH1D>(
+        Form("hELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hELCSMaxCK.emplace_back(fs->make<TH1D>(
+        Form("hELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
   }
   for (unsigned int i = 0; i < layerList.size(); i++) {
-    hHxELCSMaxF.emplace_back(fs->make<TH1D>(Form("hHxELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hHxELCSMaxCN.emplace_back(fs->make<TH1D>(Form("hHxELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hHxELCSMaxCK.emplace_back(fs->make<TH1D>(Form("hHxELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hNHxELCSMaxF.emplace_back(fs->make<TH1D>(Form("hNHxELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hNHxELCSMaxCN.emplace_back(fs->make<TH1D>(Form("hNHxELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hNHxELCSMaxCK.emplace_back(fs->make<TH1D>(Form("hNHxELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
-    hELossDQMEqV.emplace_back(fs->make<TH1D>(Form("hELossDQMEqV_layer_%02d", layerList[i]), Form("hELossDQMEqV_layer_%02d", layerList[i]), 100, 0, 0.1));
-    hELossLayer.emplace_back(fs->make<TH1D>(Form("hELossLayer_%02d", layerList[i]), Form("hELossLayer_%02d", layerList[i]), 1000, 0., 1000.));
+    hHxELCSMaxF.emplace_back(fs->make<TH1D>(
+        Form("hHxELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hHxELCSMaxCN.emplace_back(fs->make<TH1D>(
+        Form("hHxELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hHxELCSMaxCK.emplace_back(fs->make<TH1D>(
+        Form("hHxELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hNHxELCSMaxF.emplace_back(fs->make<TH1D>(
+        Form("hNHxELCSMaxF_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hNHxELCSMaxCN.emplace_back(fs->make<TH1D>(
+        Form("hNHxELCSMaxCN_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hNHxELCSMaxCK.emplace_back(fs->make<TH1D>(
+        Form("hNHxELCSMaxCK_layer_%02d", layerList[i]), Form("Energy for layer %d", layerList[i]), 500, 0., 500.));
+    hELossDQMEqV.emplace_back(fs->make<TH1D>(
+        Form("hELossDQMEqV_layer_%02d", layerList[i]), Form("hELossDQMEqV_layer_%02d", layerList[i]), 100, 0, 0.1));
+    hELossLayer.emplace_back(fs->make<TH1D>(
+        Form("hELossLayer_%02d", layerList[i]), Form("hELossLayer_%02d", layerList[i]), 1000, 0., 1000.));
   }
   for (unsigned int i = 0; i < layerList.size(); i++) {
-    hXYhits.emplace_back(fs->make<TH2D>(Form("hXYhits_layer_%02d", layerList[i]), Form("Hits in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    
-    hXYhitsF0.emplace_back(fs->make<TH2D>(Form("hXYhitsF0_layer_%02d", layerList[i]), Form("HitsF0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYhitsCN0_layer_%02d", layerList[i]), Form("HitsCN0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYhitsCK0_layer_%02d", layerList[i]), Form("HitsCK0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsB0.emplace_back(fs->make<TH2D>(Form("hXYhitsB0_layer_%02d", layerList[i]), Form("HitsB0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsF1.emplace_back(fs->make<TH2D>(Form("hXYhitsF1_layer_%02d", layerList[i]), Form("HitsF1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYhitsCN1_layer_%02d", layerList[i]), Form("HitsCN1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYhitsCK1_layer_%02d", layerList[i]), Form("HitsCK1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsB1.emplace_back(fs->make<TH2D>(Form("hXYhitsB1_layer_%02d", layerList[i]), Form("HitsB1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hXYhits.emplace_back(fs->make<TH2D>(Form("hXYhits_layer_%02d", layerList[i]),
+                                        Form("Hits in XY for layer %d", layerList[i]),
+                                        600,
+                                        -300.,
+                                        300.,
+                                        600,
+                                        -300.,
+                                        300.));
 
-    hEPhitsF0.emplace_back(fs->make<TH2D>(Form("hEPhitsF0_layer_%02d", layerList[i]), Form("HitsF0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPhitsCN0_layer_%02d", layerList[i]), Form("HitsCN0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPhitsCK0_layer_%02d", layerList[i]), Form("HitsCK0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsB0.emplace_back(fs->make<TH2D>(Form("hEPhitsB0_layer_%02d", layerList[i]), Form("HitsB0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsF1.emplace_back(fs->make<TH2D>(Form("hEPhitsF1_layer_%02d", layerList[i]), Form("HitsF1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPhitsCN1_layer_%02d", layerList[i]), Form("HitsCN1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPhitsCK1_layer_%02d", layerList[i]), Form("HitsCK1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPhitsB1.emplace_back(fs->make<TH2D>(Form("hEPhitsB1_layer_%02d", layerList[i]), Form("HitsB1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hXYhitsF0.emplace_back(fs->make<TH2D>(Form("hXYhitsF0_layer_%02d", layerList[i]),
+                                          Form("HitsF0 in XY for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hXYhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYhitsCN0_layer_%02d", layerList[i]),
+                                           Form("HitsCN0 in XY for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hXYhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYhitsCK0_layer_%02d", layerList[i]),
+                                           Form("HitsCK0 in XY for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hXYhitsB0.emplace_back(fs->make<TH2D>(Form("hXYhitsB0_layer_%02d", layerList[i]),
+                                          Form("HitsB0 in XY for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hXYhitsF1.emplace_back(fs->make<TH2D>(Form("hXYhitsF1_layer_%02d", layerList[i]),
+                                          Form("HitsF1 in XY for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hXYhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYhitsCN1_layer_%02d", layerList[i]),
+                                           Form("HitsCN1 in XY for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hXYhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYhitsCK1_layer_%02d", layerList[i]),
+                                           Form("HitsCK1 in XY for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hXYhitsB1.emplace_back(fs->make<TH2D>(Form("hXYhitsB1_layer_%02d", layerList[i]),
+                                          Form("HitsB1 in XY for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
 
-    hXYFailhitsF0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF0_layer_%02d", layerList[i]), Form("FailhitsF0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN0_layer_%02d", layerList[i]), Form("FailhitsCN0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK0_layer_%02d", layerList[i]), Form("FailhitsCK0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsB0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB0_layer_%02d", layerList[i]), Form("FailhitsB0 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsF1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF1_layer_%02d", layerList[i]), Form("FailhitsF1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN1_layer_%02d", layerList[i]), Form("FailhitsCN1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK1_layer_%02d", layerList[i]), Form("FailhitsCK1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYFailhitsB1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB1_layer_%02d", layerList[i]), Form("FailhitsB1 in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hEPhitsF0.emplace_back(fs->make<TH2D>(Form("hEPhitsF0_layer_%02d", layerList[i]),
+                                          Form("HitsF0 in EP for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hEPhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPhitsCN0_layer_%02d", layerList[i]),
+                                           Form("HitsCN0 in EP for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hEPhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPhitsCK0_layer_%02d", layerList[i]),
+                                           Form("HitsCK0 in EP for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hEPhitsB0.emplace_back(fs->make<TH2D>(Form("hEPhitsB0_layer_%02d", layerList[i]),
+                                          Form("HitsB0 in EP for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hEPhitsF1.emplace_back(fs->make<TH2D>(Form("hEPhitsF1_layer_%02d", layerList[i]),
+                                          Form("HitsF1 in EP for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
+    hEPhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPhitsCN1_layer_%02d", layerList[i]),
+                                           Form("HitsCN1 in EP for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hEPhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPhitsCK1_layer_%02d", layerList[i]),
+                                           Form("HitsCK1 in EP for layer %d", layerList[i]),
+                                           600,
+                                           -300.,
+                                           300.,
+                                           600,
+                                           -300.,
+                                           300.));
+    hEPhitsB1.emplace_back(fs->make<TH2D>(Form("hEPhitsB1_layer_%02d", layerList[i]),
+                                          Form("HitsB1 in EP for layer %d", layerList[i]),
+                                          600,
+                                          -300.,
+                                          300.,
+                                          600,
+                                          -300.,
+                                          300.));
 
-    hEPFailhitsF0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF0_layer_%02d", layerList[i]), Form("FailhitsF0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN0_layer_%02d", layerList[i]), Form("FailhitsCN0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK0_layer_%02d", layerList[i]), Form("FailhitsCK0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsB0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB0_layer_%02d", layerList[i]), Form("FailhitsB0 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsF1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF1_layer_%02d", layerList[i]), Form("FailhitsF1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN1_layer_%02d", layerList[i]), Form("FailhitsCN1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK1_layer_%02d", layerList[i]), Form("FailhitsCK1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hEPFailhitsB1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB1_layer_%02d", layerList[i]), Form("FailhitsB1 in EP for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hXYFailhitsF0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF0_layer_%02d", layerList[i]),
+                                              Form("FailhitsF0 in XY for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hXYFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN0_layer_%02d", layerList[i]),
+                                               Form("FailhitsCN0 in XY for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hXYFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK0_layer_%02d", layerList[i]),
+                                               Form("FailhitsCK0 in XY for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hXYFailhitsB0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB0_layer_%02d", layerList[i]),
+                                              Form("FailhitsB0 in XY for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hXYFailhitsF1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF1_layer_%02d", layerList[i]),
+                                              Form("FailhitsF1 in XY for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hXYFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN1_layer_%02d", layerList[i]),
+                                               Form("FailhitsCN1 in XY for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hXYFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK1_layer_%02d", layerList[i]),
+                                               Form("FailhitsCK1 in XY for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hXYFailhitsB1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB1_layer_%02d", layerList[i]),
+                                              Form("FailhitsB1 in XY for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
 
-    hELossLayerF0.emplace_back(fs->make<TH1D>(Form("hELossLayerF0_layer_%02d", layerList[i]), Form("ELossF0 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerCN0.emplace_back(fs->make<TH1D>(Form("hELossLayerCN0_layer_%02d", layerList[i]), Form("ELossCN0 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerCK0.emplace_back(fs->make<TH1D>(Form("hELossLayerCK0_layer_%02d", layerList[i]), Form("ELossCK0 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerB0.emplace_back(fs->make<TH1D>(Form("hELossLayerB0_layer_%02d", layerList[i]), Form("ELossB0 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerF1.emplace_back(fs->make<TH1D>(Form("hELossLayerF1_layer_%02d", layerList[i]), Form("ELossF1 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerCN1.emplace_back(fs->make<TH1D>(Form("hELossLayerCN1_layer_%02d", layerList[i]), Form("ELossCN1 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerCK1.emplace_back(fs->make<TH1D>(Form("hELossLayerCK1_layer_%02d", layerList[i]), Form("ELossCK1 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
-    hELossLayerB1.emplace_back(fs->make<TH1D>(Form("hELossLayerB1_layer_%02d", layerList[i]), Form("ELossB1 in XY for layer %d", layerList[i]), 1000, 0., 1000.));
+    hEPFailhitsF0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF0_layer_%02d", layerList[i]),
+                                              Form("FailhitsF0 in EP for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hEPFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN0_layer_%02d", layerList[i]),
+                                               Form("FailhitsCN0 in EP for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hEPFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK0_layer_%02d", layerList[i]),
+                                               Form("FailhitsCK0 in EP for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hEPFailhitsB0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB0_layer_%02d", layerList[i]),
+                                              Form("FailhitsB0 in EP for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hEPFailhitsF1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF1_layer_%02d", layerList[i]),
+                                              Form("FailhitsF1 in EP for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
+    hEPFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN1_layer_%02d", layerList[i]),
+                                               Form("FailhitsCN1 in EP for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hEPFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK1_layer_%02d", layerList[i]),
+                                               Form("FailhitsCK1 in EP for layer %d", layerList[i]),
+                                               600,
+                                               -300.,
+                                               300.,
+                                               600,
+                                               -300.,
+                                               300.));
+    hEPFailhitsB1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB1_layer_%02d", layerList[i]),
+                                              Form("FailhitsB1 in EP for layer %d", layerList[i]),
+                                              600,
+                                              -300.,
+                                              300.,
+                                              600,
+                                              -300.,
+                                              300.));
 
-    hXYhitsLELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCN_layer_%02d", layerList[i]), Form("LELCN in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsHELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCN_layer_%02d", layerList[i]), Form("HELCN in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsLELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCK_layer_%02d", layerList[i]), Form("LELCK in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
-    hXYhitsHELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCK_layer_%02d", layerList[i]), Form("HELCK in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hELossLayerF0.emplace_back(fs->make<TH1D>(Form("hELossLayerF0_layer_%02d", layerList[i]),
+                                              Form("ELossF0 in XY for layer %d", layerList[i]),
+                                              1000,
+                                              0.,
+                                              1000.));
+    hELossLayerCN0.emplace_back(fs->make<TH1D>(Form("hELossLayerCN0_layer_%02d", layerList[i]),
+                                               Form("ELossCN0 in XY for layer %d", layerList[i]),
+                                               1000,
+                                               0.,
+                                               1000.));
+    hELossLayerCK0.emplace_back(fs->make<TH1D>(Form("hELossLayerCK0_layer_%02d", layerList[i]),
+                                               Form("ELossCK0 in XY for layer %d", layerList[i]),
+                                               1000,
+                                               0.,
+                                               1000.));
+    hELossLayerB0.emplace_back(fs->make<TH1D>(Form("hELossLayerB0_layer_%02d", layerList[i]),
+                                              Form("ELossB0 in XY for layer %d", layerList[i]),
+                                              1000,
+                                              0.,
+                                              1000.));
+    hELossLayerF1.emplace_back(fs->make<TH1D>(Form("hELossLayerF1_layer_%02d", layerList[i]),
+                                              Form("ELossF1 in XY for layer %d", layerList[i]),
+                                              1000,
+                                              0.,
+                                              1000.));
+    hELossLayerCN1.emplace_back(fs->make<TH1D>(Form("hELossLayerCN1_layer_%02d", layerList[i]),
+                                               Form("ELossCN1 in XY for layer %d", layerList[i]),
+                                               1000,
+                                               0.,
+                                               1000.));
+    hELossLayerCK1.emplace_back(fs->make<TH1D>(Form("hELossLayerCK1_layer_%02d", layerList[i]),
+                                               Form("ELossCK1 in XY for layer %d", layerList[i]),
+                                               1000,
+                                               0.,
+                                               1000.));
+    hELossLayerB1.emplace_back(fs->make<TH1D>(Form("hELossLayerB1_layer_%02d", layerList[i]),
+                                              Form("ELossB1 in XY for layer %d", layerList[i]),
+                                              1000,
+                                              0.,
+                                              1000.));
+
+    hXYhitsLELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCN_layer_%02d", layerList[i]),
+                                             Form("LELCN in XY for layer %d", layerList[i]),
+                                             600,
+                                             -300.,
+                                             300.,
+                                             600,
+                                             -300.,
+                                             300.));
+    hXYhitsHELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCN_layer_%02d", layerList[i]),
+                                             Form("HELCN in XY for layer %d", layerList[i]),
+                                             600,
+                                             -300.,
+                                             300.,
+                                             600,
+                                             -300.,
+                                             300.));
+    hXYhitsLELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCK_layer_%02d", layerList[i]),
+                                             Form("LELCK in XY for layer %d", layerList[i]),
+                                             600,
+                                             -300.,
+                                             300.,
+                                             600,
+                                             -300.,
+                                             300.));
+    hXYhitsHELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCK_layer_%02d", layerList[i]),
+                                             Form("HELCK in XY for layer %d", layerList[i]),
+                                             600,
+                                             -300.,
+                                             300.,
+                                             600,
+                                             -300.,
+                                             300.));
   }
+
   for (unsigned int i = 0; i < layerList.size(); i++) {
     grXYhitsF0.emplace_back(fs->make<TGraph>(0));
-    grXYhitsF0[i]->SetNameTitle(Form("grXYhitsF0_layer_%02d", layerList[i]), Form("HitsF0 in XY for layer %d", layerList[i]));
+    grXYhitsF0[i]->SetNameTitle(Form("grXYhitsF0_layer_%02d", layerList[i]),
+                                Form("HitsF0 in XY for layer %d", layerList[i]));
     grXYhitsCN0.emplace_back(fs->make<TGraph>(0));
-    grXYhitsCN0[i]->SetNameTitle(Form("grXYhitsCN0_layer_%02d", layerList[i]), Form("HitsCN0 in XY for layer %d", layerList[i]));
+    grXYhitsCN0[i]->SetNameTitle(Form("grXYhitsCN0_layer_%02d", layerList[i]),
+                                 Form("HitsCN0 in XY for layer %d", layerList[i]));
     grXYhitsCK0.emplace_back(fs->make<TGraph>(0));
-    grXYhitsCK0[i]->SetNameTitle(Form("grXYhitsCK0_layer_%02d", layerList[i]), Form("HitsCK0 in XY for layer %d", layerList[i]));
+    grXYhitsCK0[i]->SetNameTitle(Form("grXYhitsCK0_layer_%02d", layerList[i]),
+                                 Form("HitsCK0 in XY for layer %d", layerList[i]));
     grXYhitsB0.emplace_back(fs->make<TGraph>(0));
-    grXYhitsB0[i]->SetNameTitle(Form("grXYhitsB0_layer_%02d", layerList[i]), Form("HitsB0 in XY for layer %d", layerList[i]));
+    grXYhitsB0[i]->SetNameTitle(Form("grXYhitsB0_layer_%02d", layerList[i]),
+                                Form("HitsB0 in XY for layer %d", layerList[i]));
     grXYhitsAR0.emplace_back(fs->make<TGraph>(0));
-    grXYhitsAR0[i]->SetNameTitle(Form("grXYhitsAR0_layer_%02d", layerList[i]), Form("HitsAR0 in XY for layer %d", layerList[i]));
-    ixyF0[i] = 0; ixyCN0[i] = 0; ixyCK0[i] = 0; ixyB0[i] = 0; ixyAR0[i] = 0;
-    
+    grXYhitsAR0[i]->SetNameTitle(Form("grXYhitsAR0_layer_%02d", layerList[i]),
+                                 Form("HitsAR0 in XY for layer %d", layerList[i]));
+    ixyF0[i] = 0;
+    ixyCN0[i] = 0;
+    ixyCK0[i] = 0;
+    ixyB0[i] = 0;
+    ixyAR0[i] = 0;
+
     grXYhitsF1.emplace_back(fs->make<TGraph>(0));
-    grXYhitsF1[i]->SetNameTitle(Form("grXYhitsF1_layer_%02d", layerList[i]), Form("HitsF1 in XY for layer %d", layerList[i]));
+    grXYhitsF1[i]->SetNameTitle(Form("grXYhitsF1_layer_%02d", layerList[i]),
+                                Form("HitsF1 in XY for layer %d", layerList[i]));
     grXYhitsCN1.emplace_back(fs->make<TGraph>(0));
-    grXYhitsCN1[i]->SetNameTitle(Form("grXYhitsCN1_layer_%02d", layerList[i]), Form("HitsCN1 in XY for layer %d", layerList[i]));
+    grXYhitsCN1[i]->SetNameTitle(Form("grXYhitsCN1_layer_%02d", layerList[i]),
+                                 Form("HitsCN1 in XY for layer %d", layerList[i]));
     grXYhitsCK1.emplace_back(fs->make<TGraph>(0));
-    grXYhitsCK1[i]->SetNameTitle(Form("grXYhitsCK1_layer_%02d", layerList[i]), Form("HitsCK1 in XY for layer %d", layerList[i]));
+    grXYhitsCK1[i]->SetNameTitle(Form("grXYhitsCK1_layer_%02d", layerList[i]),
+                                 Form("HitsCK1 in XY for layer %d", layerList[i]));
     grXYhitsB1.emplace_back(fs->make<TGraph>(0));
-    grXYhitsB1[i]->SetNameTitle(Form("grXYhitsB1_layer_%02d", layerList[i]), Form("HitsB1 in XY for layer %d", layerList[i]));
+    grXYhitsB1[i]->SetNameTitle(Form("grXYhitsB1_layer_%02d", layerList[i]),
+                                Form("HitsB1 in XY for layer %d", layerList[i]));
     grXYhitsAR1.emplace_back(fs->make<TGraph>(0));
-    grXYhitsAR1[i]->SetNameTitle(Form("grXYhitsAR1_layer_%02d", layerList[i]), Form("HitsAR1 in XY for layer %d", layerList[i]));
-    ixyF1[i] = 0; ixyCN1[i] = 0; ixyCK1[i] = 0; ixyB1[i] = 0; ixyAR1[i] = 0;
-    
+    grXYhitsAR1[i]->SetNameTitle(Form("grXYhitsAR1_layer_%02d", layerList[i]),
+                                 Form("HitsAR1 in XY for layer %d", layerList[i]));
+    ixyF1[i] = 0;
+    ixyCN1[i] = 0;
+    ixyCK1[i] = 0;
+    ixyB1[i] = 0;
+    ixyAR1[i] = 0;
+
     grEtaPhihitsF0.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsF0[i]->SetNameTitle(Form("grEtaPhihitsF0_layer_%02d", layerList[i]), Form("HitsF0 in XY for layer %d", layerList[i]));
+    grEtaPhihitsF0[i]->SetNameTitle(Form("grEtaPhihitsF0_layer_%02d", layerList[i]),
+                                    Form("HitsF0 in XY for layer %d", layerList[i]));
     grEtaPhihitsCN0.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsCN0[i]->SetNameTitle(Form("grEtaPhihitsCN0_layer_%02d", layerList[i]), Form("HitsCN0 in XY for layer %d", layerList[i]));
+    grEtaPhihitsCN0[i]->SetNameTitle(Form("grEtaPhihitsCN0_layer_%02d", layerList[i]),
+                                     Form("HitsCN0 in XY for layer %d", layerList[i]));
     grEtaPhihitsCK0.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsCK0[i]->SetNameTitle(Form("grEtaPhihitsCK0_layer_%02d", layerList[i]), Form("HitsCK0 in XY for layer %d", layerList[i]));
+    grEtaPhihitsCK0[i]->SetNameTitle(Form("grEtaPhihitsCK0_layer_%02d", layerList[i]),
+                                     Form("HitsCK0 in XY for layer %d", layerList[i]));
     grEtaPhihitsB0.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsB0[i]->SetNameTitle(Form("grEtaPhihitsB0_layer_%02d", layerList[i]), Form("HitsB0 in XY for layer %d", layerList[i]));
-    iepF0[i] = 0; iepCN0[i] = 0; iepCK0[i] = 0; iepB0[i] = 0;
+    grEtaPhihitsB0[i]->SetNameTitle(Form("grEtaPhihitsB0_layer_%02d", layerList[i]),
+                                    Form("HitsB0 in XY for layer %d", layerList[i]));
+    iepF0[i] = 0;
+    iepCN0[i] = 0;
+    iepCK0[i] = 0;
+    iepB0[i] = 0;
 
     grEtaPhihitsF1.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsF1[i]->SetNameTitle(Form("grEtaPhihitsF1_layer_%02d", layerList[i]), Form("HitsF1 in XY for layer %d", layerList[i]));
+    grEtaPhihitsF1[i]->SetNameTitle(Form("grEtaPhihitsF1_layer_%02d", layerList[i]),
+                                    Form("HitsF1 in XY for layer %d", layerList[i]));
     grEtaPhihitsCN1.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsCN1[i]->SetNameTitle(Form("grEtaPhihitsCN1_layer_%02d", layerList[i]), Form("HitsCN1 in XY for layer %d", layerList[i]));
+    grEtaPhihitsCN1[i]->SetNameTitle(Form("grEtaPhihitsCN1_layer_%02d", layerList[i]),
+                                     Form("HitsCN1 in XY for layer %d", layerList[i]));
     grEtaPhihitsCK1.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsCK1[i]->SetNameTitle(Form("grEtaPhihitsCK1_layer_%02d", layerList[i]), Form("HitsCK1 in XY for layer %d", layerList[i]));
+    grEtaPhihitsCK1[i]->SetNameTitle(Form("grEtaPhihitsCK1_layer_%02d", layerList[i]),
+                                     Form("HitsCK1 in XY for layer %d", layerList[i]));
     grEtaPhihitsB1.emplace_back(fs->make<TGraph>(0));
-    grEtaPhihitsB1[i]->SetNameTitle(Form("grEtaPhihitsB1_layer_%02d", layerList[i]), Form("HitsB1 in XY for layer %d", layerList[i]));
-    iepF1[i] = 0; iepCN1[i] = 0; iepCK1[i] = 0; iepB1[i] = 0;
-
+    grEtaPhihitsB1[i]->SetNameTitle(Form("grEtaPhihitsB1_layer_%02d", layerList[i]),
+                                    Form("HitsB1 in XY for layer %d", layerList[i]));
+    iepF1[i] = 0;
+    iepCN1[i] = 0;
+    iepCK1[i] = 0;
+    iepB1[i] = 0;
   }
   for (unsigned int i = 0; i < layerList.size(); i++) {
-    hNHxXYhitsF.emplace_back(fs->make<TH2D>(Form("hNHxXYhitsF_layer_%02d", layerList[i]), Form("NHx HitsF in XY for layer %d", layerList[i]), 600, -300., 300., 600, -300., 300.));
+    hNHxXYhitsF.emplace_back(fs->make<TH2D>(Form("hNHxXYhitsF_layer_%02d", layerList[i]),
+                                            Form("NHx HitsF in XY for layer %d", layerList[i]),
+                                            600,
+                                            -300.,
+                                            300.,
+                                            600,
+                                            -300.,
+                                            300.));
     hNHxXYhitsCN.emplace_back(fs->make<TH2D>(Form("hNHxXYhitsCN_layer_%02d", layerList[i]),
                                              Form("NHx HitsCN in XY for layer %d", layerList[i]),
                                              600,
@@ -626,7 +963,8 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   hYZLowELosshitsF = fs->make<TH2D>("hYZLowELosshitsF", "hYZLowELosshitsF", 250, 300., 550., 300, 0., 300.);
   hYZLowELosshitsCN = fs->make<TH2D>("hYZLowELosshitsCN", "hYZLowELosshitsCN", 250, 300., 550., 300, 0., 300.);
   hYZLowELosshitsCK = fs->make<TH2D>("hYZLowELosshitsCK", "hYZLowELosshitsCK", 250, 300., 550., 300, 0., 300.);
-  hYZLLowELosshitsHEFCN = fs->make<TH2D>("hYZLLowELosshitsHEFCN", "hYZLLowELosshitsHEFCN", 600, -50., 550., 350, -50., 300.);
+  hYZLLowELosshitsHEFCN =
+      fs->make<TH2D>("hYZLLowELosshitsHEFCN", "hYZLLowELosshitsHEFCN", 600, -50., 550., 350, -50., 300.);
 
   hXLowELosshitsHEFCN = fs->make<TH1D>("hXLowELosshitsHEFCN", "hXLowELosshitsHEFCN", 600, -300., 300.);
   hYLowELosshitsHEFCN = fs->make<TH1D>("hYLowELosshitsHEFCN", "hYLowELosshitsHEFCN", 600, -300., 300.);
@@ -652,18 +990,29 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   hRHTYZhitsEECN = fs->make<TH2D>("hRHTYZhitsEECN", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
   hRHTYZhitsEECK = fs->make<TH2D>("hRHTYZhitsEECK", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
   hRHTYZhitsHEFF = fs->make<TH2D>("hRHTYZhitsHEFF", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTYZhitsHEFCN =fs->make<TH2D>("hRHTYZhitsHEFCN", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTYZhitsHEFCK =fs->make<TH2D>("hRHTYZhitsHEFCK", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTYZhitsHEFCN =
+      fs->make<TH2D>("hRHTYZhitsHEFCN", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTYZhitsHEFCK =
+      fs->make<TH2D>("hRHTYZhitsHEFCK", "Hits in YZ plane for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
 
-  hRHTRZhitsEE =fs->make<TH2D>("hRHTRZhitsEE", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsHEF =fs->make<TH2D>("hRHTRZhitsHEF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsHEB =fs->make<TH2D>("hRHTRZhitsHEB", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsEEF =fs->make<TH2D>("hRHTRZhitsEEF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsEECN =fs->make<TH2D>("hRHTRZhitsEECN", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsEECK =fs->make<TH2D>("hRHTRZhitsEECK", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsHEFF =fs->make<TH2D>("hRHTRZhitsHEFF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsHEFCN =fs->make<TH2D>("hRHTRZhitsHEFCN", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
-  hRHTRZhitsHEFCK =fs->make<TH2D>("hRHTRZhitsHEFCK", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsEE =
+      fs->make<TH2D>("hRHTRZhitsEE", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsHEF =
+      fs->make<TH2D>("hRHTRZhitsHEF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsHEB =
+      fs->make<TH2D>("hRHTRZhitsHEB", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsEEF =
+      fs->make<TH2D>("hRHTRZhitsEEF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsEECN =
+      fs->make<TH2D>("hRHTRZhitsEECN", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsEECK =
+      fs->make<TH2D>("hRHTRZhitsEECK", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsHEFF =
+      fs->make<TH2D>("hRHTRZhitsHEFF", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsHEFCN =
+      fs->make<TH2D>("hRHTRZhitsHEFCN", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
+  hRHTRZhitsHEFCK =
+      fs->make<TH2D>("hRHTRZhitsHEFCK", "Hits for R_{xy} vs z-axis for |X| < 20 cm", 250, 300., 550., 300, 0., 300.);
 
   hRHTGlbRZhitsF = fs->make<TH2D>("hRHTGlbRZhitsF", "Hits for R_{xy} vs z-axis", 250, 300., 550., 300, 0., 300.);
   hRHTGlbRZhitsCN = fs->make<TH2D>("hRHTGlbRZhitsCN", "Hits for R_{xy} vs z-axis", 250, 300., 550., 300, 0., 300.);
@@ -690,7 +1039,6 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
 
 // ------------ method called for each event  ------------
 void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-
   //================================================================================================================
   //In case of first event read the csv file prepared from sensor/scintillator layout file (aka flatfile)
   //================================================================================================================
@@ -702,49 +1050,48 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     //v16 format : index, layer, u, v, prop, thickness, cuttype, orientation ; where cuttype = "full" for full wafers and all others are partial wafers
     //v17 format : index, layer, u, v, prop, thickness, cuttype, orientation, cassette ; where cuttype = "full" for full wafers and all others are partial wafers
     int hgcal_geom_version = 17;
-    if(fileName.find("v15.csv")!=std::string::npos)
+    if (fileName.find("v15.csv") != std::string::npos)
       hgcal_geom_version = 15;
-    else if(fileName.find("v16.csv")!=std::string::npos)
+    else if (fileName.find("v16.csv") != std::string::npos)
       hgcal_geom_version = 16;
-    else if(fileName.find("v17.csv")!=std::string::npos)
+    else if (fileName.find("v17.csv") != std::string::npos)
       hgcal_geom_version = 17;
-    
+
     std::string s;
     waferinfo wafer;
     std::string wcuttype;
-    std::vector <std::string> tokens;    
+    std::vector<std::string> tokens;
     while (std::getline(fin, s)) {
       //std::cout << "line " << s.data() << std::endl;
-      if(hgcal_geom_version==15){
-	sscanf(s.c_str(), "%d,%d,%d,%d", &wafer.layer, &wafer.u, &wafer.v, &wafer.type);
-      }else if(hgcal_geom_version==16 or hgcal_geom_version==17){
-	
-	tokens.clear();
-	std::stringstream check1(s);	
-	std::string intermediate;
-	while(getline(check1, intermediate, ','))
-	  tokens.push_back(intermediate);
-	
-	//Useful variables
-	wafer.layer = stoi(tokens[1]);
-	wafer.u	    = stoi(tokens[2]);
-	wafer.v	    = stoi(tokens[3]);
-	wcuttype    = tokens[6] ;
+      if (hgcal_geom_version == 15) {
+        sscanf(s.c_str(), "%d,%d,%d,%d", &wafer.layer, &wafer.u, &wafer.v, &wafer.type);
+      } else if (hgcal_geom_version == 16 or hgcal_geom_version == 17) {
+        tokens.clear();
+        std::stringstream check1(s);
+        std::string intermediate;
+        while (getline(check1, intermediate, ','))
+          tokens.push_back(intermediate);
 
-	//Additional variables
-	//===============================================
-	// int windex			 = stoi(tokens[0]);
-	// int wprop			 = stoi(tokens[4]);
-	// std::string wthickness	 = tokens[5];
-	// int worient			 = stoi(tokens[7]);
-	// if(hgcal_geom_version==17)
-	//   int wcassette	 = stoi(tokens[8]);
-	//===============================================
+        //Useful variables
+        wafer.layer = stoi(tokens[1]);
+        wafer.u = stoi(tokens[2]);
+        wafer.v = stoi(tokens[3]);
+        wcuttype = tokens[6];
 
-	//std::cout<<"wcuttype : " << wcuttype << std::endl;
-	wafer.type = (wcuttype.find("full")!=std::string::npos) ? 1 : 0;
+        //Additional variables
+        //===============================================
+        // int windex			 = stoi(tokens[0]);
+        // int wprop			 = stoi(tokens[4]);
+        // std::string wthickness	 = tokens[5];
+        // int worient			 = stoi(tokens[7]);
+        // if(hgcal_geom_version==17)
+        //   int wcassette	 = stoi(tokens[8]);
+        //===============================================
+
+        //std::cout<<"wcuttype : " << wcuttype << std::endl;
+        wafer.type = (wcuttype.find("full") != std::string::npos) ? 1 : 0;
       }
-      //printf("%d | %d | %d | %d\n",wafer.layer,wafer.u,wafer.v,wafer.type);      
+      //printf("%d | %d | %d | %d\n",wafer.layer,wafer.u,wafer.v,wafer.type);
       winfo.push_back(wafer);
     }
     fin.close();
@@ -760,16 +1107,15 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   for (itTrack = simtrack->begin(); itTrack != simtrack->end(); ++itTrack) {
     int charge = itTrack->charge();
     hCharge->Fill(charge);
-    if (!itTrack->noGenpart()) { //negation of negation, yes, thats how we access the primary parent particles ;-)
+    if (!itTrack->noGenpart()) {  //negation of negation, yes, thats how we access the primary parent particles ;-)
       hPt->Fill(itTrack->momentum().pt());
       hEta->Fill(itTrack->momentum().eta());
       hPhi->Fill(itTrack->momentum().phi());
     }
     hPDG->Fill(itTrack->type());
-    
-    if (itTrack->noGenpart()) //secondary particles
-      hPtNoGen->Fill(itTrack->momentum().pt());
 
+    if (itTrack->noGenpart())  //secondary particles
+      hPtNoGen->Fill(itTrack->momentum().pt());
   }
   //================================================================================================================
 
@@ -792,7 +1138,6 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   unsigned int nofSiHits = 0;
   const edm::Handle<edm::PCaloHitContainer> &simhit = iEvent.getHandle(tSimCaloHitContainer);
   for (edm::PCaloHitContainer::const_iterator itHit = simhit->begin(); itHit != simhit->end(); ++itHit) {
-
     //==============================================================================================================
     // Fill the Eloss per hit basis separately for EE and HE silicons and finally for scintillators
     //==============================================================================================================
@@ -807,7 +1152,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
           hELossEECK->Fill(convertGeVToKeV(itHit->energy()));  //in keV
       }
-      
+
       if (name_ == "HGCalHESiliconSensitive") {
         hELossHEF->Fill(convertGeVToKeV(itHit->energy()));
         if (id.type() == HGCSiliconDetId::HGCalFine)
@@ -818,7 +1163,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hELossHEFCK->Fill(convertGeVToKeV(itHit->energy()));  //in keV
       }
     }
-    
+
     if (name_ == "HGCalHEScintillatorSensitive")
       hELossHEB->Fill(convertGeVToKeV(itHit->energy()));
     //==============================================================================================================
@@ -866,7 +1211,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
       energysum esum;
       hitsinfo hinfo;
-      
+
       if (map_hits.count(id_) != 0) {
         hinfo = map_hits[id_].first;
         esum = map_hits[id_].second;
@@ -911,11 +1256,10 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //==============================================================================================================
 
-
     //==============================================================================================================
     // Fill the histograms using the geometry object accessed via Method 2
     //==============================================================================================================
-    
+
     GlobalPoint global2 = geom->getPosition(id1);
     if (geom->topology().valid(id1)) {
       //std::cout << "DetId (" << det << ": position ("<< global2.x() << ", " << global2.y() << ", " << global2.z() << ") " << std::endl;
@@ -949,7 +1293,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hYZhitsHEB->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
       }
       //==============================================================================================================
-      
+
       //==============================================================================================================
       // Fill the Silicon thickness dependent R-Z histograms for selection region using the geometry object accessed via Method 1
       //==============================================================================================================
@@ -1005,73 +1349,67 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       // Fill the Silicon thickness dependent XY histograms using the geometry object accessed via Method 1
       //==============================================================================================================
       std::vector<int>::iterator ilyr = std::find(layerList.begin(), layerList.end(), rhtools_.getLayerWithOffset(id1));
-      if (ilyr != layerList.cend()){
-	int il = std::distance(layerList.begin(), ilyr);
+      if (ilyr != layerList.cend()) {
+        int il = std::distance(layerList.begin(), ilyr);
 
-	hXYhits[il]->Fill(global1.x(), global1.y());
-	if (rhtools_.isSilicon(id1)) {
-	  HGCSiliconDetId id(itHit->id());
-	  HGCalDetId hid(itHit->id());
-          
-	  if(id.type()==HGCSiliconDetId::HGCalFine){
-	  
-	    if(global1.z()<0.0){
-	      grXYhitsF0[il]->SetPoint(ixyF0[il]++,global1.x(),global1.y());
-	      grEtaPhihitsF0[il]->SetPoint(iepF0[il]++,global1.eta(), global1.phi());
-	    }else{
-	      grXYhitsF1[il]->SetPoint(ixyF1[il]++,global1.x(),global1.y());
-	      grEtaPhihitsF1[il]->SetPoint(iepF1[il]++,global1.eta(), global1.phi());
-	    }
+        hXYhits[il]->Fill(global1.x(), global1.y());
+        if (rhtools_.isSilicon(id1)) {
+          HGCSiliconDetId id(itHit->id());
+          HGCalDetId hid(itHit->id());
 
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThin){
-	  
-	    if(global1.z()<0.0){
-	      grXYhitsCN0[il]->SetPoint(ixyCN0[il]++,global1.x(),global1.y());
-	      grEtaPhihitsCN0[il]->SetPoint(iepCN0[il]++,global1.eta(), global1.phi());
-	    }else{
-	      grXYhitsCN1[il]->SetPoint(ixyCN1[il]++,global1.x(),global1.y());
-	      grEtaPhihitsCN1[il]->SetPoint(iepCN1[il]++,global1.eta(), global1.phi());
-	    }
+          if (id.type() == HGCSiliconDetId::HGCalFine) {
+            if (global1.z() < 0.0) {
+              grXYhitsF0[il]->SetPoint(ixyF0[il]++, global1.x(), global1.y());
+              grEtaPhihitsF0[il]->SetPoint(iepF0[il]++, global1.eta(), global1.phi());
+            } else {
+              grXYhitsF1[il]->SetPoint(ixyF1[il]++, global1.x(), global1.y());
+              grEtaPhihitsF1[il]->SetPoint(iepF1[il]++, global1.eta(), global1.phi());
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+            if (global1.z() < 0.0) {
+              grXYhitsCN0[il]->SetPoint(ixyCN0[il]++, global1.x(), global1.y());
+              grEtaPhihitsCN0[il]->SetPoint(iepCN0[il]++, global1.eta(), global1.phi());
+            } else {
+              grXYhitsCN1[il]->SetPoint(ixyCN1[il]++, global1.x(), global1.y());
+              grEtaPhihitsCN1[il]->SetPoint(iepCN1[il]++, global1.eta(), global1.phi());
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
 
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThick){ //case 2 : 
-	  
-	    if(global1.z()<0.0){
-	      grXYhitsCK0[il]->SetPoint(ixyCK0[il]++,global1.x(),global1.y());
-	      grEtaPhihitsCK0[il]->SetPoint(iepCK0[il]++,global1.eta(), global1.phi());
-	    }else{
-	      grXYhitsCK1[il]->SetPoint(ixyCK1[il]++,global1.x(),global1.y());
-	      grEtaPhihitsCK1[il]->SetPoint(iepCK1[il]++,global1.eta(), global1.phi());
-	    }
+            if (global1.z() < 0.0) {
+              grXYhitsCK0[il]->SetPoint(ixyCK0[il]++, global1.x(), global1.y());
+              grEtaPhihitsCK0[il]->SetPoint(iepCK0[il]++, global1.eta(), global1.phi());
+            } else {
+              grXYhitsCK1[il]->SetPoint(ixyCK1[il]++, global1.x(), global1.y());
+              grEtaPhihitsCK1[il]->SetPoint(iepCK1[il]++, global1.eta(), global1.phi());
+            }
+          }
+          //The following line by Pruthvi to number the cells with id0 and id1
+          if (rhtools_.getCell(id1).first + rhtools_.getCell(id1).second <= 2) {
+            if (global1.z() < 0.0)
+              grXYhitsAR0[il]->SetPoint(ixyAR0[il]++, global1.x(), global1.y());
+            else
+              grXYhitsAR1[il]->SetPoint(ixyAR1[il]++, global1.x(), global1.y());
+          }
+        } else if (rhtools_.isScintillator(id1)) {
+          //HGCScintillatorDetId id(itHit->id());
+          //int il = rhtools_.getLayerWithOffset(id1);
 
-	  }
-	  //The following line by Pruthvi to number the cells with id0 and id1
-	  if(rhtools_.getCell(id1).first + rhtools_.getCell(id1).second <= 2){
-	    if(global1.z()<0.0)
-	      grXYhitsAR0[il]->SetPoint(ixyAR0[il]++,global1.x(),global1.y());
-	    else
-	      grXYhitsAR1[il]->SetPoint(ixyAR1[il]++,global1.x(),global1.y());
-	  }
-	}else if(rhtools_.isScintillator(id1)){
-	
-	  //HGCScintillatorDetId id(itHit->id());
-	  //int il = rhtools_.getLayerWithOffset(id1);
-	
-	  if (global1.z() < 0.0){
-	    grXYhitsB0[il]->SetPoint(ixyB0[il]++, global1.x(), global1.y());
-	    grEtaPhihitsB0[il]->SetPoint(iepB0[il]++, global1.eta(), global1.phi());
-	  }else{
-	    grXYhitsB1[il]->SetPoint(ixyB1[il]++, global1.x(), global1.y());
-	    grEtaPhihitsB1[il]->SetPoint(iepB1[il]++, global1.eta(), global1.phi());
-	  }
-	  
-	}//is Sci or Si
-	
-      }//valid il array index distance
+          if (global1.z() < 0.0) {
+            grXYhitsB0[il]->SetPoint(ixyB0[il]++, global1.x(), global1.y());
+            grEtaPhihitsB0[il]->SetPoint(iepB0[il]++, global1.eta(), global1.phi());
+          } else {
+            grXYhitsB1[il]->SetPoint(ixyB1[il]++, global1.x(), global1.y());
+            grEtaPhihitsB1[il]->SetPoint(iepB1[il]++, global1.eta(), global1.phi());
+          }
+
+        }  //is Sci or Si
+
+      }  //valid il array index distance
       //==============================================================================================================
-    }//Valid detid using topology function
-    
+    }  //Valid detid using topology function
+
     //==============================================================================================================
     // Is there any difference when geometry object is accessed via Method 1 or Method 2 ?
     //==============================================================================================================
@@ -1079,11 +1417,10 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     hDiffY->Fill(global2.y() - global1.y());
     hDiffZ->Fill(global2.z() - global1.z());
     //==============================================================================================================
-  }// End of Calo hit loop  
+  }  // End of Calo hit loop
   //std::cout << "simhit size : " << simhit->size() << ", nof hits in Si : " << nofSiHits << ", map size : " << map_hits.size() << std::endl;
   //================================================================================================================
-  
-  
+
   //================================================================================================================
   // This loop to check for eloss per cell basis
   //================================================================================================================
@@ -1093,140 +1430,126 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     hitsinfo hinfo = (*itr).second.first;
     energysum esum = (*itr).second.second;
     std::vector<int>::iterator ilyr = std::find(layerList.begin(), layerList.end(), hinfo.layer);
-    if (ilyr != layerList.cend()){
-	int il = std::distance(layerList.begin(), ilyr);
-	hELossDQMEqV[il]->Fill(convertGeVToKeV(esum.eTime[0]));
+    if (ilyr != layerList.cend()) {
+      int il = std::distance(layerList.begin(), ilyr);
+      hELossDQMEqV[il]->Fill(convertGeVToKeV(esum.eTime[0]));
     }
 
     // printf("\tCellSummed : Det : %s, first hit : %d, nhits : %u, id : %u, Edep : %5.2lf (keV), (x,y,z) : (%5.2lf,%5.2lf,%5.2lf)\n",
     //  	   name_.c_str(), hinfo.hitid, hinfo.nhits, (*itr).first, convertGeVToKeV(esum.eTime[0]), hinfo.x, hinfo.y, hinfo.z);
 
     HGCSiliconDetId id((*itr).first);
-    
+
     DetId id1 = static_cast<DetId>((*itr).first);
     GlobalPoint global1 = geom->getPosition(id1);
-    
+
     ilyr = std::find(layerList.begin(), layerList.end(), rhtools_.getLayerWithOffset(id1));
-    if (ilyr != layerList.cend()){
+    if (ilyr != layerList.cend()) {
       int il = std::distance(layerList.begin(), ilyr);
-    
+
       if (geom->topology().valid(id1)) {
+        if (rhtools_.isSilicon(id1)) {
+          HGCSiliconDetId id((*itr).first);
+          //int il = rhtools_.getLayerWithOffset(id1);
+          if (id.type() == HGCSiliconDetId::HGCalFine) {
+            if (global1.z() < 0.0) {
+              hXYhitsF0[il]->Fill(global1.x(), global1.y());
+              hEPhitsF0[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerF0[il]->Fill(esum.etotal * 1.0e6);
+            } else {
+              hXYhitsF1[il]->Fill(global1.x(), global1.y());
+              hEPhitsF1[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerF1[il]->Fill(esum.etotal * 1.0e6);
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+            if (global1.z() < 0.0) {
+              hXYhitsCN0[il]->Fill(global1.x(), global1.y());
+              hEPhitsCN0[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerCN0[il]->Fill(esum.etotal * 1.0e6);
+            } else {
+              hXYhitsCN1[il]->Fill(global1.x(), global1.y());
+              hEPhitsCN1[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerCN1[il]->Fill(esum.etotal * 1.0e6);
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
 
-	if(rhtools_.isSilicon(id1)){
-	  HGCSiliconDetId id((*itr).first);
-	  //int il = rhtools_.getLayerWithOffset(id1);
-	  if(id.type()==HGCSiliconDetId::HGCalFine){
-	  
-	    if(global1.z()<0.0){
-	      hXYhitsF0[il]->Fill(global1.x(),global1.y());
-	      hEPhitsF0[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerF0[il]->Fill(esum.etotal*1.0e6);
-	    }else{
-	      hXYhitsF1[il]->Fill(global1.x(),global1.y());
-	      hEPhitsF1[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerF1[il]->Fill(esum.etotal*1.0e6);
-	    }
-	  
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThin){
-	  
-	    if(global1.z()<0.0){
-	      hXYhitsCN0[il]->Fill(global1.x(),global1.y());
-	      hEPhitsCN0[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerCN0[il]->Fill(esum.etotal*1.0e6);
-	    }else{
-	      hXYhitsCN1[il]->Fill(global1.x(),global1.y());
-	      hEPhitsCN1[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerCN1[il]->Fill(esum.etotal*1.0e6);
-	    }
-	  
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThick){ //case 2 : 
-	  
-	    if(global1.z()<0.0){
-	      hXYhitsCK0[il]->Fill(global1.x(),global1.y());
-	      hEPhitsCK0[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerCK0[il]->Fill(esum.etotal*1.0e6);
-	    }else{
-	      hXYhitsCK1[il]->Fill(global1.x(),global1.y());
-	      hEPhitsCK1[il]->Fill(global1.eta(), global1.phi());
-	      hELossLayerCK1[il]->Fill(esum.etotal*1.0e6);
-	    }
+            if (global1.z() < 0.0) {
+              hXYhitsCK0[il]->Fill(global1.x(), global1.y());
+              hEPhitsCK0[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerCK0[il]->Fill(esum.etotal * 1.0e6);
+            } else {
+              hXYhitsCK1[il]->Fill(global1.x(), global1.y());
+              hEPhitsCK1[il]->Fill(global1.eta(), global1.phi());
+              hELossLayerCK1[il]->Fill(esum.etotal * 1.0e6);
+            }
+          }
+        } else if (rhtools_.isScintillator(id1)) {
+          //HGCScintillatorDetId id(itHit->id());
+          //int il = rhtools_.getLayerWithOffset(id1);
+          if (global1.z() < 0.0) {
+            hXYhitsB0[il]->Fill(global1.x(), global1.y());
+            hEPhitsB0[il]->Fill(global1.eta(), global1.phi());
+            hELossLayerB0[il]->Fill(esum.etotal * 1.0e6);
+          } else {
+            hXYhitsB1[il]->Fill(global1.x(), global1.y());
+            hEPhitsB1[il]->Fill(global1.eta(), global1.phi());
+            hELossLayerB1[il]->Fill(esum.etotal * 1.0e6);
+          }
 
-	  }
-	}else if(rhtools_.isScintillator(id1)){
-	
-	  //HGCScintillatorDetId id(itHit->id());
-	  //int il = rhtools_.getLayerWithOffset(id1);	
-	  if (global1.z() < 0.0){
-	    hXYhitsB0[il]->Fill(global1.x(),global1.y());
-	    hEPhitsB0[il]->Fill(global1.eta(), global1.phi());
-	    hELossLayerB0[il]->Fill(esum.etotal*1.0e6);
-	  }else{
-	    hXYhitsB1[il]->Fill(global1.x(),global1.y());
-	    hEPhitsB1[il]->Fill(global1.eta(), global1.phi());
-	    hELossLayerB1[il]->Fill(esum.etotal*1.0e6);
-	  }
-	
-	}//is Sci or Si
-      }//valid detid
+        }  //is Sci or Si
+      }    //valid detid
       //Now for invalid detids
-      else{
-      
-	if(rhtools_.isSilicon(id1)){
-	  HGCSiliconDetId id((*itr).first);
-	  //int il = rhtools_.getLayerWithOffset(id1);
-	  if(id.type()==HGCSiliconDetId::HGCalFine){
-	  
-	    if(global1.z()<0.0){
-	      hXYFailhitsF0[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsF0[il]->Fill(global1.eta(), global1.phi());
-	    }else{
-	      hXYFailhitsF1[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsF1[il]->Fill(global1.eta(), global1.phi());
-	    }
-	  
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThin){
-	  
-	    if(global1.z()<0.0){
-	      hXYFailhitsCN0[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsCN0[il]->Fill(global1.eta(), global1.phi());
-	    }else{
-	      hXYFailhitsCN1[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsCN1[il]->Fill(global1.eta(), global1.phi());
-	    }
-	  
-	  }
-	  if(id.type()==HGCSiliconDetId::HGCalCoarseThick){ //case 2 : 
-	  
-	    if(global1.z()<0.0){
-	      hXYFailhitsCK0[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsCK0[il]->Fill(global1.eta(), global1.phi());
-	    }else{
-	      hXYFailhitsCK1[il]->Fill(global1.x(),global1.y());
-	      hEPFailhitsCK1[il]->Fill(global1.eta(), global1.phi());
-	    }
+      else {
+        if (rhtools_.isSilicon(id1)) {
+          HGCSiliconDetId id((*itr).first);
+          //int il = rhtools_.getLayerWithOffset(id1);
+          if (id.type() == HGCSiliconDetId::HGCalFine) {
+            if (global1.z() < 0.0) {
+              hXYFailhitsF0[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsF0[il]->Fill(global1.eta(), global1.phi());
+            } else {
+              hXYFailhitsF1[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsF1[il]->Fill(global1.eta(), global1.phi());
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+            if (global1.z() < 0.0) {
+              hXYFailhitsCN0[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsCN0[il]->Fill(global1.eta(), global1.phi());
+            } else {
+              hXYFailhitsCN1[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsCN1[il]->Fill(global1.eta(), global1.phi());
+            }
+          }
+          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
 
-	  }
-	}else if(rhtools_.isScintillator(id1)){
-	  
-	  //HGCScintillatorDetId id(itHit->id());
-	  //int il = rhtools_.getLayerWithOffset(id1);	
-	  if (global1.z() < 0.0){
-	    hXYFailhitsB0[il]->Fill(global1.x(),global1.y());
-	    hEPFailhitsB0[il]->Fill(global1.eta(), global1.phi());
-	  }else{
-	    hXYFailhitsB1[il]->Fill(global1.x(),global1.y());
-	    hEPFailhitsB1[il]->Fill(global1.eta(), global1.phi());
-	  }
-	  
-	}//is Sci or Si
-	
-      }//Invalid detid
+            if (global1.z() < 0.0) {
+              hXYFailhitsCK0[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsCK0[il]->Fill(global1.eta(), global1.phi());
+            } else {
+              hXYFailhitsCK1[il]->Fill(global1.x(), global1.y());
+              hEPFailhitsCK1[il]->Fill(global1.eta(), global1.phi());
+            }
+          }
+        } else if (rhtools_.isScintillator(id1)) {
+          //HGCScintillatorDetId id(itHit->id());
+          //int il = rhtools_.getLayerWithOffset(id1);
+          if (global1.z() < 0.0) {
+            hXYFailhitsB0[il]->Fill(global1.x(), global1.y());
+            hEPFailhitsB0[il]->Fill(global1.eta(), global1.phi());
+          } else {
+            hXYFailhitsB1[il]->Fill(global1.x(), global1.y());
+            hEPFailhitsB1[il]->Fill(global1.eta(), global1.phi());
+          }
 
-    }//isLayerRequested 
-    
+        }  //is Sci or Si
+
+      }  //Invalid detid
+
+    }  //isLayerRequested
+
     if (!TMath::AreEqualAbs(convertGeVToKeV(esum.eTime[0]), 0.0, 1.e-5)) {
       if (name_ == "HGCalEESensitive") {
         hELossCSinBunchEE->Fill(convertGeVToKeV(esum.eTime[0]));
@@ -1240,7 +1563,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hELossCSinBunchEECK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         }
       }
-      
+
       if (name_ == "HGCalHESiliconSensitive") {
         hELossCSinBunchHEF->Fill(convertGeVToKeV(esum.eTime[0]));
         if (id.type() == HGCSiliconDetId::HGCalFine) {
@@ -1281,7 +1604,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         }
       }
     }
-    
+
     if (!TMath::AreEqualAbs(convertGeVToKeV(esum.eTime[2]), 0.0, 1.e-5)) {
       if (name_ == "HGCalEESensitive") {
         hELossCSmissedEE->Fill(convertGeVToKeV(esum.eTime[2]));
@@ -1309,8 +1632,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     }
   }
   //================================================================================================================
-  
-  
+
   //================================================================================================================
   // This loop to find the cell with maximum deposited energy
   //================================================================================================================
@@ -1326,39 +1648,38 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       energysum esum = (*itr).second.second;
       // printf("\tDet : %s, first hit : %d, nhits : %u, id : %u, Edep : %5.2lf (keV), (x,y,z) : (%lf,%lf,%lf)\n",
       // 	   name_.c_str(), hinfo.hitid, hinfo.nhits, (*itr).first, convertGeVToKeV(esum.etotal), hinfo.x, hinfo.y, hinfo.z);
-      
+
       if (hinfo.layer == il and hinfo.z > 0.) {
         //energy += esum.eTime[0];
-	energy += esum.etotal;
-	
-	//if (esum.eTime[0] > maxEsum) {
-	if (esum.etotal > maxEsum) {
+        energy += esum.etotal;
+
+        //if (esum.eTime[0] > maxEsum) {
+        if (esum.etotal > maxEsum) {
           maxEsum = esum.eTime[0];
           maxid = (*itr).first;
         }
-	
+
       }  //match layer and z-direction
-      
+
     }  //map loop
-    
+
     if (convertGeVToKeV(maxEsum) > 0.)
       cellMaxEdep.push_back(maxid);
-    if (convertGeVToKeV(energy) > 0.){
+    if (convertGeVToKeV(energy) > 0.) {
       std::vector<int>::iterator ilyr = std::find(layerList.begin(), layerList.end(), il);
-      if (ilyr != layerList.cend()){
-	int ilHist = std::distance(layerList.begin(), ilyr);
-	hELossLayer[ilHist]->Fill(convertGeVToKeV(energy));  //in keV
+      if (ilyr != layerList.cend()) {
+        int ilHist = std::distance(layerList.begin(), ilyr);
+        hELossLayer[ilHist]->Fill(convertGeVToKeV(energy));  //in keV
       }
     }
   }
   //================================================================================================================
 
-
   //================================================================================================================
   // This loop plot energies corresponding cells with maximum deposited energy
   //================================================================================================================
   bool isPWafer = false;
-  bool isFWafer = false;  
+  bool isFWafer = false;
   for (unsigned int ic = 0; ic < cellMaxEdep.size(); ic++) {
     uint32_t id_ = cellMaxEdep[ic];
     energysum esum = map_hits[id_].second;
@@ -1367,9 +1688,10 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
     if (!rhtools_.isSilicon(id1))
       continue;
-    
+
     std::vector<int>::iterator ilyr = std::find(layerList.begin(), layerList.end(), rhtools_.getLayerWithOffset(id1));
-    if (ilyr >= layerList.cend()) continue;
+    if (ilyr >= layerList.cend())
+      continue;
     int il = std::distance(layerList.begin(), ilyr);
 
     HGCSiliconDetId id(id_);
@@ -1399,8 +1721,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       hCellThickness->Fill(rhtools_.getSiThickness(id1));
       hELossCSMaxEE->Fill(convertGeVToKeV(esum.eTime[0]));
       if (id.type() == HGCSiliconDetId::HGCalFine) {
-        hELossCSMaxEEF->Fill(convertGeVToKeV(esum.eTime[0]));              //in keV
-        hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxEEF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
           hNHxELossCSMaxF->Fill(convertGeVToKeV(esum.eTime[0]));
           hNHxELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));
@@ -1412,8 +1734,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         }
       }
       if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
-        hELossCSMaxEECN->Fill(convertGeVToKeV(esum.eTime[0]));              //in keV
-        hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxEECN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
           hNHxELossCSMaxCN->Fill(convertGeVToKeV(esum.eTime[0]));
           hNHxELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));
@@ -1425,8 +1747,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         }
       }
       if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
-        hELossCSMaxEECK->Fill(convertGeVToKeV(esum.eTime[0]));              //in keV
-        hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxEECK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
           hNHxELossCSMaxCK->Fill(convertGeVToKeV(esum.eTime[0]));
           hNHxELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));
@@ -1443,8 +1765,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       hCellThickness->Fill(rhtools_.getSiThickness(id1));
       hELossCSMaxHEF->Fill(convertGeVToKeV(esum.eTime[0]));
       if (id.type() == HGCSiliconDetId::HGCalFine) {
-        hELossCSMaxHEFF->Fill(convertGeVToKeV(esum.eTime[0]));             //in keV
-        hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxHEFF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (isPWafer) {
           hNHxELossCSMaxF->Fill(convertGeVToKeV(esum.eTime[0]));
           hNHxELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));
@@ -1456,8 +1778,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         }
       }
       if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
-        hELossCSMaxHEFCN->Fill(convertGeVToKeV(esum.eTime[0]));             //in keV
-        hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxHEFCN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (convertGeVToKeV(esum.eTime[0]) < 30. and convertGeVToKeV(esum.eTime[0]) > 10.)
           hXYhitsLELCN[il]->Fill(hinfo.x, hinfo.y);
         else
@@ -1473,8 +1795,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         }
       }
       if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
-        hELossCSMaxHEFCK->Fill(convertGeVToKeV(esum.eTime[0]));             //in keV
-        hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELossCSMaxHEFCK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
+        hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (convertGeVToKeV(esum.eTime[0]) < 10.)
           hXYhitsLELCK[il]->Fill(hinfo.x, hinfo.y);
         else if (convertGeVToKeV(esum.eTime[0]) > 50.)
