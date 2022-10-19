@@ -11,7 +11,6 @@
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
 #include "DataFormats/L1Trigger/interface/TkJetWord.h"
-#include "L1Trigger/DemonstratorTools/interface/BoardData.h"
 
 namespace l1t::demo::codecs {
 

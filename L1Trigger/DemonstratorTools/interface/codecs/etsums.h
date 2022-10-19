@@ -9,8 +9,6 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "L1Trigger/DemonstratorTools/interface/BoardData.h"
 #include "L1Trigger/L1TTrackMatch/interface/L1TkEtMissEmuAlgo.h"
 
 namespace l1t::demo::codecs {

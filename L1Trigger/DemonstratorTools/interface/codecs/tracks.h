@@ -14,8 +14,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-#include "L1Trigger/DemonstratorTools/interface/BoardData.h"
-
 namespace l1t::demo::codecs {
 
   // Return true if a track is contained within a collection
