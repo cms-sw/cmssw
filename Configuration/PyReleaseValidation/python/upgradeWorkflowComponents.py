@@ -263,9 +263,12 @@ class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         return result
+
+
 
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
@@ -493,7 +496,7 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # temporarily remove trigger & downstream steps
         if 'Reco' in step:
-            mod = {'--procModifiers': 'weightedVertexing', '--datatier':'GEN-SIM-RECO,DQMIO',
+            mod = {'--procModifiers': 'weightedVertexing,vertexInBlocks', '--datatier':'GEN-SIM-RECO,DQMIO',
             '--eventcontent':'RECOSIM,DQM'}
             stepDict[stepName][k] = merge([mod,self.step3, stepDict[step][k]])
         if 'HARVEST' in step:
@@ -511,19 +514,7 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
         return result
 
 
-upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex(
-    # steps = [
-    #     'Reco',
-    #     'RecoGlobal',
-    #     'RecoNano',
-    #     'RecoFakeHLT',
-    # ],
-    # PU = [
-    #     'Reco',
-    #     'RecoGlobal',
-    #     'RecoNano',
-    #     'RecoFakeHLT',
-    # ],
+upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex( 
     suffix = '_weightedVertex',
     offset = 0.278,
 )
