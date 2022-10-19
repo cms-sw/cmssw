@@ -118,7 +118,7 @@ namespace mkfit {
       std::map<std::string, IterationConfig::clean_seeds_func> seed_cleaners;
       std::map<std::string, IterationConfig::partition_seeds_func> seed_partitioners;
       std::map<std::string, IterationConfig::filter_candidates_func> candidate_filters;
-      std::map<std::string, IterationConfig::filter_duplicates_func> duplicate_cleaners;
+      std::map<std::string, IterationConfig::clean_duplicates_func> duplicate_cleaners;
 
       std::mutex catalog_mutex;
     };
@@ -144,7 +144,7 @@ namespace mkfit {
     GET_FC;
     fc.candidate_filters.insert({name, func});
   }
-  void IterationConfig::register_duplicate_cleaner(const std::string& name, filter_duplicates_func func) {
+  void IterationConfig::register_duplicate_cleaner(const std::string& name, clean_duplicates_func func) {
     GET_FC;
     fc.duplicate_cleaners.insert({name, func});
   }
@@ -161,7 +161,7 @@ namespace mkfit {
     GET_FC;
     return fc.candidate_filters[name];
   }
-  IterationConfig::filter_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string& name) {
+  IterationConfig::clean_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string& name) {
     GET_FC;
     return fc.duplicate_cleaners[name];
   }

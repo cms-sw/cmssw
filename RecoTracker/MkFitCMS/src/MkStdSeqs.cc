@@ -351,7 +351,7 @@ namespace mkfit {
                    tracks.end());
     }
 
-    void find_duplicates(TrackVec &tracks, const IterationConfig &) {
+    void clean_duplicates(TrackVec &tracks, const IterationConfig &) {
       const auto ntracks = tracks.size();
       float eta1, phi1, pt1, deta, dphi, dr2;
 
@@ -360,11 +360,6 @@ namespace mkfit {
       }
       for (auto itrack = 0U; itrack < ntracks - 1; itrack++) {
         auto &track = tracks[itrack];
-        using Algo = TrackBase::TrackAlgorithm;
-        auto const algo = track.algorithm();
-        // MT QQQQ What do we do here?
-        if (algo == Algo::pixelLessStep || algo == Algo::tobTecStep)
-          continue;
         eta1 = track.momEta();
         phi1 = track.momPhi();
         pt1 = track.pT();
@@ -442,7 +437,7 @@ namespace mkfit {
     // SHARED HITS DUPLICATE CLEANING
     //=========================================================================
 
-    void find_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
+    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
       const float fraction = itconf.m_params.fracSharedHits;
       const auto ntracks = tracks.size();
 
@@ -506,7 +501,7 @@ namespace mkfit {
       remove_duplicates(tracks);
     }
 
-    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
+    void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
       const float fraction = itconf.m_params.fracSharedHits;
       const float drth_central = itconf.m_params.drth_central;
       const float drth_obarrel = itconf.m_params.drth_obarrel;
@@ -603,40 +598,14 @@ namespace mkfit {
       // MT QQQQ - rename tags and functions; maybe move them to a separate cc file.
       struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
-            IterationConfig::register_duplicate_cleaner("2017:find_duplicates", find_duplicates);
-            IterationConfig::register_duplicate_cleaner("2017:find_duplicates_sharedhits",
-                                                        find_duplicates_sharedhits);
-            IterationConfig::register_duplicate_cleaner("2017:find_duplicates_sharedhits_pixelseed",
-                                                         find_duplicates_sharedhits_pixelseed);
+            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates", clean_duplicates);
+            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits",
+                                                        clean_duplicates_sharedhits);
+            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits_pixelseed",
+                                                         clean_duplicates_sharedhits_pixelseed);
         }
       } rdc_instance;
     }
 
-    //=========================================================================
-    //
-    //=========================================================================
-
-    // MT QQQQ Original logic for remove_duplicates. To be removed.
-    /*
-    void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf) {
-#ifdef DEBUG
-      std::cout << " find_and_remove_duplicates: input track size " << tracks.size() << std::endl;
-#endif
-      if (itconf.m_requires_quality_filter && !(itconf.m_requires_dupclean_tight)) {
-        find_duplicates_sharedhits(tracks, itconf);
-      } else if (itconf.m_requires_dupclean_tight) {
-        find_duplicates_sharedhits_pixelseed(tracks, itconf);
-      } else {
-        find_duplicates(tracks, itconf);
-      }
-
-#ifdef DEBUG
-      std::cout << " find_and_remove_duplicates: output track size " << tracks.size() << std::endl;
-      for (auto const &tk : tracks) {
-        std::cout << tk.parameters() << std::endl;
-      }
-#endif
-    }
-    */
   }  // namespace StdSeq
 }  // namespace mkfit

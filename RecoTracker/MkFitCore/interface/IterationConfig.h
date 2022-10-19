@@ -155,8 +155,8 @@ namespace mkfit {
     using filter_candidates_cf = void(const TrackCand &);
     using filter_candidates_func = std::function<filter_candidates_cf>;
     // Called directly.
-    using filter_duplicates_cf = void(TrackVec &, const IterationConfig &);
-    using filter_duplicates_func = std::function<filter_duplicates_cf>;
+    using clean_duplicates_cf = void(TrackVec &, const IterationConfig &);
+    using clean_duplicates_func = std::function<clean_duplicates_cf>;
 
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
@@ -182,7 +182,7 @@ namespace mkfit {
     clean_seeds_func m_seed_cleaner;
     partition_seeds_func m_seed_partitioner;
     filter_candidates_func m_pre_bkfit_filter, m_post_bkfit_filter;
-    filter_duplicates_func m_duplicate_cleaner;
+    clean_duplicates_func m_duplicate_cleaner;
 
     // Names for Standard functions that get saved to / loaded from JSON.
     std::string m_seed_cleaner_name;
@@ -274,12 +274,12 @@ namespace mkfit {
     static void register_seed_cleaner(const std::string &name, clean_seeds_func func);
     static void register_seed_partitioner(const std::string &name, partition_seeds_func func);
     static void register_candidate_filter(const std::string &name, filter_candidates_func func);
-    static void register_duplicate_cleaner(const std::string &name, filter_duplicates_func func);
+    static void register_duplicate_cleaner(const std::string &name, clean_duplicates_func func);
 
     static clean_seeds_func get_seed_cleaner(const std::string &name);
     static partition_seeds_func get_seed_partitioner(const std::string &name);
     static filter_candidates_func get_candidate_filter(const std::string &name);
-    static filter_duplicates_func get_duplicate_cleaner(const std::string &name);
+    static clean_duplicates_func get_duplicate_cleaner(const std::string &name);
   };
 
   //==============================================================================
