@@ -22,6 +22,8 @@ HLTEgammaEtFilter::HLTEgammaEtFilter(const edm::ParameterSet& iConfig) : HLTFilt
   inputTag_ = iConfig.getParameter<edm::InputTag>("inputTag");
   etcutEB_ = iConfig.getParameter<double>("etcutEB");
   etcutEE_ = iConfig.getParameter<double>("etcutEE");
+  minEtaCut_ = iConfig.getParameter<double>("minEtaCut");
+  maxEtaCut_ = iConfig.getParameter<double>("maxEtaCut");
   ncandcut_ = iConfig.getParameter<int>("ncandcut");
   l1EGTag_ = iConfig.getParameter<edm::InputTag>("l1EGCand");
   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
@@ -34,6 +36,8 @@ void HLTEgammaEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
   desc.add<double>("etcutEB", 1.0);
   desc.add<double>("etcutEE", 1.0);
+  desc.add<double>("minEtaCut", -9999.0);
+  desc.add<double>("maxEtaCut", 9999.0);
   desc.add<int>("ncandcut", 1);
   descriptions.add("hltEgammaEtFilter", desc);
 }
@@ -71,6 +75,9 @@ bool HLTEgammaEtFilter::hltFilter(edm::Event& iEvent,
 
   for (auto& recoecalcand : recoecalcands) {
     ref = recoecalcand;
+
+    if ((ref->eta() < minEtaCut_) or (ref->eta() > maxEtaCut_))
+      continue;
 
     if ((fabs(ref->eta()) < 1.479 && ref->et() >= etcutEB_) || (fabs(ref->eta()) >= 1.479 && ref->et() >= etcutEE_)) {
       n++;
