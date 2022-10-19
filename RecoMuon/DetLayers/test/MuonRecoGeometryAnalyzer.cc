@@ -3,7 +3,7 @@
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -33,11 +33,11 @@
 using namespace std;
 using namespace edm;
 
-class MuonRecoGeometryAnalyzer : public EDAnalyzer {
+class MuonRecoGeometryAnalyzer : public one::EDAnalyzer<> {
 public:
   MuonRecoGeometryAnalyzer(const ParameterSet& pset);
 
-  virtual void analyze(const Event& ev, const EventSetup& es);
+  void analyze(const Event& ev, const EventSetup& es) override;
 
   void testDTLayers(const MuonDetLayerGeometry*, const MagneticField* field);
   void testCSCLayers(const MuonDetLayerGeometry*, const MagneticField* field);
@@ -46,20 +46,21 @@ public:
 
 private:
   MeasurementEstimator* theEstimator;
+  ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> theGeomToken;
+  ESGetToken<MagneticField, IdealMagneticFieldRecord> theMagfieldToken;
 };
 
 MuonRecoGeometryAnalyzer::MuonRecoGeometryAnalyzer(const ParameterSet& iConfig) {
   float theMaxChi2 = 25.;
   float theNSigma = 3.;
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2, theNSigma);
+  theGeomToken = esConsumes();
+  theMagfieldToken = esConsumes();
 }
 
 void MuonRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
-  ESHandle<MuonDetLayerGeometry> geo;
-  es.get<MuonRecoGeometryRecord>().get(geo);
-
-  ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  ESHandle<MuonDetLayerGeometry> geo = es.getHandle(theGeomToken);
+  ESHandle<MagneticField> magfield = es.getHandle(theMagfieldToken);
   // Some printouts
 
   cout << "*** allDTLayers(): " << geo->allDTLayers().size() << endl;

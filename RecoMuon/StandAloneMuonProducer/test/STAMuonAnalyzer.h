@@ -8,7 +8,7 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;
@@ -19,21 +19,25 @@ namespace edm {
 class TFile;
 class TH1F;
 class TH2F;
+class MagneticField;
+class IdealMagneticFieldRecord;
+class GlobalTrackingGeometry;
+class GlobalTrackingGeometryRecord;
 
-class STAMuonAnalyzer : public edm::EDAnalyzer {
+class STAMuonAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   STAMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
-  virtual ~STAMuonAnalyzer();
+  ~STAMuonAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 protected:
 private:
@@ -58,5 +62,7 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theGeomToken;
 };
 #endif
