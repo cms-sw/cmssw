@@ -5,6 +5,8 @@ from optparse import OptionParser
 parser = OptionParser(usage="%prog [options] job1 job2 ...")
 parser.add_option("-f", "--format", dest="fmt", default="txt", help="output format")
 parser.add_option("-H", "--header", dest="header", action="store_true", default=False, help="print headers")
+parser.add_option("--base", dest="base", default="{}.json,{}_timing_report.json", help="coma separated base name for size and timing files")
+parser.add_option("--ref", dest="ref", default="ref/", help="path to the reference files")
 (options, args) = parser.parse_args()
 
 headers = [ 'Sample' , 'kb/ev' , 'ref kb/ev' , 'diff kb/ev' , 'ev/s/thd' , 'ref ev/s/thd' , 'diff rate' , 'mem/thd' , 'ref mem/thd' ]
@@ -17,23 +19,24 @@ def prow(x):
 
 first = True
 
+size_pattern,timing_pattern = options.base.split(',')
 for job in args:
 
     label = job
-    me = '%s.json'%job
-    ref = 'ref/%s'%me
-    me_t = '%s_timing_report.json'%job
-    ref_t = 'ref/%s'%me_t
+    size_json=size_pattern.format(job)
+    size_ref_json=options.ref+'/'+size_json
+    timing_json=timing_pattern.format(job)
+    timing_ref_json=options.ref+'/'+timing_json
 
     try:
 
-        jnew = json.load(open(me,'r'))
-        jref = json.load(open(ref,'r'))
+        jnew = json.load(open(size_json,'r'))
+        jref = json.load(open(size_ref_json,'r'))
         size_new = jnew["trees"]["Events"]['allsize']/jnew["trees"]["Events"]['entries']
         size_ref = jref["trees"]["Events"]['allsize']/jref["trees"]["Events"]['entries']
 
-        jnew_t = json.load(open(me_t,'r'))
-        jref_t = json.load(open(ref_t,'r'))
+        jnew_t = json.load(open(timing_json,'r'))
+        jref_t = json.load(open(timing_ref_json,'r'))
         rate_new = jnew_t["Timing/EventThroughput"]/jnew_t["Timing/NumberOfThreads"]
         rate_ref = jref_t["Timing/EventThroughput"]/jref_t["Timing/NumberOfThreads"]
         try:
@@ -52,4 +55,5 @@ for job in args:
                '%.2f'%rate_new, '%.2f'%rate_ref, '%+.1f%%'%((rate_new-rate_ref)/rate_ref*100), '%.3f'%(rmem_new/1000), '%.3f'%(rmem_ref/1000)  ])
 
     except IOError: # some file not existing
+        #print(f'file {size_json}, {size_ref_json}, {timing_json} or {timing_ref_json} does not exist')
         pass
