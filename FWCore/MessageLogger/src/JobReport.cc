@@ -309,12 +309,23 @@ namespace edm {
     }
   }
 
+  void JobReport::temporarilyCloseXML() {
+    if (impl_->ost_) {
+      //remember where we were
+      auto pos = impl_->ost_->tellp();
+      *(impl_->ost_) << "</FrameworkJobReport>\n" << std::flush;
+      //overwrite above during next write.
+      impl_->ost_->seekp(pos);
+    }
+  }
+
   JobReport::JobReport() : impl_(new JobReportImpl(nullptr)) {}
 
   JobReport::JobReport(std::ostream* iOstream) : impl_(new JobReportImpl(iOstream)) {
     if (impl_->ost_) {
       *(impl_->ost_) << "<FrameworkJobReport>\n";
     }
+    temporarilyCloseXML();
   }
 
   JobReport::Token JobReport::inputFileOpened(std::string const& physicalFileName,
@@ -382,6 +393,7 @@ namespace edm {
     } else {
       impl_->writeInputFile(f);
     }
+    temporarilyCloseXML();
   }
 
   JobReport::Token JobReport::outputFileOpened(std::string const& physicalFileName,
@@ -434,6 +446,7 @@ namespace edm {
     f.fileHasBeenClosed = true;
     std::lock_guard<std::mutex> lock(write_mutex);
     impl_->writeOutputFile(f);
+    temporarilyCloseXML();
   }
 
   void JobReport::reportSkippedEvent(RunNumber_t run, EventNumber_t event) {
@@ -443,7 +456,7 @@ namespace edm {
         std::lock_guard<std::mutex> lock(write_mutex);
         msg << "<SkippedEvent Run=\"" << run << "\"";
         msg << " Event=\"" << event << "\" />\n";
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -485,7 +498,7 @@ namespace edm {
               << "\n";
         }
         msg << "</AnalysisFile>\n";
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -498,7 +511,7 @@ namespace edm {
         msg << "<FrameworkError ExitStatus=\"" << exitCode << "\" Type=\"" << shortDesc << "\" >\n";
         msg << "<![CDATA[\n" << longDesc << "\n]]>\n";
         msg << "</FrameworkError>\n";
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -515,7 +528,7 @@ namespace edm {
         std::lock_guard<std::mutex> lock(write_mutex);
         skipped->Accept(&printer);
         msg << printer.CStr();
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -533,7 +546,7 @@ namespace edm {
         fallback->Accept(&printer);
         msg << printer.CStr();
         msg << "<![CDATA[\n" << err << "\n]]>\n";
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -549,7 +562,7 @@ namespace edm {
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
-      msg << std::flush;
+      temporarilyCloseXML();
     }
   }
 
@@ -564,7 +577,7 @@ namespace edm {
             << "\n";
       }
       msg << "</MessageSummary>\n";
-      msg << std::flush;
+      temporarilyCloseXML();
     }
   }
 
@@ -607,7 +620,7 @@ namespace edm {
         }
         ost << "</SecondarySourceReadBranches>\n";
       }
-      ost << std::flush;
+      temporarilyCloseXML();
     }
   }
 
@@ -647,7 +660,7 @@ namespace edm {
         msg << "<RandomServiceStateFile>\n"
             << doc.NewText(name.c_str())->Value() << "\n"
             << "</RandomServiceStateFile>\n";
-        msg << std::flush;
+        temporarilyCloseXML();
       }
     }
   }
@@ -667,7 +680,7 @@ namespace edm {
 
       msg << "  </PerformanceSummary>\n"
           << "</PerformanceReport>\n";
-      msg << std::flush;
+      temporarilyCloseXML();
     }
   }
 
@@ -688,7 +701,7 @@ namespace edm {
 
       msg << "  </PerformanceModule>\n"
           << "</PerformanceReport>\n";
-      msg << std::flush;
+      temporarilyCloseXML();
     }
   }
 
