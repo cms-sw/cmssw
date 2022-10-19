@@ -221,7 +221,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         //check on timeError to exclude scintillator
         if (rhTimeE < 0.)
           continue;
-        timeClhits.push_back(rechit->time() - timeOffset);
+        timeClhits.push_back(rechit->time());
         timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
       }
       hgcalsimclustertime::ComputeClusterTime timeEstimator;
