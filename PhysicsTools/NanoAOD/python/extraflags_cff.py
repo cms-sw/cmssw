@@ -44,9 +44,10 @@ ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
 )
 
 # modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toModify(extraFlagsTable, variables= cms.PSet())
-    modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)")))
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
+    extraFlagsTable,
+    variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)"))
+)
 
 
 # empty task as default
@@ -57,8 +58,13 @@ extraFlagsTableTask = cms.Task()
 extraFlagsProducersTask_80x = cms.Task(badGlobalMuonTagger,cloneGlobalMuonTagger,BadPFMuonTagger,BadChargedCandidateTagger)
 extraFlagsProducersTask_102x = cms.Task(ecalBadCalibFilterNanoTagger)
 
-run2_miniAOD_80XLegacy.toReplaceWith(extraFlagsProducersTask, extraFlagsProducersTask_80x)
-run2_miniAOD_80XLegacy.toReplaceWith(extraFlagsTableTask, cms.Task(extraFlagsTable))
+run2_miniAOD_80XLegacy.toReplaceWith(
+    extraFlagsProducersTask, extraFlagsProducersTask_80x
+).toReplaceWith(
+    extraFlagsTableTask, cms.Task(extraFlagsTable))
 
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(extraFlagsProducersTask, extraFlagsProducersTask_102x)
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(extraFlagsTableTask, cms.Task(extraFlagsTable))
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
+    extraFlagsProducersTask, extraFlagsProducersTask_102x
+).toReplaceWith(
+    extraFlagsTableTask, cms.Task(extraFlagsTable)
+)

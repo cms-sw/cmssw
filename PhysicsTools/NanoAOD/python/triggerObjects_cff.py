@@ -12,7 +12,7 @@ unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
 run2_miniAOD_80XLegacy.toModify(
   unpackedPatTrigger,
   patTriggerObjectsStandAlone = "selectedPatTrigger",
-  unpackFilterLabels = False 
+  unpackFilterLabels = False
 )
 
 triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
@@ -27,7 +27,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
         cms.PSet(
             name = cms.string("Electron (PixelMatched e/gamma)"), # this selects also photons for the moment!
             id = cms.int32(11),
-            sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"), 
+            sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
             skipObjectsNotPassingQualityBits = cms.bool(True),
@@ -260,20 +260,47 @@ run2_HLTconditions_2016.toModify(
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next lines are for UL2016 maps
-(run2_muon_2016 & tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016preVFP"),  DataEraMuon = cms.string("2016preVFP"))
-(run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016postVFP"),  DataEraMuon = cms.string("2016postVFP"))
+(run2_muon_2016 & tracker_apv_vfp30_2016).toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("UL2016preVFP"),
+    DataEraMuon = cms.string("2016preVFP")
+)
+(run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("UL2016postVFP"),
+    DataEraMuon = cms.string("2016postVFP")
+)
 #Next line is for UL2017 maps 
-run2_jme_2017.toModify( prefiringweight, DataEraECAL = cms.string("UL2017BtoF"), DataEraMuon = cms.string("20172018"))
-#Next line is for UL2018 maps 
-run2_muon_2018.toModify( prefiringweight, DataEraECAL = cms.string("None"), DataEraMuon = cms.string("20172018"))
+run2_jme_2017.toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("UL2017BtoF"),
+    DataEraMuon = cms.string("20172018")
+)
+#Next line is for UL2018 maps
+run2_muon_2018.toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("None"),
+    DataEraMuon = cms.string("20172018")
+)
 
-#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify( prefiringweight, DataEraECAL = cms.string("2017BtoF"), DataEraMuon = cms.string("20172018"))
-    modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("2017BtoF"),
+    DataEraMuon = cms.string("20172018")
+).toModify(
+    prefiringweight,
+    JetMaxMuonFraction = cms.double(-1.)
+)
 #For pre-UL 2016 reprocessing, same thing
-run2_nanoAOD_94X2016.toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"), DataEraMuon = cms.string("2016") )
-run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+run2_nanoAOD_94X2016.toModify(
+    prefiringweight,
+    DataEraECAL = cms.string("2016BtoH"),
+    DataEraMuon = cms.string("2016")
+).toModify(
+    prefiringweight,
+    JetMaxMuonFraction = cms.double(-1.)
+)
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     name = cms.string("L1PreFiringWeight"),
@@ -304,4 +331,6 @@ _triggerObjectTablesTask_withL1PreFiring = triggerObjectTablesTask.copy()
 _triggerObjectTablesTask_withL1PreFiring.add(prefiringweight,l1PreFiringEventWeightTable)
 (run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTablesTask,_triggerObjectTablesTask_withL1PreFiring)
 
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(l1bits, storeUnprefireableBit=False)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
+    l1bits, storeUnprefireableBit=False
+)

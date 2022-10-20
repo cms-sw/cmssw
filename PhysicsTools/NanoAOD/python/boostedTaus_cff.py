@@ -12,8 +12,9 @@ finalBoostedTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausBoosted"),
     cut = cms.string("pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))")
 )
-run2_nanoAOD_106Xv2.toModify(finalBoostedTaus,
-                             cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))"
+run2_nanoAOD_106Xv2.toModify(
+    finalBoostedTaus,
+    cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))"
 )
 
 boostedTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -71,17 +72,18 @@ _boostedTauVarsWithDr03 = cms.PSet(
     _boostedTauVarsMVAIsoDr03,
     _boostedTauVarsAntiEleMVA
 )
-run2_nanoAOD_106Xv2.toModify(boostedTauTable,
-                             variables = _boostedTauVarsWithDr03
-)
-run2_nanoAOD_106Xv2.toModify(boostedTauTable.variables,
-                             rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
-                             rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBnewDMwLTraw2017')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
-                             idMVAnewDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
-                             idMVAoldDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
-                             rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
-                             rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
-                             idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA62018", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
+run2_nanoAOD_106Xv2.toModify(
+    boostedTauTable,
+    variables = _boostedTauVarsWithDr03
+).toModify(
+    boostedTauTable.variables,
+    rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
+    rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBnewDMwLTraw2017')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
+    idMVAnewDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
+    idMVAoldDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
+    rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
+    rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
+    idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA62018", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 
 boostedTausMCMatchLepTauForTable = tausMCMatchLepTauForTable.clone(

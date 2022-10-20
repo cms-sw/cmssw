@@ -24,8 +24,9 @@ _tauPlots80X.extend([Plot1D('idMVAnewDM', 'idMVAnewDM', 11, -0.5, 10.5, 'Isolati
                      Plot1D('rawAntiEleCat', 'rawAntiEleCat', 17, -1.5, 15.5, 'Anti-electron MVA discriminator V6 category')
 ])
 _vplots80X.Tau.plots = _tauPlots80X
-run2_miniAOD_80XLegacy.toModify(nanoDQM,
-                                vplots = _vplots80X
+run2_miniAOD_80XLegacy.toModify(
+    nanoDQM,
+    vplots = _vplots80X
 )
 _tauPlotsPreV9 = cms.VPSet()
 for plot in nanoDQM.vplots.Tau.plots:
@@ -52,7 +53,9 @@ _tauPlotsPreV9.extend([
                 Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator (2017v2)')
 ])
 
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoDQM.vplots.Tau, plots = _tauPlotsPreV9)
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    nanoDQM.vplots.Tau, plots = _tauPlotsPreV9
+)
 
 _boostedTauPlotsV10 = cms.VPSet()
 for plot in nanoDQM.vplots.boostedTau.plots:
@@ -62,7 +65,10 @@ _boostedTauPlotsV10.extend([
     Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBoldDMdR0p3wLT raw output discriminator (2017v2)')
 ])
 
-(run2_nanoAOD_106Xv2).toModify(nanoDQM.vplots.boostedTau, plots = _boostedTauPlotsV10)
+(run2_nanoAOD_106Xv2).toModify(
+    nanoDQM.vplots.boostedTau,
+    plots = _boostedTauPlotsV10
+)
 
 _METFixEE2017_DQMentry = nanoDQM.vplots.MET.clone()
 _METFixEE2017_plots = cms.VPSet()
@@ -70,8 +76,9 @@ for plot in _METFixEE2017_DQMentry.plots:
     if plot.name.value().find("fiducial")>-1: continue
     _METFixEE2017_plots.append(plot)
 _METFixEE2017_DQMentry.plots = _METFixEE2017_plots
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(nanoDQM.vplots, METFixEE2017 = _METFixEE2017_DQMentry)
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
+        nanoDQM.vplots, METFixEE2017 = _METFixEE2017_DQMentry
+)
 
 _Electron_plots_2016 = copy.deepcopy(nanoDQM.vplots.Electron.plots)
 _Electron_plots_2016.append(Plot1D('cutBased_HLTPreSel', 'cutBased_HLTPreSel', 2, -0.5, 1.5, 'cut-based HLT pre-selection ID'))
@@ -109,14 +116,22 @@ _Flag_plots_80x = copy.deepcopy(nanoDQM.vplots.Flag.plots)
 _Flag_plots_80x.append(Plot1D('BadGlobalMuon', 'BadGlobalMuon', 2, -0.5, 1.5, 'Bad muon flag'))
 _Flag_plots_80x.append(Plot1D('CloneGlobalMuon', 'CloneGlobalMuon', 2, -0.5, 1.5, 'Clone muon flag'))
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(nanoDQM.vplots.Electron, plots = _Electron_plots_2016)
-    modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
-run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
-run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(nanoDQM.vplots.Electron, plots=_Electron_plots_withFall17V1)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
+        nanoDQM.vplots.Electron, plots = _Electron_plots_2016
+).toModify(
+    nanoDQM.vplots.Photon, plots = _Photon_plots_2016
+).toModify(
+    nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x
+).toModify(
+    nanoDQM.vplots.Flag, plots = _Flag_plots_80x
+)
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(
+    nanoDQM.vplots.Electron, plots=_Electron_plots_withFall17V1
+)
 
-run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
+run2_miniAOD_80XLegacy.toModify(
+    nanoDQM.vplots, IsoTrack = None
+)
 
 ## MC
 nanoDQMMC = nanoDQM.clone()
@@ -131,19 +146,17 @@ nanoDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 nanoDQMQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),
-    prescaleFactor = cms.untracked.int32(1),                               
+    prescaleFactor = cms.untracked.int32(1),
     testInEventloop = cms.untracked.bool(False),
     qtestOnEndLumi = cms.untracked.bool(False),
     verboseQT =  cms.untracked.bool(True)
 )
 
-_modifiers = ( run2_miniAOD_80XLegacy |
-               run2_nanoAOD_94XMiniAODv1 |
-               run2_nanoAOD_94XMiniAODv2 |
-               run2_nanoAOD_94X2016 |
-               run2_nanoAOD_102Xv1 |
-               run2_nanoAOD_106Xv1 )
-_modifiers.toModify(nanoDQM.vplots, LowPtElectron = None)
-_modifiers.toModify(nanoDQMMC.vplots, LowPtElectron = None)
+( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toModify(
+    nanoDQM.vplots, LowPtElectron = None
+).toModify(
+    nanoDQMMC.vplots,
+    LowPtElectron = None
+)
 
 nanoHarvest = cms.Sequence( nanoDQMQTester )
