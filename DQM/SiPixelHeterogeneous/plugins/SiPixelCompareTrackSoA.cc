@@ -208,6 +208,7 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     nLooseAndAboveTracksCPU_matchedGPU++;
 
     hchi2_->Fill(tsoaCPU.chi2(it), tsoaGPU.chi2(closestTkidx));
+    hCharge_->Fill(tsoaCPU.charge(it), tsoaGPU.charge(closestTkidx));
     hnHits_->Fill(tsoaCPU.nHits(it), tsoaGPU.nHits(closestTkidx));
     hnLayers_->Fill(tsoaCPU.nLayers(it), tsoaGPU.nLayers(closestTkidx));
     hpt_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
@@ -217,7 +218,8 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     hz_->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
     htip_->Fill(tsoaCPU.tip(it), tsoaGPU.tip(closestTkidx));
     hptdiffMatched_->Fill(tsoaCPU.pt(it) - tsoaGPU.pt(closestTkidx));
-    hCurvdiffMatched_->Fill((tsoaCPU.charge(it) / tsoaCPU.pt(it)) - (tsoaGPU.charge(closestTkidx) / tsoaGPU.pt(closestTkidx)));
+    hCurvdiffMatched_->Fill((tsoaCPU.charge(it) / tsoaCPU.pt(it)) -
+                            (tsoaGPU.charge(closestTkidx) / tsoaGPU.pt(closestTkidx)));
     hetadiffMatched_->Fill(etacpu - tsoaGPU.eta(closestTkidx));
     hphidiffMatched_->Fill(reco::deltaPhi(phicpu, tsoaGPU.phi(closestTkidx)));
     hzdiffMatched_->Fill(tsoaCPU.zip(it) - tsoaGPU.zip(closestTkidx));
@@ -242,7 +244,7 @@ void SiPixelCompareTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   std::string toRep = "Number of tracks";
-  // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports either TH2I or THnSparse
+  // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports THnSparse
   // these should be moved to a less resource consuming format
   hnTracks_ = iBook.book2I("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
   hnLooseAndAboveTracks_ = iBook.book2I("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
