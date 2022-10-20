@@ -471,11 +471,9 @@ hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices=
     jetUserDataTask, jetUserDataTask.add(hfJetShowerShapeforNanoAOD)
 )
 
-_jetUserDataTask2016 = jetUserDataTask.copy()
-_jetUserDataTask2016.add(looseJetId)
-
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
-        jetUserDataTask,_jetUserDataTask2016
+    jetUserDataTask,
+    jetUserDataTask.copyAndAdd(looseJetId)
 )
 
 

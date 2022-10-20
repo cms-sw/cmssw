@@ -291,10 +291,9 @@ _patTauDiscriminationByElectronRejection2015Task = cms.Task(
     patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionTask = _patTauDiscriminationByElectronRejection2015Task.copy()
-for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
-            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(patTauDiscriminationByElectronRejectionTask,
-                      _patTauDiscriminationByElectronRejection2018Task)
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1]).toReplaceWith(
+    patTauDiscriminationByElectronRejectionTask,
+    _patTauDiscriminationByElectronRejection2018Task)
 
 
 ### put all new MVA tau-Id stuff to one Sequence
@@ -304,13 +303,12 @@ _patTauMVAIDsTask2017v2 = cms.Task(
     patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTTask,
     patTauDiscriminationByElectronRejectionTask
 )
-patTauMVAIDsTask = _patTauMVAIDsTask2017v2.copy()
-patTauMVAIDsTask.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task)
+patTauMVAIDsTask = _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task)
 
-_patTauMVAIDsTaskWith2017v1 = _patTauMVAIDsTask2017v2.copy()
-_patTauMVAIDsTaskWith2017v1.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task)
-for era in [run2_nanoAOD_94XMiniAODv1,]:
-    era.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWith2017v1)
+(run2_nanoAOD_94XMiniAODv1).toReplaceWith(
+    patTauMVAIDsTask,
+    _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task))
+)
 
 # embed new MVA tau-Ids into new tau collection
 def tauIDMVAinputs(module, wp):
@@ -420,8 +418,7 @@ patTauDiscriminationAgainstElectronDeadECALForNano = patTauDiscriminationAgainst
     PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants
 )
-_patTauMVAIDsTaskWithAntiEdeadECal = patTauMVAIDsTask.copy()
-_patTauMVAIDsTaskWithAntiEdeadECal.add(patTauDiscriminationAgainstElectronDeadECALForNano)
+_patTauMVAIDsTaskWithAntiEdeadECal = patTauMVAIDsTask.copyAndAdd(patTauDiscriminationAgainstElectronDeadECALForNano)
 _tauIDSourcesWithAntiEdeadECal = cms.PSet(
     slimmedTausUpdated.tauIDSources.clone(),
     againstElectronDeadECALForNano = cms.PSet(

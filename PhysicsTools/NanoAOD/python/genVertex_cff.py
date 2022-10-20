@@ -27,4 +27,6 @@ genVertexT0Table = cms.EDProducer("GlobalVariablesTableProducer",
 genVertexTablesTask = cms.Task(genVertexTable,genVertexT0Table)
 
 # GenVertex only stored in newer MiniAOD
-(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(genVertexTablesTask, cms.Task())
+(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
+    genVertexTablesTask, cms.Task()
+)

@@ -182,15 +182,13 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
-_modifiers = ( run2_miniAOD_80XLegacy |
-               run2_nanoAOD_94XMiniAODv1 |
-               run2_nanoAOD_94XMiniAODv2 |
-               run2_nanoAOD_94X2016 |
-               run2_nanoAOD_102Xv1 |
-               run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
+ ( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toReplaceWith(
+     lowPtElectronTask,cms.Task()
+ ).toReplaceWith(
+     lowPtElectronTablesTask,cms.Task()
+ ).toReplaceWith(
+     lowPtElectronMCTask,cms.Task()
+ )
 
 # To preserve "nano v9" functionality ...
 
@@ -227,9 +225,7 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
     ],
 )
 
-_lowPtElectronTask = cms.Task(lowPtPATElectronID)
-_lowPtElectronTask.add(lowPtElectronTask.copy())
 run2_nanoAOD_106Xv2.toReplaceWith(
     lowPtElectronTask,
-    _lowPtElectronTask
+    lowPtElectronTask.copyAndAdd(lowPtPATElectronID)
 )

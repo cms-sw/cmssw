@@ -327,9 +327,9 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter",
 
 triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits)
 
-_triggerObjectTablesTask_withL1PreFiring = triggerObjectTablesTask.copy()
-_triggerObjectTablesTask_withL1PreFiring.add(prefiringweight,l1PreFiringEventWeightTable)
-(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTablesTask,_triggerObjectTablesTask_withL1PreFiring)
+(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(
+    triggerObjectTablesTask, triggerObjectTablesTask.copyAndAdd(prefiringweight,l1PreFiringEventWeightTable)
+)
 
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
     l1bits, storeUnprefireableBit=False

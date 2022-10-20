@@ -362,13 +362,10 @@ photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 
-_withUpdatePho_Task = cms.Task(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X)
-_withUpdatePho_Task.add(photonTask.copy())
+(run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_94XMiniAODv1).toReplaceWith(
+    photonTask, photonTask.copyAndAdd(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X)
+)
 
-for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv1:
-    modifier.toReplaceWith(photonTask, _withUpdatePho_Task)
-
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    _withSpring16V2p2_Task = cms.Task(bitmapVIDForPhoSpring16V2p2)
-    _withSpring16V2p2_Task.add(_withUpdatePho_Task.copy())
-    modifier.toReplaceWith(photonTask, _withSpring16V2p2_Task)
+(run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016).toReplaceWith(
+    photonTask, photonTask.copyAndAdd(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X,bitmapVIDForPhoSpring16V2p2)
+)
