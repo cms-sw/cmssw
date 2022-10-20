@@ -188,7 +188,7 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
     bool cleanJet = true;
     const math::XYZTLorentzVector& p4J = j->p4();
     for (auto const& p : filGenLep)
-      if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep){
+      if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep) {
         cleanJet = false;
         break;
       } 
