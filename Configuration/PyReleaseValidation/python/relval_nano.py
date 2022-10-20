@@ -68,6 +68,7 @@ steps['HRV_NANO_mc'] = _HARVEST_mc
 steps['HRV_NANO_data'] = _HARVEST_data
 
 ##8.0 INPUT and workflows
+"""
 steps['TTbarMINIAOD8.0'] = {'INPUT':InputInfo(location='STD',
                                               dataSet='/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM')}
 steps['NANO_mc8.0']=merge([{'--era':'Run2_2016,run2_miniAOD_80XLegacy',
@@ -124,7 +125,7 @@ steps['MuonEG2018MINIAOD10.2'] = {'INPUT':InputInfo(location='STD',ls=run2_lumis
 steps['NANO_data10.2']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1',
                                '--conditions':'auto:run2_data'},
                               _NANO_data])
-
+"""
 ##10.6 INPUT and worflows
 steps['TTbarMINIAOD10.6_UL16v1'] = {'INPUT':InputInfo(location='STD',
                                                       dataSet='/TTJets_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1/MINIAODSIM')}
@@ -246,6 +247,7 @@ steps['NANO_mc12.6']=merge([{'--era':'Run3',
 
 _wfn=WFN()
 ################
+"""
 #8.X input
 workflows[_wfn()] = ['mc80X', ['TTbarMINIAOD8.0','NANO_mc8.0', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0', 'HRV_NANO_data']]
@@ -271,6 +273,7 @@ _wfn.subnext()
 workflows[_wfn()] = ['data102X', ['MuonEG2018MINIAOD10.2','NANO_data10.2', 'HRV_NANO_data']]
 
 _wfn.next()
+"""
 ################
 #10.6 input
 workflows[_wfn()] = ['mc106Xul16', ['TTbarMINIAOD10.6_UL16v1','NANO_mc10.6ul16v1', 'HRV_NANO_mc']]

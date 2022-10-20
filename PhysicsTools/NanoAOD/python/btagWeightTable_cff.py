@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import *
-
 
 btagSFdir="PhysicsTools/NanoAOD/data/btagSF/"
 
@@ -28,14 +26,4 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
     measurementTypesC = cms.vstring("iterativefit","iterativefit","iterativefit"),
     measurementTypesUDSG = cms.vstring("iterativefit","iterativefit","iterativefit"),
     sysTypes = cms.vstring("central","central","central")
-)
-
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( # to be updated when SF for Summer16MiniAODv3 MC will be available
-    btagWeightTable,
-    cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
-    weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
-        btagSFdir+"CSVv2_Moriond17_B_H.csv",
-        "unavailable",
-        btagSFdir+"cMVAv2_Moriond17_B_H.csv"
-    )
 )

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
-from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 singleRPProtons = True
 
@@ -59,10 +58,3 @@ genProtonTable = _genproton.clone(
 )
 
 genProtonTablesTask = cms.Task(genProtonTable)
-
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toReplaceWith(
-    protonTablesTask, cms.Task()
-).toReplaceWith(
-    # input GEN-level PU protons collection only introduced for UL and 12_X_Y
-    genProtonTablesTask, cms.Task()
-)

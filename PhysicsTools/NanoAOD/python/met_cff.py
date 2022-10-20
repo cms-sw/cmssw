@@ -139,11 +139,11 @@ deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-metFixEE2017Table = metTable.clone(
-    src = cms.InputTag("slimmedMETsFixEE2017"),
-    name = cms.string("METFixEE2017"),
-    doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition"),
-)
+#metFixEE2017Table = metTable.clone(
+#    src = cms.InputTag("slimmedMETsFixEE2017"),
+#    name = cms.string("METFixEE2017"),
+#    doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition"),
+#)
 
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
@@ -159,10 +159,4 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTablesTask = cms.Task( metTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, tkMetTable, chsMetTable, deepMetResolutionTuneTable, deepMetResponseTuneTable )
-# only in old miniAOD, the new ones will come from the UL rereco
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toReplaceWith(
-    metTablesTask,
-    metTablesTask.copyAndAdd( metFixEE2017Table)
-)
-
 metMCTask = cms.Task( metMCTable )

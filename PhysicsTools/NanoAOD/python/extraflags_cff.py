@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 # Bad/clone muon filters - tagging mode to keep the event
 from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTaggerMAOD, cloneGlobalMuonTaggerMAOD
@@ -43,28 +42,7 @@ ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
     taggingMode = cms.bool(True)
 )
 
-# modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
-    extraFlagsTable,
-    variables = cms.PSet(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)"))
-)
-
 
 # empty task as default
 extraFlagsProducersTask = cms.Task()
 extraFlagsTableTask = cms.Task()
-
-## those need to be added only for some specific eras
-extraFlagsProducersTask_80x = cms.Task(badGlobalMuonTagger,cloneGlobalMuonTagger,BadPFMuonTagger,BadChargedCandidateTagger)
-extraFlagsProducersTask_102x = cms.Task(ecalBadCalibFilterNanoTagger)
-
-run2_miniAOD_80XLegacy.toReplaceWith(
-    extraFlagsProducersTask, extraFlagsProducersTask_80x
-).toReplaceWith(
-    extraFlagsTableTask, cms.Task(extraFlagsTable))
-
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
-    extraFlagsProducersTask, extraFlagsProducersTask_102x
-).toReplaceWith(
-    extraFlagsTableTask, cms.Task(extraFlagsTable)
-)
