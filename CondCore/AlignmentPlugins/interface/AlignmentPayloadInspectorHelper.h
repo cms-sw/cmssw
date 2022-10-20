@@ -70,7 +70,7 @@ namespace AlignmentPI {
 
   enum index { XX = 1, XY = 2, XZ = 3, YZ = 4, YY = 5, ZZ = 6 };
 
-  enum partitions { BPix = 1, FPix = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+  enum partitions { INVALID = 0, BPix = 1, FPix = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
 
   enum class PARTITION {
     BPIX,   // 0 Barrel Pixel
@@ -1072,7 +1072,9 @@ namespace AlignmentPI {
   inline void fillComparisonHistograms(std::vector<int>& boundaries,
                                        const std::vector<AlignTransform>& ref_ali,
                                        const std::vector<AlignTransform>& target_ali,
-                                       std::unordered_map<AlignmentPI::coordinate, std::unique_ptr<TH1F> >& compare)
+                                       std::unordered_map<AlignmentPI::coordinate, std::unique_ptr<TH1F> >& compare,
+                                       bool diff = false,
+                                       AlignmentPI::partitions checkPart = AlignmentPI::INVALID)
   /*--------------------------------------------------------------------*/
   {
     int counter = 0; /* start the counter */
@@ -1083,6 +1085,12 @@ namespace AlignmentPI {
         int subid = DetId(ref_ali[i].rawId()).subdetId();
 
         auto thePart = static_cast<AlignmentPI::partitions>(subid);
+
+        // in case it has to be filtered
+        if (checkPart > 0 && thePart != checkPart) {
+          continue;
+        }
+
         if (thePart != currentPart) {
           currentPart = thePart;
           boundaries.push_back(counter);
@@ -1118,13 +1126,23 @@ namespace AlignmentPI {
         const auto& deltaTrans = target_ali[i].translation() - ref_ali[i].translation();
 
         // fill the histograms
-        compare[AlignmentPI::t_x]->SetBinContent(i + 1, deltaTrans.x() * AlignmentPI::cmToUm);
-        compare[AlignmentPI::t_y]->SetBinContent(i + 1, deltaTrans.y() * AlignmentPI::cmToUm);
-        compare[AlignmentPI::t_z]->SetBinContent(i + 1, deltaTrans.z() * AlignmentPI::cmToUm);
+        if (diff) {
+          compare[AlignmentPI::t_x]->Fill(deltaTrans.x() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_y]->Fill(deltaTrans.y() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_z]->Fill(deltaTrans.z() * AlignmentPI::cmToUm);
 
-        compare[AlignmentPI::rot_alpha]->SetBinContent(i + 1, deltaRot[0] * AlignmentPI::tomRad);
-        compare[AlignmentPI::rot_beta]->SetBinContent(i + 1, deltaRot[1] * AlignmentPI::tomRad);
-        compare[AlignmentPI::rot_gamma]->SetBinContent(i + 1, deltaRot[2] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_alpha]->Fill(deltaRot[0] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_beta]->Fill(deltaRot[1] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_gamma]->Fill(deltaRot[2] * AlignmentPI::tomRad);
+        } else {
+          compare[AlignmentPI::t_x]->SetBinContent(i + 1, deltaTrans.x() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_y]->SetBinContent(i + 1, deltaTrans.y() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_z]->SetBinContent(i + 1, deltaTrans.z() * AlignmentPI::cmToUm);
+
+          compare[AlignmentPI::rot_alpha]->SetBinContent(i + 1, deltaRot[0] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_beta]->SetBinContent(i + 1, deltaRot[1] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_gamma]->SetBinContent(i + 1, deltaRot[2] * AlignmentPI::tomRad);
+        }
 
       }  // if it's the same detid
     }    // loop on detids
