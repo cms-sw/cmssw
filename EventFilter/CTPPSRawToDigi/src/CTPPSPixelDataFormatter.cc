@@ -145,17 +145,19 @@ void CTPPSPixelDataFormatter::interpretRawData(
     if (mit == m_Mapping.end()) {
       if (nlink >= maxLinkIndex) {
         m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
-	edm::LogError("CTPPSPixelDataFormatter") << " Invalid linkId ";
+        edm::LogError("CTPPSPixelDataFormatter") << " Invalid linkId ";
       } else if ((nroc - 1) >= maxRocIndex) {
-// if RocId wrong try to recover at least plane id 
-	CTPPSPixelFramePosition fPosDummyROC(fedId, FMC, nlink, 0);
-	mit = m_Mapping.find(fPosDummyROC);
-	if(mit != m_Mapping.end()) iD = (*mit).second.iD;
+        // if RocId wrong try to recover at least plane id
+        CTPPSPixelFramePosition fPosDummyROC(fedId, FMC, nlink, 0);
+        mit = m_Mapping.find(fPosDummyROC);
+        if (mit != m_Mapping.end())
+          iD = (*mit).second.iD;
         m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
-	edm::LogError("CTPPSPixelDataFormatter") << " Invalid ROC Id " << convroc << " in nlink "<< nlink << " of FED " << fedId << " in DetId " << iD;
+        edm::LogError("CTPPSPixelDataFormatter")
+            << " Invalid ROC Id " << convroc << " in nlink " << nlink << " of FED " << fedId << " in DetId " << iD;
       } else {
         m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
-	edm::LogError("CTPPSPixelDataFormatter") << " Error unknown ";
+        edm::LogError("CTPPSPixelDataFormatter") << " Error unknown ";
       }
       continue;  //skip word
     }
@@ -189,16 +191,17 @@ void CTPPSPixelDataFormatter::interpretRawData(
     if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid)) {
       edm::LogError("CTPPSPixelDataFormatter")
           << " unphysical dcol and/or pxid "
-          << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid << " detId=" << iD;
+          << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc << " adc=" << adc << " dcol=" << dcol
+          << " pxid=" << pxid << " detId=" << iD;
 
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
       continue;
     }
     if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW)) {
-      edm::LogError("CTPPSPixelDataFormatter")
-          << " unphysical col and/or row "
-          << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc << " adc=" << adc << " col=" << col << " row=" << row << " detId=" << iD;
+      edm::LogError("CTPPSPixelDataFormatter") << " unphysical col and/or row "
+                                               << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc
+                                               << " adc=" << adc << " col=" << col << " row=" << row << " detId=" << iD;
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
       continue;
