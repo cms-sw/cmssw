@@ -191,7 +191,7 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
       if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep) {
         cleanJet = false;
         break;
-      } 
+      }
     if (cleanJet) {
       if (genJetsWithoutLeptonsP4.size() < 2)
         genJetsWithoutLeptonsP4.push_back(p4J);
