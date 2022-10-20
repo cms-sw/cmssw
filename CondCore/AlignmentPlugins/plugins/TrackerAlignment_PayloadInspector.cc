@@ -453,27 +453,34 @@ namespace {
   // Summary canvas per subdetector
   //******************************************//
 
-  template <AlignmentPI::partitions q>
-  class TrackerAlignmentSummary : public PlotImage<Alignments, MULTI_IOV> {
+  template <int ntags, IOVMultiplicity nIOVs, AlignmentPI::partitions q>
+  class TrackerAlignmentSummaryBase : public PlotImage<Alignments, nIOVs, ntags> {
   public:
-    TrackerAlignmentSummary()
-        : PlotImage<Alignments, MULTI_IOV>("Comparison of all coordinates between two geometries for " +
-                                           getStringFromPart(q)) {}
+    TrackerAlignmentSummaryBase()
+        : PlotImage<Alignments, nIOVs, ntags>("Comparison of all coordinates between two geometries for " +
+                                              getStringFromPart(q)) {}
 
     bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto sorted_iovs = tag.iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -530,77 +537,9 @@ namespace {
                                               500.);
       }
 
-      int loopedComponents(0);
-      for (unsigned int i = 0; i < ref_ali.size(); i++) {
-        if (ref_ali[i].rawId() == target_ali[i].rawId()) {
-          loopedComponents++;
-          int subid = DetId(ref_ali[i].rawId()).subdetId();
-          auto thePart = static_cast<AlignmentPI::partitions>(subid);
-          if (thePart != q)
-            continue;
-
-          CLHEP::HepRotation target_rot(target_ali[i].rotation());
-          CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
-
-          align::RotationType target_rotation(target_rot.xx(),
-                                              target_rot.xy(),
-                                              target_rot.xz(),
-                                              target_rot.yx(),
-                                              target_rot.yy(),
-                                              target_rot.yz(),
-                                              target_rot.zx(),
-                                              target_rot.zy(),
-                                              target_rot.zz());
-
-          align::RotationType ref_rotation(ref_rot.xx(),
-                                           ref_rot.xy(),
-                                           ref_rot.xz(),
-                                           ref_rot.yx(),
-                                           ref_rot.yy(),
-                                           ref_rot.yz(),
-                                           ref_rot.zx(),
-                                           ref_rot.zy(),
-                                           ref_rot.zz());
-
-          align::EulerAngles target_eulerAngles = align::toAngles(target_rotation);
-          align::EulerAngles ref_eulerAngles = align::toAngles(ref_rotation);
-
-          for (const auto &coord : coords) {
-            switch (coord) {
-              case AlignmentPI::t_x:
-                diffs[coord]->Fill((target_ali[i].translation().x() - ref_ali[i].translation().x()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::t_y:
-                diffs[coord]->Fill((target_ali[i].translation().y() - ref_ali[i].translation().y()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::t_z:
-                diffs[coord]->Fill((target_ali[i].translation().z() - ref_ali[i].translation().z()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::rot_alpha: {
-                auto deltaRot = target_eulerAngles[0] - ref_eulerAngles[0];
-                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
-                break;
-              }
-              case AlignmentPI::rot_beta: {
-                auto deltaRot = target_eulerAngles[1] - ref_eulerAngles[1];
-                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
-                break;
-              }
-              case AlignmentPI::rot_gamma: {
-                auto deltaRot = target_eulerAngles[2] - ref_eulerAngles[2];
-                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
-                break;
-              }
-              default:
-                edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
-                break;
-            }  // switch on the coordinate
-          }
-        }  // check on the same detID
-      }    // loop on the components
+      // fill the comparison histograms
+      std::vector<int> boundaries{};
+      AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs, true, q);
 
       int c_index = 1;
 
@@ -636,20 +575,28 @@ namespace {
         c_index++;
       }
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  typedef TrackerAlignmentSummary<AlignmentPI::BPix> TrackerAlignmentSummaryBPix;
-  typedef TrackerAlignmentSummary<AlignmentPI::FPix> TrackerAlignmentSummaryFPix;
-  typedef TrackerAlignmentSummary<AlignmentPI::TIB> TrackerAlignmentSummaryTIB;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::BPix> TrackerAlignmentSummaryBPix;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::FPix> TrackerAlignmentSummaryFPix;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TIB> TrackerAlignmentSummaryTIB;
 
-  typedef TrackerAlignmentSummary<AlignmentPI::TID> TrackerAlignmentSummaryTID;
-  typedef TrackerAlignmentSummary<AlignmentPI::TOB> TrackerAlignmentSummaryTOB;
-  typedef TrackerAlignmentSummary<AlignmentPI::TEC> TrackerAlignmentSummaryTEC;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TID> TrackerAlignmentSummaryTID;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TOB> TrackerAlignmentSummaryTOB;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TEC> TrackerAlignmentSummaryTEC;
+
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::BPix> TrackerAlignmentSummaryBPixTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::FPix> TrackerAlignmentSummaryFPixTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TIB> TrackerAlignmentSummaryTIBTwoTags;
+
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TID> TrackerAlignmentSummaryTIDTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TOB> TrackerAlignmentSummaryTOBTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TEC> TrackerAlignmentSummaryTECTwoTags;
 
   //*******************************************//
   // History of the position of the BPix Barycenter
@@ -1230,6 +1177,12 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTID);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTOB);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTEC);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryBPixTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryFPixTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIBTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIDTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTOBTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTECTwoTags);
   PAYLOAD_INSPECTOR_CLASS(X_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Y_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Z_BPixBarycenterHistory);
