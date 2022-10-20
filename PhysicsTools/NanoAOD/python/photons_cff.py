@@ -366,6 +366,6 @@ from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonI
     photonTask, photonTask.copyAndAdd(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X)
 )
 
-(run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016).toReplaceWith(
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
     photonTask, photonTask.copyAndAdd(egmPhotonIsolation,photonIDValueMapProducer,slimmedPhotonsTo106X,bitmapVIDForPhoSpring16V2p2)
 )

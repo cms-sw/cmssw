@@ -602,9 +602,9 @@ from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heep
 heepIDVarValueMaps.dataFormat = 2
 
 (run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_94XMiniAODv1).toReplaceWith(
-    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectrons )
+    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectronsTo106X )
 )
 
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
-    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectrons, bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
+    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectronsTo106X, bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
 )
