@@ -232,46 +232,20 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
     )
   )
 
-  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
-    getattr(proc, tightJetId).filterParams, version = "WINTER16"
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER16"
-  )
-  (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
-    getattr(proc, tightJetId).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else "")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
-  run2_nanoAOD_102Xv1.toModify(
-    getattr(proc, tightJetId).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "")
-  )
-
   #
   # Save variables as userInts in each jet
   #
   patJetWithUserData = "{}WithUserData".format(jetSrc)
   getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
   getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
-  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
-    getattr(proc, patJetWithUserData).userInts, looseId = cms.InputTag(looseJetId)
-  )
 
   #
   # Specfiy variables in the jetTable to save in NanoAOD
   #
   getattr(proc, jetTableName).variables.jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto")
-  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
-    getattr(proc, jetTableName).variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int, doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
-
 
   getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
   getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
-
-  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
-    getattr(proc,jetTaskName),
-    getattr(proc,jetTaskName).copyAndAdd(getattr(proc, looseJetId))
-  )
 
   return proc
 
@@ -633,9 +607,8 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   run2_nanoAOD_ANY.toModify(
     proc.jetTable, name = "Jet"
-  )
-  # So need to change the table name for AK4 puppi here
-  run2_nanoAOD_ANY.toModify(
+  ).toModify(
+    # So need to change the table name for AK4 puppi here
     proc.jetPuppiTable,
     name = "JetPuppi",
     src = cms.InputTag("finalJetsPuppi")
@@ -826,31 +799,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.nConstMuons   = PFJETVARS.nConstMuons
   proc.jetTable.variables.nConstElecs   = PFJETVARS.nConstElecs
   proc.jetTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
-
-  #
-  # Setup pileup jet ID with 80X training.
-  #
-  pileupJetId80X = "pileupJetId80X"
-  setattr(proc, pileupJetId80X, pileupJetId.clone(
-      jets = "updatedJets",
-      algos = cms.VPSet(_chsalgos_81x),
-      inputIsCorrected = True,
-      applyJec = False,
-      vertexes = "offlineSlimmedPrimaryVertices"
-    )
-  )
-  (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
-    proc.jetUserDataTask, proc.jetUserDataTask.copyAndAdd(getattr(proc,pileupJetId80X))
-  ).toModify(
-    proc.updatedJetsWithUserData.userInts, puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
-  ).toModify(
-    proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training")
-  )
-  run2_nanoAOD_94X2016.toModify(
-    proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
-  ).toModify(
-    proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10)
-  )
 
   #
   # Add charged energy fraction from other primary vertices

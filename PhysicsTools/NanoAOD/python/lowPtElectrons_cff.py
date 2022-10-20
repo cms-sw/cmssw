@@ -182,7 +182,7 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
-( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toReplaceWith(
+( run2_nanoAOD_106Xv1 ).toReplaceWith(
     lowPtElectronTask,cms.Task()
 ).toReplaceWith(
     lowPtElectronTablesTask,cms.Task()
@@ -197,19 +197,13 @@ run2_nanoAOD_106Xv2.toModify(
     modifiedLowPtElectrons.modifierConfig,
     modifications = cms.VPSet(lowPtElectronModifier,
                               lowPtRegressionModifier)
-)
-
-run2_nanoAOD_106Xv2.toModify(
+).toModify(
     updatedLowPtElectronsWithUserData.userFloats,
     ID = cms.InputTag("lowPtPATElectronID")
-)
-
-run2_nanoAOD_106Xv2.toModify(
+).toModify(
     finalLowPtElectrons,
     cut = "pt > 1. && userFloat('ID') > -0.25"
-)
-
-run2_nanoAOD_106Xv2.toModify(
+).toModify(
     lowPtElectronTable.variables,
     embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
     ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")

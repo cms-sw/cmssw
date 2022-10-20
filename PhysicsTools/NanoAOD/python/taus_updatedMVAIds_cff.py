@@ -291,23 +291,18 @@ _patTauDiscriminationByElectronRejection2015Task = cms.Task(
     patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionTask = _patTauDiscriminationByElectronRejection2015Task.copy()
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(
+(run2_nanoAOD_106Xv1).toReplaceWith(
     patTauDiscriminationByElectronRejectionTask,
     _patTauDiscriminationByElectronRejection2018Task)
 
 
 ### put all new MVA tau-Id stuff to one Sequence
-_patTauMVAIDsTask2017v2 = cms.Task(
+patTauMVAIDsTask = cms.Task(
     patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
     patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask,
     patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTTask,
-    patTauDiscriminationByElectronRejectionTask
-)
-patTauMVAIDsTask = _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task)
-
-(run2_nanoAOD_94XMiniAODv1).toReplaceWith(
-    patTauMVAIDsTask,
-    _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task)
+    patTauDiscriminationByElectronRejectionTask,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task
 )
 
 # embed new MVA tau-Ids into new tau collection
@@ -375,11 +370,6 @@ _tauIDSourcesWith2015 = cms.PSet(
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWith2015
 
-(run2_nanoAOD_94XMiniAODv1).toModify(
-    slimmedTausUpdated,
-    tauIDSources = _tauIDSourcesWith2017v1
-)
-
 _antiETauIDSources2018 = cms.PSet(
     againstElectronMVA6Raw2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "raw"),
     againstElectronMVA6category2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "category"),
@@ -407,7 +397,7 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+(run2_nanoAOD_106Xv1).toModify(
     slimmedTausUpdated,
     tauIDSources = _tauIDSourcesWithAntiE2018
 )
@@ -426,7 +416,8 @@ _tauIDSourcesWithAntiEdeadECal = cms.PSet(
         workingPointIndex = cms.int32(-99)
     )
 )
-(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(
+
+(run2_nanoAOD_106Xv1).toReplaceWith(
     patTauMVAIDsTask,
     _patTauMVAIDsTaskWithAntiEdeadECal
 ).toModify(

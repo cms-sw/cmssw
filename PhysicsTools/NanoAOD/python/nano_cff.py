@@ -158,10 +158,6 @@ def nanoAOD_recalibrateMETs(process,isData):
         ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2018/model.graphdef')
     )
 
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
-        nanoAOD_DeepMET_switch, ResponseTune_Graph="RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2016/model.graphdef"
-    )
-
     print("add DeepMET Producers")
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
     process.deepMETsResolutionTune = process.deepMETProducer.clone()
@@ -230,7 +226,7 @@ def nanoAOD_activateVID(process):
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
 
     process.electronTask = process.egmGsfElectronIDTask.copyAndAdd(electronTask.copy())
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    (run2_nanoAOD_106Xv1).toModify(
         process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated"
     ).toModify(
         process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated"
@@ -241,11 +237,7 @@ def nanoAOD_activateVID(process):
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
 
     process.photonTask = process.egmPhotonIDTask.copyAndAdd(photonTask.copy())
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(
-        process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X"
-    ).toModify(
-        process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X"
-    )
+
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -281,7 +273,7 @@ def nanoAOD_customizeCommon(process):
     nanoAOD_tau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
-    (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    (run2_nanoAOD_106Xv1).toModify(
         nanoAOD_tau_switch, idsToAdd = ["deepTau2017v2p1"]
     ).toModify(
         process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
@@ -304,21 +296,15 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    (run2_nanoAOD_106Xv1).toModify(
         process, lambda p: nanoAOD_recalibrateMETs(p,isData=True)
-    )
-    (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
-        process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True)
     )
     return process
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    (run2_nanoAOD_106Xv1).toModify(
         process, lambda p: nanoAOD_recalibrateMETs(p,isData=False)
-    )
-    (run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2).toModify(
-        process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False)
     )
     return process
 
@@ -335,7 +321,7 @@ def nanoWmassGenCustomize(process):
     return process
 
 # lowPtElectrons do not exsit for old nano campaigns (i.e. before v9)
-( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toModify(
+(run2_nanoAOD_106Xv1).toModify(
     linkedObjects,lowPtElectrons=""
 ).toModify(
         simpleCleanerTable,lowPtElectrons=""

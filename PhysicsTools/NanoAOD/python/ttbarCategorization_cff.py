@@ -1,6 +1,3 @@
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-
-
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
@@ -27,16 +24,6 @@ categorizeGenTtbar = categorizeGenTtbar.clone(
     genJetPtMin = 20.,
     genJetAbsEtaMax = 2.4,
     genJets = cms.InputTag("slimmedGenJets"),
-)
-
-
-### Era dependent customization
-run2_miniAOD_80XLegacy.toModify(
-    matchGenBHadron,
-    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation")
-).toModify(
-    matchGenCHadron,
-    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation")
 )
 
 
