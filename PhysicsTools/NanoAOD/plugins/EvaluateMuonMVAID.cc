@@ -9,20 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-
 #include "PhysicsTools/PatAlgos/interface/BaseMVAValueMapProducer.h"
 #include <vector>
 
