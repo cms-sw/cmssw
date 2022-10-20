@@ -31,8 +31,11 @@ categorizeGenTtbar = categorizeGenTtbar.clone(
 
 
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( matchGenBHadron, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-run2_miniAOD_80XLegacy.toModify( matchGenCHadron, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
+run2_miniAOD_80XLegacy.toModify(
+    matchGenBHadron,
+    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),
+    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),
+)
 
 
 ##################### Tables for final output and docs ##########################

@@ -195,19 +195,27 @@ _modifiers = ( run2_miniAOD_80XLegacy |
 # To preserve "nano v9" functionality ...
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
-run2_nanoAOD_106Xv2.toModify(modifiedLowPtElectrons.modifierConfig,
-                             modifications = cms.VPSet(lowPtElectronModifier,
-                                                       lowPtRegressionModifier))
+run2_nanoAOD_106Xv2.toModify(
+    modifiedLowPtElectrons.modifierConfig,
+    modifications = cms.VPSet(lowPtElectronModifier,
+                              lowPtRegressionModifier)
+)
 
-run2_nanoAOD_106Xv2.toModify(updatedLowPtElectronsWithUserData.userFloats,
-                             ID = cms.InputTag("lowPtPATElectronID"))
+run2_nanoAOD_106Xv2.toModify(
+    updatedLowPtElectronsWithUserData.userFloats,
+    ID = cms.InputTag("lowPtPATElectronID")
+)
 
-run2_nanoAOD_106Xv2.toModify(finalLowPtElectrons,
-                             cut = "pt > 1. && userFloat('ID') > -0.25")
+run2_nanoAOD_106Xv2.toModify(
+    finalLowPtElectrons,
+    cut = "pt > 1. && userFloat('ID') > -0.25"
+)
 
-run2_nanoAOD_106Xv2.toModify(lowPtElectronTable.variables,
-                             embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-                             ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"))
+run2_nanoAOD_106Xv2.toModify(
+    lowPtElectronTable.variables,
+    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
+    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
+)
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 lowPtPATElectronID = lowPtGsfElectronID.clone(
@@ -221,4 +229,7 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
 
 _lowPtElectronTask = cms.Task(lowPtPATElectronID)
 _lowPtElectronTask.add(lowPtElectronTask.copy())
-run2_nanoAOD_106Xv2.toReplaceWith(lowPtElectronTask,_lowPtElectronTask)
+run2_nanoAOD_106Xv2.toReplaceWith(
+    lowPtElectronTask,
+    _lowPtElectronTask
+)

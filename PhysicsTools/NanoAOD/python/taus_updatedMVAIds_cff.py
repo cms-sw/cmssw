@@ -377,10 +377,10 @@ _tauIDSourcesWith2015 = cms.PSet(
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWith2015
 
-for era in [run2_nanoAOD_94XMiniAODv1,]:
-    era.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWith2017v1
-    )
+(run2_nanoAOD_94XMiniAODv1).toModify(
+    slimmedTausUpdated,
+    tauIDSources = _tauIDSourcesWith2017v1
+)
 
 _antiETauIDSources2018 = cms.PSet(
     againstElectronMVA6Raw2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "raw"),
@@ -409,11 +409,10 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
-            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
-    era.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWithAntiE2018
-    )
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
+    slimmedTausUpdated,
+    tauIDSources = _tauIDSourcesWithAntiE2018
+)
 
 ## anti-electron in dead-ECal regions
 from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronDeadECAL_cfi import patTauDiscriminationAgainstElectronDeadECAL
@@ -430,13 +429,13 @@ _tauIDSourcesWithAntiEdeadECal = cms.PSet(
         workingPointIndex = cms.int32(-99)
     )
 )
-for era in [run2_miniAOD_80XLegacy,run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,\
-            run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,\
-            run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWithAntiEdeadECal)
-    era.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWithAntiEdeadECal
-    )
+(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(
+    patTauMVAIDsTask,
+    _patTauMVAIDsTaskWithAntiEdeadECal
+).toModify(
+    slimmedTausUpdated,
+    tauIDSources = _tauIDSourcesWithAntiEdeadECal
+)
 
 patTauMVAIDsTask.add(slimmedTausUpdated)
 

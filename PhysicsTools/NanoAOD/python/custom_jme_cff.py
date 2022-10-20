@@ -232,14 +232,20 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
     )
   )
 
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, tightJetId).filterParams, version = "WINTER16" )
-    modifier.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER16" )
-  for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(getattr(proc, tightJetId).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
-    modifier.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
-  run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetId).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
-  run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
+  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
+    getattr(proc, tightJetId).filterParams, version = "WINTER16"
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER16"
+  )
+  (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
+    getattr(proc, tightJetId).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else "")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
+  run2_nanoAOD_102Xv1.toModify(
+    getattr(proc, tightJetId).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "")
+  )
 
   #
   # Save variables as userInts in each jet
@@ -247,15 +253,16 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   patJetWithUserData = "{}WithUserData".format(jetSrc)
   getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
   getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, patJetWithUserData).userInts, looseId = cms.InputTag(looseJetId))
+  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
+    getattr(proc, patJetWithUserData).userInts, looseId = cms.InputTag(looseJetId)
+  )
 
   #
   # Specfiy variables in the jetTable to save in NanoAOD
   #
   getattr(proc, jetTableName).variables.jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto")
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, jetTableName).variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int, doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
+  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
+    getattr(proc, jetTableName).variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int, doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
 
 
   getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
@@ -263,8 +270,9 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
 
   setattr(proc,"_"+jetTaskName+"_2016", getattr(proc,jetTaskName).copy())
   getattr(proc,"_"+jetTaskName+"_2016").add(getattr(proc, looseJetId))
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toReplaceWith(getattr(proc,jetTaskName), getattr(proc, "_"+jetTaskName+"_2016"))
+  (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
+    getattr(proc,jetTaskName), getattr(proc, "_"+jetTaskName+"_2016")
+  )
 
   return proc
 
@@ -624,11 +632,14 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # Jet table 
   #
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
-  run2_nanoAOD_ANY.toModify(proc.jetTable, name = "Jet")
+  run2_nanoAOD_ANY.toModify(
+    proc.jetTable, name = "Jet"
+  )
   # So need to change the table name for AK4 puppi here
-  run2_nanoAOD_ANY.toModify(proc.jetPuppiTable,
-   name = "JetPuppi",
-   src = cms.InputTag("finalJetsPuppi")
+  run2_nanoAOD_ANY.toModify(
+    proc.jetPuppiTable,
+    name = "JetPuppi",
+    src = cms.InputTag("finalJetsPuppi")
   )
   
   #
@@ -669,12 +680,12 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # Save variables as userFloats and userInts in each jet
   #
   proc = AddQGLTaggerVars(proc,
-    jetName = jetName, 
-    jetSrc = "updatedJetsPuppi", 
-    jetTableName = "jetPuppiTable", 
-    jetTaskName = "jetPuppiTask", 
-    calculateQGLVars=True
-  )
+                          jetName = jetName,
+                          jetSrc = "updatedJetsPuppi",
+                          jetTableName = "jetPuppiTable",
+                          jetTaskName = "jetPuppiTask",
+                          calculateQGLVars=True
+                        )
   #
   # Save standard b-tagging and c-tagging variables
   #
@@ -731,7 +742,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
 
 def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   """
-  Recluster AK4 CHS jets and replace slimmedJets that is used as default to 
+  Recluster AK4 CHS jets and replace slimmedJets that is used as default to
   save AK4 CHS jets in NanoAODs (for Run-2).
   """
   print("custom_jme_cff::ReclusterAK4CHSJets: Recluster AK4 PF CHS jets")
@@ -779,13 +790,14 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   jetTableCut = "" # must not have any cut at the jetTable for AK4 CHS as it has been cross-cleaned
   proc.jetTable.src   = cms.InputTag("finalJets")
   proc.jetTable.cut   = jetTableCut
-  proc.jetMCTable.cut = jetTableCut  
+  proc.jetMCTable.cut = jetTableCut
   proc.jetTable.name  = "JetCHS"
-  
+
   #
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   #
-  run2_nanoAOD_ANY.toModify(proc.jetTable, 
+  run2_nanoAOD_ANY.toModify(
+    proc.jetTable,
     src = cms.InputTag("linkedObjects","jets"),
     name = "Jet"
   )
@@ -827,12 +839,18 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   )
   _jetUserDataTask = proc.jetUserDataTask.copy()
   _jetUserDataTask.add(getattr(proc,pileupJetId80X))
-  for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toReplaceWith(proc.jetUserDataTask, _jetUserDataTask)
-    modifier.toModify(proc.updatedJetsWithUserData.userInts, puId80XfullId = cms.InputTag('pileupJetId80X:fullId'))
-    modifier.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training"))
-  run2_nanoAOD_94X2016.toModify(proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant"))
-  run2_nanoAOD_94X2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
+  (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
+    proc.jetUserDataTask, _jetUserDataTask
+  ).toModify(
+    proc.updatedJetsWithUserData.userInts, puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
+  ).toModify(
+    proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training")
+  )
+  run2_nanoAOD_94X2016.toModify(
+    proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
+  ).toModify(
+    proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10)
+  )
 
   #
   # Add charged energy fraction from other primary vertices
