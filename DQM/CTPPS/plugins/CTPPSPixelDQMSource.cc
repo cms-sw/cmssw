@@ -61,6 +61,7 @@ private:
   static constexpr int hitMultMAX = 50;   // tuned
   static constexpr int ClusMultMAX = 10;  // tuned
   static constexpr int ClusterSizeMax = 9;
+  static constexpr int errCodeSize = 15;
 
   static constexpr int mapXbins = 200;
   static constexpr int mapYbins = 240;
@@ -288,9 +289,36 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
     hpixLTrack->getTProfile()->GetYaxis()->SetTitle("average number of tracks per event");
     hpixLTrack->getTProfile()->SetOption("hist");
   }
-  const float minErrCode = 20.;
-  const float maxErrCode = 40.;
-  h2ErrorCode = ibooker.book2D("Errors in Unidentified Det","Errors in Unidentified Det;Error Code;fed", int(maxErrCode-minErrCode)+1, minErrCode-0.5, maxErrCode+0.5, 2, 1461.5, 1463.5);
+  const float minErrCode = 25.;
+  const string errCode[errCodeSize] = {
+      "Invalid ROC                        ",  // error  25
+      "Gap word",                             // error 26
+      "Dummy word",                           // error 27
+      "FIFO nearly full",                     // error 28
+      "Channel Timeout",                      // error 29
+      "TBM Trailer",                          // error 30
+      "Event number mismatch",                // error 31
+      "Invalid/no FED header",                // error 32
+      "Invalid/no FED trailer",               // error 33
+      "Size mismatch",                        // error 34
+      "Conversion: inv. channel",             // error 35
+      "Conversion: inv. ROC number",          // error 36
+      "Conversion: inv. pixel address",       // error 37
+      "-",
+      "CRC"  //error 39
+  };
+  h2ErrorCode = ibooker.book2D("Errors in Unidentified Det",
+                               "Errors in Unidentified Det;;fed",
+                               errCodeSize,
+                               minErrCode - 0.5,
+                               minErrCode + float(errCodeSize) - 0.5,
+                               2,
+                               1461.5,
+                               1463.5);
+  for (unsigned int iBin = 1; iBin <= errCodeSize; iBin++)
+    h2ErrorCode->setBinLabel(iBin, errCode[iBin - 1]);
+  h2ErrorCode->setBinLabel(1, "1462", 2);
+  h2ErrorCode->setBinLabel(2, "1463", 2);
   h2ErrorCode->getTH2F()->SetOption("colz");
 
   for (int arm = 0; arm < 2; arm++) {
@@ -342,11 +370,18 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
         h2trackXY0[indexP] = ibooker.book2D(
             st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum, int(y0Maximum) * 4, -y0Maximum, y0Maximum);
         h2trackXY0[indexP]->getTH2F()->SetOption("colz");
-
-	st = "Error Code";
-        h2ErrorCodeRP[indexP] = ibooker.book2D(st, st + st2 + ";Error Code;plane", int(maxErrCode-minErrCode)+1, minErrCode-0.5, maxErrCode+0.5, 6, -0.5, 5.5);
+        st = "Error Code";
+        h2ErrorCodeRP[indexP] = ibooker.book2D(st,
+                                               st + st2 + ";;plane",
+                                               errCodeSize,
+                                               minErrCode - 0.5,
+                                               minErrCode + float(errCodeSize) - 0.5,
+                                               6,
+                                               -0.5,
+                                               5.5);
+        for (unsigned int iBin = 1; iBin <= errCodeSize; iBin++)
+          h2ErrorCodeRP[indexP]->setBinLabel(iBin, errCode[iBin - 1]);
         h2ErrorCodeRP[indexP]->getTH2F()->SetOption("colz");
-
 
         st = "number of tracks per event";
         htrackMult[indexP] = ibooker.bookProfile(st,
@@ -695,23 +730,22 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
     }    // end for(const auto &ds_digi : *pixDigi)
   }      // if(pixDigi.isValid()) {
 
-  
   if (pixError.isValid()) {
     for (const auto &ds_error : *pixError) {
       int idet = getDet(ds_error.id);
       if (idet != DetId::VeryForward) {
-	if(idet == 15){ //dummy det id: store in a plot with fed info
-	  
-	  for (DetSet<CTPPSPixelDataError>::const_iterator dit = ds_error.begin(); dit != ds_error.end(); ++dit) {
-	    h2ErrorCode->Fill(dit->errorType(), dit->fedId());
-	  }
-	  continue;
-	}
+        if (idet == 15) {  //dummy det id: store in a plot with fed info
+
+          for (DetSet<CTPPSPixelDataError>::const_iterator dit = ds_error.begin(); dit != ds_error.end(); ++dit) {
+            h2ErrorCode->Fill(dit->errorType(), dit->fedId());
+          }
+          continue;
+        }
         if (verbosity > 1)
           LogPrint("CTPPSPixelDQMSource") << "not CTPPS: ds_error.id" << ds_error.id;
         continue;
       }
-  
+
       int plane = getPixPlane(ds_error.id);
       CTPPSDetId theId(ds_error.id);
       int arm = theId.arm() & 0x1;
@@ -721,18 +755,17 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       RPactivity[rpInd] = 1;
 
       if (StationStatus[station] && RPstatus[station][rpot]) {
-	int index = getRPindex(arm, station, rpot);
+        int index = getRPindex(arm, station, rpot);
         for (DetSet<CTPPSPixelDataError>::const_iterator dit = ds_error.begin(); dit != ds_error.end(); ++dit) {
           if (RPindexValid[index]) {
             if (!isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
-	      h2ErrorCodeRP[index]->Fill(dit->errorType(), plane);
-	    }
-	  }  // end if(RPindexValid[index]) {
+              h2ErrorCodeRP[index]->Fill(dit->errorType(), plane);
+            }
+          }  // end if(RPindexValid[index]) {
         }
       }  // end  if(StationStatus[station]) {
     }    // end for(const auto &ds_error : *pixDigi)
   }      // if(pixError.isValid())
-
 
   if (pixClus.isValid() && onlinePlots)
     for (const auto &ds : *pixClus) {
