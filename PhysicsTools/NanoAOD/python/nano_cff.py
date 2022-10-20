@@ -240,7 +240,7 @@ def nanoAOD_activateVID(process):
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
 
-    process.photonTask = process.egmPhotonIDTask.copyAndAdd(photonTask_.copy())
+    process.photonTask = process.egmPhotonIDTask.copyAndAdd(photonTask.copy())
     (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(
         process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X"
     ).toModify(
