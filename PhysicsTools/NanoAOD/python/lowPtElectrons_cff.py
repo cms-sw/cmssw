@@ -182,13 +182,13 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
- ( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toReplaceWith(
-     lowPtElectronTask,cms.Task()
- ).toReplaceWith(
-     lowPtElectronTablesTask,cms.Task()
- ).toReplaceWith(
-     lowPtElectronMCTask,cms.Task()
- )
+( run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 ).toReplaceWith(
+    lowPtElectronTask,cms.Task()
+).toReplaceWith(
+    lowPtElectronTablesTask,cms.Task()
+).toReplaceWith(
+    lowPtElectronMCTask,cms.Task()
+)
 
 # To preserve "nano v9" functionality ...
 

@@ -291,7 +291,7 @@ _patTauDiscriminationByElectronRejection2015Task = cms.Task(
     patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionTask = _patTauDiscriminationByElectronRejection2015Task.copy()
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1]).toReplaceWith(
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(
     patTauDiscriminationByElectronRejectionTask,
     _patTauDiscriminationByElectronRejection2018Task)
 
@@ -307,7 +307,7 @@ patTauMVAIDsTask = _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsol
 
 (run2_nanoAOD_94XMiniAODv1).toReplaceWith(
     patTauMVAIDsTask,
-    _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task))
+    _patTauMVAIDsTask2017v2.copyAndAdd(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task)
 )
 
 # embed new MVA tau-Ids into new tau collection

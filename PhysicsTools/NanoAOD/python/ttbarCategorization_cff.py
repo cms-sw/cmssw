@@ -34,7 +34,6 @@ categorizeGenTtbar = categorizeGenTtbar.clone(
 run2_miniAOD_80XLegacy.toModify(
     matchGenBHadron,
     jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),
-    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),
 )
 
 
