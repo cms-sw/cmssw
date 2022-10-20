@@ -71,26 +71,6 @@ bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
 )
 _bitmapVIDForEle_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEle.WorkingPoints)
 
-#bitmapVIDForEleSpring15 = bitmapVIDForEle.clone(
-#    WorkingPoints = cms.vstring(
-#        "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto",
-#        "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose",
-#        "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium",
-#        #    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight", # not fitting in sizeof(int)
-#    )
-#)
-#_bitmapVIDForEleSpring15_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEleSpring15.WorkingPoints)
-
-#bitmapVIDForEleSum16 = bitmapVIDForEle.clone(
-#    WorkingPoints = cms.vstring(
-#        "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto",
-#        "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose",
-#        "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium",
-#        "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight",
-#    )
-#)
-#_bitmapVIDForEleSum16_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEleSum16.WorkingPoints)
-
 bitmapVIDForEleHEEP = bitmapVIDForEle.clone(
     WorkingPoints = cms.vstring("egmGsfElectronIDs:heepElectronID-HEEPV70"
     )
@@ -370,7 +350,7 @@ electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt
     resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
 )
-#should be cloned from PhysicsTools/NanoAOD/python/candMcMatchTable_cfi.py 
+#should be cloned from PhysicsTools/NanoAOD/python/candMcMatchTable_cfi.py
 electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     src     = electronTable.src,
     mcMapDressedLep = cms.InputTag("electronsMCMatchForTableAlt"),

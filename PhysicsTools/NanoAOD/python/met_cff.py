@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 
 ##################### Tables for final output and docs ##########################
@@ -138,12 +137,6 @@ deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         phi = Var("corPhi('RawDeepResponseTune')", float, doc="DeepMET ResponseTune phi",precision=12),
     ),
 )
-
-#metFixEE2017Table = metTable.clone(
-#    src = cms.InputTag("slimmedMETsFixEE2017"),
-#    name = cms.string("METFixEE2017"),
-#    doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition"),
-#)
 
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
