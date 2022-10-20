@@ -159,7 +159,7 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTablesTask = cms.Task( metTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, tkMetTable, chsMetTable, deepMetResolutionTuneTable, deepMetResponseTuneTable )
-) # only in old miniAOD, the new ones will come from the UL rereco
+# only in old miniAOD, the new ones will come from the UL rereco
 (run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2).toReplaceWith(
     metTablesTask,
     metTablesTask.copyAndAdd( metFixEE2017Table)

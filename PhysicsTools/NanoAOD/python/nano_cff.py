@@ -147,7 +147,7 @@ def nanoAOD_addBoostedTauIds(process, idsToRun=[]):
         process.finalBoostedTaus.src = updatedBoostedTauName
         #remember to adjust the selection and tables with added IDs
 
-        process.boostedTauTask = process.rerunMvaIsolationTaskBoostedForNano.copyAndAdd( getattr(process, updatedBoostedTauName), process.finalBoostedTaus))
+        process.boostedTauTask = process.rerunMvaIsolationTaskBoostedForNano.copyAndAdd( getattr(process, updatedBoostedTauName), process.finalBoostedTaus)
 
     return process
 

@@ -65,7 +65,7 @@ run2_jme_2016.toModify(
 
 run2_nanoAOD_102Xv1.toModify(
     tightJetId.filterParams, version = "SUMMER18"
-)toModify(
+).toModify(
     tightJetIdLepVeto.filterParams, version = "SUMMER18"
 )
 
@@ -205,8 +205,8 @@ run2_jme_2017.toModify(
 )
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
     jetTable.variables,
-    puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant with 80X (2016) training",precision=10)
-    jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings")
+    puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant with 80X (2016) training",precision=10),
+    puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings")
 )
 (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(
     jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 94X (2017) training"
