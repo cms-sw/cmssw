@@ -18,6 +18,11 @@ _boostedTauPlotsV10.extend([
     plots = _boostedTauPlotsV10
 )
 
+_Muon_plots_preRun3 = copy.deepcopy(nanoDQM.vplots.Muon.plots)
+_Muon_plots_preRun3.remove(Plot1D('mvaIDMuon_WP', 'mvaIDMuon_WP',  3, -0.5, 2.5, 'MVA-based ID selector WPs (1=MVAIDwpMedium,2=MVAIDwpTight)'))
+(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2 |  
+run3_nanoAOD_122).toModify(nanoDQM.vplots.Muon.plots, plots = _Muon_plots_preRun3 )
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
