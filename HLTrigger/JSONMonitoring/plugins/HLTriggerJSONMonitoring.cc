@@ -33,13 +33,19 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+//note this was updated 20/10/22 to change the logic such that instead
+//of having it passing the L1Seed, it is now number passing pre prescale
+//this is indentical for "standard" paths and more meaningful for
+//the special paths which are affected
+//a standard path logic goes "trigger type -> l1 seed -> prescale -> other selection"
+
 struct HLTriggerJSONMonitoringData {
   // variables accumulated event by event in each stream
   struct stream {
     unsigned int processed;               // number of events processed
     std::vector<unsigned int> hltWasRun;  // number of events where each path was run
-    std::vector<unsigned int> hltL1s;     // number of events where each path passed the L1 seed
-    std::vector<unsigned int> hltPre;     // number of events where each path passed the prescale
+    std::vector<unsigned int> hltPrePS;   // number of events where each path made it to the prescale module
+    std::vector<unsigned int> hltPostPS;  // number of events where each path passed the prescale
     std::vector<unsigned int> hltAccept;  // number of events accepted by each path
     std::vector<unsigned int> hltReject;  // number of events rejected by each path
     std::vector<unsigned int> hltErrors;  // number of events with errors in each path
@@ -54,7 +60,6 @@ struct HLTriggerJSONMonitoringData {
     std::string jsdFileName;  // definition file name for JSON with rates
 
     HLTConfigProvider hltConfig;  // HLT configuration for the current run
-    std::vector<int> posL1s;      // position of last L1T HLT seed filter in each path, or -1 if not present
     std::vector<int> posPre;      // position of last HLT prescale filter in each path, or -1 if not present
     std::vector<std::vector<unsigned int>> datasets;  // list of paths in each dataset
     std::vector<unsigned int> indicesOfTriggerPaths;  // indices of triggers (without DatasetPaths) in TriggerNames
@@ -64,8 +69,8 @@ struct HLTriggerJSONMonitoringData {
   struct lumisection {
     jsoncollector::HistoJ<unsigned int> processed;  // number of events processed
     jsoncollector::HistoJ<unsigned int> hltWasRun;  // number of events where each path was run
-    jsoncollector::HistoJ<unsigned int> hltL1s;     // number of events where each path passed the L1 seed
-    jsoncollector::HistoJ<unsigned int> hltPre;     // number of events where each path passed the prescale
+    jsoncollector::HistoJ<unsigned int> hltPrePS;   // number of events where each path made it to the prescale module
+    jsoncollector::HistoJ<unsigned int> hltPostPS;  // number of events where each path passed the prescale
     jsoncollector::HistoJ<unsigned int> hltAccept;  // number of events accepted by each path
     jsoncollector::HistoJ<unsigned int> hltReject;  // number of events rejected by each path
     jsoncollector::HistoJ<unsigned int> hltErrors;  // number of events with errors in each path
@@ -226,22 +231,18 @@ std::shared_ptr<HLTriggerJSONMonitoringData::run> HLTriggerJSONMonitoring::globa
       }
     }
 
-    // find the positions of the L1 seed and prescale filters
-    rundata->posL1s.resize(triggersSize);
+    // find the positions of the prescale filters
     rundata->posPre.resize(triggersSize);
     for (auto i = 0u; i < triggersSize; ++i) {
-      rundata->posL1s[i] = -1;
       rundata->posPre[i] = -1;
       auto const trigNameIndx = rundata->indicesOfTriggerPaths[i];
       auto const& moduleLabels = rundata->hltConfig.moduleLabels(trigNameIndx);
       for (auto j = 0u; j < moduleLabels.size(); ++j) {
-        auto const& moduleLabel = moduleLabels[j];
-        auto const& moduleType = rundata->hltConfig.moduleType(moduleLabel);
-        //the logic here is that it finds the first non ignored HLTL1TSeed module, ignored modules have - at the start of their name
-        if (rundata->posL1s[i] == -1 && moduleLabel.rfind('-', 0) != 0 && moduleType == "HLTL1TSeed") {
-          rundata->posL1s[i] = j;
-        } else if (moduleType == "HLTPrescaler")
+        auto const& moduleType = rundata->hltConfig.moduleType(moduleLabels[j]);
+        if (moduleType == "HLTPrescaler") {
           rundata->posPre[i] = j;
+          break;
+        }
       }
     }
   }
@@ -288,15 +289,15 @@ void HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
     if (status.wasrun()) {
       ++stream.hltWasRun[idx];
       if (status.accept()) {
-        ++stream.hltL1s[idx];
-        ++stream.hltPre[idx];
+        ++stream.hltPrePS[idx];
+        ++stream.hltPostPS[idx];
         ++stream.hltAccept[idx];
       } else {
         int const index = (int)status.index();
-        if (index > rundata.posL1s[idx])
-          ++stream.hltL1s[idx];
+        if (index >= rundata.posPre[idx])
+          ++stream.hltPrePS[idx];
         if (index > rundata.posPre[idx])
-          ++stream.hltPre[idx];
+          ++stream.hltPostPS[idx];
         if (status.error())
           ++stream.hltErrors[idx];
         else
@@ -330,8 +331,8 @@ std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> HLTriggerJSONMonitorin
   auto lumidata = std::make_shared<HLTriggerJSONMonitoringData::lumisection>(HLTriggerJSONMonitoringData::lumisection{
       jsoncollector::HistoJ<unsigned int>(1),         // processed
       jsoncollector::HistoJ<unsigned int>(triggers),  // hltWasRun
-      jsoncollector::HistoJ<unsigned int>(triggers),  // hltL1s
-      jsoncollector::HistoJ<unsigned int>(triggers),  // hltPre
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltPrePS
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltPostPS
       jsoncollector::HistoJ<unsigned int>(triggers),  // hltAccept
       jsoncollector::HistoJ<unsigned int>(triggers),  // hltReject
       jsoncollector::HistoJ<unsigned int>(triggers),  // hltErrors
@@ -342,9 +343,9 @@ std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> HLTriggerJSONMonitorin
   for (unsigned int i = 0; i < triggers; ++i)
     lumidata->hltWasRun.update(0);
   for (unsigned int i = 0; i < triggers; ++i)
-    lumidata->hltL1s.update(0);
+    lumidata->hltPrePS.update(0);
   for (unsigned int i = 0; i < triggers; ++i)
-    lumidata->hltPre.update(0);
+    lumidata->hltPostPS.update(0);
   for (unsigned int i = 0; i < triggers; ++i)
     lumidata->hltAccept.update(0);
   for (unsigned int i = 0; i < triggers; ++i)
@@ -374,8 +375,8 @@ void HLTriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid,
   // reset the stream counters
   stream.processed = 0;
   stream.hltWasRun.assign(triggers, 0);
-  stream.hltL1s.assign(triggers, 0);
-  stream.hltPre.assign(triggers, 0);
+  stream.hltPrePS.assign(triggers, 0);
+  stream.hltPostPS.assign(triggers, 0);
   stream.hltAccept.assign(triggers, 0);
   stream.hltReject.assign(triggers, 0);
   stream.hltErrors.assign(triggers, 0);
@@ -398,8 +399,8 @@ void HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
   auto const triggers = rundata.indicesOfTriggerPaths.size();
   for (auto i = 0u; i < triggers; ++i) {
     lumidata->hltWasRun.value()[i] += stream.hltWasRun[i];
-    lumidata->hltL1s.value()[i] += stream.hltL1s[i];
-    lumidata->hltPre.value()[i] += stream.hltPre[i];
+    lumidata->hltPrePS.value()[i] += stream.hltPrePS[i];
+    lumidata->hltPostPS.value()[i] += stream.hltPostPS[i];
     lumidata->hltAccept.value()[i] += stream.hltAccept[i];
     lumidata->hltReject.value()[i] += stream.hltReject[i];
     lumidata->hltErrors.value()[i] += stream.hltErrors[i];
@@ -451,8 +452,8 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
     jsndata[jsoncollector::DataPoint::DEFINITION] = rundata.jsdFileName;
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->processed.toJsonValue());
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltWasRun.toJsonValue());
-    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltL1s.toJsonValue());
-    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltPre.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltPrePS.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltPostPS.toJsonValue());
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltAccept.toJsonValue());
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltReject.toJsonValue());
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltErrors.toJsonValue());
