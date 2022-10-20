@@ -508,7 +508,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   }
   for (unsigned int i = 0; i < layerList.size(); i++) {
     hXYhits.emplace_back(fs->make<TH2D>(Form("hXYhits_layer_%02d", layerList[i]),
-                                        Form("Hits in XY for layer %d", layerList[i]),
+                                        Form("Gen:Hits in XY for layer %d", layerList[i]),
                                         600,
                                         -300.,
                                         300.,
@@ -517,7 +517,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                         300.));
 
     hXYhitsF0.emplace_back(fs->make<TH2D>(Form("hXYhitsF0_layer_%02d", layerList[i]),
-                                          Form("HitsF0 in XY for layer %d", layerList[i]),
+                                          Form("Gen:HitsF0 in XY for layer %d", layerList[i]),
                                           600,
                                           -300.,
                                           300.,
@@ -525,7 +525,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                           -300.,
                                           300.));
     hXYhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYhitsCN0_layer_%02d", layerList[i]),
-                                           Form("HitsCN0 in XY for layer %d", layerList[i]),
+                                           Form("Gen:HitsCN0 in XY for layer %d", layerList[i]),
                                            600,
                                            -300.,
                                            300.,
@@ -533,7 +533,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                            -300.,
                                            300.));
     hXYhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYhitsCK0_layer_%02d", layerList[i]),
-                                           Form("HitsCK0 in XY for layer %d", layerList[i]),
+                                           Form("Gen:HitsCK0 in XY for layer %d", layerList[i]),
                                            600,
                                            -300.,
                                            300.,
@@ -541,7 +541,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                            -300.,
                                            300.));
     hXYhitsB0.emplace_back(fs->make<TH2D>(Form("hXYhitsB0_layer_%02d", layerList[i]),
-                                          Form("HitsB0 in XY for layer %d", layerList[i]),
+                                          Form("Gen:HitsB0 in XY for layer %d", layerList[i]),
                                           600,
                                           -300.,
                                           300.,
@@ -549,7 +549,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                           -300.,
                                           300.));
     hXYhitsF1.emplace_back(fs->make<TH2D>(Form("hXYhitsF1_layer_%02d", layerList[i]),
-                                          Form("HitsF1 in XY for layer %d", layerList[i]),
+                                          Form("Gen:HitsF1 in XY for layer %d", layerList[i]),
                                           600,
                                           -300.,
                                           300.,
@@ -557,7 +557,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                           -300.,
                                           300.));
     hXYhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYhitsCN1_layer_%02d", layerList[i]),
-                                           Form("HitsCN1 in XY for layer %d", layerList[i]),
+                                           Form("Gen:HitsCN1 in XY for layer %d", layerList[i]),
                                            600,
                                            -300.,
                                            300.,
@@ -565,7 +565,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                            -300.,
                                            300.));
     hXYhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYhitsCK1_layer_%02d", layerList[i]),
-                                           Form("HitsCK1 in XY for layer %d", layerList[i]),
+                                           Form("Gen:HitsCK1 in XY for layer %d", layerList[i]),
                                            600,
                                            -300.,
                                            300.,
@@ -573,7 +573,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                            -300.,
                                            300.));
     hXYhitsB1.emplace_back(fs->make<TH2D>(Form("hXYhitsB1_layer_%02d", layerList[i]),
-                                          Form("HitsB1 in XY for layer %d", layerList[i]),
+                                          Form("Gen:HitsB1 in XY for layer %d", layerList[i]),
                                           600,
                                           -300.,
                                           300.,
@@ -582,72 +582,72 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                           300.));
 
     hEPhitsF0.emplace_back(fs->make<TH2D>(Form("hEPhitsF0_layer_%02d", layerList[i]),
-                                          Form("HitsF0 in EP for layer %d", layerList[i]),
-                                          600,
-                                          -300.,
-                                          300.,
-                                          600,
-                                          -300.,
-                                          300.));
+                                          Form("Gen:HitsF0 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPhitsCN0_layer_%02d", layerList[i]),
-                                           Form("HitsCN0 in EP for layer %d", layerList[i]),
-                                           600,
-                                           -300.,
-                                           300.,
-                                           600,
-                                           -300.,
-                                           300.));
+                                           Form("Gen:HitsCN0 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPhitsCK0_layer_%02d", layerList[i]),
-                                           Form("HitsCK0 in EP for layer %d", layerList[i]),
-                                           600,
-                                           -300.,
-                                           300.,
-                                           600,
-                                           -300.,
-                                           300.));
+                                           Form("Gen:HitsCK0 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPhitsB0.emplace_back(fs->make<TH2D>(Form("hEPhitsB0_layer_%02d", layerList[i]),
-                                          Form("HitsB0 in EP for layer %d", layerList[i]),
-                                          600,
-                                          -300.,
-                                          300.,
-                                          600,
-                                          -300.,
-                                          300.));
+                                          Form("Gen:HitsB0 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPhitsF1.emplace_back(fs->make<TH2D>(Form("hEPhitsF1_layer_%02d", layerList[i]),
-                                          Form("HitsF1 in EP for layer %d", layerList[i]),
-                                          600,
-                                          -300.,
-                                          300.,
-                                          600,
-                                          -300.,
-                                          300.));
+                                          Form("Gen:HitsF1 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPhitsCN1_layer_%02d", layerList[i]),
-                                           Form("HitsCN1 in EP for layer %d", layerList[i]),
-                                           600,
-                                           -300.,
-                                           300.,
-                                           600,
-                                           -300.,
-                                           300.));
+                                           Form("Gen:HitsCN1 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPhitsCK1_layer_%02d", layerList[i]),
-                                           Form("HitsCK1 in EP for layer %d", layerList[i]),
-                                           600,
-                                           -300.,
-                                           300.,
-                                           600,
-                                           -300.,
-                                           300.));
+                                           Form("Gen:HitsCK1 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPhitsB1.emplace_back(fs->make<TH2D>(Form("hEPhitsB1_layer_%02d", layerList[i]),
-                                          Form("HitsB1 in EP for layer %d", layerList[i]),
-                                          600,
-                                          -300.,
-                                          300.,
-                                          600,
-                                          -300.,
-                                          300.));
+                                          Form("Gen:HitsB1 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
 
     hXYFailhitsF0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF0_layer_%02d", layerList[i]),
-                                              Form("FailhitsF0 in XY for layer %d", layerList[i]),
+                                              Form("Gen:FailhitsF0 in XY for layer %d", layerList[i]),
                                               600,
                                               -300.,
                                               300.,
@@ -655,7 +655,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                               -300.,
                                               300.));
     hXYFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN0_layer_%02d", layerList[i]),
-                                               Form("FailhitsCN0 in XY for layer %d", layerList[i]),
+                                               Form("Gen:FailhitsCN0 in XY for layer %d", layerList[i]),
                                                600,
                                                -300.,
                                                300.,
@@ -663,7 +663,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                                -300.,
                                                300.));
     hXYFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK0_layer_%02d", layerList[i]),
-                                               Form("FailhitsCK0 in XY for layer %d", layerList[i]),
+                                               Form("Gen:FailhitsCK0 in XY for layer %d", layerList[i]),
                                                600,
                                                -300.,
                                                300.,
@@ -671,7 +671,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                                -300.,
                                                300.));
     hXYFailhitsB0.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB0_layer_%02d", layerList[i]),
-                                              Form("FailhitsB0 in XY for layer %d", layerList[i]),
+                                              Form("Gen:FailhitsB0 in XY for layer %d", layerList[i]),
                                               600,
                                               -300.,
                                               300.,
@@ -679,7 +679,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                               -300.,
                                               300.));
     hXYFailhitsF1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsF1_layer_%02d", layerList[i]),
-                                              Form("FailhitsF1 in XY for layer %d", layerList[i]),
+                                              Form("Gen:FailhitsF1 in XY for layer %d", layerList[i]),
                                               600,
                                               -300.,
                                               300.,
@@ -687,7 +687,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                               -300.,
                                               300.));
     hXYFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCN1_layer_%02d", layerList[i]),
-                                               Form("FailhitsCN1 in XY for layer %d", layerList[i]),
+                                               Form("Gen:FailhitsCN1 in XY for layer %d", layerList[i]),
                                                600,
                                                -300.,
                                                300.,
@@ -695,7 +695,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                                -300.,
                                                300.));
     hXYFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsCK1_layer_%02d", layerList[i]),
-                                               Form("FailhitsCK1 in XY for layer %d", layerList[i]),
+                                               Form("Gen:FailhitsCK1 in XY for layer %d", layerList[i]),
                                                600,
                                                -300.,
                                                300.,
@@ -703,7 +703,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                                -300.,
                                                300.));
     hXYFailhitsB1.emplace_back(fs->make<TH2D>(Form("hXYFailhitsB1_layer_%02d", layerList[i]),
-                                              Form("FailhitsB1 in XY for layer %d", layerList[i]),
+                                              Form("Gen:FailhitsB1 in XY for layer %d", layerList[i]),
                                               600,
                                               -300.,
                                               300.,
@@ -712,113 +712,113 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                               300.));
 
     hEPFailhitsF0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF0_layer_%02d", layerList[i]),
-                                              Form("FailhitsF0 in EP for layer %d", layerList[i]),
-                                              600,
-                                              -300.,
-                                              300.,
-                                              600,
-                                              -300.,
-                                              300.));
+                                          Form("Gen:FailhitsF0 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPFailhitsCN0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN0_layer_%02d", layerList[i]),
-                                               Form("FailhitsCN0 in EP for layer %d", layerList[i]),
-                                               600,
-                                               -300.,
-                                               300.,
-                                               600,
-                                               -300.,
-                                               300.));
+                                           Form("Gen:FailhitsCN0 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPFailhitsCK0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK0_layer_%02d", layerList[i]),
-                                               Form("FailhitsCK0 in EP for layer %d", layerList[i]),
-                                               600,
-                                               -300.,
-                                               300.,
-                                               600,
-                                               -300.,
-                                               300.));
+                                           Form("Gen:FailhitsCK0 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPFailhitsB0.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB0_layer_%02d", layerList[i]),
-                                              Form("FailhitsB0 in EP for layer %d", layerList[i]),
-                                              600,
-                                              -300.,
-                                              300.,
-                                              600,
-                                              -300.,
-                                              300.));
+                                          Form("Gen:FailhitsB0 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPFailhitsF1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsF1_layer_%02d", layerList[i]),
-                                              Form("FailhitsF1 in EP for layer %d", layerList[i]),
-                                              600,
-                                              -300.,
-                                              300.,
-                                              600,
-                                              -300.,
-                                              300.));
+                                          Form("Gen:FailhitsF1 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
     hEPFailhitsCN1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCN1_layer_%02d", layerList[i]),
-                                               Form("FailhitsCN1 in EP for layer %d", layerList[i]),
-                                               600,
-                                               -300.,
-                                               300.,
-                                               600,
-                                               -300.,
-                                               300.));
+                                           Form("Gen:FailhitsCN1 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPFailhitsCK1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsCK1_layer_%02d", layerList[i]),
-                                               Form("FailhitsCK1 in EP for layer %d", layerList[i]),
-                                               600,
-                                               -300.,
-                                               300.,
-                                               600,
-                                               -300.,
-                                               300.));
+                                           Form("Gen:FailhitsCK1 in EP for layer %d", layerList[i]),
+                                           640,
+                                           -3.2,
+                                           3.2,
+                                           640,
+                                           -3.2,
+                                           3.2));
     hEPFailhitsB1.emplace_back(fs->make<TH2D>(Form("hEPFailhitsB1_layer_%02d", layerList[i]),
-                                              Form("FailhitsB1 in EP for layer %d", layerList[i]),
-                                              600,
-                                              -300.,
-                                              300.,
-                                              600,
-                                              -300.,
-                                              300.));
+                                          Form("Gen:FailhitsB1 in EP for layer %d", layerList[i]),
+                                          640,
+                                          -3.2,
+                                          3.2,
+                                          640,
+                                          -3.2,
+                                          3.2));
 
     hELossLayerF0.emplace_back(fs->make<TH1D>(Form("hELossLayerF0_layer_%02d", layerList[i]),
-                                              Form("ELossF0 in XY for layer %d", layerList[i]),
+                                              Form("Gen:ELossF0 in XY for layer %d", layerList[i]),
                                               1000,
                                               0.,
                                               1000.));
     hELossLayerCN0.emplace_back(fs->make<TH1D>(Form("hELossLayerCN0_layer_%02d", layerList[i]),
-                                               Form("ELossCN0 in XY for layer %d", layerList[i]),
+                                               Form("Gen:ELossCN0 in XY for layer %d", layerList[i]),
                                                1000,
                                                0.,
                                                1000.));
     hELossLayerCK0.emplace_back(fs->make<TH1D>(Form("hELossLayerCK0_layer_%02d", layerList[i]),
-                                               Form("ELossCK0 in XY for layer %d", layerList[i]),
+                                               Form("Gen:ELossCK0 in XY for layer %d", layerList[i]),
                                                1000,
                                                0.,
                                                1000.));
     hELossLayerB0.emplace_back(fs->make<TH1D>(Form("hELossLayerB0_layer_%02d", layerList[i]),
-                                              Form("ELossB0 in XY for layer %d", layerList[i]),
+                                              Form("Gen:ELossB0 in XY for layer %d", layerList[i]),
                                               1000,
                                               0.,
                                               1000.));
     hELossLayerF1.emplace_back(fs->make<TH1D>(Form("hELossLayerF1_layer_%02d", layerList[i]),
-                                              Form("ELossF1 in XY for layer %d", layerList[i]),
+                                              Form("Gen:ELossF1 in XY for layer %d", layerList[i]),
                                               1000,
                                               0.,
                                               1000.));
     hELossLayerCN1.emplace_back(fs->make<TH1D>(Form("hELossLayerCN1_layer_%02d", layerList[i]),
-                                               Form("ELossCN1 in XY for layer %d", layerList[i]),
+                                               Form("Gen:ELossCN1 in XY for layer %d", layerList[i]),
                                                1000,
                                                0.,
                                                1000.));
     hELossLayerCK1.emplace_back(fs->make<TH1D>(Form("hELossLayerCK1_layer_%02d", layerList[i]),
-                                               Form("ELossCK1 in XY for layer %d", layerList[i]),
+                                               Form("Gen:ELossCK1 in XY for layer %d", layerList[i]),
                                                1000,
                                                0.,
                                                1000.));
     hELossLayerB1.emplace_back(fs->make<TH1D>(Form("hELossLayerB1_layer_%02d", layerList[i]),
-                                              Form("ELossB1 in XY for layer %d", layerList[i]),
+                                              Form("Gen:ELossB1 in XY for layer %d", layerList[i]),
                                               1000,
                                               0.,
                                               1000.));
 
     hXYhitsLELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCN_layer_%02d", layerList[i]),
-                                             Form("LELCN in XY for layer %d", layerList[i]),
+                                             Form("Gen:LELCN in XY for layer %d", layerList[i]),
                                              600,
                                              -300.,
                                              300.,
@@ -826,7 +826,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                              -300.,
                                              300.));
     hXYhitsHELCN.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCN_layer_%02d", layerList[i]),
-                                             Form("HELCN in XY for layer %d", layerList[i]),
+                                             Form("Gen:HELCN in XY for layer %d", layerList[i]),
                                              600,
                                              -300.,
                                              300.,
@@ -834,7 +834,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                              -300.,
                                              300.));
     hXYhitsLELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsLELCK_layer_%02d", layerList[i]),
-                                             Form("LELCK in XY for layer %d", layerList[i]),
+                                             Form("Gen:LELCK in XY for layer %d", layerList[i]),
                                              600,
                                              -300.,
                                              300.,
@@ -842,7 +842,7 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
                                              -300.,
                                              300.));
     hXYhitsHELCK.emplace_back(fs->make<TH2D>(Form("hXYhitsHELCK_layer_%02d", layerList[i]),
-                                             Form("HELCK in XY for layer %d", layerList[i]),
+                                             Form("Gen:HELCK in XY for layer %d", layerList[i]),
                                              600,
                                              -300.,
                                              300.,
@@ -854,19 +854,19 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
   for (unsigned int i = 0; i < layerList.size(); i++) {
     grXYhitsF0.emplace_back(fs->make<TGraph>(0));
     grXYhitsF0[i]->SetNameTitle(Form("grXYhitsF0_layer_%02d", layerList[i]),
-                                Form("HitsF0 in XY for layer %d", layerList[i]));
+                                Form("Gen:HitsF0 in XY for layer %d", layerList[i]));
     grXYhitsCN0.emplace_back(fs->make<TGraph>(0));
     grXYhitsCN0[i]->SetNameTitle(Form("grXYhitsCN0_layer_%02d", layerList[i]),
-                                 Form("HitsCN0 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsCN0 in XY for layer %d", layerList[i]));
     grXYhitsCK0.emplace_back(fs->make<TGraph>(0));
     grXYhitsCK0[i]->SetNameTitle(Form("grXYhitsCK0_layer_%02d", layerList[i]),
-                                 Form("HitsCK0 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsCK0 in XY for layer %d", layerList[i]));
     grXYhitsB0.emplace_back(fs->make<TGraph>(0));
     grXYhitsB0[i]->SetNameTitle(Form("grXYhitsB0_layer_%02d", layerList[i]),
-                                Form("HitsB0 in XY for layer %d", layerList[i]));
+                                Form("Gen:HitsB0 in XY for layer %d", layerList[i]));
     grXYhitsAR0.emplace_back(fs->make<TGraph>(0));
     grXYhitsAR0[i]->SetNameTitle(Form("grXYhitsAR0_layer_%02d", layerList[i]),
-                                 Form("HitsAR0 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsAR0 in XY for layer %d", layerList[i]));
     ixyF0[i] = 0;
     ixyCN0[i] = 0;
     ixyCK0[i] = 0;
@@ -875,19 +875,19 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
 
     grXYhitsF1.emplace_back(fs->make<TGraph>(0));
     grXYhitsF1[i]->SetNameTitle(Form("grXYhitsF1_layer_%02d", layerList[i]),
-                                Form("HitsF1 in XY for layer %d", layerList[i]));
+                                Form("Gen:HitsF1 in XY for layer %d", layerList[i]));
     grXYhitsCN1.emplace_back(fs->make<TGraph>(0));
     grXYhitsCN1[i]->SetNameTitle(Form("grXYhitsCN1_layer_%02d", layerList[i]),
-                                 Form("HitsCN1 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsCN1 in XY for layer %d", layerList[i]));
     grXYhitsCK1.emplace_back(fs->make<TGraph>(0));
     grXYhitsCK1[i]->SetNameTitle(Form("grXYhitsCK1_layer_%02d", layerList[i]),
-                                 Form("HitsCK1 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsCK1 in XY for layer %d", layerList[i]));
     grXYhitsB1.emplace_back(fs->make<TGraph>(0));
     grXYhitsB1[i]->SetNameTitle(Form("grXYhitsB1_layer_%02d", layerList[i]),
-                                Form("HitsB1 in XY for layer %d", layerList[i]));
+                                Form("Gen:HitsB1 in XY for layer %d", layerList[i]));
     grXYhitsAR1.emplace_back(fs->make<TGraph>(0));
     grXYhitsAR1[i]->SetNameTitle(Form("grXYhitsAR1_layer_%02d", layerList[i]),
-                                 Form("HitsAR1 in XY for layer %d", layerList[i]));
+                                 Form("Gen:HitsAR1 in XY for layer %d", layerList[i]));
     ixyF1[i] = 0;
     ixyCN1[i] = 0;
     ixyCK1[i] = 0;
@@ -896,16 +896,16 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
 
     grEtaPhihitsF0.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsF0[i]->SetNameTitle(Form("grEtaPhihitsF0_layer_%02d", layerList[i]),
-                                    Form("HitsF0 in XY for layer %d", layerList[i]));
+                                    Form("Gen:HitsF0 in XY for layer %d", layerList[i]));
     grEtaPhihitsCN0.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsCN0[i]->SetNameTitle(Form("grEtaPhihitsCN0_layer_%02d", layerList[i]),
-                                     Form("HitsCN0 in XY for layer %d", layerList[i]));
+                                     Form("Gen:HitsCN0 in XY for layer %d", layerList[i]));
     grEtaPhihitsCK0.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsCK0[i]->SetNameTitle(Form("grEtaPhihitsCK0_layer_%02d", layerList[i]),
-                                     Form("HitsCK0 in XY for layer %d", layerList[i]));
+                                     Form("Gen:HitsCK0 in XY for layer %d", layerList[i]));
     grEtaPhihitsB0.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsB0[i]->SetNameTitle(Form("grEtaPhihitsB0_layer_%02d", layerList[i]),
-                                    Form("HitsB0 in XY for layer %d", layerList[i]));
+                                    Form("Gen:HitsB0 in XY for layer %d", layerList[i]));
     iepF0[i] = 0;
     iepCN0[i] = 0;
     iepCK0[i] = 0;
@@ -913,16 +913,16 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
 
     grEtaPhihitsF1.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsF1[i]->SetNameTitle(Form("grEtaPhihitsF1_layer_%02d", layerList[i]),
-                                    Form("HitsF1 in XY for layer %d", layerList[i]));
+                                    Form("Gen:HitsF1 in XY for layer %d", layerList[i]));
     grEtaPhihitsCN1.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsCN1[i]->SetNameTitle(Form("grEtaPhihitsCN1_layer_%02d", layerList[i]),
-                                     Form("HitsCN1 in XY for layer %d", layerList[i]));
+                                     Form("Gen:HitsCN1 in XY for layer %d", layerList[i]));
     grEtaPhihitsCK1.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsCK1[i]->SetNameTitle(Form("grEtaPhihitsCK1_layer_%02d", layerList[i]),
-                                     Form("HitsCK1 in XY for layer %d", layerList[i]));
+                                     Form("Gen:HitsCK1 in XY for layer %d", layerList[i]));
     grEtaPhihitsB1.emplace_back(fs->make<TGraph>(0));
     grEtaPhihitsB1[i]->SetNameTitle(Form("grEtaPhihitsB1_layer_%02d", layerList[i]),
-                                    Form("HitsB1 in XY for layer %d", layerList[i]));
+                                    Form("Gen:HitsB1 in XY for layer %d", layerList[i]));
     iepF1[i] = 0;
     iepCN1[i] = 0;
     iepCK1[i] = 0;
