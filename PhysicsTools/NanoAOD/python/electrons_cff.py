@@ -574,9 +574,6 @@ run2_nanoAOD_ANY.toModify(
     ptRatioRelForEle,srcJet="updatedJets")
 
 
-###this sequence should run for all eras except run2_nanoAOD_106Xv2 which should run the electronSequence as above
-_withULAndUpdate_Task = cms.Task(slimmedElectronsUpdated)
-_withULAndUpdate_Task.add(electronTask.copy())
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
     bitmapVIDForEle, src = "slimmedElectronsUpdated"
@@ -597,19 +594,17 @@ _withULAndUpdate_Task.add(electronTask.copy())
 ).toModify(
     calibratedPatElectronsNano, src = "slimmedElectronsUpdated"
 ).toReplaceWith(
-    electronTask, _withULAndUpdate_Task
+    ###this sequence should run for all eras except run2_nanoAOD_106Xv2 which should run the electronSequence as above
+    electronTask, electronTask.copyAndAdd(slimmedElectronsUpdated)
 )
 
 from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heepIDVarValueMaps
-_withTo106XAndUpdate_Task = cms.Task(heepIDVarValueMaps,slimmedElectronsTo106X)
-_withTo106XAndUpdate_Task.add(electronTask.copy())
 heepIDVarValueMaps.dataFormat = 2
 
-(run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_94XMiniAODv1).toReplaceWith(electronTask, _withTo106XAndUpdate_Task)
+(run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_94XMiniAODv1).toReplaceWith(
+    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectrons )
+)
 
-_withTo106XAndUpdateAnd80XLegacyScale_Task = cms.Task(bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
-_withTo106XAndUpdateAnd80XLegacyScale_Task.add(_withTo106XAndUpdate_Task.copy())
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(electronTask, _withTo106XAndUpdateAnd80XLegacyScale_Task)
-
-_withTo106XAndUpdateAnd94XScale_Task = _withTo106XAndUpdate_Task.copy()
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(electronTask, _withTo106XAndUpdate_Task)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
+    electronTask, electronTask.copyAndAdd( heepIDVarValueMaps,slimmedElectrons, bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
+)

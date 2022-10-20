@@ -268,10 +268,9 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
   getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
 
-  setattr(proc,"_"+jetTaskName+"_2016", getattr(proc,jetTaskName).copy())
-  getattr(proc,"_"+jetTaskName+"_2016").add(getattr(proc, looseJetId))
   (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
-    getattr(proc,jetTaskName), getattr(proc, "_"+jetTaskName+"_2016")
+    getattr(proc,jetTaskName),
+    getattr(proc,jetTaskName).copyAndAdd(getattr(proc, looseJetId))
   )
 
   return proc
@@ -717,8 +716,10 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   #
   # For Run-2 eras, don't need to save the low pt AK4 Puppi jet table for MET
   #
-  _jetPuppiForMETTask = proc.jetPuppiForMETTask.copyAndExclude([proc.corrT1METJetPuppiTable])
-  run2_nanoAOD_ANY.toReplaceWith(proc.jetPuppiForMETTask, _jetPuppiForMETTask)
+  run2_nanoAOD_ANY.toReplaceWith(
+    proc.jetPuppiForMETTask,
+    proc.jetPuppiForMETTask.copyAndExclude([proc.corrT1METJetPuppiTable])
+  )
 
   #
   # Save MC-only jet variables in jet table
@@ -734,9 +735,10 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
     jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
     setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
 
-    _nanoTableTaskFS = proc.nanoTableTaskFS.copy()
-    _nanoTableTaskFS.add(getattr(proc,jetMCTableTaskName))
-    run2_nanoAOD_ANY.toReplaceWith(proc.nanoTableTaskFS, _nanoTableTaskFS)
+    run2_nanoAOD_ANY.toReplaceWith(
+      proc.nanoTableTaskFS,
+      proc.nanoTableTaskFS.copyAndAdd( getattr(proc,jetMCTableTaskName))
+    )
 
   return proc
 
@@ -837,10 +839,8 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
       vertexes = "offlineSlimmedPrimaryVertices"
     )
   )
-  _jetUserDataTask = proc.jetUserDataTask.copy()
-  _jetUserDataTask.add(getattr(proc,pileupJetId80X))
   (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(
-    proc.jetUserDataTask, _jetUserDataTask
+    proc.jetUserDataTask, proc.jetUserDataTask.copyAndAdd(getattr(proc,pileupJetId80X))
   ).toModify(
     proc.updatedJetsWithUserData.userInts, puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
   ).toModify(
@@ -930,13 +930,13 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   # Since AK4 Puppi jet is the main AK4 jet collection for Run-3, disable
   # b-jets/c-jets NN-based mass regression for AK4 CHS.  
   #
-  _jetUserDataTask = proc.jetUserDataTask.copyAndExclude([proc.bJetVars])
-  (~run2_nanoAOD_ANY).toReplaceWith(proc.jetUserDataTask, _jetUserDataTask)
-
-  _jetTablesTask = proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
-  (~run2_nanoAOD_ANY).toReplaceWith(proc.jetTablesTask, _jetTablesTask)
-
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userFloats,
+  (~run2_nanoAOD_ANY).toReplaceWith(
+    proc.jetUserDataTask,
+    proc.jetUserDataTask.copyAndExclude([proc.bJetVars])
+  ).toReplaceWith(
+    proc.jetTablesTask,
+    proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
+  ).toModify(proc.updatedJetsWithUserData.userFloats,
     leadTrackPt = None,
     leptonPtRelv0 = None,
     leptonPtRelInvv0 = None,
@@ -946,21 +946,20 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
     vtx3dL = None,
     vtx3deL = None,
     ptD = None,
-  )
-
-  (~run2_nanoAOD_ANY).toModify(proc.updatedJetsWithUserData.userInts,
+  ).toModify(
+    proc.updatedJetsWithUserData.userInts,
     vtxNtrk = None,
     leptonPdgId = None
-  )
-
-  (~run2_nanoAOD_ANY).toModify(proc.jetTable, externalVariables = cms.PSet())
-
+  ).toModify(
+    proc.jetTable, externalVariables = cms.PSet()
+  ).toReplaceWith(
   #
   # For Run-3, don't need to save the low pt AK4 CHS jet table for MET
   #
-  _jetForMETTask = proc.jetForMETTask.copyAndExclude([proc.corrT1METJetTable])
-  (~run2_nanoAOD_ANY).toReplaceWith(proc.jetForMETTask, _jetForMETTask)
-  
+    proc.jetForMETTask,
+    proc.jetForMETTask.copyAndExclude([proc.corrT1METJetTable])
+  )
+
   #
   # Save MC-only jet variables in jet table
   #
@@ -974,9 +973,10 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
     jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
     setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
 
-    _nanoTableTaskFS = proc.nanoTableTaskFS.copy()
-    _nanoTableTaskFS.add(getattr(proc,jetMCTableTaskName))
-    (~run2_nanoAOD_ANY).toReplaceWith(proc.nanoTableTaskFS, _nanoTableTaskFS)
+    (~run2_nanoAOD_ANY).toReplaceWith(
+      proc.nanoTableTaskFS,
+      proc.nanoTableTaskFS.copyAndAdd(getattr(proc,jetMCTableTaskName))
+    )
 
   return proc
 

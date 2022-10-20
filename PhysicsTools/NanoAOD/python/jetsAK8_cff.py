@@ -332,10 +332,11 @@ run2_miniAOD_80XLegacy.toModify(
 )
 
 jetAK8UserDataTask = cms.Task(tightJetIdAK8,tightJetIdLepVetoAK8)
-_jetAK8UserDataTask2016 = jetAK8UserDataTask.copy()
-_jetAK8UserDataTask2016.add(looseJetIdAK8)
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toReplaceWith(jetAK8UserDataTask,_jetAK8UserDataTask2016)
+
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toReplaceWith(
+    jetAK8UserDataTask,
+    jetAK8UserDataTask.copyAndAdd(looseJetIdAK8)
+)
 
 jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8)
 

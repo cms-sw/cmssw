@@ -303,7 +303,7 @@ tausMCMatchHadTauForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaP
 tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
     src = tauTable.src,
     mcMap = cms.InputTag("tausMCMatchLepTauForTable"),
-    mcMapVisTau = cms.InputTag("tausMCMatchHadTauForTable"),                         
+    mcMapVisTau = cms.InputTag("tausMCMatchHadTauForTable"),
     objName = tauTable.name,
     objType = tauTable.name, #cms.string("Tau"),
     branchName = cms.string("genPart"),
@@ -313,9 +313,10 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 tauTask = cms.Task(finalTaus)
 
-for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
-            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(tauTask, cms.Task(patTauMVAIDsTask,finalTaus))
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(
+    tauTask,
+    cms.Task(patTauMVAIDsTask,finalTaus)
+)
 
 tauTablesTask = cms.Task(tauTable)
 

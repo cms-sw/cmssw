@@ -94,7 +94,9 @@ _nanoTableTaskCommonRun2 = nanoTableTaskCommon.copy()
 _nanoTableTaskCommonRun2.replace(jetPuppiTask, jetTask)
 _nanoTableTaskCommonRun2.replace(jetPuppiForMETTask, jetForMETTask)
 _nanoTableTaskCommonRun2.replace(jetPuppiTablesTask, jetTablesTask)
-run2_nanoAOD_ANY.toReplaceWith(nanoTableTaskCommon, _nanoTableTaskCommonRun2)
+run2_nanoAOD_ANY.toReplaceWith(
+    nanoTableTaskCommon, _nanoTableTaskCommonRun2
+)
 
 nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
@@ -126,13 +128,10 @@ def nanoAOD_addTauIds(process, idsToRun=[]):
                                                   postfix = "ForNano",
             toKeep = idsToRun)
         tauIdEmbedder.runTauID()
-        _tauTask = patTauMVAIDsTask.copy()
-        _tauTask.add(process.rerunMvaIsolationTaskForNano)
-        _tauTask.add(finalTaus)
         process.finalTaus.src = updatedTauName
         #remember to adjust the selection and tables with added IDs
 
-        process.tauTask = _tauTask.copy()
+        process.tauTask = patTauMVAIDsTask.copyAndAdd(process.rerunMvaIsolationTaskForNano, process.finalTaus)
 
     return process
 
@@ -145,13 +144,10 @@ def nanoAOD_addBoostedTauIds(process, idsToRun=[]):
                                                          postfix = "BoostedForNano",
                                                          toKeep = idsToRun)
         boostedTauIdEmbedder.runTauID()
-        _boostedTauTask = process.rerunMvaIsolationTaskBoostedForNano.copy()
-        _boostedTauTask.add(getattr(process, updatedBoostedTauName))
-        _boostedTauTask.add(process.finalBoostedTaus)
         process.finalBoostedTaus.src = updatedBoostedTauName
         #remember to adjust the selection and tables with added IDs
 
-        process.boostedTauTask = _boostedTauTask.copy()
+        process.boostedTauTask = process.rerunMvaIsolationTaskBoostedForNano.copyAndAdd( getattr(process, updatedBoostedTauName), process.finalBoostedTaus))
 
     return process
 
@@ -233,11 +229,9 @@ def nanoAOD_activateVID(process):
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
 
-    electronTask_ = process.egmGsfElectronIDTask.copy()
-    electronTask_.add(electronTask.copy())
-    process.electronTask = electronTask_.copy()
+    process.electronTask = process.egmGsfElectronIDTask.copyAndAdd(electronTask.copy())
     (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(
-    process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated"
+        process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated"
     ).toModify(
         process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated"
     )
@@ -246,13 +240,11 @@ def nanoAOD_activateVID(process):
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
 
-    photonTask_ = process.egmPhotonIDTask.copy()
-    photonTask_.add(photonTask.copy())
-    process.photonTask = photonTask_.copy()
+    process.photonTask = process.egmPhotonIDTask.copyAndAdd(photonTask_.copy())
     (run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(
         process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X"
     ).toModify(
-            process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X"
+        process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X"
     )
     return process
 
