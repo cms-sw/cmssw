@@ -216,49 +216,61 @@ public:
 
   ~SimpleFlatTableProducer() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions){
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
     std::string classname = ClassName<T>::name();
     //base class
-    desc.add<std::string>("name")->setComment("name of the branch in the flat table output for "+classname);
+    desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
     desc.addOptional<std::string>("doc")->setComment("few words of self documentation");
     desc.addOptional<bool>("extension", false)->setComment("whether or not to extend an existing same table");
-    desc.addOptional<bool>("skipNonExistingSrc", false)->setComment("whether or not to skip producing the table on absent input product");
+    desc.addOptional<bool>("skipNonExistingSrc", false)
+        ->setComment("whether or not to skip producing the table on absent input product");
     desc.add<edm::InputTag>("src")->setComment("input collection to fill the flat table");
     //derived class
-    desc.ifValue( edm::ParameterDescription<bool>("singleton",""),
-		  false >> edm::ParameterDescription<std::string>("cut", "selection on the main input collection") or
-		  true >> edm::EmptyGroupDescription() );
-    desc.addOptional<unsigned int>("maxLen")->setComment("define the maximum length of the input collection to put in the branch");
+    desc.ifValue(edm::ParameterDescription<bool>("singleton", ""),
+                 false >> edm::ParameterDescription<std::string>("cut", "selection on the main input collection") or
+                     true >> edm::EmptyGroupDescription());
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
 
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
     extvariable.add<std::string>("type")->setComment("the c++ type of the branch in the flat table");
-    extvariable.addOptionalNode( edm::ParameterDescription<int>("precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
-				 edm::ParameterDescription<std::string>("precision", true, edm::Comment("the precision with which to store the value in the flat table")), false);
+    extvariable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
 
     edm::ParameterSetDescription extvariables;
     extvariables.setComment("a parameters set to define all variable taken form valuemap to fill the flat table");
-    extvariables.addOptionalNode( edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, extvariable) , false);
+    extvariables.addOptionalNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, extvariable), false);
     desc.addOptional<edm::ParameterSetDescription>("externalVariables", extvariables);
 
     edm::ParameterSetDescription variable;
     variable.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
     variable.add<std::string>("type")->setComment("the c++ type of the branch in the flat table");
-    variable.addOptionalNode( edm::ParameterDescription<int>("precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
-			      edm::ParameterDescription<std::string>("precision", true, edm::Comment("the precision with which to store the value in the flat table")), false);
+    variable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
 
     edm::ParameterSetDescription variables;
     variables.setComment("a parameters set to define all variable to fill the flat table");
-    variables.addNode( edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, variable));
-    desc.add<edm::ParameterSetDescription>("variables", variables );
+    variables.addNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, variable));
+    desc.add<edm::ParameterSetDescription>("variables", variables);
 
     //the name has to be templated indeed
     size_t lastdoublecolumn = classname.rfind("::");
-    if (lastdoublecolumn!=std::string::npos)
-      classname = classname.substr(lastdoublecolumn+2);
+    if (lastdoublecolumn != std::string::npos)
+      classname = classname.substr(lastdoublecolumn + 2);
     std::string modname = "Simple" + classname + "FlatTableProducer";
     descriptions.add(modname, desc);
   }
