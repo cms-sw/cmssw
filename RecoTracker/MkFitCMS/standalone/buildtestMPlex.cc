@@ -90,7 +90,7 @@ namespace mkfit {
   void runBuildingTestPlexDumbCMSSW(Event &ev, const EventOfHits &eoh, MkBuilder &builder) {
     const IterationConfig &itconf = Config::ItrInfo[0];
 
-    MkJob job({Config::TrkInfo, itconf, eoh});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot()});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -131,7 +131,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -167,6 +167,8 @@ namespace mkfit {
       // CCCC   StdSeq::clean_duplicates(ev.candidateTracks_);
       // CCCC }
     }
+
+    job.switch_to_backward();
 
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
@@ -218,7 +220,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -247,6 +249,8 @@ namespace mkfit {
 
     // first store candidate tracks
     builder.export_best_comb_cands(ev.candidateTracks_);
+
+    job.switch_to_backward();
 
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
@@ -305,7 +309,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -334,6 +338,8 @@ namespace mkfit {
 
     // first store candidate tracks - needed for BH backward fit and root_validation
     builder.export_best_comb_cands(ev.candidateTracks_);
+
+    job.switch_to_backward();
 
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
@@ -421,7 +427,7 @@ namespace mkfit {
 
       ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-      MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+      MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
       builder.begin_event(&job, &ev, __func__);
 
@@ -466,17 +472,8 @@ namespace mkfit {
       if (validation_on)
         seeds_used.insert(seeds_used.end(), seeds.begin(), seeds.end());  //cleaned seeds need to be stored somehow
 
-      using Algo = TrackBase::TrackAlgorithm;
-      if (itconf.m_requires_quality_filter && Algo(itconf.m_track_algorithm) != Algo::detachedTripletStep) {
-        if (Algo(itconf.m_track_algorithm) == Algo::pixelPairStep) {
-          builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_n_hits_pixseed(t, 3); });
-        } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), Config::TrkInfo); });
-        } else {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_n_hits(t, itconf.m_params.minHitsQF); });
-        }
+      if (itconf.m_pre_bkfit_filter) {
+        builder.filter_comb_cands(itconf.m_pre_bkfit_filter);
       }
 
       builder.select_best_comb_cands();
@@ -490,6 +487,8 @@ namespace mkfit {
           ev.candidateTracks_.emplace_back(std::move(t));
         tmp_tvec.clear();
       }
+
+      job.switch_to_backward();
 
       // now do backwards fit... do we want to time this section?
       if (Config::backwardFit) {
@@ -515,19 +514,11 @@ namespace mkfit {
           builder.endBkwSearch();
         }
 
-        if (itconf.m_requires_quality_filter && (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep ||
-                                                 Algo(itconf.m_track_algorithm) == Algo::pixelLessStep)) {
-          if (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep) {
-            builder.filter_comb_cands(
-                [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), Config::TrkInfo); });
-          } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-            builder.filter_comb_cands([&](const TrackCand &t) {
-              return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), Config::TrkInfo);
-            });
-          }
+        if (itconf.m_post_bkfit_filter) {
+          builder.filter_comb_cands(itconf.m_post_bkfit_filter);
         }
 
-        builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_nan_n_silly(t); });
+        builder.filter_comb_cands(StdSeq::qfilter_nan_n_silly<TrackCand>);
 
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 
@@ -541,7 +532,7 @@ namespace mkfit {
     }
 
     // MIMI - Fake back event pointer for final processing (that should be done elsewhere)
-    MkJob job({Config::TrkInfo, Config::ItrInfo[0], eoh});
+    MkJob job({Config::TrkInfo, Config::ItrInfo[0], eoh, eoh.refBeamSpot()});
     builder.begin_event(&job, &ev, __func__);
 
     if (validation_on) {

@@ -301,7 +301,7 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  int MkBuilder::filter_comb_cands(std::function<filter_track_cand_foo> filter) {
+  int MkBuilder::filter_comb_cands(IterationConfig::filter_candidates_func filter) {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     int i = 0, place_pos = 0;
 
@@ -309,7 +309,7 @@ namespace mkfit {
 
     std::vector<int> removed_cnts(m_job->num_regions());
     while (i < eoccs.size()) {
-      if (filter(eoccs[i].front())) {
+      if (filter(eoccs[i].front(), *m_job)) {
         if (place_pos != i)
           std::swap(eoccs[place_pos], eoccs[i]);
         ++place_pos;

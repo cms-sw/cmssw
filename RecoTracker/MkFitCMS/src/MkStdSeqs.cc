@@ -2,6 +2,8 @@
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
+#include "RecoTracker/MkFitCore/interface/MkJob.h"
+#include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 
 #include "RecoTracker/MkFitCore/interface/binnor.h"
 
@@ -595,7 +597,6 @@ namespace mkfit {
     }
 
     namespace {
-      // MT QQQQ - rename tags and functions; maybe move them to a separate cc file.
       struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
             IterationConfig::register_duplicate_cleaner("2017:clean_duplicates", clean_duplicates);
@@ -605,6 +606,116 @@ namespace mkfit {
                                                          clean_duplicates_sharedhits_pixelseed);
         }
       } rdc_instance;
+    }
+
+    //=========================================================================
+    // Quality filters
+    //=========================================================================
+
+    // quality filter for n hits with seed hit "penalty" for strip-based seeds
+    //   this implicitly separates triplets and doublet seeds with glued layers
+    template <class TRACK>
+    bool qfilter_n_hits(const TRACK &t, const MkJob &j) {
+      int seedHits = t.getNSeedHits();
+      int seedReduction = (seedHits <= 5) ? 2 : 3;
+      return t.nFoundHits() - seedReduction >= j.params_cur().minHitsQF;
+    }
+
+    // simple hit-count quality filter; used with pixel-based seeds
+    template <class TRACK>
+    bool qfilter_n_hits_pixseed(const TRACK &t, const MkJob& j) {
+      return t.nFoundHits() >= j.params_cur().minHitsQF;
+    }
+
+    // layer-dependent quality filter
+    template <class TRACK>
+    bool qfilter_n_layers(const TRACK &t, const MkJob &j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &trk_inf = j.m_trk_info;
+      int enhits = t.nHitsByTypeEncoded(trk_inf);
+      int npixhits = t.nPixelDecoded(enhits);
+      int enlyrs = t.nLayersByTypeEncoded(trk_inf);
+      int npixlyrs = t.nPixelDecoded(enlyrs);
+      int nmatlyrs = t.nTotMatchDecoded(enlyrs);
+      int llyr = t.getLastFoundHitLyr();
+      int lplyr = t.getLastFoundPixelHitLyr();
+      float invpt = t.invpT();
+      float invptmin = 1.43;  // min 1/pT (=1/0.7) for full filter on (npixhits<=3 .or. npixlyrs<=3)
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.1;  // 1 mm
+
+      bool endsInsidePix = (llyr == 2 || llyr == 18 || llyr == 45);
+      bool lastInsidePix = ((0 <= lplyr && lplyr < 3) || (18 <= lplyr && lplyr < 20) || (45 <= lplyr && lplyr < 47));
+      return !(((npixhits <= 3 || npixlyrs <= 3) && endsInsidePix &&
+                (invpt < invptmin || (invpt >= invptmin && std::abs(d0BS) > d0_max))) ||
+               ((npixlyrs <= 3 && nmatlyrs <= 6) && lastInsidePix && llyr != lplyr && std::abs(d0BS) > d0_max));
+    }
+
+    /// quality filter tuned for pixelLess iteration during forward search
+    template <class TRACK>
+    bool qfilter_pixelLessFwd(const TRACK &t, const MkJob &j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &tk_info = j.m_trk_info;
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.05;  // 0.5 mm
+
+      int encoded;
+      encoded = t.nLayersByTypeEncoded(tk_info);
+      int nLyrs = t.nTotMatchDecoded(encoded);
+      encoded = t.nHitsByTypeEncoded(tk_info);
+      int nHits = t.nTotMatchDecoded(encoded);
+
+      int seedReduction = (t.getNSeedHits() <= 5) ? 2 : 3;
+
+      float invpt = t.invpT();
+      float invptmin = 1.11;  // =1/0.9
+
+      float thetasym = std::abs(t.theta() - Const::PIOver2);
+      float thetasymmin = 1.11;  // -> |eta|=1.45
+
+      return (((t.nFoundHits() - seedReduction >= 4 && invpt < invptmin) ||
+               (t.nFoundHits() - seedReduction >= 3 && invpt > invptmin && thetasym <= thetasymmin) ||
+               (t.nFoundHits() - seedReduction >= 4 && invpt > invptmin && thetasym > thetasymmin)) &&
+              !((nLyrs <= 4 || nHits <= 4) && std::abs(d0BS) > d0_max && invpt < invptmin));
+    }
+
+    /// quality filter tuned for pixelLess iteration during backward search
+    template <class TRACK>
+    bool qfilter_pixelLessBkwd(const TRACK &t, const MkJob& j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &tk_info = j.m_trk_info;
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.1;  // 1 mm
+
+      int encoded;
+      encoded = t.nLayersByTypeEncoded(tk_info);
+      int nLyrs = t.nTotMatchDecoded(encoded);
+      encoded = t.nHitsByTypeEncoded(tk_info);
+      int nHits = t.nTotMatchDecoded(encoded);
+
+      float invpt = t.invpT();
+      float invptmin = 1.11;  // =1/0.9
+
+      float thetasym = std::abs(t.theta() - Const::PIOver2);
+      float thetasymmin_l = 0.80;  // -> |eta|=0.9
+      float thetasymmin_h = 1.11;  // -> |eta|=1.45
+
+      return !(
+          ((nLyrs <= 3 || nHits <= 3)) ||
+          ((nLyrs <= 4 || nHits <= 4) && (invpt < invptmin || (thetasym > thetasymmin_l && std::abs(d0BS) > d0_max))) ||
+          ((nLyrs <= 5 || nHits <= 5) && (invpt > invptmin && thetasym > thetasymmin_h && std::abs(d0BS) > d0_max)));
+    }
+
+    namespace {
+      struct register_quality_filters {
+        register_quality_filters() {
+            IterationConfig::register_candidate_filter("2017:qfilter_n_hits", qfilter_n_hits<TrackCand>);
+            IterationConfig::register_candidate_filter("2017:qfilter_n_hits_pixseed", qfilter_n_hits_pixseed<TrackCand>);
+            IterationConfig::register_candidate_filter("2017:qfilter_n_layers", qfilter_n_layers<TrackCand>);
+            IterationConfig::register_candidate_filter("2017:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
+            IterationConfig::register_candidate_filter("2017:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
+        }
+      } rqf_instance;
     }
 
   }  // namespace StdSeq
