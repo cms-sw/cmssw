@@ -26,8 +26,6 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 #include <cmath>
 #include "TH1F.h"
 #include "TProfile.h"
