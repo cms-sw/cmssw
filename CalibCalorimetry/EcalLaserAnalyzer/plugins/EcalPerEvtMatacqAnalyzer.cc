@@ -23,11 +23,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-
-using namespace std;
 
 //========================================================================
 EcalPerEvtMatacqAnalyzer::EcalPerEvtMatacqAnalyzer(const edm::ParameterSet& iConfig)
@@ -43,27 +39,18 @@ EcalPerEvtMatacqAnalyzer::EcalPerEvtMatacqAnalyzer(const edm::ParameterSet& iCon
       _thres(iConfig.getUntrackedParameter<unsigned int>("threshold", 10)),
       _lowlev(iConfig.getUntrackedParameter<unsigned int>("lowLevel", 20)),
       _highlev(iConfig.getUntrackedParameter<unsigned int>("highLevel", 80)),
-      _nevlasers(iConfig.getUntrackedParameter<unsigned int>("nEventLaser", 600))
+      _nevlasers(iConfig.getUntrackedParameter<unsigned int>("nEventLaser", 600)),
+      resdir_(iConfig.getUntrackedParameter<std::string>("resDir")),
+      digiCollection_(iConfig.getParameter<std::string>("digiCollection")),
+      digiProducer_(iConfig.getParameter<std::string>("digiProducer")),
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      pmatToken_(consumes<EcalMatacqDigiCollection>(edm::InputTag(digiProducer_, digiCollection_))),
+      dccToken_(consumes<EcalRawDataCollection>(edm::InputTag(digiProducer_)))
 
 //========================================================================
 {
   //now do what ever initialization is needed
-
-  resdir_ = iConfig.getUntrackedParameter<std::string>("resDir");
-
-  digiCollection_ = iConfig.getParameter<std::string>("digiCollection");
-  digiProducer_ = iConfig.getParameter<std::string>("digiProducer");
-
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
-}
-
-//========================================================================
-EcalPerEvtMatacqAnalyzer::~EcalPerEvtMatacqAnalyzer() {
-  //========================================================================
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //========================================================================
@@ -83,26 +70,17 @@ void EcalPerEvtMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
   ++iEvent;
 
   // retrieving MATACQ :
-  edm::Handle<EcalMatacqDigiCollection> pmatacqDigi;
-  const EcalMatacqDigiCollection* matacqDigi = nullptr;
-  try {
-    e.getByLabel(digiProducer_, digiCollection_, pmatacqDigi);
-    matacqDigi = pmatacqDigi.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product " << digiCollection_.c_str() << std::endl;
-  }
+  const edm::Handle<EcalMatacqDigiCollection>& pmatacqDigi = e.getHandle(pmatToken_);
+  const EcalMatacqDigiCollection* matacqDigi = (pmatacqDigi.isValid()) ? pmatacqDigi.product() : nullptr;
+  if (!(pmatacqDigi.isValid()))
+    edm::LogWarning("EcalPerEvtMatacqAnalyzer") << "Error! can't get the product " << digiCollection_.c_str();
 
   // retrieving DCC header
 
-  edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const EcalRawDataCollection* DCCHeader = nullptr;
-  try {
-    e.getByLabel(digiProducer_, pDCCHeader);
-    //e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
-    DCCHeader = pDCCHeader.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product " << eventHeaderCollection_.c_str() << std::endl;
-  }
+  const edm::Handle<EcalRawDataCollection>& pDCCHeader = e.getHandle(dccToken_);
+  const EcalRawDataCollection* DCCHeader = (pDCCHeader.isValid()) ? pDCCHeader.product() : nullptr;
+  if (!pDCCHeader.isValid())
+    edm::LogWarning("EcalPerEvtMatacqAnalyzer") << "Error! can't get the product " << eventHeaderCollection_.c_str();
 
   // ====================================
   // Decode Basic DCCHeader Information
@@ -129,7 +107,7 @@ void EcalPerEvtMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     // Define output results files' names
 
     if (IsFileCreated == 0) {
-      stringstream namefile;
+      std::stringstream namefile;
 
       namefile << resdir_ << "/MatacqPerEvt-Run" << runNum << ".root";
       outfile = namefile.str();
@@ -167,8 +145,8 @@ void EcalPerEvtMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     if (IsTreeCreated == 0) {
       //List of branches
 
-      stringstream mat;
-      mat << "matacq[" << nsamples << "]/D" << endl;
+      std::stringstream mat;
+      mat << "matacq[" << nsamples << "]/D" << std::endl;
 
       tree->Branch("event", &event, "event/I");
       tree->Branch("laser_color", &laser_color, "laser_color/I");
