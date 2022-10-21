@@ -310,17 +310,18 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
   selection.add<int>("id")->setComment("identifier of the trigger collection in the flat table");
   selection.add<std::string>("sel")->setComment("function to selection on pat::TriggerObjectStandAlone");
   selection.add<bool>("skipObjectsNotPassingQualityBits")->setComment("flag to skip object on quality bit");
-  selection.add<std::string>("qualityBits")->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
+  selection.add<std::string>("qualityBits")
+      ->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
   selection.add<std::string>("qualityBitsDoc")->setComment("description of qualityBits");
-  selection.ifExists( edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
-		      edm::ParameterDescription<double>("l1deltaR", ""));
-  selection.ifExists( edm::ParameterDescription<std::string>("l1seed_2", "selection on pat::TriggerObjectStandAlone"),
-		      edm::ParameterDescription<double>("l1deltaR_2", ""));
-  selection.ifExists( edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
-		      edm::ParameterDescription<double>("l2deltaR", ""));
+  selection.ifExists(edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>("l1deltaR", ""));
+  selection.ifExists(edm::ParameterDescription<std::string>("l1seed_2", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>("l1deltaR_2", ""));
+  selection.ifExists(edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>("l2deltaR", ""));
   desc.addVPSet("selections", selection);
 
-  descriptions.add("TriggerObjectTableProducer",desc);
+  descriptions.add("TriggerObjectTableProducer", desc);
 }
 
 //define this as a plug-in
