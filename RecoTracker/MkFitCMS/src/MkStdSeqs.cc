@@ -89,16 +89,16 @@ namespace mkfit {
       const float etamax_brl = Config::c_etamax_brl;
       const float dpt_common = Config::c_dpt_common;
 
-      const float dzmax_bh = itrcfg.m_params.c_dzmax_bh;
-      const float drmax_bh = itrcfg.m_params.c_drmax_bh;
-      const float dzmax_eh = itrcfg.m_params.c_dzmax_eh;
-      const float drmax_eh = itrcfg.m_params.c_drmax_eh;
-      const float dzmax_bl = itrcfg.m_params.c_dzmax_bl;
-      const float drmax_bl = itrcfg.m_params.c_drmax_bl;
-      const float dzmax_el = itrcfg.m_params.c_dzmax_el;
-      const float drmax_el = itrcfg.m_params.c_drmax_el;
+      const float dzmax_bh = itrcfg.sc_dzmax_bh;
+      const float drmax_bh = itrcfg.sc_drmax_bh;
+      const float dzmax_eh = itrcfg.sc_dzmax_eh;
+      const float drmax_eh = itrcfg.sc_drmax_eh;
+      const float dzmax_bl = itrcfg.sc_dzmax_bl;
+      const float drmax_bl = itrcfg.sc_drmax_bl;
+      const float dzmax_el = itrcfg.sc_dzmax_el;
+      const float drmax_el = itrcfg.sc_drmax_el;
 
-      const float ptmin_hpt = itrcfg.m_params.c_ptthr_hpt;
+      const float ptmin_hpt = itrcfg.sc_ptthr_hpt;
 
       const float dzmax2_inv_bh = 1.f / (dzmax_bh * dzmax_bh);
       const float drmax2_inv_bh = 1.f / (drmax_bh * drmax_bh);
@@ -440,7 +440,7 @@ namespace mkfit {
     //=========================================================================
 
     void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
-      const float fraction = itconf.m_params.fracSharedHits;
+      const float fraction = itconf.dc_fracSharedHits;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
@@ -504,10 +504,10 @@ namespace mkfit {
     }
 
     void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
-      const float fraction = itconf.m_params.fracSharedHits;
-      const float drth_central = itconf.m_params.drth_central;
-      const float drth_obarrel = itconf.m_params.drth_obarrel;
-      const float drth_forward = itconf.m_params.drth_forward;
+      const float fraction = itconf.dc_fracSharedHits;
+      const float drth_central = itconf.dc_drth_central;
+      const float drth_obarrel = itconf.dc_drth_obarrel;
+      const float drth_forward = itconf.dc_drth_forward;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
