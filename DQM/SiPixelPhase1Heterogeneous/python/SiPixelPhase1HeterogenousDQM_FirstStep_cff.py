@@ -5,6 +5,10 @@ from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1MonitorRecHitsSoA_cfi import *
 
 monitorpixelSoASource = cms.Sequence(siPixelPhase1MonitorRecHitsSoA * siPixelPhase1MonitorTrackSoA * siPixelPhase1MonitorVertexSoA)
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+_monitorpixelSoARecHitsSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoA)
+phase2_tracker.toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSource)
+
 #Define the sequence for GPU vs CPU validation
 #This should run:- individual monitor for the 2 collections + comparison module
 from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1CompareTrackSoA_cfi import *
@@ -49,8 +53,14 @@ monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
                                             siPixelPhase1CompareTrackSoA *
                                             siPixelPhase1MonitorVertexSoACPU *
                                             siPixelPhase1MonitorVertexSoAGPU *
-                                            siPixelPhase1CompareVertexSoA
-)
+                                            siPixelPhase1CompareVertexSoA)
+
+monitorpixelSoACompareSourceNoTracking = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
+                                      	              siPixelPhase1MonitorRecHitsSoAGPU *
+                                        	      siPixelPhase1CompareRecHitsSoA)
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(monitorpixelSoACompareSource,monitorpixelSoACompareSourceNoTracking)
 
 from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
 gpuValidationPixel.toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSource)
