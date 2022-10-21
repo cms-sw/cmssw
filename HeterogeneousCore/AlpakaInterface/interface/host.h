@@ -21,7 +21,7 @@ namespace cms::alpakatools {
   }  // namespace detail
 
   // returns the alpaka host device
-  static inline alpaka::DevCpu const& host() {
+  inline alpaka::DevCpu const& host() {
     static const auto host = detail::enumerate_host();
     return host;
   }
