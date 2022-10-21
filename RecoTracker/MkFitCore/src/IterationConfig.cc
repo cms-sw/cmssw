@@ -94,7 +94,6 @@ namespace mkfit {
       /* std::string */ m_post_bkfit_filter_name,
       /* std::string */ m_duplicate_cleaner_name,
       /* bool */ m_requires_seed_hit_sorting,
-      /* bool */ m_requires_quality_filter,
       /* bool */ m_backward_search,
       /* bool */ m_backward_drop_seed_hits,
       /* int */ m_backward_fit_min_hits,

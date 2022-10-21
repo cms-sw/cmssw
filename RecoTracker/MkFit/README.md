@@ -47,8 +47,6 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
-* *m_requires_quality_filter:* is additional post-processing required for result tracks
-* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
 * *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
@@ -65,6 +63,8 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 #### Seed cleaning params (based on elliptical dR-dz cut)
 
+MT document function name, what happens when empty.
+
 * *c_ptthr_hpt:* pT threshold used to tighten seed cleaning requirements
 * *c_drmax_bh:* dR cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
 * *c_dzmax_bh:* dz cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
@@ -75,7 +75,21 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *c_drmax_el:* dR cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
 * *c_dzmax_el:* dz cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
 
+#### Seed partitioning params
+
+MT document function name, what happens when empty.
+
+#### Pre / post backward-fit candidate filtering params
+
+MT document function names, what happens when empty.
+The following was removed:
+* *m_requires_quality_filter:* is additional post-processing required for result tracks
+
 #### Duplicate cleaning parameters
+
+MT document function name, what happens when empty.
+The following was removed:
+* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 
 * *minHitsQF:* min number of hits on track candidate to apply duplicate cleaning based on fraction of shared hits
 * *fracSharedHits:* min fraction of shared hits to determine duplicate track candidate

@@ -14,6 +14,7 @@ namespace mkfit {
   class TrackerInfo;
   class Track;
   class TrackCand;
+  class MkJob;
 
   typedef std::vector<Track> TrackVec;
 
@@ -108,8 +109,9 @@ namespace mkfit {
     float c_dzmax_bl = 0.005;
     float c_drmax_el = 0.030;
     float c_dzmax_el = 0.030;
-
+    //quality filter params
     int minHitsQF = 4;
+    //duplicate cleaning params
     float fracSharedHits = 0.19;
     float drth_central = 0.001;
     float drth_obarrel = 0.001;
@@ -152,7 +154,7 @@ namespace mkfit {
                                     IterationSeedPartition &);
     using partition_seeds_func = std::function<partition_seeds_cf>;
     // Passed to MkBuilder::filter_comb_cands().
-    using filter_candidates_cf = void(const TrackCand &);
+    using filter_candidates_cf = bool(const TrackCand &, const MkJob&);
     using filter_candidates_func = std::function<filter_candidates_cf>;
     // Called directly.
     using clean_duplicates_cf = void(TrackVec &, const IterationConfig &);
@@ -162,7 +164,6 @@ namespace mkfit {
     int m_track_algorithm = -1;
 
     bool m_requires_seed_hit_sorting = false;
-    bool m_requires_quality_filter = false; // MT QQQQ To be removed once filters are converted
 
     bool m_backward_search = false;
     bool m_backward_drop_seed_hits = false;
@@ -227,11 +228,6 @@ namespace mkfit {
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {
       m_iteration_index = idx;
       m_track_algorithm = trk_alg;
-    }
-
-    void set_qf_params(int minHits, float sharedFrac) {
-      m_params.minHitsQF = minHits;
-      m_params.fracSharedHits = sharedFrac;
     }
 
     void set_dupl_params(float sharedFrac, float drthCentral, float drthObarrel, float drthForward) {
