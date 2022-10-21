@@ -174,13 +174,6 @@ DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
                                         pixelPVMonitor *
                                         monitorpixelSoASource )
 
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-_DQMOfflinePixelTrackingNoSoA = DQMOfflinePixelTracking.copy()
-_DQMOfflinePixelTrackingNoSoA = cms.Sequence(pixelTracksMonitoring * pixelPVMonitor)
-
-phase2_tracker.toReplaceWith(DQMOfflinePixelTracking, _DQMOfflinePixelTrackingNoSoA)
-
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
                                 DQMMessageLogger *
