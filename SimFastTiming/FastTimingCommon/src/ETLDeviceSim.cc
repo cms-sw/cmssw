@@ -58,9 +58,9 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     // calculate the simhit row and column
-    const auto& pentry = hit.entryPoint();
+    const auto& position = hit.localPosition();
     // ETL is already in module-local coordinates so just scale to cm from mm
-    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
+    Local3DPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     //The following lines check whether the pixel point is actually out of the active area.
     //If that is the case it simply ignores the point but in the future some more sophisticated function could be applied.
     if (!topo.isInPixel(simscaled)) {
