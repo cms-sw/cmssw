@@ -16,9 +16,12 @@
 #include <bitset>
 #include <cassert>
 #include <vector>
+#include <cmath>
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
@@ -165,10 +168,6 @@ namespace l1t {
     /// pointer to Tau data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
 
-    //initializer prescale counter using a semi-random value between [1, prescale value]
-    static const std::vector<double> semirandomNumber(const edm::Event& iEvent,
-                                                      const std::vector<double>& prescaleFactorsAlgoTrig);
-
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
     inline const l1t::EtSum* getCandL1ETM() const
@@ -246,9 +245,6 @@ namespace l1t {
     // cache  of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
 
-    /// prescale counters: NumberPhysTriggers counters per bunch cross in event
-    std::vector<std::vector<double>> m_prescaleCounterAlgoTrig;
-
     bool m_firstEv;
     bool m_firstEvLumiSegment;
     uint m_currentLumi;
@@ -277,7 +273,40 @@ namespace l1t {
 
     // start the PS counter from a random value between [1,PS] instead of PS
     bool m_semiRandomInitialPSCounters = false;
+
+    // step-size in prescale counter corresponding to 10^p,
+    // where p is the precision allowed for non-integer prescales;
+    // since the introduction of L1T fractional prescales, p == 2
+    static constexpr size_t m_singlestep = 100;
+
+    // struct to increment the prescale according to fractional prescale logic in firmware
+    struct PrescaleCounter {
+      const size_t prescale_count;
+      size_t trigger_counter = 0;
+
+      PrescaleCounter(double prescale) : prescale_count(std::lround(prescale * m_singlestep)) {
+        if (prescale_count != 0 and (prescale_count < m_singlestep or prescale < 0)) {
+          throw cms::Exception("PrescaleCounterConstructor")
+              << "invalid initialisation of PrescaleCounter: prescale = " << prescale
+              << ", prescale_count = " << prescale_count << " (< " << m_singlestep << " = m_singlestep)";
+        }
+      }
+
+      // function to increment the prescale counter and return the decision
+      bool accept();
+    };
+
+    // prescale counters: NumberPhysTriggers counters per bunch cross in event
+    std::vector<std::vector<PrescaleCounter>> m_prescaleCounterAlgoTrig;
+
+    // create prescale counters, initialising trigger_counter to a semirandom number between 0 and prescale_count - 1 inclusive
+    static const std::vector<PrescaleCounter> semirandomNumber(const edm::Event& iEvent,
+                                                               const std::vector<double>& prescaleFactorsAlgoTrig);
+
+    // create prescale counters, initialising trigger_counter to zero
+    static const std::vector<PrescaleCounter> zeroPrescaleCounters(const std::vector<double>& prescaleFactorsAlgoTrig);
   };
 
 }  // namespace l1t
+
 #endif
