@@ -12,9 +12,9 @@ def OVar(valtype, compression=None, doc=None, mcOnly=False,precision=-1):
     elif valtype == bool:  valtype = "bool"
     return cms.PSet( 
                 type = cms.string(valtype),
-                compression = cms.string(compression if compression else "none"),
+                #compression = cms.string(compression if compression else "none"),
                 doc = cms.string(doc if doc else expr),
-                mcOnly = cms.bool(mcOnly),
+                #mcOnly = cms.bool(mcOnly),
 	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision)
            )
 def Var(expr, valtype, compression=None, doc=None, mcOnly=False,precision=-1):
