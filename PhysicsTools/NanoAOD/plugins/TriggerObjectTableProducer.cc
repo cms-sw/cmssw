@@ -55,6 +55,8 @@ public:
 
   ~TriggerObjectTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   void produce(edm::Event &, edm::EventSetup const &) override;
 
@@ -289,6 +291,36 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", 10);
   tab->addColumn<int>("filterBits", bits, "extra bits of associated information: " + bitsDoc_);
   iEvent.put(std::move(tab));
+}
+
+void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("name")->setComment("name of the flat table output");
+  desc.add<edm::InputTag>("src")->setComment("pat::TriggerObjectStandAlone input collection");
+  desc.add<edm::InputTag>("l1EG")->setComment("l1t::EGammaBxCollection input collection");
+  desc.add<edm::InputTag>("l1Sum")->setComment("l1t::EtSumBxCollection input collection");
+  desc.add<edm::InputTag>("l1Jet")->setComment("l1t::JetBxCollection input collection");
+  desc.add<edm::InputTag>("l1Muon")->setComment("l1t::MuonBxCollection input collection");
+  desc.add<edm::InputTag>("l1Tau")->setComment("l1t::TauBxCollection input collection");
+  //desc.add<std::vector<edm::ParameterSet>>("selections")->setComment("VPSet of selections");
+
+  edm::ParameterSetDescription selection;
+  selection.setComment("a parameterset to define a trigger collection in flat table");
+  selection.add<std::string>("name")->setComment("name of the leaf in the flat table");
+  selection.add<int>("id")->setComment("identifier of the trigger collection in the flat table");
+  selection.add<std::string>("sel")->setComment("function to selection on pat::TriggerObjectStandAlone");
+  selection.add<bool>("skipObjectsNotPassingQualityBits")->setComment("flag to skip object on quality bit");
+  selection.add<std::string>("qualityBits")->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
+  selection.add<std::string>("qualityBitsDoc")->setComment("description of qualityBits");
+  selection.ifExists( edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
+		      edm::ParameterDescription<double>("l1deltaR", ""));
+  selection.ifExists( edm::ParameterDescription<std::string>("l1seed_2", "selection on pat::TriggerObjectStandAlone"),
+		      edm::ParameterDescription<double>("l1deltaR_2", ""));
+  selection.ifExists( edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
+		      edm::ParameterDescription<double>("l2deltaR", ""));
+  desc.addVPSet("selections", selection);
+
+  descriptions.add("TriggerObjectTableProducer",desc);
 }
 
 //define this as a plug-in
