@@ -18,6 +18,12 @@ options.register('geometry',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D49, D88, D92, D93")
 
+options.register('layers',
+                 "1",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "For single layer use 'layers=3' (default is 'layers=1'); or for multiple layers use 'layers=1,27,41,46'; or for all layers use 'layers=1-47'. Note that the size may increase by ~10 times in memory usage and ~50 times in file volume if 'all layers' option is applied.")
+
 ### get and parse the command line arguments
 options.parseArguments()
 
@@ -74,18 +80,21 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.load('Validation.HGCalValidation.hgcalCellHitSum_cfi')
 
 process.hgcalCellHitSumEE = process.hgcalCellHitSum.clone(
-    geometryFileName = geomFile
+    geometryFileName = geomFile,
+    layerList = options.layers
 )
 
 process.hgcalCellHitSumHEF = process.hgcalCellHitSum.clone(
     simhits = ('g4SimHits', 'HGCHitsHEfront'),
     detector = 'HGCalHESiliconSensitive',
-    geometryFileName = geomFile
+    geometryFileName = geomFile,
+    layerList = options.layers
 )
 
 process.hgcalCellHitSumHEB = process.hgcalCellHitSum.clone(
     simhits = ('g4SimHits', 'HGCHitsHEback'),
-    detector   = 'HGCalHEScintillatorSensitive'
+    detector   = 'HGCalHEScintillatorSensitive',
+    layerList = options.layers
 )
 
 process.TFileService = cms.Service("TFileService",
