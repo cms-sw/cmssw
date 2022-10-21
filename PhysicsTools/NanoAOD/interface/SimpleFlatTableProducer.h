@@ -222,14 +222,14 @@ public:
     //base class
     desc.add<std::string>("name")->setComment("name of the branch in the flat table output for "+classname);
     desc.addOptional<std::string>("doc")->setComment("few words of self documentation");
-    desc.addOptional<bool>("extension")->setComment("");
-    desc.addOptional<bool>("skipNonExistingSrc")->setComment("");
+    desc.addOptional<bool>("extension", false)->setComment("whether or not to extend an existing same table");
+    desc.addOptional<bool>("skipNonExistingSrc", false)->setComment("whether or not to skip producing the table on absent input product");
     desc.add<edm::InputTag>("src")->setComment("input collection to fill the flat table");
     //derived class
     desc.ifValue( edm::ParameterDescription<bool>("singleton",""),
-		  false >> edm::ParameterDescription<std::string>("cut", "") or
+		  false >> edm::ParameterDescription<std::string>("cut", "selection on the main input collection") or
 		  true >> edm::EmptyGroupDescription() );
-    desc.addOptional<unsigned int>("maxLen")->setComment("");
+    desc.addOptional<unsigned int>("maxLen")->setComment("define the maximum length of the input collection to put in the branch");
 
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
