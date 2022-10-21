@@ -42,6 +42,7 @@ namespace mkfit {
 
   class IterationLayerConfig {
   public:
+    int m_layer = -1;
     // Selection limits.
     float m_select_min_dphi;
     float m_select_max_dphi;
@@ -98,24 +99,8 @@ namespace mkfit {
     float chi2CutOverlap = 3.5;
     float pTCutOverlap = 0.0;
 
-    //seed cleaning params
-    float c_ptthr_hpt = 2.0;
-    //initial
-    float c_drmax_bh = 0.010;
-    float c_dzmax_bh = 0.005;
-    float c_drmax_eh = 0.020;
-    float c_dzmax_eh = 0.020;
-    float c_drmax_bl = 0.010;
-    float c_dzmax_bl = 0.005;
-    float c_drmax_el = 0.030;
-    float c_dzmax_el = 0.030;
     //quality filter params
     int minHitsQF = 4;
-    //duplicate cleaning params
-    float fracSharedHits = 0.19;
-    float drth_central = 0.001;
-    float drth_obarrel = 0.001;
-    float drth_forward = 0.001;
 
     //min pT cut
     float minPtCut = 0.0;
@@ -169,6 +154,24 @@ namespace mkfit {
     bool m_backward_drop_seed_hits = false;
 
     int m_backward_fit_min_hits = -1;  // Min number of hits to keep when m_backward_drop_seed_hits is true
+
+    // seed cleaning params
+    float sc_ptthr_hpt = 2.0;
+    float sc_drmax_bh = 0.010;
+    float sc_dzmax_bh = 0.005;
+    float sc_drmax_eh = 0.020;
+    float sc_dzmax_eh = 0.020;
+    float sc_drmax_bl = 0.010;
+    float sc_dzmax_bl = 0.005;
+    float sc_drmax_el = 0.030;
+    float sc_dzmax_el = 0.030;
+
+    // duplicate cleaning params
+    float dc_fracSharedHits = 0.19;
+    float dc_drth_central = 0.001;
+    float dc_drth_obarrel = 0.001;
+    float dc_drth_forward = 0.001;
+
 
     // Iteration parameters (could be a ptr)
     IterationParams m_params;
@@ -231,10 +234,10 @@ namespace mkfit {
     }
 
     void set_dupl_params(float sharedFrac, float drthCentral, float drthObarrel, float drthForward) {
-      m_params.fracSharedHits = sharedFrac;
-      m_params.drth_central = drthCentral;
-      m_params.drth_obarrel = drthObarrel;
-      m_params.drth_forward = drthForward;
+      dc_fracSharedHits = sharedFrac;
+      dc_drth_central = drthCentral;
+      dc_drth_obarrel = drthObarrel;
+      dc_drth_forward = drthForward;
     }
 
     void set_seed_cleaning_params(float pt_thr,
@@ -246,15 +249,15 @@ namespace mkfit {
                                   float drmax_eh,
                                   float dzmax_el,
                                   float drmax_el) {
-      m_params.c_ptthr_hpt = pt_thr;
-      m_params.c_drmax_bh = drmax_bh;
-      m_params.c_dzmax_bh = dzmax_bh;
-      m_params.c_drmax_eh = drmax_eh;
-      m_params.c_dzmax_eh = dzmax_eh;
-      m_params.c_drmax_bl = drmax_bl;
-      m_params.c_dzmax_bl = dzmax_bl;
-      m_params.c_drmax_el = drmax_el;
-      m_params.c_dzmax_el = dzmax_el;
+      sc_ptthr_hpt = pt_thr;
+      sc_drmax_bh = drmax_bh;
+      sc_dzmax_bh = dzmax_bh;
+      sc_drmax_eh = drmax_eh;
+      sc_dzmax_eh = dzmax_eh;
+      sc_drmax_bl = drmax_bl;
+      sc_dzmax_bl = dzmax_bl;
+      sc_drmax_el = drmax_el;
+      sc_dzmax_el = dzmax_el;
     }
 
     void set_num_regions_layers(int nreg, int nlay) {
@@ -264,6 +267,8 @@ namespace mkfit {
       for (int i = 0; i < nreg; ++i)
         m_steering_params[i].m_region = i;
       m_layer_configs.resize(nlay);
+      for (int i = 0; i < nlay; ++i)
+        m_layer_configs[i].m_layer = i;
     }
 
     // Catalog of Standard functions
