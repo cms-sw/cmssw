@@ -34,15 +34,15 @@ validations:
         single:
             PaperRun2018AC:
                 IOV:
-                - 315257
-                - 315488
-                - 315489
-                - 315506
-                - 315640
-                - 315689
+                    - 315257
+                    - 315488
+                    - 315489
+                    - 315506
+                    - 315640
+                    - 315689
                 alignments:
-                - PromptReco
-                - UL 
+                    - PromptReco
+                    - UL 
                 dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/UltraLegacy/Run2/forDMRweighted/MuonIsolated2018_new/unskimmed_list.txt
                 goodlumi: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/UltraLegacy/Run2/forDMRweighted/MuonIsolated2018_new/IOV_Vali_{}.json
                 magneticfield: true
@@ -52,13 +52,13 @@ validations:
 
             PaperRun2018D:
                 IOV:
-                - 320841
-                - 320854
-                - 320856
-                - 320888
-                - 325110
+                    - 320841
+                    - 320854
+                    - 320856
+                    - 320888
+                    - 325110
                 alignments:
-                - UL
+                    - UL
                 dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/UltraLegacy/Run2/forDMRweighted/MuonIsolated2018_new/unskimmed_list.txt
                 goodlumi: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/UltraLegacy/Run2/forDMRweighted/MuonIsolated2018_new/IOV_Vali_{}.json
                 magneticfield: true
@@ -68,9 +68,9 @@ validations:
 
             PaperMC2018:
                 IOV:
-                - 1
+                    - 1
                 alignments:
-                - MC2018
+                    - MC2018
                 dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/tkello/cmssw_updates/CMSSW_11_3_0_pre2/src/Alignment/OfflineValidation/python/Dataset_Validation_IsoMuon_Ideal_2018_half1.txt
                 trackcollection: ALCARECOTkAlMuonIsolated
                 maxevents: 70000
@@ -78,9 +78,9 @@ validations:
 
             PaperMC2018Ideal:
                 IOV:
-                - 1
+                    - 1
                 alignments:
-                - MC2018Ideal
+                    - MC2018Ideal
                 dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/tkello/cmssw_updates/CMSSW_11_3_0_pre2/src/Alignment/OfflineValidation/python/Dataset_Validation_IsoMuon_Ideal_2018_half2.txt
                 trackcollection: ALCARECOTkAlMuonIsolated
                 maxevents: 70000
@@ -88,9 +88,9 @@ validations:
 
             PaperMC2016preVFP:
                 IOV:
-                - 1
+                    - 1
                 alignments:
-                - MC2016preVFP
+                    - MC2016preVFP
                 dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/tkello/cmssw_updates/CMSSW_11_3_0_pre2/src/Alignment/OfflineValidation/python/Dataset_Validation_IsoMuon_Realistic_2016preVFP.txt
                 trackcollection: ALCARECOTkAlMuonIsolated
                 maxevents: 70000
@@ -99,130 +99,132 @@ validations:
         merge:
             Run2:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: IOV
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperRun2018AC
-                - PaperRun2018D
+                    - PaperRun2018AC
+                    - PaperRun2018D
                 usefit: true
                 minimum: 15
 
             PaperMC2018:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: MC2018
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperMC2018
-                - PaperMC2018Ideal
+                    - PaperMC2018
+                    - PaperMC2018Ideal
                 usefit: true
                 minimum: 15
 
             PaperMC2018ideal:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: MC2018
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperMC2018Ideal
+                    - PaperMC2018Ideal
                 usefit: true
                 minimum: 15
 
             PaperMC2018realistic:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: MC2018
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperMC2018
+                    - PaperMC2018
                 usefit: true
                 minimum: 15
 
             PaperMC2016:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: MC2016
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperMC2016preVFP
+                    - PaperMC2016preVFP
                 usefit: true
                 minimum: 15
 
             ComparisonPerIoV:
                 methods:
-                - median
-                - rmsNorm
+                    - median
+                    - rmsNorm
                 curves:
-                - plain
+                    - plain
                 customrighttitle: IOV
                 legendoptions:
-                - mean
-                - rms
+                    - mean
+                    - rms
                 singles:
-                - PaperRun2018AC
-                - PaperRun2018D
-                - PaperMC2018Ideal
-                - PaperMC2018
-                - PaperMC2016preVFP
+                    - PaperRun2018AC
+                    - PaperRun2018D
+                    - PaperMC2018Ideal
+                    - PaperMC2018
+                    - PaperMC2016preVFP
                 usefit: true
                 minimum: 15 
 
         trends:
             TrendRun2:
                 merges:
-                - Run2
+                    - Run2
                 Variables:
-                - median
+                   - median
+                firstRun: 315257
+                lastRun: 325110
 
         averaged:
             AveragedRun2:
                 merges:
-                - Run2
-                - PaperMC2018ideal
-                - PaperMC2018realistic
-                - PaperMC2016
+                    - Run2
+                    - PaperMC2018ideal
+                    - PaperMC2018realistic
+                    - PaperMC2016
                 maxfiles: 700
                 lumiPerRun: 
-                - Alignment/OfflineValidation/data/lumiperRun2016_delivered.csv
-                - Alignment/OfflineValidation/data/lumiperRun2017_delivered.csv
-                - Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
+                    - Alignment/OfflineValidation/data/lumiperRun2016_delivered.csv
+                    - Alignment/OfflineValidation/data/lumiperRun2017_delivered.csv
+                    - Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
                 lumiMC:
-                - 1::PaperMC2018ideal::64482.432
-                - 2::PaperMC2018realistic::64482.432
-                - 2::PaperMC2016::20433.379 
+                    - 1::PaperMC2018ideal::64482.432
+                    - 2::PaperMC2018realistic::64482.432
+                    - 2::PaperMC2016::20433.379 
 style:
     DMR:
         averaged:
             CMSlabel: "Internal"
             Rlabel: "2016+2018"
 
-        merged: 
+        merge: 
             CMSlabel: "Internal"  
     trends:
         CMSlabel: "Internal"
@@ -236,46 +238,46 @@ style:
                     style: kDotted
                     color: kGray
                     runs:
-                    - 186500
-                    - 195360
-                    - 197749
-                    - 200961
-                    - 203368
-                    - 204601
-                    - 206446
-                    - 238341
-                    - 246866
-                    - 253914
-                    - 255655
-                    - 271866
-                    - 276315
-                    - 278271
-                    - 280928
-                    - 290543
-                    - 297281
-                    - 298653
-                    - 299443
-                    - 300389
-                    - 301046
-                    - 302131
-                    - 303790
-                    - 303998
-                    - 304911
-                    - 313041
-                    - 314881
-                    - 316758
-                    - 317475
-                    - 317485
-                    - 317527
-                    - 317661
-                    - 317664
-                    - 318227
-                    - 320377
-                    - 321831
-                    - 322510
-                    - 322603
-                    - 323232
-                    - 324245
+                        - 186500
+                        - 195360
+                        - 197749
+                        - 200961
+                        - 203368
+                        - 204601
+                        - 206446
+                        - 238341
+                        - 246866
+                        - 253914
+                        - 255655
+                        - 271866
+                        - 276315
+                        - 278271
+                        - 280928
+                        - 290543
+                        - 297281
+                        - 298653
+                        - 299443
+                        - 300389
+                        - 301046
+                        - 302131
+                        - 303790
+                        - 303998
+                        - 304911
+                        - 313041
+                        - 314881
+                        - 316758
+                        - 317475
+                        - 317485
+                        - 317527
+                        - 317661
+                        - 317664
+                        - 318227
+                        - 320377
+                        - 321831
+                        - 322510
+                        - 322603
+                        - 323232
+                        - 324245
             years:
                 line:
                     style: kSolid
@@ -297,5 +299,5 @@ style:
                     - 272008
                     - 290543
                 labels:
-                    Phase-0
-                    Phase-1 
+                    - Phase-0
+                    - Phase-1 

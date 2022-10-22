@@ -214,8 +214,8 @@
         }
     },
     "style":{
-        "CMSlabel": "Internal",
         "trends":{
+             "CMSlabel": "Internal",
              "earlyStops": ["unitTest"],
              "lines": {
                  "pixel": {

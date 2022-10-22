@@ -334,7 +334,9 @@ void FitPVResiduals(TString namesandlabels,
                     bool stdres = true,
                     bool do2DMaps = false,
                     TString theDate = "bogus",
-                    bool setAutoLimits = true);
+                    bool setAutoLimits = true,
+                    TString CMSlabel = "",
+                    TString Rlabel = "");
 TH1F *DrawZero(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter);
 TH1F *DrawConstant(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter, Double_t theConst);
 void makeNewXAxis(TH1F *h);
@@ -348,7 +350,7 @@ void FitDLine(TH1 *hist);
 
 params::measurement getTheRangeUser(TH1F *thePlot, Limits *thePlotLimits, bool tag = false);
 
-void setStyle();
+void setStyle(TString customCMSLabel = "", TString customRightLabel = "");
 
 // global variables
 
@@ -394,7 +396,13 @@ void loadFileList(const char *inputFile, TString baseDir, TString legendName, in
 }
 
 //*************************************************************
-void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString theDate, bool setAutoLimits)
+void FitPVResiduals(TString namesandlabels,
+                    bool stdres,
+                    bool do2DMaps,
+                    TString theDate,
+                    bool setAutoLimits,
+                    TString CMSlabel,
+                    TString Rlabel)
 //*************************************************************
 {
   // only for fatal errors (useful in debugging)
@@ -430,7 +438,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
   Int_t markers[9];
   Int_t colors[9];
 
-  setStyle();
+  setStyle(CMSlabel, Rlabel);
 
   // check if the loader is empty
   if (!sourceList.empty()) {
@@ -3860,14 +3868,25 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
 }
 
 /*--------------------------------------------------------------------*/
-void setStyle() {
+void setStyle(TString customCMSLabel, TString customRightLabel) {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text
-  lumi_13p6TeV = "pp collisions";
-  lumi_13TeV = "pp collisions";
-  lumi_0p9TeV = "pp collisions";
-  extraText = "Internal";
+  writeExraLumi = false;  // if write sqrt(s) info
+  if (customRightLabel != "") {
+    lumi_13TeV = customRightLabel;
+    lumi_13p6TeV = customRightLabel;
+    lumi_0p9TeV = customRightLabel;
+  } else {
+    lumi_13TeV = "pp collisions";
+    lumi_13p6TeV = "pp collisions";
+    lumi_0p9TeV = "pp collisions";
+  }
+  if (customCMSLabel != "") {
+    extraText = customCMSLabel;
+  } else {
+    extraText = "Internal";
+  }
 
   TH1::StatOverflows(kTRUE);
   gStyle->SetOptTitle(0);

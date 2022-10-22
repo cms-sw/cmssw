@@ -31,6 +31,13 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitGeneralTrackAnalyser.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
+  <bin file="testPVPlotting.cpp" name="testPVPlotting">
+    <flags PRE_TEST="GeneralTrackAnalyser"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
+  </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="DiMuonVertex">
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitDiMuonVertex.sh"/>
     <use name="FWCore/Utilities"/>

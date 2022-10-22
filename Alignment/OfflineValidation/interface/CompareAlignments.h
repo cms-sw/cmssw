@@ -45,6 +45,7 @@ public:
                     TString legendheader = "",
                     TString lefttitle = "",
                     TString righttitle = "",
+                    PublicationStatus status = INTERNAL,
                     bool bigtext = false);
 };
 

@@ -24,6 +24,8 @@
 #include "TString.h"
 #include "TStyle.h"
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 // Publication status: determines what is plotted in title
 enum PublicationStatus {
@@ -68,6 +70,7 @@ public:
     standardTitle()->Draw("same");
     standardRightTitle(era)->Draw("same");
   }
+  static PublicationStatus toStatus(std::string _status);
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions.

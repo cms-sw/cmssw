@@ -86,9 +86,10 @@ The python file returns a list of jobs to the `validateAligments.py` which final
 ## TODO list 
 
  - improve exceptions handling (filesystem + own)
-   - check inconsistencies in config file?
- - unification of local configuration style based on DMR example
- - several plotting style options to be implemented
+ - unification of local configuration style based on DMR/PV example
+ - plotting style options to be implemented
+   - change marker size for trends
+   - accept ROOT pre-defined encoding in config (kRed, kDotted, etc.)
  - validations to implement:
    - PV (only average is missing) 
    - Zµµ (single + merge)
@@ -96,16 +97,22 @@ The python file returns a list of jobs to the `validateAligments.py` which final
    - overlap (single + merge + trend)
    - ...
  - documentation (this README)
-   - tutorial for PV, SplitV and GCP 
+   - tutorial for SplitV and GCP 
    - more working examples
    - instructions for developers
  - details
-   - copy condor config like the executable (or similar) and use soft links instead of hard copy
-   - make dry and local options (i.e. just don't run any condor command)
-(list from August 2022)
+   - results of PV validation do not end up in results directory but one above
+ - crab submission not available for all validations
+(list from October 2022)
 
 ## DMR validation
-For details read `README_DMR`
+For details read `README_DMR.md`
+
+## PV validation
+For details read `README_PV.md`
 
 ## JetHT validation
-For details read `README_JetHT`
+For details read `README_JetHT.md`
+
+## General info about IOV/run arguments
+For details read `README_IOV.md`

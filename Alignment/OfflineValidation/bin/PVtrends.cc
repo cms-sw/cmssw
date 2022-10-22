@@ -35,6 +35,8 @@ namespace bc = boost::container;
 
 static const char *bold = "\e[1m", *normal = "\e[0m";
 static const float defaultConvertScale = 1000.;
+static const int startRun2016 = 272930;
+static const int endRun2018 = 325175;
 namespace pt = boost::property_tree;
 
 int trends(int argc, char *argv[]) {
@@ -57,8 +59,9 @@ int trends(int argc, char *argv[]) {
   bool doRMS = validation.count("doRMS") ? validation.get<bool>("doRMS") : true;
   bool doUnitTest = validation.count("doUnitTest") ? validation.get<bool>("doUnitTest") : false;
   int nWorkers = validation.count("nWorkers") ? validation.get<int>("nWorkers") : 20;
-  TString lumiInputFile = style.count("lumiInputFile") ? style.get<string>("lumiInputFile")
-                                                       : "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt";
+  TString lumiInputFile = style.get_child("trends").count("lumiInputFile")
+                              ? style.get_child("trends").get<string>("lumiInputFile")
+                              : "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt";
 
   fs::path lumiFile = lumiInputFile.Data();
   edm::FileInPath fip = edm::FileInPath(lumiFile.string());
@@ -116,8 +119,8 @@ int trends(int argc, char *argv[]) {
   float convertUnit = style.get_child("trends").count("convertUnit")
                           ? style.get_child("trends").get<float>("convertUnit")
                           : defaultConvertScale;
-  int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
-  int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
+  int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : startRun2016;
+  int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : endRun2018;
 
   const Run2Lumi GetLumi(pathToLumiFile.string().data(), firstRun, lastRun, convertUnit);
 

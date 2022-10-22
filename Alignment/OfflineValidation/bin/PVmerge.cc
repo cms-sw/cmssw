@@ -38,6 +38,12 @@ int merge(int argc, char* argv[]) {
 
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
+  pt::ptree global_style;
+  pt::ptree merge_style;
+  global_style = main_tree.count("style") ? main_tree.get_child("style") : global_style;
+  merge_style = global_style.count("PV") && global_style.get_child("PV").count("merge")
+                    ? global_style.get_child("PV").get_child("merge")
+                    : global_style;
 
   //Read all configure variables and set default for missing keys
   bool doMaps = validation.count("doMaps") ? validation.get<bool>("doMaps") : false;
@@ -61,6 +67,13 @@ int merge(int argc, char* argv[]) {
   float w_dxyEtaNormMax = validation.count("w_dxyEtaNormMax") ? validation.get<float>("w_dxyEtaNormMax") : 1.8;
   float w_dzEtaNormMax = validation.count("w_dzEtaNormMax") ? validation.get<float>("w_dzEtaNormMax") : 1.8;
   int iov = validation.count("IOV") ? validation.get<int>("IOV") : 1;
+  std::string rlabel = validation.count("customrighttitle") ? validation.get<std::string>("customrighttitle") : "";
+  rlabel = merge_style.count("Rlabel") ? merge_style.get<std::string>("Rlabel") : rlabel;
+  std::string cmslabel = merge_style.count("CMSlabel") ? merge_style.get<std::string>("CMSlabel") : "INTERNAL";
+  if (TkAlStyle::toStatus(cmslabel) == CUSTOM)
+    TkAlStyle::set(CUSTOM, NONE, cmslabel, rlabel);
+  else
+    TkAlStyle::set(TkAlStyle::toStatus(cmslabel), NONE, "", rlabel);
 
   //Create plots
   // initialize the plot y-axis ranges
@@ -82,16 +95,37 @@ int merge(int argc, char* argv[]) {
                       w_dzEtaNormMax    // width of dz  vs Eta (norm)
   );
 
+  //Load file list in user defined order
+  std::vector<std::pair<std::string, pt::ptree>> alignmentsOrdered;
   for (const auto& childTree : alignments) {
-    loadFileList(
-        (childTree.second.get<string>("file") + Form("/PVValidation_%s_%d.root", childTree.first.c_str(), iov)).c_str(),
-        "PVValidation",
-        childTree.second.get<string>("title"),
-        childTree.second.get<int>("color"),
-        childTree.second.get<int>("style"));
+    alignmentsOrdered.push_back(childTree);
+  }
+  std::sort(alignmentsOrdered.begin(),
+            alignmentsOrdered.end(),
+            [](const std::pair<std::string, pt::ptree>& left, const std::pair<std::string, pt::ptree>& right) {
+              return left.second.get<int>("index") < right.second.get<int>("index");
+            });
+  for (const auto& childTree : alignmentsOrdered) {
+    if (childTree.second.get<bool>("isMC")) {
+      loadFileList(
+          (childTree.second.get<string>("file") + Form("/PVValidation_%s_%d.root", childTree.first.c_str(), 1)).c_str(),
+          "PVValidation",
+          childTree.second.get<string>("title"),
+          childTree.second.get<int>("color"),
+          childTree.second.get<int>("style"));
+    } else {
+      loadFileList(
+          (childTree.second.get<string>("file") + Form("/PVValidation_%s_%d.root", childTree.first.c_str(), iov))
+              .c_str(),
+          "PVValidation",
+          childTree.second.get<string>("title"),
+          childTree.second.get<int>("color"),
+          childTree.second.get<int>("style"));
+    }
   }
 
-  FitPVResiduals("", stdResiduals, doMaps, "", autoLimits);
+  //And finally fit
+  FitPVResiduals("", stdResiduals, doMaps, "", autoLimits, cmslabel, rlabel);
 
   return EXIT_SUCCESS;
 }
