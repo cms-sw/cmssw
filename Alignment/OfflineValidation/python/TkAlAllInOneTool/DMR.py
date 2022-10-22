@@ -17,6 +17,12 @@ def DMR(config, validationDir):
         raise Exception("No 'single' key word in config for DMR") 
 
     for singleName in config["validations"]["DMR"][dmrType]:
+        aux_IOV = config["validations"]["DMR"][dmrType][singleName]["IOV"]
+        if not isinstance(aux_IOV, list) and aux_IOV.endswith(".txt"):
+            config["validations"]["DMR"][dmrType][singleName]["IOV"] = []
+            with open(aux_IOV, 'r') as IOVfile:
+                for line in IOVfile.readlines():
+                    if len(line) != 0: config["validations"]["DMR"][dmrType][singleName]["IOV"].append(int(line))
         for IOV in config["validations"]["DMR"][dmrType][singleName]["IOV"]:
             ##Save IOV to loop later for merge jobs
             if singleName not in IOVs.keys():
@@ -112,8 +118,19 @@ def DMR(config, validationDir):
                             idxIncrement += len(config["validations"]["DMR"]["single"][singleMCname]["alignments"])   
                     local["validation"] = copy.deepcopy(config["validations"]["DMR"][dmrType][mergeName])
                     local["validation"]["IOV"] = IOV #is it really needed here?
+                    if "customrighttitle" in local["validation"].keys():
+                        if "IOV" in local["validation"]["customrighttitle"]:
+                            local["validation"]["customrighttitle"] = local["validation"]["customrighttitle"].replace("IOV",str(IOV)) 
                     local["output"] = "{}/{}/DMR/{}/{}/{}".format(config["LFS"], config["name"], dmrType, mergeName, IOV)
 
+                    ##Add global plotting options
+                    if "style" in config.keys():
+                        if "DMR" in config['style'].keys():
+                            if dmrType in config['style']['DMR'].keys():
+                                local["style"] = copy.deepcopy(config["style"]["DMR"][dmrType])
+                                if "Rlabel" in local["style"] and "customrighttitle" in local["validation"].keys():
+                                    print("WARNING: custom right label is overwritten by global settings") 
+ 
                     ##Loop over all single jobs
                     for singleJob in jobs:
                         ##Get single job info and append to merge job if requirements fullfilled
@@ -187,10 +204,13 @@ def DMR(config, validationDir):
                 local["validation"]["mergeFile"] = _mergeFiles #FIXME for multiple merge files in backend
             local["validation"]["IOV"] = trendIOVs
             local["output"] = "{}/{}/DMR/{}/{}/".format(config["LFS"], config["name"], dmrType, trendName)
-            if "style" in config.keys():
+            if "style" in config.keys() and "trends" in config["style"].keys():
                 local["style"] = copy.deepcopy(config["style"])
-                if "trends" in config["style"].keys():
-                    if "CMSlabel" in config["style"]["trends"].keys(): local["style"]["CMSlabel"] = config["style"]["trends"]["CMSlabel"]
+                if "DMR" in local["style"].keys(): local["style"].pop("DMR") 
+                if "CMSlabel" in config["style"]["trends"].keys(): local["style"]["CMSlabel"] = config["style"]["trends"]["CMSlabel"]
+                if "Rlabel" in config["style"]["trends"].keys(): 
+                    local["style"]["trends"].pop("Rlabel")
+                    local["style"]["trends"]["TitleCanvas"] = config["style"]["trends"]["Rlabel"]
             else:
                 raise Exception("You want to create 'trends' jobs, but there are no 'lines' section in the config for pixel updates!")
 

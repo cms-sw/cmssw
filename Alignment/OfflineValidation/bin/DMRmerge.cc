@@ -46,10 +46,19 @@ int merge(int argc, char* argv[]) {
 
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
+  pt::ptree global_style;
+  pt::ptree merge_style;
+  global_style = main_tree.count("style") ? main_tree.get_child("style") : global_style;
+  merge_style = global_style.count("DMR") && global_style.get_child("DMR").count("merge")
+                    ? global_style.get_child("DMR").get_child("merge")
+                    : global_style;
 
   //Read all configure variables and set default for missing keys
   std::string methods = validation.count("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
   std::string curves = validation.count("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
+  std::string rlabel = validation.count("customrighttitle") ? validation.get<std::string>("customrighttitle") : "";
+  rlabel = merge_style.count("Rlabel") ? merge_style.get<std::string>("Rlabel") : rlabel;
+  std::string cmslabel = merge_style.count("CMSlabel") ? merge_style.get<std::string>("CMSlabel") : "INTERNAL";
 
   int minimum = validation.count("minimum") ? validation.get<int>("minimum") : 15;
 
@@ -59,7 +68,10 @@ int merge(int argc, char* argv[]) {
   TkAlStyle::legendheader = validation.count("legendheader") ? validation.get<std::string>("legendheader") : "";
   TkAlStyle::legendoptions =
       validation.count("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean rms";
-  TkAlStyle::set(INTERNAL, NONE, "", validation.get<std::string>("customrighttitle"));
+  if (TkAlStyle::toStatus(cmslabel) == CUSTOM)
+    TkAlStyle::set(CUSTOM, NONE, cmslabel, rlabel);
+  else
+    TkAlStyle::set(TkAlStyle::toStatus(cmslabel), NONE, "", rlabel);
 
   std::vector<int> moduleids;
   if (validation.count("moduleid")) {
@@ -88,7 +100,10 @@ int merge(int argc, char* argv[]) {
 
   //Do file comparisons
   CompareAlignments comparer(main_tree.get<std::string>("output"));
-  comparer.doComparison(filesAndLabels);
+  if (TkAlStyle::toStatus(cmslabel) == CUSTOM)
+    comparer.doComparison(filesAndLabels, "", cmslabel, rlabel, CUSTOM);
+  else
+    comparer.doComparison(filesAndLabels, "", "", rlabel, TkAlStyle::toStatus(cmslabel));
 
   //Create plots in user defined order
   gStyle->SetTitleH(0.07);

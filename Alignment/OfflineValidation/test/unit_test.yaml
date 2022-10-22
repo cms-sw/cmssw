@@ -200,8 +200,19 @@ validations:
                         drawDz: true
                         drawDxy: true    
 style:
-    CMSlabel: Internal
+    DMR:
+        averaged:
+            CMSlabel: "Internal"
+            Rlabel: "Unit Test"
+
+        merge:
+            CMSlabel: "Internal" 
+    PV:
+        merge:
+            CMSlabel: "Preliminary" 
     trends:
+        CMSlabel: "Internal"
+        Rlabel: "Unit Test"
         earlyStops:
             - unitTest
         lines:

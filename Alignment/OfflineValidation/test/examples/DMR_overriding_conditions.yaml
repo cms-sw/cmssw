@@ -1,0 +1,50 @@
+LFS: /eos/cms/store/group/alca_trackeralign/AlignmentValidation/AlignmentValidation/CMSSW_test_units
+name: example_overriding_conditions
+alignments:
+    ReReco:
+        color: 632
+        globaltag: 106X_dataRun2_v10
+        style: 2101
+        title: End-of-year re-reconstruction
+    ULRun2:
+        color: 418
+        conditions:
+            TrackerAlignmentRcd:
+                connect: frontier://FrontierProd/CMS_CONDITIONS
+                label: 
+                tag: TrackerAlignment_v28_offline
+            TrackerAlignmentErrorExtendedRcd:
+                connect: frontier://FrontierProd/CMS_CONDITIONS
+                label: 
+                tag: TrackerAlignmentExtendedErrors_v15_offline_IOVs
+        globaltag: 106X_dataRun2_UL2016test_v24
+        style: 2101
+        title: Legacy reprocessing
+
+validations:
+    DMR:
+        merge:
+            Legacy:
+                methods:
+                - mean
+                - rms
+                curves:
+                - plain
+                customrighttitle: IOV
+                legendoptions:
+                - mean
+                - rms
+                singles:
+                - Legacy
+                usefit: true
+                minimum: 15
+
+        single:
+            Legacy:
+                IOV:
+                - 316569
+                alignments:
+                - ReReco
+                - ULRun2
+                maxevents: 1
+                maxtracks: 0

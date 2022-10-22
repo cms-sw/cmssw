@@ -45,6 +45,30 @@ double TkAlStyle::margin_ = 0.04;
 double TkAlStyle::textSize = 0.035;
 
 // --------------------------------------------------------------
+PublicationStatus TkAlStyle::toStatus(std::string status) {
+  PublicationStatus st;
+  std::for_each(status.begin(), status.end(), [](char& c) { c = ::toupper(c); });
+  if (status == "NO_STATUS")
+    st = NO_STATUS;
+  else if (status == "INTERNAL")
+    st = INTERNAL;
+  else if (status == "SIMULATION (INTERNAL)")
+    st = INTERNAL_SIMULATION;
+  else if (status == "PRELIMINARY")
+    st = PRELIMINARY;
+  else if (status == "PUBLIC")
+    st = PUBLIC;
+  else if (status == "SIMULATION")
+    st = SIMULATION;
+  else if (status == "UNPUBLISHED")
+    st = UNPUBLISHED;
+  else
+    st = CUSTOM;
+
+  return st;
+}
+
+// --------------------------------------------------------------
 void TkAlStyle::setXCoordinatesL(const double relWidth, double& x0, double& x1) {
   x0 = gStyle->GetPadLeftMargin() + margin_;
   x1 = x0 + relWidth * (1. - gStyle->GetPadLeftMargin() - gStyle->GetPadRightMargin() - 2. * margin_);
@@ -185,6 +209,8 @@ TString TkAlStyle::header(const PublicationStatus status) {
     std::cout << "Status not set yet!  Can't draw the title!" << std::endl;
   } else if (status == INTERNAL_SIMULATION) {
     txt = "#noCMS{Simulation}";
+  } else if (status == INTERNAL) {
+    txt = "#CMS{Internal}";
   } else if (status == PRELIMINARY) {
     txt = "#CMS{Preliminary}";
   } else if (status == PUBLIC) {

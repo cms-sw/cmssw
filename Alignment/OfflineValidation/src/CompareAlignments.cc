@@ -1,11 +1,15 @@
 #include "Alignment/OfflineValidation/interface/CompareAlignments.h"
 
-void CompareAlignments::doComparison(
-    TString namesandlabels, TString legendheader, TString lefttitle, TString righttitle, bool bigtext) {
+void CompareAlignments::doComparison(TString namesandlabels,
+                                     TString legendheader,
+                                     TString lefttitle,
+                                     TString righttitle,
+                                     PublicationStatus status,
+                                     bool bigtext) {
   std::cout << "Comparing using: >" << namesandlabels << "<" << std::endl;
 
   TkAlStyle::legendheader = legendheader;
-  TkAlStyle::set(CUSTOM, NONE, lefttitle, righttitle);
+  TkAlStyle::set(status, NONE, lefttitle, righttitle);
   gStyle->SetOptStat(111110);
   gStyle->SetOptTitle(0);
 

@@ -33,6 +33,9 @@ namespace fs = boost::filesystem;
 namespace bc = boost::container;
 
 static const char *bold = "\e[1m", *normal = "\e[0m";
+static const float defaultConvertScale = 1000.;
+static const int startRun2016 = 272930;
+static const int endRun2018 = 325175;
 
 namespace pt = boost::property_tree;
 
@@ -55,8 +58,9 @@ int trends(int argc, char *argv[]) {
   string outputdir = main_tree.get<string>("output");
   bool FORCE = validation.count("FORCE") ? validation.get<bool>("FORCE") : false;
   string year = validation.count("year") ? validation.get<string>("year") : "Run2";
-  TString lumiInputFile = style.count("lumiInputFile") ? style.get<string>("lumiInputFile")
-                                                       : "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt";
+  TString lumiInputFile = style.get_child("trends").count("lumiInputFile")
+                              ? style.get_child("trends").get<string>("lumiInputFile")
+                              : "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt";
   fs::path lumiFile = lumiInputFile.Data();
   edm::FileInPath fip = edm::FileInPath(lumiFile.string());
   fs::path pathToLumiFile = "";
@@ -101,7 +105,7 @@ int trends(int argc, char *argv[]) {
     }
   }
 
-  fs::path pname = Form("%s/PVtrends%s.root", outputdir.data(), labels_to_add.data());
+  fs::path pname = Form("%s/DMRtrends%s.root", outputdir.data(), labels_to_add.data());
 
   vector<TString> structures{"BPIX", "BPIX_y", "FPIX", "FPIX_y", "TIB", "TID", "TOB", "TEC"};
 
@@ -120,10 +124,11 @@ int trends(int argc, char *argv[]) {
 
   assert(fs::exists(pname));
 
-  float convertUnit =
-      style.get_child("trends").count("convertUnit") ? style.get_child("trends").get<float>("convertUnit") : 1000.;
-  int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
-  int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
+  float convertUnit = style.get_child("trends").count("convertUnit")
+                          ? style.get_child("trends").get<float>("convertUnit")
+                          : defaultConvertScale;
+  int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : startRun2016;
+  int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : endRun2018;
 
   const Run2Lumi GetLumi(pathToLumiFile.string().data(), firstRun, lastRun, convertUnit);
 

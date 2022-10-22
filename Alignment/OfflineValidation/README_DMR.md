@@ -33,10 +33,15 @@ magneticfield | true | Is magnetic field ON? Not really needed for validation...
 maxevents | 1 | Maximum number of events before cmsRun terminates.
 maxtracks | 1 | Maximum number of tracks per event before next event is processed.
 trackcollection | "generalTracks" | Track collection to be specified here, e.g. "ALCARECOTkAlMuonIsolated" or "ALCARECOTkAlMinBias" ... 
+tthrbuilder | "WithAngleAndTemplate" | Specify TTRH Builder
+usePixelQualityFlag | True | Use pixel quality flag?
+cosmicsZeroTesla | False | Is this validation for cosmics with zero magnetic field?
+vertexcollection | "offlinePrimaryVertices" | Specify vertex collection to be used.
 
 #Merge DMR job
 Its name do not need to match single job name but option `singles` must list all single jobs to be merged.
 Needs to be specified in order to run averaged/trends jobs.
+DMR merged plot style can be adjusted from global plotting style (see `Alignment/OfflineValidation/test/example_DMR_full.yaml`)
 
 Variable | Default value | Explanation/Options
 -------- | ------------- | --------------------
@@ -59,6 +64,10 @@ Variable | Default value | Explanation/Options
 -------- | ------------- | --------------------
 merges | None | List of merge job names to be processed for trends. 
 Variables | ["median"] | Trend plot type to be plotted: DrmsNR, median
+firstRun | 272930 | Specify starting run to be plotted.
+lastRun | 325175 | Specify the last run to be considered.
+labels | None | List of string tags to be added in output rootfile.
+year | Run2 | Enforce year tag to be included in lumiInputFile option specified in trend style (This is extra measure)
 
 #Averaged DMR job
 Its name do not need to match merge neither single job name but option `merges` must list all merge jobs to be put in averaged distribution.
@@ -73,3 +82,22 @@ lumiPerRun | None | List of lumi-per-run files.
 lumiPerIoV | None | List of lumi-per-iov files.
 maxfiles | 700 | Maximum number of files to be merged per sub-job. 
 lumiMC | None | Define scale factors to be used for normalisation of MC from the list of merge jobs. Format: `["(<igroup>::)<merge_name>::<scale_factor>"]`. `<igroup>` is optional integer in case of multiple MC groups to be merged.
+
+Example 1:
+```
+lumiMC:
+    - 1::PaperMC2018ideal::64482.432
+    - 2::PaperMC2018realistic::64482.432
+    - 2::PaperMC2016::20433.379
+```
+Group 2 will merge PaperMC2018realistic simulation object with PaperMC2016 simulation object assuming respective scale factors 64482.432/(64482.432+20433.37) and 20433.37/(64482.432+20433.37).
+Group 1 only consists of one object and will be plotted alongside Group 2 curve.  
+
+Example 2:
+```
+lumiMC:
+    - PaperMC2018ideal::64482.432
+    - PaperMC2018realistic::64482.432
+    - PaperMC2016::20433.379
+```
+Only one group is considered merging 3 simulation objects with corresponding scale factors 64482.432/(64482.432+64482.432+20433.379), ...
