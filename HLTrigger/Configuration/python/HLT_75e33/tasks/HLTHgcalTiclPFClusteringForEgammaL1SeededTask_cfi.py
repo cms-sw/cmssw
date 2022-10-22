@@ -31,6 +31,5 @@ HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     particleFlowSuperClusterHGCalFromTICLL1Seeded,
     ticlLayerTileProducerL1Seeded,
     ticlSeedingL1,
-    #ticlTrackstersEML1
     ticlTrackstersCLUE3DHighL1Seeded
 )
