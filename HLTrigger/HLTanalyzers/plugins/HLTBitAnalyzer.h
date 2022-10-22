@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,12 +31,13 @@
   * \author G. Karapostoli - ULB
   */
 
-class HLTBitAnalyzer : public edm::EDAnalyzer {
+class HLTBitAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit HLTBitAnalyzer(edm::ParameterSet const& conf);
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
   void endJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
