@@ -1825,7 +1825,7 @@ void HGCalCellHitSum::fillDescriptions(edm::ConfigurationDescriptions &descripti
   desc.add<std::string>("detector", "HGCalEESensitive");
   desc.add<edm::FileInPath>("geometryFileName", edm::FileInPath("Validation/HGCalValidation/data/wafer_v17.csv"));
   desc.add<std::string>("layerList", "1");
-  descriptions.add("hgcalCellHitSum", desc);
+  descriptions.add("hgcalCellHitSumEE", desc);
 }
 
 //define this as a plug-in
