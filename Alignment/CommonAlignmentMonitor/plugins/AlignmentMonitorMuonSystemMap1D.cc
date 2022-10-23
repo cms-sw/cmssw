@@ -34,7 +34,7 @@
 class AlignmentMonitorMuonSystemMap1D : public AlignmentMonitorBase {
 public:
   AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
-  ~AlignmentMonitorMuonSystemMap1D() override {}
+  ~AlignmentMonitorMuonSystemMap1D() override = default;
 
   void book() override;
 
@@ -54,23 +54,25 @@ private:
   const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
 
   // parameters
-  edm::InputTag m_muonCollectionTag;
-  double m_minTrackPt;
-  double m_maxTrackPt;
-  double m_minTrackP;
-  double m_maxTrackP;
-  double m_maxDxy;
-  int m_minTrackerHits;
-  double m_maxTrackerRedChi2;
-  bool m_allowTIDTEC;
-  int m_minNCrossedChambers;
-  int m_minDT13Hits;
-  int m_minDT2Hits;
-  int m_minCSCHits;
-  bool m_doDT;
-  bool m_doCSC;
-  bool m_useStubPosition;
-  bool m_createNtuple;
+  const edm::InputTag m_muonCollectionTag;
+  const double m_minTrackPt;
+  const double m_maxTrackPt;
+  const double m_minTrackP;
+  const double m_maxTrackP;
+  const double m_maxDxy;
+  const int m_minTrackerHits;
+  const double m_maxTrackerRedChi2;
+  const bool m_allowTIDTEC;
+  const int m_minNCrossedChambers;
+  const int m_minDT13Hits;
+  const int m_minDT2Hits;
+  const int m_minCSCHits;
+  const bool m_doDT;
+  const bool m_doCSC;
+  const bool m_useStubPosition;
+  const bool m_createNtuple;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
   // counter
   long m_counter_event;
@@ -173,7 +175,9 @@ AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::Para
       m_doDT(cfg.getParameter<bool>("doDT")),
       m_doCSC(cfg.getParameter<bool>("doCSC")),
       m_useStubPosition(cfg.getParameter<bool>("useStubPosition")),
-      m_createNtuple(cfg.getParameter<bool>("createNtuple")) {
+      m_createNtuple(cfg.getParameter<bool>("createNtuple")),
+      bsToken_(iC.consumes<reco::BeamSpot>(m_beamSpotTag)),
+      muonToken_(iC.consumes<reco::MuonCollection>(m_muonCollectionTag)) {
   if (m_createNtuple) {
     edm::Service<TFileService> fs;
     m_cscnt = fs->make<TTree>("mualNtuple", "mualNtuple");
@@ -266,8 +270,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
                                             const ConstTrajTrackPairCollection &trajtracks) {
   m_counter_event++;
 
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(m_beamSpotTag, beamSpot);
+  const edm::Handle<reco::BeamSpot> &beamSpot = iEvent.getHandle(bsToken_);
 
   const GlobalTrackingGeometry *globalGeometry = &iSetup.getData(m_esTokenGBTGeom);
   const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
@@ -296,8 +299,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
       }  // end if track has acceptable momentum
     }    // end loop over tracks
   } else {
-    edm::Handle<reco::MuonCollection> muons;
-    iEvent.getByLabel(m_muonCollectionTag, muons);
+    const edm::Handle<reco::MuonCollection> &muons = iEvent.getHandle(muonToken_);
 
     for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
       if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
