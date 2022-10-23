@@ -17,6 +17,7 @@
 #include <cassert>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
@@ -40,8 +41,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
@@ -64,7 +63,7 @@ namespace l1t {
 
   public:
     /// receive data from Global Muon Trigger
-    void receiveCaloObjectData(edm::Event&,
+    void receiveCaloObjectData(const edm::Event&,
                                const edm::EDGetTokenT<BXVector<l1t::EGamma>>&,
                                const edm::EDGetTokenT<BXVector<l1t::Tau>>&,
                                const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
@@ -77,17 +76,17 @@ namespace l1t {
                                const int nrL1Jet,
                                const bool receiveEtSums);
 
-    void receiveMuonObjectData(edm::Event&,
+    void receiveMuonObjectData(const edm::Event&,
                                const edm::EDGetTokenT<BXVector<l1t::Muon>>&,
                                const bool receiveMu,
                                const int nrL1Mu);
 
-    void receiveMuonShowerObjectData(edm::Event&,
+    void receiveMuonShowerObjectData(const edm::Event&,
                                      const edm::EDGetTokenT<BXVector<l1t::MuonShower>>&,
                                      const bool receiveMuShower,
                                      const int nrL1MuShower);
 
-    void receiveExternalData(edm::Event&, const edm::EDGetTokenT<BXVector<GlobalExtBlk>>&, const bool receiveExt);
+    void receiveExternalData(const edm::Event&, const edm::EDGetTokenT<BXVector<GlobalExtBlk>>&, const bool receiveExt);
 
     /// initialize the class (mainly reserve)
     void init(const int numberPhysTriggers,
@@ -100,7 +99,7 @@ namespace l1t {
               int bxLast);
 
     /// run the uGT GTL (Conditions and Algorithms)
-    void runGTL(edm::Event& iEvent,
+    void runGTL(const edm::Event& iEvent,
                 const edm::EventSetup& evSetup,
                 const TriggerMenu* m_l1GtMenu,
                 const bool produceL1GtObjectMapRecord,
@@ -114,7 +113,7 @@ namespace l1t {
                 const int nrL1Jet);
 
     /// run the uGT FDL (Apply Prescales and Veto)
-    void runFDL(edm::Event& iEvent,
+    void runFDL(const edm::Event& iEvent,
                 const int iBxInEvent,
                 const int totalBxInEvent,
                 const unsigned int numberPhysTriggers,
@@ -242,12 +241,10 @@ namespace l1t {
 
     GlobalAlgBlk m_uGtAlgBlk;
 
-    // cache  of maps
+    // cache of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
 
-    bool m_firstEv;
-    bool m_firstEvLumiSegment;
-    uint m_currentLumi;
+    unsigned int m_currentLumi;
 
   private:
     /// verbosity level
@@ -281,10 +278,11 @@ namespace l1t {
 
     // struct to increment the prescale according to fractional prescale logic in firmware
     struct PrescaleCounter {
-      const size_t prescale_count;
-      size_t trigger_counter = 0;
+      size_t const prescale_count;
+      size_t trigger_counter;
 
-      PrescaleCounter(double prescale) : prescale_count(std::lround(prescale * m_singlestep)) {
+      PrescaleCounter(double prescale, size_t const initial_counter = 0)
+          : prescale_count(std::lround(prescale * m_singlestep)), trigger_counter(initial_counter) {
         if (prescale_count != 0 and (prescale_count < m_singlestep or prescale < 0)) {
           throw cms::Exception("PrescaleCounterConstructor")
               << "invalid initialisation of PrescaleCounter: prescale = " << prescale
@@ -299,12 +297,12 @@ namespace l1t {
     // prescale counters: NumberPhysTriggers counters per bunch cross in event
     std::vector<std::vector<PrescaleCounter>> m_prescaleCounterAlgoTrig;
 
-    // create prescale counters, initialising trigger_counter to a semirandom number between 0 and prescale_count - 1 inclusive
-    static const std::vector<PrescaleCounter> semirandomNumber(const edm::Event& iEvent,
-                                                               const std::vector<double>& prescaleFactorsAlgoTrig);
-
     // create prescale counters, initialising trigger_counter to zero
-    static const std::vector<PrescaleCounter> zeroPrescaleCounters(const std::vector<double>& prescaleFactorsAlgoTrig);
+    static std::vector<PrescaleCounter> prescaleCounters(std::vector<double> const& prescaleFactorsAlgoTrig);
+
+    // create prescale counters, initialising trigger_counter to a semirandom number between 0 and prescale_count - 1 inclusive
+    static std::vector<PrescaleCounter> prescaleCountersWithSemirandomInitialCounter(
+        std::vector<double> const& prescaleFactorsAlgoTrig, edm::Event const& iEvent);
   };
 
 }  // namespace l1t
