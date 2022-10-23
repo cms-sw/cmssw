@@ -3,6 +3,7 @@
 #include "DataFormats/Histograms/interface/DQMToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/TagAndProbe/interface/RooCMSShape.h"
 
 // RooFit includes
 #include "TCanvas.h"
@@ -18,6 +19,7 @@
 DiMuonMassBiasClient::DiMuonMassBiasClient(edm::ParameterSet const& iConfig)
     : TopFolder_(iConfig.getParameter<std::string>("FolderName")),
       fitBackground_(iConfig.getParameter<bool>("fitBackground")),
+      useRooCMSShape_(iConfig.getParameter<bool>("useRooCMSShape")),
       debugMode_(iConfig.getParameter<bool>("debugMode")),
       MEtoHarvest_(iConfig.getParameter<std::vector<std::string>>("MEtoHarvest"))
 //-----------------------------------------------------------------------------------
@@ -173,23 +175,38 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   RooDataHist datahist("datahist", "datahist", InvMass, RooFit::Import(*hist));
   datahist.plotOn(frame.get());
 
+  // parmaeters of the Voigtian
   RooRealVar mean("#mu", "mean", meanConfig_[0], meanConfig_[1], meanConfig_[2]);          //90.0, 60.0, 120.0 (for Z)
   RooRealVar width("width", "width", widthConfig_[0], widthConfig_[1], widthConfig_[2]);   // 5.0,  0.0, 120.0 (for Z)
   RooRealVar sigma("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);  // 5.0,  0.0, 120.0 (for Z)
   RooVoigtian voigt("voigt", "voigt", InvMass, mean, width, sigma);
 
-  RooRealVar lambda("#lambda", "slope", -0.01, -100., 1.);
+  // for the simple background fit
+  RooRealVar lambda("#lambda", "slope", 0., -10., 10.);
   RooExponential expo("expo", "expo", InvMass, lambda);
 
+  // for the more refined background fit
+  RooRealVar exp_alpha("expa", "alpha", 40.0, 20.0, 160.0);
+  RooRealVar exp_beta("expb", "beta", 0.05, 0.0, 2.0);
+  RooRealVar exp_gamma("expg", "gamma", 0.02, 0.0, 0.1);
+  RooRealVar exp_peak("expp", "peak", meanConfig_[0]);
+  RooCMSShape exp_pdf("exp_pdf", "bkg shape", InvMass, exp_alpha, exp_beta, exp_gamma, exp_peak);
+
+  // define the signal and background fractions
   RooRealVar b("N_{b}", "Number of background events", 0, hist->GetEntries() / 10.);
   RooRealVar s("N_{s}", "Number of signal events", 0, hist->GetEntries());
 
-  RooAddPdf fullModel("fullModel", "Signal + Background Model", RooArgList(voigt, expo), RooArgList(s, b));
   if (fitBackground_) {
-    fullModel.fitTo(datahist, RooFit::PrintLevel(-1));
-    fullModel.plotOn(frame.get(), RooFit::LineColor(kRed));
-    fullModel.plotOn(frame.get(), RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
-    fullModel.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));
+    const auto& listPdf = useRooCMSShape_ ? RooArgList(voigt, exp_pdf) : RooArgList(voigt, expo);
+    RooAddPdf fullModel("fullModel", "Signal + Background Model", listPdf, RooArgList(s, b));
+    fullModel.fitTo(datahist, RooFit::PrintLevel(-1), RooFit::Save(), RooFit::Range(xmin, xmax));
+    fullModel.plotOn(frame, RooFit::LineColor(kRed));
+    if (useRooCMSShape_) {
+      fullModel.plotOn(frame, RooFit::Components(exp_pdf), RooFit::LineStyle(kDashed));  //Other option
+    } else {
+      fullModel.plotOn(frame, RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
+    }
+    fullModel.paramOn(frame, RooFit::Layout(0.65, 0.90, 0.90));    
   } else {
     voigt.fitTo(datahist, RooFit::PrintLevel(-1));
     voigt.plotOn(frame.get(), RooFit::LineColor(kRed));            //this will show fit overlay on canvas
@@ -228,6 +245,7 @@ void DiMuonMassBiasClient::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "DiMuonMassBiasMonitor");
   desc.add<bool>("fitBackground", false);
+  desc.add<bool>("useRooCMSShape", false);
   desc.add<bool>("debugMode", false);
 
   edm::ParameterSetDescription fit_par;

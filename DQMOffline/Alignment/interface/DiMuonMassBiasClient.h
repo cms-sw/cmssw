@@ -82,6 +82,7 @@ private:
   // data members
   const std::string TopFolder_;
   const bool fitBackground_;
+  const bool useRooCMSShape_;
   const bool debugMode_;
 
   float meanConfig_[3];  /* parmaeters for the fit: mean */
