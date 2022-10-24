@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -159,7 +160,9 @@ public:
     edm::ParameterSetDescription variable;
     variable.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
-    variable.add<std::string>("type")->setComment("the c++ type of the branch in the flat table");
+    variable.ifValue(edm::ParameterDescription<std::string>(
+                         "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                     edm::allowedValues<std::string>("int", "unit", "float", "int8", "uint8", "bool"));
     variable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -257,7 +260,9 @@ public:
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
-    extvariable.add<std::string>("type")->setComment("the c++ type of the branch in the flat table");
+    extvariable.ifValue(edm::ParameterDescription<std::string>(
+                            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                        edm::allowedValues<std::string>("int", "unit", "float", "int8", "uint8", "bool"));
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
