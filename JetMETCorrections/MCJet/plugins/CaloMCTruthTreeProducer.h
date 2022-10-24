@@ -3,14 +3,14 @@
 
 #include "TTree.h"
 #include "TFile.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //namespace cms
 //{
-class CaloMCTruthTreeProducer : public edm::EDAnalyzer {
+class CaloMCTruthTreeProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
   void beginJob() override;
