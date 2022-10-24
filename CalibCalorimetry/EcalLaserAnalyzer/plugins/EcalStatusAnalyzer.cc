@@ -20,19 +20,14 @@
 #include <ctime>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-#include <TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h>
 #include <DataFormats/Provenance/interface/Timestamp.h>
-using namespace std;
 
 //========================================================================
 EcalStatusAnalyzer::EcalStatusAnalyzer(const edm::ParameterSet& iConfig)
@@ -40,26 +35,17 @@ EcalStatusAnalyzer::EcalStatusAnalyzer(const edm::ParameterSet& iConfig)
     : iEvent(0),
 
       // framework parameters with default values
-      _dataType(iConfig.getUntrackedParameter<std::string>("dataType", "h4"))  // h4 or p5
-
+      _dataType(iConfig.getUntrackedParameter<std::string>("dataType", "h4")),  // h4 or p5
+      resdir_(iConfig.getUntrackedParameter<std::string>("resDir")),
+      statusfile_(iConfig.getUntrackedParameter<std::string>("statusFile")),
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      dccToken_(consumes<EcalRawDataCollection>(edm::InputTag(eventHeaderProducer_, eventHeaderCollection_))),
+      headToken_(consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_)))
 //========================================================================
 
 {
   //now do what ever initialization is needed
-
-  resdir_ = iConfig.getUntrackedParameter<std::string>("resDir");
-  statusfile_ = iConfig.getUntrackedParameter<std::string>("statusFile");
-
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
-}
-
-//========================================================================
-EcalStatusAnalyzer::~EcalStatusAnalyzer() {
-  //========================================================================
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //========================================================================
@@ -82,27 +68,21 @@ void EcalStatusAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   ++iEvent;
 
   // retrieving DCC header
-  edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const EcalRawDataCollection* DCCHeader = nullptr;
-  try {
-    e.getByLabel(eventHeaderProducer_, eventHeaderCollection_, pDCCHeader);
-    DCCHeader = pDCCHeader.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product  retrieving DCC header " << eventHeaderCollection_.c_str() << std::endl;
+  const edm::Handle<EcalRawDataCollection>& pDCCHeader = e.getHandle(dccToken_);
+  const EcalRawDataCollection* DCCHeader = (pDCCHeader.isValid()) ? pDCCHeader.product() : nullptr;
+  if (!pDCCHeader.isValid()) {
+    edm::LogWarning("EcalStatusAnalyzer")
+        << "Error! can't get the product  retrieving DCC header " << eventHeaderCollection_.c_str();
   }
 
   // retrieving TB event header
 
-  edm::Handle<EcalTBEventHeader> pEventHeader;
-  const EcalTBEventHeader* evtHeader = nullptr;
+  const edm::Handle<EcalTBEventHeader>& pEventHeader = e.getHandle(headToken_);
+  const EcalTBEventHeader* evtHeader = (pEventHeader.isValid()) ? pEventHeader.product() : nullptr;
   if (_dataType == "h4") {
-    try {
-      e.getByLabel(eventHeaderProducer_, pEventHeader);
-      evtHeader = pEventHeader.product();  // get a ptr to the product
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str() << std::endl;
+    if (!pEventHeader.isValid()) {
+      edm::LogWarning("EcalStatusAnalyzer") << "Error! can't get the product " << eventHeaderProducer_.c_str();
     }
-
     timeStampCur = evtHeader->begBurstTimeSec();
     nSM = evtHeader->smInBeam();
   }
@@ -277,7 +257,7 @@ void EcalStatusAnalyzer::endJob() {
   std::stringstream namefile;
   namefile << resdir_ << "/" << statusfile_;
 
-  string statusfile = namefile.str();
+  std::string statusfile = namefile.str();
 
   std::ofstream statusFile(statusfile.c_str(), std::ofstream::out);
 
