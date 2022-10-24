@@ -7,13 +7,13 @@ particleFlowClusterHGCalFromTICLUnseeded = cms.EDProducer("PFClusterProducer",
     initialClusteringStep = cms.PSet(
         algoName = cms.string('PFClusterFromHGCalTrackster'),
         clusterSrc = cms.InputTag("hgcalLayerClusters"),
-        filterByTracksterIteration = cms.bool(True),
-        filterByTracksterPID = cms.bool(False),
+        filterByTracksterIteration = cms.bool(False),
+        filterByTracksterPID = cms.bool(True),
         filter_on_categories = cms.vint32(0, 1),
         filter_on_iterations = cms.vint32(0, 1),
         pid_threshold = cms.double(0.8),
         thresholdsByDetector = cms.VPSet(),
-        tracksterSrc = cms.InputTag("ticlTrackstersEMForEgamma")
+        tracksterSrc = cms.InputTag("ticlTrackstersCLUE3DHigh")
     ),
     pfClusterBuilder = cms.PSet(
 
