@@ -5,7 +5,6 @@ beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
     src = cms.InputTag("offlineBeamSpot"),
     name = cms.string("BeamSpot"),
     doc = cms.string("offlineBeamSpot, the offline reconstructed beamspot"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(
        type = Var("type()","int8",doc="BeamSpot type (Unknown = -1, Fake = 0, LHC = 1, Tracker = 2)"),
