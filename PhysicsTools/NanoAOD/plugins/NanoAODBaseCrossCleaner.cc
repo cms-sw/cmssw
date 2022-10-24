@@ -70,6 +70,7 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   const auto& jetsProd = iEvent.get(jets_);
   std::vector<uint8_t> jets;
+  jets.reserve(jetsProd.size());
   for (const auto& j : jetsProd) {
     jets.push_back(jetSel_(j));
   }
@@ -77,6 +78,7 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
 
   const auto& muonsProd = iEvent.get(muons_);
   std::vector<uint8_t> muons;
+  muons.reserve(muonsProd.size());
   for (const auto& m : muonsProd) {
     muons.push_back(muonSel_(m));
   }
@@ -84,16 +86,17 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
 
   const auto& electronsProd = iEvent.get(electrons_);
   std::vector<uint8_t> eles;
+  eles.reserve(electronsProd.size());
   for (const auto& e : electronsProd) {
     eles.push_back(electronSel_(e));
   }
   auto electronsTable = std::make_unique<nanoaod::FlatTable>(electronsProd.size(), electronName_, false, true);
 
-  edm::Handle<edm::View<pat::Electron>> lowPtElectronsIn;
   std::vector<uint8_t> lowPtEles;
   if (!lowPtElectronsTag_.label().empty()) {
-    iEvent.getByToken(lowPtElectrons_, lowPtElectronsIn);
-    for (const auto& e : *lowPtElectronsIn) {
+    const auto& lowPtelectronsProd = iEvent.get(lowPtElectrons_);
+    lowPtEles.reserve(lowPtelectronsProd.size());
+    for (const auto& e : lowPtelectronsProd) {
       lowPtEles.push_back(lowPtElectronSel_(e));
     }
   }
@@ -127,8 +130,7 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(photonsTable), "photons");
 
   if (!lowPtElectronsTag_.label().empty()) {
-    auto lowPtElectronsTable =
-        std::make_unique<nanoaod::FlatTable>(lowPtElectronsIn->size(), lowPtElectronName_, false, true);
+    auto lowPtElectronsTable = std::make_unique<nanoaod::FlatTable>(lowPtEles.size(), lowPtElectronName_, false, true);
     lowPtElectronsTable->addColumn<uint8_t>(name_, lowPtEles, doc_);
     iEvent.put(std::move(lowPtElectronsTable), "lowPtElectrons");
   }
@@ -142,11 +144,34 @@ void NanoAODBaseCrossCleaner::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void NanoAODBaseCrossCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<std::string>("name")->setComment("suffix name of the output flat table");
+  desc.add<std::string>("doc")->setComment(
+      "a bitmap defining the objects that remain after selection and cross cleaning");
+  desc.add<edm::InputTag>("jets")->setComment("a jet collection derived from pat::Jet");
+  desc.add<edm::InputTag>("muons")->setComment("a muon collection derived from pat::Muon");
+  desc.add<edm::InputTag>("electrons")->setComment("an electron collection derived from pat::Electron");
+  desc.add<edm::InputTag>("lowPtElectrons")
+      ->setComment("an optional electron collection derived from pat::Electron, empty=>not used");
+  desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
+  desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
+
+  desc.add<std::string>("jetSel")->setComment("function on pat::Jet defining the selection of jets");
+  desc.add<std::string>("muonSel")->setComment("function on pat::Muon defining the selection of muons");
+  desc.add<std::string>("electronSel")->setComment("function on pat::Electron defining the selection of electrons");
+  desc.add<std::string>("lowPtElectronSel")
+      ->setComment("function on pat::Electron defining the selection on alternative electrons collection");
+  desc.add<std::string>("tauSel")->setComment("function on pat::Tau defining the selection on taus");
+  desc.add<std::string>("photonSel")->setComment("function on pat::Photon defining the selection on photons");
+
+  desc.add<std::string>("jetName")->setComment("name of the jet mask flat table output");
+  desc.add<std::string>("muonName")->setComment("name of the muon mask flat table output");
+  desc.add<std::string>("electronName")->setComment("name of the electron mask flat table output");
+  desc.add<std::string>("lowPtElectronName")->setComment("name of the alternative electron mask flat table output");
+  desc.add<std::string>("tauName")->setComment("name of the tau mask flat table output");
+  desc.add<std::string>("photonName")->setComment("name of the photon mask flat table output");
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
