@@ -321,7 +321,7 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
                      edm::ParameterDescription<double>("l2deltaR", ""));
   desc.addVPSet("selections", selection);
 
-  descriptions.add("TriggerObjectTableProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
