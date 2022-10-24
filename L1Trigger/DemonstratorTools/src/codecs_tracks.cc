@@ -3,20 +3,54 @@
 
 namespace l1t::demo::codecs {
 
+  // Return true if a track is contained within a collection
+  bool trackInCollection(
+      const edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& trackRef,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& trackRefCollection) {
+    auto it = std::find_if(
+        trackRefCollection->begin(),
+        trackRefCollection->end(),
+        [&trackRef](edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> const& obj) { return obj == trackRef; });
+    if (it != trackRefCollection->end())
+      return true;
+    else
+      return false;
+  }
+
+  // Encodes a single track into a 96-bit track word
   ap_uint<96> encodeTrack(const TTTrack_TrackWord& t) { return t.getTrackWord(); }
 
-  // Encodes track collection onto 18 output links (2x9 eta-phi sectors; first 9 negative eta)
-  std::array<std::vector<ap_uint<64>>, 18> encodeTracks(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>& tracks,
-                                                        int debug) {
+  // Return the 96-bit track words from a given track collection and place them on the appropriate 18 'logical' links
+  std::array<std::vector<ap_uint<96>>, 18> getTrackWords(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>& tracks) {
     std::array<std::vector<ap_uint<96>>, 18> trackWords;
-    if (debug > 0) {
-      edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoding " << tracks.size() << " tracks";
+    for (const auto& track : tracks) {
+      trackWords.at((track.eta() >= 0 ? 1 : 0) + (2 * track.phiSector())).push_back(encodeTrack(track));
     }
-    for (const auto& track : tracks)
-      trackWords.at((track.eta() >= 0 ? 9 : 0) + track.phiSector()).push_back(encodeTrack(track));
+    return trackWords;
+  }
 
-    std::array<std::vector<ap_uint<64>>, 18> linkData;
+  // Return the 96-bit track words from a given track collection and place them on the appropriate 18 'logical' links
+  std::array<std::vector<ap_uint<96>>, 18> getTrackWords(
+      const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks) {
+    std::array<std::vector<ap_uint<96>>, 18> trackWords;
+    for (unsigned int itrack = 0; itrack < referenceTracks->size(); itrack++) {
+      const auto& referenceTrack = referenceTracks->at(itrack);
+      edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> referenceTrackRef(referenceTracks, itrack);
 
+      if (trackInCollection(referenceTrackRef, tracks)) {
+        trackWords.at((referenceTrack.eta() >= 0 ? 1 : 0) + (2 * referenceTrack.phiSector()))
+            .push_back(encodeTrack(referenceTrack));
+      } else {
+        trackWords.at((referenceTrack.eta() >= 0 ? 1 : 0) + (2 * referenceTrack.phiSector())).push_back(ap_uint<96>(0));
+      }
+    }
+    return trackWords;
+  }
+
+  // Encodes a set of tracks onto a set of links
+  size_t encodeLinks(std::array<std::vector<ap_uint<96>>, 18>& trackWords,
+                     std::array<std::vector<ap_uint<64>>, 18>& linkData) {
     size_t counter = 0;
     for (size_t i = 0; i < linkData.size(); i++) {
       // Pad track vectors -> full packet length (156 frames = 104 tracks)
@@ -31,6 +65,41 @@ namespace l1t::demo::codecs {
         counter += trackWords.at(i).at(j)(95, 95) + trackWords.at(i).at(j + 1)(95, 95);
       }
     }
+    return counter;
+  }
+
+  // Encodes track collection onto 18 output links (2x9 eta-phi sectors; , -/+ eta pairs)
+  std::array<std::vector<ap_uint<64>>, 18> encodeTracks(const edm::View<TTTrack<Ref_Phase2TrackerDigi_>>& tracks,
+                                                        int debug) {
+    if (debug > 0) {
+      edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoding " << tracks.size() << " tracks";
+    }
+
+    std::array<std::vector<ap_uint<96>>, 18> trackWords = getTrackWords(tracks);
+    std::array<std::vector<ap_uint<64>>, 18> linkData;
+    size_t counter = encodeLinks(trackWords, linkData);
+
+    if (debug > 0) {
+      edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoded " << counter << " tracks";
+    }
+
+    return linkData;
+  }
+
+  // Encodes a track collection based off the ordering of another track collection
+  // Requirement: The second collection must be a subset of the first
+  std::array<std::vector<ap_uint<64>>, 18> encodeTracks(
+      const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>& referenceTracks,
+      const edm::Handle<edm::RefVector<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>>& tracks,
+      int debug) {
+    if (debug > 0) {
+      edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoding " << tracks->size() << " tracks";
+    }
+
+    std::array<std::vector<ap_uint<96>>, 18> trackWords = getTrackWords(referenceTracks, tracks);
+    std::array<std::vector<ap_uint<64>>, 18> linkData;
+    size_t counter = encodeLinks(trackWords, linkData);
+
     if (debug > 0) {
       edm::LogInfo("l1t::demo::codecs") << "encodeTrack::Encoded " << counter << " tracks";
     }
@@ -88,6 +157,7 @@ namespace l1t::demo::codecs {
     return tracks;
   }
 
+  // Decodes the tracks from 18 'logical' output links (2x9 eta-phi sectors; , -/+ eta pairs)
   std::array<std::vector<TTTrack_TrackWord>, 18> decodeTracks(const std::array<std::vector<ap_uint<64>>, 18>& frames) {
     std::array<std::vector<TTTrack_TrackWord>, 18> tracks;
 
