@@ -3,14 +3,14 @@
 
 #include "TTree.h"
 #include "TFile.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //namespace cms
 //{
-class PFMCTruthTreeProducer : public edm::EDAnalyzer {
+class PFMCTruthTreeProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit PFMCTruthTreeProducer(edm::ParameterSet const& cfg);
   void beginJob() override;
