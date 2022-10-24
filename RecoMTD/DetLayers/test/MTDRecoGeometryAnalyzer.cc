@@ -133,10 +133,12 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
       for (const auto& imod : irod->basicComponents()) {
         BTLDetId modId(imod->geographicalId().rawId());
         LogVerbatim("MTDLayerDump") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                    << modId.mtdSide() << " rod = " << modId.mtdRR() << " mod = " << std::setw(4)
-                                    << modId.module() << std::setw(14) << " R = " << std::setprecision(4)
-                                    << imod->position().perp() << std::setw(14) << " phi = " << imod->position().phi()
-                                    << std::setw(14) << " Z = " << imod->position().z();
+                                    << modId.mtdSide() << " rod = " << modId.mtdRR()
+                                    << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
+                                    << modId.runit() << "/" << std::setw(2) << modId.module() << std::setw(14)
+                                    << " R = " << std::setprecision(4) << imod->position().perp() << std::setw(14)
+                                    << " phi = " << imod->position().phi() << std::setw(14)
+                                    << " Z = " << imod->position().z();
       }
     }
 
