@@ -21,7 +21,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -54,7 +54,7 @@ Implementation:
 // class declaration
 //
 
-class GctErrorAnalyzer : public edm::EDAnalyzer {
+class GctErrorAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   GctErrorAnalyzer() = delete;
   GctErrorAnalyzer(const GctErrorAnalyzer &) = delete;
@@ -330,6 +330,7 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
       useSys_(iConfig.getUntrackedParameter<std::string>("useSys", "P5")) {
   //now do what ever initialization is needed
   //make the root file
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
 
   //to try to make this look more elegant
