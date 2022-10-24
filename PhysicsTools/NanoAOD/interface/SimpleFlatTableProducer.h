@@ -251,7 +251,8 @@ public:
     desc.ifValue(edm::ParameterDescription<bool>("singleton", "whether or not the input collection is single-element"),
                  false >> edm::ParameterDescription<std::string>("cut", "selection on the main input collection") or
                      true >> edm::EmptyGroupDescription());
-    desc.addOptional<unsigned int>("maxLen")->setComment("define the maximum length of the input collection to put in the branch");
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
 
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
@@ -326,7 +327,7 @@ public:
   ~EventSingletonSimpleFlatTableProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc= SimpleFlatTableProducerBase<T, T>::baseDescriptions();
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, T>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -348,7 +349,7 @@ public:
   ~FirstObjectSimpleFlatTableProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc=desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
+    edm::ParameterSetDescription desc = desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -447,8 +448,8 @@ public:
 
   ~LumiSingletonSimpleFlatTableProducer() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions){
-    edm::ParameterSetDescription desc=SimpleFlatTableProducerBase<T, T>::baseDescriptions();
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, T>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -474,9 +475,10 @@ public:
 
   ~LumiSimpleFlatTableProducer() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions){
-    edm::ParameterSetDescription desc=SimpleFlatTableProducerBase<T, TProd>::baseDescriptions();
-    desc.addOptional<unsigned int>("maxLen")->setComment("define the maximum length of the input collection to put in the branch");
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, TProd>::baseDescriptions();
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
     descriptions.addWithDefaultLabel(desc);
   }
 

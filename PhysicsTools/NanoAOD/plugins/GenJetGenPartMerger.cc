@@ -29,7 +29,8 @@ class GenJetGenPartMerger : public edm::stream::EDProducer<> {
 public:
   explicit GenJetGenPartMerger(const edm::ParameterSet&);
   ~GenJetGenPartMerger() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -63,14 +64,14 @@ GenJetGenPartMerger::GenJetGenPartMerger(const edm::ParameterSet& iConfig)
 
 GenJetGenPartMerger::~GenJetGenPartMerger() {}
 
-void GenJetGenPartMerger::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("srcJet")->setComment("reco::GenJetCollection input collection");
-    desc.add<edm::InputTag>("srcPart")->setComment("reco::GenParticleCollection input collection");
-    desc.add<std::string>("cut")->setComment("a selection to apply to GenJet");
-    desc.add<edm::InputTag>("hasTauAnc")->setComment("value map defining GenJet tau origin");
-    descriptions.addWithDefaultLabel(desc);
-  }
+void GenJetGenPartMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcJet")->setComment("reco::GenJetCollection input collection");
+  desc.add<edm::InputTag>("srcPart")->setComment("reco::GenParticleCollection input collection");
+  desc.add<std::string>("cut")->setComment("a selection to apply to GenJet");
+  desc.add<edm::InputTag>("hasTauAnc")->setComment("value map defining GenJet tau origin");
+  descriptions.addWithDefaultLabel(desc);
+}
 //
 // member functions
 //
