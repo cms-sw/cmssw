@@ -57,7 +57,7 @@ public:
   };
 
   HGCalParameters(const std::string& nam);
-  ~HGCalParameters(void);
+  ~HGCalParameters(void) = default;
   void fillModule(const hgtrap& mytr, bool reco);
   hgtrap getModule(unsigned int k, bool reco) const;
   void fillTrForm(const hgtrform& mytr);
