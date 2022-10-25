@@ -28,11 +28,17 @@ MTDDetLayerGeometry::MTDDetLayerGeometry() {}
 MTDDetLayerGeometry::~MTDDetLayerGeometry() {}
 
 void MTDDetLayerGeometry::buildLayers(const MTDGeometry* geo, const MTDTopology* mtopo) {
+  bool abort(false);
   if (geo == nullptr) {
-    LogWarning("MTDDetLayers") << "No MTD geometry is available.";
+    LogError("MTDDetLayers") << "No MTD geometry is available.";
+    abort = true;
   }
   if (mtopo == nullptr) {
-    LogWarning("MTDDetLayers") << "No MTD topology  is available.";
+    LogError("MTDDetLayers") << "No MTD topology  is available.";
+    abort = true;
+  }
+  if (abort) {
+    throw cms::Exception("MTDDetLayers") << "No complete MTD geometry available, aborting.";
   }
 
   // Build BTL layers
