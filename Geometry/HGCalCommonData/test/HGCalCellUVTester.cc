@@ -43,7 +43,7 @@
 class HGCalCellUVTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalCellUVTester(const edm::ParameterSet&);
-  ~HGCalCellUVTester() override {}
+  ~HGCalCellUVTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
