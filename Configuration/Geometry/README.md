@@ -10,7 +10,7 @@ vi python/dict2021Geometry.py
 python3 ./scripts/generate2021Geometry.py -D 2021
 ```
 Note:
-* For Phase-2, use [generate2026Geometry.py](./python/dict2026Geometry.py) and [generate2026Geometry.py](./scripts/generate2026Geometry.py) instead.
+* For Phase-2, use [generate2026Geometry.py](./scripts/generate2026Geometry.py) and [dict2026Geometry.py](./python/dict2026Geometry.py) instead.
 * For the list of geometries, see below.
 
 # Run 3 Geometries
