@@ -3,25 +3,6 @@ import math
 
 workflows = Matrix()
 
-class WFN:
-    def __init__(self):
-        self.index=0
-        self.subindex=0
-    def __call__(self):
-        offset=2500
-        if self.subindex==100:
-            print("this is not going to work nicely")
-            self.subindex=0/0
-        r=float(f'{offset}.{self.index}{self.subindex:02d}')
-        self.subindex+=1
-        return r
-    def next(self):
-        self.index+=1
-        self.subindex=0
-    def subnext(self):
-        # go to the next tenth for the subindex 10 because of 02d formating
-        self.subindex = math.ceil(self.subindex/10.)*10
-
 _runOnly20events={'-n':'20'}
 _run10kevents={'-n':'10000'}
 
@@ -245,76 +226,64 @@ steps['NANO_mc12.6']=merge([{'--era':'Run3',
                             _NANO_data])
 
 
-_wfn=WFN()
 ################
 """
 #8.X input
-workflows[_wfn()] = ['mc80X', ['TTbarMINIAOD8.0','NANO_mc8.0', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0', 'HRV_NANO_data']]
+workflows[2500.0] = ['mc80X', ['TTbarMINIAOD8.0','NANO_mc8.0', 'HRV_NANO_mc']]
+workflows[2500.001] = ['data80X', ['MuonEG2016HMINIAOD8.0','NANO_data8.0', 'HRV_NANO_data']]
 
-_wfn.next()
 ################
 #9.4 input
 #workflows[_wfn()] = ['mc94X', ['TTbarMINIAOD9.4v1','NANO_mc9.4v1']] ##deprecated input
-workflows[_wfn()] = ['mc94X2016', ['TTbar2016MINIAOD9.4v2','NANO_2016mc9.4v2', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc94Xv2', ['TTbarMINIAOD9.4v2','NANO_mc9.4v2', 'HRV_NANO_mc']]
-_wfn.subnext()
+workflows[2500.1] = ['mc94X2016', ['TTbar2016MINIAOD9.4v2','NANO_2016mc9.4v2', 'HRV_NANO_mc']]
+workflows[2500.101] = ['mc94Xv2', ['TTbarMINIAOD9.4v2','NANO_mc9.4v2', 'HRV_NANO_mc']]
 #workflows[_wfn()] = ['data94X', ['MuonEG2017MINIAOD9.4v1','NANO_data9.4v1']] ## deprecated
-_wfn.subnext()
-workflows[_wfn()] = ['data94X2016', ['MuonEG2016MINIAOD9.4v2','NANO_2016data9.4v2', 'HRV_NANO_data']]
-_wfn.subnext()
-workflows[_wfn()] = ['data94Xv2', ['MuonEG2017MINIAOD9.4v2','NANO_data9.4v2', 'HRV_NANO_data']]
+workflows[2500.11] = ['data94X2016', ['MuonEG2016MINIAOD9.4v2','NANO_2016data9.4v2', 'HRV_NANO_data']]
+workflows[2500.12] = ['data94Xv2', ['MuonEG2017MINIAOD9.4v2','NANO_data9.4v2', 'HRV_NANO_data']]
 
-_wfn.next()
 ################
 #10.2 input
-workflows[_wfn()] = ['mc102X', ['TTbarMINIAOD10.2','NANO_mc10.2', 'HRV_NANO_mc']]
+workflows[2500.2] = ['mc102X', ['TTbarMINIAOD10.2','NANO_mc10.2', 'HRV_NANO_mc']]
 _wfn.subnext()
-workflows[_wfn()] = ['data102X', ['MuonEG2018MINIAOD10.2','NANO_data10.2', 'HRV_NANO_data']]
+workflows[2500.21] = ['data102X', ['MuonEG2018MINIAOD10.2','NANO_data10.2', 'HRV_NANO_data']]
 
-_wfn.next()
 """
 ################
 #10.6 input
-workflows[_wfn()] = ['mc106Xul16', ['TTbarMINIAOD10.6_UL16v1','NANO_mc10.6ul16v1', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc106Xul17', ['TTbarMINIAOD10.6_UL17v1','NANO_mc10.6ul17v1', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc106Xul18', ['TTbarMINIAOD10.6_UL18v1','NANO_mc10.6ul18v1', 'HRV_NANO_mc']]
-_wfn.subnext()
-workflows[_wfn()] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
-_wfn.subnext()
-workflows[_wfn()] = ['data106Xul16', ['MuonEG2016MINIAOD10.6v1', 'NANO_data10.6ul16v1', 'HRV_NANO_data']]
-workflows[_wfn()] = ['data106Xul17', ['MuonEG2017MINIAOD10.6v1', 'NANO_data10.6ul17v1', 'HRV_NANO_data']]
-workflows[_wfn()] = ['data106Xul18', ['MuonEG2018MINIAOD10.6v1', 'NANO_data10.6ul18v1', 'HRV_NANO_data']]
-_wfn.subnext()
-workflows[_wfn()] = ['data106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
-workflows[_wfn()] = ['data106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
-workflows[_wfn()] = ['data106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
+workflows[2500.3  ] = ['mc106Xul16', ['TTbarMINIAOD10.6_UL16v1','NANO_mc10.6ul16v1', 'HRV_NANO_mc']]
+workflows[2500.301] = ['mc106Xul17', ['TTbarMINIAOD10.6_UL17v1','NANO_mc10.6ul17v1', 'HRV_NANO_mc']]
+workflows[2500.302] = ['mc106Xul18', ['TTbarMINIAOD10.6_UL18v1','NANO_mc10.6ul18v1', 'HRV_NANO_mc']]
 
-_wfn.next()
+workflows[2500.31 ] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
+workflows[2500.311] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
+workflows[2500.312] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
+
+workflows[2500.32 ] = ['data106Xul16', ['MuonEG2016MINIAOD10.6v1', 'NANO_data10.6ul16v1', 'HRV_NANO_data']]
+workflows[2500.321] = ['data106Xul17', ['MuonEG2017MINIAOD10.6v1', 'NANO_data10.6ul17v1', 'HRV_NANO_data']]
+workflows[2500.322] = ['data106Xul18', ['MuonEG2018MINIAOD10.6v1', 'NANO_data10.6ul18v1', 'HRV_NANO_data']]
+
+workflows[2500.33 ] = ['data106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
+workflows[2500.331] = ['data106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
+workflows[2500.332] = ['data106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
+
 ################
 #12.2 input
-workflows[_wfn()] = ['mc122Xrun3_v10', ['TTbarMINIAOD12.2','NANO_mc12.2_v10', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
+workflows[2500.4  ] = ['mc122Xrun3_v10', ['TTbarMINIAOD12.2','NANO_mc12.2_v10', 'HRV_NANO_mc']]
+workflows[2500.401] = ['mc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
 
-_wfn.next()
 ################
 #12.4 input
 ## these are borken because of tau configuration in NANO ATM: they should be re-enabled when a fix gets in
-workflows[_wfn()] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
-_wfn.subnext()
-workflows[_wfn()] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
-workflows[_wfn()] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+workflows[2500.5  ] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
+workflows[2500.501] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
 
-_wfn.next()
+workflows[2500.51 ] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
+workflows[2500.511] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+
 ################
 #12.6 workflows
 ## these two workflows should be creating a sample "from scratch" instead of using a pre-release sample as input
-workflows[_wfn()] = ['mc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10', 'HRV_NANO_mc']]
-workflows[_wfn()] = ['mc126X', ['TTBarMINIAOD12.6','NANO_mc12.6', 'HRV_NANO_mc']]
-_wfn.subnext()
+workflows[2500.6  ] = ['mc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10', 'HRV_NANO_mc']]
+workflows[2500.601] = ['mc126X', ['TTBarMINIAOD12.6','NANO_mc12.6', 'HRV_NANO_mc']]
 
-_wfn.next()
 ################
