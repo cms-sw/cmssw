@@ -202,11 +202,23 @@ void VertexTableProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void VertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  desc.add<edm::InputTag>("pvSrc")->setComment(
+      "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
+  desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
+  desc.add<edm::InputTag>("svSrc")->setComment(
+      "reco::VertexCompositePtrCandidate compatible secondary vertex input collection");
+  desc.add<std::string>("svCut")->setComment("selection on the secondary vertex");
+
+  desc.add<double>("dlenMin")->setComment("minimum value of dl to select secondary vertex");
+  desc.add<double>("dlenSigMin")->setComment("minimum value of dl significance to select secondary vertex");
+
+  desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
+  desc.add<std::string>("svName")->setComment("name of the flat table ouput");
+  desc.add<std::string>("svDoc")->setComment("a few words of documentation [NOT USED IN THE CODE]");
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
