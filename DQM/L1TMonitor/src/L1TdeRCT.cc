@@ -1966,9 +1966,17 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, c
   if (!perLSsaving_)
     fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS", 108, 0, 108, 2, 0, 2);
 
+  std::map<unsigned int, unsigned int> repeats;
+  for (unsigned int i = 0; i < 108; ++i) {
+    repeats[crateFED[i]] = 0;
+  }
   for (unsigned int i = 0; i < 108; ++i) {
     char fed[10];
-    sprintf(fed, "%d", crateFED[i]);
+    if (0 == repeats[crateFED[i]]++) {
+      sprintf(fed, "%d", crateFED[i]);
+    } else {
+      sprintf(fed, "%d_%d", crateFED[i], repeats[crateFED[i]]);
+    }
     fedVectorMonitorRUN_->setBinLabel(i + 1, fed);
     if (!perLSsaving_)
       fedVectorMonitorLS_->setBinLabel(i + 1, fed);
