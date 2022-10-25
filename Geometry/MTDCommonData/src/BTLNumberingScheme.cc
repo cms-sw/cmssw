@@ -21,7 +21,14 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   uint32_t zside(999), rodCopy(0), runitCopy(0), modCopy(0), modtyp(0), crystal(0);
 
-  if (nLevels == kBTLcrystalLevel) {
+  bool isDD4hepOK(false);
+  if (nLevels == kBTLcrystalLevel+1) {
+    if (baseNumber.getLevelName(9) == "world_volume_1") {
+      isDD4hepOK = true;
+    }
+  }
+
+  if (nLevels == kBTLcrystalLevel || isDD4hepOK) {
     LogDebug("MTDGeom") << baseNumber.getLevelName(0) << ", " << baseNumber.getLevelName(1) << ", "
                         << baseNumber.getLevelName(2) << ", " << baseNumber.getLevelName(3) << ", "
                         << baseNumber.getLevelName(4) << ", " << baseNumber.getLevelName(5) << ", "
