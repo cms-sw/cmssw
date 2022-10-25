@@ -1,6 +1,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+//#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,6 +45,8 @@ public:
 
   NanoAODDQM(const edm::ParameterSet &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   //Book histograms
@@ -204,6 +210,52 @@ NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) {
     }
   }
   consumesMany<FlatTable>();
+}
+
+void NanoAODDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  edm::ParameterSetDescription sels;
+  sels.setComment("a paramerter set to define the selections to be made from the table row");
+  sels.addNode(edm::ParameterWildcard<std::string>("*", edm::RequireZeroOrMore, true));
+
+  edm::ParameterDescription<std::string> name("name", true, edm::Comment(""));
+  edm::ParameterDescription<std::string> title("title", true, edm::Comment("title of the plot"));
+  edm::ParameterDescription<uint32_t> nbins("nbins", true, edm::Comment("number of bins of the plot"));
+  edm::ParameterDescription<double> min("min", true, edm::Comment("starting value of the x axis"));
+  edm::ParameterDescription<double> max("max", true, edm::Comment("ending value of the x axis"));
+  edm::ParameterDescription<std::string> column(
+      "column", true, edm::Comment("name of the raw to fill the content of the plot"));
+  edm::ParameterDescription<std::string> xcolumn(
+      "xcolumn", true, edm::Comment("name of the raw to fill the x content of the plot"));
+  edm::ParameterDescription<std::string> ycolumn(
+      "ycolumn", true, edm::Comment("name of the raw to fill the y content of the plot"));
+
+  edm::ParameterSetDescription plot;
+  plot.setComment("a parameter set that defines a DQM histogram");
+  plot.ifValue(
+      edm::ParameterDescription<std::string>("kind", "none", true, edm::Comment("the type of histogram")),
+      "none" >> (name) or  //it should really be edm::EmptyGroupDescription(), but name is used in python by modifiers
+          "count1d" >> (name and title and nbins and min and max) or
+          "hist1d" >> (name and title and nbins and min and max and column) or
+          "prof1d" >> (name and title and nbins and min and max and xcolumn and ycolumn));
+
+  //edm::ParameterSetDescription plots;
+  //plots.setComment("a parameter set to define all the plots to be made from the table row");
+  //plots.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, plot));
+
+  edm::ParameterSetDescription vplot;
+  vplot.setComment(
+      "a parameter set to define all the plots to be made from a table row selected from the name of the PSet");
+  vplot.add<edm::ParameterSetDescription>("sels", sels);
+  vplot.addVPSet("plots", plot);
+
+  edm::ParameterSetDescription vplots;
+  vplots.setComment("a parameter set to define all the set of plots to be made from the tables");
+  vplots.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, vplot));
+  desc.add<edm::ParameterSetDescription>("vplots", vplots);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void NanoAODDQM::bookHistograms(DQMStore::IBooker &booker, edm::Run const &, edm::EventSetup const &) {
