@@ -70,9 +70,7 @@ simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
 )
 
 
-lhcInfoTable = cms.EDProducer("LHCInfoProducer",
-    precision = cms.int32(10),
-)
+lhcInfoTable = cms.EDProducer("LHCInfoProducer")
 
 nanoTableTaskCommon = cms.Task(
     cms.Task(nanoMetadata), 
