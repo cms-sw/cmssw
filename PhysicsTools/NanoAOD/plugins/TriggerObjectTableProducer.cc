@@ -302,7 +302,6 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("l1Jet")->setComment("l1t::JetBxCollection input collection");
   desc.add<edm::InputTag>("l1Muon")->setComment("l1t::MuonBxCollection input collection");
   desc.add<edm::InputTag>("l1Tau")->setComment("l1t::TauBxCollection input collection");
-  //desc.add<std::vector<edm::ParameterSet>>("selections")->setComment("VPSet of selections");
 
   edm::ParameterSetDescription selection;
   selection.setComment("a parameterset to define a trigger collection in flat table");
