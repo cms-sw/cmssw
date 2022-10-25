@@ -113,11 +113,12 @@ The script also handles the common and forward elements of the geometry:
 * F8: same as F6 or F7 without BRM
 
 Several detector combinations have been generated:
-* D86 = T24+C17+M10+I14+O8+F6 (Current Phase-2 baseline)
-* D88 = T24+C17+M10+I15+O9+F6
+* D86 = T24+C17+M10+I14+O8+F6
+* D88 = T24+C17+M10+I15+O9+F6 (Current Phase-2 baseline)
 * D91 = T30+C17+M10+I15+O9+F6
 * D92 = T24+C18+M10+I15+O9+F6
 * D93 = T24+C19+M10+I15+O9+F6
 * D94 = T24+C20+M10+I15+O9+F8
 * D95 = T31+C17+M10+I16+O9+F6
 * D96 = T31+C18+M10+I16+O9+F6
+* D97 = T25+C17+M10+I15+O9+F6
