@@ -40,7 +40,7 @@
 class HGCalValidHexTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalValidHexTester(const edm::ParameterSet&);
-  ~HGCalValidHexTester() override {}
+  ~HGCalValidHexTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}

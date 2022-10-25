@@ -12,8 +12,6 @@ HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), nCells_(0
 #endif
 }
 
-HGCalParameters::~HGCalParameters() {}
-
 void HGCalParameters::fillModule(const HGCalParameters::hgtrap& mytr, bool reco) {
   if (reco) {
     moduleLayR_.emplace_back(mytr.lay);
