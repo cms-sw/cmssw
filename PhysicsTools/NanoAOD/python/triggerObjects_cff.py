@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.TriggerObjectTableProducer_cfi import TriggerObjectTableProducer
+from PhysicsTools.NanoAOD.triggerObjectTableProducer_cfi import triggerObjectTableProducer
 import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
@@ -10,7 +10,7 @@ unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     unpackFilterLabels = cms.bool(True)
 )
 
-triggerObjectTable = TriggerObjectTableProducer.clone(
+triggerObjectTable = triggerObjectTableProducer.clone(
     name= cms.string("TrigObj"),
     src = cms.InputTag("unpackedPatTrigger"),
     l1EG = cms.InputTag("caloStage2Digis","EGamma"),
