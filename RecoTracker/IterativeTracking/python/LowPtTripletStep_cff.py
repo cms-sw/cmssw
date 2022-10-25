@@ -327,6 +327,9 @@ pp_on_AA.toModify(lowPtTripletStep,
 )
 fastSim.toModify(lowPtTripletStep, vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
+((~trackingMkFitLowPtTripletStep) & trackdnn).toModify(lowPtTripletStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
+                                                    qualityCuts = [-0.23,  0.15,  0.41])
+
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
