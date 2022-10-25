@@ -36,10 +36,8 @@ puTable = cms.EDProducer("NPUTablesProducer",
 
 genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
         src = cms.InputTag("generator"),
-        cut = cms.string(""), 
         name= cms.string("Generator"),
         doc = cms.string("Generator information"),
-        singleton = cms.bool(True), 
         extension = cms.bool(False),
     variables = cms.PSet(
         x1 = Var( "?hasPDF?pdf().x.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton",precision=14 ),
@@ -56,10 +54,8 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
 
 genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
         src = cms.InputTag("genFilterEfficiencyProducer"),
-        cut = cms.string(""), 
         name= cms.string("GenFilter"),
         doc = cms.string("Generator filter information"),
-        singleton = cms.bool(True), 
         extension = cms.bool(False),
     variables = cms.PSet(
         numEventsTotal        = Var("numEventsTotal()",        int,   doc="generator filter: total number of events",  precision=6),
