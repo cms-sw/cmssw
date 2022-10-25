@@ -128,6 +128,7 @@ public:  // interface
                                                  "SUMMER18",
                                                  "SUMMER18PUPPI",
                                                  "RUN2UL16CHS",
+						 "RUN2UL16PUPPI",
                                                  "RUN2ULCHS",
                                                  "RUN2ULPUPPI"));
     desc.ifValue(edm::ParameterDescription<std::string>("quality", "TIGHT", true, edm::Comment("")),
