@@ -180,7 +180,7 @@ RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 approxSiStripClusters.toModify(RAWEventContent,
                               outputCommands = RAWEventContent.outputCommands+[
-                                  'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
                               ])
 
 #
@@ -779,7 +779,9 @@ REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 approxSiStripClusters.toModify(REPACKRAWEventContent,
                                outputCommands = REPACKRAWEventContent.outputCommands+[
-                                   'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                   'drop FEDRawDataCollection_rawDataRepacker_*_*',
+                                   'keep *_rawPrimeDataRepacker_*_*'
                                ])
 
 REPACKRAWSIMEventContent = cms.PSet(
