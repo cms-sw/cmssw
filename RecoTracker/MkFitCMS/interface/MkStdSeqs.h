@@ -36,8 +36,8 @@ namespace mkfit {
 
     // Quality filters used directly (not through IterationConfig)
 
-    template<class TRACK>
-    bool qfilter_nan_n_silly(const TRACK &t, const MkJob&) {
+    template <class TRACK>
+    bool qfilter_nan_n_silly(const TRACK &t, const MkJob &) {
       return !(t.hasNanNSillyValues());
     }
 

@@ -258,7 +258,7 @@ namespace {
         builds.emplace_back(buildsMap["BH"]);
         builds.emplace_back(buildsMap["CE"]);
       } else {
-        if ( ! gSystem->Getenv("MKFIT_MIMI")) // MIMI does not support STD
+        if (!gSystem->Getenv("MKFIT_MIMI"))  // MIMI does not support STD
           builds.emplace_back(buildsMap["STD"]);
         builds.emplace_back(buildsMap["CE"]);
       }

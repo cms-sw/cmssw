@@ -347,9 +347,9 @@ namespace {
 
   struct register_seed_partitioners {
     register_seed_partitioners() {
-        IterationConfig::register_seed_partitioner("2017:0", partitionSeeds0);
-        IterationConfig::register_seed_partitioner("2017:1", partitionSeeds1);
-        IterationConfig::register_seed_partitioner("2017:1:debug", partitionSeeds1debug);
+      IterationConfig::register_seed_partitioner("2017:0", partitionSeeds0);
+      IterationConfig::register_seed_partitioner("2017:1", partitionSeeds1);
+      IterationConfig::register_seed_partitioner("2017:1:debug", partitionSeeds1debug);
     }
   } rsp_instance;
 }  // namespace
