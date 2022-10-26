@@ -112,6 +112,46 @@ namespace PFClustering {
             W0(_W0){};
     };
 
+    struct nondynamic {
+        float showerSigma2;
+        float recHitEnergyNormInvEB_vec[4];
+        float recHitEnergyNormInvEE_vec[7];
+        float minFracToKeep;
+        float minFracTot;
+        float minFracInCalc;
+        float minAllowedNormalization;
+        uint32_t maxIterations;
+        float stoppingTolerance;
+        bool excludeOtherSeeds;
+        float seedEThresholdEB_vec[4];
+        float seedEThresholdEE_vec[7];
+        float seedPt2ThresholdEB;
+        float seedPt2ThresholdEE;
+        float topoEThresholdEB_vec[4];
+        float topoEThresholdEE_vec[7];
+        int nNeigh;
+
+        struct endcapTimeResConsts {
+          float corrTermLowE;
+          float threshLowE;
+          float noiseTerm;
+          float constantTermLowE2;
+          float noiseTermLowE;
+          float threshHighE;
+          float constantTerm2;
+          float resHighE2;
+        
+        struct barrelTimeResConsts {
+          float corrTermLowE;
+          float threshLowE;
+          float noiseTerm;
+          float constantTermLowE2;
+          float noiseTermLowE;
+          float threshHighE;
+          float constantTerm2;
+          float resHighE2;
+    };
+
     struct CudaHCALConstants {
       float showerSigma2;
       float recHitEnergyNormInvEB_vec[4];
