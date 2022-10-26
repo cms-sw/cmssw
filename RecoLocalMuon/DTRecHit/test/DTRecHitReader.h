@@ -8,7 +8,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -32,18 +32,21 @@ class TFile;
 class DTLayer;
 class DTWireId;
 
-class DTRecHitReader : public edm::EDAnalyzer {
+class DTGeometry;
+class MuonGeometryRecord;
+
+class DTRecHitReader : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTRecHitReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTRecHitReader();
+  ~DTRecHitReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 protected:
 private:
@@ -74,6 +77,8 @@ private:
   std::string rootFileName;
   std::string simHitLabel;
   std::string recHitLabel;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 
 #endif
