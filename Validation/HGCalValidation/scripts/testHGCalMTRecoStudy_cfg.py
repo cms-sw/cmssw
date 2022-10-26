@@ -49,11 +49,13 @@ elif (options.geometry == "D93"):
     process = cms.Process('HGCalMTReco',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
     outputFile = 'file:recoutputD93.root'
-else:
+elif (options.geometry == "D92"):
     from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
     process = cms.Process('HGCalMTReco',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     outputFile = 'file:recoutputD92.root'
+else:
+    print("Please select a valid geometry version e.g. D88, D92, D93....")
 
 print("Input file: ", fileInput)
 print("Output file: ", outputFile)
@@ -69,7 +71,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
-
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring(fileInput),
@@ -84,18 +85,18 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.load('Validation.HGCalValidation.hgcalMTRecoStudy_cfi')
 
-process.hgcalMTRecoStudyEE = process.hgcalMTRecoStudy.clone(detectorName = cms.string('HGCalEESensitive'),
-                                                            source = cms.InputTag('HGCalRecHit', 'HGCEERecHits'),
+process.hgcalMTRecoStudyEE = process.hgcalMTRecoStudy.clone(detectorName = 'HGCalEESensitive',
+                                                            source = 'HGCalRecHit:HGCEERecHits',
                                                             layerList = options.layers
                                                         )
 
-process.hgcalMTRecoStudyFH = process.hgcalMTRecoStudy.clone(detectorName  = cms.string("HGCalHESiliconSensitive"),
-                                                            source        = cms.InputTag("HGCalRecHit", "HGCHEFRecHits"),
+process.hgcalMTRecoStudyFH = process.hgcalMTRecoStudy.clone(detectorName  = 'HGCalHESiliconSensitive',
+                                                            source        = 'HGCalRecHit:HGCHEFRecHits',
                                                             layerList = options.layers
                                                         )
 
-process.hgcalMTRecoStudyBH = process.hgcalMTRecoStudy.clone( detectorName  = cms.string("HGCalHEScintillatorSensitive"),
-                                                             source        = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
+process.hgcalMTRecoStudyBH = process.hgcalMTRecoStudy.clone( detectorName  = 'HGCalHEScintillatorSensitive',
+                                                             source        = 'HGCalRecHit:HGCHEBRecHits',
                                                              layerList = options.layers
                                                          )
 
