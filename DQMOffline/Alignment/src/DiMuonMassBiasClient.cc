@@ -169,9 +169,9 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   }
 
   RooRealVar InvMass("InvMass", "di-muon mass M(#mu^{+}#mu^{-}) [GeV]", xmin, xmax);
-  RooPlot* frame = InvMass.frame();
+  std::unique_ptr<RooPlot> frame{InvMass.frame()};
   RooDataHist datahist("datahist", "datahist", InvMass, RooFit::Import(*hist));
-  datahist.plotOn(frame);
+  datahist.plotOn(frame.get());
 
   RooRealVar mean("#mu", "mean", meanConfig_[0], meanConfig_[1], meanConfig_[2]);          //90.0, 60.0, 120.0 (for Z)
   RooRealVar width("width", "width", widthConfig_[0], widthConfig_[1], widthConfig_[2]);   // 5.0,  0.0, 120.0 (for Z)
@@ -186,18 +186,18 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
 
   RooAddPdf fullModel("fullModel", "Signal + Background Model", RooArgList(voigt, expo), RooArgList(s, b));
   if (fitBackground_) {
-    fullModel.fitTo(datahist, RooFit::PrintLevel(-1), RooFit::Save(), RooFit::Range(xmin, xmax));
-    fullModel.plotOn(frame, RooFit::LineColor(kRed));
-    fullModel.plotOn(frame, RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
-    fullModel.paramOn(frame, RooFit::Layout(0.65, 0.90, 0.90));
+    fullModel.fitTo(datahist, RooFit::PrintLevel(-1));
+    fullModel.plotOn(frame.get(), RooFit::LineColor(kRed));
+    fullModel.plotOn(frame.get(), RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
+    fullModel.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));
   } else {
-    voigt.fitTo(datahist, RooFit::PrintLevel(-1), RooFit::Save(), RooFit::Range(xmin, xmax));
-    voigt.plotOn(frame, RooFit::LineColor(kRed));            //this will show fit overlay on canvas
-    voigt.paramOn(frame, RooFit::Layout(0.65, 0.90, 0.90));  //this will display the fit parameters on canvas
+    voigt.fitTo(datahist, RooFit::PrintLevel(-1));
+    voigt.plotOn(frame.get(), RooFit::LineColor(kRed));            //this will show fit overlay on canvas
+    voigt.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));  //this will display the fit parameters on canvas
   }
 
   // Redraw data on top and print / store everything
-  datahist.plotOn(frame);
+  datahist.plotOn(frame.get());
   frame->GetYaxis()->SetTitle("n. of events");
   TString histName = hist->GetName();
   frame->SetName("frame" + histName);
