@@ -2,14 +2,187 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
-#include "L1Trigger/L1TCommon/interface/BitShift.h"
+#include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <filesystem>
 
 using namespace std;
 using namespace trklet;
 
-TrackletLUT::TrackletLUT(const Settings& settings) : settings_(settings) {}
+TrackletLUT::TrackletLUT(const Settings& settings) : settings_(settings), setup_(settings.setup()) {}
+
+std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
+    unsigned int layerdisk, bool isPS, std::array<double, 2> tan_range, unsigned int nzbins, unsigned int zbin) {
+  //Returns a vector of SensorModules using T. Schuh's Setup and SensorModule classes.
+  //Can be used 3 ways:
+  //Default: No specified tan_range or nzbins, returns all SensorModules in specified layerdisk (unique in |z|)
+  //tan_range: Returns modules in given tan range, where the min and max tan(theta) are measured from 0 -/+ z0 to account for displaced tracks
+  //zbins: Returns modules in specified z bin (2 zbins = (Flat, Tilted), 13 zbins = (Flat, TR1, ..., TR12). Only for tilted barrel
+
+  bool use_tan_range = !(tan_range[0] == -1 and tan_range[1] == -1);
+  bool use_zbins = (nzbins > 1);
+
+  bool barrel = layerdisk < N_LAYER;
+
+  int layerId = barrel ? layerdisk + 1 : layerdisk + N_LAYER - 1;
+
+  std::vector<const tt::SensorModule*> sensorModules;
+
+  double z0 = settings_.z0cut();
+
+  for (auto& sm : setup_->sensorModules()) {
+    if (sm.layerId() != layerId || sm.z() < 0 || sm.psModule() != isPS) {
+      continue;
+    }
+
+    if (use_tan_range) {
+      double rmin = sm.r() - (sm.numColumns() / 2 - 0.5) * sm.pitchCol() * std::abs(sm.sinTilt());
+      double rmax = sm.r() + (sm.numColumns() / 2 - 0.5) * sm.pitchCol() * std::abs(sm.sinTilt());
+
+      double zmin = std::abs(sm.z()) - (sm.numColumns() / 2 - 0.5) * sm.pitchCol() * std::abs(sm.cosTilt());
+      double zmax = std::abs(sm.z()) + (sm.numColumns() / 2 - 0.5) * sm.pitchCol() * std::abs(sm.cosTilt());
+
+      //z0_max is swapped here so that the comparison down 5 lines is from same origin (+/- z0)
+      double mod_tan_max = tan_theta(rmin, zmax, z0, false);
+      double mod_tan_min = tan_theta(rmax, zmin, z0, true);
+
+      if (mod_tan_max >= tan_range[0] && mod_tan_min <= tan_range[1]) {
+        sensorModules.push_back(&sm);
+      }
+    } else if (use_zbins) {
+      assert(layerdisk < 3);
+
+      if (nzbins == 2) {
+        bool useFlat = (zbin == 0);
+        bool isFlat = (sm.tilt() == 0);
+
+        if (useFlat and isFlat)
+          sensorModules.push_back(&sm);
+        else if (!useFlat and !isFlat)
+          sensorModules.push_back(&sm);
+      } else if (nzbins == 13) {
+        if (sm.ringId(setup_) == zbin)
+          sensorModules.push_back(&sm);
+      } else {
+        throw cms::Exception("Unspecified number of z bins");
+      }
+    } else {
+      sensorModules.push_back(&sm);
+    }
+  }
+
+  //Remove Duplicate Modules
+  static constexpr double delta = 1.e-3;
+  auto smallerR = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) { return lhs->r() < rhs->r(); };
+  auto smallerZ = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) { return lhs->z() < rhs->z(); };
+  auto equalRZ = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) {
+    return abs(lhs->r() - rhs->r()) < delta && abs(lhs->z() - rhs->z()) < delta;
+  };
+  stable_sort(sensorModules.begin(), sensorModules.end(), smallerR);
+  stable_sort(sensorModules.begin(), sensorModules.end(), smallerZ);
+  sensorModules.erase(unique(sensorModules.begin(), sensorModules.end(), equalRZ), sensorModules.end());
+
+  return sensorModules;
+}
+
+std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const tt::SensorModule*>& sensorModules) {
+  //Given a set of modules returns a range in tan(theta), the angle is measured in the r-z(+/-z0) plane from the r-axis
+
+  std::array<double, 2> tan_range = {{2147483647, 0}};  //(tan_min, tan_max)
+
+  double z0 = settings_.z0cut();
+
+  for (auto sm : sensorModules) {
+    double rmin = sm->r() - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());
+    double rmax = sm->r() + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());
+
+    double zmin = std::abs(sm->z()) - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();
+    double zmax = std::abs(sm->z()) + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();
+
+    double mod_tan_max = tan_theta(rmin, zmax, z0, true);  //(r, z, z0, bool z0_max), z0_max measures from +/- z0
+    double mod_tan_min = tan_theta(rmax, zmin, z0, false);
+
+    if (mod_tan_min < tan_range[0])
+      tan_range[0] = mod_tan_min;
+    if (mod_tan_max > tan_range[1])
+      tan_range[1] = mod_tan_max;
+  }
+  return tan_range;
+}
+
+std::vector<std::array<double, 2>> TrackletLUT::getBendCut(unsigned int layerdisk,
+                                                           const std::vector<const tt::SensorModule*>& sensorModules,
+                                                           bool isPS,
+                                                           double FEbendcut) {
+  //Finds range of bendstrip for given SensorModules as a function of the encoded bend. Returns in format (mid, half_range).
+  //This uses the stub windows provided by T. Schuh's SensorModule class to determine the bend encoding. TODO test changes in stub windows
+  //Any other change to the bend encoding requires changes here, perhaps a function that given (FEbend, isPS, stub window) and outputs an encoded bend
+  //would be useful for consistency.
+
+  unsigned int bendbits = isPS ? 3 : 4;
+
+  std::vector<std::array<double, 2>> bendpars;    // mid, cut
+  std::vector<std::array<double, 2>> bendminmax;  // min, max
+
+  //Initialize array
+  for (int i = 0; i < 1 << bendbits; i++) {
+    bendpars.push_back({{99, 0}});
+    bendminmax.push_back({{99, -99}});
+  }
+
+  //Loop over modules
+  for (auto sm : sensorModules) {
+    int window = sm->windowSize();  //Half-strip units
+    const vector<double>& encodingBend = setup_->encodingBend(window, isPS);
+
+    //Loop over FEbends
+    for (int ibend = 0; ibend <= 2 * window; ibend++) {
+      int FEbend = ibend - window;                                                 //Half-strip units
+      double BEbend = setup_->stubAlgorithm()->degradeBend(isPS, window, FEbend);  //Full strip units
+
+      const auto pos = std::find(encodingBend.begin(), encodingBend.end(), std::abs(BEbend));
+      int bend = std::signbit(BEbend) ? (1 << bendbits) - distance(encodingBend.begin(), pos)
+                                      : distance(encodingBend.begin(), pos);  //Encoded bend
+
+      double bendmin = FEbend / 2.0 - FEbendcut;  //Full Strip units
+      double bendmax = FEbend / 2.0 + FEbendcut;
+
+      //Convert to bendstrip, calculate at module edges (z min, r max) and  (z max, r min)
+      double z_mod[2];
+      double r_mod[2];
+
+      z_mod[0] = std::abs(sm->z()) + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();  //z max
+      z_mod[1] = std::abs(sm->z()) - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();  //z min
+
+      r_mod[0] = sm->r() - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());  //r min
+      r_mod[1] = sm->r() + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());  //r max
+
+      for (int i = 0; i < 2; i++) {  // 2 points to cover range in tan(theta) = z/r
+        double CF = std::abs(sm->sinTilt()) * (z_mod[i] / r_mod[i]) + sm->cosTilt();
+
+        double cbendmin =
+            convertFEBend(bendmin, sm->sep(), settings_.sensorSpacing2S(), CF, (layerdisk < N_LAYER), r_mod[i]);
+        double cbendmax =
+            convertFEBend(bendmax, sm->sep(), settings_.sensorSpacing2S(), CF, (layerdisk < N_LAYER), r_mod[i]);
+
+        if (cbendmin < bendminmax[bend][0])
+          bendminmax.at(bend)[0] = cbendmin;
+        if (cbendmax > bendminmax[bend][1])
+          bendminmax.at(bend)[1] = cbendmax;
+      }
+    }
+  }
+  //Convert min, max to mid, cut for ease of use
+  for (int i = 0; i < 1 << bendbits; i++) {
+    double mid = (bendminmax[i][1] + bendminmax[i][0]) / 2;
+    double cut = (bendminmax[i][1] - bendminmax[i][0]) / 2;
+
+    bendpars[i][0] = mid;
+    bendpars[i][1] = cut;
+  }
+
+  return bendpars;
+}
 
 void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned int region) {
   char cregion = 'A' + region;
@@ -118,14 +291,24 @@ void TrackletLUT::initTPlut(bool fillInner,
   double dphi[2];
   double router[2];
 
-  unsigned int nbendbitsinner = 3;
-  unsigned int nbendbitsouter = 3;
+  bool isPSinner;
+  bool isPSouter;
+
   if (iSeed == Seed::L3L4) {
-    nbendbitsouter = 4;
+    isPSinner = true;
+    isPSouter = false;
   } else if (iSeed == Seed::L5L6) {
-    nbendbitsinner = 4;
-    nbendbitsouter = 4;
+    isPSinner = false;
+    isPSouter = false;
+  } else {
+    isPSinner = true;
+    isPSouter = true;
   }
+
+  unsigned int nbendbitsinner = isPSinner ? N_BENDBITS_PS : N_BENDBITS_2S;
+  unsigned int nbendbitsouter = isPSouter ? N_BENDBITS_PS : N_BENDBITS_2S;
+
+  double z0 = settings_.z0cut();
 
   int nbinsfinephidiff = (1 << nbitsfinephidiff);
 
@@ -148,11 +331,64 @@ void TrackletLUT::initTPlut(bool fillInner,
         router[1] = settings_.rmean(layerdisk2);
       }
 
+      //Determine bend cuts using geometry
+      std::vector<std::array<double, 2>> bend_cuts_inner;
+      std::vector<std::array<double, 2>> bend_cuts_outer;
+
+      if (settings_.useCalcBendCuts) {
+        std::vector<const tt::SensorModule*> sminner;
+        std::vector<const tt::SensorModule*> smouter;
+
+        if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6) {
+          double outer_tan_max = tan_theta(settings_.rmean(layerdisk2), settings_.zlength(), z0, true);
+          std::array<double, 2> tan_range = {{0, outer_tan_max}};
+
+          smouter = getSensorModules(layerdisk2, isPSouter, tan_range);
+          sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+
+        } else if (iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
+          double outer_tan_min = tan_theta(router[1], settings_.zmindisk(layerdisk2 - N_LAYER), z0, false);
+          double outer_tan_max = tan_theta(router[0], settings_.zmaxdisk(layerdisk2 - N_LAYER), z0, true);
+
+          smouter = getSensorModules(layerdisk2, isPSouter, {{outer_tan_min, outer_tan_max}});
+          std::array<double, 2> tan_range = getTanRange(smouter);
+          sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+
+        } else {  // D1D2 D3D4
+
+          double outer_tan_min = tan_theta(router[1], settings_.zmindisk(layerdisk2 - N_LAYER), z0, false);
+          double outer_tan_max = tan_theta(router[0], settings_.zmaxdisk(layerdisk2 - N_LAYER), z0, true);
+
+          smouter = getSensorModules(layerdisk2, isPSouter, {{outer_tan_min, outer_tan_max}});
+
+          std::array<double, 2> tan_range = getTanRange(smouter);
+          sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+        }
+
+        bend_cuts_inner = getBendCut(layerdisk1, sminner, isPSinner, settings_.bendcutTE(iSeed, true));
+        bend_cuts_outer = getBendCut(layerdisk2, smouter, isPSouter, settings_.bendcutTE(iSeed, false));
+
+      } else {
+        for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
+          double mid = settings_.benddecode(ibend, layerdisk1, isPSinner);
+          double cut = settings_.bendcutte(ibend, layerdisk1, isPSinner);
+          bend_cuts_inner.push_back({{mid, cut}});
+        }
+        for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
+          double mid = settings_.benddecode(ibend, layerdisk2, isPSouter);
+          double cut = settings_.bendcutte(ibend, layerdisk2, isPSouter);
+          bend_cuts_outer.push_back({{mid, cut}});
+        }
+      }
+
       double bendinnermin = 20.0;
       double bendinnermax = -20.0;
       double bendoutermin = 20.0;
       double bendoutermax = -20.0;
       double rinvmin = 1.0;
+      double rinvmax = -1.0;
+      double absrinvmin = 1.0;
+
       for (int i2 = 0; i2 < 2; i2++) {
         for (int i3 = 0; i3 < 2; i3++) {
           double rinner = 0.0;
@@ -161,12 +397,16 @@ void TrackletLUT::initTPlut(bool fillInner,
           } else {
             rinner = settings_.rmean(layerdisk1);
           }
+          if (settings_.useCalcBendCuts) {
+            if (rinner >= router[i3])
+              continue;
+          }
           double rinv1 = (rinner < router[i3]) ? rinv(0.0, -dphi[i2], rinner, router[i3]) : 20.0;
           double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
           double pitchouter =
               (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-          double abendinner = bendstrip(rinner, rinv1, pitchinner);
-          double abendouter = bendstrip(router[i3], rinv1, pitchouter);
+          double abendinner = bendstrip(rinner, rinv1, pitchinner, settings_.sensorSpacing2S());
+          double abendouter = bendstrip(router[i3], rinv1, pitchouter, settings_.sensorSpacing2S());
           if (abendinner < bendinnermin)
             bendinnermin = abendinner;
           if (abendinner > bendinnermax)
@@ -175,28 +415,53 @@ void TrackletLUT::initTPlut(bool fillInner,
             bendoutermin = abendouter;
           if (abendouter > bendoutermax)
             bendoutermax = abendouter;
-          if (std::abs(rinv1) < rinvmin) {
-            rinvmin = std::abs(rinv1);
-          }
+          if (std::abs(rinv1) < absrinvmin)
+            absrinvmin = std::abs(rinv1);
+          if (rinv1 > rinvmax)
+            rinvmax = rinv1;
+          if (rinv1 < rinvmin)
+            rinvmin = rinv1;
         }
       }
 
-      bool passptcut = rinvmin < settings_.rinvcutte();
+      bool passptcut;
+      double bendfac;
+      double rinvcutte = settings_.rinvcutte();
+
+      if (settings_.useCalcBendCuts) {
+        double lowrinvcutte =
+            rinvcutte / 3;  //Somewhat arbitrary value, allows for better acceptance in bins with low rinv (high pt)
+        passptcut = rinvmin < rinvcutte and rinvmax > -rinvcutte;
+        bendfac = (rinvmin < lowrinvcutte and rinvmax > -lowrinvcutte)
+                      ? 1.05
+                      : 1.0;  //Somewhat arbirary value, bend cuts are 5% larger in bins with low rinv (high pt)
+      } else {
+        passptcut = absrinvmin < rinvcutte;
+        bendfac = 1.0;
+      }
 
       if (fillInner) {
         for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-          double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
+          double bendminfac = (isPSinner and (ibend == 2 or ibend == 3)) ? bendfac : 1.0;
+          double bendmaxfac = (isPSinner and (ibend == 6 or ibend == 5)) ? bendfac : 1.0;
 
-          bool passinner = bend <= bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
-                           bend >= bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+          double mid = bend_cuts_inner.at(ibend)[0];
+          double cut = bend_cuts_inner.at(ibend)[1];
+
+          bool passinner = mid + cut * bendmaxfac > bendinnermin && mid - cut * bendminfac < bendinnermax;
+
           table_.push_back(passinner && passptcut);
         }
       } else {
         for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-          double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
+          double bendminfac = (isPSouter and (ibend == 2 or ibend == 3)) ? bendfac : 1.0;
+          double bendmaxfac = (isPSouter and (ibend == 6 or ibend == 5)) ? bendfac : 1.0;
 
-          bool passouter = bend <= bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
-                           bend >= bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
+          double mid = bend_cuts_outer.at(ibend)[0];
+          double cut = bend_cuts_outer.at(ibend)[1];
+
+          bool passouter = mid + cut * bendmaxfac > bendoutermin && mid - cut * bendminfac < bendoutermax;
+
           table_.push_back(passouter && passptcut);
         }
       }
@@ -300,15 +565,22 @@ void TrackletLUT::initteptlut(bool fillInner,
   double phiouter[2];
   double router[2];
 
-  unsigned int nbendbitsinner = 3;
-  unsigned int nbendbitsouter = 3;
+  bool isPSinner;
+  bool isPSouter;
+
   if (iSeed == Seed::L3L4) {
-    nbendbitsouter = 4;
+    isPSinner = true;
+    isPSouter = false;
+  } else if (iSeed == Seed::L5L6) {
+    isPSinner = false;
+    isPSouter = false;
+  } else {
+    isPSinner = true;
+    isPSouter = true;
   }
-  if (iSeed == Seed::L5L6) {
-    nbendbitsinner = 4;
-    nbendbitsouter = 4;
-  }
+
+  unsigned int nbendbitsinner = isPSinner ? N_BENDBITS_PS : N_BENDBITS_2S;
+  unsigned int nbendbitsouter = isPSouter ? N_BENDBITS_PS : N_BENDBITS_2S;
 
   if (fillTEMem) {
     if (fillInner) {
@@ -318,28 +590,83 @@ void TrackletLUT::initteptlut(bool fillInner,
     }
   }
 
-  for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
-    phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
-    phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
-    for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
-      phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
-      phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-      for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
-        if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
-          router[0] =
-              settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-          router[1] = settings_.rmindiskvm() +
-                      (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-        } else {
-          router[0] = settings_.rmean(layerdisk2);
-          router[1] = settings_.rmean(layerdisk2);
-        }
+  double z0 = settings_.z0cut();
+
+  for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
+    if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
+      router[0] = settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
+      router[1] =
+          settings_.rmindiskvm() + (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
+    } else {
+      router[0] = settings_.rmean(layerdisk2);
+      router[1] = settings_.rmean(layerdisk2);
+    }
+
+    //Determine bend cuts using geometry
+    std::vector<std::array<double, 2>> bend_cuts_inner;
+    std::vector<std::array<double, 2>> bend_cuts_outer;
+
+    if (settings_.useCalcBendCuts) {
+      std::vector<const tt::SensorModule*> sminner;
+      std::vector<const tt::SensorModule*> smouter;
+
+      if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6) {
+        double outer_tan_max = tan_theta(settings_.rmean(layerdisk2), settings_.zlength(), z0, true);
+        std::array<double, 2> tan_range = {{0, outer_tan_max}};
+
+        smouter = getSensorModules(layerdisk2, isPSouter, tan_range);
+        sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+
+      } else if (iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
+        double outer_tan_min = tan_theta(router[1], settings_.zmindisk(layerdisk2 - N_LAYER), z0, false);
+        double outer_tan_max = tan_theta(router[0], settings_.zmaxdisk(layerdisk2 - N_LAYER), z0, true);
+
+        smouter = getSensorModules(layerdisk2, isPSouter, {{outer_tan_min, outer_tan_max}});
+        std::array<double, 2> tan_range = getTanRange(smouter);
+        sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+
+      } else {  // D1D2 D3D4
+
+        double outer_tan_min = tan_theta(router[1], settings_.zmindisk(layerdisk2 - N_LAYER), z0, false);
+        double outer_tan_max = tan_theta(router[0], settings_.zmaxdisk(layerdisk2 - N_LAYER), z0, true);
+
+        smouter = getSensorModules(layerdisk2, isPSouter, {{outer_tan_min, outer_tan_max}});
+
+        std::array<double, 2> tan_range = getTanRange(smouter);
+        sminner = getSensorModules(layerdisk1, isPSinner, tan_range);
+      }
+
+      bend_cuts_inner = getBendCut(layerdisk1, sminner, isPSinner, settings_.bendcutTE(iSeed, true));
+      bend_cuts_outer = getBendCut(layerdisk2, smouter, isPSouter, settings_.bendcutTE(iSeed, false));
+
+    } else {
+      for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
+        double mid = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
+        double cut = settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+        bend_cuts_inner.push_back({{mid, cut}});
+      }
+      for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
+        double mid = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
+        double cut = settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
+        bend_cuts_outer.push_back({{mid, cut}});
+      }
+    }
+
+    for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
+      phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
+      phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
+      for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
+        phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
+        phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
 
         double bendinnermin = 20.0;
         double bendinnermax = -20.0;
         double bendoutermin = 20.0;
         double bendoutermax = -20.0;
         double rinvmin = 1.0;
+        double rinvmax = -1.0;
+        double absrinvmin = 1.0;
+
         for (int i1 = 0; i1 < 2; i1++) {
           for (int i2 = 0; i2 < 2; i2++) {
             for (int i3 = 0; i3 < 2; i3++) {
@@ -349,13 +676,21 @@ void TrackletLUT::initteptlut(bool fillInner,
               } else {
                 rinner = settings_.rmean(layerdisk1);
               }
+
+              if (settings_.useCalcBendCuts) {
+                if (rinner >= router[i3])
+                  continue;
+              }
+
               double rinv1 = (rinner < router[i3]) ? -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]) : -20.0;
               double pitchinner =
                   (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
                   (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-              double abendinner = bendstrip(rinner, rinv1, pitchinner);
-              double abendouter = bendstrip(router[i3], rinv1, pitchouter);
+
+              double abendinner = bendstrip(rinner, rinv1, pitchinner, settings_.sensorSpacing2S());
+              double abendouter = bendstrip(router[i3], rinv1, pitchouter, settings_.sensorSpacing2S());
+
               if (abendinner < bendinnermin)
                 bendinnermin = abendinner;
               if (abendinner > bendinnermax)
@@ -364,40 +699,59 @@ void TrackletLUT::initteptlut(bool fillInner,
                 bendoutermin = abendouter;
               if (abendouter > bendoutermax)
                 bendoutermax = abendouter;
-              if (std::abs(rinv1) < rinvmin) {
-                rinvmin = std::abs(rinv1);
-              }
+              if (std::abs(rinv1) < absrinvmin)
+                absrinvmin = std::abs(rinv1);
+              if (rinv1 > rinvmax)
+                rinvmax = rinv1;
+              if (rinv1 < rinvmin)
+                rinvmin = rinv1;
             }
           }
         }
 
-        bool passptcut = rinvmin < settings_.rinvcutte();
+        double lowrinvcutte = 0.002;
+
+        bool passptcut;
+        double bendfac;
+
+        if (settings_.useCalcBendCuts) {
+          passptcut = rinvmin < settings_.rinvcutte() and rinvmax > -settings_.rinvcutte();
+          bendfac = (rinvmin < lowrinvcutte and rinvmax > -lowrinvcutte) ? 1.05 : 1.0;  // Better acceptance for high pt
+        } else {
+          passptcut = absrinvmin < settings_.rinvcutte();
+          bendfac = 1.0;
+        }
 
         if (fillInner) {
           for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-            double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
+            double bendminfac = (isPSinner and (ibend == 2 or ibend == 3)) ? bendfac : 1.0;
+            double bendmaxfac = (isPSinner and (ibend == 6 or ibend == 5)) ? bendfac : 1.0;
 
-            bool passinner = bend > bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
-                             bend < bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+            double mid = bend_cuts_inner.at(ibend)[0];
+            double cut = bend_cuts_inner.at(ibend)[1];
+
+            bool passinner = mid + cut * bendmaxfac > bendinnermin && mid - cut * bendminfac < bendinnermax;
 
             if (fillTEMem) {
-              if (passinner) {
+              if (passinner)
                 table_[ibend] = 1;
-              }
             } else {
               table_.push_back(passinner && passptcut);
             }
           }
         } else {
           for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-            double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
+            double bendminfac = (isPSouter and (ibend == 2 or ibend == 3)) ? bendfac : 1.0;
+            double bendmaxfac = (isPSouter and (ibend == 6 or ibend == 5)) ? bendfac : 1.0;
 
-            bool passouter = bend > bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
-                             bend < bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
+            double mid = bend_cuts_outer.at(ibend)[0];
+            double cut = bend_cuts_outer.at(ibend)[1];
+
+            bool passouter = mid + cut * bendmaxfac > bendoutermin && mid - cut * bendminfac < bendoutermax;
+
             if (fillTEMem) {
-              if (passouter) {
+              if (passouter)
                 table_[ibend] = 1;
-              }
             } else {
               table_.push_back(passouter && passptcut);
             }
@@ -423,7 +777,6 @@ void TrackletLUT::initteptlut(bool fillInner,
       name_ += "_stubptoutercut.tab";
     }
   }
-
   writeTable();
 }
 
@@ -457,7 +810,7 @@ void TrackletLUT::initProjectionBend(double k_phider,
         double rinv = -phider * (2.0 * t);
 
         double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-        double bendproj = bendstrip(rproj, rinv, stripPitch);
+        double bendproj = bendstrip(rproj, rinv, stripPitch, settings_.sensorSpacing2S());
 
         static double maxbend = (1 << NRINVBITS) - 1;
 
@@ -484,36 +837,85 @@ void TrackletLUT::initBendMatch(unsigned int layerdisk) {
   double rinvhalf = 0.5 * ((1 << nrinv) - 1);
 
   bool barrel = layerdisk < N_LAYER;
-  bool isPSmodule = layerdisk < N_PSLAYER;
-  double stripPitch = settings_.stripPitch(isPSmodule);
 
   if (barrel) {
+    bool isPSmodule = layerdisk < N_PSLAYER;
+    double stripPitch = settings_.stripPitch(isPSmodule);
     unsigned int nbits = isPSmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
+
+    std::vector<std::array<double, 2>> bend_cuts;
+
+    if (settings_.useCalcBendCuts) {
+      double bendcutFE = settings_.bendcutME(layerdisk, isPSmodule);
+      std::vector<const tt::SensorModule*> sm = getSensorModules(layerdisk, isPSmodule);
+      bend_cuts = getBendCut(layerdisk, sm, isPSmodule, bendcutFE);
+
+    } else {
+      for (unsigned int ibend = 0; ibend < (1u << nbits); ibend++) {
+        double mid = settings_.benddecode(ibend, layerdisk, isPSmodule);
+        double cut = settings_.bendcutte(ibend, layerdisk, isPSmodule);
+        bend_cuts.push_back({{mid, cut}});
+      }
+    }
 
     for (unsigned int irinv = 0; irinv < (1u << nrinv); irinv++) {
       double rinv = (irinv - rinvhalf) * (1 << (settings_.nbitsrinv() - nrinv)) * settings_.krinvpars();
 
-      double projbend = bendstrip(settings_.rmean(layerdisk), rinv, stripPitch);
+      double projbend = bendstrip(settings_.rmean(layerdisk), rinv, stripPitch, settings_.sensorSpacing2S());
       for (unsigned int ibend = 0; ibend < (1u << nbits); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk, isPSmodule);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk, isPSmodule);
+        double mid = bend_cuts[ibend][0];
+        double cut = bend_cuts[ibend][1];
+
+        double pass = mid + cut > projbend && mid - cut < projbend;
+
         table_.push_back(pass);
       }
     }
   } else {
+    std::vector<std::array<double, 2>> bend_cuts_2S;
+    std::vector<std::array<double, 2>> bend_cuts_PS;
+
+    if (settings_.useCalcBendCuts) {
+      double bendcutFE2S = settings_.bendcutME(layerdisk, false);
+      std::vector<const tt::SensorModule*> sm2S = getSensorModules(layerdisk, false);
+      bend_cuts_2S = getBendCut(layerdisk, sm2S, false, bendcutFE2S);
+
+      double bendcutFEPS = settings_.bendcutME(layerdisk, true);
+      std::vector<const tt::SensorModule*> smPS = getSensorModules(layerdisk, true);
+      bend_cuts_PS = getBendCut(layerdisk, smPS, true, bendcutFEPS);
+
+    } else {
+      for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_2S); ibend++) {
+        double mid = settings_.benddecode(ibend, layerdisk, false);
+        double cut = settings_.bendcutme(ibend, layerdisk, false);
+        bend_cuts_2S.push_back({{mid, cut}});
+      }
+      for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_PS); ibend++) {
+        double mid = settings_.benddecode(ibend, layerdisk, true);
+        double cut = settings_.bendcutme(ibend, layerdisk, true);
+        bend_cuts_PS.push_back({{mid, cut}});
+      }
+    }
+
     for (unsigned int iprojbend = 0; iprojbend < (1u << nrinv); iprojbend++) {
       double projbend = 0.5 * (iprojbend - rinvhalf);
       for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_2S); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk, false);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk, false);
+        double mid = bend_cuts_2S[ibend][0];
+        double cut = bend_cuts_2S[ibend][1];
+
+        double pass = mid + cut > projbend && mid - cut < projbend;
+
         table_.push_back(pass);
       }
     }
-    for (unsigned int iprojbend = 0; iprojbend < (1u << nrinv); iprojbend++) {
+    for (unsigned int iprojbend = 0; iprojbend < (1u << nrinv); iprojbend++) {  //Should this be binned in r?
       double projbend = 0.5 * (iprojbend - rinvhalf);
       for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_PS); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk, true);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk, true);
+        double mid = bend_cuts_PS[ibend][0];
+        double cut = bend_cuts_PS[ibend][1];
+
+        double pass = mid + cut > projbend && mid - cut < projbend;
+
         table_.push_back(pass);
       }
     }
@@ -871,11 +1273,22 @@ void TrackletLUT::initPhiCorrTable(unsigned int layerdisk, unsigned int rbits) {
 
   double dr = 2.0 * drmax / rbins;
 
-  unsigned int bendbins = (1 << bendbits);
+  std::vector<std::array<double, 2>> bend_vals;
 
-  for (unsigned int ibend = 0; ibend < bendbins; ibend++) {
+  if (settings_.useCalcBendCuts) {
+    std::vector<const tt::SensorModule*> sm = getSensorModules(layerdisk, psmodule);
+    bend_vals = getBendCut(layerdisk, sm, psmodule);
+
+  } else {
+    for (int ibend = 0; ibend < 1 << bendbits; ibend++) {
+      bend_vals.push_back({{settings_.benddecode(ibend, layerdisk, layerdisk < N_PSLAYER), 0}});
+    }
+  }
+
+  for (int ibend = 0; ibend < 1 << bendbits; ibend++) {
     for (unsigned int irbin = 0; irbin < rbins; irbin++) {
-      int value = getphiCorrValue(layerdisk, ibend, irbin, rmean, dr, drmax);
+      double bend = -bend_vals[ibend][0];
+      int value = getphiCorrValue(layerdisk, bend, irbin, rmean, dr, drmax);
       table_.push_back(value);
     }
   }
@@ -888,10 +1301,8 @@ void TrackletLUT::initPhiCorrTable(unsigned int layerdisk, unsigned int rbits) {
 }
 
 int TrackletLUT::getphiCorrValue(
-    unsigned int layerdisk, unsigned int ibend, unsigned int irbin, double rmean, double dr, double drmax) const {
+    unsigned int layerdisk, double bend, unsigned int irbin, double rmean, double dr, double drmax) const {
   bool psmodule = layerdisk < N_PSLAYER;
-
-  double bend = -settings_.benddecode(ibend, layerdisk, psmodule);
 
   //for the rbin - calculate the distance to the nominal layer radius
   double Delta = (irbin + 0.5) * dr - drmax;

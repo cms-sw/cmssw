@@ -349,6 +349,9 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   settings_.setBfield(mMagneticFieldStrength);
 
   setup_ = &iSetup.getData(esGetToken_);
+
+  settings_.passSetup(setup_);
+
   setupHPH_ = &iSetup.getData(esGetTokenHPH_);
   // Tracklet pattern reco output channel info.
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);

@@ -71,10 +71,11 @@ void Sector::setSector(unsigned int isector) {
 
 bool Sector::addStub(L1TStub stub, string dtc) {
   unsigned int layerdisk = stub.layerdisk();
+  int nrbits = 3;
 
   if (layerdisk < N_LAYER && globals_->phiCorr(layerdisk) == nullptr) {
     globals_->phiCorr(layerdisk) = new TrackletLUT(settings_);
-    globals_->phiCorr(layerdisk)->initPhiCorrTable(layerdisk, 3);
+    globals_->phiCorr(layerdisk)->initPhiCorrTable(layerdisk, nrbits);
   }
 
   Stub fpgastub(stub, settings_, *globals_);
@@ -82,9 +83,9 @@ bool Sector::addStub(L1TStub stub, string dtc) {
   if (layerdisk < N_LAYER) {
     FPGAWord r = fpgastub.r();
     int bendbin = fpgastub.bend().value();
-    int rbin = (r.value() + (1 << (r.nbits() - 1))) >> (r.nbits() - 3);
+    int rbin = (r.value() + (1 << (r.nbits() - 1))) >> (r.nbits() - nrbits);
     const TrackletLUT& phiCorrTable = *globals_->phiCorr(layerdisk);
-    int iphicorr = phiCorrTable.lookup(bendbin * (1 << 3) + rbin);
+    int iphicorr = phiCorrTable.lookup(bendbin * (1 << nrbits) + rbin);
     fpgastub.setPhiCorr(iphicorr);
   }
 

@@ -10,6 +10,10 @@
 #include <vector>
 #include <string>
 
+#include "L1Trigger/TrackTrigger/interface/Setup.h"
+
+class Setup;
+
 namespace trklet {
 
   class Settings;
@@ -93,12 +97,27 @@ namespace trklet {
     unsigned int size() const { return table_.size(); }
 
   private:
+    const Settings& settings_;
+    const tt::Setup* setup_;
+
+    //Determine bend/bend cuts in LUT regions
+    std::vector<const tt::SensorModule*> getSensorModules(unsigned int layerdisk,
+                                                          bool isPS,
+                                                          std::array<double, 2> tan_range = {{-1, -1}},
+                                                          unsigned int nzbins = 1,
+                                                          unsigned int zbin = 0);
+
+    std::array<double, 2> getTanRange(const std::vector<const tt::SensorModule*>& sensorModules);
+
+    std::vector<std::array<double, 2>> getBendCut(unsigned int layerdisk,
+                                                  const std::vector<const tt::SensorModule*>& sensorModules,
+                                                  bool isPS,
+                                                  double FEbendcut = 0);
+
     int getphiCorrValue(
-        unsigned int layerdisk, unsigned int ibend, unsigned int irbin, double rmean, double dr, double drmax) const;
+        unsigned int layerdisk, double bend, unsigned int irbin, double rmean, double dr, double drmax) const;
 
     int getVMRLookup(unsigned int layerdisk, double z, double r, double dz, double dr, int iseed = -1) const;
-
-    const Settings& settings_;
 
     std::string name_;
 

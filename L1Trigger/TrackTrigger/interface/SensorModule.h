@@ -70,6 +70,8 @@ namespace tt {
     //
     double tiltCorrection(double cot) const { return std::abs(tiltCorrectionSlope_ * cot) + tiltCorrectionIntercept_; }
 
+    unsigned int ringId(const Setup* setup) const;
+
   private:
     enum TypeTilt { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
     // cmssw det id
