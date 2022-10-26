@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 // #include <Riostream.h>
 #include <fstream>
@@ -39,13 +41,17 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenTkGeo_;
 
   //////inputs from config file
-  edm::InputTag src_;
-  edm::InputTag overlapAM_;
-  bool keepTrackStats_;
-  bool keepHitPopulation_;
-  std::string statsTreeName_;
-  std::string hitsTreeName_;
-  uint32_t prescale_;
+  const edm::InputTag src_;
+  const edm::InputTag overlapAM_;
+  const bool keepTrackStats_;
+  const bool keepHitPopulation_;
+  const std::string statsTreeName_;
+  const std::string hitsTreeName_;
+  const uint32_t prescale_;
+
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDGetTokenT<AliClusterValueMap> mapToken_;
+
   //////
   uint32_t tmpPresc_;
 
