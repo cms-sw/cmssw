@@ -139,7 +139,7 @@ namespace mkfit {
                                     IterationSeedPartition &);
     using partition_seeds_func = std::function<partition_seeds_cf>;
     // Passed to MkBuilder::filter_comb_cands().
-    using filter_candidates_cf = bool(const TrackCand &, const MkJob&);
+    using filter_candidates_cf = bool(const TrackCand &, const MkJob &);
     using filter_candidates_func = std::function<filter_candidates_cf>;
     // Called directly.
     using clean_duplicates_cf = void(TrackVec &, const IterationConfig &);
@@ -171,7 +171,6 @@ namespace mkfit {
     float dc_drth_central = 0.001;
     float dc_drth_obarrel = 0.001;
     float dc_drth_forward = 0.001;
-
 
     // Iteration parameters (could be a ptr)
     IterationParams m_params;
@@ -301,7 +300,8 @@ namespace mkfit {
     const IterationConfig &operator[](int i) const { return m_iterations[i]; }
 
     void setupStandardFunctionsFromNames() {
-      for (auto &i : m_iterations) i.setupStandardFunctionsFromNames();
+      for (auto &i : m_iterations)
+        i.setupStandardFunctionsFromNames();
     }
   };
 

@@ -73,42 +73,39 @@ namespace mkfit {
                                    /* float */ pTCutOverlap,
                                    /* int */ minHitsQF,
                                    /* float */ minPtCut,
-                                   /* unsigned int */ maxClusterSize
-  )
+                                   /* unsigned int */ maxClusterSize)
 
-  ITCONF_DEFINE_TYPE_NON_INTRUSIVE(
-      mkfit::IterationConfig,
-      /* int */ m_iteration_index,
-      /* int */ m_track_algorithm,
-      /* std::string */ m_seed_cleaner_name,
-      /* std::string */ m_seed_partitioner_name,
-      /* std::string */ m_pre_bkfit_filter_name,
-      /* std::string */ m_post_bkfit_filter_name,
-      /* std::string */ m_duplicate_cleaner_name,
-      /* bool */ m_requires_seed_hit_sorting,
-      /* bool */ m_backward_search,
-      /* bool */ m_backward_drop_seed_hits,
-      /* int */ m_backward_fit_min_hits,
-      /* float */ sc_ptthr_hpt,
-      /* float */ sc_drmax_bh,
-      /* float */ sc_dzmax_bh,
-      /* float */ sc_drmax_eh,
-      /* float */ sc_dzmax_eh,
-      /* float */ sc_drmax_bl,
-      /* float */ sc_dzmax_bl,
-      /* float */ sc_drmax_el,
-      /* float */ sc_dzmax_el,
-      /* float */ dc_fracSharedHits,
-      /* float */ dc_drth_central,
-      /* float */ dc_drth_obarrel,
-      /* float */ dc_drth_forward,
-      /* mkfit::IterationParams */ m_params,
-      /* mkfit::IterationParams */ m_backward_params,
-      /* int */ m_n_regions,
-      /* vector<int> */ m_region_order,
-      /* vector<mkfit::SteeringParams> */ m_steering_params,
-      /* vector<mkfit::IterationLayerConfig> */ m_layer_configs
-  )
+  ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationConfig,
+                                   /* int */ m_iteration_index,
+                                   /* int */ m_track_algorithm,
+                                   /* std::string */ m_seed_cleaner_name,
+                                   /* std::string */ m_seed_partitioner_name,
+                                   /* std::string */ m_pre_bkfit_filter_name,
+                                   /* std::string */ m_post_bkfit_filter_name,
+                                   /* std::string */ m_duplicate_cleaner_name,
+                                   /* bool */ m_requires_seed_hit_sorting,
+                                   /* bool */ m_backward_search,
+                                   /* bool */ m_backward_drop_seed_hits,
+                                   /* int */ m_backward_fit_min_hits,
+                                   /* float */ sc_ptthr_hpt,
+                                   /* float */ sc_drmax_bh,
+                                   /* float */ sc_dzmax_bh,
+                                   /* float */ sc_drmax_eh,
+                                   /* float */ sc_dzmax_eh,
+                                   /* float */ sc_drmax_bl,
+                                   /* float */ sc_dzmax_bl,
+                                   /* float */ sc_drmax_el,
+                                   /* float */ sc_dzmax_el,
+                                   /* float */ dc_fracSharedHits,
+                                   /* float */ dc_drth_central,
+                                   /* float */ dc_drth_obarrel,
+                                   /* float */ dc_drth_forward,
+                                   /* mkfit::IterationParams */ m_params,
+                                   /* mkfit::IterationParams */ m_backward_params,
+                                   /* int */ m_n_regions,
+                                   /* vector<int> */ m_region_order,
+                                   /* vector<mkfit::SteeringParams> */ m_steering_params,
+                                   /* vector<mkfit::IterationLayerConfig> */ m_layer_configs)
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationsInfo,
                                    /* vector<mkfit::IterationConfig> */ m_iterations)
@@ -127,37 +124,38 @@ namespace mkfit {
       std::mutex catalog_mutex;
     };
 
-    FuncCatalog& get_catalog() {
+    FuncCatalog &get_catalog() {
       static FuncCatalog func_catalog;
       return func_catalog;
     }
-  }
+  }  // namespace
 
-  #define GET_FC auto& fc = get_catalog(); \
-                 const std::lock_guard<std::mutex> lock(fc.catalog_mutex)
+#define GET_FC              \
+  auto &fc = get_catalog(); \
+  const std::lock_guard<std::mutex> lock(fc.catalog_mutex)
 
-  void IterationConfig::register_seed_cleaner(const std::string& name, clean_seeds_func func) {
+  void IterationConfig::register_seed_cleaner(const std::string &name, clean_seeds_func func) {
     GET_FC;
     fc.seed_cleaners.insert({name, func});
   }
-  void IterationConfig::register_seed_partitioner(const std::string& name, partition_seeds_func func) {
+  void IterationConfig::register_seed_partitioner(const std::string &name, partition_seeds_func func) {
     GET_FC;
     fc.seed_partitioners.insert({name, func});
   }
-  void IterationConfig::register_candidate_filter(const std::string& name, filter_candidates_func func) {
+  void IterationConfig::register_candidate_filter(const std::string &name, filter_candidates_func func) {
     GET_FC;
     fc.candidate_filters.insert({name, func});
   }
-  void IterationConfig::register_duplicate_cleaner(const std::string& name, clean_duplicates_func func) {
+  void IterationConfig::register_duplicate_cleaner(const std::string &name, clean_duplicates_func func) {
     GET_FC;
     fc.duplicate_cleaners.insert({name, func});
   }
 
   namespace {
-    template<class T>
-    typename T::mapped_type resolve_func_name(const T &cont, const std::string& name, const char *func) {
+    template <class T>
+    typename T::mapped_type resolve_func_name(const T &cont, const std::string &name, const char *func) {
       if (name.empty()) {
-        return 0;
+        return nullptr;
       }
       auto ii = cont.find(name);
       if (ii == cont.end()) {
@@ -167,49 +165,51 @@ namespace mkfit {
       }
       return ii->second;
     }
-  }
+  }  // namespace
 
-  IterationConfig::clean_seeds_func IterationConfig::get_seed_cleaner(const std::string& name) {
+  IterationConfig::clean_seeds_func IterationConfig::get_seed_cleaner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.seed_cleaners, name, __func__);
   }
-  IterationConfig::partition_seeds_func IterationConfig::get_seed_partitioner(const std::string& name) {
+  IterationConfig::partition_seeds_func IterationConfig::get_seed_partitioner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.seed_partitioners, name, __func__);
   }
-  IterationConfig::filter_candidates_func IterationConfig::get_candidate_filter(const std::string& name) {
+  IterationConfig::filter_candidates_func IterationConfig::get_candidate_filter(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.candidate_filters, name, __func__);
   }
-  IterationConfig::clean_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string& name) {
+  IterationConfig::clean_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.duplicate_cleaners, name, __func__);
   }
 
-  #undef GET_FC
+#undef GET_FC
 
   // End IterationConfig function catalogs
 
   void IterationConfig::setupStandardFunctionsFromNames() {
     m_seed_cleaner = get_seed_cleaner(m_seed_cleaner_name);
-    dprintf(" Set seed_cleaner for '%s' %s\n",
-            m_seed_cleaner_name.c_str(), m_seed_cleaner ? "SET" : "NOT SET");
+    dprintf(" Set seed_cleaner for '%s' %s\n", m_seed_cleaner_name.c_str(), m_seed_cleaner ? "SET" : "NOT SET");
 
     m_seed_partitioner = get_seed_partitioner(m_seed_partitioner_name);
-    dprintf(" Set seed_partitioner for '%s' %s\n",
-            m_seed_partitioner_name.c_str(), m_seed_partitioner ? "SET" : "NOT SET");
+    dprintf(
+        " Set seed_partitioner for '%s' %s\n", m_seed_partitioner_name.c_str(), m_seed_partitioner ? "SET" : "NOT SET");
 
     m_pre_bkfit_filter = get_candidate_filter(m_pre_bkfit_filter_name);
-    dprintf(" Set pre_bkfit_filter for '%s' %s\n",
-            m_pre_bkfit_filter_name.c_str(), m_pre_bkfit_filter ? "SET" : "NOT SET");
+    dprintf(
+        " Set pre_bkfit_filter for '%s' %s\n", m_pre_bkfit_filter_name.c_str(), m_pre_bkfit_filter ? "SET" : "NOT SET");
 
     m_post_bkfit_filter = get_candidate_filter(m_post_bkfit_filter_name);
     dprintf(" Set post_bkfit_filter for '%s' %s\n",
-            m_post_bkfit_filter_name.c_str(), m_post_bkfit_filter ? "SET" : "NOT SET");
+            m_post_bkfit_filter_name.c_str(),
+            m_post_bkfit_filter ? "SET" : "NOT SET");
 
     m_duplicate_cleaner = get_duplicate_cleaner(m_duplicate_cleaner_name);
     dprintf(" Set duplicate_cleaner for '%s' %s\n",
-            m_duplicate_cleaner_name.c_str(), m_duplicate_cleaner ? "SET" : "NOT SET");;
+            m_duplicate_cleaner_name.c_str(),
+            m_duplicate_cleaner ? "SET" : "NOT SET");
+    ;
   }
 
   // ============================================================================

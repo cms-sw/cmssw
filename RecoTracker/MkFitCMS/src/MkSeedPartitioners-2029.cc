@@ -7,9 +7,9 @@ namespace {
   using namespace mkfit;
 
   [[maybe_unused]] void partitionSeeds1(const TrackerInfo &trk_info,
-                                       const TrackVec &in_seeds,
-                                       const EventOfHits &eoh,
-                                       IterationSeedPartition &part) {
+                                        const TrackVec &in_seeds,
+                                        const EventOfHits &eoh,
+                                        IterationSeedPartition &part) {
     // Seeds are placed into eta regions and sorted on region + eta.
 
     // Merge mono and stereo limits for relevant layers / parameters.
@@ -243,8 +243,8 @@ namespace {
 
   struct register_seed_partitioners {
     register_seed_partitioners() {
-        IterationConfig::register_seed_partitioner("2029:1", partitionSeeds1);
-        IterationConfig::register_seed_partitioner("2029:1:debug", partitionSeeds1debug);
+      IterationConfig::register_seed_partitioner("2029:1", partitionSeeds1);
+      IterationConfig::register_seed_partitioner("2029:1:debug", partitionSeeds1debug);
     }
   } rsp_instance;
-} // namespace
+}  // namespace

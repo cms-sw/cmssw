@@ -159,7 +159,7 @@ namespace {
 
   void init_deadvectors() {
     deadvectors.resize(Config::TrkInfo.n_layers());
-    #include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
+#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
   }
 
 }  // namespace

@@ -65,7 +65,6 @@ namespace mkfit {
       builder.filter_comb_cands(itconf.m_pre_bkfit_filter);
     }
 
-
     job.switch_to_backward();
 
     if (do_backward_fit) {

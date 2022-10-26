@@ -227,8 +227,10 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                       trackerTopo_->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 #ifdef DUMP_MKF_GEO
   printf("  subdet=%d layer=%d side=%d is_stereo=%d --> mkflayer=%d\n",
-         detid.subdetId(), trackerTopo_->layer(detid),
-         trackerTopo_->side(detid), trackerTopo_->isStereo(detid),
+         detid.subdetId(),
+         trackerTopo_->layer(detid),
+         trackerTopo_->side(detid),
+         trackerTopo_->isStereo(detid),
          lay);
 #endif
 
@@ -425,8 +427,11 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   printf("Total number of modules %u, 14-bits fit up to %u modules\n", n_mod, 1u << 13);
 #endif
 
-  return std::make_unique<MkFitGeometry>(
-      iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo), layerNrConv_);
+  return std::make_unique<MkFitGeometry>(iRecord.get(geomToken_),
+                                         iRecord.get(trackerToken_),
+                                         iRecord.get(ttopoToken_),
+                                         std::move(trackerInfo),
+                                         layerNrConv_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MkFitGeometryESProducer);

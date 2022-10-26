@@ -338,11 +338,9 @@ namespace mkfit {
 
     namespace {
       struct register_seed_cleaners {
-        register_seed_cleaners() {
-            IterationConfig::register_seed_cleaner("2017:default", clean_cms_seedtracks_iter);
-        }
+        register_seed_cleaners() { IterationConfig::register_seed_cleaner("2017:default", clean_cms_seedtracks_iter); }
       } rsc_instance;
-    }
+    }  // namespace
 
     //=========================================================================
     // Duplicate cleaning
@@ -599,14 +597,13 @@ namespace mkfit {
     namespace {
       struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
-            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates", clean_duplicates);
-            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits",
-                                                        clean_duplicates_sharedhits);
-            IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits_pixelseed",
-                                                         clean_duplicates_sharedhits_pixelseed);
+          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates", clean_duplicates);
+          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits", clean_duplicates_sharedhits);
+          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits_pixelseed",
+                                                      clean_duplicates_sharedhits_pixelseed);
         }
       } rdc_instance;
-    }
+    }  // namespace
 
     //=========================================================================
     // Quality filters
@@ -623,7 +620,7 @@ namespace mkfit {
 
     // simple hit-count quality filter; used with pixel-based seeds
     template <class TRACK>
-    bool qfilter_n_hits_pixseed(const TRACK &t, const MkJob& j) {
+    bool qfilter_n_hits_pixseed(const TRACK &t, const MkJob &j) {
       return t.nFoundHits() >= j.params_cur().minHitsQF;
     }
 
@@ -681,7 +678,7 @@ namespace mkfit {
 
     /// quality filter tuned for pixelLess iteration during backward search
     template <class TRACK>
-    bool qfilter_pixelLessBkwd(const TRACK &t, const MkJob& j) {
+    bool qfilter_pixelLessBkwd(const TRACK &t, const MkJob &j) {
       const BeamSpot &bspot = j.m_beam_spot;
       const TrackerInfo &tk_info = j.m_trk_info;
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
@@ -709,14 +706,14 @@ namespace mkfit {
     namespace {
       struct register_quality_filters {
         register_quality_filters() {
-            IterationConfig::register_candidate_filter("2017:qfilter_n_hits", qfilter_n_hits<TrackCand>);
-            IterationConfig::register_candidate_filter("2017:qfilter_n_hits_pixseed", qfilter_n_hits_pixseed<TrackCand>);
-            IterationConfig::register_candidate_filter("2017:qfilter_n_layers", qfilter_n_layers<TrackCand>);
-            IterationConfig::register_candidate_filter("2017:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
-            IterationConfig::register_candidate_filter("2017:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
+          IterationConfig::register_candidate_filter("2017:qfilter_n_hits", qfilter_n_hits<TrackCand>);
+          IterationConfig::register_candidate_filter("2017:qfilter_n_hits_pixseed", qfilter_n_hits_pixseed<TrackCand>);
+          IterationConfig::register_candidate_filter("2017:qfilter_n_layers", qfilter_n_layers<TrackCand>);
+          IterationConfig::register_candidate_filter("2017:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
+          IterationConfig::register_candidate_filter("2017:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
         }
       } rqf_instance;
-    }
+    }  // namespace
 
   }  // namespace StdSeq
 }  // namespace mkfit
