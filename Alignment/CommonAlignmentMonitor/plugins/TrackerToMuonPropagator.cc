@@ -78,9 +78,12 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGTGeo;
 
-  edm::InputTag m_globalMuons, m_globalMuonTracks;
+  const edm::InputTag m_globalMuons, m_globalMuonTracks;
+  const bool m_refitTracker;
 
-  bool m_refitTracker;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
   TrackTransformer* m_trackTransformer;
 };
 
@@ -101,14 +104,16 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
       m_esTokenDT(esConsumes()),
       m_esTokenCSC(esConsumes()),
       m_esTokenMF(esConsumes()),
-      m_esTokenGTGeo(esConsumes()) {
-  m_globalMuons = iConfig.getParameter<edm::InputTag>("globalMuons");
-  m_globalMuonTracks = iConfig.getParameter<edm::InputTag>("globalMuonTracks");
-  m_refitTracker = iConfig.getParameter<bool>("refitTrackerTrack");
-  if (m_refitTracker) {
+      m_esTokenGTGeo(esConsumes()),
+      m_globalMuons(iConfig.getParameter<edm::InputTag>("globalMuons")),
+      m_globalMuonTracks(iConfig.getParameter<edm::InputTag>("globalMuonTracks")),
+      m_refitTracker(iConfig.getParameter<bool>("refitTrackerTrack")),
+      muonToken_(consumes<reco::MuonCollection>(m_globalMuons)),
+      trackToken_(consumes<reco::TrackCollection>(m_globalMuonTracks)) {
+  if (m_refitTracker)
     m_trackTransformer =
         new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"), consumesCollector());
-  } else
+  else
     m_trackTransformer = nullptr;
 
   produces<std::vector<Trajectory>>();
@@ -129,11 +134,8 @@ void TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup&
   if (m_trackTransformer)
     m_trackTransformer->setServices(iSetup);
 
-  edm::Handle<reco::MuonCollection> globalMuons;
-  iEvent.getByLabel(m_globalMuons, globalMuons);
-
-  edm::Handle<reco::TrackCollection> globalMuonTracks;
-  iEvent.getByLabel(m_globalMuonTracks, globalMuonTracks);
+  const edm::Handle<reco::MuonCollection>& globalMuons = iEvent.getHandle(muonToken_);
+  const edm::Handle<reco::TrackCollection>& globalMuonTracks = iEvent.getHandle(trackToken_);
 
   const Propagator* propagator = &iSetup.getData(m_esTokenProp);
   const TrackerGeometry* trackerGeometry = &iSetup.getData(m_esTokenTk);

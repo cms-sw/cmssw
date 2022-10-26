@@ -15,7 +15,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,7 +33,9 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
       keepHitPopulation_(iConfig.getParameter<bool>("keepHitStats")),
       statsTreeName_(iConfig.getParameter<string>("TrkStatsFileName")),
       hitsTreeName_(iConfig.getParameter<string>("HitStatsFileName")),
-      prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale")) {
+      prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale")),
+      trackToken_(consumes<reco::TrackCollection>(src_)),
+      mapToken_(consumes<AliClusterValueMap>(overlapAM_)) {
   //sanity checks
 
   //init
@@ -87,12 +88,10 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
-  edm::Handle<reco::TrackCollection> Tracks;
-  iEvent.getByLabel(src_, Tracks);
+  const edm::Handle<reco::TrackCollection> &Tracks = iEvent.getHandle(trackToken_);
 
   //take overlap HitAssomap
-  edm::Handle<AliClusterValueMap> hMap;
-  iEvent.getByLabel(overlapAM_, hMap);
+  const edm::Handle<AliClusterValueMap> &hMap = iEvent.getHandle(mapToken_);
   const AliClusterValueMap &OverlapMap = *hMap;
 
   // Initialise
