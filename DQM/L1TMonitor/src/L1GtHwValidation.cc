@@ -644,8 +644,8 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   m_gtErrorFlag = ibooker.book1D("GTErrorFlag", "L1 GT error flag for data versus emulator comparison", 5, 0., 5);
 
   m_gtErrorFlag->setBinLabel(1, "Agree", 1);
-  m_gtErrorFlag->setBinLabel(2, "", 1);
-  m_gtErrorFlag->setBinLabel(3, "", 1);
+  m_gtErrorFlag->setBinLabel(2, "2", 1);
+  m_gtErrorFlag->setBinLabel(3, "3", 1);
   m_gtErrorFlag->setBinLabel(4, "Data only", 1);
   m_gtErrorFlag->setBinLabel(5, "Emul only", 1);
 
