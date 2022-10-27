@@ -23,50 +23,9 @@ constexpr int sizeof_int = sizeof(int);
 constexpr const float PI_F = 3.141592654f;
 
 namespace PFClusterCudaHCAL {
-// New variable pulling all of the constants from CudaPFCommon.h
   __constant__ PFClustering::common::CudaHCALConstants constantsHCAL_d;
-//
- // __constant__ float showerSigma2;
- // __constant__ float constantsHCAL_d.recHitEnergyNormInvEB_vec[4];
- // __constant__ float constantsHCAL_d.recHitEnergyNormInvEE_vec[7];
- // __constant__ float constantsHCAL_d.minFracToKeep;
- // __constant__ float constantsHCAL_d.minFracTot;
- // __constant__ float constantsHCAL_d.minFracInCalc;
- // __constant__ float constantsHCAL_d.minAllowedNormalization;
- // __constant__ float constantsHCAL_d.stoppingTolerance;
-
- // __constant__ float constantsHCAL_d.seedEThresholdEB_vec[4];
- // __constant__ float constantsHCAL_d.seedEThresholdEE_vec[7];
- // __constant__ float constantsHCAL_d.seedPt2ThresholdEB;
- // __constant__ float constantsHCAL_d.seedPt2ThresholdEE;
-
- // __constant__ float constantsHCAL_d.topoEThresholdEB_vec[4];
- // __constant__ float constantsHCAL_d.topoEThresholdEE_vec[7];
- // __constant__ int constantsHCAL_d.maxIterations;
- // __constant__ bool constantsHCAL_d.excludeOtherSeeds;
-
-  // Endcap timing constants
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.corrTermLowE;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.threshLowE;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.noiseTerm;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.constantTermLowE2;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.noiseTermLowE;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.threshHighE;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.constantTerm2;
- // __constant__ float constantsHCAL_d.endcapTimeResConsts.resHighE2;
-
- // // Barrel timing constants
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.corrTermLowE;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.threshLowE;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.noiseTerm;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.constantTermLowE2;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.noiseTermLowE;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.threshHighE;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.constantTerm2;
- // __constant__ float constantsHCAL_d.barrelTimeResConsts.resHighE2;
 
   __constant__ int nNT = 8;  // Number of neighbors considered for topo clustering
- // __constant__ int constantsHCAL_d.nNeigh;
 
   //int nTopoLoops = 100;
   int nTopoLoops = 35;
@@ -110,11 +69,6 @@ namespace PFClusterCudaHCAL {
   //   passingTopoThreshold
   //   passingTopoThreshold
   //   printRhfIndex
-
-  //void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
-  //                             const cudaStream_t cudaStream) {
-  //  cudaCheck(cudaMemcpyToSymbolAsync(constantsHCAL_d, &cudaConstants, sizeof(cudaConstants)));
-  //}
 
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
                                const cudaStream_t cudaStream) {
