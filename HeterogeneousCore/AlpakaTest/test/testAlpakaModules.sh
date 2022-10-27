@@ -38,13 +38,20 @@ function runFailure {
     echo
 }
 
-runSuccess ""
-runSuccess "-- --accelerators=cpu"
-runSuccess "-- --moduleBackend=serial_sync"
+runSuccess "-- --accelerators=cpu --expectBackend=serial_sync"
+runSuccess "-- --moduleBackend=serial_sync --expectBackend=serial_sync"
 
 if [ "${TARGET}" == "cpu" ]; then
-    runFailure "-- --moduleBackend=cuda_async"
+    runSuccess "-- --expectBackend=serial_sync"
+
+    runFailure "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
+    runFailure "-- --moduleBackend=cuda_async --expectBackend=cuda_async"
 
 elif [ "${TARGET}" == "cuda" ]; then
-    runSuccess "-- --moduleBackend=cuda_async"
+    runSuccess "-- --expectBackend=cuda_async"
+    runSuccess "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
+    runSuccess "-- --moduleBackend=cuda_async --expectBackend=cuda_async"
+
+    runFailure "-- --accelerators=gpu-nvidia --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "-- --accelerators=cpu --moduleBackend=cuda_async --expectBackend=cuda_async"
 fi
