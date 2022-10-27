@@ -457,7 +457,6 @@ namespace PFClusterCudaHCAL {
                 (clusterPos.y - rhPos.y) * (clusterPos.y - rhPos.y) +
                 (clusterPos.z - rhPos.z) * (clusterPos.z - rhPos.z);
 
-        //d2 = dist2 / showerSigma2;
         d2 = dist2 / constantsHCAL_d.showerSigma2;
         fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
 
@@ -706,7 +705,6 @@ namespace PFClusterCudaHCAL {
                         (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
           //pcrhfrac[seedFracOffsets[seeds[s]]+tid+1] = fraction;
@@ -723,7 +721,6 @@ namespace PFClusterCudaHCAL {
                         (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
@@ -973,7 +970,6 @@ namespace PFClusterCudaHCAL {
                         (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
@@ -991,7 +987,6 @@ namespace PFClusterCudaHCAL {
                         (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
@@ -1177,7 +1172,6 @@ namespace PFClusterCudaHCAL {
                   (clusterPos.y - rhPos.y) * (clusterPos.y - rhPos.y) +
                   (clusterPos.z - rhPos.z) * (clusterPos.z - rhPos.z);
 
-          //d2 = dist2 / showerSigma2;
           d2 = dist2 / constantsHCAL_d.showerSigma2;
           fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
 
@@ -1461,7 +1455,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                           (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
             //pcrhfrac[seedFracOffsets[seeds[s]]+tid+1] = fraction;
@@ -1478,7 +1471,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[s].y - rhThreadPos.y) * (clusterPos[s].y - rhThreadPos.y) +
                           (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
@@ -1795,7 +1787,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[s].y - pfrh_y[j]) * (clusterPos[s].y - pfrh_y[j]) +
                           (clusterPos[s].z - pfrh_z[j]) * (clusterPos[s].z - pfrh_z[j]);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
@@ -1817,7 +1808,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[s].y - pfrh_y[j]) * (clusterPos[s].y - pfrh_y[j]) +
                           (clusterPos[s].z - pfrh_z[j]) * (clusterPos[s].z - pfrh_z[j]);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
             //if(fraction < 0.) printf("FRACTION is NEGATIVE!!!");
@@ -2157,7 +2147,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[i].y - pfrh_y[j]) * (clusterPos[i].y - pfrh_y[j]) +
                           (clusterPos[i].z - pfrh_z[j]) * (clusterPos[i].z - pfrh_z[j]);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = -1.;
 
@@ -2186,7 +2175,6 @@ namespace PFClusterCudaHCAL {
                             (clusterPos[i].y - pfrh_y[j]) * (clusterPos[i].y - pfrh_y[j]) +
                             (clusterPos[i].z - pfrh_z[j]) * (clusterPos[i].z - pfrh_z[j]);
 
-              //float d2 = dist2 / showerSigma2;
               float d2 = dist2 / constantsHCAL_d.showerSigma2;
               float fraction = -1.;
 
@@ -2606,7 +2594,6 @@ namespace PFClusterCudaHCAL {
                           (clusterPos[i].y - pfrh_y[j]) * (clusterPos[i].y - pfrh_y[j]) +
                           (clusterPos[i].z - pfrh_z[j]) * (clusterPos[i].z - pfrh_z[j]);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = -1.;
 
@@ -2634,7 +2621,6 @@ namespace PFClusterCudaHCAL {
                             (clusterPos[i].y - pfrh_y[j]) * (clusterPos[i].y - pfrh_y[j]) +
                             (clusterPos[i].z - pfrh_z[j]) * (clusterPos[i].z - pfrh_z[j]);
 
-              //float d2 = dist2 / showerSigma2;
               float d2 = dist2 / constantsHCAL_d.showerSigma2;
               float fraction = -1.;
 
@@ -2804,7 +2790,6 @@ namespace PFClusterCudaHCAL {
                       (pfrh_y[i] - pfrh_y[j]) * (pfrh_y[i] - pfrh_y[j]) +
                       (pfrh_z[i] - pfrh_z[j]) * (pfrh_z[i] - pfrh_z[j]);
 
-        //float d2 = dist2 / showerSigma2;
         float d2 = dist2 / constantsHCAL_d.showerSigma2;
         float fraction = -1.;
 
@@ -2856,7 +2841,6 @@ namespace PFClusterCudaHCAL {
                         (pfrh_y[i] - pfrh_y[j]) * (pfrh_y[i] - pfrh_y[j]) +
                         (pfrh_z[i] - pfrh_z[j]) * (pfrh_z[i] - pfrh_z[j]);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = -1.;
 
@@ -2922,7 +2906,6 @@ namespace PFClusterCudaHCAL {
                         (pfrh_y[i] - pfrh_y[j]) * (pfrh_y[i] - pfrh_y[j]) +
                         (pfrh_z[i] - pfrh_z[j]) * (pfrh_z[i] - pfrh_z[j]);
 
-          //float d2 = dist2 / showerSigma2;
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = -1.;
 
@@ -2983,7 +2966,6 @@ namespace PFClusterCudaHCAL {
                           (pfrh_y[i] - pfrh_y[j]) * (pfrh_y[i] - pfrh_y[j]) +
                           (pfrh_z[i] - pfrh_z[j]) * (pfrh_z[i] - pfrh_z[j]);
 
-            //float d2 = dist2 / showerSigma2;
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = -1.;
 
@@ -3034,7 +3016,6 @@ namespace PFClusterCudaHCAL {
                             (pfrh_y[i] - pfrh_y[j]) * (pfrh_y[i] - pfrh_y[j]) +
                             (pfrh_z[i] - pfrh_z[j]) * (pfrh_z[i] - pfrh_z[j]);
 
-              //float d2 = dist2 / showerSigma2;
               float d2 = dist2 / constantsHCAL_d.showerSigma2;
               float fraction = -1.;
 
