@@ -3,16 +3,17 @@ import FWCore.ParameterSet.Config as cms
 HTDisplacedJetsPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_HT425_v", # Claimed path for Run3
-        #2017 
         "HLT_HT430_DisplacedDijet40_DisplacedTrack_v", # Claimed path for Run3
-#        "HLT_HT430_DisplacedDijet60_DisplacedTrack_v", # Claimed path for Run3, but a backup so no need to monitor it closely here
         "HLT_HT650_DisplacedDijet60_Inclusive_v", # Claimed path for Run3
-#        "HLT_HT400_DisplacedDijet40_DisplacedTrack_v", # Claimed path for Run3, but a control path so no need to monitor it closely here
-#        "HLT_HT550_DisplacedDijet60_Inclusive_v" # Claimed path for Run3, but a control path so no need to monitor it closely here
-        "HLT_HT430_DisplacedDijet30_Inclusive1PtrkShortSig5_v", # New path for Run 3
-        "HLT_Mu6HT240_DisplacedDijet30_Inclusive1PtrkShortSig5_DisplacedLoose_v", # New path for Run 3
-        "HLT_HT430_DelayedJet40_SingleDelay1nsTrackless_v", # New path for Run 3
-        "HLT_HT430_DelayedJet40_SingleDelay2nsInclusive_v", # New path for Run 3
+        "HLT_HT430_DisplacedDijet30_Inclusive1PtrkShortSig5_v", # New path for Run 3 (introduced in HLT V1.1)
+        "HLT_Mu6HT240_DisplacedDijet30_Inclusive1PtrkShortSig5_DisplacedLoose_v", # New path for Run 3 (introduced in HLT V1.1)
+        "HLT_HT430_DelayedJet40_SingleDelay1nsTrackless_v", # New path for Run 3 (introduced in HLT V1.1)
+        "HLT_HT430_DelayedJet40_SingleDelay2nsInclusive_v", # New path for Run 3 (introduced in HLT V1.1)
+        "HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v", # New path for Run 3 (introduced in HLT V1.3)
+        "HLT_HT320_L1SingleLLPJet_DisplacedDijet60_Inclusive_v", # New path for Run 3 (introduced in HLT V1.3)
+        "HLT_HT200_L1SingleLLPJet_DelayedJet40_SingleDelay1nsTrackless_v", # New path for Run 3 (introduced in HLT V1.3)
+        "HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay0p5nsTrackless_v", # New path for Run 3 (introduced in HLT V1.3)
+        "HLT_HT200_L1SingleLLPJet_DisplacedDijet30_Inclusive1PtrkShortSig5_v", # New path for Run 3 (introduced in HLT V1.3)
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
