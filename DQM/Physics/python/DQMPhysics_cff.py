@@ -16,7 +16,6 @@ from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
 from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.CentralitypADQM_cfi import *
-from DQM.Physics.topJetCorrectionHelper_cfi import *
 from DQM.Physics.FSQDQM_cfi import *
 from DQM.Physics.SMPDQM_cfi import *
 
