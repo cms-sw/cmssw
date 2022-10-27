@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,15 +51,14 @@ namespace edm {
 // class decleration
 //
 
-class PATHIPhotonTestModule : public edm::EDAnalyzer {
+class PATHIPhotonTestModule : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PATHIPhotonTestModule(const edm::ParameterSet&);
-  ~PATHIPhotonTestModule();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   edm::InputTag photons_;
@@ -67,16 +66,15 @@ private:
   enum TestMode { TestRead, TestWrite, TestExternal };
   TestMode mode_;
   TNtuple* datatemp;
-  edm::Service<TFileService> fs;
 };
 
 //
 // constructors and destructor
 //
 PATHIPhotonTestModule::PATHIPhotonTestModule(const edm::ParameterSet& iConfig)
-    : photons_(iConfig.getParameter<edm::InputTag>("photons")) {}
-
-PATHIPhotonTestModule::~PATHIPhotonTestModule() {}
+    : photons_(iConfig.getParameter<edm::InputTag>("photons")) {
+  usesResource(TFileService::kSharedResource);
+}
 
 // ------------ method called to for each event  ------------
 void PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -130,6 +128,7 @@ void PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void PATHIPhotonTestModule::beginJob() {
+  edm::Service<TFileService> fs;
   datatemp = fs->make<TNtuple>("gammas",
                                "photon candidate info",
                                "et:"
