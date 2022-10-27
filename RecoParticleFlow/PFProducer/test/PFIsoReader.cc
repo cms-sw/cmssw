@@ -23,10 +23,6 @@ PFIsoReader::PFIsoReader(const edm::ParameterSet& iConfig) {
   inputTagPhotonIsoDeposits_ = iConfig.getParameter<std::vector<edm::InputTag> >("PhotonIsoDeposits");
 }
 
-PFIsoReader::~PFIsoReader() { ; }
-
-void PFIsoReader::beginRun(edm::Run const&, edm::EventSetup const&) { ; }
-
 void PFIsoReader::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
   bool found = iEvent.getByLabel(inputTagPFCandidates_, pfCandidatesH);
