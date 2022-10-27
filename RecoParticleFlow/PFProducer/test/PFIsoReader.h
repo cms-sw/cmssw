@@ -1,6 +1,6 @@
 #ifndef RECOPARTICLEFLOW_PFISOREADER_H
 #define RECOPARTICLEFLOW_PFISOREADER_H
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -8,12 +8,10 @@
 #include <string>
 #include <map>
 
-class PFIsoReader : public edm::EDAnalyzer {
+class PFIsoReader : public edm::one::EDAnalyzer<> {
 public:
   explicit PFIsoReader(const edm::ParameterSet&);
-  ~PFIsoReader();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
 
 private:
   typedef std::vector<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
