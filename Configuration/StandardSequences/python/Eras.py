@@ -77,7 +77,7 @@ class Eras (object):
                            'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff',
                            'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17',
-                           'run2_nanoAOD_106Xv1', 'run2_nanoAOD_106Xv2',
+                           'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
