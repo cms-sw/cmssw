@@ -45,13 +45,13 @@
 
 class HGCalValidityTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit HGCalValidityTester(const edm::ParameterSet&);
+  explicit HGCalValidityTester(const edm::ParameterSet &);
   ~HGCalValidityTester() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginJob() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void analyze(edm::Event const &iEvent, edm::EventSetup const &) override {}
   void endRun(edm::Run const &, edm::EventSetup const &) override {}
   void endJob() override {}
 
@@ -60,19 +60,20 @@ private:
   const std::string fileName_;
   const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_hgcal_;
   std::vector<const HGCalDDDConstants *> hgcCons_;
-  std::vector<std::pair<DetId, uint32_t>> detIds_; 
+  std::vector<std::pair<DetId, uint32_t>> detIds_;
 };
 
-HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet& iC)
+HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
     : nameDetectors_(iC.getParameter<std::vector<std::string>>("nameDetectors")),
       fileName_(iC.getParameter<std::string>("fileName")),
       tok_hgcal_{edm::vector_transform(nameDetectors_, [this](const std::string &name) {
         return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
       })} {
   std::ostringstream st1;
-  for (const auto& name : nameDetectors_)
+  for (const auto &name : nameDetectors_)
     st1 << " : " << name;
-  edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetectors_.size() << " detectors" << st1.str() << " with inputs from " << fileName_;
+  edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetectors_.size() << " detectors" << st1.str()
+                                << " with inputs from " << fileName_;
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalCommonData/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
@@ -84,34 +85,34 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet& iC)
       uint32_t lines(0);
       const std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
       while (fInput.getline(buffer, 80)) {
-	++lines;
-	std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
+        ++lines;
+        std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         if (items.size() == 8) {
-	  DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	  auto itr = std::find(dets.begin(), dets.end(), det);
-	  if (itr != dets.end()) {
-	    uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
-	    int type = std::atoi(items[1].c_str());
-	    int zside = std::atoi(items[2].c_str());
-	    int layer = std::atoi(items[3].c_str());
-	    DetId id(0);
-	    if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
-	      int waferU = std::atoi(items[4].c_str());
-	      int waferV = std::atoi(items[5].c_str());
-	      int cellU = std::atoi(items[6].c_str());
-	      int cellV = std::atoi(items[7].c_str());
-	      id = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
-	    } else if (det == DetId::HGCalHSc) {
-	      int ring = std::atoi(items[4].c_str());
-	      int iphi = std::atoi(items[5].c_str());
-	      int sipm = std::atoi(items[6].c_str());
-	      bool trig = (std::atoi(items[7].c_str()) > 0);
-	      id = static_cast<DetId>(HGCScintillatorDetId(type, layer, zside*ring, iphi, trig, sipm));
-	    }
-	    if (id.rawId() != 0) 
-	      detIds_.emplace_back(id, pos);
-	  }
-	}
+          DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
+          auto itr = std::find(dets.begin(), dets.end(), det);
+          if (itr != dets.end()) {
+            uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
+            int type = std::atoi(items[1].c_str());
+            int zside = std::atoi(items[2].c_str());
+            int layer = std::atoi(items[3].c_str());
+            DetId id(0);
+            if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
+              int waferU = std::atoi(items[4].c_str());
+              int waferV = std::atoi(items[5].c_str());
+              int cellU = std::atoi(items[6].c_str());
+              int cellV = std::atoi(items[7].c_str());
+              id = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
+            } else if (det == DetId::HGCalHSc) {
+              int ring = std::atoi(items[4].c_str());
+              int iphi = std::atoi(items[5].c_str());
+              int sipm = std::atoi(items[6].c_str());
+              bool trig = (std::atoi(items[7].c_str()) > 0);
+              id = static_cast<DetId>(HGCScintillatorDetId(type, layer, zside * ring, iphi, trig, sipm));
+            }
+            if (id.rawId() != 0)
+              detIds_.emplace_back(id, pos);
+          }
+        }
       }
       fInput.close();
     }
@@ -119,13 +120,15 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet& iC)
   edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     if ((detIds_[k].first).det() == DetId::HGCalHSc)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCScintillatorDetId(detIds_[k].first) << " from DDConstant " << (detIds_[k].second);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCScintillatorDetId(detIds_[k].first) << " from DDConstant "
+                                    << (detIds_[k].second);
     else
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCSiliconDetId(detIds_[k].first) << " from DDConstant " << (detIds_[k].second);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCSiliconDetId(detIds_[k].first) << " from DDConstant "
+                                    << (detIds_[k].second);
   }
 }
 
-void HGCalValidityTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HGCalValidityTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   edm::ParameterSetDescription desc;
   desc.add<std::vector<std::string>>("nameDetectors", names);
@@ -140,7 +143,8 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   std::map<DetId::Detector, uint32_t> detMap;
   for (uint32_t i = 0; i < nameDetectors_.size(); i++) {
-    edm::LogVerbatim("HGCalValid") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i << ":" << nameDetectors_[i];
+    edm::LogVerbatim("HGCalValid") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i << ":"
+                                   << nameDetectors_[i];
     const edm::ESHandle<HGCalDDDConstants> &hgcCons = iSetup.getHandle(tok_hgcal_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
@@ -156,7 +160,8 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
   edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << detMap.size() << " detectors";
 
   for (auto itr = detMap.begin(); itr != detMap.end(); ++itr)
-    edm::LogVerbatim("HGCalGeom") << "[" << itr->second << "]: " << nameDetectors_[itr->second] << " for Detector " << itr->first;
+    edm::LogVerbatim("HGCalGeom") << "[" << itr->second << "]: " << nameDetectors_[itr->second] << " for Detector "
+                                  << itr->first;
 
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     std::ostringstream st1;
@@ -170,7 +175,7 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
       zside = id.zside();
       xy = cons->locateCellTrap(layer, id.ring(), id.iphi(), true, false);
       if (zside < 0)
-	xy.first = -xy.first;
+        xy.first = -xy.first;
       valid = cons->isValidTrap(zside, layer, id.ring(), id.iphi());
       auto cell = cons->assignCellTrap(xy.first, xy.second, layer, true, false);
       HGCScintillatorDetId newId(cell[2], layer, zside * cell[0], cell[1], id.trigger(), id.sipm());
@@ -181,16 +186,18 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
       zside = id.zside();
       xy = cons->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false);
       if (zside < 0)
-	xy.first = -xy.first;
+        xy.first = -xy.first;
       valid = cons->isValidHex8(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false);
       auto cell = cons->assignCellHex(xy.first, xy.second, layer, true, false, false);
       HGCSiliconDetId newId(id.det(), id.zside(), cell[2], id.layer(), cell[0], cell[1], cell[3], cell[4]);
       st1 << "Old: " << id << " New: " << newId << " OK " << (id.rawId() == newId.rawId());
     }
-    double r = std::sqrt( xy.first * xy.first + xy.second * xy.second);
+    double r = std::sqrt(xy.first * xy.first + xy.second * xy.second);
     double z = zside * (cons->waferZ(layer, true));
-//  auto range = cons->getRangeR(layer, true);
-    edm::LogVerbatim("HGCalMiss") << "Hit[" << k << "] " << st1.str() << " Position (" << xy.first << ", " << xy.second << ", " << z << ") Valid " << valid << " R " << r;// << " (" << range.first << ":" << range.second << ")";
+    //  auto range = cons->getRangeR(layer, true);
+    edm::LogVerbatim("HGCalMiss") << "Hit[" << k << "] " << st1.str() << " Position (" << xy.first << ", " << xy.second
+                                  << ", " << z << ") Valid " << valid << " R "
+                                  << r;  // << " (" << range.first << ":" << range.second << ")";
   }
 }
 
