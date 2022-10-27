@@ -341,7 +341,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   vector<int> index(nsub_);
 
   while (ihy < hyjets.nhj) {
-    constexpr int kMaxMultiplicity = 50000;
+    constexpr int kMaxMultiplicity = 200000;
     isub = std::floor((hyjets.khj[2][ihy] / kMaxMultiplicity));
     int hjoffset = isub * kMaxMultiplicity;
 
