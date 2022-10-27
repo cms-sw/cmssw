@@ -108,7 +108,7 @@ boostedTauTablesTask = cms.Task(boostedTauTable)
 boostedTauMCTask = cms.Task(boostedTausMCMatchLepTauForTable,boostedTausMCMatchHadTauForTable,boostedTauMCTable)
 
 #remove boosted tau from previous eras
-(run2_nanoAOD_106Xv1 | run3_nanoAOD_122).toReplaceWith(
+(run3_nanoAOD_122).toReplaceWith(
     boostedTauTask,cms.Task()
 ).toReplaceWith(
     boostedTauTablesTask,cms.Task()

@@ -1,35 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 from math import ceil,log
-#NOTE: All definitions of modules should point to the latest flavour of the electronTable in NanoAOD.
-#Common modifications for past eras are done at the end whereas modifications specific to a single era is done after the original definition.
-from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma8XObjectUpdateModifier,egamma9X105XUpdateModifier,prependEgamma8XObjectUpdateModifier
-ele9X105XUpdateModifier=egamma9X105XUpdateModifier.clone(
-    phoPhotonIso = "",
-    phoNeutralHadIso = "",
-    phoChargedHadIso = "",
-    phoChargedHadWorstVtxIso = "",
-    phoChargedHadWorstVtxConeVetoIso = "",
-    phoChargedHadPFPVIso = ""
-)
-#we have dataformat changes to 106X so to read older releases we use egamma updators
-#slimmedElectronsTo106X = cms.EDProducer("ModifiedElectronProducer",
-#    src = cms.InputTag("slimmedElectrons"),
-#    modifierConfig = cms.PSet( modifications = cms.VPSet(ele9X105XUpdateModifier) )
-#)
-
-# this below is used only in some eras
-slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
-    src = cms.InputTag("slimmedElectrons"),
-    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    computeMiniIso = cms.bool(False),
-    fixDxySign = cms.bool(True),
-    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
-    miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB, # so they're in sync
-    miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE, # so they're in sync
-)
 
 ############################FOR bitmapVIDForEle main defn#############################
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
@@ -302,7 +274,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 #for technical reasons
-(run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2).toModify(
+(run2_nanoAOD_106Xv2).toModify(
         electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
@@ -338,7 +310,7 @@ electronsMCMatchForTableAlt = cms.EDProducer("GenJetMatcherDRPtByDR",  # cut on 
     maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
     resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
-) 
+)
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = electronTable.src,                 # final reco collection
     matched     = cms.InputTag("finalGenParticles"), # final mc-truth particle collection
@@ -370,24 +342,3 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
 # Revert back to AK4 CHS jets for Run 2
 run2_nanoAOD_ANY.toModify(
     ptRatioRelForEle,srcJet="updatedJets")
-
-
-#for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
-(run2_nanoAOD_106Xv1).toModify(
-    bitmapVIDForEle, src = "slimmedElectronsUpdated"
-).toModify(
-    bitmapVIDForEleHEEP, src = "slimmedElectronsUpdated"
-).toModify(
-    isoForEle, src = "slimmedElectronsUpdated"
-).toModify(
-    ptRatioRelForEle, srcLep = "slimmedElectronsUpdated"
-).toModify(
-    seedGainEle, src = "slimmedElectronsUpdated"
-).toModify(
-    slimmedElectronsWithUserData, src = "slimmedElectronsUpdated"
-).toModify(
-    calibratedPatElectronsNano, src = "slimmedElectronsUpdated"
-).toReplaceWith(
-    ###this sequence should run for all eras except run2_nanoAOD_106Xv2 which should run the electronSequence as above
-    electronTask, electronTask.copyAndAdd(slimmedElectronsUpdated)
-)
