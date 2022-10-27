@@ -368,18 +368,14 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
                              << std::endl;
 
     if (hyjets.khj[2][ihy] == 0) {
-      if (primary_particle[ihy] == nullptr) {
-        primary_particle[ihy] = build_hyjet(ihy, ihy + 1);
-      }
+      primary_particle[ihy] = build_hyjet(ihy, ihy + 1);
       if (!sub_vertices)
         LogError("Hydjet_array") << "##### HYDJET2: Vertex not initialized!";
       else
         sub_vertices->add_particle_out(primary_particle[ihy]);
       LogDebug("Hydjet_array") << " ---> " << ihy + 1 << std::endl;
     } else {
-      if (particle[ihy] == nullptr) {
-        particle[ihy] = build_hyjet(ihy, ihy + 1);
-      }
+      particle[ihy] = build_hyjet(ihy, ihy + 1);
       int mid = hyjets.khj[2][ihy] - hjoffset + index[isub];
       int mid_t = mid;
       while (((mid + 1) < ihy) && (std::abs(hyjets.khj[1][mid]) < 100) &&
@@ -393,16 +389,6 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
       if (!mother) {
         mother = particle[mid];
-        if (!mother) {
-          if (mid > ihy) {
-            mother = build_hyjet(mid, mid + 1);
-            if (hyjets.khj[2][mid] != 0) {
-              particle[mid] = mother;
-            }
-          } else {
-            assert(false);
-          }
-        }
         primary_particle[mid] = mother;
       }
 
