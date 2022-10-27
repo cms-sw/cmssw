@@ -76,11 +76,12 @@ protected:
   class Variable {
   public:
     Variable(const std::string& aname, const edm::ParameterSet& cfg)
-      : name_(aname), doc_(cfg.getParameter<std::string>("doc")), precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision") : -1 ) {}
+        : name_(aname),
+          doc_(cfg.getParameter<std::string>("doc")),
+          precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision") : -1) {}
     virtual void fill(const edm::Event& iEvent, nanoaod::FlatTable& out) const = 0;
     virtual ~Variable() {}
-    const std::string& name() const {
-      return name_; }
+    const std::string& name() const { return name_; }
 
   protected:
     std::string name_, doc_;
