@@ -1,6 +1,8 @@
 #ifndef RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 #define RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 
+#include <exception>
+
 namespace mkfit {
 
   enum struct TkLayout { phase0 = 0, phase1 = 1, phase2 = 2 };
