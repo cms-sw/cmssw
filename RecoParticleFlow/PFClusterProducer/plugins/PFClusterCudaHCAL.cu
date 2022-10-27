@@ -26,47 +26,47 @@ namespace PFClusterCudaHCAL {
 // New variable pulling all of the constants from CudaPFCommon.h
   __constant__ PFClustering::common::CudaHCALConstants constantsHCAL_d;
 //
-  __constant__ float showerSigma2;
-  __constant__ float recHitEnergyNormInvEB_vec[4];
-  __constant__ float recHitEnergyNormInvEE_vec[7];
-  __constant__ float minFracToKeep;
-  __constant__ float minFracTot;
-  __constant__ float minFractionInCalc;
-  __constant__ float minAllowedNormalization;
-  __constant__ float stoppingTolerance;
+ // __constant__ float showerSigma2;
+ // __constant__ float constantsHCAL_d.recHitEnergyNormInvEB_vec[4];
+ // __constant__ float constantsHCAL_d.recHitEnergyNormInvEE_vec[7];
+ // __constant__ float constantsHCAL_d.minFracToKeep;
+ // __constant__ float constantsHCAL_d.minFracTot;
+ // __constant__ float constantsHCAL_d.minFracInCalc;
+ // __constant__ float constantsHCAL_d.minAllowedNormalization;
+ // __constant__ float constantsHCAL_d.stoppingTolerance;
 
-  __constant__ float seedEThresholdEB_vec[4];
-  __constant__ float seedEThresholdEE_vec[7];
-  __constant__ float seedPt2ThresholdEB;
-  __constant__ float seedPt2ThresholdEE;
+ // __constant__ float constantsHCAL_d.seedEThresholdEB_vec[4];
+ // __constant__ float constantsHCAL_d.seedEThresholdEE_vec[7];
+ // __constant__ float constantsHCAL_d.seedPt2ThresholdEB;
+ // __constant__ float constantsHCAL_d.seedPt2ThresholdEE;
 
-  __constant__ float topoEThresholdEB_vec[4];
-  __constant__ float topoEThresholdEE_vec[7];
-  __constant__ int maxIterations;
-  __constant__ bool excludeOtherSeeds;
+ // __constant__ float constantsHCAL_d.topoEThresholdEB_vec[4];
+ // __constant__ float constantsHCAL_d.topoEThresholdEE_vec[7];
+ // __constant__ int constantsHCAL_d.maxIterations;
+ // __constant__ bool constantsHCAL_d.excludeOtherSeeds;
 
   // Endcap timing constants
-  __constant__ float corrTermLowEE;
-  __constant__ float threshLowEE;
-  __constant__ float noiseTermE;
-  __constant__ float constantTermLowE2E;
-  __constant__ float noiseTermLowEE;
-  __constant__ float threshHighEE;
-  __constant__ float constantTerm2E;
-  __constant__ float resHighE2E;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.corrTermLowE;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.threshLowE;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.noiseTerm;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.constantTermLowE2;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.noiseTermLowE;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.threshHighE;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.constantTerm2;
+ // __constant__ float constantsHCAL_d.endcapTimeResConsts.resHighE2;
 
-  // Barrel timing constants
-  __constant__ float corrTermLowEB;
-  __constant__ float threshLowEB;
-  __constant__ float noiseTermB;
-  __constant__ float constantTermLowE2B;
-  __constant__ float noiseTermLowEB;
-  __constant__ float threshHighEB;
-  __constant__ float constantTerm2B;
-  __constant__ float resHighE2B;
+ // // Barrel timing constants
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.corrTermLowE;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.threshLowE;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.noiseTerm;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.constantTermLowE2;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.noiseTermLowE;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.threshHighE;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.constantTerm2;
+ // __constant__ float constantsHCAL_d.barrelTimeResConsts.resHighE2;
 
   __constant__ int nNT = 8;  // Number of neighbors considered for topo clustering
-  __constant__ int nNeigh;
+ // __constant__ int constantsHCAL_d.nNeigh;
 
   //int nTopoLoops = 100;
   int nTopoLoops = 35;
@@ -111,404 +111,14 @@ namespace PFClusterCudaHCAL {
   //   passingTopoThreshold
   //   printRhfIndex
 
+  //void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
+  //                             const cudaStream_t cudaStream) {
+  //  cudaCheck(cudaMemcpyToSymbolAsync(constantsHCAL_d, &cudaConstants, sizeof(cudaConstants)));
+  //}
+
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
                                const cudaStream_t cudaStream) {
-   
     cudaCheck(cudaMemcpyToSymbolAsync(constantsHCAL_d, &cudaConstants, sizeof(cudaConstants), 0, cudaMemcpyHostToDevice, cudaStream));
-
-
-    cudaCheck(cudaMemcpyToSymbolAsync(recHitEnergyNormInvEB_vec,
-                                      &cudaConstants.recHitEnergyNormInvEB_vec,
-                                      4 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    float val4[4];
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val4, recHitEnergyNormInvEB_vec, 4 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "recHitEnergyNormInvEB_vec read from symbol: ";
-    for (int i = 0; i < 4; i++) {
-      std::cout << val4[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(recHitEnergyNormInvEE_vec,
-                                      &cudaConstants.recHitEnergyNormInvEE_vec,
-                                      7 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    float val7[7];
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val7, recHitEnergyNormInvEE_vec, 7 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "recHitEnergyNormInvEE_vec read from symbol: ";
-    for (int i = 0; i < 7; i++) {
-      std::cout << val7[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        minFracToKeep, &cudaConstants.minFracToKeep, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, minFracToKeep, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "minFracToKeep read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        minFracTot, &cudaConstants.minFracTot, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, minFracTot, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "minFracTot read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        minFractionInCalc, &cudaConstants.minFracInCalc, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, minFractionInCalc, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "minFractionInCalc read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(minAllowedNormalization,
-                                      &cudaConstants.minAllowedNormalization,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(
-        cudaMemcpyFromSymbolAsync(&val, minAllowedNormalization, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "minAllowedNormalization read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        stoppingTolerance, &cudaConstants.stoppingTolerance, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, stoppingTolerance, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "stoppingTolerance read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        excludeOtherSeeds, &cudaConstants.excludeOtherSeeds, sizeof(bool), 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    bool bval = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&bval, excludeOtherSeeds, sizeof(bool), 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "excludeOtherSeeds read from symbol: " << bval << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        maxIterations, &cudaConstants.maxIterations, sizeof_int, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    uint32_t uival = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&uival, maxIterations, sizeof_int, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "maxIterations read from symbol: " << uival << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(seedEThresholdEB_vec,
-                                      &cudaConstants.seedEThresholdEB_vec,
-                                      4 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val4, seedEThresholdEB_vec, 4 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "seedEThresholdEB_vec read from symbol: ";
-    for (int i = 0; i < 4; i++) {
-      std::cout << val4[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(seedEThresholdEE_vec,
-                                      &cudaConstants.seedEThresholdEE_vec,
-                                      7 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val7, seedEThresholdEE_vec, 7 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "seedEThresholdEE_vec read from symbol: ";
-    for (int i = 0; i < 7; i++) {
-      std::cout << val7[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        seedPt2ThresholdEB, &cudaConstants.seedPt2ThresholdEB, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, seedPt2ThresholdEB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "seedPt2ThresholdEB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        seedPt2ThresholdEE, &cudaConstants.seedPt2ThresholdEE, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0.;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, seedPt2ThresholdEE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "seedPt2ThresholdEE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(topoEThresholdEB_vec,
-                                      &cudaConstants.topoEThresholdEB_vec,
-                                      4 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val4, topoEThresholdEB_vec, 4 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "topoEThresholdEB_vec read from symbol: ";
-    for (int i = 0; i < 4; i++) {
-      std::cout << val4[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(topoEThresholdEE_vec,
-                                      &cudaConstants.topoEThresholdEE_vec,
-                                      7 * sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    cudaCheck(cudaMemcpyFromSymbolAsync(
-        &val7, topoEThresholdEE_vec, 7 * sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "topoEThresholdEE_vec read from symbol: ";
-    for (int i = 0; i < 7; i++) {
-      std::cout << val7[i] << " ";
-    }
-    std::cout << std::endl;
-#endif
-
-    cudaCheck(
-        cudaMemcpyToSymbolAsync(nNeigh, &cudaConstants.nNeigh, sizeof_int, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    int ival = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&ival, nNeigh, sizeof_int, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "nNeigh read from symbol: " << ival << std::endl;
-#endif
-
-    // Endcap time resolution
-    cudaCheck(cudaMemcpyToSymbolAsync(corrTermLowEE,
-                                      &cudaConstants.endcapTimeResConsts.corrTermLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, corrTermLowEE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "corrTermLowEE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(threshLowEE,
-                                      &cudaConstants.endcapTimeResConsts.threshLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, threshLowEE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "threshLowEE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        noiseTermE, &cudaConstants.endcapTimeResConsts.noiseTerm, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, noiseTermE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "noiseTermE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(constantTermLowE2E,
-                                      &cudaConstants.endcapTimeResConsts.constantTermLowE2,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, constantTermLowE2E, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "constantTermLowE2E read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(noiseTermLowEE,
-                                      &cudaConstants.endcapTimeResConsts.noiseTermLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, noiseTermLowEE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "noiseTermLowEE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(threshHighEE,
-                                      &cudaConstants.endcapTimeResConsts.threshHighE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, threshHighEE, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "threshHighEE read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(constantTerm2E,
-                                      &cudaConstants.endcapTimeResConsts.constantTerm2,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, constantTerm2E, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "constantTerm2E read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        resHighE2E, &cudaConstants.endcapTimeResConsts.resHighE2, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, resHighE2E, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "resHighE2E read from symbol: " << val << std::endl;
-#endif
-
-    // Barrel time resolution
-    cudaCheck(cudaMemcpyToSymbolAsync(corrTermLowEB,
-                                      &cudaConstants.barrelTimeResConsts.corrTermLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, corrTermLowEB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "corrTermLowEB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(threshLowEB,
-                                      &cudaConstants.barrelTimeResConsts.threshLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, threshLowEB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "threshLowEB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        noiseTermB, &cudaConstants.barrelTimeResConsts.noiseTerm, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, noiseTermB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "noiseTermB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(constantTermLowE2B,
-                                      &cudaConstants.barrelTimeResConsts.constantTermLowE2,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, constantTermLowE2B, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "constantTermLowE2B read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(noiseTermLowEB,
-                                      &cudaConstants.barrelTimeResConsts.noiseTermLowE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, noiseTermLowEB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "noiseTermLowEB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(threshHighEB,
-                                      &cudaConstants.barrelTimeResConsts.threshHighE,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, threshHighEB, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "threshHighEB read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(constantTerm2B,
-                                      &cudaConstants.barrelTimeResConsts.constantTerm2,
-                                      sizeof_float,
-                                      0,
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, constantTerm2B, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "constantTerm2B read from symbol: " << val << std::endl;
-#endif
-
-    cudaCheck(cudaMemcpyToSymbolAsync(
-        resHighE2B, &cudaConstants.barrelTimeResConsts.resHighE2, sizeof_float, 0, cudaMemcpyHostToDevice, cudaStream));
-#ifdef DEBUG_GPU_HCAL
-    // Read back the value
-    val = 0;
-    cudaCheck(cudaMemcpyFromSymbolAsync(&val, resHighE2B, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
-    std::cout << "resHighE2B read from symbol: " << val << std::endl;
-#endif
   }
 
   __device__ __forceinline__ float timeResolution2Endcap(const float energy) {
@@ -516,19 +126,19 @@ namespace PFClusterCudaHCAL {
 
     if (energy <= 0.)
       return res2;
-    else if (energy < threshLowEE) {
-      if (corrTermLowEE > 0.) {  // different parametrisation
-        const float res = noiseTermLowEE / energy + corrTermLowEE / (energy * energy);
+    else if (energy < constantsHCAL_d.endcapTimeResConsts.threshLowE) {
+      if (constantsHCAL_d.endcapTimeResConsts.corrTermLowE > 0.) {  // different parametrisation
+        const float res = constantsHCAL_d.endcapTimeResConsts.noiseTermLowE / energy + constantsHCAL_d.endcapTimeResConsts.corrTermLowE / (energy * energy);
         res2 = res * res;
       } else {
-        const float noiseDivE = noiseTermLowEE / energy;
-        res2 = noiseDivE * noiseDivE + constantTermLowE2E;
+        const float noiseDivE = constantsHCAL_d.endcapTimeResConsts.noiseTermLowE / energy;
+        res2 = noiseDivE * noiseDivE + constantsHCAL_d.endcapTimeResConsts.constantTermLowE2;
       }
-    } else if (energy < threshHighEE) {
-      const float noiseDivE = noiseTermE / energy;
-      res2 = noiseDivE * noiseDivE + constantTerm2E;
+    } else if (energy < constantsHCAL_d.endcapTimeResConsts.threshHighE) {
+      const float noiseDivE = constantsHCAL_d.endcapTimeResConsts.noiseTerm / energy;
+      res2 = noiseDivE * noiseDivE + constantsHCAL_d.endcapTimeResConsts.constantTerm2;
     } else  // if (energy >=threshHighE_)
-      res2 = resHighE2E;
+      res2 = constantsHCAL_d.endcapTimeResConsts.resHighE2;
 
     if (res2 > 10000.)
       return 10000.;
@@ -540,19 +150,19 @@ namespace PFClusterCudaHCAL {
 
     if (energy <= 0.)
       return res2;
-    else if (energy < threshLowEB) {
-      if (corrTermLowEB > 0.) {  // different parametrisation
-        const float res = noiseTermLowEB / energy + corrTermLowEB / (energy * energy);
+    else if (energy < constantsHCAL_d.barrelTimeResConsts.threshLowE) {
+      if (constantsHCAL_d.barrelTimeResConsts.corrTermLowE > 0.) {  // different parametrisation
+        const float res = constantsHCAL_d.barrelTimeResConsts.noiseTermLowE / energy + constantsHCAL_d.barrelTimeResConsts.corrTermLowE / (energy * energy);
         res2 = res * res;
       } else {
-        const float noiseDivE = noiseTermLowEB / energy;
-        res2 = noiseDivE * noiseDivE + constantTermLowE2B;
+        const float noiseDivE = constantsHCAL_d.barrelTimeResConsts.noiseTermLowE / energy;
+        res2 = noiseDivE * noiseDivE + constantsHCAL_d.barrelTimeResConsts.constantTermLowE2;
       }
-    } else if (energy < threshHighEB) {
-      const float noiseDivE = noiseTermB / energy;
-      res2 = noiseDivE * noiseDivE + constantTerm2B;
+    } else if (energy < constantsHCAL_d.barrelTimeResConsts.threshHighE) {
+      const float noiseDivE = constantsHCAL_d.barrelTimeResConsts.noiseTerm / energy;
+      res2 = noiseDivE * noiseDivE + constantsHCAL_d.barrelTimeResConsts.constantTerm2;
     } else  // if (energy >=threshHighE_)
-      res2 = resHighE2B;
+      res2 = constantsHCAL_d.barrelTimeResConsts.resHighE2;
 
     if (res2 > 10000.)
       return 10000.;
@@ -640,8 +250,8 @@ namespace PFClusterCudaHCAL {
       float pt2 = energy * energy * (pos.x * pos.x + pos.y * pos.y) / (pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 
       // Seeding threshold test
-      if ((layer == PFLayer::HCAL_BARREL1 && energy > seedEThresholdEB_vec[depthOffset] && pt2 > seedPt2ThresholdEB) ||
-          (layer == PFLayer::HCAL_ENDCAP && energy > seedEThresholdEE_vec[depthOffset] && pt2 > seedPt2ThresholdEE)) {
+      if ((layer == PFLayer::HCAL_BARREL1 && energy > constantsHCAL_d.seedEThresholdEB_vec[depthOffset] && pt2 > constantsHCAL_d.seedPt2ThresholdEB) ||
+          (layer == PFLayer::HCAL_ENDCAP && energy > constantsHCAL_d.seedEThresholdEE_vec[depthOffset] && pt2 > constantsHCAL_d.seedPt2ThresholdEE)) {
         pfrh_isSeed[i] = 1;
         for (int k = 0; k < 4; k++) {
           if (neigh4_Ind[8 * i + k] < 0)
@@ -652,9 +262,9 @@ namespace PFClusterCudaHCAL {
             break;
           }
         }
-        //         for(int k=0; k<nNeigh; k++){
-        //           if(neigh4_Ind[nNeigh*i+k]<0) continue;
-        //           if(energy < pfrh_energy[neigh4_Ind[nNeigh*i+k]]){
+        //         for(int k=0; k<constantsHCAL_d.nNeigh; k++){
+        //           if(neigh4_Ind[constantsHCAL_d.nNeigh*i+k]<0) continue;
+        //           if(energy < pfrh_energy[neigh4_Ind[constantsHCAL_d.nNeigh*i+k]]){
         //             pfrh_isSeed[i]=0;
         //             //pfrh_topoId[i]=-1;
         //             break;
@@ -666,8 +276,8 @@ namespace PFClusterCudaHCAL {
       }
 
       // Topo clustering threshold test
-      if ((layer == PFLayer::HCAL_ENDCAP && energy > topoEThresholdEE_vec[depthOffset]) ||
-          (layer == PFLayer::HCAL_BARREL1 && energy > topoEThresholdEB_vec[depthOffset])) {
+      if ((layer == PFLayer::HCAL_ENDCAP && energy > constantsHCAL_d.topoEThresholdEE_vec[depthOffset]) ||
+          (layer == PFLayer::HCAL_BARREL1 && energy > constantsHCAL_d.topoEThresholdEB_vec[depthOffset])) {
         pfrh_passTopoThresh[i] = true;
       }
       //else { pfrh_passTopoThresh[i] = false; }
@@ -688,15 +298,15 @@ namespace PFClusterCudaHCAL {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (i < size) {
-      if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
-           pfrh_pt2[i] > seedPt2ThresholdEB) ||
-          (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
-           pfrh_pt2[i] > seedPt2ThresholdEE)) {
+      if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
+           pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEB) ||
+          (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
+           pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEE)) {
         pfrh_isSeed[i] = 1;
-        for (int k = 0; k < nNeigh; k++) {
-          if (neigh4_Ind[nNeigh * i + k] < 0)
+        for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
+          if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] < 0)
             continue;
-          if (pfrh_energy[i] < pfrh_energy[neigh4_Ind[nNeigh * i + k]]) {
+          if (pfrh_energy[i] < pfrh_energy[neigh4_Ind[constantsHCAL_d.nNeigh * i + k]]) {
             pfrh_isSeed[i] = 0;
             //pfrh_topoId[i]=-1;
             break;
@@ -720,15 +330,15 @@ namespace PFClusterCudaHCAL {
     //int i = threadIdx.x+blockIdx.x*blockDim.x;
     for (int i = 0; i < size; i++) {
       if (i < size) {
-        if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
-             pfrh_pt2[i] > seedPt2ThresholdEB) ||
-            (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
-             pfrh_pt2[i] > seedPt2ThresholdEE)) {
+        if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
+             pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEB) ||
+            (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
+             pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEE)) {
           pfrh_isSeed[i] = 1;
-          for (int k = 0; k < nNeigh; k++) {
-            if (neigh4_Ind[nNeigh * i + k] < 0)
+          for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
+            if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] < 0)
               continue;
-            if (pfrh_energy[i] < pfrh_energy[neigh4_Ind[nNeigh * i + k]]) {
+            if (pfrh_energy[i] < pfrh_energy[neigh4_Ind[constantsHCAL_d.nNeigh * i + k]]) {
               pfrh_isSeed[i] = 0;
               //pfrh_topoId[i]=-1;
               break;
@@ -778,11 +388,11 @@ namespace PFClusterCudaHCAL {
     if (l < size) {
       while (neigh8_Ind[nNT * l + k] > -1 && pfrh_topoId[l] != pfrh_topoId[neigh8_Ind[nNT * l + k]] &&
              ((pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_ENDCAP &&
-               pfrh_energy[neigh8_Ind[nNT * l + k]] > topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
+               pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
               (pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_BARREL1 &&
-               pfrh_energy[neigh8_Ind[nNT * l + k]] > topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
-             ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
-              (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
+               pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
+             ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
+              (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
         if (pfrh_topoId[l] > pfrh_topoId[neigh8_Ind[nNT * l + k]]) {
           atomicMax(&pfrh_topoId[neigh8_Ind[nNT * l + k]], pfrh_topoId[l]);
         }
@@ -808,11 +418,11 @@ namespace PFClusterCudaHCAL {
         while (
             neigh8_Ind[nNT * l + k] > -1 && pfrh_topoId[l] != pfrh_topoId[neigh8_Ind[nNT * l + k]] &&
             ((pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_ENDCAP &&
-              pfrh_energy[neigh8_Ind[nNT * l + k]] > topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
+              pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
              (pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_BARREL1 &&
-              pfrh_energy[neigh8_Ind[nNT * l + k]] > topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
-            ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
-             (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
+              pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
+            ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
+             (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
           if (pfrh_topoId[l] > pfrh_topoId[neigh8_Ind[nNT * l + k]]) {
             atomicMax(&pfrh_topoId[neigh8_Ind[nNT * l + k]], pfrh_topoId[l]);
           }
@@ -851,12 +461,12 @@ namespace PFClusterCudaHCAL {
       prevClusterPos = seedPos;
       seedEnergy = pfrh_energy[i];
       clusterEnergy = seedEnergy;
-      tol = stoppingTolerance;  // stopping tolerance * tolerance scaling
+      tol = constantsHCAL_d.stoppingTolerance;  // stopping tolerance * tolerance scaling
 
       if (pfrh_layer[i] == PFLayer::HCAL_BARREL1)
-        rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
       else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)
-        rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
       else {
         rhENormInv = 0.;
         printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
@@ -898,7 +508,7 @@ namespace PFClusterCudaHCAL {
         fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
 
         // For single seed clusters, rechit fraction is either 1 (100%) or -1 (not included)
-        if (fraction > minFracTot && d2 < 100.)
+        if (fraction > constantsHCAL_d.minFracTot && d2 < 100.)
           fraction = 1.;
         else
           fraction = -1.;
@@ -929,7 +539,7 @@ namespace PFClusterCudaHCAL {
 
       if (tid == 0) {
         // Normalize the seed postiion
-        if (clusterPos.w >= minAllowedNormalization) {
+        if (clusterPos.w >= constantsHCAL_d.minAllowedNormalization) {
           // Divide by position norm
           clusterPos.x /= clusterPos.w;
           clusterPos.y /= clusterPos.w;
@@ -947,7 +557,7 @@ namespace PFClusterCudaHCAL {
             printf("\tPF cluster (seed %d) position norm (%f) less than minimum (%f)\n",
                    i,
                    clusterPos.w,
-                   minAllowedNormalization);
+                   constantsHCAL_d.minAllowedNormalization);
           clusterPos.x = 0.;
           clusterPos.y = 0.;
           clusterPos.z = 0.;
@@ -959,7 +569,7 @@ namespace PFClusterCudaHCAL {
 
         float diff = sqrtf(diff2);
         iter++;
-        notDone = (diff > tol) && (iter < maxIterations);
+        notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
         if (debug) {
           if (diff > tol)
             printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -1002,7 +612,7 @@ namespace PFClusterCudaHCAL {
     if (threadIdx.x == 0) {
       nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
       topoSeedBegin = topoSeedOffsets[topoId];
-      tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+      tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
       //gridStride = blockDim.x * gridDim.x;
       gridStride = blockDim.x;
       iter = 0;
@@ -1016,9 +626,9 @@ namespace PFClusterCudaHCAL {
 
       int i = topoSeedList[topoSeedBegin];
       if (pfrh_layer[i] == PFLayer::HCAL_BARREL1)
-        rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
       else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)
-        rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
       else
         printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
     }
@@ -1072,7 +682,7 @@ namespace PFClusterCudaHCAL {
     auto computeClusterPos = [&](float4& pos4, float frac, int rhInd, bool isDebug) {
       float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
       const auto rh_energy = pfrh_energy[rhInd] * frac;
-      const auto norm = (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+      const auto norm = (frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
       if (isDebug)
         printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                rhInd,
@@ -1163,10 +773,10 @@ namespace PFClusterCudaHCAL {
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
-          if (rhFracSum[tid] > minFracTot) {
+          if (rhFracSum[tid] > constantsHCAL_d.minFracTot) {
             float fracpct = fraction / rhFracSum[tid];
             //float fracpct = pcrhfrac[seedFracOffsets[i]+tid+1] / rhFracSum[tid];
-            if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+            if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
               pcrhfrac[seedFracOffsets[i] + tid + 1] = fracpct;
             } else {
               pcrhfrac[seedFracOffsets[i] + tid + 1] = -1;
@@ -1217,7 +827,7 @@ namespace PFClusterCudaHCAL {
 
       // Position normalization
       if (tid < nSeeds) {
-        if (clusterPos[tid].w >= minAllowedNormalization) {
+        if (clusterPos[tid].w >= constantsHCAL_d.minAllowedNormalization) {
           // Divide by position norm
           clusterPos[tid].x /= clusterPos[tid].w;
           clusterPos[tid].y /= clusterPos[tid].w;
@@ -1237,7 +847,7 @@ namespace PFClusterCudaHCAL {
                    tid,
                    seedThreadIdx,
                    clusterPos[tid].w,
-                   minAllowedNormalization);
+                   constantsHCAL_d.minAllowedNormalization);
           clusterPos[tid].x = 0.0;
           clusterPos[tid].y = 0.0;
           clusterPos[tid].z = 0.0;
@@ -1257,7 +867,7 @@ namespace PFClusterCudaHCAL {
       if (tid == 0) {
         float diff = sqrtf(diff2);
         iter++;
-        notDone = (diff > tol) && (iter < maxIterations);
+        notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
         if (debug) {
           if (diff > tol)
             printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -1298,7 +908,7 @@ namespace PFClusterCudaHCAL {
     if (threadIdx.x == 0) {
       nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
       topoSeedBegin = topoSeedOffsets[topoId];
-      tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+      tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
       gridStride = blockDim.x;
       iter = 0;
       notDone = true;
@@ -1306,9 +916,9 @@ namespace PFClusterCudaHCAL {
 
       int i = topoSeedList[topoSeedBegin];
       if (pfrh_layer[i] == PFLayer::HCAL_BARREL1)
-        rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
       else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)
-        rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
+        rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
       else
         printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
     }
@@ -1362,7 +972,7 @@ namespace PFClusterCudaHCAL {
     auto computeClusterPos = [&](float4& pos4, float frac, int rhInd, bool isDebug) {
       float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
       const auto rh_energy = pfrh_energy[rhInd] * frac;
-      const auto norm = (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+      const auto norm = (frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
       if (isDebug)
         printf("\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                rhInd,
@@ -1431,10 +1041,10 @@ namespace PFClusterCudaHCAL {
           float d2 = dist2 / constantsHCAL_d.showerSigma2;
           float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
-          if (rhFracSum[tid] > minFracTot) {
+          if (rhFracSum[tid] > constantsHCAL_d.minFracTot) {
             float fracpct = fraction / rhFracSum[tid];
             //float fracpct = pcrhfrac[seedFracOffsets[i]+tid+1] / rhFracSum[tid];
-            if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+            if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
               pcrhfrac[seedFracOffsets[i] + tid + 1] = fracpct;
             } else {
               pcrhfrac[seedFracOffsets[i] + tid + 1] = -1;
@@ -1488,7 +1098,7 @@ namespace PFClusterCudaHCAL {
 
       // Position normalization
       for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
-        if (clusterPos[s].w >= minAllowedNormalization) {
+        if (clusterPos[s].w >= constantsHCAL_d.minAllowedNormalization) {
           // Divide by position norm
           clusterPos[s].x /= clusterPos[s].w;
           clusterPos[s].y /= clusterPos[s].w;
@@ -1508,7 +1118,7 @@ namespace PFClusterCudaHCAL {
                    s,
                    seeds[s],
                    clusterPos[s].w,
-                   minAllowedNormalization);
+                   constantsHCAL_d.minAllowedNormalization);
           clusterPos[s].x = 0.0;
           clusterPos[s].y = 0.0;
           clusterPos[s].z = 0.0;
@@ -1528,7 +1138,7 @@ namespace PFClusterCudaHCAL {
       if (threadIdx.x == 0) {
         float diff = sqrtf(diff2);
         iter++;
-        notDone = (diff > tol) && (iter < maxIterations);
+        notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
         if (debug) {
           if (diff > tol)
             printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -1573,7 +1183,7 @@ namespace PFClusterCudaHCAL {
         clusterPos = make_float4(pfrh_x[i], pfrh_y[i], pfrh_z[i], 1.);
         prevClusterPos = clusterPos;
         clusterEnergy = pfrh_energy[i];
-        tol = stoppingTolerance;  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance;  // stopping tolerance * tolerance scaling
         iter = 0;
         notDone = true;
         debug = false;
@@ -1592,9 +1202,9 @@ namespace PFClusterCudaHCAL {
         rhEnergy = pfrh_energy[j];
 
         if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-          rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1];
         } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-          rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1];
         } else {
           printf("Rechit %d has invalid layer %d!\n", j, pfrh_layer[j]);
         }
@@ -1618,7 +1228,7 @@ namespace PFClusterCudaHCAL {
           fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
 
           // For single seed clusters, rechit fraction is either 1 (100%) or -1 (not included)
-          if (fraction > minFracTot && d2 < 100.)
+          if (fraction > constantsHCAL_d.minFracTot && d2 < 100.)
             fraction = 1.;
           else
             fraction = -1.;
@@ -1649,7 +1259,7 @@ namespace PFClusterCudaHCAL {
 
         if (r == 0) {
           // Normalize the seed postiion
-          if (clusterPos.w >= minAllowedNormalization) {
+          if (clusterPos.w >= constantsHCAL_d.minAllowedNormalization) {
             // Divide by position norm
             clusterPos.x /= clusterPos.w;
             clusterPos.y /= clusterPos.w;
@@ -1667,7 +1277,7 @@ namespace PFClusterCudaHCAL {
               printf("\tPF cluster (seed %d) position norm (%f) less than minimum (%f)\n",
                      i,
                      clusterPos.w,
-                     minAllowedNormalization);
+                     constantsHCAL_d.minAllowedNormalization);
             clusterPos.x = 0.;
             clusterPos.y = 0.;
             clusterPos.z = 0.;
@@ -1679,7 +1289,7 @@ namespace PFClusterCudaHCAL {
 
           diff = sqrtf(diff2);
           iter++;
-          notDone = (diff > tol) && (iter < maxIterations);
+          notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
           if (debug) {
             if (diff > tol)
               printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -1743,7 +1353,7 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -1755,9 +1365,9 @@ namespace PFClusterCudaHCAL {
 
         int i = topoSeedList[topoSeedBegin];
         if (pfrh_layer[i] == PFLayer::HCAL_BARREL1)
-          rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
         else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)
-          rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
         else
           printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
       }
@@ -1811,7 +1421,7 @@ namespace PFClusterCudaHCAL {
       auto computeClusterPos = [&](float4& pos4, float frac, int rhInd, bool isDebug) {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         const auto rh_energy = pfrh_energy[rhInd] * frac;
-        const auto norm = (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+        const auto norm = (frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
         if (isDebug)
           printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                  rhInd,
@@ -1833,7 +1443,7 @@ namespace PFClusterCudaHCAL {
 
         const auto rh_energy = pfrh_energy[rhInd] * _frac;
         const auto norm =
-            (_frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+            (_frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
         if (isDebug)
             printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n", rhInd, norm, _frac, rh_energy, rechitPos.x, rechitPos.y, rechitPos.z);
 
@@ -1871,10 +1481,10 @@ namespace PFClusterCudaHCAL {
       float4 seedInitClusterPos = make_float4(0., 0., 0., 0.);
       if (tid < nSeeds) {
         seedThreadIdx = getSeedRhIdx(tid);
-        seedNeighbors = make_int4(neigh4_Ind[nNeigh * seedThreadIdx],
-                                  neigh4_Ind[nNeigh * seedThreadIdx + 1],
-                                  neigh4_Ind[nNeigh * seedThreadIdx + 2],
-                                  neigh4_Ind[nNeigh * seedThreadIdx + 3]);
+        seedNeighbors = make_int4(neigh4_Ind[constantsHCAL_d.nNeigh * seedThreadIdx],
+                                  neigh4_Ind[constantsHCAL_d.nNeigh * seedThreadIdx + 1],
+                                  neigh4_Ind[constantsHCAL_d.nNeigh * seedThreadIdx + 2],
+                                  neigh4_Ind[constantsHCAL_d.nNeigh * seedThreadIdx + 3]);
         seedEnergy = pfrh_energy[seedThreadIdx];
 
         // Compute initial cluster position shift for seed
@@ -1918,10 +1528,10 @@ namespace PFClusterCudaHCAL {
             float d2 = dist2 / constantsHCAL_d.showerSigma2;
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
 
-            if (rhFracSum[tid] > minFracTot) {
+            if (rhFracSum[tid] > constantsHCAL_d.minFracTot) {
               float fracpct = fraction / rhFracSum[tid];
               //float fracpct = pcrhfrac[seedFracOffsets[i]+tid+1] / rhFracSum[tid];
-              if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+              if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
                 pcrhfrac[seedFracOffsets[i] + tid + 1] = fracpct;
               } else {
                 pcrhfrac[seedFracOffsets[i] + tid + 1] = -1;
@@ -1973,7 +1583,7 @@ namespace PFClusterCudaHCAL {
 
         // Position normalization
         if (tid < nSeeds) {
-          if (clusterPos[tid].w >= minAllowedNormalization) {
+          if (clusterPos[tid].w >= constantsHCAL_d.minAllowedNormalization) {
             // Divide by position norm
             clusterPos[tid].x /= clusterPos[tid].w;
             clusterPos[tid].y /= clusterPos[tid].w;
@@ -1993,7 +1603,7 @@ namespace PFClusterCudaHCAL {
                      tid,
                      seedThreadIdx,
                      clusterPos[tid].w,
-                     minAllowedNormalization);
+                     constantsHCAL_d.minAllowedNormalization);
             clusterPos[tid].x = 0.0;
             clusterPos[tid].y = 0.0;
             clusterPos[tid].z = 0.0;
@@ -2019,7 +1629,7 @@ namespace PFClusterCudaHCAL {
         if (tid == 0) {
           float diff = sqrtf(diff2);
           iter++;
-          notDone = (diff > tol) && (iter < maxIterations);
+          notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
           if (debug) {
             if (diff > tol)
               printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -2082,7 +1692,7 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -2095,9 +1705,9 @@ namespace PFClusterCudaHCAL {
 
         int i = topoSeedList[topoSeedBegin];
         if (pfrh_layer[i] == PFLayer::HCAL_BARREL1)
-          rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1];
         else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)
-          rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
+          rhENormInv = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1];
         else
           printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
       }
@@ -2151,7 +1761,7 @@ namespace PFClusterCudaHCAL {
       auto computeClusterPos = [&](float4& pos4, float frac, int rhInd, bool isDebug) {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         const auto rh_energy = pfrh_energy[rhInd] * frac;
-        const auto norm = (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+        const auto norm = (frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
         if (isDebug)
           printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                  rhInd,
@@ -2173,7 +1783,7 @@ namespace PFClusterCudaHCAL {
 
         const auto rh_energy = pfrh_energy[rhInd] * _frac;
         const auto norm =
-            (_frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+            (_frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
         if (isDebug)
             printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n", rhInd, norm, _frac, rh_energy, rechitPos.x, rechitPos.y, rechitPos.z);
 
@@ -2258,9 +1868,9 @@ namespace PFClusterCudaHCAL {
             float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
             //if(fraction < 0.) printf("FRACTION is NEGATIVE!!!");
 
-            if (fracSum[j] > minFracTot) {
+            if (fracSum[j] > constantsHCAL_d.minFracTot) {
               float fracpct = fraction / fracSum[j];
-              if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+              if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
                 pcrhfrac[seedFracOffsets[i] + r] = fracpct;
               } else {
                 pcrhfrac[seedFracOffsets[i] + r] = -1;
@@ -2293,10 +1903,10 @@ namespace PFClusterCudaHCAL {
             for (int r = 1; r < nRHNotSeed; r++) {  // Rechits
               if (debug) {
                 printf("\tNow on seed %d\t\tneigh4Ind = [", i);
-                for (int k = 0; k < nNeigh; k++) {
+                for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
                   if (k != 0)
                     printf(", ");
-                  printf("%d", neigh4_Ind[nNeigh * i + k]);
+                  printf("%d", neigh4_Ind[constantsHCAL_d.nNeigh * i + k]);
                 }
                 printf("]\n");
               }
@@ -2321,10 +1931,10 @@ namespace PFClusterCudaHCAL {
                     updateClusterPos = true;
                   } else {
                     // Check if this is one of the neighboring rechits
-                    for (int k = 0; k < nNeigh; k++) {
-                      if (neigh4_Ind[nNeigh * i + k] < 0)
+                    for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
+                      if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] < 0)
                         continue;
-                      if (neigh4_Ind[nNeigh * i + k] == j) {
+                      if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] == j) {
                         // Found it
                         if (debug)
                           printf("\t\tRechit %d is one of the 4 neighbors of seed %d\n", j, i);
@@ -2344,7 +1954,7 @@ namespace PFClusterCudaHCAL {
           // Normalize the seed postiions
           for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
             //int i = getSeedRhIdx(s);    // Seed index
-            if (clusterPos[s].w >= minAllowedNormalization) {
+            if (clusterPos[s].w >= constantsHCAL_d.minAllowedNormalization) {
               // Divide by position norm
               clusterPos[s].x /= clusterPos[s].w;
               clusterPos[s].y /= clusterPos[s].w;
@@ -2364,7 +1974,7 @@ namespace PFClusterCudaHCAL {
                        s,
                        getSeedRhIdx(s),
                        clusterPos[s].w,
-                       minAllowedNormalization);
+                       constantsHCAL_d.minAllowedNormalization);
               clusterPos[s].x = 0.0;
               clusterPos[s].y = 0.0;
               clusterPos[s].z = 0.0;
@@ -2396,7 +2006,7 @@ namespace PFClusterCudaHCAL {
           if (threadIdx.x == 0) {
             diff = sqrtf(diff2);
             iter++;
-            notDone = (diff > tol) && (iter < maxIterations);
+            notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
             if (debug) {
               if (diff > tol)
                 printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -2464,7 +2074,7 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -2521,13 +2131,13 @@ namespace PFClusterCudaHCAL {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         float threshold = 0.0;
         if (pfrh_layer[rhInd] == PFLayer::HCAL_BARREL1) {
-          threshold = recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
+          threshold = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
         } else if (pfrh_layer[rhInd] == PFLayer::HCAL_ENDCAP) {
-          threshold = recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
+          threshold = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
         }
 
         const auto rh_energy = pfrh_energy[rhInd] * _frac;
-        const auto norm = (_frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * threshold)));
+        const auto norm = (_frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * threshold)));
         if (isDebug)
           printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                  rhInd,
@@ -2598,9 +2208,9 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-              fraction = clusterEnergy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-              fraction = clusterEnergy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
             if (fraction == -1.)
               printf("FRACTION is NEGATIVE!!!");
@@ -2627,16 +2237,16 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-                fraction = clusterEnergy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-                fraction = clusterEnergy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
               if (fraction == -1.)
                 printf("FRACTION is NEGATIVE!!!");
 
-              if (fracSum[j] > minFracTot) {
+              if (fracSum[j] > constantsHCAL_d.minFracTot) {
                 float fracpct = fraction / fracSum[j];
-                if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+                if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
                   pcrhfrac[seedFracOffsets[i] + r] = fracpct;
                 } else {
                   pcrhfrac[seedFracOffsets[i] + r] = -1;
@@ -2667,10 +2277,10 @@ namespace PFClusterCudaHCAL {
 
               if (debug) {
                 printf("\tNow on seed %d\t\tneigh4Ind = [", i);
-                for (int k = 0; k < nNeigh; k++) {
+                for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
                   if (k != 0)
                     printf(", ");
-                  printf("%d", neigh4_Ind[nNeigh * i + k]);
+                  printf("%d", neigh4_Ind[constantsHCAL_d.nNeigh * i + k]);
                 }
                 printf("]\n");
               }
@@ -2698,10 +2308,10 @@ namespace PFClusterCudaHCAL {
                     updateClusterPos = true;
                   } else {
                     // Check if this is one of the neighboring rechits
-                    for (int k = 0; k < nNeigh; k++) {
-                      if (neigh4_Ind[nNeigh * i + k] < 0)
+                    for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
+                      if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] < 0)
                         continue;
-                      if (neigh4_Ind[nNeigh * i + k] == j) {
+                      if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] == j) {
                         // Found it
                         if (debug)
                           printf("\t\tRechit %d is one of the 4 neighbors of seed %d\n", j, i);
@@ -2724,7 +2334,7 @@ namespace PFClusterCudaHCAL {
           // Normalize the seed postiions
           for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
             int i = getSeedRhIdx(s);  // Seed index
-            if (clusterPos[i].w >= minAllowedNormalization) {
+            if (clusterPos[i].w >= constantsHCAL_d.minAllowedNormalization) {
               // Divide by position norm
               clusterPos[i].x /= clusterPos[i].w;
               clusterPos[i].y /= clusterPos[i].w;
@@ -2744,7 +2354,7 @@ namespace PFClusterCudaHCAL {
                        s,
                        i,
                        clusterPos[i].w,
-                       minAllowedNormalization);
+                       constantsHCAL_d.minAllowedNormalization);
               clusterPos[i].x = 0.0;
               clusterPos[i].y = 0.0;
               clusterPos[i].z = 0.0;
@@ -2776,7 +2386,7 @@ namespace PFClusterCudaHCAL {
           if (threadIdx.x == 0) {
             diff = sqrtf(diff2);
             iter++;
-            notDone = (diff > tol) && (iter < maxIterations);
+            notDone = (diff > tol) && (iter < constantsHCAL_d.maxIterations);
             if (debug) {
               if (diff > tol)
                 printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
@@ -2974,13 +2584,13 @@ namespace PFClusterCudaHCAL {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         float threshold = 0.0;
         if (pfrh_layer[rhInd] == PFLayer::HCAL_BARREL1) {
-          threshold = recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
+          threshold = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
         } else if (pfrh_layer[rhInd] == PFLayer::HCAL_ENDCAP) {
-          threshold = recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
+          threshold = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
         }
 
         const auto rh_energy = pfrh_energy[rhInd] * _frac;
-        const auto norm = (_frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * threshold)));
+        const auto norm = (_frac < constantsHCAL_d.minFracInCalc ? 0.0f : max(0.0f, logf(rh_energy * threshold)));
         if (isDebug)
           printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n",
                  rhInd,
@@ -2998,7 +2608,7 @@ namespace PFClusterCudaHCAL {
       };
 
       float diff = -1.0;
-      while (iter < maxIterations) {
+      while (iter < constantsHCAL_d.maxIterations) {
         if (debug) {
           printf("\n--- Now on iter %d for topoId %d ---\n", iter, topoId);
         }
@@ -3047,9 +2657,9 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-              fraction = clusterEnergy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-              fraction = clusterEnergy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
             if (fraction == -1.)
               printf("FRACTION is NEGATIVE!!!");
@@ -3075,16 +2685,16 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-                fraction = clusterEnergy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-                fraction = clusterEnergy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
               if (fraction == -1.)
                 printf("FRACTION is NEGATIVE!!!");
 
-              if (fracSum[j] > minFracTot) {
+              if (fracSum[j] > constantsHCAL_d.minFracTot) {
                 float fracpct = fraction / fracSum[j];
-                if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+                if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
                   pcrhfrac[seedFracOffsets[i] + r] = fracpct;
                 } else {
                   pcrhfrac[seedFracOffsets[i] + r] = -1;
@@ -3104,10 +2714,10 @@ namespace PFClusterCudaHCAL {
 
           if (debug) {
             printf("\tNow on seed %d\t\tneigh4Ind = [", i);
-            for (int k = 0; k < nNeigh; k++) {
+            for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
               if (k != 0)
                 printf(", ");
-              printf("%d", neigh4_Ind[nNeigh * i + k]);
+              printf("%d", neigh4_Ind[constantsHCAL_d.nNeigh * i + k]);
             }
             printf("]\n");
           }
@@ -3135,10 +2745,10 @@ namespace PFClusterCudaHCAL {
                   computeClusterPos(clusterPos[i], frac, j, debug);
                 } else {
                   // Check if this is one of the neighboring rechits
-                  for (int k = 0; k < nNeigh; k++) {
-                    if (neigh4_Ind[nNeigh * i + k] < 0)
+                  for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
+                    if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] < 0)
                       continue;
-                    if (neigh4_Ind[nNeigh * i + k] == j) {
+                    if (neigh4_Ind[constantsHCAL_d.nNeigh * i + k] == j) {
                       // Found it
                       if (debug)
                         printf("\t\tRechit %d is one of the 4 neighbors of seed %d\n", j, i);
@@ -3151,7 +2761,7 @@ namespace PFClusterCudaHCAL {
             //else if (debug)
             //    printf("Can't find rechit fraction for cluster %d (seed %d) rechit %d!\n", s, i, j);
           }
-          if (clusterPos[i].w >= minAllowedNormalization) {
+          if (clusterPos[i].w >= constantsHCAL_d.minAllowedNormalization) {
             // Divide by position norm
             clusterPos[i].x /= clusterPos[i].w;
             clusterPos[i].y /= clusterPos[i].w;
@@ -3171,7 +2781,7 @@ namespace PFClusterCudaHCAL {
                      s,
                      i,
                      clusterPos[i].w,
-                     minAllowedNormalization);
+                     constantsHCAL_d.minAllowedNormalization);
             clusterPos[i].x = 0.0;
             clusterPos[i].y = 0.0;
             clusterPos[i].z = 0.0;
@@ -3194,8 +2804,8 @@ namespace PFClusterCudaHCAL {
 
         diff = sqrtf(diff2);
         iter++;
-        //if (iter >= maxIterations || diff2 <= stoppingTolerance2 * tolScaling2) break;
-        if (diff <= stoppingTolerance * tolScaling) {
+        //if (iter >= constantsHCAL_d.maxIterations || diff2 <= constantsHCAL_d.stoppingTolerance2 * tolScaling2) break;
+        if (diff <= constantsHCAL_d.stoppingTolerance * tolScaling) {
           if (debug)
             printf("\tTopoId %d has diff = %f LESS than tolerance (terminating!)\n", topoId, diff);
           break;
@@ -3204,14 +2814,14 @@ namespace PFClusterCudaHCAL {
         }
       }
       if (iter > 1) {
-        if (iter >= maxIterations)
-          printf("topoId %d (nSeeds = %d  nRHTopo = %d) hit maxIterations (%d) with diff (%f) > tol (%f)\n",
+        if (iter >= constantsHCAL_d.maxIterations)
+          printf("topoId %d (nSeeds = %d  nRHTopo = %d) hit constantsHCAL_d.maxIterations (%d) with diff (%f) > tol (%f)\n",
                  topoId,
                  nSeeds,
                  nRHTopo,
                  iter,
                  diff,
-                 stoppingTolerance * tolScaling);
+                 constantsHCAL_d.stoppingTolerance * tolScaling);
         else
           printf("topoId %d converged in %d iterations\n", topoId, iter);
       }
@@ -3245,9 +2855,9 @@ namespace PFClusterCudaHCAL {
         float fraction = -1.;
 
         if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-          fraction = pfrh_energy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+          fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
         } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-          fraction = pfrh_energy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+          fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
         }
 
         if (fraction == -1.)
@@ -3297,17 +2907,17 @@ namespace PFClusterCudaHCAL {
           float fraction = -1.;
 
           if (pfrh_layer[j] == 1) {
-            fraction = pfrh_energy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+            fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
           } else if (pfrh_layer[j] == 3) {
-            fraction = pfrh_energy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+            fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
           }
 
           if (fraction == -1.)
             printf("FRACTION is NEGATIVE!!!");
 
-          if (fracSum[j] > minFracTot) {
+          if (fracSum[j] > constantsHCAL_d.minFracTot) {
             float fracpct = fraction / fracSum[j];
-            if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+            if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
               int k = atomicAdd(&rhCount[i], 1);
               pcrhfrac[seedFracOffsets[i] + k] = fracpct;
               pcrhfracind[seedFracOffsets[i] + k] = j;
@@ -3318,7 +2928,7 @@ namespace PFClusterCudaHCAL {
           /*
         if(d2 < 100. )
           {
-            if ((fraction/fracSum[j])>minFracToKeep){
+            if ((fraction/fracSum[j])>constantsHCAL_d.minFracToKeep){
               int k = atomicAdd(&rhCount[i],1);
               pcrhfrac[i*maxSize+k] = fraction/fracSum[j];
               pcrhfracind[i*maxSize+k] = j;
@@ -3363,17 +2973,17 @@ namespace PFClusterCudaHCAL {
           float fraction = -1.;
 
           if (pfrh_layer[j] == 1) {
-            fraction = pfrh_energy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+            fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
           } else if (pfrh_layer[j] == 3) {
-            fraction = pfrh_energy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+            fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
           }
 
           if (fraction == -1.)
             printf("FRACTION is NEGATIVE!!!");
 
-          if (fracSum[j] > minFracTot) {
+          if (fracSum[j] > constantsHCAL_d.minFracTot) {
             float fracpct = fraction / fracSum[j];
-            if (fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+            if (fracpct > 0.9999 || (d2 < 100. && fracpct > constantsHCAL_d.minFracToKeep)) {
               int k = atomicAdd(&rhCount[i], 1);
               pcrhfrac[i * 100 + k] = fracpct;
               pcrhfracind[i * 100 + k] = j;
@@ -3382,7 +2992,7 @@ namespace PFClusterCudaHCAL {
           /*
         if(d2 < 100. )
           {
-            if ((fraction/fracSum[j])>minFracToKeep){
+            if ((fraction/fracSum[j])>constantsHCAL_d.minFracToKeep){
               int k = atomicAdd(&rhCount[i],1);
               pcrhfrac[i*maxSize+k] = fraction/fracSum[j];
               pcrhfracind[i*maxSize+k] = j;
@@ -3424,9 +3034,9 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == 1) {
-              fraction = pfrh_energy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == 3) {
-              fraction = pfrh_energy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
 
             if (fraction == -1.)
@@ -3475,15 +3085,15 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == 1) {
-                fraction = pfrh_energy[i] * recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == 3) {
-                fraction = pfrh_energy[i] * recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
 
               if (fraction == -1.)
                 printf("FRACTION is NEGATIVE!!!");
               if (d2 < 100.) {
-                if ((fraction / fracSum[j]) > minFracToKeep) {
+                if ((fraction / fracSum[j]) > constantsHCAL_d.minFracToKeep) {
                   int k = atomicAdd(&rhCount[i], 1);
                   pcrhfrac[i * 100 + k] = fraction / fracSum[j];
                   pcrhfracind[i * 100 + k] = j;
@@ -3505,8 +3115,8 @@ namespace PFClusterCudaHCAL {
                                        bool* pfrh_passTopoThresh) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < size) {
-      if ((pfrh_layer[i] == 3 && pfrh_energy[i] > topoEThresholdEE_vec[pfrh_depth[i] - 1]) ||
-          (pfrh_layer[i] == 1 && pfrh_energy[i] > topoEThresholdEB_vec[pfrh_depth[i] - 1])) {
+      if ((pfrh_layer[i] == 3 && pfrh_energy[i] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[i] - 1]) ||
+          (pfrh_layer[i] == 1 && pfrh_energy[i] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[i] - 1])) {
         pfrh_passTopoThresh[i] = true;
       } else {
         pfrh_passTopoThresh[i] = false;
@@ -3521,8 +3131,8 @@ namespace PFClusterCudaHCAL {
                                        bool* pfrh_passTopoThresh) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < size) {
-      if ((pfrh_layer[i] == 3 && pfrh_energy[i] > topoEThresholdEE_vec[pfrh_depth[i] - 1]) ||
-          (pfrh_layer[i] == 1 && pfrh_energy[i] > topoEThresholdEB_vec[pfrh_depth[i] - 1])) {
+      if ((pfrh_layer[i] == 3 && pfrh_energy[i] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[i] - 1]) ||
+          (pfrh_layer[i] == 1 && pfrh_energy[i] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[i] - 1])) {
         pfrh_passTopoThresh[i] = true;
       } else {
         pfrh_passTopoThresh[i] = false;

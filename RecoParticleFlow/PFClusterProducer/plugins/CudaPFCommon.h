@@ -29,31 +29,32 @@ namespace PFClustering {
       float constantTerm2;
       float resHighE2;
 
-      TimeResConsts()
-          : corrTermLowE(-1.0),
-            threshLowE(-1.0),
-            noiseTerm(-1.0),
-            constantTermLowE2(-1.0),
-            noiseTermLowE(-1.0),
-            threshHighE(-1.0),
-            constantTerm2(-1.0),
-            resHighE2(-1.0){};
+     // TimeResConsts()
+     //     : corrTermLowE(-1.0),
+     //       threshLowE(-1.0),
+     //       noiseTerm(-1.0),
+     //       constantTermLowE2(-1.0),
+     //       noiseTermLowE(-1.0),
+     //       threshHighE(-1.0),
+     //       constantTerm2(-1.0),
+     //       resHighE2(-1.0){};
 
-      TimeResConsts(float _corrTermLowE,
-                    float _threshLowE,
-                    float _noiseTerm,
-                    float _constantTermLowE2,
-                    float _noiseTermLowE,
-                    float _threshHighE,
-                    float _constantTerm2)
-          : corrTermLowE(_corrTermLowE),
-            threshLowE(_threshLowE),
-            noiseTerm(_noiseTerm),
-            constantTermLowE2(_constantTermLowE2),
-            noiseTermLowE(_noiseTermLowE),
-            threshHighE(_threshHighE),
-            constantTerm2(_constantTerm2),
-            resHighE2(std::pow((noiseTerm / threshHighE), 2) + constantTerm2){};
+     // TimeResConsts(float _corrTermLowE,
+     //               float _threshLowE,
+     //               float _noiseTerm,
+     //               float _constantTermLowE2,
+     //               float _noiseTermLowE,
+     //               float _threshHighE,
+     //               float _constantTerm2)
+     //     : corrTermLowE(_corrTermLowE),
+     //       threshLowE(_threshLowE),
+     //       noiseTerm(_noiseTerm),
+     //       constantTermLowE2(_constantTermLowE2),
+     //       noiseTermLowE(_noiseTermLowE),
+     //       threshHighE(_threshHighE),
+     //       constantTerm2(_constantTerm2),
+     //       //resHighE2(std::pow((noiseTerm / threshHighE), 2) + constantTerm2){};
+     //       resHighE2(_constantTerm2){};
     };
 
     struct PosCalcConfig {
@@ -110,46 +111,6 @@ namespace PFClustering {
             X0(_X0),
             minFractionInCalc(_minFractionInCalc),
             W0(_W0){};
-    };
-
-    struct nondynamic {
-        float showerSigma2;
-        float recHitEnergyNormInvEB_vec[4];
-        float recHitEnergyNormInvEE_vec[7];
-        float minFracToKeep;
-        float minFracTot;
-        float minFracInCalc;
-        float minAllowedNormalization;
-        uint32_t maxIterations;
-        float stoppingTolerance;
-        bool excludeOtherSeeds;
-        float seedEThresholdEB_vec[4];
-        float seedEThresholdEE_vec[7];
-        float seedPt2ThresholdEB;
-        float seedPt2ThresholdEE;
-        float topoEThresholdEB_vec[4];
-        float topoEThresholdEE_vec[7];
-        int nNeigh;
-
-        struct endcapTimeResConsts {
-          float corrTermLowE;
-          float threshLowE;
-          float noiseTerm;
-          float constantTermLowE2;
-          float noiseTermLowE;
-          float threshHighE;
-          float constantTerm2;
-          float resHighE2;
-        
-        struct barrelTimeResConsts {
-          float corrTermLowE;
-          float threshLowE;
-          float noiseTerm;
-          float constantTermLowE2;
-          float noiseTermLowE;
-          float threshHighE;
-          float constantTerm2;
-          float resHighE2;
     };
 
     struct CudaHCALConstants {

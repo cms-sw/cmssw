@@ -9,26 +9,6 @@
 #include "DeclsForKernels.h"
 
 namespace PFClusterCudaHCAL {
-    
-   // struct CudaHCALConstants {
-   //   float showerSigma2;
-   //   float recHitEnergyNormInvEB_vec[4];
-   //   float recHitEnergyNormInvEE_vec[7];
-   //   float minFracToKeep;
-   //   float minFracTot;
-   //   float minFracInCalc;
-   //   float minAllowedNormalization;
-   //   uint32_t maxIterations;
-   //   float stoppingTolerance;
-   //   bool excludeOtherSeeds;
-   //   float seedEThresholdEB_vec[4];
-   //   float seedEThresholdEE_vec[7];
-   //   float seedPt2ThresholdEB;
-   //   float seedPt2ThresholdEE;
-   //   float topoEThresholdEB_vec[4];
-   //   float topoEThresholdEE_vec[7];
-   //   int nNeigh;
-   // };
 
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
                                const cudaStream_t cudaStream = cudaStreamDefault);
