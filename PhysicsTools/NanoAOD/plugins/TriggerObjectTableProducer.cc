@@ -313,11 +313,14 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
       ->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
   selection.add<std::string>("qualityBitsDoc")->setComment("description of qualityBits");
   selection.ifExists(edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
-                     edm::ParameterDescription<double>("l1deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
+                     edm::ParameterDescription<double>(
+                         "l1deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
   selection.ifExists(edm::ParameterDescription<std::string>("l1seed_2", "selection on pat::TriggerObjectStandAlone"),
-                     edm::ParameterDescription<double>("l1deltaR_2", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
+                     edm::ParameterDescription<double>(
+                         "l1deltaR_2", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
   selection.ifExists(edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
-                     edm::ParameterDescription<double>("l2deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to 'L2' primitive"));
+                     edm::ParameterDescription<double>(
+                         "l2deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to 'L2' primitive"));
   desc.addVPSet("selections", selection);
 
   descriptions.addWithDefaultLabel(desc);
