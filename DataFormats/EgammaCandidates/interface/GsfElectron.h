@@ -560,7 +560,7 @@ namespace reco {
     float hcalTowerSumEt(const IsolationVariables &iv, int depth) const {
       if (iv.pre7DepthHcal) {
         if (depth == 0)
-          return iv.hcalDepth1TowerSumEt + iv.hcalDepth1TowerSumEt;
+          return iv.hcalDepth1TowerSumEt + iv.hcalDepth2TowerSumEt;
         else if (depth == 1)
           return iv.hcalDepth1TowerSumEt;
         else if (depth == 2)
@@ -577,7 +577,7 @@ namespace reco {
     float hcalTowerSumEtBc(const IsolationVariables &iv, int depth) const {
       if (iv.pre7DepthHcal) {
         if (depth == 0)
-          return iv.hcalDepth1TowerSumEtBc + iv.hcalDepth1TowerSumEtBc;
+          return iv.hcalDepth1TowerSumEtBc + iv.hcalDepth2TowerSumEtBc;
         else if (depth == 1)
           return iv.hcalDepth1TowerSumEtBc;
         else if (depth == 2)
