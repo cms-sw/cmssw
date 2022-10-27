@@ -175,8 +175,8 @@ def nanoAOD_recalibrateMETs(process,isData):
     makePuppiesFromMiniAOD(process,True)
     process.puppiNoLep.useExistingWeights = True
     process.puppi.useExistingWeights = True
-    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
-    run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
+    #run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
+    #run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
     print("will make Puppies on top of MINIAOD")
 
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
@@ -184,7 +184,7 @@ def nanoAOD_recalibrateMETs(process,isData):
             recoMetFromPFCs = cms.untracked.bool(False),
             reclusterJets = cms.untracked.bool(False),
             )
-    run2_nanoAOD_106Xv1.toModify(nanoAOD_PuppiV15_switch,recoMetFromPFCs=True,reclusterJets=True)
+    #run2_nanoAOD_106Xv1.toModify(nanoAOD_PuppiV15_switch,recoMetFromPFCs=True,reclusterJets=True)
     if nanoAOD_PuppiV15_switch.reclusterJets:
         from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
         from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask

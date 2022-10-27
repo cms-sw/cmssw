@@ -232,13 +232,6 @@ nanoAOD_addDeepInfoAK8_switch = cms.PSet(
     jecPayload = cms.untracked.string('AK8PFPuppi')
 )
 
-# for 106Xv1: only needs to run ParticleNet and DDXV2; DeepAK8, DeepDoubleX are already in MiniAOD
-run2_nanoAOD_106Xv1.toModify(
-    nanoAOD_addDeepInfoAK8_switch,
-    nanoAOD_addDeepDoubleXV2_switch = True,
-    nanoAOD_addParticleNet_switch = True,
-    nanoAOD_addParticleNetMass_switch = True,
-)
 # for 106Xv2: only needs to run ParticleNet Mass regression; The rest are already in MiniAOD
 run2_nanoAOD_106Xv2.toModify(
     nanoAOD_addDeepInfoAK8_switch,

@@ -139,23 +139,6 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-### Era dependent customization
-(run2_nanoAOD_106Xv1).toModify(
-    fatJetTable.variables.n2b1, expr = cms.string("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')")
-).toModify(
-    fatJetTable.variables.n3b1, expr = cms.string("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')")
-).toModify(
-    # Deprecated after 106X
-    fatJetTable.variables,
-    btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-    btagDDBvL_noMD = Var("bDiscriminator('pfDeepDoubleBvLJetTags:probHbb')",float,doc="DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->bb vs QCD",precision=10),
-    btagDDCvL_noMD = Var("bDiscriminator('pfDeepDoubleCvLJetTags:probHcc')",float,doc="DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->cc vs QCD",precision=10),
-    btagDDCvB_noMD = Var("bDiscriminator('pfDeepDoubleCvBJetTags:probHcc')",float,doc="DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->cc vs H(Z)->bb",precision=10),
-    btagDDBvL = Var("bDiscriminator('pfMassIndependentDeepDoubleBvLJetTags:probHbb')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->bb vs QCD",precision=10),
-    btagDDCvL = Var("bDiscriminator('pfMassIndependentDeepDoubleCvLJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs QCD",precision=10),
-    btagDDCvB = Var("bDiscriminator('pfMassIndependentDeepDoubleCvBJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb",precision=10),
-)
-
 ##############################################################
 ## DeepInfoAK8:Start
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
@@ -217,13 +200,6 @@ nanoAOD_addDeepInfoAK8_switch = cms.PSet(
     jecPayload = cms.untracked.string('AK8PFPuppi')
 )
 
-# for 106Xv1: only needs to run ParticleNet and DDXV2; DeepAK8, DeepDoubleX are already in MiniAOD
-run2_nanoAOD_106Xv1.toModify(
-    nanoAOD_addDeepInfoAK8_switch,
-    nanoAOD_addDeepDoubleXV2_switch = True,
-    nanoAOD_addParticleNet_switch = True,
-    nanoAOD_addParticleNetMass_switch = True,
-)
 # for 106Xv2: only needs to run ParticleNet Mass regression; The rest are already in MiniAOD
 run2_nanoAOD_106Xv2.toModify(
     nanoAOD_addDeepInfoAK8_switch,
@@ -251,13 +227,6 @@ subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         n2b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN3')", float, doc="N3 with beta=1", precision=10),
     )
-)
-
-# Deprecation/backcomp
-# post 106X
-(run2_nanoAOD_106Xv1).toModify(
-    subJetTable.variables,
-    btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
 )
 
 #jets are not as precise as muons

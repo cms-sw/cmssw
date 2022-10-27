@@ -386,7 +386,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 #for technical reasons
-(run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2).toModify(electronTable.variables,
+(run2_nanoAOD_106Xv2).toModify(electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
         eCorr = Var("userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, doc="ratio of the calibrated energy/miniaod energy"),

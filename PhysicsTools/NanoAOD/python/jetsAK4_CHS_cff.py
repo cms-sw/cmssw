@@ -152,14 +152,6 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
-# Deprecated after 106X
-(run2_nanoAOD_106Xv1).toModify(
-    jetTable.variables,
-    btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-    btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
-    btagDeepFlavC = Var("bDiscriminator('pfDeepFlavourJetTags:probc')",float,doc="DeepFlavour charm tag discriminator",precision=10),
-)
-
 (run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify(
     jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2016) training"
 ).toModify(
@@ -398,31 +390,6 @@ jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 
 #before cross linking
 jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,tightJetId,tightJetIdLepVeto,pileupJetIdNano)
-
-#
-# HF shower shape recomputation
-# Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...)
-#
-from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
-hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
-(run2_nanoAOD_106Xv1).toModify(
-    updatedJetsWithUserData.userFloats,
-    hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaEtaEta'),
-    hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaPhiPhi'),
-).toModify(
-    updatedJetsWithUserData.userInts,
-    hfcentralEtaStripSize = cms.InputTag('hfJetShowerShapeforNanoAOD:centralEtaStripSize'),
-    hfadjacentEtaStripsSize = cms.InputTag('hfJetShowerShapeforNanoAOD:adjacentEtaStripsSize'),
-).toModify(
-    jetTable.variables,
-    hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10),
-    hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10),
-    hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
-    hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)")
-).toModify(
-    jetUserDataTask, jetUserDataTask.add(hfJetShowerShapeforNanoAOD)
-)
-
 
 #before cross linking
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)

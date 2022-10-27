@@ -182,14 +182,6 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
-( run2_nanoAOD_106Xv1 ).toReplaceWith(
-    lowPtElectronTask,cms.Task()
-).toReplaceWith(
-    lowPtElectronTablesTask,cms.Task()
-).toReplaceWith(
-    lowPtElectronMCTask,cms.Task()
-)
-
 # To preserve "nano v9" functionality ...
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
