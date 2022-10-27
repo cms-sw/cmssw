@@ -49,17 +49,19 @@ process.esProducerA = cms.ESProducer("cms::alpakatest::TestESProducerA", value =
 process.esProducerB = cms.ESProducer("cms::alpakatest::TestESProducerB", value = cms.int32(314159))
 process.esProducerC = cms.ESProducer("cms::alpakatest::TestESProducerC", value = cms.int32(27))
 
-process.alpakaESProducerA = cms.ESProducer("TestAlpakaESProducerA@alpaka")
+from HeterogeneousCore.AlpakaTest.testAlpakaESProducerA_cfi import testAlpakaESProducerA 
+process.alpakaESProducerA = testAlpakaESProducerA.clone()
 process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka")
 process.alpakaESProducerC = cms.ESProducer("TestAlpakaESProducerC@alpaka")
 process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka")
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
-process.alpakaGlobalProducer = cms.EDProducer("TestAlpakaGlobalProducer@alpaka",
-    size = cms.PSet(
-        alpaka_serial_sync = cms.int32(10),
-        alpaka_cuda_async = cms.int32(20)
+from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
+process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
+    size = dict(
+        alpaka_serial_sync = 10,
+        alpaka_cuda_async = 20
     )
 )
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
