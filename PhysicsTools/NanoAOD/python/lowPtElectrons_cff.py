@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ################################################################################
 # Modules
@@ -56,17 +57,13 @@ finalLowPtElectrons = cms.EDFilter(
 )
 
 ################################################################################
-# electronTable 
+# electronTable
 ################################################################################
 
-lowPtElectronTable = cms.EDProducer(
-    "SimpleCandidateFlatTableProducer",
+lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","lowPtElectrons"),
-    cut = cms.string(""),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the electrons
     variables = cms.PSet(
         # Basic variables
         CandVars,

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
+from PhysicsTools.NanoAOD.simpleProtonTrackFlatTableProducer_cfi import simpleProtonTrackFlatTableProducer
 
 singleRPProtons = True
 
@@ -11,14 +12,11 @@ protonTable = cms.EDProducer("ProtonProducer",
                              storeSingleRPProtons = cms.bool(singleRPProtons)
 )
 
-multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
+multiRPTable = simpleProtonTrackFlatTableProducer.clone(
     src = cms.InputTag("ctppsProtons","multiRP"),
-    cut = cms.string(""),
     name = cms.string("Proton_multiRP"),
     doc  = cms.string("bon"),
-    singleton = cms.bool(False),
-    extension = cms.bool(False),
-    skipNonExistingSrc = cms.bool(True),
+    skipNonExistingSrc = cms.bool(True),#is this safe?
     variables = cms.PSet(
         xi = Var("xi",float,doc="xi or dp/p",precision=12),
         thetaX = Var("thetaX",float,doc="theta x",precision=13),
@@ -32,14 +30,11 @@ multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     ),
 )
 
-singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
+singleRPTable = simpleProtonTrackFlatTableProducer.clone(
     src = cms.InputTag("ctppsProtons","singleRP"),
-    cut = cms.string(""),
     name = cms.string("Proton_singleRP"),
     doc  = cms.string("bon"),
-    singleton = cms.bool(False),
-    extension = cms.bool(False),
-    skipNonExistingSrc = cms.bool(True),
+    skipNonExistingSrc = cms.bool(True),#is this safe?
     variables = cms.PSet(
         xi = Var("xi",float,doc="xi or dp/p",precision=12),
         thetaY = Var("thetaY",float,doc="th y",precision=10),

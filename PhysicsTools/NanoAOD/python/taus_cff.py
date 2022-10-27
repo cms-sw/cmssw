@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_124
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
 
@@ -41,15 +44,13 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
     doc = doc + ": "+", ".join(["%d = %s" % (i,c) for (i,c) in enumerate(choices, start=1)])
     return Var(var_definition, "uint8", doc=doc)
 
-tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+
+tauTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","taus"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name= cms.string("Tau"),
-    doc = cms.string("slimmedTaus after basic selection (" + finalTaus.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the taus
-    variables = cms.PSet() # PSet defined below in era dependent way
+    doc = cms.string("slimmedTaus after basic selection (" + finalTaus.cut.value()+")")
 )
+
 _tauVarsBase = cms.PSet(P4Vars,
        charge = Var("charge", int, doc="electric charge"),
        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
@@ -144,13 +145,11 @@ genVisTaus = cms.EDProducer("GenVisTauProducer",
     srcGenParticles = cms.InputTag("finalGenParticles")
 )
 
-genVisTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genVisTauTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("genVisTaus"),
     cut = cms.string("pt > 10."),
     name = cms.string("GenVisTau"),
     doc = cms.string("gen hadronic taus "),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for generator level hadronic tau decays
     variables = cms.PSet(
          pt = Var("pt", float,precision=8),
          phi = Var("phi", float,precision=8),

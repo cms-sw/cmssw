@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -63,13 +64,10 @@ finalJetsPuppi = cms.EDFilter("PATJetRefSelector",
 )
 
 ##################### Tables for final output and docs ##########################
-jetPuppiTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+jetPuppiTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Jet"),
     doc  = cms.string("slimmedJetsPuppi, i.e. ak4 PFJets Puppi with JECs applied, after basic selection (" + finalJetsPuppi.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(),
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
@@ -124,13 +122,11 @@ basicJetsPuppiForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
 
 updatedJetsPuppiWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsPuppiForMetForT1METNano:MuonSubtrRawPt")
 
-corrT1METJetPuppiTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+corrT1METJetPuppiTable = simpleCandidateFlatTableProducer.clone(
     src = finalJetsPuppi.src,
     cut = cms.string("pt<15 && abs(eta)<9.9"),
     name = cms.string("CorrT1METJet"),
     doc  = cms.string("Additional low-pt ak4 Puppi jets for Type-1 MET re-correction"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(
         rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
         eta  = Var("eta",  float,precision=12),

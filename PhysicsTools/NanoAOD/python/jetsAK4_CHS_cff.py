@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -100,13 +101,10 @@ finalJets = cms.EDFilter("PATJetRefSelector",
 ##################### Tables for final output and docs ##########################
 
 
-jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+jetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Jet"),
     doc  = cms.string("slimmedJets, i.e. ak4 PFJets CHS with JECs applied, after basic selection (" + finalJets.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
         bRegCorr = ExtVar(cms.InputTag("bjetNN:corr"),float, doc="pt correction for b-jet energy regression",precision=10),
         bRegRes = ExtVar(cms.InputTag("bjetNN:res"),float, doc="res on pt corrected with b-jet regression",precision=6),
@@ -368,13 +366,11 @@ basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
 
 updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
 
-corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+corrT1METJetTable = simpleCandidateFlatTableProducer.clone(
     src = finalJets.src,
     cut = cms.string("pt<15 && abs(eta)<9.9"),
     name = cms.string("CorrT1METJet"),
     doc  = cms.string("Additional low-pt ak4 CHS jets for Type-1 MET re-correction"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(
         rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
         eta  = Var("eta",  float,precision=12),
