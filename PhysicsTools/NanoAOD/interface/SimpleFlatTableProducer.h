@@ -251,8 +251,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
 
-    desc.ifValue(edm::ParameterDescription<bool>("singleton", false, true, edm::Comment("whether or not the input collection is single-element")),
-                 false >> edm::ParameterDescription<std::string>("cut", "", true, edm::Comment("selection on the main input collection")) or
+    desc.ifValue(edm::ParameterDescription<bool>(
+                     "singleton", false, true, edm::Comment("whether or not the input collection is single-element")),
+                 false >> edm::ParameterDescription<std::string>(
+                              "cut", "", true, edm::Comment("selection on the main input collection")) or
                      true >> edm::EmptyGroupDescription());
     desc.addOptional<unsigned int>("maxLen")->setComment(
         "define the maximum length of the input collection to put in the branch");
