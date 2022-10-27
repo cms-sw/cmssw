@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable as _fatJetTable
 from PhysicsTools.NanoAOD.jetsAK8_cff import subJetTable as _subJetTable
 
-jetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+jetMCTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Jet"),
-    singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(True), # this is an extension  table for the jets
     variables = cms.PSet(
         partonFlavour = Var("partonFlavour()", int, doc="flavour from parton matching"),
@@ -16,13 +15,11 @@ jetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         genJetIdx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", int, doc="index of matched gen jet"),
     )
 )
-genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJets"),
     cut = cms.string("pt > 10"),
     name = cms.string("GenJet"),
     doc  = cms.string("slimmedGenJets, i.e. ak4 Jets made with visible genparticles"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the genjets
     variables = cms.PSet(P4Vars,
 	#anything else?
     )
@@ -55,13 +52,11 @@ genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
 )
 
-genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genJetAK8Table = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8"),
     cut = cms.string("pt > 100."),
     name = cms.string("GenJetAK8"),
     doc  = cms.string("slimmedGenJetsAK8, i.e. ak8 Jets made with visible genparticles"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the genjets
     variables = cms.PSet(P4Vars,
 	#anything else?
     )
@@ -86,11 +81,10 @@ genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     deltaR = cms.double(0.1),
     jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
 )
-fatJetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+fatJetMCTable = simpleCandidateFlatTableProducer.clone(
     src = _fatJetTable.src,
     cut = _fatJetTable.cut,
     name = _fatJetTable.name,
-    singleton = cms.bool(False),
     extension = cms.bool(True),
     variables = cms.PSet(
         nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
@@ -100,22 +94,18 @@ fatJetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genSubJetAK8Table = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
-    cut = cms.string(""),  ## These don't get a pt cut, but in miniAOD only subjets from fat jets with pt > 100 are kept
     name = cms.string("SubGenJetAK8"),
     doc  = cms.string("slimmedGenJetsAK8SoftDropSubJets, i.e. subjets of ak8 Jets made with visible genparticles"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the genjets
     variables = cms.PSet(P4Vars,
 	#anything else?
     )
 )
-subjetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+subjetMCTable = simpleCandidateFlatTableProducer.clone(
     src = _subJetTable.src,
     cut = _subJetTable.cut,
     name = _subJetTable.name,
-    singleton = cms.bool(False),
     extension = cms.bool(True),
     variables = cms.PSet(
         nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),

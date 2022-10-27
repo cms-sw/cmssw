@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
@@ -74,13 +75,11 @@ lepInAK8JetVars = cms.EDProducer("LepInJetProducer",
     srcMu = cms.InputTag("finalMuons")
 )
 
-fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+fatJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("finalJetsAK8"),
     cut = cms.string(" pt > 170"), #probably already applied in miniaod
     name = cms.string("FatJet"),
     doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
         jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
@@ -209,13 +208,10 @@ run2_nanoAOD_106Xv2.toModify(
 ## DeepInfoAK8:End
 #################################################
 
-subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+subJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
-    cut = cms.string(""), #probably already applied in miniaod
     name = cms.string("SubJet"),
     doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),

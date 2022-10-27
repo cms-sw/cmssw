@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ##################### Import reusable funtions and objects from std taus ########
 from PhysicsTools.NanoAOD.taus_cff import _tauIdWPMask, tausMCMatchLepTauForTable, tausMCMatchHadTauForTable,tauMCTable
@@ -17,13 +18,10 @@ run2_nanoAOD_106Xv2.toModify(
     cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))"
 )
 
-boostedTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+boostedTauTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("finalBoostedTaus"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name= cms.string("boostedTau"),
     doc = cms.string("slimmedBoostedTaus after basic selection (" + finalBoostedTaus.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the taus
     variables = cms.PSet() # PSet defined below in era dependent way
 )
 _boostedTauVarsBase = cms.PSet(P4Vars,

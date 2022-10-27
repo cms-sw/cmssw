@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 
 ##################### User floats producers, selectors ##########################
@@ -23,20 +23,16 @@ finalGenParticles = cms.EDProducer("GenParticlePruner",
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 37 ",   # keep VIP(articles)s
         #"keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
         "keep (1000001 <= abs(pdgId) <= 1000039 ) || ( 2000001 <= abs(pdgId) <= 2000015)", #keep SUSY fiction particles
- 		
    )
 )
 
 
 
 ##################### Tables for final output and docs ##########################
-genParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genParticleTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("finalGenParticles"),
-    cut = cms.string(""), #we should not filter after pruning
     name= cms.string("GenPart"),
     doc = cms.string("interesting gen particles "),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the taus
     variables = cms.PSet(
          pt  = Var("pt",  float, precision=8),
          phi = Var("phi", float,precision=8),

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
     tracks = cms.InputTag("isolatedTracks"),
@@ -22,13 +23,10 @@ isFromLostTrackForIsoTk = cms.EDProducer("IsFromLostTrackMapProducer",
     lostTracks = cms.InputTag("lostTracks"),
 )
 
-isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+isoTrackTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("finalIsolatedTracks"),
-    cut = cms.string(""), # filtered already above
     name = cms.string("IsoTrack"),
     doc  = cms.string("isolated tracks after basic selection (" + finalIsolatedTracks.cut.value() + ") and lepton veto"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(P3Vars,
         dz = Var("dz",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dxy = Var("dxy",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-
+from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariablesTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -28,10 +28,10 @@ categorizeGenTtbar = categorizeGenTtbar.clone(
 
 
 ##################### Tables for final output and docs ##########################
-ttbarCategoryTable = cms.EDProducer("GlobalVariablesTableProducer",
-                                    variables = cms.PSet(
-                                        genTtbarId = ExtVar( cms.InputTag("categorizeGenTtbar:genTtbarId"), "int", doc = "ttbar categorization")
-                                    )
+ttbarCategoryTable = globalVariablesTableProducer.clone(
+    variables = cms.PSet(
+        genTtbarId = ExtVar( cms.InputTag("categorizeGenTtbar:genTtbarId"), "int", doc = "ttbar categorization")
+    )
 )
 
 ttbarCategoryTableTask = cms.Task(ttbarCategoryTable)

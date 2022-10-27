@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
@@ -212,13 +213,10 @@ run2_egamma_2016.toModify(
 )
 ################################################electronMVATTH end#####################
 ################################################electronTable defn #####################
-electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+electronTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","electrons"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name= cms.string("Electron"),
     doc = cms.string("slimmedElectrons after basic selection (" + finalElectrons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the electrons
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the associated photon (-1 if none)"),

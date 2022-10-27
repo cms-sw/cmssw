@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
 # this below is used only in some eras
@@ -85,13 +87,10 @@ run2_muon_2016.toModify(
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
-muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+muonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","muons"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Muon"),
     doc  = cms.string("slimmedMuons after basic selection (" + finalMuons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(CandVars,
         ptErr   = Var("bestTrack().ptError()", float, doc = "ptError of the muon track", precision=6),
         tunepRelPt = Var("tunePMuonBestTrack().pt/pt",float,doc="TuneP relative pt, tunePpt/pt",precision=6),

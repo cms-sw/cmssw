@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 
@@ -479,13 +480,11 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
     jetTableDocDefault += "For jets with pt < {ptcut:.0f} GeV, only those matched to gen jets are stored.".format(ptcut=ptcut)
 
   jetTableName = "jet{}Table".format(jetName)
-  setattr(proc,jetTableName, cms.EDProducer("SimpleCandidateFlatTableProducer",
+  setattr(proc,jetTableName, simpleCandidateFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
       cut = cms.string(jetTableCutDefault),
       name = cms.string(jetTablePrefix),
       doc  = cms.string(jetTableDocDefault),
-      singleton = cms.bool(False), # the number of entries is variable
-      extension = cms.bool(False), # this is the main table for the jets
       variables = cms.PSet(tableContent)
     )
   )
@@ -496,11 +495,10 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   # Save MC-only jet variables in table
   #
   jetMCTableName = "jet{}MCTable".format(jetName)
-  setattr(proc, jetMCTableName, cms.EDProducer("SimpleCandidateFlatTableProducer",
+  setattr(proc, jetMCTableName, simpleCandidateFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
       cut = getattr(proc,jetTableName).cut,
       name = cms.string(jetTablePrefix),
-      singleton = cms.bool(False),
       extension = cms.bool(True), # this is an extension table
       variables = cms.PSet(
         partonFlavour = Var("partonFlavour()", int, doc="flavour from parton matching"),

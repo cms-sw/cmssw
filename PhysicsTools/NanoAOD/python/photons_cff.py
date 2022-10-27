@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from math import ceil,log
 
 
@@ -137,13 +137,10 @@ finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     cut = cms.string("pt > 5 ")
 )
 
-photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+photonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","photons"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name= cms.string("Photon"),
     doc = cms.string("slimmedPhotons after basic selection (" + finalPhotons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the photons
     variables = cms.PSet(P3Vars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", int, doc="index of the associated electron (-1 if none)"),

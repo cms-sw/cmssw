@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.triggerObjectTableProducer_cfi import triggerObjectTableProducer
+from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariablesTableProducer
 import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
@@ -278,7 +279,7 @@ run2_muon_2018.toModify(
     DataEraMuon = cms.string("20172018")
 )
 
-l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
+l1PreFiringEventWeightTable = globalVariablesTableProducer.clone(
     name = cms.string("L1PreFiringWeight"),
     variables = cms.PSet(
         Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "float", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
