@@ -76,13 +76,15 @@ protected:
   class Variable {
   public:
     Variable(const std::string& aname, const edm::ParameterSet& cfg)
-        : name_(aname), doc_(cfg.getParameter<std::string>("doc")) {}
+      : name_(aname), doc_(cfg.getParameter<std::string>("doc")), precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision") : -1 ) {}
     virtual void fill(const edm::Event& iEvent, nanoaod::FlatTable& out) const = 0;
     virtual ~Variable() {}
-    const std::string& name() const { return name_; }
+    const std::string& name() const {
+      return name_; }
 
   protected:
     std::string name_, doc_;
+    int precision_;
   };
   template <typename ValType>
   class Identity {
@@ -160,7 +162,8 @@ protected:
         : Variable(aname, cfg), src_(cc.consumes<ValType>(cfg.getParameter<edm::InputTag>("src"))) {}
     ~VariableT() override {}
     void fill(const edm::Event& iEvent, nanoaod::FlatTable& out) const override {
-      out.template addColumnValue<ColType>(this->name_, Converter::convert(iEvent.get(src_)), this->doc_);
+      out.template addColumnValue<ColType>(
+          this->name_, Converter::convert(iEvent.get(src_)), this->doc_, this->precision_);
     }
 
   protected:
