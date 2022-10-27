@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -7,16 +7,13 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-struct TestEgammaTowerIsolation : public edm::EDAnalyzer {
+struct TestEgammaTowerIsolation : public edm::one::EDAnalyzer<> {
   explicit TestEgammaTowerIsolation(const edm::ParameterSet&) {}
-  ~TestEgammaTowerIsolation() {}
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string towerLabel = "towerMaker";
 };
