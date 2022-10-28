@@ -180,6 +180,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   auto svsTable = std::make_unique<nanoaod::FlatTable>(selCandSv->size(), svName_, false);
+  svsTable->setDoc(svDoc_);
   // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer
   svsTable->addColumn<float>("dlen", dlen, "decay length in cm", 10);
   svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", 10);
@@ -216,7 +217,7 @@ void VertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
   desc.add<std::string>("svName")->setComment("name of the flat table ouput");
-  desc.add<std::string>("svDoc")->setComment("a few words of documentation [NOT USED IN THE CODE]");
+  desc.add<std::string>("svDoc")->setComment("a few words of documentation");
 
   descriptions.addWithDefaultLabel(desc);
 }
