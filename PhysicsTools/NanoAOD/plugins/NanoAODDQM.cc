@@ -240,10 +240,6 @@ void NanoAODDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) 
           "hist1d" >> (name and title and nbins and min and max and column) or
           "prof1d" >> (name and title and nbins and min and max and xcolumn and ycolumn));
 
-  //edm::ParameterSetDescription plots;
-  //plots.setComment("a parameter set to define all the plots to be made from the table row");
-  //plots.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, plot));
-
   edm::ParameterSetDescription vplot;
   vplot.setComment(
       "a parameter set to define all the plots to be made from a table row selected from the name of the PSet");
