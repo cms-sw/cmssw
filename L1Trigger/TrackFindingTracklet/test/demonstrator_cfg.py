@@ -24,8 +24,8 @@ process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 #--- Load code that compares s/w with f/w
 process.load( 'L1Trigger.TrackFindingTracklet.Demonstrator_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
-#reducedConfig( process )
-fwConfig( process )
+reducedConfig( process )
+#fwConfig( process )
 
 # build schedule
 process.tt = cms.Sequence (  process.TrackerDTCProducer
@@ -67,7 +67,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 993 ),
+  skipEvents = cms.untracked.uint32( 1 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

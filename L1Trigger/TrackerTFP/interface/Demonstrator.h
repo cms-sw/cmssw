@@ -39,7 +39,7 @@ namespace trackerTFP {
     // creates frame number
     std::string frame(int& nFrame) const;
     // converts bv into hex
-    std::string hex(const tt::Frame& bv) const;
+    std::string hex(const tt::Frame& bv, bool first = false) const;
 
     // path to ipbb proj area
     std::string dirIPBB_;

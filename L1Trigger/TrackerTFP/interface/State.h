@@ -82,8 +82,8 @@ namespace trackerTFP {
     double v1() const { return pow(stub_->dZ(), 2); }
     // output frame
     tt::FrameTrack frame() const { return TrackKF(*track_, x1_, x0_, x3_, x2_).frame(); }
-    // collection of stubs added so far to state
-    std::vector<StubKF> stubs() const;
+    // fill collection of stubs added so far to state
+    void fill(std::vector<StubKF>& stubs) const;
 
   private:
     // provides data fomats
