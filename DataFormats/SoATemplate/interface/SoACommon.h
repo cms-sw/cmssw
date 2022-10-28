@@ -612,7 +612,7 @@ namespace cms::soa {
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE const T* operator()() const { return params_.addr_; }
     using NoParamReturnType = const T*;
-    SOA_HOST_DEVICE SOA_INLINE T operator()(size_type index) const { return params_.addr_[index]; }
+    SOA_HOST_DEVICE SOA_INLINE T const& operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
     SoAConstParametersImpl<SoAColumnType::column, T> params_;
@@ -638,8 +638,8 @@ namespace cms::soa {
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE T operator()() const { return *params_.addr_; }
-    using NoParamReturnType = T;
+    SOA_HOST_DEVICE SOA_INLINE T const& operator()() const { return *params_.addr_; }
+    using NoParamReturnType = T const&;
     SOA_HOST_DEVICE SOA_INLINE void operator()(size_type index) const {
       assert(false && "Indexed access impossible for SoA scalars.");
     }
@@ -667,8 +667,8 @@ namespace cms::soa {
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params)
         : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE const typename T::Scalar* operator()() const { return params_.addr_; }
-    using NoParamReturnType = typename T::Scalar*;
+    SOA_HOST_DEVICE SOA_INLINE typename T::Scalar const* operator()() const { return params_.addr_; }
+    using NoParamReturnType = typename T::Scalar const*;
     //SOA_HOST_DEVICE SOA_INLINE T operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
