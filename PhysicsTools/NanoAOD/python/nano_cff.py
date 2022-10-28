@@ -190,11 +190,6 @@ def nanoAOD_customizeCommon(process):
     nanoAOD_tau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
-    #(run2_nanoAOD_106Xv1).toModify(
-    #    nanoAOD_tau_switch, idsToAdd = ["deepTau2017v2p1"]
-    #).toModify(
-    #    process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
-    #)
     (run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(
         nanoAOD_tau_switch, idsToAdd = ["deepTau2018v2p5"]
     ).toModify(

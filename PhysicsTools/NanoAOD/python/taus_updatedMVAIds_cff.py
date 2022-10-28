@@ -6,8 +6,6 @@ from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 
-#from PhysicsTools.NanoAOD.nano_eras_cff import *
-
 ### MVAIso 2017v2
 ## DBoldDM
 # Raw
