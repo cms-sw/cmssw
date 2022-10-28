@@ -120,6 +120,8 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     for (const auto &sel : sels_) {
       if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
         selected.emplace_back(&obj, &sel);
+        // cave canem: the object will be taken by whichever selection it matches first, so it
+        // depends on the order of the selections in the VPSet
         break;
       }
     }
@@ -250,6 +252,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
         const auto &seed = l1obj.first;
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l1cut(seed)) {
+          best = dr2;
           l1pt[i] = seed.pt();
           l1iso[i] = l1obj.second;
           l1charge[i] = seed.charge();
@@ -262,6 +265,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
         const auto &seed = l1obj.first;
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l1cut_2(seed)) {
+          best = dr2;
           l1pt_2[i] = seed.pt();
         }
       }
@@ -271,6 +275,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
       for (const auto &seed : trigObjs) {
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l2cut(seed)) {
+          best = dr2;
           l2pt[i] = seed.pt();
         }
       }
