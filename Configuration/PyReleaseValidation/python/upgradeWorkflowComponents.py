@@ -335,6 +335,8 @@ upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
 class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        # skip ALCA step as products might not be available
+        elif 'ALCA' in step: stepDict[stepName][k] = None
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return ('2017' in key or '2018' in key or '2021' in key or '2026' in key) and ('FS' not in key)
@@ -348,6 +350,8 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
         'HARVESTNano',
         'RecoFakeHLT',
         'HARVESTFakeHLT',
+        'ALCA',
+        'ALCAPhase2'
     ],
     suffix = '_pixelTrackingOnly',
     offset = 0.5,
@@ -1295,6 +1299,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'HARVESTNano',
         'MiniAOD',
         'ALCA',
+        'ALCAPhase2',
         'Nano',
     ],
     PU = [
@@ -1309,6 +1314,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'HARVESTNano',
         'MiniAOD',
         'ALCA',
+        'ALCAPhase2',
         'Nano',
     ],
     suffix = '_ProdLike',
