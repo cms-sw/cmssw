@@ -338,23 +338,21 @@ CondDBESSource::~CondDBESSource() {
       proxy_info["tag"] = proxy.tag();
       const auto& pids = *proxy.requests();
       for (const auto& id : pids) {
-        std::ostringstream ss;
-        ss << id.since << " - " << id.till;
-        proxy_info[id.payloadId] = ss.str();
+        proxy_info[id.payloadId] = std::to_string(id.since) + " - " + std::to_string(id.till);
       }
       reportSvc->reportAnalysisFile(recName, proxy_info);
       reportSvc->reportPerformanceSummary(recName, proxy_info);
     }
 
     std::map<std::string, std::string> db_info;
-    db_info["DataProxy"] = m_stats.nData;
-    db_info["SetInterval"] = m_stats.nSet;
-    db_info["Runs"] = m_stats.nRun;
-    db_info["Lumis"] = m_stats.nLumi;
-    db_info["Refresh"] = m_stats.nRefresh;
-    db_info["ActualRefresh"] = m_stats.nActualRefresh;
-    db_info["Reconnect"] = m_stats.nReconnect;
-    db_info["ActualReconnect"] = m_stats.nActualReconnect;
+    db_info["DataProxy"] = std::to_string(m_stats.nData);
+    db_info["SetInterval"] = std::to_string(m_stats.nSet);
+    db_info["Runs"] = std::to_string(m_stats.nRun);
+    db_info["Lumis"] = std::to_string(m_stats.nLumi);
+    db_info["Refresh"] = std::to_string(m_stats.nRefresh);
+    db_info["ActualRefresh"] = std::to_string(m_stats.nActualRefresh);
+    db_info["Reconnect"] = std::to_string(m_stats.nReconnect);
+    db_info["ActualReconnect"] = std::to_string(m_stats.nActualReconnect);
     reportSvc->reportPerformanceSummary("CondDBESSourceStats", db_info);
   }
 
