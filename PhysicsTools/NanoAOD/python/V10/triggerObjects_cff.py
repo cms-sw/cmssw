@@ -141,42 +141,52 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             l2seed = cms.string("type(85) || type(86) || type(-99)"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
-                "1         * filter('*CrossCleaned*LooseChargedIsoPFTau*') + " \
-                "2         * filter('hltBTagCaloCSVp087Triple') + " \
-                "4         * filter('hltDoubleCentralJet90') + " \
-                "8         * filter('hltDoublePFCentralJetLooseID90') + " \
-                "16        * filter('hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet') + " \
+                "1         * filter('hlt4PixelOnlyPFCentralJetTightIDPt20') + " \
+                "2         * filter('hlt3PixelOnlyPFCentralJetTightIDPt30') + " \
+                "4         * filter('hltPFJetFilterTwoC30') + " \
+                "8         * filter('hlt4PFCentralJetTightIDPt30') + " \
+                "16        * filter('hlt4PFCentralJetTightIDPt35') + " \
                 "32        * filter('hltQuadCentralJet30') + " \
-                "64        * filter('hltQuadPFCentralJetLooseID30') + " \
-                "128       * max(filter('hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF'), filter('hltL1sQuadJetCIorTripleJetVBFIorHTT')) + " \
-                "256       * filter('hltQuadCentralJet45') + " \
-                "512       * filter('hltQuadPFCentralJetLooseID45') + " \
-                "1024      * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet')) + " \
-                "2048      * max(filter('hltBTagCaloCSVp05Double'), filter('hltBTagCaloDeepCSVp17Double')) + " \
+                "64        * filter('hlt2PixelOnlyPFCentralJetTightIDPt40') + " \
+                "128       * max(filter('hltL1sTripleJet1008572VBFIorHTTIorDoubleJetCIorSingleJet'), max(filter('hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet'), filter('hltL1sTripleJetVBFIorHTTIorSingleJet') ) ) + " \
+                "256       * filter('hlt3PFCentralJetTightIDPt40') + " \
+                "512       * filter('hlt3PFCentralJetTightIDPt45') + " \
+                "1024      * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet') ) + " \
+                "2048      * filter('hltBTagCaloDeepCSVp17Double') + " \
                 "4096      * filter('hltPFCentralJetLooseIDQuad30') + " \
                 "8192      * filter('hlt1PFCentralJetLooseID75') + " \
                 "16384     * filter('hlt2PFCentralJetLooseID60') + " \
                 "32768     * filter('hlt3PFCentralJetLooseID45') + " \
                 "65536     * filter('hlt4PFCentralJetLooseID40') + " \
-                "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )+ " \
+                "131072    * filter('hltBTagPFDeepCSV4p5Triple') + " \
                 "262144    * filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*') + " \
                 "524288    * filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*') + " \
                 "1048576   * filter('*CrossCleanedUsingDiJetCorrChecker*') + " \
-                "2097152   * filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')"
-                ), 
+                "2097152   * filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*') + " \
+                "4194304   * filter('hlt2PFCentralJetTightIDPt50') + " \
+                "8388608   * filter('hlt1PixelOnlyPFCentralJetTightIDPt60') + " \
+                "16777216  * filter('hlt1PFCentralJetTightIDPt70') + " \
+                "33554432  * filter('hltBTagPFDeepJet1p5Single') + " \
+                "67108864  * filter('hltBTagPFDeepJet4p5Triple') + " \
+                "134217728 * max(filter('hltBTagCentralJetPt35PFParticleNet2BTagSum0p65'), max(filter('hltBTagCentralJetPt30PFParticleNet2BTagSum0p65'), filter('hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65') ) ) + " \
+                "268435456 * filter('hltBTagPFDeepCSV1p5Single')"
+            ), 
             qualityBitsDoc = cms.string(
-                "Jet bits: bit 0 for VBF cross-cleaned from loose iso PFTau, bit 1 for hltBTagCaloCSVp087Triple, bit 2 for hltDoubleCentralJet90, bit 3 for hltDoublePFCentralJetLooseID90," \
-                " bit 4 for hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet, bit 5 for hltQuadCentralJet30, bit 6 for hltQuadPFCentralJetLooseID30," \
-                " bit 7 for hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT," \
-                " bit 8 for hltQuadCentralJet45, bit 9 for hltQuadPFCentralJetLooseID45," \
-                " bit 10  for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet" \
-                " bit 11 for hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double, bit 12 for hltPFCentralJetLooseIDQuad30, bit 13 for hlt1PFCentralJetLooseID75," \
+                "Jet bits: bit 0 for hlt4PixelOnlyPFCentralJetTightIDPt20, bit 1 for hlt3PixelOnlyPFCentralJetTightIDPt30, bit 2 for hltPFJetFilterTwoC30, bit 3 for hlt4PFCentralJetTightIDPt30," \
+                " bit 4 for hlt4PFCentralJetTightIDPt35, bit 5 for hltQuadCentralJet30, bit 6 for hlt2PixelOnlyPFCentralJetTightIDPt40," \
+                " bit 7 for hltL1sTripleJet1008572VBFIorHTTIorDoubleJetCIorSingleJet' or hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet' or 'hltL1sTripleJetVBFIorHTTIorSingleJet," \
+                " bit 8 for hlt3PFCentralJetTightIDPt40, bit 9 for hlt3PFCentralJetTightIDPt45," \
+                " bit 10 for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet' or 'hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet," \
+                " bit 11 for hltBTagCaloDeepCSVp17Double, bit 12 for hltPFCentralJetLooseIDQuad30, bit 13 for hlt1PFCentralJetLooseID75," \
                 " bit 14 for hlt2PFCentralJetLooseID60, bit 15 for hlt3PFCentralJetLooseID45, bit 16 for hlt4PFCentralJetLooseID40," \
-                " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple,"\
-                " bit 18 for Double tau + jet,"\
-                " bit 19 for VBF cross-cleaned from medium deeptau PFTau,"\
-                " bit 20 for VBF cross-cleaned using dijet correlation checker,"\
-                " bit 21 for monitoring muon + tau + jet")
+                " bit 17 for hltBTagPFDeepCSV4p5Triple, bit 18 for (Double tau + jet) hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*," \
+                " bit 19 for (VBF cross-cleaned from medium deeptau PFTau) *CrossCleaned*MediumDeepTauDitauWPPFTau*," \
+                " bit 20 for (VBF cross-cleaned using dijet correlation checker) *CrossCleanedUsingDiJetCorrChecker*," \
+                " bit 21 for (monitoring muon + tau + jet)  hltHpsOverlapFilterDeepTauPFTau*PFJet*," \
+                " bit 22 for hlt2PFCentralJetTightIDPt50, bit 23 for hlt1PixelOnlyPFCentralJetTightIDPt60, bit 24 for hlt1PFCentralJetTightIDPt70," \
+                " bit 25 for hltBTagPFDeepJet1p5Single, bit 26 for hltBTagPFDeepJet4p5Triple," \
+                " bit 27 for hltBTagCentralJetPt35PFParticleNet2BTagSum0p65 or hltBTagCentralJetPt30PFParticleNet2BTagSum0p65 or hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65," \
+                " bit 28 for hltBTagPFDeepCSV1p5Single")
         ),
         cms.PSet(
             name = cms.string("FatJet"),
