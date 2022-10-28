@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HLTEvF.lumiMonitor_cfi import lumiMonitor as _lumiMonitor
 
 hltLumiMonitor = _lumiMonitor.clone(
-    folderName = 'HLT/LumiMonitoring',
+    FolderName = 'HLT/LumiMonitoring',
     scalers = 'scalersRawToDigi',
     onlineMetaDataDigis = 'onlineMetaDataDigis',
     doPixelLumi = False,
