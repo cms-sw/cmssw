@@ -88,6 +88,25 @@ public:
                  reinterpret_cast<intptr_t>(view.metadata().addressOf_r());
     }
 
+    assert(view.metadata().addressOf_x() == view.x());
+    assert(view.metadata().addressOf_x() == &view.x(0));
+    assert(view.metadata().addressOf_x() == &view[0].x());
+    assert(view.metadata().addressOf_y() == view.y());
+    assert(view.metadata().addressOf_y() == &view.y(0));
+    assert(view.metadata().addressOf_y() == &view[0].y());
+    assert(view.metadata().addressOf_z() == view.z());
+    assert(view.metadata().addressOf_z() == &view.z(0));
+    assert(view.metadata().addressOf_z() == &view[0].z());
+    assert(view.metadata().addressOf_id() == view.id());
+    assert(view.metadata().addressOf_id() == &view.id(0));
+    assert(view.metadata().addressOf_id() == &view[0].id());
+    assert(view.metadata().addressOf_m() == view.m());
+    //assert(view.metadata().addressOf_m() == &view.m(0).coeffRef(0,0));    // view.m(0) does not seem to be supported for Eigen columns ?
+    assert(view.metadata().addressOf_m() == &view[0].m().coeffRef(0, 0));
+    assert(view.metadata().addressOf_r() == &view.r());
+    //assert(view.metadata().addressOf_r() == &view.r(0));                  // cannot access a scalar with an index
+    //assert(view.metadata().addressOf_r() == &view[0].r());                // cannot access a scalar via a SoA row-like accessor
+
     const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
     assert(view.r() == 1.);
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
