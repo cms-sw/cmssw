@@ -49,8 +49,7 @@ NanoAODBaseCrossCleaner::NanoAODBaseCrossCleaner(const edm::ParameterSet& params
   produces<nanoaod::FlatTable>("jets");
   produces<nanoaod::FlatTable>("muons");
   produces<nanoaod::FlatTable>("electrons");
-  if (!lowPtElectronsTag_.label().empty())
-    produces<nanoaod::FlatTable>("lowPtElectrons");
+  produces<nanoaod::FlatTable>("lowPtElectrons");
   produces<nanoaod::FlatTable>("taus");
   produces<nanoaod::FlatTable>("photons");
 }
@@ -92,14 +91,13 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   }
   auto electronsTable = std::make_unique<nanoaod::FlatTable>(electronsProd.size(), electronName_, false, true);
 
+  const auto& lowPtelectronsProd = iEvent.get(lowPtElectrons_);
   std::vector<uint8_t> lowPtEles;
-  if (!lowPtElectronsTag_.label().empty()) {
-    const auto& lowPtelectronsProd = iEvent.get(lowPtElectrons_);
-    lowPtEles.reserve(lowPtelectronsProd.size());
-    for (const auto& e : lowPtelectronsProd) {
-      lowPtEles.push_back(lowPtElectronSel_(e));
-    }
+  lowPtEles.reserve(lowPtelectronsProd.size());
+  for (const auto& e : lowPtelectronsProd) {
+    lowPtEles.push_back(lowPtElectronSel_(e));
   }
+  auto lowPtElectronsTable = std::make_unique<nanoaod::FlatTable>(lowPtEles.size(), lowPtElectronName_, false, true);
 
   const auto& tausProd = iEvent.get(taus_);
   std::vector<uint8_t> taus;
@@ -120,6 +118,7 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   muonsTable->addColumn<uint8_t>(name_, muons, doc_);
   jetsTable->addColumn<uint8_t>(name_, jets, doc_);
   electronsTable->addColumn<uint8_t>(name_, eles, doc_);
+  lowPtElectronsTable->addColumn<uint8_t>(name_, lowPtEles, doc_);
   tausTable->addColumn<uint8_t>(name_, taus, doc_);
   photonsTable->addColumn<uint8_t>(name_, photons, doc_);
 
@@ -128,12 +127,7 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(electronsTable), "electrons");
   iEvent.put(std::move(tausTable), "taus");
   iEvent.put(std::move(photonsTable), "photons");
-
-  if (!lowPtElectronsTag_.label().empty()) {
-    auto lowPtElectronsTable = std::make_unique<nanoaod::FlatTable>(lowPtEles.size(), lowPtElectronName_, false, true);
-    lowPtElectronsTable->addColumn<uint8_t>(name_, lowPtEles, doc_);
-    iEvent.put(std::move(lowPtElectronsTable), "lowPtElectrons");
-  }
+  iEvent.put(std::move(lowPtElectronsTable), "lowPtElectrons");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
