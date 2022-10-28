@@ -21,11 +21,6 @@ void EcalGlobalShowerContainmentCorrectionsVsEta::fillCorrectionCoefficients(con
 const double EcalGlobalShowerContainmentCorrectionsVsEta::correction(
     const DetId& xtal, EcalGlobalShowerContainmentCorrectionsVsEta::Type type) const {
   if (xtal.det() == DetId::Ecal && xtal.subdetId() == EcalBarrel) {
-    int offset = 0;
-
-    if (type == e5x5)
-      offset += Coefficients::kCoefficients;
-
     double corr = 0;
 
     if (EBDetId(xtal).ieta() < coefficients_.data[0])

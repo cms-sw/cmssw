@@ -29,7 +29,7 @@
 class HGCalGeomParameters {
 public:
   HGCalGeomParameters();
-  ~HGCalGeomParameters();
+  ~HGCalGeomParameters() = default;
 
   void loadGeometryHexagon(const DDFilteredView& _fv,
                            HGCalParameters& php,
@@ -99,6 +99,13 @@ public:
         : half(h), wafer(w), xyz(std::move(p)) {}
   };
 
+  constexpr static int siliconFileEE = 2;
+  constexpr static int siliconFileHE = 3;
+  constexpr static int scintillatorFile = 4;
+  constexpr static int siliconCassetteEE = 5;
+  constexpr static int siliconCassetteHE = 6;
+  constexpr static int scintillatorCassette = 7;
+
 private:
   void loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
                            std::vector<HGCalParameters::hgtrform>& trforms,
@@ -143,9 +150,6 @@ private:
   void resetZero(std::vector<double>&);
 
   constexpr static double tan30deg_ = 0.5773502693;
-  constexpr static int siliconFileEE = 2;
-  constexpr static int siliconFileHE = 3;
-  constexpr static int scintillatorFile = 4;
   HGCalGeomTools geomTools_;
   const double sqrt3_;
   double waferSize_;

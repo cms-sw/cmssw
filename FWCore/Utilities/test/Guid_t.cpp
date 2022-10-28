@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/src/Guid.h"
+#include "FWCore/Utilities/interface/Guid.h"
 
 #include <string>
 #include <cassert>

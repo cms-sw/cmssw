@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from Alignment.OfflineValidation.TkAlAllInOneTool.dataset import Dataset
 import argparse
 import os

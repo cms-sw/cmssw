@@ -32,6 +32,9 @@ muParamGlobalIsoDepositCalByAssociatorHits   = RecoMuon.MuonIsolationProducers.m
 # "standard sequences"
 muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorTowers,muIsoDepositJets)
 muIsoDeposits_muons = cms.Sequence(muIsoDeposits_muonsTask)
+# "displaced sequences"
+muIsoDeposits_displacedMuonsTask = cms.Task(muIsoDepositTkDisplaced,muIsoDepositCalByAssociatorTowersDisplaced,muIsoDepositJetsDisplaced)
+muIsoDeposits_displacedMuons = cms.Sequence(muIsoDeposits_displacedMuonsTask)
 #old one, using a reduced config set
 muIsoDeposits_ParamGlobalMuonsOldTask = cms.Task(muParamGlobalIsoDepositGsTk,muParamGlobalIsoDepositCalEcal,muParamGlobalIsoDepositCalHcal)
 muIsoDeposits_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOldTask)

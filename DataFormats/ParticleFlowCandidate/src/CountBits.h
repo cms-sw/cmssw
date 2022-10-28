@@ -4658,7 +4658,7 @@ enum PFRefMasks {
   size_t index, aIndex;                                                                  \
   typedef edm::Ref<std::vector<_class_> > RefType;                                       \
   if (getRefInfo(_mask_, _bit_, prodID, index, aIndex)) {                                \
-    if (refsCollectionCache_.size() == 0 || refsCollectionCache_[aIndex] == 0)           \
+    if (refsCollectionCache_.empty() || refsCollectionCache_[aIndex] == 0)               \
       return RefType(prodID, index, getter_);                                            \
     else {                                                                               \
       _class_ const* t = reinterpret_cast<_class_ const*>(refsCollectionCache_[aIndex]); \

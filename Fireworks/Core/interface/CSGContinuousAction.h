@@ -49,8 +49,8 @@ public:
                                UInt_t option = 0);
   void stop();
 
-  sigc::signal<void> started_;
-  sigc::signal<void> stopped_;
+  sigc::signal<void()> started_;
+  sigc::signal<void()> stopped_;
 
   //override
   void globalEnable() override;
@@ -58,11 +58,11 @@ public:
 
   void switchMode();
 
-private:
   CSGContinuousAction(const CSGContinuousAction&) = delete;  // stop default
 
   const CSGContinuousAction& operator=(const CSGContinuousAction&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::string m_imageFileName;
   std::string m_runningImageFileName;

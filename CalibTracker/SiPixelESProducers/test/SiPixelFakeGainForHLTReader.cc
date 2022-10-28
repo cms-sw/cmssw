@@ -67,6 +67,8 @@ namespace cms {
     fFile->Close();
   }
 
+  void SiPixelFakeGainForHLTReader::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
+
   // ----------------------------------------------------------------------
   void SiPixelFakeGainForHLTReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
     static int first(1);

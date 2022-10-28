@@ -42,12 +42,13 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
@@ -140,12 +141,13 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getL1EtMissParticleCollection_ = edm::GetterOfProducts<l1extra::L1EtMissParticleCollection>(productMatch, this);
   getL1HFRingsCollection_ = edm::GetterOfProducts<l1extra::L1HFRingsCollection>(productMatch, this);
   getL1TMuonParticleCollection_ = edm::GetterOfProducts<l1t::MuonBxCollection>(productMatch, this);
+  getL1TMuonShowerParticleCollection_ = edm::GetterOfProducts<l1t::MuonShowerBxCollection>(productMatch, this);
   getL1TEGammaParticleCollection_ = edm::GetterOfProducts<l1t::EGammaBxCollection>(productMatch, this);
   getL1TJetParticleCollection_ = edm::GetterOfProducts<l1t::JetBxCollection>(productMatch, this);
   getL1TTauParticleCollection_ = edm::GetterOfProducts<l1t::TauBxCollection>(productMatch, this);
   getL1TEtSumParticleCollection_ = edm::GetterOfProducts<l1t::EtSumBxCollection>(productMatch, this);
 
-  getL1TTkMuonCollection_ = edm::GetterOfProducts<l1t::TkMuonCollection>(productMatch, this);
+  getL1TTkMuonCollection_ = edm::GetterOfProducts<l1t::TrackerMuonCollection>(productMatch, this);
   getL1TTkElectronCollection_ = edm::GetterOfProducts<l1t::TkElectronCollection>(productMatch, this);
   getL1TTkEmCollection_ = edm::GetterOfProducts<l1t::TkEmCollection>(productMatch, this);
   getL1TPFJetCollection_ = edm::GetterOfProducts<l1t::PFJetCollection>(productMatch, this);
@@ -173,6 +175,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     getL1EtMissParticleCollection_(bd);
     getL1HFRingsCollection_(bd);
     getL1TMuonParticleCollection_(bd);
+    getL1TMuonShowerParticleCollection_(bd);
     getL1TEGammaParticleCollection_(bd);
     getL1TJetParticleCollection_(bd);
     getL1TTauParticleCollection_(bd);
@@ -259,8 +262,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   /// Record the InputTags of those L3 filters and L3 collections
   std::vector<bool> maskFilters;
   maskFilters.resize(nfob);
-  InputTagSet filterTagsEvent(pn_ != "*");
-  InputTagSet collectionTagsEvent(pn_ != "*");
+  InputTagSet filterTagsEvent(pn_ == "*");
+  InputTagSet collectionTagsEvent(pn_ == "*");
 
   unsigned int nf(0);
   for (unsigned int ifob = 0; ifob != nfob; ++ifob) {
@@ -349,6 +352,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
       toc, offset, tags, keys, iEvent, getL1HFRingsCollection_, collectionTagsEvent);
   fillTriggerObjectCollections<MuonBxCollection>(
       toc, offset, tags, keys, iEvent, getL1TMuonParticleCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<MuonShowerBxCollection>(
+      toc, offset, tags, keys, iEvent, getL1TMuonShowerParticleCollection_, collectionTagsEvent);
   fillTriggerObjectCollections<EGammaBxCollection>(
       toc, offset, tags, keys, iEvent, getL1TEGammaParticleCollection_, collectionTagsEvent);
   fillTriggerObjectCollections<JetBxCollection>(
@@ -358,7 +363,7 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   fillTriggerObjectCollections<EtSumBxCollection>(
       toc, offset, tags, keys, iEvent, getL1TEtSumParticleCollection_, collectionTagsEvent);
   ///
-  fillTriggerObjectCollections<l1t::TkMuonCollection>(
+  fillTriggerObjectCollections<l1t::TrackerMuonCollection>(
       toc, offset, tags, keys, iEvent, getL1TTkMuonCollection_, collectionTagsEvent);
   fillTriggerObjectCollections<l1t::TkElectronCollection>(
       toc, offset, tags, keys, iEvent, getL1TTkElectronCollection_, collectionTagsEvent);
@@ -425,6 +430,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
           iEvent, filterTag, fobs[ifob]->l1hfringsIds(), fobs[ifob]->l1hfringsRefs(), offset, keys, ids);
       fillFilterObjectMembers(
           iEvent, filterTag, fobs[ifob]->l1tmuonIds(), fobs[ifob]->l1tmuonRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tmuonShowerIds(), fobs[ifob]->l1tmuonShowerRefs(), offset, keys, ids);
       fillFilterObjectMembers(
           iEvent, filterTag, fobs[ifob]->l1tegammaIds(), fobs[ifob]->l1tegammaRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->l1tjetIds(), fobs[ifob]->l1tjetRefs(), offset, keys, ids);

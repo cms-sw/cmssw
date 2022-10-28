@@ -3,7 +3,8 @@ from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Physics")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("Physics", Run3)
 
 #----------------------------
 # Event Source
@@ -37,7 +38,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')

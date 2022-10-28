@@ -1,0 +1,3 @@
+use 
+setenv SCRAM_ARCH slc7_amd64_gcc900
+

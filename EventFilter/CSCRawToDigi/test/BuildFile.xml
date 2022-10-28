@@ -1,3 +1,9 @@
 <bin file="cscRawToDigiTest.cpp">
   <use name="EventFilter/CSCRawToDigi"/>
 </bin>
+<library file="CSCPackerUnpackerUnitTest.cc" name="CSCRawToDigiTest">
+  <use name="EventFilter/CSCRawToDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="DataFormats/CSCDigi"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

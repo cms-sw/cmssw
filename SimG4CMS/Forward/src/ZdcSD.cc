@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -122,7 +123,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   // preStepPoint information
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
-  const G4String& nameVolume = currentPV->GetName();
+  std::string nameVolume = ForwardName::getName(currentPV->GetName());
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   const G4ThreeVector& hit_mom = preStepPoint->GetMomentumDirection();
@@ -155,7 +156,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   // postStepPoint information
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
-  const G4String& postnameVolume = postPV->GetName();
+  std::string postnameVolume = ForwardName::getName(postPV->GetName());
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"
@@ -243,15 +244,18 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
           float tan_arcos = 2. * a * d;
           if (tan_arcos != 0.)
             arg_arcos = (r * r - a * a - d * d) / tan_arcos;
-          // std::cout.testOut << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " " << arg_arcos;
           arg_arcos = std::abs(arg_arcos);
-          // std::cout.testOut << "," << arg_arcos;
           float th_arcos = acos(std::min(std::max(arg_arcos, -1.f), 1.f));
-          // std::cout.testOut << " " << th_arcos;
           d_qz = th_arcos / twopi;
-          // std::cout.testOut << " " << d_qz;
           d_qz = std::abs(d_qz);
-          // std::cout.testOut << "," << d_qz;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("ForwardSim") << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " "
+                                         << arg_arcos;
+          edm::LogVerbatim("ForwardSim") << "," << arg_arcos;
+          edm::LogVerbatim("ForwardSim") << " " << d_qz;
+          edm::LogVerbatim("ForwardSim") << " " << th_arcos;
+          edm::LogVerbatim("ForwardSim") << "," << d_qz;
+#endif
         }
       }
     }

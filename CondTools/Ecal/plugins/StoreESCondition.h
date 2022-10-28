@@ -1,11 +1,11 @@
-#ifndef StoreESCondition_h
-#define StoreESCondition_h
+#ifndef CondTools_Ecal_StoreESCondition_h
+#define CondTools_Ecal_StoreESCondition_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <string>
 #include <map>
-#include <iostream>
+#include <memory>
 #include <fstream>
 #include <cstdio>
 #include <typeinfo>
@@ -28,17 +28,17 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class StoreESCondition : public edm::EDAnalyzer {
+class StoreESCondition : public edm::one::EDAnalyzer<> {
 public:
-  ESThresholds* readESThresholdsFromFile(const char*);
-  ESPedestals* readESPedestalsFromFile(const char*);
-  ESRecHitRatioCuts* readESRecHitRatioCutsFromFile(const char*);
-  ESGain* readESGainFromFile(const char*);
-  ESTimeSampleWeights* readESTimeSampleWeightsFromFile(const char*);
-  ESChannelStatus* readESChannelStatusFromFile(const char*);
-  ESIntercalibConstants* readESIntercalibConstantsFromFile(const char*);
-  ESMissingEnergyCalibration* readESMissingEnergyFromFile(const char*);
-  ESEEIntercalibConstants* readESEEIntercalibConstantsFromFile(const char*);
+  std::shared_ptr<ESThresholds> readESThresholdsFromFile(const char*);
+  std::shared_ptr<ESPedestals> readESPedestalsFromFile(const char*);
+  std::shared_ptr<ESRecHitRatioCuts> readESRecHitRatioCutsFromFile(const char*);
+  std::shared_ptr<ESGain> readESGainFromFile(const char*);
+  std::shared_ptr<ESTimeSampleWeights> readESTimeSampleWeightsFromFile(const char*);
+  std::shared_ptr<ESChannelStatus> readESChannelStatusFromFile(const char*);
+  std::shared_ptr<ESIntercalibConstants> readESIntercalibConstantsFromFile(const char*);
+  std::shared_ptr<ESMissingEnergyCalibration> readESMissingEnergyFromFile(const char*);
+  std::shared_ptr<ESEEIntercalibConstants> readESEEIntercalibConstantsFromFile(const char*);
   void writeToLogFile(std::string, std::string, unsigned long long);
   void writeToLogFileResults(char*);
 

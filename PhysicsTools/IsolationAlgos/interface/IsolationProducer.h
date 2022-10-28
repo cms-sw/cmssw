@@ -8,7 +8,7 @@
  *
  */
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -21,7 +21,9 @@ namespace helper {
 
   template <typename Alg>
   struct NullIsolationAlgorithmSetup {
-    static void init(Alg&, const edm::EventSetup&) {}
+    using ESConsumesToken = int;
+    static ESConsumesToken esConsumes(edm::ConsumesCollector) { return {}; }
+    static void init(Alg&, const edm::EventSetup&, ESConsumesToken) {}
   };
 
   template <typename Alg>
@@ -35,7 +37,7 @@ template <typename C1,
           typename Alg,
           typename OutputCollection = edm::AssociationVector<edm::RefProd<C1>, std::vector<typename Alg::value_type> >,
           typename Setup = typename helper::IsolationAlgorithmSetup<Alg>::type>
-class IsolationProducer : public edm::EDProducer {
+class IsolationProducer : public edm::stream::EDProducer<> {
 public:
   IsolationProducer(const edm::ParameterSet&);
   ~IsolationProducer() override;
@@ -45,13 +47,15 @@ private:
   edm::EDGetTokenT<C1> srcToken_;
   edm::EDGetTokenT<C2> elementsToken_;
   Alg alg_;
+  typename Setup::ESConsumesToken esToken_;
 };
 
 template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
 IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::IsolationProducer(const edm::ParameterSet& cfg)
     : srcToken_(consumes<C1>(cfg.template getParameter<edm::InputTag>("src"))),
       elementsToken_(consumes<C2>(cfg.template getParameter<edm::InputTag>("elements"))),
-      alg_(reco::modules::make<Alg>(cfg)) {
+      alg_(reco::modules::make<Alg>(cfg)),
+      esToken_(Setup::esConsumes(consumesCollector())) {
   produces<OutputCollection>();
 }
 
@@ -67,7 +71,7 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce(edm::Event
   evt.getByToken(srcToken_, src);
   evt.getByToken(elementsToken_, elements);
 
-  Setup::init(alg_, es);
+  Setup::init(alg_, es, esToken_);
 
   typename OutputCollection::refprod_type ref(src);
   auto isolations = std::make_unique<OutputCollection>(ref);

@@ -89,6 +89,11 @@ options.register('unsafe',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Comma-separated list of systems that we do not care about anymore")
+options.register('dropFromJob',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Comma-separated list of systems for which we must not create WriterProxy")
 
 options.parseArguments()
 
@@ -112,6 +117,7 @@ process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
 from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDB, liftPayloadSafetyFor
 setTSCPayloadsDB( process, options.onlineDBConnect, options.onlineDBAuth, options.protoDBConnect, options.protoDBAuth )
 liftPayloadSafetyFor( process, options.unsafe.split(',') )
+print( "Lifted transaction safe for:", options.unsafe.split(',') )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
@@ -170,4 +176,26 @@ else:
                                 lastValue = cms.uint64(4294967295),
                                 interval = cms.uint64(1) )
                             
+systems = process.L1CondDBPayloadWriterExt.sysWriters
+## still need a method to handle exceptions for existing payloads in the CondDB
+systems.remove("L1TMuonEndCapForestO2ORcd@L1TMuonEndCapForest")
+systems.remove("L1TMuonOverlapParamsO2ORcd@L1TMuonOverlapParams")
+if "uGMT" in options.dropFromJob:
+    systems.remove("L1TMuonGlobalParamsO2ORcd@L1TMuonGlobalParams")
+if "EMTF" in options.dropFromJob:
+    systems.remove("L1TMuonEndCapParamsO2ORcd@L1TMuonEndCapParams")
+    ## still need a method to handle exceptions for existing payloads in the CondDB
+if "OMTF" in options.dropFromJob:
+    systems.remove("L1TMuonOverlapFwVersionO2ORcd@L1TMuonOverlapFwVersion")
+    ## still need a method to handle exceptions for existing payloads in the CondDB
+if "BMTF" in options.dropFromJob:
+    systems.remove("L1TMuonBarrelParamsO2ORcd@L1TMuonBarrelParams")
+if "CALO" in options.dropFromJob:
+    systems.remove("L1TCaloParamsO2ORcd@CaloParams")
+if "uGT" in options.dropFromJob:
+    systems.remove("L1TUtmTriggerMenuO2ORcd@L1TUtmTriggerMenu")
+if "uGTrs" in options.dropFromJob:
+    systems.remove("L1TGlobalPrescalesVetosFractO2ORcd@L1TGlobalPrescalesVetosFract")
+print( "Will create only the following writers:", process.L1CondDBPayloadWriterExt.sysWriters )
+
 process.p = cms.Path(process.L1CondDBPayloadWriterExt)

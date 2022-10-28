@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 """
 
 Joshua Dawes - CERN, CMS - The University of Manchester
@@ -6,14 +6,12 @@ Joshua Dawes - CERN, CMS - The University of Manchester
 This module holds classes to help with uploading conditions to the drop box web service, which also uses CondDBFW to read and write data.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 import os
 import json
 import base64
 from datetime import datetime
-from urllib import urlencode
+from urllib.parse import urlencode
 import math
 import sys
 import traceback
@@ -42,7 +40,7 @@ def log(file_handle, message):
 	"""
 	Very simple logging function, used by output class.
 	"""
-	file_handle.write("[%s] %s\n" % (to_timestamp(datetime.now()), message))
+	file_handle.write("[%s] %s\n" % (to_timestamp(datetime.utcnow()), message))
 
 def new_log_file_id():
 	"""
@@ -59,38 +57,23 @@ def new_log_file_id():
 	return new_id
 
 class output():
-	INFO = 0
-	ERROR = 1
-	WARNING = 2
-	VERBOSE = 3
-	DEBUG = 4
-	
 	"""
 	Used to control output to the console and to the client-side log.
 	"""
 
-	def __init__(self, log_handle=None, verbose=False, debug=False):
+	def __init__(self, log_handle=None, verbose=False):
 		# first time writing progress bar, don't need to go back along the line
 		self.current_output_length = 0
 		self._verbose = verbose
 		self._log_handle = log_handle
-		self._debug = debug
-		self.labels = ["INFO", "ERROR", "WARNING", "VERBOSE", "DEBUG"]
 
-	def write(self, message="", level=INFO):
+	def write(self, message="", ignore_verbose=False):
 		"""
 		Write to the console and to the log file held by self.
 		"""
-		message = "[%s] %s: %s"%(datetime.now(), self.labels[level], message)
-		if self._verbose:
-			if level == output.DEBUG and self._debug:
-				print(message)
-			elif level < output.DEBUG:
-				print(message)
-		elif self._debug:
-			if level == output.DEBUG:
-				print(message)
-		elif level <= output.ERROR:
+		if ignore_verbose:
+			print(message)
+		elif self._verbose:
 			print(message)
 		if self._log_handle != None:
 			log(self._log_handle, message)
@@ -123,7 +106,7 @@ class uploader(object):
 		self._handle = open(self.upload_log_file_name, "a")
 
 		# set up client-side logging object
-		self._outputter = output(verbose=verbose, log_handle=self._handle, debug = self._debug)
+		self._outputter = output(verbose=verbose, log_handle=self._handle)
 		self._outputter.write("Using server instance at '%s'." % self._SERVICE_URL)
 
 		# expect a CondDBFW data_source object for metadata_source
@@ -139,7 +122,7 @@ class uploader(object):
 		if self.metadata_source.get("destinationTags") == None:
 			self.exit_upload("No destination Tag was given.")
 		else:
-			if isinstance(self.metadata_source.get("destinationTags"), dict) and self.metadata_source.get("destinationTags").keys()[0] == None:
+			if type(self.metadata_source.get("destinationTags")) == dict and list(self.metadata_source.get("destinationTags").keys())[0] == None:
 				self.exit_upload("No destination Tag was given.")
 
 		# make sure a destination database was given
@@ -171,7 +154,7 @@ class uploader(object):
 				self.exit_upload("SQLite file '%s' given doesn't exist." % self.sqlite_file_name)
 			sqlite_con = querying.connect("sqlite://%s" % os.path.abspath(self.sqlite_file_name))
 
-			self._outputter.write("Getting Tag and IOVs from SQLite database.", output.VERBOSE)
+			self._outputter.write("Getting Tag and IOVs from SQLite database.")
 
 			# query for Tag, check for existence, then convert to dictionary
 			tag = sqlite_con.tag(name=self.input_tag)
@@ -184,7 +167,7 @@ class uploader(object):
 			if iovs == None:
 				self.exit_upload("No IOVs found in the SQLite file given for Tag '%s'." % self.input_tag)
 			iovs = iovs.as_dicts(convert_timestamps=True)
-			iovs = [iovs] if not isinstance(iovs, list) else iovs
+			iovs = [iovs] if type(iovs) != list else iovs
 
 			"""
 			Finally, get the list of all Payload hashes of IOVs,
@@ -210,7 +193,7 @@ class uploader(object):
 			# set empty dictionary to contain Tag and IOV data from command line
 			result_dictionary = {}
 
-			now = to_timestamp(datetime.now())
+			now = to_timestamp(datetime.utcnow())
 			# tag dictionary will be taken from the server
 			# this does not require any authentication
 			tag = self.get_tag_dictionary()
@@ -244,6 +227,17 @@ class uploader(object):
 			# Tag time_type says IOVs use Runs for sinces, so we convert to Lumi-based for uniform processing
 			self.data_to_send["since"] = self.data_to_send["since"] << 32
 
+		"""
+		TODO - Settle on a single destination tag format.
+		"""
+		# look for deprecated metadata entries - give warnings
+		# Note - we only really support this format
+		try:
+			if type(result_dictionary["destinationTags"]) == dict:
+				self._outputter.write("WARNING: Multiple destination tags in a single metadata source is deprecated.")
+		except Exception as e:
+			self._outputter.write("ERROR: %s" % str(e))
+
 	@check_response(check="json")
 	def get_tag_dictionary(self):
 		url_data = {"tag_name" : self.metadata_source["destinationTag"], "database" : self.metadata_source["destinationDatabase"]}
@@ -257,21 +251,21 @@ class uploader(object):
 		If it is a dictionary, and one of its keys is "error", the server returned an error
 		"""
 		# if the decoded response data is a dictionary and has an error key in it, we should display an error and its traceback
-		if isinstance(response_dict, dict) and "error" in response_dict.keys():
+		if type(response_dict) == dict and "error" in list(response_dict.keys()):
 			splitter_string = "\n%s\n" % ("-"*50)
-			self._outputter.write("\nERROR: %s" % splitter_string, output.ERROR)
-			self._outputter.write(response_dict["error"], output.ERROR)
+			self._outputter.write("\nERROR: %s" % splitter_string, ignore_verbose=True)
+			self._outputter.write(response_dict["error"], ignore_verbose=True)
 
 			# if the user has given the --debug flag, show the traceback as well
 			if self._debug:
 				# suggest to the user to email this to db upload experts
-				self._outputter.write("\nTRACEBACK (since --debug is set):%s" % splitter_string, output.DEBUG)
+				self._outputter.write("\nTRACEBACK (since --debug is set):%s" % splitter_string, ignore_verbose=True)
 				if response_dict.get("traceback") != None:
-					self._outputter.write(response_dict["traceback"], output.DEBUG)
+					self._outputter.write(response_dict["traceback"], ignore_verbose=True)
 				else:
-					self._outputter.write("No traceback was returned from the server.", output.DEBUG)
+					self._outputter.write("No traceback was returned from the server.", ignore_verbose=True)
 			else:
-				self._outputter.write("Use the --debug option to show the traceback of this error.", output.INFO)
+				self._outputter.write("Use the --debug option to show the traceback of this error.", ignore_verbose=True)
 
 			# write server side log to client side (if we have an error from creating an upload session, the log is in its initial state (""))
 			# if an error has occurred on the server side, a log will have been written
@@ -282,9 +276,9 @@ class uploader(object):
 					return False
 				else:
 					exit()
-		elif not("error" in response_dict.keys()) and "log_data" in response_dict.keys():
+		elif not("error" in list(response_dict.keys())) and "log_data" in list(response_dict.keys()):
 			# store the log data, if it's there, in memory - this is used if a request times out and we don't get any log data back
-			self._log_data = response_dict["log_data"][2:-1]
+			self._log_data = response_dict["log_data"]
 			return True
 
 	def write_server_side_log(self, log_data):
@@ -314,18 +308,12 @@ class uploader(object):
 
 		# tell the user where the log files are
 		# in the next iteration we may just merge the log files and store one log (how it's done in the plotter module)
-		if self._SERVICE_URL.startswith("https://cms-conddb-dev.cern.ch/cmsDbCondUpload"):
-			logUrl = "https://cms-conddb.cern.ch/cmsDbBrowser/logs/show_cond_uploader_log/Prep/%s"%self.upload_session_id
-		else:
-			logUrl = "https://cms-conddb.cern.ch/cmsDbBrowser/logs/show_cond_uploader_log/Prod/%s"%self.upload_session_id
-		
-		print("[%s] INFO: Server log found at %s." % (datetime.now(), logUrl))
 		if server_log_file_name != None:
-			print("[%s] INFO: Local copy of server log file at '%s'." % (datetime.now(), server_log_file_name))
+			print("Log file from server written to '%s'." % server_log_file_name)
 		else:
 			print("No server log file could be written locally.")
 
-		print("[%s] INFO: Local copy of client log file at '%s'." % (datetime.now(), self.upload_log_file_name))
+		print("Log file from CondDBFW written to '%s'." % self.upload_log_file_name)
 
 	def exit_upload(self, message=None):
 		"""
@@ -368,14 +356,14 @@ class uploader(object):
 				return False
 
 			self.upload_session_id = upload_session_data["id"]
-			self._outputter.write("Upload session obtained with token '%s'." % self.upload_session_id, output.DEBUG)
+			self._outputter.write("Upload session obtained with token '%s'." % self.upload_session_id)
 			self.server_side_log_file = upload_session_data["log_file"]
 
 		except errors.NoMoreRetriesException as no_more_retries:
 			return self.exit_upload("Ran out of retries opening an upload session, where the limit was 3.")
 		except Exception as e:
 			# something went wrong that we have no specific exception for, so just exit and output the traceback if --debug is set.
-			self._outputter.write(traceback.format_exc(), output.ERROR)
+			self._outputter.write(traceback.format_exc(), ignore_verbose=True)
 
 			if not(self._verbose):
 				self._outputter.write("Something went wrong that isn't handled by code - to get the traceback, run again with --verbose.")
@@ -403,7 +391,7 @@ class uploader(object):
 					return self.exit_upload("Ran out of retries trying to filter IOVs by FCSR from server, where the limit was 3.")
 				except Exception as e:
 					# something went wrong that we have no specific exception for, so just exit and output the traceback if --debug is set.
-					self._outputter.write(traceback.format_exc(), output.ERROR)
+					self._outputter.write(traceback.format_exc(), ignore_verbose=True)
 
 					if not(self._verbose):
 						self._outputter.write("Something went wrong that isn't handled by code - to get the traceback, run again with --verbose.")
@@ -429,10 +417,10 @@ class uploader(object):
 
 			# finally, check hashes_not_found with hashes not found locally - if there is an intersection, we stop the upload
 			# because if a hash is not found and is not on the server, there is no data to upload
-			all_hashes = map(lambda iov : iov["payload_hash"], self.data_to_send["iovs"])
+			all_hashes = [iov["payload_hash"] for iov in self.data_to_send["iovs"]]
 			hashes_not_found = check_hashes_response["hashes_not_found"]
 			hashes_found = list(set(all_hashes) - set(hashes_not_found))
-			self._outputter.write("Checking for IOVs that have no Payload locally or on the server.", output.VERBOSE)
+			self._outputter.write("Checking for IOVs that have no Payload locally or on the server.")
 			# check if any hashes not found on the server is used in the local SQLite database
 			for hash_not_found in hashes_not_found:
 				if hash_not_found in self.hashes_with_no_local_payload:
@@ -440,19 +428,16 @@ class uploader(object):
 
 			for hash_found in hashes_found:
 				if hash_found in self.hashes_with_no_local_payload:
-					self._outputter.write("Payload with hash %s on server, so can upload IOV." % hash_found, output.VERBOSE)
-			
-			self._outputter.write("Found %i Payloads in remote server" % len(hashes_found), output.INFO)
-			self._outputter.write("Found %i Payloads not in remote server" % len(hashes_not_found), output.INFO)
+					self._outputter.write("Payload with hash %s on server, so can upload IOV." % hash_found)
 
-			self._outputter.write("All IOVs either come with Payloads or point to a Payload already on the server.", output.VERBOSE)
+			self._outputter.write("All IOVs either come with Payloads or point to a Payload already on the server.")
 
 		except errors.NoMoreRetriesException as no_more_retries:
 			# for now, just write the log if we get a NoMoreRetriesException
 			return self.exit_upload("Ran out of retries trying to check hashes of payloads to send, where the limit was 3.")
 		except Exception as e:
 			# something went wrong that we have no specific exception for, so just exit and output the traceback if --debug is set.
-			self._outputter.write(traceback.format_exc(), output.ERROR)
+			self._outputter.write(traceback.format_exc(), ignore_verbose=True)
 
 			if not(self._verbose):
 				self._outputter.write("Something went wrong that isn't handled by code - to get the traceback, run again with --verbose.")
@@ -477,15 +462,9 @@ class uploader(object):
 
 			# note that the response (in send_metadata_response) is already decoded from base64 by the response check decorator
 			send_metadata_response = self.send_metadata(self.upload_session_id)
-			
 			no_error = self.check_response_for_error_key(send_metadata_response)
 			if not(no_error) and self._testing:
 				return False
-
-			try:
-				self._outputter.write(send_metadata_response["summary"], output.INFO)
-			except KeyError:
-				pass
 
 			# we have to call this explicitly here since check_response_for_error_key only writes the log file
 			# if an error has occurred, whereas it should always be written here
@@ -495,7 +474,7 @@ class uploader(object):
 			return self.exit_upload("Ran out of retries trying to send metadata, where the limit was 3.")
 		except Exception as e:
 			# something went wrong that we have no specific exception for, so just exit and output the traceback if --debug is set.
-			self._outputter.write(traceback.format_exc(), output.ERROR)
+			self._outputter.write(traceback.format_exc(), ignore_verbose=True)
 
 			if not(self._verbose):
 				self._outputter.write("Something went wrong that isn't handled by code - to get the traceback, run again with --verbose.")
@@ -517,7 +496,7 @@ class uploader(object):
 		Open an upload session on the server, and get a unique token back that we can use to authenticate for all future requests,
 		as long as the upload session is still open.
 		"""
-		self._outputter.write("Getting upload session.",  output.VERBOSE)
+		self._outputter.write("Getting upload session.")
 
 		# send password in the body so it can be encrypted over https
 		# username and password are taken from the netrc file
@@ -525,11 +504,11 @@ class uploader(object):
 		# this method's end result is obtaining a token.
 		body_data = base64.b64encode(json.dumps(
 				{
-					"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
+					"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
 					"username_or_token" : self.data_to_send["username"],
 					"password" : self.data_to_send["password"]
 				}
-			))
+			).encode('UTF-8'))
 
 		url_data = {"database" : self.data_to_send["destinationDatabase"]}
 
@@ -557,11 +536,15 @@ class uploader(object):
 		Note: we do this in a separate function we so we can do the decoding check for json data with check_response.
 		"""
 		# tiny amount of client-side logic here - all of the work is done on the server
+		# tier0_response uses get() so if the key isn't present, we default to None
+		# tier0_response is for replaying uploads from the old upload service, with knowledge of the tier0 response
+		# when those uploads happened.
 		url_data = {
 						"database" : self.data_to_send["destinationDatabase"],
 						"upload_session_id" : upload_session_id,
-						"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
-						"sourceTagSync" : self.data_to_send["fcsr_filter"]
+						"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
+						"sourceTagSync" : self.data_to_send["fcsr_filter"],
+						"tier0_response" : self.data_to_send.get("tier0_response")
 					}
 		query = url_query(url=self._SERVICE_URL + "get_fcsr/", url_data=url_data)
 		result = query.send()
@@ -626,7 +609,7 @@ class uploader(object):
 				self.data_to_send["iovs"][i]["since"] = self.data_to_send["since"]
 
 		# modify insertion_time of iovs
-		new_time = to_timestamp(datetime.now())
+		new_time = to_timestamp(datetime.utcnow())
 		for (i, iov) in enumerate(self.data_to_send["iovs"]):
 			self.data_to_send["iovs"][i]["insertion_time"] = new_time
 
@@ -634,9 +617,8 @@ class uploader(object):
 		"""
 		Get all the hashes from the dictionary of IOVs we have from the SQLite file.
 		"""
-		self._outputter.write("\tGetting list of all hashes found in SQLite database.", output.DEBUG)
-		hashes = map(lambda iov : iov["payload_hash"], self.data_to_send["iovs"])
-		self._outputter.write("Found %i local Payload(s) referenced in IOVs"%len(hashes), output.INFO)
+		self._outputter.write("\tGetting list of all hashes found in SQLite database.")
+		hashes = [iov["payload_hash"] for iov in self.data_to_send["iovs"]]
 		return hashes
 
 	@check_response(check="json")
@@ -644,7 +626,7 @@ class uploader(object):
 		"""
 		Get the hashes of the payloads we want to send that the server doesn't have yet.
 		"""
-		self._outputter.write("Getting list of hashes that the server does not have Payloads for, to send to server.", output.DEBUG)
+		self._outputter.write("Getting list of hashes that the server does not have Payloads for, to send to server.")
 		post_data = json.dumps(self.get_all_hashes())
 		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
 		query = url_query(url=self._SERVICE_URL + "check_hashes/", url_data=url_data, body=post_data)
@@ -658,21 +640,22 @@ class uploader(object):
 		# if we have no hashes, we can't send anything
 		# but don't exit since it might mean all the Payloads were already on the server
 		if len(hashes) == 0:
-			self._outputter.write("No payloads to send - moving to IOV upload.")
+			self._outputter.write("No hashes to send - moving to metadata upload.")
 			return True
 		else:
 			self._outputter.write("Sending payloads of hashes not found:")
 			# construct connection string for local SQLite database file
-			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if isinstance(self.sqlite_file_name, str) else self.sqlite_file_name
+			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if type(self.sqlite_file_name) == str else self.sqlite_file_name
 			# create CondDBFW connection that maps blobs - as we need to query for payload BLOBs (disabled by default in CondDBFW)
 			self._outputter.write("\tConnecting to input SQLite database.")
 			con = querying.connect(database, map_blobs=True)
 
 			# query for the Payloads
 			self._outputter.write("\tGetting Payloads from SQLite database based on list of hashes.")
-			payloads = con.payload(hash=hashes)
+			byte_hashes = [bytes(h, 'utf-8') for h in hashes]
+			payloads = con.payload(hash=byte_hashes)
 			# if we get a single Payload back, put it in a list and turn it into a json_list
-			if payloads.__class__ != data_sources.json_list:
+			if payloads and payloads.__class__ != data_sources.json_list:
 				payloads = data_sources.json_data_node.make([payloads])
 
 			# close the session with the SQLite database file - we won't use it again
@@ -713,7 +696,7 @@ class uploader(object):
 		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
 
 		# construct the data to send in the body and header of the HTTPs request
-		for key in payload.keys():
+		for key in list(payload.keys()):
 			# skip blob
 			if key != "data":
 				if key == "insertion_time":
@@ -730,7 +713,7 @@ class uploader(object):
 			return request_response
 		except Exception as e:
 			# make sure we don't try again - if a NoMoreRetriesException has been thrown, retries have run out
-			if isinstance(e, errors.NoMoreRetriesException):
+			if type(e) == errors.NoMoreRetriesException:
 				self._outputter.write("\t\t\tPayload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 				self._outputter.write("Payload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 			return json.dumps({"error" : str(e), "traceback" : traceback.format_exc()})
@@ -744,16 +727,16 @@ class uploader(object):
 
 		# set user text if it's empty
 		if self.data_to_send["userText"] in ["", None]:
-			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % self.data_to_send["destinationTags"].keys()[0]
+			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % list(self.data_to_send["destinationTags"].keys())[0]
 
 		self._outputter.write("Sending metadata to server - see server_side_log at server_side_logs/upload_log_%s for details on metadata processing on server side."\
-							% self.upload_session_id, output.VERBOSE)
+							% self.upload_session_id)
 
 		# sent the HTTPs request to the server
-		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
+		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id, "tier0_response" : self.data_to_send.get("tier0_response")}
 		request = url_query(url=self._SERVICE_URL + "upload_metadata/", url_data=url_data, body=json.dumps(self.data_to_send))
 		response = request.send()
-		self._outputter.write("Response received - conditions upload process complete.", output.VERBOSE)
+		self._outputter.write("Response received - conditions upload process complete.")
 		return response
 
 if __name__ == "__main__":
@@ -777,7 +760,7 @@ See https://cms-conddb-dev.cern.ch/cmsDbCondUpload for information on how to obt
 
 	# make new dictionary, and copy over everything except "metadata_source"
 	upload_metadata_argument = {}
-	for (key, value) in upload_metadata.items():
+	for (key, value) in list(upload_metadata.items()):
 		if key != "metadata_source":
 			upload_metadata_argument[key] = value
 

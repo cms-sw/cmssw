@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -8,18 +8,18 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
-class IsolationProducerForTracks : public edm::EDProducer {
+class IsolationProducerForTracks : public edm::global::EDProducer<> {
 public:
   IsolationProducerForTracks(const edm::ParameterSet&);
 
 private:
-  void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  void produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
 
-  edm::EDGetTokenT<reco::CandidateView> tracksToken_;
-  edm::EDGetTokenT<reco::CandidateView> highPtTracksToken_;
-  edm::EDGetTokenT<reco::IsoDepositMap> isoDepsToken_;
-  double trackPtMin_;
-  double coneSize_;
+  const edm::EDGetTokenT<reco::CandidateView> tracksToken_;
+  const edm::EDGetTokenT<reco::CandidateView> highPtTracksToken_;
+  const edm::EDGetTokenT<reco::IsoDepositMap> isoDepsToken_;
+  const double trackPtMin_;
+  const double coneSize_;
 };
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,7 +44,7 @@ IsolationProducerForTracks::IsolationProducerForTracks(const ParameterSet& pset)
   produces<TkIsoMap>();
 }
 
-void IsolationProducerForTracks::produce(Event& event, const EventSetup& setup) {
+void IsolationProducerForTracks::produce(edm::StreamID, Event& event, const EventSetup& setup) const {
   auto caloIsolations = std::make_unique<TkIsoMap>();
   TkIsoMap::Filler filler(*caloIsolations);
   {

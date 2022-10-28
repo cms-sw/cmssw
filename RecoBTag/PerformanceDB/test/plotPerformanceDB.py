@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 #
 # Francisco Yumiceva
@@ -12,7 +12,7 @@ from __future__ import print_function
 from builtins import range
 import sys
 import math
-import commands
+import subprocess
 from array import array
 from ROOT import *
 
@@ -79,7 +79,7 @@ def main():
     
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeSF+ sp +tmpjetpt+ sp +tmpjeteta
             print(allcmd)
-            output = commands.getstatusoutput(allcmd)
+            output = subprocess.getstatusoutput(allcmd)
             print(output[1])
             
             if output[0]!=0:
@@ -93,7 +93,7 @@ def main():
             
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeEff+ sp +tmpjetpt+ sp +tmpjeteta
             #print allcmd
-            output = commands.getstatusoutput(allcmd)
+            output = subprocess.getstatusoutput(allcmd)
             #print output[1]
             
             if output[0]!=0:

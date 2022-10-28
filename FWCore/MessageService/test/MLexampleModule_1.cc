@@ -7,10 +7,11 @@
 
 namespace edmtest {
 
-  void MLexampleModule_1::analyze(edm::Event const& /*unused*/
+  void MLexampleModule_1::analyze(edm::StreamID,
+                                  edm::Event const& /*unused*/
                                   ,
                                   edm::EventSetup const& /*unused*/
-  ) {
+  ) const {
     std::string empty_;
     std::string file_ = "nameOfFile";
     LogDebug("cat_A") << "LogDebug was used to send this message";

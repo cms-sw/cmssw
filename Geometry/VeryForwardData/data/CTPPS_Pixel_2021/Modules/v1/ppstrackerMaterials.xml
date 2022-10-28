@@ -29,42 +29,12 @@
    </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_Bump" density="0.41391*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="1.00">
-      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
-    </MaterialFraction>
-  </CompositeMaterial>
-
   <CompositeMaterial name="Pix_Fwd_ROChip" density="2.15758*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1">
       <rMaterial name="materials:Silicon"/>
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_HDI" density="1.90587*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.3718">
-      <rMaterial name="ppstrackerMaterials:FPix_Kapton"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.13869">
-      <rMaterial name="ppstrackerMaterials:FPix_Epoxy"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.42221">
-      <rMaterial name="materials:Copper"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.00315">
-      <rMaterial name="materials:Barium_Titanate"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.00240">
-      <rMaterial name="ppstrackerMaterials:FPix_Alumina"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.04968">
-      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.01206">
-      <rMaterial name="materials:Indium"/>
-    </MaterialFraction>
-  </CompositeMaterial>
- 
 
   <CompositeMaterial name="FPix_TinLeadSolder" density="8.8*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.49377422">
@@ -113,6 +83,36 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="Pix_Fwd_Bump" density="0.41391*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00">
+      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_HDI" density="1.90587*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.3718">
+      <rMaterial name="ppstrackerMaterials:FPix_Kapton"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.13869">
+      <rMaterial name="ppstrackerMaterials:FPix_Epoxy"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.42221">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00315">
+      <rMaterial name="materials:Barium_Titanate"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00240">
+      <rMaterial name="ppstrackerMaterials:FPix_Alumina"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.04968">
+      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01206">
+      <rMaterial name="materials:Indium"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+ 
 </MaterialSection>
 
 </DDDefinition>

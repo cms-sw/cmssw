@@ -15,6 +15,8 @@
 #include "TLatex.h"
 
 #include <string>
+#include <memory>
+#include <array>
 
 namespace {
   enum { NTCC = 108, NTower = 28, NStrip = 5, NXtal = 5 };
@@ -164,9 +166,9 @@ namespace {
 
       float ymi[4] = {0.47, 0.47, 0.0, 0.0};
       float yma[4] = {0.94, 0.94, 0.47, 0.47};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 4> pad;
       for (int obj = 0; obj < 4; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]);
         pad[obj]->Draw();
       }
 
@@ -192,7 +194,6 @@ namespace {
 
       canvas.SaveAs(ImageName.c_str());
 
-      delete pad;
       delete endc_lut_p;
       delete endc_lut_m;
       delete endc_thresh_p;

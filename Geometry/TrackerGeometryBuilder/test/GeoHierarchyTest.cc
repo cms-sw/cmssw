@@ -22,7 +22,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,17 +61,17 @@ public:
   explicit GeoHierarchy(const edm::ParameterSet&);
   ~GeoHierarchy() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> ddToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   bool fromDDD_;
   bool printDDD_;
 };
 
-GeoHierarchy::GeoHierarchy(const edm::ParameterSet& ps) {
+GeoHierarchy::GeoHierarchy(const edm::ParameterSet& ps) : ddToken_(esConsumes()), ttopoToken_(esConsumes()) {
   fromDDD_ = ps.getParameter<bool>("fromDDD");
   printDDD_ = ps.getUntrackedParameter<bool>("printDDD", true);
 }
@@ -144,13 +143,10 @@ void GeoHierarchy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::LogInfo("GeoHierarchy") << "begins";
 
   //first instance tracking geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
+  auto const& pDD = iSetup.getData(ddToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(ttopoToken_);
   //
-  GeometricDet const* rDD = pDD->trackerDet();
+  GeometricDet const* rDD = pDD.trackerDet();
   std::vector<const GeometricDet*> modules;
   (*rDD).deepComponents(modules);
 
@@ -158,7 +154,7 @@ void GeoHierarchy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   constructAndDumpTrie(tTopo, modules.begin(), modules.end());
 
   std::cout << "\nGDet Hierarchy\n" << std::endl;
-  constructAndDumpTrie(tTopo, pDD->dets().begin(), pDD->dets().end());
+  constructAndDumpTrie(tTopo, pDD.dets().begin(), pDD.dets().end());
 }
 
 //define this as a plug-in

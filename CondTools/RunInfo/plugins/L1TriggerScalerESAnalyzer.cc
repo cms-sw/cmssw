@@ -2,86 +2,72 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/RunInfo/interface/L1TriggerScaler.h"
 
 #include "CondFormats/DataRecord/interface/L1TriggerScalerRcd.h"
 
-using namespace std;
-
-
-
-
-
-namespace edmtest
-{
-  class L1TriggerScalerESAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class L1TriggerScalerESAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
-    explicit  L1TriggerScalerESAnalyzer(edm::ParameterSet const& p) 
-    { 
-      std::cout<<"L1TriggerScalerESAnalyzer"<<std::endl;
+    explicit L1TriggerScalerESAnalyzer(edm::ParameterSet const& p)
+        : scaler1Token_(esConsumes<L1TriggerScaler, L1TriggerScalerRcd, edm::Transition::BeginRun>()),
+          scaler2Token_(esConsumes<L1TriggerScaler, L1TriggerScalerRcd>()) {
+      edm::LogVerbatim("L1TriggerScaler") << "L1TriggerScalerESAnalyzer";
     }
-    explicit  L1TriggerScalerESAnalyzer(int i) 
-    { std::cout<<"L1TriggerScalerESAnalyzer "<<i<<std::endl; }
-    virtual ~L1TriggerScalerESAnalyzer() {  
-      std::cout<<"~L1TriggerScalerESAnalyzer "<<std::endl;
+    explicit L1TriggerScalerESAnalyzer(int i)
+        : scaler1Token_(esConsumes<L1TriggerScaler, L1TriggerScalerRcd, edm::Transition::BeginRun>()),
+          scaler2Token_(esConsumes<L1TriggerScaler, L1TriggerScalerRcd>()) {
+      edm::LogVerbatim("L1TriggerScaler") << "L1TriggerScalerESAnalyzer " << i;
     }
-     virtual void beginJob();
-     virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  private:
-  };
-   
-  
- void
-  L1TriggerScalerESAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
-    std::cout<<"###L1TriggerScalerESAnalyzer::beginRun"<<std::endl;
-    edm::ESHandle<L1TriggerScaler> L1TriggerScaler_lumiarray;
-    std::cout<<"got eshandle"<<std::endl;
-    context.get<L1TriggerScalerRcd>().get(L1TriggerScaler_lumiarray);
-    std::cout<<"got data"<<std::endl;
-  }
-  
-  void
-  L1TriggerScalerESAnalyzer::beginJob(){
-    std::cout<<"###L1TriggerScalerESAnalyzer::beginJob"<<std::endl;
-   
-  }
- 
- 
-  void
-   L1TriggerScalerESAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
-    using namespace edm::eventsetup;
-    std::cout<<"###L1TriggerScalerESAnalyzer::analyze"<<std::endl;
-     
-    // Context is not used.
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("L1TriggerScalerRcd"));
-    if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-      //record not found
-      std::cout <<"Record \"L1TriggerScalerRcd"<<"\" does not exist "<<std::endl;
-    }
-    edm::ESHandle<L1TriggerScaler> l1tr;
-    std::cout<<"got eshandle"<<std::endl;
-    context.get<L1TriggerScalerRcd>().get(l1tr);
-    std::cout<<"got context"<<std::endl;
-    const L1TriggerScaler* l1lumiscaler=l1tr.product();
-    std::cout<<"got L1TriggerScaler* "<< std::endl;
+    ~L1TriggerScalerESAnalyzer() override { edm::LogVerbatim("L1TriggerScaler") << "~L1TriggerScalerESAnalyzer "; }
+    void beginJob() override;
+    void beginRun(const edm::Run&, const edm::EventSetup& context) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endRun(const edm::Run&, const edm::EventSetup& context) override {}
 
-    /* let's user the printValues method
-    std::cout<< "print result" << std::endl;
-    l1lumiscaler->printAllValues();
-    std::cout<< "print finished" << std::endl;
-    */
-std::cout<< "print  result" << std::endl;
+  private:
+    const edm::ESGetToken<L1TriggerScaler, L1TriggerScalerRcd> scaler1Token_;
+    const edm::ESGetToken<L1TriggerScaler, L1TriggerScalerRcd> scaler2Token_;
+  };
+
+  void L1TriggerScalerESAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context) {
+    edm::LogVerbatim("L1TriggerScaler") << "###L1TriggerScalerESAnalyzer::beginRun";
+    const edm::ESHandle<L1TriggerScaler>& L1TriggerScaler_lumiarray = context.getHandle(scaler1Token_);
+    edm::LogVerbatim("L1TriggerScaler") << " got eshandle with flag " << L1TriggerScaler_lumiarray.isValid()
+                                        << " got data";
+  }
+
+  void L1TriggerScalerESAnalyzer::beginJob() {
+    edm::LogVerbatim("L1TriggerScaler") << "###L1TriggerScalerESAnalyzer::beginJob";
+  }
+
+  void L1TriggerScalerESAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+    using namespace edm::eventsetup;
+    edm::LogVerbatim("L1TriggerScaler") << "###L1TriggerScalerESAnalyzer::analyze";
+
+    // Context is not used.
+    edm::LogVerbatim("L1TriggerScaler") << " I AM IN RUN NUMBER " << e.id().run();
+    edm::LogVerbatim("L1TriggerScaler") << " ---EVENT NUMBER " << e.id().event();
+    edm::eventsetup::EventSetupRecordKey recordKey(
+        edm::eventsetup::EventSetupRecordKey::TypeTag::findType("L1TriggerScalerRcd"));
+    if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+      //record not found
+      edm::LogVerbatim("L1TriggerScaler") << "Record \"L1TriggerScalerRcd"
+                                          << "\" does not exist ";
+    }
+    const edm::ESHandle<L1TriggerScaler>& l1tr = context.getHandle(scaler2Token_);
+    edm::LogVerbatim("L1TriggerScaler") << " got eshandle\n got context";
+    const L1TriggerScaler* l1lumiscaler = l1tr.product();
+    edm::LogVerbatim("L1TriggerScaler") << "got L1TriggerScaler* ";
+
+    edm::LogVerbatim("L1TriggerScaler") << "print  result";
     l1lumiscaler->printRunValue();
     l1lumiscaler->printLumiSegmentValues();
     l1lumiscaler->printFormat();
@@ -95,50 +81,7 @@ std::cout<< "print  result" << std::endl;
     l1lumiscaler->printGTPartition0TriggerRates();
     l1lumiscaler->printGTPartition0DeadTime();
     l1lumiscaler->printGTPartition0DeadTimeRatio();
-    std::cout<<  "print  finished" << std::endl;
- 
-
-
-   /*
-    for(std::vector<L1TriggerScaler::Lumi>::const_iterator it=l1lumiscaler->m_run.begin(); it!=l1lumiscaler->m_run.end(); ++it){
-      std::cout << "  run:  " <<it->m_rn<<
-	"\nlumisegment: "  << it->m_lumisegment<<std::endl;  
-
-
-
-      for(size_t i=0; i<it->m_GTAlgoRates.size(); i++ ){ 
-	std::cout << "m_GTAlgoRates["<<i<<"] = "<< it->m_GTAlgoRates[i]<<std::endl;  
-      }
-     for(size_t i=0; i<it->m_GTAlgoPrescaling.size(); i++ ){ 
-       std::cout << "m_GTAlgoPrescaling["<<i<<"] = "<< it->m_GTAlgoPrescaling[i]<<std::endl;  
-      } 
-for(size_t i=0; i<it->m_GTTechCounts.size(); i++ ){ 
-       std::cout << " m_GTTechCounts["<<i<<"] = "<< it->m_GTTechCounts[i]<<std::endl;  
-      } 
-
-for(size_t i=0; i<it->m_GTTechRates.size(); i++ ){ 
-       std::cout << " m_GTTechRates["<<i<<"] = "<< it->m_GTTechRates[i]<<std::endl;  
-      } 
-for(size_t i=0; i<it->m_GTTechPrescaling.size(); i++ ){ 
-       std::cout << " m_GTTechPrescaling["<<i<<"] = "<< it->m_GTTechPrescaling[i]<<std::endl;  
-      } 
-for(size_t i=0; i<it->m_GTPartition0TriggerCounts.size(); i++ ){ 
-       std::cout << " m_GTPartition0TriggerCounts["<<i<<"] = "<< it->m_GTPartition0TriggerCounts[i]<<std::endl;  
-      } 
-for(size_t i=0; i<it->m_GTPartition0TriggerRates.size(); i++ ){ 
-       std::cout << " m_GTPartition0TriggerRates["<<i<<"] = "<< it->m_GTPartition0TriggerRates[i]<<std::endl;  
-      } 
-
-for(size_t i=0; i<it->m_GTPartition0DeadTime.size(); i++ ){ 
-       std::cout << " m_GTPartition0DeadTime["<<i<<"] = "<< it->m_GTPartition0DeadTime[i]<<std::endl;  
-      }
-for(size_t i=0; i<it->m_GTPartition0DeadTimeRatio.size(); i++ ){ 
-       std::cout << " m_GTPartition0DeadTimeRatio["<<i<<"] = "<< it->m_GTPartition0DeadTimeRatio[i]<<std::endl;  
-      }
-   }
-    */
+    edm::LogVerbatim("L1TriggerScaler") << "print  finished";
   }
   DEFINE_FWK_MODULE(L1TriggerScalerESAnalyzer);
-}
-
-
+}  // namespace edmtest

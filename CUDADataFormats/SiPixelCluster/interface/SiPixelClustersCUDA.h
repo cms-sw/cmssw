@@ -18,9 +18,13 @@ public:
   SiPixelClustersCUDA(SiPixelClustersCUDA &&) = default;
   SiPixelClustersCUDA &operator=(SiPixelClustersCUDA &&) = default;
 
-  void setNClusters(uint32_t nClusters) { nClusters_h = nClusters; }
+  void setNClusters(uint32_t nClusters, int32_t offsetBPIX2) {
+    nClusters_h = nClusters;
+    offsetBPIX2_h = offsetBPIX2;
+  }
 
   uint32_t nClusters() const { return nClusters_h; }
+  int32_t offsetBPIX2() const { return offsetBPIX2_h; }
 
   uint32_t *moduleStart() { return moduleStart_d.get(); }
   uint32_t *clusInModule() { return clusInModule_d.get(); }
@@ -32,7 +36,7 @@ public:
   uint32_t const *moduleId() const { return moduleId_d.get(); }
   uint32_t const *clusModuleStart() const { return clusModuleStart_d.get(); }
 
-  class DeviceConstView {
+  class SiPixelClustersCUDASOAView {
   public:
     __device__ __forceinline__ uint32_t moduleStart(int i) const { return __ldg(moduleStart_ + i); }
     __device__ __forceinline__ uint32_t clusInModule(int i) const { return __ldg(clusInModule_ + i); }
@@ -45,7 +49,7 @@ public:
     uint32_t const *clusModuleStart_;
   };
 
-  DeviceConstView *view() const { return view_d.get(); }
+  SiPixelClustersCUDASOAView const *view() const { return view_d.get(); }
 
 private:
   cms::cuda::device::unique_ptr<uint32_t[]> moduleStart_d;   // index of the first pixel of each module
@@ -55,9 +59,10 @@ private:
   // originally from rechits
   cms::cuda::device::unique_ptr<uint32_t[]> clusModuleStart_d;  // index of the first cluster of each module
 
-  cms::cuda::device::unique_ptr<DeviceConstView> view_d;  // "me" pointer
+  cms::cuda::device::unique_ptr<SiPixelClustersCUDASOAView> view_d;  // "me" pointer
 
   uint32_t nClusters_h = 0;
+  int32_t offsetBPIX2_h = 0;
 };
 
 #endif  // CUDADataFormats_SiPixelCluster_interface_SiPixelClustersCUDA_h

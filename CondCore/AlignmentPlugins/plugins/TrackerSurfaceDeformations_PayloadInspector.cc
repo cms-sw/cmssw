@@ -27,6 +27,9 @@
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
+// for the pixel map
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
+
 #include <memory>
 #include <sstream>
 #include <iostream>
@@ -393,6 +396,93 @@ namespace {
   // /************************************************
   //   TrackerMap of single parameter
   // *************************************************/
+  template <unsigned int par>
+  class SurfaceDeformationPixelMap : public PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV> {
+  public:
+    SurfaceDeformationPixelMap()
+        : PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV>(
+              "Tracker Map of Tracker Surface deformations - parameter: " + std::to_string(par)) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+
+      std::shared_ptr<AlignmentSurfaceDeformations> payload = fetchPayload(std::get<1>(iov));
+      auto listOfItems = payload->items();
+
+      TCanvas canvas("Canv", "Canv", 1400, 1000);
+      Phase1PixelSummaryMap fullMap("", "Surface deformation parameter " + std::to_string(par), "");
+      fullMap.createTrackerBaseMap();
+
+      std::map<unsigned int, float> surfDefMap;
+
+      bool isPhase0(false);
+      if (listOfItems.size() == AlignmentPI::phase0size) {
+        isPhase0 = true;
+      }
+
+      int iDet = 0;
+      for (const auto &item : listOfItems) {
+        // fill the tracker map
+        int subid = DetId(item.m_rawId).subdetId();
+
+        if (DetId(item.m_rawId).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << item.m_rawId << " - terminating ";
+          return false;
+        }
+
+        const auto beginEndPair = payload->parameters(iDet);
+        std::vector<align::Scalar> params(beginEndPair.first, beginEndPair.second);
+
+        iDet++;
+        // protect against exceeding the vector of parameter size
+        if (par >= params.size())
+          continue;
+
+        if (isPhase0) {
+          surfDefMap[item.m_rawId] = params.at(par);
+        } else {
+          if (subid == 1 || subid == 2) {
+            fullMap.fillTrackerMap(item.m_rawId, params.at(par));
+            surfDefMap[item.m_rawId] = params.at(par);
+          }
+        }
+      }  // loop over detIds
+
+      //=========================
+
+      if (surfDefMap.empty()) {
+        edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "No common DetIds have been found!!! ";
+      }
+
+      // protect against uniform values (Surface deformations are defined positive)
+      fullMap.printTrackerMap(canvas);
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  typedef SurfaceDeformationPixelMap<0> SurfaceDeformationParameter0PixelMap;
+  typedef SurfaceDeformationPixelMap<1> SurfaceDeformationParameter1PixelMap;
+  typedef SurfaceDeformationPixelMap<2> SurfaceDeformationParameter2PixelMap;
+  typedef SurfaceDeformationPixelMap<3> SurfaceDeformationParameter3PixelMap;
+  typedef SurfaceDeformationPixelMap<4> SurfaceDeformationParameter4PixelMap;
+  typedef SurfaceDeformationPixelMap<5> SurfaceDeformationParameter5PixelMap;
+  typedef SurfaceDeformationPixelMap<6> SurfaceDeformationParameter6PixelMap;
+  typedef SurfaceDeformationPixelMap<7> SurfaceDeformationParameter7PixelMap;
+  typedef SurfaceDeformationPixelMap<8> SurfaceDeformationParameter8PixelMap;
+  typedef SurfaceDeformationPixelMap<9> SurfaceDeformationParameter9PixelMap;
+  typedef SurfaceDeformationPixelMap<10> SurfaceDeformationParameter10PixelMap;
+  typedef SurfaceDeformationPixelMap<11> SurfaceDeformationParameter11PixelMap;
+  typedef SurfaceDeformationPixelMap<12> SurfaceDeformationParameter12PixelMap;
+
+  // /************************************************
+  //   TrackerMap of delta for a single parameter
+  // *************************************************/
   template <unsigned int m_par>
   class SurfaceDeformationsTkMapDelta : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
@@ -557,6 +647,162 @@ namespace {
   typedef SurfaceDeformationsTkMapDelta<10> SurfaceDeformationParameter10TkMapDelta;
   typedef SurfaceDeformationsTkMapDelta<11> SurfaceDeformationParameter11TkMapDelta;
   typedef SurfaceDeformationsTkMapDelta<12> SurfaceDeformationParameter12TkMapDelta;
+
+  // /************************************************
+  //   TrackerMap of delta for a single parameter
+  // *************************************************/
+  template <unsigned int m_par>
+  class SurfaceDeformationsPXMapDelta : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
+  public:
+    SurfaceDeformationsPXMapDelta()
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>(
+              "Tracker Map of Tracker Surface deformations differences - parameter: " + std::to_string(m_par)) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto sorted_iovs = tag.iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<AlignmentSurfaceDeformations> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<AlignmentSurfaceDeformations> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      auto first_listOfItems = first_payload->items();
+      auto last_listOfItems = last_payload->items();
+
+      std::string titleMap = "#Delta Surface deformation parameter " + std::to_string(m_par) +
+                             " (IOV : " + std::to_string(std::get<0>(lastiov)) + "- " +
+                             std::to_string(std::get<0>(firstiov)) + ")";
+
+      TCanvas canvas("Canv", "Canv", 1400, 1000);
+      Phase1PixelSummaryMap fullMap("", "#Delta Surface deformation parameter " + std::to_string(m_par), "");
+      fullMap.createTrackerBaseMap();
+
+      std::map<unsigned int, float> f_paramsMap;
+      std::map<unsigned int, float> l_paramsMap;
+      std::map<unsigned int, float> surfDefMap;
+
+      // check the payload sizes are matched
+      if (first_listOfItems.size() != last_listOfItems.size()) {
+        edm::LogInfo("TrackerSurfaceDeformations_PayloadInspector")
+            << "(" << firstIOVsince << ") has " << first_listOfItems.size() << " DetIds - (" << lastIOVsince << ") has "
+            << last_listOfItems.size() << " DetIds" << std::endl;
+      };
+
+      bool isPhase0(false);
+      if (first_listOfItems.size() <= AlignmentPI::phase0size) {
+        isPhase0 = true;
+      }
+
+      // loop on the first payload
+      int iDet = 0;
+      for (const auto &f_item : first_listOfItems) {
+        auto first_id = f_item.m_rawId;
+
+        if (DetId(first_id).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << first_id << " - terminating ";
+          return false;
+        }
+
+        const auto f_beginEndPair = first_payload->parameters(iDet);
+        std::vector<align::Scalar> first_params(f_beginEndPair.first, f_beginEndPair.second);
+
+        iDet++;
+        // protect against exceeding the vector of parameter size
+        if (m_par >= first_params.size())
+          continue;
+
+        f_paramsMap[first_id] = first_params.at(m_par);
+      }
+
+      // loop on the second payload
+      int jDet = 0;
+      for (const auto &l_item : last_listOfItems) {
+        auto last_id = l_item.m_rawId;
+
+        if (DetId(last_id).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << last_id << " - terminating ";
+          return false;
+        }
+
+        const auto l_beginEndPair = last_payload->parameters(jDet);
+        std::vector<align::Scalar> last_params(l_beginEndPair.first, l_beginEndPair.second);
+
+        jDet++;
+        // protect against exceeding the vector of parameter size
+        if (m_par >= last_params.size())
+          continue;
+
+        l_paramsMap[last_id] = last_params.at(m_par);
+      }
+
+      if (f_paramsMap.empty() || l_paramsMap.empty()) {
+        edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector")
+            << " One or more of the paylods is null \n"
+            << " Cannot perform the comparison." << std::endl;
+        return false;
+      }
+
+      // fill the tk map
+      for (const auto &f_entry : f_paramsMap) {
+        for (const auto &l_entry : l_paramsMap) {
+          if (f_entry.first != l_entry.first)
+            continue;
+
+          int subid = DetId(f_entry.first).subdetId();
+          float delta = (l_entry.second - f_entry.second);
+
+          if (isPhase0) {
+            surfDefMap[f_entry.first] = delta;
+          } else {
+            // fill pixel map only for phase-0 (in lack of a dedicate phase-I map)
+            if (subid == 1 || subid == 2) {
+              fullMap.fillTrackerMap(f_entry.first, delta);
+              surfDefMap[f_entry.first] = delta;
+            }
+          }  // if not phase-0
+        }    // loop on the last payload map
+      }      // loop on the first payload map
+
+      //=========================
+
+      if (surfDefMap.empty()) {
+        edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "No common DetIds have been found!!! ";
+      }
+
+      fullMap.printTrackerMap(canvas);
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  typedef SurfaceDeformationsPXMapDelta<0> SurfaceDeformationParameter0PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<1> SurfaceDeformationParameter1PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<2> SurfaceDeformationParameter2PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<3> SurfaceDeformationParameter3PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<4> SurfaceDeformationParameter4PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<5> SurfaceDeformationParameter5PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<6> SurfaceDeformationParameter6PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<7> SurfaceDeformationParameter7PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<8> SurfaceDeformationParameter8PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<9> SurfaceDeformationParameter9PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<10> SurfaceDeformationParameter10PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<11> SurfaceDeformationParameter11PXMapDelta;
+  typedef SurfaceDeformationsPXMapDelta<12> SurfaceDeformationParameter12PXMapDelta;
 
   // /************************************************
   //  Tracker Surface Deformations grand summary comparison of 2 IOVs
@@ -881,6 +1127,19 @@ PAYLOAD_INSPECTOR_MODULE(TrackerSurfaceDeformations) {
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12TrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter0PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter1PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter2PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter3PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter4PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter5PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter6PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter7PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter8PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter9PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11PixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12PixelMap);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter0TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter1TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter2TkMapDelta);
@@ -894,6 +1153,19 @@ PAYLOAD_INSPECTOR_MODULE(TrackerSurfaceDeformations) {
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12TkMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter0PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter1PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter2PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter3PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter4PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter5PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter6PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter7PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter8PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter9PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11PXMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12PXMapDelta);
   PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar0Comparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar1Comparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar2Comparator);

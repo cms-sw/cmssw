@@ -26,7 +26,7 @@
 // user include files
 
 //   base class
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,7 +34,7 @@
 // forward declarations
 
 // class declaration
-class L1GtBeamModeFilter : public edm::EDFilter {
+class L1GtBeamModeFilter : public edm::global::EDFilter<> {
 public:
   /// constructor
   explicit L1GtBeamModeFilter(const edm::ParameterSet&);
@@ -43,7 +43,7 @@ public:
   ~L1GtBeamModeFilter() override;
 
   /// filter the event
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   /// input tag for ConditionInEdm products
@@ -60,9 +60,6 @@ private:
 
   /// cache edm::isDebugEnabled()
   bool m_isDebugEnabled;
-
-  /// valid ConditionsInRunBlock product
-  bool m_condInRunBlockValid;
 };
 
 #endif  // GlobalTriggerAnalyzer_L1GtBeamModeFilter_h

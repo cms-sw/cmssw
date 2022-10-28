@@ -29,8 +29,6 @@ namespace edm {
       bool isEqualTo(BaseHolder<T> const& rhs) const override;
       REF const& getRef() const;
 
-      bool fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const override;
-
       std::unique_ptr<RefHolderBase> holder() const override {
         return std::unique_ptr<RefHolderBase>(new RefHolder<REF>(ref_));
       }
@@ -109,19 +107,6 @@ namespace edm {
     template <class T, class REF>
     inline EDProductGetter const* Holder<T, REF>::productGetter() const {
       return ref_.productGetter();
-    }
-
-    template <class T, class REF>
-    bool Holder<T, REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const {
-      RefHolder<REF>* h = dynamic_cast<RefHolder<REF>*>(&fillme);
-      bool conversion_worked = (h != nullptr);
-
-      if (conversion_worked)
-        h->setRef(ref_);
-      else
-        msg = typeid(REF).name();
-
-      return conversion_worked;
     }
 
   }  // namespace reftobase

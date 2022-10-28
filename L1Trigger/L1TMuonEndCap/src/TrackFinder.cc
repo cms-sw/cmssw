@@ -4,7 +4,7 @@
 #include <sstream>
 
 TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes)
-    : setup_(iConfig),
+    : setup_(iConfig, iConsumes),
       sector_processors_(),
       tokenDTPhi_(iConsumes.consumes<emtf::DTTag::digi_collection>(iConfig.getParameter<edm::InputTag>("DTPhiInput"))),
       tokenDTTheta_(

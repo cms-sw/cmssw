@@ -24,7 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.muonGeometryConstants.fromDD4Hep = True
+process.muonGeometryConstants.fromDD4hep = True
 process.DTGeometryESModule.applyAlignment = cms.bool(False)
 process.DTGeometryESModule.fromDDD = cms.bool(True)
 process.DTGeometryESModule.fromDD4hep = cms.bool(False)

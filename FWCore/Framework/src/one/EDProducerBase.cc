@@ -20,9 +20,10 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -56,7 +57,7 @@ namespace edm {
       EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       this->produce(e, c);
       commit_(e, &previousParentageId_);
       return true;
@@ -70,6 +71,23 @@ namespace edm {
     SerialTaskQueue* EDProducerBase::globalRunsQueue() { return nullptr; }
     SerialTaskQueue* EDProducerBase::globalLuminosityBlocksQueue() { return nullptr; };
 
+    void EDProducerBase::doTransformAsync(WaitingTaskHolder iTask,
+                                          size_t iTransformIndex,
+                                          EventPrincipal const& iEvent,
+                                          ActivityRegistry*,
+                                          ModuleCallingContext const* iMCC,
+                                          ServiceWeakToken const& iToken) {
+      EventForTransformer ev(iEvent, iMCC);
+      transformAsync_(iTask, iTransformIndex, ev, iToken);
+    }
+
+    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
+    ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+    void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
+                                         std::size_t iIndex,
+                                         edm::EventForTransformer& iEvent,
+                                         ServiceWeakToken const& iToken) const {}
+
     void EDProducerBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();
 
@@ -81,10 +99,12 @@ namespace edm {
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
-    void EDProducerBase::preallocLumis(unsigned int){};
+    void EDProducerBase::preallocRuns(unsigned int) {}
+    void EDProducerBase::preallocLumis(unsigned int) {}
 
     void EDProducerBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
       ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
@@ -118,11 +138,8 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
       this->doBeginRunProduce_(r, c);
@@ -136,7 +153,7 @@ namespace edm {
       r.setProducer(this);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doEndRunProduce_(r, c);
       this->doEndRun_(cnstR, c);
       commit_(r);
@@ -150,8 +167,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doBeginLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
@@ -166,8 +182,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doEndLuminosityBlockProduce_(lb, c);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);

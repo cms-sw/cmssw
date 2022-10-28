@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,7 +37,6 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace std;
 using namespace edm;
@@ -46,16 +45,15 @@ using namespace edm;
 // class declaration
 //
 
-class HcalRecHitReflagger : public edm::EDProducer {
+class HcalRecHitReflagger : public edm::one::EDProducer<> {
 public:
   explicit HcalRecHitReflagger(const edm::ParameterSet&);
   ~HcalRecHitReflagger();
 
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  virtual void beginRun(const Run& r, const EventSetup& c) override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // Threshold function gets values from polynomial-parameterized functions
   double GetThreshold(const int base, const std::vector<double>& params);
@@ -73,6 +71,8 @@ private:
   double GetSlope(const int ieta, const std::vector<double>& params);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
+  const edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> tokChan_;
   const HcalTopology* topo;
   edm::InputTag hfInputLabel_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
@@ -115,7 +115,9 @@ private:
 //
 // constructors and destructor
 //
-HcalRecHitReflagger::HcalRecHitReflagger(const edm::ParameterSet& ps) {
+HcalRecHitReflagger::HcalRecHitReflagger(const edm::ParameterSet& ps)
+    : tokTopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tokChan_(esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"))) {
   //register your products
   produces<HFRecHitCollection>();
 
@@ -158,9 +160,6 @@ HcalRecHitReflagger::~HcalRecHitReflagger() {
 //
 // member functions
 //
-
-void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c) {}
-
 // ------------ method called to produce the data  ------------
 void HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // read HF RecHits
@@ -171,14 +170,10 @@ void HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   //get the hcal topology
-  edm::ESHandle<HcalTopology> topo_;
-  iSetup.get<HcalRecNumberingRecord>().get(topo_);
-  topo = &*topo_;
+  topo = &iSetup.getData(tokTopo_);
 
   //get channel quality conditions
-  edm::ESHandle<HcalChannelQuality> p;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
-  const HcalChannelQuality& chanquality_(*p.product());
+  const HcalChannelQuality& chanquality_ = iSetup.getData(tokChan_);
 
   std::vector<DetId> mydetids = chanquality_.getAllChannels();
   for (std::vector<DetId>::const_iterator i = mydetids.begin(); i != mydetids.end(); ++i) {

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import
 from __future__ import print_function
 import urllib
@@ -6,14 +6,14 @@ from . import Config
 import string
 import os
 import sys
-import commands
+import subprocess
 import time
 import optparse
 
 def dasQuery(query,config):
   cmd = config.dasClient+" --limit=9999 --query=\"%s\""%query
   print(cmd)
-  output = commands.getstatusoutput(config.initEnv+cmd)
+  output = subprocess.getstatusoutput(config.initEnv+cmd)
   if output[0]!=0:
     print("DAS CLIENT ERROR %s"%output[0])
     print(output[1])
@@ -183,7 +183,7 @@ def cleanUp():
 def checkCorrupted(lastGood, config):
    calibTreeList = ""
    print("Get the list of calibTree from" + config.CASTORDIR + ")")
-   calibTreeInfo = commands.getstatusoutput(config.eosLs +config.CASTORDIR)[1].split('\n');
+   calibTreeInfo = subprocess.getstatusoutput(config.eosLs +config.CASTORDIR)[1].split('\n');
    NTotalEvents = 0;
    runList = []
 
@@ -221,7 +221,7 @@ def checkCorrupted(lastGood, config):
    #   print line
       #file = "root://eoscms/"+config.CASTORDIR+"/"+subParts[-1]
       #print("Checking " + file)
-      #results = commands.getstatusoutput(config.initEnv+'root -l -b -q ' + file)
+      #results = subprocess.getstatusoutput(config.initEnv+'root -l -b -q ' + file)
       #if(len(results[1].splitlines())>3):
       #   print(results[1]);
       #   print("add " + str(run) + " to the list of failled runs")
@@ -245,7 +245,7 @@ if False:
 
    calibTreeList = ""
    print("Get the list of calibTree from" + CASTORDIR + ")")
-   calibTreeInfo = commands.getstatusoutput(initEnv+"eos ls " + CASTORDIR)[1].split('\n');
+   calibTreeInfo = subprocess.getstatusoutput(initEnv+"eos ls " + CASTORDIR)[1].split('\n');
    NTotalEvents = 0;
    run = 0
    for info in calibTreeInfo:
@@ -255,7 +255,7 @@ if False:
       run = int(subParts[4].replace("/calibTree_","").replace(".root","").replace(CASTORDIR,""))
       file = "root://eoscms//eos/cms"+subParts[4]
       print("Checking " + file)
-      results = commands.getstatusoutput(initEnv+'root -l -b -q ' + file)
+      results = subprocess.getstatusoutput(initEnv+'root -l -b -q ' + file)
       if(len(results[1].splitlines())>3):
          print(results[1]);
          print("add " + str(run) + " to the list of failled runs")

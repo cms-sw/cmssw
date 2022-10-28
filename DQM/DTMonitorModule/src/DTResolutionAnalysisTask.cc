@@ -35,7 +35,8 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset)
       << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // the name of the 4D rec hits collection
-  recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+  recHits4DToken_ =
+      consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getUntrackedParameter<string>("recHits4DLabel")));
 
   prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);

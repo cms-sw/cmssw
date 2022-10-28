@@ -9,15 +9,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-
 EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
     : db_(nullptr),
       monIOV_(),
       worker_(nullptr),
       formula_(_ps.getUntrackedParameter<std::string>("formula")),
       meSet_(ecaldqm::createMESet(_ps.getUntrackedParameterSet("plot"))),
-      verbosity_(_ps.getUntrackedParameter<int>("verbosity")) {
+      verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
+      elecMapHandle(esConsumes<edm::Transition::EndRun>()) {
   std::string table(_ps.getUntrackedParameter<std::string>("table"));
   edm::ParameterSet const &workerParams(_ps.getUntrackedParameterSet("workerParams"));
 
@@ -159,11 +158,7 @@ void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker,
     meSet_->setBinContent(getEcalDQMSetupObjects(), vItr->first, vItr->second);
 }
 
-void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) {
-  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-  _es.get<EcalMappingRcd>().get(elecMapHandle);
-  electronicsMap = elecMapHandle.product();
-}
+void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) { electronicsMap = &_es.getData(elecMapHandle); }
 
 EcalElectronicsMapping const *EcalCondDBReader::GetElectronicsMap() {
   if (!electronicsMap)

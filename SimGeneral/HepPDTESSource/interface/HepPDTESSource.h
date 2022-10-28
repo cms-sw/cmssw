@@ -17,7 +17,6 @@
 // Original Author:  Luca Lista
 //         Created:  Fri Mar 10 15:58:18 CET 2006
 //
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"

@@ -21,6 +21,18 @@ int32_t HGCalTileIndex::tilePhi(int32_t id) {
   return ((id >> HGCalProperty::kHGCalPhiOffset) & HGCalProperty::kHGCalPhiMask);
 }
 
+int32_t HGCalTileIndex::tileCassette(int32_t iphi, int32_t phiOffset, int32_t nphiCassette, int32_t cassettes) {
+  int32_t cassette(0);
+  if (nphiCassette > 1) {
+    cassette = (iphi - phiOffset) / nphiCassette;
+    if (cassette < 0)
+      cassette += cassettes;
+    else if (cassette >= cassettes)
+      cassette = cassettes - 1;
+  }
+  return (cassette + 1);
+}
+
 int32_t HGCalTileIndex::tileProperty(int32_t type, int32_t sipm) {
   return (((type % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetType) +
           ((sipm % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetSiPM));

@@ -70,18 +70,6 @@ void TMVAEvaluator::initializeGBRForest(const GBRForest* gbrForest,
   mUseAdaBoost = useAdaBoost;
 }
 
-void TMVAEvaluator::initializeGBRForest(const edm::EventSetup& iSetup,
-                                        const std::string& label,
-                                        const std::vector<std::string>& variables,
-                                        const std::vector<std::string>& spectators,
-                                        bool useAdaBoost) {
-  edm::ESHandle<GBRForest> gbrForestHandle;
-
-  iSetup.get<GBRWrapperRcd>().get(label.c_str(), gbrForestHandle);
-
-  initializeGBRForest(gbrForestHandle.product(), variables, spectators, useAdaBoost);
-}
-
 float TMVAEvaluator::evaluateTMVA(const std::map<std::string, float>& inputs, bool useSpectators) const {
   // default value
   float value = -99.;

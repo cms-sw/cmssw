@@ -1,12 +1,12 @@
 /* Implementation of the  GEMGeometryParsFromDD Class
- *  Build the GEMGeometry from the DDD and DD4Hep description
+ *  Build the GEMGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
  *  Created:  Mon, 15 Feb 2021 
  *
  */
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
+#include "Geometry/GEMGeometryBuilder/interface/GEMGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -43,11 +43,13 @@ void GEMGeometryParsFromDD::build(const DDCompactView* cview,
   // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fv(*cview, filter);
+  DDFilteredView fv2(*cview, filter);
 
-  this->buildGeometry(fv, muonConstants, rgeo);
+  this->buildGeometry(fv, fv2, muonConstants, rgeo);
 }
 
 void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
+                                          DDFilteredView& fvGE2,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   LogDebug("GEMGeometryParsFromDD") << "Building the geometry service";
@@ -58,46 +60,83 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   MuonGeometryNumbering muonDDDNumbering(muonConstants);
   GEMNumberingScheme gemNumbering(muonConstants);
 
-  bool doSuper = fv.firstChild();
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  int nGE21 = 0;
+  bool doSuper = fvGE2.firstChild();
+  while (doSuper) {
+    // getting chamber id from eta partitions
+    fvGE2.firstChild();
+    doSuper = fvGE2.firstChild();
+    if (doSuper) {
+      int rawidCh = gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fvGE2.geoHistory()));
+      GEMDetId detIdCh = GEMDetId(rawidCh);
+      if (detIdCh.station() == 2)
+        nGE21++;
+
+      // back to chambers
+      fvGE2.parent();
+      fvGE2.parent();
+      doSuper = (nGE21 < 2 && fvGE2.nextSibling());
+    } else {
+      edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot determine presence of GE 2/1";
+    }
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  doSuper = fv.firstChild();
 
   LogDebug("GEMGeometryParsFromDD") << "doSuperChamber = " << doSuper;
   // loop over superchambers
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
-    fv.firstChild();
-    GEMDetId detIdCh =
-        GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
-    // back to chambers
-    fv.parent();
-    fv.parent();
+    doSuper = fv.firstChild();
+    if (doSuper) {
+      GEMDetId detIdCh =
+          GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
+      // back to chambers
+      fv.parent();
+      fv.parent();
 
-    // currently there is no superchamber in the geometry
-    // only 2 chambers are present separated by a gap.
-    // making superchamber out of the first chamber layer including the gap between chambers
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
-      buildSuperChamber(fv, detIdCh, rgeo);
-    }
-    buildChamber(fv, detIdCh, rgeo);
+      // currently there is no superchamber in the geometry
+      // only 2 chambers are present separated by a gap.
+      // making superchamber out of the first chamber layer including the gap between chambers
 
-    // loop over chambers
-    // only 1 chamber
-    bool doChambers = fv.firstChild();
-    while (doChambers) {
-      // loop over GEMEtaPartitions
-      bool doEtaPart = fv.firstChild();
-      while (doEtaPart) {
-        GEMDetId detId =
-            GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
-        buildEtaPartition(fv, detId, rgeo);
+      // In Run 3 we also have a single GE2/1 chamber at layer 2. We
+      // make sure the superchamber gets built but also we build on the
+      // first layer for the other stations so the superchamber is in
+      // the right position there.
+      if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
+        buildSuperChamber(fv, detIdCh, rgeo);
+      }
+      buildChamber(fv, detIdCh, rgeo);
 
-        doEtaPart = fv.nextSibling();
+      // loop over chambers
+      // only 1 chamber
+      bool doChambers = fv.firstChild();
+      while (doChambers) {
+        // loop over GEMEtaPartitions
+        bool doEtaPart = fv.firstChild();
+        while (doEtaPart) {
+          GEMDetId detId =
+              GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
+          buildEtaPartition(fv, detId, rgeo);
+
+          doEtaPart = fv.nextSibling();
+        }
+        fv.parent();
+        doChambers = fv.nextSibling();
       }
       fv.parent();
-      doChambers = fv.nextSibling();
+      doSuper = fv.nextSibling();
+    } else {
+      edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot build GEM chambers.";
     }
-    fv.parent();
-    doSuper = fv.nextSibling();
   }
 }
 
@@ -219,7 +258,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv) {
   return {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 }
 
-// DD4Hep
+// DD4hep
 
 void GEMGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
@@ -236,7 +275,7 @@ void GEMGeometryParsFromDD::build(const cms::DDCompactView* cview,
 void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
-  edm::LogVerbatim("GEMGeometryParsFromDD") << "(0) GEMGeometryParsFromDD - DD4HEP ";
+  edm::LogVerbatim("GEMGeometryParsFromDD") << "(0) GEMGeometryParsFromDD - DD4hep ";
 
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
@@ -246,6 +285,24 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
   int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
 
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  auto start = fv.copyNos();
+  int nGE21 = 0;
+  while (nGE21 < 2 && fv.firstChild()) {
+    const auto& history = fv.history();
+    MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
+    GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
+    if (fv.level() == levelChamb && detId.station() == 2) {
+      nGE21++;
+    }
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  fv.goTo(start);
   while (fv.firstChild()) {
     const auto& history = fv.history();
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
@@ -267,7 +324,7 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if (detId.layer() == 1) {
+        if ((detId.layer() == 1) || (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
           buildSuperChamber(fv, detId, rgeo);
         }
         buildChamber(fv, detId, rgeo);
@@ -305,7 +362,7 @@ void GEMGeometryParsFromDD::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId 
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(3) DD4HEP, SuperChamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1
+      << "(3) DD4hep, SuperChamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1
       << " dx2 " << dx2 << " dy " << dy << " dz " << dz;
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -333,7 +390,7 @@ void GEMGeometryParsFromDD::buildChamber(cms::DDFilteredView& fv, GEMDetId detId
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(4) DD4HEP, Chamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
+      << "(4) DD4hep, Chamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
       << dx2 << " dy " << dy << " dz " << dz;
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -356,7 +413,7 @@ void GEMGeometryParsFromDD::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId 
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(5) DD4HEP, Eta Partion DetID " << detId.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
+      << "(5) DD4hep, Eta Partion DetID " << detId.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
       << dx2 << " dy " << dy << " dz " << dz << " nStrips " << nStrips << " nPads " << nPads << " dPhi " << dPhi;
   rgeo.insert(detId.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -368,7 +425,7 @@ std::vector<double> GEMGeometryParsFromDD::getTranslation(cms::DDFilteredView& f
   tran[2] = static_cast<double>(fv.translation().Z()) / dd4hep::mm;
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(1) DD4HEP, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
+      << "(1) DD4hep, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
   return {tran[0], tran[1], tran[2]};
 }
 
@@ -379,7 +436,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(cms::DDFilteredView& fv) 
   rota.GetComponents(x, y, z);
   const std::vector<double> rot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(2) DD4HEP, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
+      << "(2) DD4hep, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
       << "  " << rot[5] << " " << rot[6] << "  " << rot[7] << "  " << rot[8];
   return {rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7], rot[8]};
 }

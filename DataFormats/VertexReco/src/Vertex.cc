@@ -83,7 +83,7 @@ TrackBaseRef Vertex::originalTrack(const Track& refTrack) const {
     throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
   std::vector<Track>::const_iterator it = find_if(refittedTracks_.begin(), refittedTracks_.end(), TrackEqual(refTrack));
   if (it == refittedTracks_.end())
-    throw cms::Exception("Vertex") << "Refitted track not found in list\n";
+    throw cms::Exception("Vertex") << "Refitted track not found in list.\n pt used for comparison: " << refTrack.pt();
   size_t pos = it - refittedTracks_.begin();
   return tracks_[pos];
 }

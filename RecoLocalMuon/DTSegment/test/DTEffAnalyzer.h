@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
@@ -31,6 +31,7 @@ class DTLayerId;
 class DTSuperLayerId;
 class DTChamberId;
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 class DTTTrigBaseSync;
 
@@ -41,7 +42,7 @@ class DTTTrigBaseSync;
 
 /* Class DTEffAnalyzer Interface */
 
-class DTEffAnalyzer : public edm::EDAnalyzer {
+class DTEffAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /* Constructor */
   DTEffAnalyzer(const edm::ParameterSet& pset);
@@ -53,7 +54,6 @@ public:
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
   void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
 private:
   TH1F* histo(const std::string& name) const;
@@ -104,6 +104,7 @@ private:
   double theMinCloseDist;
 
   edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDtGeomToken;
   edm::Handle<DTRecSegment4DCollection> segs;
 
 protected:

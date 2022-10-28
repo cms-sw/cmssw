@@ -4,4 +4,3 @@
 <use name="Geometry/Records"/>
 <use name="FWCore/ParameterSet"/>
 <use name="geant4core"/>
-<use name="boost"/>

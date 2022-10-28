@@ -15,8 +15,6 @@
 #include "OuterDetCompatibility.h"
 #include "OuterHitCompatibility.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Utilities/interface/Visibility.h"
 
 template <typename Algo>
@@ -24,9 +22,7 @@ class dso_internal OuterEstimator final : public MeasurementEstimator {
 public:
   using OuterHitCompat = OuterHitCompatibility<Algo>;
 
-  OuterEstimator(const OuterDetCompatibility& detCompatibility,
-                 const OuterHitCompat& hitCompatibility,
-                 const edm::EventSetup& iSetup)
+  OuterEstimator(const OuterDetCompatibility& detCompatibility, const OuterHitCompat& hitCompatibility)
       : theDetCompatibility(detCompatibility), theHitCompatibility(hitCompatibility) {}
 
   ~OuterEstimator() override {}

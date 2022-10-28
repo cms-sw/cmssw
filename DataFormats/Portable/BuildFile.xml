@@ -1,0 +1,2 @@
+<use name="alpaka"/>
+<use name="HeterogeneousCore/AlpakaInterface" source_only="1"/>

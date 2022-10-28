@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("DQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DQM", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -107,3 +108,4 @@ if (process.runType.getRunType() == process.runType.hi_run):
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Final Source settings:", process.source)

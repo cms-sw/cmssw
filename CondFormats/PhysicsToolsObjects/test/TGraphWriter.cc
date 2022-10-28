@@ -1,11 +1,10 @@
-#include "CondFormats/PhysicsToolsObjects/test/TGraphWriter.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
+#include "CondFormats/PhysicsToolsObjects/test/TGraphWriter.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <TFile.h>
 #include <TGraph.h>
@@ -42,9 +41,9 @@ void TGraphWriter::analyze(const edm::Event&, const edm::EventSetup&) {
       throw cms::Exception("TGraphWriter") << " Failed to access PoolDBOutputService !!\n";
     std::cout << " writing TGraph = " << (*job)->graphName_ << " to SQLlite file, record = " << (*job)->outputRecord_
               << "." << std::endl;
-    PhysicsTGraphPayload* graphPayload = new PhysicsTGraphPayload(*graph);
+    PhysicsTGraphPayload graphPayload(*graph);
     delete graph;
-    dbService->writeOne(graphPayload, dbService->beginOfTime(), (*job)->outputRecord_);
+    dbService->writeOneIOV(graphPayload, dbService->beginOfTime(), (*job)->outputRecord_);
   }
 
   std::cout << "done." << std::endl;

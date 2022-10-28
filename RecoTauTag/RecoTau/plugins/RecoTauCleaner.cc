@@ -14,7 +14,6 @@
  *
  */
 
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <algorithm>
 #include <memory>
 

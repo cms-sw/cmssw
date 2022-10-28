@@ -32,6 +32,7 @@ namespace edm {
       int minBunch_;
       int maxBunch_;
       bool playback_;
+      bool configFromDB_ = false;
       std::vector<std::string> sourceNames_;
       std::vector<std::shared_ptr<PileUpConfig>> inputConfigs_;
     };

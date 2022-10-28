@@ -102,10 +102,10 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
 
                 # count entries which are not shown anymore
                 # bin 1 to begin of histogram
-                for j in range(1, numberOfBins / 2 - binShift):
+                for j in range(1, numberOfBins // 2 - binShift):
                     plot.hiddenEntries[i] += plot.histo[i].GetBinContent(j)
                 # from the end of shown bins to the end of histogram
-                for j in range(numberOfBins / 2 + binShift, plot.histo[i].GetNbinsX()):
+                for j in range(numberOfBins // 2 + binShift, plot.histo[i].GetNbinsX()):
                     plot.hiddenEntries[i] += plot.histo[i].GetBinContent(j)
 
                 # merge bins, ca. 100 should be visible in the resulting plot
@@ -128,8 +128,8 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
                     # set view range. it is important to note that the number of bins have changed with the rebinning
                     # the total number and the number of shift must be
                     # corrected with / mergeNumberBins
-                    plot.histo[i].GetXaxis().SetRange(int(numberOfBins / (2 * mergeNumberBins) - binShift /
-                                                          mergeNumberBins), int(numberOfBins / (2 * mergeNumberBins) + binShift / mergeNumberBins))
+                    plot.histo[i].GetXaxis().SetRange(int(numberOfBins // (2 * mergeNumberBins) - binShift /
+                                                          mergeNumberBins), int(numberOfBins // (2 * mergeNumberBins) + binShift / mergeNumberBins))
 
         # save copy
         plots[subStructNumber] = plot

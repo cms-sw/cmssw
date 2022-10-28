@@ -97,9 +97,8 @@ protected:
   //	Timing
   //	just filling - no summary!
   hcaldqm::Container1D _cTimingCut_SubdetPM;
-  hcaldqm::ContainerProf2D _cTimingCut_FEDVME;
+  hcaldqm::Container1D _cTimingCutHTH_SubdetPM;
   hcaldqm::ContainerProf2D _cTimingCut_FEDuTCA;
-  hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
   hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
   hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
   hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
@@ -112,9 +111,7 @@ protected:
 
   //	Occupancy w/o a Cut - whatever is sitting in the Digi Collection
   //	used to determine Missing Digis => used for Summary!
-  hcaldqm::Container2D _cOccupancy_FEDVME;
   hcaldqm::Container2D _cOccupancy_FEDuTCA;
-  hcaldqm::Container2D _cOccupancy_ElectronicsVME;
   hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
   hcaldqm::Container2D _cOccupancy_Crate;
   hcaldqm::Container2D _cOccupancy_CrateSlot;
@@ -125,9 +122,7 @@ protected:
   //	Occupancy w/ a Cut
   //	used to determine if occupancy is symmetric or not. =>
   //	used for Summary
-  hcaldqm::Container2D _cOccupancyCut_FEDVME;
   hcaldqm::Container2D _cOccupancyCut_FEDuTCA;
-  hcaldqm::Container2D _cOccupancyCut_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyCut_ElectronicsuTCA;
   hcaldqm::Container2D _cOccupancyCut_depth;
   hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM;  // online only
@@ -172,7 +167,6 @@ protected:
   // (Capid - BX) % 4
   hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
   hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4];  // CrateSlot 2D histograms for each (capid-BX)%4
-  hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4];   // CrateSlot 2D histograms for each (capid-BX)%4
   hcaldqm::ContainerSingle2D _cCapid_BadvsFEDvsLS;
   hcaldqm::ContainerSingle2D
       _cCapid_BadvsFEDvsLSmod60;  // Same as _cCapid_BadvsFEDvsLS, but only for last 50 LSes (for sound alarm turning off when problem goes away)

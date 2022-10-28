@@ -14,7 +14,6 @@
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,7 +33,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -177,7 +175,6 @@ private:
   StringCutObjectSelector<reco::GenMET> *_genMETSelector;
   StringCutObjectSelector<reco::CaloMET> *_recCaloMETSelector;
   StringCutObjectSelector<reco::CaloMET> *_recCaloMHTSelector;
-  StringCutObjectSelector<l1extra::L1EtMissParticle> *_l1METSelector;
   StringCutObjectSelector<reco::PFTau> *_recPFTauSelector;
   StringCutObjectSelector<reco::Photon> *_recPhotonSelector;
   StringCutObjectSelector<reco::PFJet> *_recPFJetSelector;

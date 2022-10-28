@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -14,9 +13,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -30,6 +26,9 @@ TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(const std::string& name,
       _trackerTopology(nullptr),
       _trackerGeometry(nullptr),
       _misalignedTrackerGeometry(nullptr),
+      trackerTopologyESToken_(consumesCollector.esConsumes()),
+      trackerGeometryESToken_(consumesCollector.esConsumes()),
+      misalignedTrackerGeometryESToken_(consumesCollector.esConsumes(edm::ESInputTag("", "MisAligned"))),
       _randomEngine(nullptr) {}
 
 const TrackerTopology& TrackingRecHitAlgorithm::getTrackerTopology() const {
@@ -72,17 +71,9 @@ void TrackingRecHitAlgorithm::beginRun(edm::Run const& run,
 }
 
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  edm::ESHandle<TrackerGeometry> misalignedGeometryHandle;
-
-  eventSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  eventSetup.get<TrackerDigiGeometryRecord>().get("MisAligned", misalignedGeometryHandle);
-
-  _trackerTopology = trackerTopologyHandle.product();
-  _trackerGeometry = trackerGeometryHandle.product();
-  _misalignedTrackerGeometry = misalignedGeometryHandle.product();
+  _trackerTopology = &eventSetup.getData(trackerTopologyESToken_);
+  _trackerGeometry = &eventSetup.getData(trackerGeometryESToken_);
+  _misalignedTrackerGeometry = &eventSetup.getData(misalignedTrackerGeometryESToken_);
 }
 
 TrackingRecHitProductPtr TrackingRecHitAlgorithm::process(TrackingRecHitProductPtr product) const { return product; }

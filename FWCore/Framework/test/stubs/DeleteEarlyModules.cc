@@ -16,8 +16,9 @@
 
 // user include files
 #include "DataFormats/TestObjects/interface/DeleteEarly.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -26,16 +27,35 @@
 #include "FWCore/Framework/interface/Event.h"
 
 namespace edmtest {
-  class DeleteEarlyProducer : public edm::EDProducer {
+  class DeleteEarlyProducer : public edm::global::EDProducer<> {
   public:
-    DeleteEarlyProducer(edm::ParameterSet const& pset) { produces<DeleteEarly>(); }
+    explicit DeleteEarlyProducer(edm::ParameterSet const& pset) { produces<DeleteEarly>(); }
 
-    virtual void beginJob() {
+    void beginJob() override {
       // Needed because DeleteEarly objects may be allocated and deleted in initialization
       edmtest::DeleteEarly::resetDeleteCount();
     }
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&) { e.put(std::make_unique<DeleteEarly>()); }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const override {
+      e.put(std::make_unique<DeleteEarly>());
+    }
+  };
+
+  class DeleteEarlyRefProdProducer : public edm::global::EDProducer<> {
+  public:
+    explicit DeleteEarlyRefProdProducer(edm::ParameterSet const& pset)
+        : m_token{consumes(pset.getParameter<edm::InputTag>("get"))} {
+      m_put = produces<edm::RefProd<DeleteEarly>>();
+    }
+
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const override {
+      auto h = e.getHandle(m_token);
+      e.emplace(m_put, h);
+    }
+
+  private:
+    const edm::EDGetTokenT<DeleteEarly> m_token;
+    edm::EDPutTokenT<edm::RefProd<DeleteEarly>> m_put;
   };
 
   class DeleteEarlyReader : public edm::global::EDAnalyzer<> {
@@ -60,12 +80,23 @@ namespace edmtest {
   private:
   };
 
-  class DeleteEarlyCheckDeleteAnalyzer : public edm::EDAnalyzer {
+  class DeleteEarlyRefProdReader : public edm::global::EDAnalyzer<> {
+  public:
+    DeleteEarlyRefProdReader(edm::ParameterSet const& pset)
+        : getToken_(consumes(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
+
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_).get(); }
+
+  private:
+    edm::EDGetTokenT<edm::RefProd<DeleteEarly>> getToken_;
+  };
+
+  class DeleteEarlyCheckDeleteAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     DeleteEarlyCheckDeleteAnalyzer(edm::ParameterSet const& pset)
         : m_expectedValues(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedValues")), m_index(0) {}
 
-    virtual void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       if (DeleteEarly::nDeletes() != m_expectedValues.at(m_index)) {
         throw cms::Exception("DeleteEarlyError")
             << "On index " << m_index << " we expected " << m_expectedValues[m_index] << " deletes but we see "
@@ -81,6 +112,8 @@ namespace edmtest {
 }  // namespace edmtest
 using namespace edmtest;
 DEFINE_FWK_MODULE(DeleteEarlyProducer);
+DEFINE_FWK_MODULE(DeleteEarlyRefProdProducer);
 DEFINE_FWK_MODULE(DeleteEarlyReader);
+DEFINE_FWK_MODULE(DeleteEarlyRefProdReader);
 DEFINE_FWK_MODULE(DeleteEarlyConsumer);
 DEFINE_FWK_MODULE(DeleteEarlyCheckDeleteAnalyzer);

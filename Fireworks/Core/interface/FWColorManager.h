@@ -98,17 +98,18 @@ public:
 
   void setDefaultGeomColors();
   void propagatePaletteChanges() const;
-  mutable sigc::signal<void> colorsHaveChanged_;
-  mutable sigc::signal<void> geomColorsHaveChanged_;
-  mutable sigc::signal<void, bool> geomTransparencyHaveChanged_;
+  mutable sigc::signal<void()> colorsHaveChanged_;
+  mutable sigc::signal<void()> geomColorsHaveChanged_;
+  mutable sigc::signal<void(bool)> geomTransparencyHaveChanged_;
 
   //called after all the slots attached to colorsHaveChanged_ are done
-  mutable sigc::signal<void> colorsHaveChangedFinished_;
+  mutable sigc::signal<void()> colorsHaveChangedFinished_;
 
-private:
   FWColorManager(const FWColorManager&) = delete;  // stop default
 
   const FWColorManager& operator=(const FWColorManager&) = delete;  // stop default
+
+public:
   void updateColors();
   void initColorTable();
 

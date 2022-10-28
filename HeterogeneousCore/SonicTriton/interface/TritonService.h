@@ -2,6 +2,7 @@
 #define HeterogeneousCore_SonicTriton_TritonService
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include <vector>
 #include <unordered_set>
@@ -38,7 +39,13 @@ public:
           instanceName(pset.getUntrackedParameter<std::string>("instanceName")),
           tempDir(pset.getUntrackedParameter<std::string>("tempDir")),
           imageName(pset.getUntrackedParameter<std::string>("imageName")),
-          sandboxName(pset.getUntrackedParameter<std::string>("sandboxName")) {}
+          sandboxName(pset.getUntrackedParameter<std::string>("sandboxName")) {
+      //randomize instance name
+      if (instanceName.empty()) {
+        instanceName =
+            pset.getUntrackedParameter<std::string>("instanceBaseName") + "_" + edm::createGlobalIdentifier();
+      }
+    }
 
     bool enable;
     bool debug;
@@ -51,6 +58,7 @@ public:
     std::string tempDir;
     std::string imageName;
     std::string sandboxName;
+    std::string command;
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
@@ -109,6 +117,11 @@ private:
   void postModuleConstruction(edm::ModuleDescription const&);
   void preModuleDestruction(edm::ModuleDescription const&);
   void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+  void postEndJob();
+
+  //helper
+  template <typename LOG>
+  void printFallbackServerLog() const;
 
   bool verbose_;
   FallbackOpts fallbackOpts_;

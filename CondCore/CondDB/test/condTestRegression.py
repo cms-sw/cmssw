@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import sys, os
@@ -9,26 +9,19 @@ import shutil
 import re
 import json
 
-# Boost 1.51 [no writers available - a back-port is required!]
-#readers = { 'CMSSW_7_1_0'        : ['slc6_amd64_gcc490'], 
-#          }
-
-# Boost 1.57
-#readers = { 'CMSSW_7_5_0'        : ['slc6_amd64_gcc491'], 
-#          }
-
-# Boost 1.63
-#readers = { 'CMSSW_9_0_0'        : ['slc6_amd64_gcc530'], 
-#          }
-
-# Boost 1.67 [No reference release yet...]
 readers = {
           }
 
-writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
+writers = { 'CMSSW_12_3_0'       : [ ('slc7_amd64_gcc10',  'ref1230-s710.db')],
+            'CMSSW_11_3_0'       : [ ('slc7_amd64_gcc900', 'ref1130-s7900.db')],
+            'CMSSW_11_1_0'       : [ ('slc7_amd64_gcc820', 'ref1110-s7820.db')],
+            'CMSSW_10_4_0'       : [ ('slc7_amd64_gcc700', 'ref1040-s7700.db')],
+            'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
             'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref750-s6530.db'),('slc6_amd64_gcc600', 'ref750-s600.db')],
             'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref750-s6493.db')]
           }
+
+os2image_overrides = {"slc7": "cc7"}
 
 def check_output(*popenargs, **kwargs):
     '''Mimics subprocess.check_output() in Python 2.6
@@ -152,6 +145,15 @@ class CondRegressionTester(object):
         cmd += "echo 'CMSSW_BASE='$CMSSW_BASE; echo 'RELEASE_BASE='$RELEASE_BASE; echo 'PATH='$PATH; echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH;"
         cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (arch, readOrWrite, self.dbDir, dbName)
 
+        cur_os = os.environ['SCRAM_ARCH'].split("_")[0]
+        rel_os = arch.split("_")[0]
+        if cur_os in os2image_overrides: cur_os = os2image_overrides[cur_os]
+        if rel_os in os2image_overrides: rel_os = os2image_overrides[rel_os]
+        if rel_os != cur_os:
+          run_script = "%s/run_condTestRegression.sh" % self.topDir
+          check_output("echo '%s' > %s; chmod +x %s" % (cmd, run_script, run_script), shell=True, universal_newlines=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+          cmd = "%s/common/cmssw-env --cmsos %s -- %s" % (cmsPath, rel_os, run_script)
+        print("Running:",cmd)
         try:
             #opening a process with a clean environment ( to avoid to inherit scram variables )
             res = check_output(cmd, shell=True, universal_newlines=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -173,7 +175,7 @@ class CondRegressionTester(object):
         execName = 'test/%s/testReadWritePayloads' %self.arch
         executable = '%s/%s' %(os.environ['LOCALRT'],execName)
         if not os.path.exists(executable):
-            print('Executable %s not found in local release.')
+            print('Executable %s not found in local release.' % executable)
             executable = None
             for rel_base_env in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE' ]:
                 if os.getenv(rel_base_env) and os.path.exists(str(os.environ[rel_base_env])+'/%s' %execName):

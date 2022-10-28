@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -53,10 +53,10 @@ using namespace std;
 
 enum testMuChamberType { DT, RPC, CSC };
 
-class Geant4ePropagatorAnalyzer : public edm::EDAnalyzer {
+class Geant4ePropagatorAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit Geant4ePropagatorAnalyzer(const edm::ParameterSet &);
-  ~Geant4ePropagatorAnalyzer() override {}
+  ~Geant4ePropagatorAnalyzer() override = default;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
@@ -67,6 +67,12 @@ public:
                        const FreeTrajectoryState &ftsTrack);
 
 protected:
+  // event setup tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken;
+
   int theRun;
   int theEvent;
 
@@ -127,16 +133,31 @@ protected:
   TH1F *fSLayerNegPhi;
   TH1F *fLayerNegPhi;
 
-  edm::InputTag G4VtxSrc_;
+  // event data tokens
   edm::InputTag G4TrkSrc_;
+  edm::InputTag G4VtxSrc_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simHitsDTToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simHitsCSCToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simHitsRPCToken_;
 };
 
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet &iConfig)
-    : theRun(-1),
+    : magFieldToken(esConsumes()),
+      dtGeomToken(esConsumes()),
+      rpcGeomToken(esConsumes()),
+      cscGeomToken(esConsumes()),
+      theRun(-1),
       theEvent(-1),
       thePropagator(nullptr),
+      G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")),
       G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
-      G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
+      simTrackToken_(consumes<edm::SimTrackContainer>(G4TrkSrc_)),
+      simVertexToken_(consumes<edm::SimVertexContainer>(G4VtxSrc_)),
+      simHitsDTToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonDTHits"))),
+      simHitsCSCToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonCSCHits"))),
+      simHitsRPCToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonRPCHits"))) {
   // debug_ = iConfig.getParameter<bool>("debug");
   fStudyStation = iConfig.getParameter<int>("StudyStation");
 
@@ -279,8 +300,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
 
   ///////////////////////////////////////
   // Construct Magnetic Field
-  ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
+  const ESHandle<MagneticField> bField = iSetup.getHandle(magFieldToken);
   if (bField.isValid())
     LogDebug("Geant4e") << "G4e -- Magnetic field is valid. Value in (0,0,0): "
                         << bField->inTesla(GlobalPoint(0, 0, 0)).mag() << " Tesla";
@@ -291,15 +311,15 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   // Build geometry
 
   //- DT...
-  iSetup.get<MuonGeometryRecord>().get(theDTGeomESH);
+  theDTGeomESH = iSetup.getHandle(dtGeomToken);
   LogDebug("Geant4e") << "Got DTGeometry";
 
   //- CSC...
-  iSetup.get<MuonGeometryRecord>().get(theCSCGeomESH);
+  theCSCGeomESH = iSetup.getHandle(cscGeomToken);
   LogDebug("Geant4e") << "Got CSCGeometry";
 
   //- RPC...
-  iSetup.get<MuonGeometryRecord>().get(theRPCGeomESH);
+  theRPCGeomESH = iSetup.getHandle(rpcGeomToken);
   LogDebug("Geant4e") << "Got RPCGeometry";
 
   ///////////////////////////////////////
@@ -321,42 +341,37 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
 
   ///////////////////////////////////////
   // Get the sim tracks & vertices
-  Handle<SimTrackContainer> simTracks;
-  iEvent.getByLabel<SimTrackContainer>(G4TrkSrc_, simTracks);
+  Handle<SimTrackContainer> simTracks = iEvent.getHandle(simTrackToken_);
   if (!simTracks.isValid()) {
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
   }
   LogDebug("Geant4e") << "G4e -- Got simTracks of size " << simTracks->size();
 
-  Handle<SimVertexContainer> simVertices;
-  iEvent.getByLabel<SimVertexContainer>(G4VtxSrc_, simVertices);
+  Handle<SimVertexContainer> simVertices = iEvent.getHandle(simVertexToken_);
   if (!simVertices.isValid()) {
-    LogWarning("Geant4e") << "No tracks found" << std::endl;
+    LogWarning("Geant4e") << "No vertices found" << std::endl;
     return;
   }
   LogDebug("Geant4e") << "Got simVertices of size " << simVertices->size();
 
   ///////////////////////////////////////
   // Get the sim hits for the different muon parts
-  Handle<PSimHitContainer> simHitsDT;
-  iEvent.getByLabel("g4SimHits", "MuonDTHits", simHitsDT);
+  Handle<PSimHitContainer> simHitsDT = iEvent.getHandle(simHitsDTToken_);
   if (!simHitsDT.isValid()) {
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;
   }
   LogDebug("Geant4e") << "Got MuonDTHits of size " << simHitsDT->size();
 
-  Handle<PSimHitContainer> simHitsCSC;
-  iEvent.getByLabel("g4SimHits", "MuonCSCHits", simHitsCSC);
+  Handle<PSimHitContainer> simHitsCSC = iEvent.getHandle(simHitsCSCToken_);
   if (!simHitsCSC.isValid()) {
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;
   }
   LogDebug("Geant4e") << "Got MuonCSCHits of size " << simHitsCSC->size();
 
-  Handle<PSimHitContainer> simHitsRPC;
-  iEvent.getByLabel("g4SimHits", "MuonRPCHits", simHitsRPC);
+  Handle<PSimHitContainer> simHitsRPC = iEvent.getHandle(simHitsRPCToken_);
   if (!simHitsRPC.isValid()) {
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;

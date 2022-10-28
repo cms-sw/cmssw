@@ -44,6 +44,7 @@ class PSimHit;
 class SiStripDigitizerAlgorithm;
 class StripGeomDetUnit;
 class TrackerGeometry;
+class SiStripBadStrip;
 
 /** @brief Accumulator to perform digitisation on the strip tracker sim hits.
  *
@@ -103,8 +104,12 @@ private:
   const edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   const edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> thresholdToken_;
   const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  const edm::ESGetToken<SiStripBadStrip, SiStripBadChannelRcd> deadChannelToken_;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
   edm::ESGetToken<SiStripApvSimulationParameters, SiStripApvSimulationParametersRcd> apvSimulationParametersToken_;
+
+  unsigned long long ddCacheID_ = 0;
+  unsigned long long deadChannelCacheID_ = 0;
 
   ///< Whether or not to create the association to sim truth collection. Set in configuration.
   /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.

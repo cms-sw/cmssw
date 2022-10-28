@@ -57,6 +57,9 @@ namespace fwlite {
     // at least as long as Run
     Run(TFile* iFile);
     Run(std::shared_ptr<BranchMapReader> branchMap);
+    Run(const Run&) = delete;                   // stop default
+    const Run& operator=(const Run&) = delete;  // stop default
+
     ~Run() override;
 
     const Run& operator++() override;
@@ -99,10 +102,6 @@ namespace fwlite {
   private:
     friend class internal::ProductGetter;
     friend class RunHistoryGetter;
-
-    Run(const Run&) = delete;  // stop default
-
-    const Run& operator=(const Run&) = delete;  // stop default
 
     const edm::ProcessHistory& history() const;
     void updateAux(Long_t runIndex) const;

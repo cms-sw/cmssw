@@ -218,6 +218,25 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
   }
 }
 
+/// Add ALCT anodes HMT shower bits per ALCT BX
+void CSCALCTHeader::addShower(const std::vector<CSCShowerDigi> &digis) {
+  if (firmwareVersion == 2007) {
+    if (theALCTs.empty()) {
+      theALCTs.resize(header2007.lctBins * 2);
+    }
+    for (std::vector<CSCShowerDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
+      int bx = digi - digis.begin();
+      if (bx < (int)header2007.lctBins) {
+        const CSCShowerDigi &digi = digis[bx];
+        int i = bx * 2;
+        unsigned hmt_bits = digi.isValid() ? digi.bitsInTime() : 0;
+        theALCTs[i].reserved = hmt_bits & 0x3;
+        theALCTs[i + 1].reserved = hmt_bits & 0x3;
+      }
+    }
+  }
+}
+
 boost::dynamic_bitset<> CSCALCTHeader::pack() {
   boost::dynamic_bitset<> result;
   if (firmwareVersion == 2006) {

@@ -1,0 +1,24 @@
+##### start of project from GitHub; 
+### PR preparation;
+0)
+cd /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMScript
+setenv SCRAM_ARCH slc7_amd64_gcc820
+scram p -s CMSSW CMSSW_11_1_7
+cd CMSSW_11_1_7/src 
+cmsenv
+git cms-addpkg DPGAnalysis/HcalTools
+git branch
+git checkout -b CMSSW_11_1_7_RMTNEW
+git branch
+git status
+....changes....
+
+
+
+1) use of scripts for run set treatment:
+
+
+
+2) use of crontab for current local runs:
+
+

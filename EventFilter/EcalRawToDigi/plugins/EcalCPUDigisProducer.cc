@@ -7,7 +7,6 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -181,6 +180,9 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
   std::memcpy(dataEE, dataeetmp.data(), dataeetmp.size() * sizeof(uint16_t));
   std::memcpy(idsEB, idsebtmp.data(), idsebtmp.size() * sizeof(uint32_t));
   std::memcpy(idsEE, idseetmp.data(), idseetmp.size() * sizeof(uint32_t));
+
+  digisEB->sort();
+  digisEE->sort();
 
   event.put(digisOutEBToken_, std::move(digisEB));
   event.put(digisOutEEToken_, std::move(digisEE));

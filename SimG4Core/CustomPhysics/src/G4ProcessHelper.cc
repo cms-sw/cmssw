@@ -94,7 +94,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFacto
 
   process_stream.close();
 
-  for (auto part : fParticleFactory->GetCustomParticles()) {
+  for (auto part : fParticleFactory->getCustomParticles()) {
     CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
     if (particle) {
       edm::LogInfo("SimG4CoreCustomPhysics") << "ProcessHelper: Lifetime of " << part->GetParticleName() << " set to "

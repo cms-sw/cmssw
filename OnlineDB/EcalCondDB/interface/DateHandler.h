@@ -39,8 +39,9 @@ public:
    */
   Tm dateToTm(oracle::occi::Date& date) const;
 
-private:
   DateHandler() = delete;  // hide the default constructor
+
+private:
   oracle::occi::Connection* m_conn;
   oracle::occi::Environment* m_env;
 

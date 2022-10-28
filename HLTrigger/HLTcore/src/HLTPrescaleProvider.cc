@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <cassert>
 #include <sstream>
@@ -103,12 +104,12 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
 }
 
 template <>
-FractionalPrescale HLTPrescaleProvider::convertL1PS<FractionalPrescale>(double val) const {
+FractionalPrescale HLTPrescaleProvider::convertL1PS(double val) const {
   int numer = static_cast<int>(val * kL1PrescaleDenominator_ + 0.5);
   static constexpr double kL1RoundingEpsilon = 0.001;
   if (std::abs(numer - val * kL1PrescaleDenominator_) > kL1RoundingEpsilon) {
     edm::LogWarning("ValueError") << " Error, L1 prescale val " << val
-                                  << "does not appear to precisely expressable as int / " << kL1PrescaleDenominator_
+                                  << " does not appear to precisely expressable as int / " << kL1PrescaleDenominator_
                                   << ", using a FractionalPrescale is a loss of precision";
   }
 
@@ -214,9 +215,9 @@ double HLTPrescaleProvider::getL1PrescaleValue(const edm::Event& iEvent,
   return result;
 }
 
-std::vector<std::pair<std::string, double> > HLTPrescaleProvider::getL1PrescaleValueInDetail(
+std::vector<std::pair<std::string, double>> HLTPrescaleProvider::getL1PrescaleValueInDetail(
     const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) {
-  std::vector<std::pair<std::string, double> > result;
+  std::vector<std::pair<std::string, double>> result;
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
@@ -231,7 +232,7 @@ std::vector<std::pair<std::string, double> > HLTPrescaleProvider::getL1PrescaleV
       const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
       L1GtUtils::LogicalExpressionL1Results l1Logical(l1tname, *l1GtUtils_);
       l1Logical.logicalExpressionRunUpdate(iEvent.getRun(), iSetup, l1tname);
-      const std::vector<std::pair<std::string, int> >& errorCodes(l1Logical.errorCodes(iEvent));
+      const std::vector<std::pair<std::string, int>>& errorCodes(l1Logical.errorCodes(iEvent));
       auto resultInt = l1Logical.prescaleFactors();
       result.clear();
       for (const auto& entry : resultInt) {
@@ -361,10 +362,12 @@ void HLTPrescaleProvider::checkL1TGlobalUtil() const {
   }
 }
 
-template <>
-unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& iEvent,
-                                                              const edm::EventSetup& iSetup,
-                                                              const std::string& trigger) {
-  const int set(prescaleSet(iEvent, iSetup));
-  return set < 0 ? 1 : hltConfigProvider_.prescaleValue<unsigned int>(static_cast<unsigned int>(set), trigger);
+void HLTPrescaleProvider::fillPSetDescription(edm::ParameterSetDescription& desc,
+                                              unsigned int stageL1Trigger,
+                                              edm::InputTag const& l1tAlgBlkInputTag,
+                                              edm::InputTag const& l1tExtBlkInputTag,
+                                              bool readPrescalesFromFile) {
+  desc.add<unsigned int>("stageL1Trigger", stageL1Trigger);
+  L1GtUtils::fillDescription(desc);
+  l1t::L1TGlobalUtil::fillDescription(desc, l1tAlgBlkInputTag, l1tExtBlkInputTag, readPrescalesFromFile);
 }

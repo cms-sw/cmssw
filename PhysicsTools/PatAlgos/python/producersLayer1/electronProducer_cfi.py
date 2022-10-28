@@ -1,22 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.PatAlgos.PATElectronProducer_cfi as _mod
 
-patElectrons = cms.EDProducer("PATElectronProducer",
+patElectrons = _mod.PATElectronProducer.clone(
     # input collection
-    electronSource = cms.InputTag("gedGsfElectrons"),
+    electronSource = "gedGsfElectrons",
 
     # use particle flow instead of std reco
-    useParticleFlow  =  cms.bool( False ),
-    pfElectronSource = cms.InputTag("particleFlow"),
-    pfCandidateMap = cms.InputTag("particleFlow:electrons"),
-    usePfCandidateMultiMap = cms.bool( False ),
+    pfElectronSource = "particleFlow",
+    pfCandidateMap   = "particleFlow:electrons",
 
     # collections for mva input variables
-    addMVAVariables = cms.bool( True ),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    addMVAVariables = True,
+    reducedBarrelRecHitCollection = "reducedEcalRecHitsEB",
+    reducedEndcapRecHitCollection = "reducedEcalRecHitsEE",
 
     # user data to add
-    userData = cms.PSet(
+    userData = dict(
       # add custom classes here
       userClasses = cms.PSet(
         src = cms.VInputTag('')
@@ -34,25 +33,23 @@ patElectrons = cms.EDProducer("PATElectronProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(),
-      userFunctionLabels = cms.vstring()
+      userFunctions = [],
+      userFunctionLabels = []
     ),
 
-
-
     # embedding of AOD items
-    embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core
-    embedGsfTrack        = cms.bool(False),  ## embed in AOD externally stored gsf track
-    embedSuperCluster    = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedPflowSuperCluster         = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the electron's seedcluster 
-    embedBasicClusters             = cms.bool(True),  ## embed in AOD externally stored the electron's basic clusters 
-    embedPreshowerClusters         = cms.bool(True),  ## embed in AOD externally stored the electron's preshower clusters 
-    embedPflowBasicClusters        = cms.bool(True),  ## embed in AOD externally stored the electron's pflow basic clusters 
-    embedPflowPreshowerClusters    = cms.bool(True),  ## embed in AOD externally stored the electron's pflow preshower clusters 
-    embedPFCandidate     = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
-    embedTrack           = cms.bool(True), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATElectronProducer 
+    embedGsfElectronCore    = True,  ## embed in AOD externally stored gsf electron core
+    embedGsfTrack           = False, ## embed in AOD externally stored gsf track
+    embedSuperCluster       = True,  ## embed in AOD externally stored supercluster
+    embedPflowSuperCluster  = True,  ## embed in AOD externally stored supercluster
+    embedSeedCluster        = True,  ## embed in AOD externally stored the electron's seedcluster 
+    embedBasicClusters      = True,  ## embed in AOD externally stored the electron's basic clusters 
+    embedPreshowerClusters  = True,  ## embed in AOD externally stored the electron's preshower clusters 
+    embedPflowBasicClusters = True,  ## embed in AOD externally stored the electron's pflow basic clusters 
+    embedPflowPreshowerClusters = True,  ## embed in AOD externally stored the electron's pflow preshower clusters 
+    embedPFCandidate        = True, ## embed in AOD externally stored particle flow candidate
+    embedTrack              = True, ## embed in AOD externally stored track (note: gsf electrons don't have a track)
+    embedRecHits            = True, ## embed in AOD externally stored the RecHits - can be called from the PATElectronProducer 
 
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),
@@ -60,44 +57,45 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Electron::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
-    userIsolation = cms.PSet(),
+    userIsolation = dict(),
 
     # electron ID
-    addElectronID = cms.bool(False),
+    addElectronID = False,
     electronIDSources = cms.PSet(),
 
     # mc matching
-    addGenMatch      = cms.bool(True),
-    embedGenMatch    = cms.bool(True),
-    genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
+    addGenMatch      = True,
+    embedGenMatch    = True,
+    genParticleMatch = "electronMatch", ## Association between electrons and generator particles
 
     # efficiencies
-    addEfficiencies = cms.bool(False),
-    efficiencies    = cms.PSet(),
+    addEfficiencies = False,
+    efficiencies    = dict(),
 
     # resolution configurables
-    addResolutions   = cms.bool(False),
-    resolutions      = cms.PSet(),
+    addResolutions   = False,
+    resolutions      = dict(),
 
     # high level selections
-    embedHighLevelSelection = cms.bool(True),
-    beamLineSrc             = cms.InputTag("offlineBeamSpot"),
-    pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
+    embedHighLevelSelection = True,
+    beamLineSrc             = "offlineBeamSpot",
+    pvSrc                   = "offlinePrimaryVertices",
 
     # PFClusterIso
-    addPFClusterIso = cms.bool(False),
-    ecalPFClusterIsoMap = cms.InputTag(""),
-    hcalPFClusterIsoMap = cms.InputTag(""),
-    addPuppiIsolation = cms.bool(False),
+    addPFClusterIso     = False,
+    ecalPFClusterIsoMap = "",
+    hcalPFClusterIsoMap = "",
+    addPuppiIsolation   = False,
 
     # Compute and store Mini-Isolation.
     # Implemention and a description of parameters can be found in:
     # PhysicsTools/PatUtils/src/PFIsolation.cc
     # only works in miniaod, so set to True in miniAOD_tools.py
-    computeMiniIso = cms.bool(False),
-    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    computeMiniIso    = False,
+    pfCandsForMiniIso = "packedPFCandidates",
      # veto on candidates in deadcone only in endcap
-    miniIsoParamsE = cms.vdouble(0.05, 0.2, 10.0, 0.0, 0.015, 0.015, 0.08, 0.0, 0.0),
-    miniIsoParamsB = cms.vdouble(0.05, 0.2, 10.0, 0.0, 0.000, 0.000, 0.00, 0.0, 0.0),
+    miniIsoParamsE = [0.05, 0.2, 10.0, 0.0, 0.015, 0.015, 0.08, 0.0, 0.0],
+    miniIsoParamsB = [0.05, 0.2, 10.0, 0.0, 0.000, 0.000, 0.00, 0.0, 0.0],
 
 )
+del patElectrons.electronIDSource

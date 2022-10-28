@@ -1,0 +1,3 @@
+<use name="alpaka"/>
+<use name="boost_header"/>
+<use name="FWCore/Utilities" source_only="1"/>

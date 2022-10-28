@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import print_function
-import keras
+import tensorflow.keras
 import theano
 
-from keras.models import Sequential
-from keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 
-print(keras.__version__)
+print(tensorflow.keras.__version__)
 print(theano.__version__)
 
 model = Sequential()

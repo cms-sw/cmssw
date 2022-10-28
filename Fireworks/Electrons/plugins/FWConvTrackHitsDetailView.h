@@ -35,10 +35,10 @@ public:
   void camera3Callback();
   void switchProjection();
 
-private:
   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&) = delete;                   // stop default
   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&) = delete;  // stop default
 
+private:
   using FWDetailViewGL<reco::Conversion>::build;
   void build(const FWModelId& id, const reco::Conversion*) override;
   using FWDetailViewGL<reco::Conversion>::setTextInfo;

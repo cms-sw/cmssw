@@ -18,8 +18,8 @@
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/UnscheduledAuxiliary.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -65,6 +65,7 @@ namespace edm {
 
     const_iterator begin() const { return unscheduledWorkers_.begin(); }
     const_iterator end() const { return unscheduledWorkers_.end(); }
+    worker_container const& workers() const { return unscheduledWorkers_; }
 
     template <typename T, typename U>
     void runNowAsync(WaitingTaskHolder task,

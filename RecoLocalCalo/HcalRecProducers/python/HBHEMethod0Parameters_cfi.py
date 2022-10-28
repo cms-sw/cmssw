@@ -47,9 +47,12 @@ import FWCore.ParameterSet.Config as cms
 # moves reco window to the left w.r.t. the signal (AFAIK, the behavior
 # of PhaseDelay QIE11 configuration register is the opposite).
 #
+from CalibCalorimetry.HcalPlugins.Hcal_PCCUpdate_cff import *
+
 m0Parameters = cms.PSet(
     firstSampleShift = cms.int32(0),
     samplesToAdd = cms.int32(2),
     correctForPhaseContainment = cms.bool(True),
     correctionPhaseNS = cms.double(6.0),
+    applyFixPCC = PCCUpdate.applyFixPCC
 )

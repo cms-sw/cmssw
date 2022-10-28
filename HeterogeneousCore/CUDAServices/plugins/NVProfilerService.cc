@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/concurrent_vector.h>
 
 #include <fmt/printf.h>
 
@@ -42,6 +41,7 @@
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 using namespace std::string_literals;
 
@@ -182,12 +182,12 @@ public:
   void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preOpenFile(std::string const&, bool);
-  void postOpenFile(std::string const&, bool);
+  void preOpenFile(std::string const&);
+  void postOpenFile(std::string const&);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preCloseFile(std::string const&, bool);
-  void postCloseFile(std::string const&, bool);
+  void preCloseFile(std::string const&);
+  void postCloseFile(std::string const&);
 
   // these signal pair are guaranteed to be called by the same thread
   void preSourceConstruction(edm::ModuleDescription const&);
@@ -287,6 +287,9 @@ private:
   uint32_t labelColorLight(std::string const& label) const {
     return highlight(label) ? nvtxLightAmber : nvtxLightGreen;
   }
+
+  // build a complete representation of the modules in the whole job
+  ProcessCallGraph callgraph_;
 
   std::vector<std::string> highlightModules_;
   const bool showModulePrefetching_;
@@ -503,7 +506,7 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   std::stringstream out;
   out << "preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
       << bounds.maxNumberOfConcurrentLuminosityBlocks() << " luminosity sections, " << bounds.maxNumberOfStreams()
-      << " streams\nrunning on" << bounds.maxNumberOfThreads() << " threads";
+      << " streams\nrunning on " << bounds.maxNumberOfThreads() << " threads";
   nvtxDomainMark(global_domain_, out.str().c_str());
 
   auto concurrentStreams = bounds.maxNumberOfStreams();
@@ -525,12 +528,13 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
 }
 
 void NVProfilerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
-                                    edm::ProcessContext const& pc) {
+                                    edm::ProcessContext const& context) {
+  callgraph_.preBeginJob(pathsAndConsumes, context);
   nvtxDomainMark(global_domain_, "preBeginJob");
 
-  // FIXME this probably works only in the absence of subprocesses
-  // size() + 1 because pathsAndConsumes.allModules() does not include the source
-  unsigned int modules = pathsAndConsumes.allModules().size() + 1;
+  // this assumes that preBeginJob is not called concurrently with the modules' beginJob method
+  // or the preBeginJob for a subprocess
+  unsigned int modules = callgraph_.size();
   global_modules_.resize(modules, nvtxInvalidRangeId);
   for (unsigned int sid = 0; sid < stream_modules_.size(); ++sid) {
     stream_modules_[sid].resize(modules, nvtxInvalidRangeId);
@@ -585,25 +589,25 @@ void NVProfilerService::postSourceRun(edm::RunIndex index) {
   }
 }
 
-void NVProfilerService::preOpenFile(std::string const& lfn, bool) {
+void NVProfilerService::preOpenFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePush(global_domain_, ("open file "s + lfn).c_str());
   }
 }
 
-void NVProfilerService::postOpenFile(std::string const& lfn, bool) {
+void NVProfilerService::postOpenFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePop(global_domain_);
   }
 }
 
-void NVProfilerService::preCloseFile(std::string const& lfn, bool) {
+void NVProfilerService::preCloseFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePush(global_domain_, ("close file "s + lfn).c_str());
   }
 }
 
-void NVProfilerService::postCloseFile(std::string const& lfn, bool) {
+void NVProfilerService::postCloseFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePop(global_domain_);
   }
@@ -1116,6 +1120,8 @@ void NVProfilerService::postModuleGlobalEndLumi(edm::GlobalContext const& gc, ed
 }
 
 void NVProfilerService::preSourceConstruction(edm::ModuleDescription const& desc) {
+  callgraph_.preSourceConstruction(desc);
+
   if (not skipFirstEvent_) {
     auto mid = desc.id();
     global_modules_.grow_to_at_least(mid + 1);

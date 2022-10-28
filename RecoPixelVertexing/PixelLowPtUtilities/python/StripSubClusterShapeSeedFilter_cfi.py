@@ -6,5 +6,5 @@ StripSubClusterShapeSeedFilter = cms.PSet(
     ComponentName = cms.string('StripSubClusterShapeSeedFilter'),
     FilterAtHelixStage = cms.bool(False),
     label = cms.untracked.string("Seeds"),
+    layerMask = cms.PSet()
 )
-

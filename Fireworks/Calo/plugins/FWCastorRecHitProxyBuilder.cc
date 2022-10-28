@@ -17,7 +17,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWCastorRecHitProxyBuilder(const FWCastorRecHitProxyBuilder&) = delete;
   const FWCastorRecHitProxyBuilder& operator=(const FWCastorRecHitProxyBuilder&) = delete;
 };

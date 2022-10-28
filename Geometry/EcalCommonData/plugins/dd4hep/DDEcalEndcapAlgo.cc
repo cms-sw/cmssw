@@ -86,6 +86,52 @@ namespace {
       v.remove_suffix(v.size() - (trim_pos + 1));
     return v;
   }
+
+  void placeEFRYn00(dd4hep::Volume& eeSCALog,
+                    const dd4hep::Volume& eeCRLog,
+                    int copyNum,
+                    cms::DDNamespace& ns,
+                    const std::string& rname,
+                    DDEcalEndcapTrapX& crystal,
+                    double cryZOff) {
+    // The "EECrRoC1R1" rotation is too small. It is ignored by ROOT when the volume is placed. In order for the
+    // volume to be placed with some rotation, the original rotation is increased by 1%, which is just enough for
+    // the revised rotation to pass ROOT's check for a valid, non-identity rotation. It is hoped that such a small
+    // change in a tiny rotaion will have no negative effects in the geometry.
+    //
+    // ROOT version where issue is observed: ROOT 6.22/09
+    // TGeoRotation::CheckMatrix() is the method that checks rotations. When it determines a rotation is too
+    // small, it sets the rotation to be ignored.
+    // Original rotation angles: x = -7.045281e-07, y = 7.045385e-07, z = 0
+    // Adjusted rotation angles: x = -7.115734e-07, y = 7.115839e-07, z = 0
+
+    double xx, xy, xz, yx, yy, yz, zx, zy, zz;
+    auto rotAdjusted = crystal.rotation();
+    rotAdjusted.GetComponents(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+    double xtheta = atan2(zy, zz);
+    double distyz = sqrt(zy * zy + zz * zz);
+    double ytheta = atan2(-zx, distyz);
+    double ztheta = atan2(yx, xx);
+    LogDebug("EcalGeom") << "Original " << rname << " rotation angles: xtheta = " << std::setprecision(18) << xtheta
+                         << ", distyz = " << distyz << ", ytheta = " << ytheta << ", ztheta = " << ztheta;
+    double increase = 1.01;  // Increase rotation angle by 1%
+    xtheta *= increase;
+    ytheta *= increase;
+    LogDebug("EcalGeom") << "Adjusted (+1%) " << rname << " rotation angles: xtheta = " << std::setprecision(18)
+                         << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta << ", ztheta = " << ztheta;
+    double xdiag = cos(xtheta), xoff = sin(xtheta);
+    double ydiag = cos(ytheta), yoff = sin(ytheta);
+    DDRotationMatrix xrot(1., 0., 0., 0., xdiag, -xoff, 0., xoff, xdiag);
+    DDRotationMatrix yrot(ydiag, 0., yoff, 0., 1., 0., -yoff, 0., ydiag);
+    rotAdjusted = yrot * xrot;
+    eeSCALog.placeVolume(
+        eeCRLog,
+        copyNum,
+        dd4hep::Transform3D(
+            myrot(ns, rname, rotAdjusted),
+            dd4hep::Position(crystal.centrePos().x(), crystal.centrePos().y(), crystal.centrePos().z() - cryZOff)));
+  }
+
 }  // namespace
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
@@ -395,12 +441,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
             std::string rname("EECrRoC" + std::to_string(icol) + "R" + std::to_string(irow));
 
-            eeSCALog.placeVolume(eeCRLog,
-                                 100 * iSCType + 10 * (icol - 1) + (irow - 1),
-                                 dd4hep::Transform3D(myrot(ns, rname, crystal.rotation()),
-                                                     dd4hep::Position(crystal.centrePos().x(),
-                                                                      crystal.centrePos().y(),
-                                                                      crystal.centrePos().z() - ee.cryZOff)));
+            if (rname == "EECrRoC1R1") {
+              // The "EECrRoC1R1" rotation is too small and would be ignored by ROOT. It needs to be
+              // increased by 1% to take effect. See placeEFRYn00 for more details.
+
+              placeEFRYn00(
+                  eeSCALog, eeCRLog, 100 * iSCType + 10 * (icol - 1) + (irow - 1), ns, rname, crystal, ee.cryZOff);
+            } else
+              eeSCALog.placeVolume(eeCRLog,
+                                   100 * iSCType + 10 * (icol - 1) + (irow - 1),
+                                   dd4hep::Transform3D(myrot(ns, rname, crystal.rotation()),
+                                                       dd4hep::Position(crystal.centrePos().x(),
+                                                                        crystal.centrePos().y(),
+                                                                        crystal.centrePos().z() - ee.cryZOff)));
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("EEGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1))
                                        << " in " << eeSCALog.name();

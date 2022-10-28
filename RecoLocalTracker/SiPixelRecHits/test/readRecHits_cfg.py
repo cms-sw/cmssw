@@ -35,15 +35,13 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 # process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
-# 2012
-#process.GlobalTag.globaltag = 'GR_P_V40::All'
-# MC 2014
-process.GlobalTag.globaltag = 'MC_70_V1::All'
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # read rechits
 process.analysis = cms.EDAnalyzer("ReadPixelRecHit",

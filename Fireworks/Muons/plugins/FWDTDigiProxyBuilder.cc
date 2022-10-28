@@ -63,12 +63,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWDTDigiProxyBuilder(const FWDTDigiProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWDTDigiProxyBuilder& operator=(const FWDTDigiProxyBuilder&) = delete;
 
+private:
   using FWProxyBuilderBase::buildViewType;
   void buildViewType(const FWEventItem* iItem,
                      TEveElementList* product,

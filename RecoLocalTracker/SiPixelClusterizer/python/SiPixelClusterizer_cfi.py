@@ -24,15 +24,16 @@ run3_common.toModify(siPixelClusters,
   VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
   VCaltoElectronGain_L1   = 1,   
   VCaltoElectronOffset    = 0,   
-  VCaltoElectronOffset_L1 = 0  
+  VCaltoElectronOffset_L1 = 0,  
+  ClusterThreshold_L1     = 4000
 )
-
 
 # Need these until phase2 pixel templates are used
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import PixelDigitizerAlgorithmCommon
 phase2_tracker.toModify(siPixelClusters, # FIXME
   src = 'simSiPixelDigis:Pixel',
+  DropDuplicates = False, # do not drop duplicates for phase-2 until the digitizer can handle them consistently
   MissCalibrate = False,
   Phase2Calibration = True,
   Phase2ReadoutMode = PixelDigitizerAlgorithmCommon.Phase2ReadoutMode.value(), # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
@@ -44,3 +45,4 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (premix_stage2 & phase2_tracker).toModify(siPixelClusters,
     src = "mixData:Pixel"
 )
+

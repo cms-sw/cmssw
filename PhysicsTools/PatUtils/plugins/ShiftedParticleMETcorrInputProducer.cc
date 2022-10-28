@@ -1,4 +1,41 @@
-#include "PhysicsTools/PatUtils/plugins/ShiftedParticleMETcorrInputProducer.h"
+/** \class ShiftedParticleMETcorrInputProducer
+ *
+ * Propagate energy variations of electrons/muons/tau-jets to MET
+ *
+ * \author Christian Veelken, LLR
+ *
+ *
+ *
+ */
+
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+#include "DataFormats/METReco/interface/CorrMETData.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include <string>
+#include <vector>
+
+class ShiftedParticleMETcorrInputProducer : public edm::global::EDProducer<> {
+public:
+  explicit ShiftedParticleMETcorrInputProducer(const edm::ParameterSet&);
+  ~ShiftedParticleMETcorrInputProducer() override;
+
+private:
+  typedef edm::View<reco::Candidate> CandidateView;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  const edm::EDGetTokenT<CandidateView> srcOriginalToken_;
+  const edm::EDGetTokenT<CandidateView> srcShiftedToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+};
 
 ShiftedParticleMETcorrInputProducer::ShiftedParticleMETcorrInputProducer(const edm::ParameterSet& cfg)
     : srcOriginalToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcOriginal"))),

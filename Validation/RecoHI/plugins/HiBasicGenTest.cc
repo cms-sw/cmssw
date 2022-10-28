@@ -16,6 +16,7 @@ using namespace HepMC;
 
 HiBasicGenTest::HiBasicGenTest(const edm::ParameterSet& iPSet) {
   generatorToken_ = consumes<edm::HepMCProduct>(iPSet.getParameter<edm::InputTag>("generatorLabel"));
+  pdtToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 HiBasicGenTest::~HiBasicGenTest() {}
@@ -37,7 +38,9 @@ void HiBasicGenTest::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   rp = ibooker.book1D("phi0", ";#phi_{RP};events", 100, -3.2, 3.2);
 }
 
-void HiBasicGenTest::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { iSetup.getData(pdt); }
+void HiBasicGenTest::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  pdt = iSetup.getHandle(pdtToken_);
+}
 
 void HiBasicGenTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<HepMCProduct> mc;

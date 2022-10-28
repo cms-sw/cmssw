@@ -50,7 +50,7 @@ void L1HPSPFTauBuilder::reset() {
   l1PFTauSeedPhi_ = 0.;
   l1PFTauSeedZVtx_ = 0.;
   sumAllL1PFCandidatesPt_ = 0.;
-  primaryVertex_ = l1t::TkPrimaryVertexRef();
+  primaryVertex_ = l1t::VertexWordRef();
   l1PFTau_ = l1t::HPSPFTau();
 
   stripP4_ = reco::Particle::LorentzVector(0., 0., 0., 0.);
@@ -87,7 +87,7 @@ void L1HPSPFTauBuilder::setL1PFCandProductID(const edm::ProductID& l1PFCandProdu
   l1PFCandProductID_ = l1PFCandProductID;
 }
 
-void L1HPSPFTauBuilder::setVertex(const l1t::TkPrimaryVertexRef& primaryVertex) { primaryVertex_ = primaryVertex; }
+void L1HPSPFTauBuilder::setVertex(const l1t::VertexWordRef& primaryVertex) { primaryVertex_ = primaryVertex; }
 
 void L1HPSPFTauBuilder::setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed) {
   if (debug_) {
@@ -348,83 +348,102 @@ void L1HPSPFTauBuilder::buildL1PFTau() {
       }
     }
   }
-  l1PFTau_.setP4(l1PFTau_p4);
+  if (l1PFTau_.leadChargedPFCand().isNonnull() && l1PFTau_.leadChargedPFCand()->pfTrack().isNonnull()) {
+    l1PFTau_.setZ(l1PFTau_.leadChargedPFCand()->pfTrack()->vertex().z());
 
-  l1PFTau_.setSeedChargedPFCand(l1PFCandSeed_);
-  l1PFTau_.setSeedJet(l1JetSeed_);
+    l1PFTau_.setP4(l1PFTau_p4);
 
-  l1PFTau_.setSignalAllL1PFCandidates(convertToRefVector(signalAllL1PFCandidates_));
-  l1PFTau_.setSignalChargedHadrons(convertToRefVector(signalChargedHadrons_));
-  l1PFTau_.setSignalElectrons(convertToRefVector(signalElectrons_));
-  l1PFTau_.setSignalNeutralHadrons(convertToRefVector(signalNeutralHadrons_));
-  l1PFTau_.setSignalPhotons(convertToRefVector(signalPhotons_));
-  l1PFTau_.setSignalMuons(convertToRefVector(signalMuons_));
+    l1PFTau_.setSeedChargedPFCand(l1PFCandSeed_);
+    l1PFTau_.setSeedJet(l1JetSeed_);
 
-  l1PFTau_.setStripAllL1PFCandidates(convertToRefVector(stripAllL1PFCandidates_));
-  l1PFTau_.setStripElectrons(convertToRefVector(stripElectrons_));
-  l1PFTau_.setStripPhotons(convertToRefVector(stripPhotons_));
+    l1PFTau_.setSignalAllL1PFCandidates(convertToRefVector(signalAllL1PFCandidates_));
+    l1PFTau_.setSignalChargedHadrons(convertToRefVector(signalChargedHadrons_));
+    l1PFTau_.setSignalElectrons(convertToRefVector(signalElectrons_));
+    l1PFTau_.setSignalNeutralHadrons(convertToRefVector(signalNeutralHadrons_));
+    l1PFTau_.setSignalPhotons(convertToRefVector(signalPhotons_));
+    l1PFTau_.setSignalMuons(convertToRefVector(signalMuons_));
 
-  l1PFTau_.setIsoAllL1PFCandidates(convertToRefVector(isoAllL1PFCandidates_));
-  l1PFTau_.setIsoChargedHadrons(convertToRefVector(isoChargedHadrons_));
-  l1PFTau_.setIsoElectrons(convertToRefVector(isoElectrons_));
-  l1PFTau_.setIsoNeutralHadrons(convertToRefVector(isoNeutralHadrons_));
-  l1PFTau_.setIsoPhotons(convertToRefVector(isoPhotons_));
-  l1PFTau_.setIsoMuons(convertToRefVector(isoMuons_));
+    l1PFTau_.setStripAllL1PFCandidates(convertToRefVector(stripAllL1PFCandidates_));
+    l1PFTau_.setStripElectrons(convertToRefVector(stripElectrons_));
+    l1PFTau_.setStripPhotons(convertToRefVector(stripPhotons_));
 
-  l1PFTau_.setSumAllL1PFCandidates(convertToRefVector(sumAllL1PFCandidates_));
-  l1PFTau_.setSumChargedHadrons(convertToRefVector(sumChargedHadrons_));
-  l1PFTau_.setSumElectrons(convertToRefVector(sumElectrons_));
-  l1PFTau_.setSumNeutralHadrons(convertToRefVector(sumNeutralHadrons_));
-  l1PFTau_.setSumPhotons(convertToRefVector(sumPhotons_));
-  l1PFTau_.setSumMuons(convertToRefVector(sumMuons_));
+    l1PFTau_.setIsoAllL1PFCandidates(convertToRefVector(isoAllL1PFCandidates_));
+    l1PFTau_.setIsoChargedHadrons(convertToRefVector(isoChargedHadrons_));
+    l1PFTau_.setIsoElectrons(convertToRefVector(isoElectrons_));
+    l1PFTau_.setIsoNeutralHadrons(convertToRefVector(isoNeutralHadrons_));
+    l1PFTau_.setIsoPhotons(convertToRefVector(isoPhotons_));
+    l1PFTau_.setIsoMuons(convertToRefVector(isoMuons_));
 
-  l1PFTau_.setPrimaryVertex(primaryVertex_);
+    l1PFTau_.setSumAllL1PFCandidates(convertToRefVector(sumAllL1PFCandidates_));
+    l1PFTau_.setSumChargedHadrons(convertToRefVector(sumChargedHadrons_));
+    l1PFTau_.setSumElectrons(convertToRefVector(sumElectrons_));
+    l1PFTau_.setSumNeutralHadrons(convertToRefVector(sumNeutralHadrons_));
+    l1PFTau_.setSumPhotons(convertToRefVector(sumPhotons_));
+    l1PFTau_.setSumMuons(convertToRefVector(sumMuons_));
 
-  if (l1PFTau_.signalChargedHadrons().size() > 1) {
-    if (stripP4_.pt() < 5.)
-      l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng0Pi0);
-    else
-      l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng1Pi0);
-  } else {
-    if (stripP4_.pt() < 5.)
-      l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng0Pi0);
-    else
-      l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng1Pi0);
-  }
+    l1PFTau_.setPrimaryVertex(primaryVertex_);
 
-  l1PFTau_.setStripP4(stripP4_);
-
-  l1PFTau_.setSumAllL1PFCandidatesPt(sumAllL1PFCandidatesPt_);
-  l1PFTau_.setSignalConeSize(signalConeSize_);
-  l1PFTau_.setisolationConeSize(isolationConeSize_);
-
-  double sumChargedIso = 0.;
-  double sumNeutralIso = 0.;
-  for (const auto& l1PFCand : isoAllL1PFCandidates_) {
-    if (l1PFCand->charge() != 0) {
-      sumChargedIso += l1PFCand->pt();
-    } else if (l1PFCand->id() == l1t::PFCandidate::Photon) {
-      sumNeutralIso += l1PFCand->pt();
+    if (l1PFTau_.signalChargedHadrons().size() > 1) {
+      if (stripP4_.pt() < 5.)
+        l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng0Pi0);
+      else
+        l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng1Pi0);
+    } else {
+      if (stripP4_.pt() < 5.)
+        l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng0Pi0);
+      else
+        l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng1Pi0);
     }
-  }
-  l1PFTau_.setSumChargedIso(sumChargedIso);
-  l1PFTau_.setSumNeutralIso(sumNeutralIso);
-  const double weightNeutralIso = 1.;
-  const double offsetNeutralIso = 0.;
-  l1PFTau_.setSumCombinedIso(sumChargedIso + weightNeutralIso * (sumNeutralIso - offsetNeutralIso));
-  l1PFTau_.setSumChargedIsoPileup(sumChargedIsoPileup_);
 
-  if (l1PFTau_.sumChargedIso() < 20.0) {
-    l1PFTau_.setPassVLooseIso(true);
-  }
-  if (l1PFTau_.sumChargedIso() < 10.0) {
-    l1PFTau_.setPassLooseIso(true);
-  }
-  if (l1PFTau_.sumChargedIso() < 5.0) {
-    l1PFTau_.setPassMediumIso(true);
-  }
-  if (l1PFTau_.sumChargedIso() < 2.5) {
-    l1PFTau_.setPassTightIso(true);
+    l1PFTau_.setStripP4(stripP4_);
+
+    l1PFTau_.setSumAllL1PFCandidatesPt(sumAllL1PFCandidatesPt_);
+    l1PFTau_.setSignalConeSize(signalConeSize_);
+    l1PFTau_.setisolationConeSize(isolationConeSize_);
+
+    double sumChargedIso = 0.;
+    double sumNeutralIso = 0.;
+    for (const auto& l1PFCand : isoAllL1PFCandidates_) {
+      if (l1PFCand->charge() != 0) {
+        sumChargedIso += l1PFCand->pt();
+      } else if (l1PFCand->id() == l1t::PFCandidate::Photon) {
+        sumNeutralIso += l1PFCand->pt();
+      }
+    }
+    l1PFTau_.setSumChargedIso(sumChargedIso);
+    l1PFTau_.setSumNeutralIso(sumNeutralIso);
+    const double weightNeutralIso = 1.;
+    const double offsetNeutralIso = 0.;
+    l1PFTau_.setSumCombinedIso(sumChargedIso + weightNeutralIso * (sumNeutralIso - offsetNeutralIso));
+    l1PFTau_.setSumChargedIsoPileup(sumChargedIsoPileup_);
+
+    if (l1PFTau_.sumChargedIso() < 20.0) {
+      l1PFTau_.setPassVLooseIso(true);
+    }
+    if (l1PFTau_.sumChargedIso() < 10.0) {
+      l1PFTau_.setPassLooseIso(true);
+    }
+    if (l1PFTau_.sumChargedIso() < 5.0) {
+      l1PFTau_.setPassMediumIso(true);
+    }
+    if (l1PFTau_.sumChargedIso() < 2.5) {
+      l1PFTau_.setPassTightIso(true);
+    }
+
+    if (l1PFTau_p4.pt() != 0) {
+      if (l1PFTau_.sumChargedIso() / l1PFTau_p4.pt() < 0.40) {
+        l1PFTau_.setPassVLooseRelIso(true);
+      }
+      if (l1PFTau_.sumChargedIso() / l1PFTau_p4.pt() < 0.20) {
+        l1PFTau_.setPassLooseRelIso(true);
+      }
+      if (l1PFTau_.sumChargedIso() / l1PFTau_p4.pt() < 0.10) {
+        l1PFTau_.setPassMediumRelIso(true);
+      }
+      if (l1PFTau_.sumChargedIso() / l1PFTau_p4.pt() < 0.05) {
+        l1PFTau_.setPassTightRelIso(true);
+      }
+    }
   }
 }
 

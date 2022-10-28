@@ -1,5 +1,5 @@
-#ifndef CollinearFitAtTM_h_
-#define CollinearFitAtTM_h_
+#ifndef RecoParticleFlow_PFTracking_CollinearFitAtTM_h_
+#define RecoParticleFlow_PFTracking_CollinearFitAtTM_h_
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/Math/interface/Vector.h"

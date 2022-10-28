@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 subsystem = "Ramdisk"
-process = cms.Process(subsystem)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process(subsystem, Run3)
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing

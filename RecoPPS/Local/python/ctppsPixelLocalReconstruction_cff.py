@@ -9,6 +9,8 @@ from RecoPPS.Local.ctppsPixelRecHits_cfi import ctppsPixelRecHits
 # local track producer
 from RecoPPS.Local.ctppsPixelLocalTracks_cfi import ctppsPixelLocalTracks
 
+
+
 ctppsPixelLocalReconstructionTask = cms.Task(
     ctppsPixelClusters,ctppsPixelRecHits,ctppsPixelLocalTracks
 )

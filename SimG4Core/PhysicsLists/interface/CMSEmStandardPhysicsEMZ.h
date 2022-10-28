@@ -12,9 +12,11 @@
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class CMSEmStandardPhysicsEMZ : public G4VPhysicsConstructor {
 public:
-  CMSEmStandardPhysicsEMZ(G4int ver);
+  CMSEmStandardPhysicsEMZ(G4int ver, const edm::ParameterSet& p);
   ~CMSEmStandardPhysicsEMZ() override;
 
   void ConstructParticle() override;

@@ -22,6 +22,10 @@ namespace CLHEP {
 class FlatEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
   FlatEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  FlatEvtVtxGenerator(const FlatEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  FlatEvtVtxGenerator& operator=(const FlatEvtVtxGenerator& rhs) = delete;
   ~FlatEvtVtxGenerator() override;
 
   /// return a new event vertex
@@ -43,12 +47,6 @@ public:
   void maxY(double m = 0);
   /// set max in Z in cm
   void maxZ(double m = 0);
-
-private:
-  /** Copy constructor */
-  FlatEvtVtxGenerator(const FlatEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  FlatEvtVtxGenerator& operator=(const FlatEvtVtxGenerator& rhs) = delete;
 
 private:
   double fMinX, fMinY, fMinZ, fMinT;

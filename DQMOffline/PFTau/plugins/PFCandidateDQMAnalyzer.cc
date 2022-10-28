@@ -11,7 +11,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
 // -- Constructor

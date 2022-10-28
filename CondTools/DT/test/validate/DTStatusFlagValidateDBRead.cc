@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,11 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 DTStatusFlagValidateDBRead::DTStatusFlagValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtstatusFlagToken_(esConsumes()) {}
 
-DTStatusFlagValidateDBRead::DTStatusFlagValidateDBRead(int i) {}
-
-DTStatusFlagValidateDBRead::~DTStatusFlagValidateDBRead() {}
+DTStatusFlagValidateDBRead::DTStatusFlagValidateDBRead(int i) : dtstatusFlagToken_(esConsumes()) {}
 
 void DTStatusFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -40,8 +40,7 @@ void DTStatusFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSe
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTStatusFlag> sf;
-  context.get<DTStatusFlagRcd>().get(sf);
+  auto sf = context.getHandle(dtstatusFlagToken_);
   std::cout << sf->version() << std::endl;
   std::cout << std::distance(sf->begin(), sf->end()) << " data in the container" << std::endl;
   int whe;

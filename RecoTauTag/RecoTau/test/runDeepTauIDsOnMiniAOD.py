@@ -33,6 +33,7 @@ import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
            # "deepTau2017v1",
            "deepTau2017v2p1",
+           "deepTau2018v2p5",
            # "DPFTau_2016_v0",
            # "DPFTau_2016_v1",
            "againstEle2018",

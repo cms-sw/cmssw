@@ -1,26 +1,32 @@
 #ifndef CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 #define CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 
+// user includes
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+// system includes
+#include <memory>
 #include <cstring>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+// ROOT includes
 #include <TGraph.h>
 #include <TProfile.h>
 #include <TStyle.h>
@@ -32,10 +38,6 @@
 #include <TGraphErrors.h>
 #include <TDirectory.h>
 #include "TROOT.h"
-#include "Riostream.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include <memory>
 
 class TrackerTopology;
 

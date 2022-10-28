@@ -39,13 +39,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
+#include "MTDHit.h"
 
 class BtlSimHitsValidation : public DQMEDAnalyzer {
 public:
@@ -272,7 +266,7 @@ void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
-  descriptions.add("btlSimHits", desc);
+  descriptions.add("btlSimHitsValid", desc);
 }
 
 DEFINE_FWK_MODULE(BtlSimHitsValidation);

@@ -1,19 +1,29 @@
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
-#include "DBWriter.h"
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
+class DBWriter : public edm::one::EDAnalyzer<> {
+public:
+  explicit DBWriter(const edm::ParameterSet&);
+  ~DBWriter() override = default;
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::unique_ptr<BaseFunction> corrector_;
+};
 
 DBWriter::DBWriter(const edm::ParameterSet& ps) {
   // This string is one of: scale, resolution, background.
@@ -27,36 +37,32 @@ DBWriter::DBWriter(const edm::ParameterSet& ps) {
   else if (type == "background")
     corrector_ = std::make_unique<BackgroundFunction>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else {
-    std::cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << std::endl;
+    edm::LogPrint("DBWriter") << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'"
+                              << std::endl;
     exit(1);
   }
 }
 
-DBWriter::~DBWriter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 // ------------ method called to for each event  ------------
 void DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  MuScleFitDBobject* dbObject = new MuScleFitDBobject;
+  MuScleFitDBobject dbObject;
 
-  dbObject->identifiers = corrector_->identifiers();
-  dbObject->parameters = corrector_->parameters();
+  dbObject.identifiers = corrector_->identifiers();
+  dbObject.parameters = corrector_->parameters();
 
   //   if( dbObject->identifiers.size() != dbObject->parameters.size() ) {
-  //     std::cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << std::endl;
+  //     edm::LogPrint("DBWriter") << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << std::endl;
   //     exit(1);
   //   }
 
   //   std::vector<std::vector<double> >::const_iterator parVec = dbObject->parameters.begin();
   //   std::vector<int>::const_iterator id = dbObject->identifiers.begin();
   //   for( ; id != dbObject->identifiers.end(); ++id, ++parVec ) {
-  //     std::cout << "id = " << *id << std::endl;
+  //     edm::LogPrint("DBWriter") << "id = " << *id << std::endl;
   //     std::vector<double>::const_iterator par = parVec->begin();
   //     int i=0;
   //     for( ; par != parVec->end(); ++par, ++i ) {
-  //       std::cout << "par["<<i<<"] = " << *par << std::endl;
+  //       edm::LogPrint("DBWriter") << "par["<<i<<"] = " << *par << std::endl;
   //     }
   //   }
 
@@ -64,10 +70,9 @@ void DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("MuScleFitDBobjectRcd")) {
-      mydbservice->createNewIOV<MuScleFitDBobject>(
-          dbObject, mydbservice->beginOfTime(), mydbservice->endOfTime(), "MuScleFitDBobjectRcd");
+      mydbservice->createOneIOV<MuScleFitDBobject>(dbObject, mydbservice->beginOfTime(), "MuScleFitDBobjectRcd");
     } else {
-      mydbservice->appendSinceTime<MuScleFitDBobject>(dbObject, mydbservice->currentTime(), "MuScleFitDBobjectRcd");
+      mydbservice->appendOneIOV<MuScleFitDBobject>(dbObject, mydbservice->currentTime(), "MuScleFitDBobjectRcd");
     }
   } else {
     edm::LogError("DBWriter") << "Service is unavailable" << std::endl;

@@ -27,7 +27,6 @@ Description: Computes HT and MHT from phase-1-like jets
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/Common/interface/View.h"
@@ -43,7 +42,7 @@ Description: Computes HT and MHT from phase-1-like jets
 class Phase1L1TJetSumsProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit Phase1L1TJetSumsProducer(const edm::ParameterSet&);
-  ~Phase1L1TJetSumsProducer() override;
+  ~Phase1L1TJetSumsProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -58,31 +57,31 @@ private:
   // performs some calculations with digitised/integer quantities to ensure agreement with firmware
   l1t::EtSum computeMHT(const edm::Handle<std::vector<reco::CaloJet> > inputJets) const;
 
-  edm::EDGetTokenT<std::vector<reco::CaloJet> > inputJetCollectionTag_;
+  const edm::EDGetTokenT<std::vector<reco::CaloJet> > inputJetCollectionTag_;
 
   // holds the sin and cos for HLs LUT emulation
-  std::vector<double> sinPhi_;
-  std::vector<double> cosPhi_;
-  unsigned int nBinsPhi_;
+  const std::vector<double> sinPhi_;
+  const std::vector<double> cosPhi_;
+  const unsigned int nBinsPhi_;
 
   // lower phi value
-  double phiLow_;
+  const double phiLow_;
   // higher phi value
-  double phiUp_;
+  const double phiUp_;
   // size of a phi bin
-  double phiStep_;
+  const double phiStep_;
   // threshold for ht calculation
-  double htPtThreshold_;
+  const double htPtThreshold_;
   // threshold for ht calculation
-  double mhtPtThreshold_;
+  const double mhtPtThreshold_;
   // jet eta cut for ht calculation
-  double htAbsEtaCut_;
+  const double htAbsEtaCut_;
   // jet eta cut for mht calculation
-  double mhtAbsEtaCut_;
+  const double mhtAbsEtaCut_;
   // LSB of pt quantity
-  double ptlsb_;
+  const double ptlsb_;
   // label of sums
-  std::string outputCollectionName_;
+  const std::string outputCollectionName_;
 };
 
 // initialises plugin configuration and prepares ROOT file for saving the sums
@@ -94,21 +93,19 @@ Phase1L1TJetSumsProducer::Phase1L1TJetSumsProducer(const edm::ParameterSet& iCon
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
       phiLow_(iConfig.getParameter<double>("phiLow")),
       phiUp_(iConfig.getParameter<double>("phiUp")),
+      phiStep_((phiUp_ - phiLow_) / nBinsPhi_),
       htPtThreshold_(iConfig.getParameter<double>("htPtThreshold")),
       mhtPtThreshold_(iConfig.getParameter<double>("mhtPtThreshold")),
       htAbsEtaCut_(iConfig.getParameter<double>("htAbsEtaCut")),
       mhtAbsEtaCut_(iConfig.getParameter<double>("mhtAbsEtaCut")),
       ptlsb_(iConfig.getParameter<double>("ptlsb")),
       outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) {
-  phiStep_ = (phiUp_ - phiLow_) / nBinsPhi_;
+  usesResource("TFileService");
   produces<std::vector<l1t::EtSum> >(outputCollectionName_).setBranchAlias(outputCollectionName_);
 }
 
-Phase1L1TJetSumsProducer::~Phase1L1TJetSumsProducer() {}
-
 void Phase1L1TJetSumsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<std::vector<reco::CaloJet> > jetCollectionHandle;
-  iEvent.getByToken(inputJetCollectionTag_, jetCollectionHandle);
+  const edm::Handle<std::vector<reco::CaloJet> >& jetCollectionHandle = iEvent.getHandle(inputJetCollectionTag_);
 
   // computing sums and storing them in sum object
   l1t::EtSum lHT = computeHT(jetCollectionHandle);
@@ -185,7 +182,7 @@ l1t::EtSum Phase1L1TJetSumsProducer::computeMHT(const edm::Handle<std::vector<re
 void Phase1L1TJetSumsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetCollectionTag",
-                          edm::InputTag("Phase1L1TJetCalibrator", "Phase1L1TJetFromPfCandidates"));
+                          edm::InputTag("l1tPhase1JetCalibrator", "Phase1L1TJetFromPfCandidates"));
   desc.add<std::vector<double> >("sinPhi");
   desc.add<std::vector<double> >("cosPhi");
   desc.add<unsigned int>("nBinsPhi", 72);

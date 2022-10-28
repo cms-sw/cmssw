@@ -42,18 +42,22 @@ using namespace std;
 
 /* Constructor */
 DTClusAnalyzer::DTClusAnalyzer(const ParameterSet& pset) : _ev(0) {
+  theDtGeomToken = esConsumes();
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
 
   // the name of the clus rec hits collection
   theRecClusLabel = pset.getParameter<string>("recClusLabel");
+  theRecClusToken = consumes(edm::InputTag(theRecClusLabel));
 
   // the name of the 1D rec hits collection
   theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
+  theRecHits1DToken = consumes(edm::InputTag(theRecHits1DLabel));
 
   // the name of the 2D rec hits collection
   theRecHits2DLabel = pset.getParameter<string>("recHits2DLabel");
+  theRecHits2DToken = consumes(edm::InputTag(theRecHits2DLabel));
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
@@ -110,20 +114,16 @@ void DTClusAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
   }
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(theDtGeomToken);
 
   // Get the 1D clusters from the event --------------
-  Handle<DTRecClusterCollection> dtClusters;
-  event.getByLabel(theRecClusLabel, dtClusters);
+  Handle<DTRecClusterCollection> dtClusters = event.getHandle(theRecClusToken);
 
   // Get the 1D rechits from the event --------------
-  Handle<DTRecHitCollection> dtRecHits;
-  event.getByLabel(theRecHits1DLabel, dtRecHits);
+  Handle<DTRecHitCollection> dtRecHits = event.getHandle(theRecHits1DToken);
 
   // Get the 2D rechit collection from the event -------------------
-  edm::Handle<DTRecSegment2DCollection> segs2d;
-  event.getByLabel(theRecHits2DLabel, segs2d);
+  edm::Handle<DTRecSegment2DCollection> segs2d = event.getHandle(theRecHits2DToken);
 
   // only clusters
   int nClus = dtClusters->size();

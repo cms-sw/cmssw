@@ -1,22 +1,24 @@
-#include "FWCore/MessageService/test/UnitTestClient_R.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include <iostream>
-#include <string>
-#include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edmtest {
 
-  void UnitTestClient_R::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_R : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_R(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_R::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     for (int i = 0; i < 10000; ++i) {
       edm::LogError("cat_A") << "A " << i;
       edm::LogError("cat_B") << "B " << i;
     }
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

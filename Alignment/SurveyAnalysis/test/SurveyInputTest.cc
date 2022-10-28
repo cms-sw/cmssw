@@ -1,8 +1,33 @@
+/** \class SurveyInputTest
+ *
+ *  Class to read survey raw measurements from a config file.
+ *
+ *  $Date: 2007/04/07 01:58:49 $
+ *  $Revision: 1.1 $
+ *  \author Chung Khim Lae
+ */
+
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/SurveyAnalysis/test/SurveyInputTest.h"
+class SurveyInputTest : public SurveyInputBase {
+public:
+  SurveyInputTest(const edm::ParameterSet&);
+
+  /// Read data from cfg file
+  virtual void beginJob();
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+
+private:
+  Alignable* create(const std::string& parName  // name of alignable
+  );
+
+  edm::ParameterSet theConfig;
+};
 
 using namespace align;
 
@@ -67,3 +92,6 @@ Alignable* SurveyInputTest::create(const std::string& parName) {
 
   return ali;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SurveyInputTest);

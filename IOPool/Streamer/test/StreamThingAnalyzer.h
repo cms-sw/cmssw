@@ -2,7 +2,7 @@
 #define IOPool_Streamer_StreamThingAnalyzer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #if 1
@@ -18,7 +18,7 @@ typedef edmtestprod::IntArray WriteThis;
 
 namespace edmtest_thing {
 
-  class StreamThingAnalyzer : public edm::EDAnalyzer {
+  class StreamThingAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit StreamThingAnalyzer(edm::ParameterSet const&);
 

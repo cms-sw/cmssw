@@ -89,6 +89,7 @@ namespace hcal {
                                                       float* method0Time,
                                                       uint32_t* outputdid,
                                                       uint32_t const nchannels,
+                                                      uint32_t const* qualityStatus,
                                                       uint32_t const* recoParam1Values,
                                                       uint32_t const* recoParam2Values,
                                                       float const* qieCoderOffsets,
@@ -141,6 +142,7 @@ namespace hcal {
         method0Time[gch] = 0;
         outputEnergy[gch] = 0;
         outputChi2[gch] = 0;
+        soiSamples[gch] = -1;
       }
 
 #ifdef HCAL_MAHI_GPUDEBUG
@@ -264,6 +266,16 @@ namespace hcal {
       int32_t const soi = gch < nchannelsf01HE
                               ? soiSamples[gch]
                               : (gch < nchannelsf015 ? npresamplesf5HB[gch - nchannelsf01HE] : soiSamples[gch]);
+
+      bool badSOI = (soi < 0 or soi >= nsamplesForCompute);
+      if (badSOI and sampleWithinWindow == 0) {
+#ifdef GPU_DEBUG
+        printf("Found HBHE channel %d with invalid SOI %d\n", gch, soi);
+#endif
+        // mark the channel as bad
+        outputChi2[gch] = -9999.f;
+      }
+
       //int32_t const soi = gch >= nchannelsf01HE
       //    ? npresamplesf5HB[gch - nchannelsf01HE]
       //    : soiSamples[gch];
@@ -364,6 +376,7 @@ namespace hcal {
       __syncthreads();
 
       // NOTE: must take soi, as values for that thread are used...
+      // NOTE: does not run if soi is bad, because it does not match any sampleWithinWindow
       if (sampleWithinWindow == soi) {
         auto const method0_energy = shrMethod0EnergyAccum[lch];
         auto const val = shrMethod0EnergySamplePair[lch];
@@ -388,6 +401,18 @@ namespace hcal {
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("tsTOT = %f tstrig = %f ts4Thresh = %f\n", shrEnergyM0TotalAccum[lch], energym0_per_ts_gain0, ts4Thresh);
 #endif
+
+        // Channel quality check
+        //    https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/HcalRecAlgos/plugins/HcalChannelPropertiesEP.cc#L107-L109
+        //    https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/CondCore/HcalPlugins/plugins/HcalChannelQuality_PayloadInspector.cc#L30
+        //      const bool taggedBadByDb = severity.dropChannel(digistatus->getValue());
+        //  do not run MAHI if taggedBadByDb = true
+
+        auto const digiStatus_ = qualityStatus[hashedId];
+        const bool taggedBadByDb = (digiStatus_ / 32770);
+
+        if (taggedBadByDb)
+          outputChi2[gch] = -9999.f;
 
         // check as in cpu version if mahi is not needed
         // FIXME: KNOWN ISSUE: observed a problem when rawCharge and pedestal
@@ -418,7 +443,7 @@ namespace hcal {
 
 #ifdef HCAL_MAHI_GPUDEBUG
       printf(
-          "charrge(%d) = %f pedestal(%d) = %f dfc(%d) = %f pedestalWidth(%d) = %f noiseADC(%d) = %f noisPhoto(%d) = "
+          "charge(%d) = %f pedestal(%d) = %f dfc(%d) = %f pedestalWidth(%d) = %f noiseADC(%d) = %f noisPhoto(%d) = "
           "%f\n",
           sample,
           rawCharge,
@@ -1048,14 +1073,14 @@ namespace hcal {
                     cudaStream_t cudaStream) {
       auto const totalChannels = inputGPU.f01HEDigis.size + inputGPU.f5HBDigis.size + inputGPU.f3HBDigis.size;
 
-      // protections when the detector is out
-      if (totalChannels == 0)
-        return;
+      // FIXME: the number of channels in output might change given that some channesl might be filtered out
 
-      // FIXME: may be move this assignment to emphasize this more clearly
-      // FIXME: number of channels for output might change given that
-      //   some channesl might be filtered out
+      // do not run when there are no rechits (e.g. if HCAL is not being read),
+      // but do set the size of the output collection to 0
       outputGPU.recHits.size = totalChannels;
+      if (totalChannels == 0) {
+        return;
+      }
 
       // TODO: this can be lifted by implementing a separate kernel
       // similar to the default one, but properly handling the diff in #sample
@@ -1100,6 +1125,7 @@ namespace hcal {
           outputGPU.recHits.timeM0.get(),
           outputGPU.recHits.did.get(),
           totalChannels,
+          conditions.channelQuality.status,
           conditions.recoParams.param1,
           conditions.recoParams.param2,
           conditions.qieCoders.offsets,

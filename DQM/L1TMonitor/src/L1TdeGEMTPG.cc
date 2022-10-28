@@ -17,7 +17,8 @@ L1TdeGEMTPG::L1TdeGEMTPG(const edm::ParameterSet& ps)
       // binning
       clusterNBin_(ps.getParameter<std::vector<unsigned>>("clusterNBin")),
       clusterMinBin_(ps.getParameter<std::vector<double>>("clusterMinBin")),
-      clusterMaxBin_(ps.getParameter<std::vector<double>>("clusterMaxBin")) {}
+      clusterMaxBin_(ps.getParameter<std::vector<double>>("clusterMaxBin")),
+      useDataClustersOnlyInBX0_(ps.getParameter<bool>("useDataClustersOnlyInBX0")) {}
 
 L1TdeGEMTPG::~L1TdeGEMTPG() {}
 
@@ -57,6 +58,10 @@ void L1TdeGEMTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     const int type = ((*it).first).station() - 1;
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
+        // ignore data clusters in BX's other than BX0
+        if (useDataClustersOnlyInBX0_ and cluster->bx() != 0)
+          continue;
+
         chamberHistos[type]["cluster_size_data"]->Fill(cluster->pads().size());
         chamberHistos[type]["cluster_pad_data"]->Fill(cluster->pads().front());
         chamberHistos[type]["cluster_bx_data"]->Fill(cluster->bx());

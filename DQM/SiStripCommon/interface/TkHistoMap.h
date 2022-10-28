@@ -21,7 +21,8 @@ public:
              const std::string& path,
              const std::string& MapName,
              float baseline = 0,
-             bool mechanicalView = false);
+             bool mechanicalView = false,
+             bool isTH2F = false);
   TkHistoMap(const TkDetMap* tkDetMap,
              const std::string& path,
              const std::string& MapName,
@@ -34,7 +35,7 @@ public:
              bool mechanicalView,
              bool isTH2F);
   TkHistoMap(const TkDetMap* tkDetMap);
-  ~TkHistoMap(){};
+  ~TkHistoMap() = default;
 
   void loadServices();
 

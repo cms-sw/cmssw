@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,13 +31,12 @@ using namespace reco;
 using namespace edm;
 using namespace ROOT::Math::VectorUtil;
 
-class jetMatch : public edm::EDAnalyzer {
+class jetMatch : public edm::one::EDAnalyzer<> {
 public:
   explicit jetMatch(const edm::ParameterSet&);
-  ~jetMatch() {}
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   EDGetTokenT<CandidateCollection> sourceToken_;

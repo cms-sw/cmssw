@@ -4,12 +4,12 @@
 //             For carrying out exponential fit to the MPV's as a function
 //             of accumulated luminosity and plotting them on canvas
 //     plotMPV(infile, eta, phi, depth, first, drawleg, iyear, lumis, ener,
-//             save, debug);
+//             save, npar, debug);
 //
 //             For combining the fit results for 2 iphi values (63, 65) by
 //             weighted mean, carrying out the fit and plotting them on canvas
 //     plot2MPV(infile, eta, depth, first, drawleg, iyear, lumis, ener, save,
-//              debug)
+//              npar, debug)
 //
 //             Get truncated mean for a range of eta, depth, ...
 //     getTruncateMean(infile, frac, type, nvx, save);
@@ -33,6 +33,7 @@
 //   iyear  (int)         Year of data taking, if > 1000 to be shown (17)
 //   lumis  (double)      Total integrated luminosity (49.0)
 //   ener   (int)         C.M. energy (13)
+//   npar   (int)         Number of parameters in the fit (1)
 //   save   (bool)        if the plot to be saved as a pdf file (false)
 //   debug  (bool)        For controlling debug printouts (false)
 //   frac   (double)      Fraction of events to be used
@@ -51,6 +52,7 @@
 #include <TFitResult.h>
 #include <TFitResultPtr.h>
 #include <TGraph.h>
+#include <TGraph2D.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
 #include <TH1D.h>
@@ -70,6 +72,8 @@
 #include <map>
 #include <string>
 #include <vector>
+
+const bool debugMode = false;
 
 std::vector<std::string> splitString(const std::string& fLine) {
   std::vector<std::string> result;
@@ -201,6 +205,7 @@ rType drawMPV(const char* name,
               int ener = 13,
               int normalize = 0,
               bool save = false,
+              int npar = 1,
               bool debug = false) {
   rType results;
   gStyle->SetCanvasBorderMode(0);
@@ -245,10 +250,10 @@ rType drawMPV(const char* name,
     float ymin(0), ymax(0);
     unsigned int k(0), k1(0);
     double startvalues[2];
-    startvalues[1] = 0;
+    startvalues[0] = 0;
     for (std::map<int, std::pair<double, double> >::const_iterator itr = mpvs.begin(); itr != mpvs.end(); ++itr, ++k1) {
       if (k1 == 0)
-        startvalues[0] = (itr->second).first;
+        startvalues[1] = (itr->second).first;
       if (k1 >= first && k < np) {
         mpv[k] = (itr->second).first;
         dmpv[k] = (itr->second).second;
@@ -274,25 +279,25 @@ rType drawMPV(const char* name,
     }
     np = k;
     if (debug)
-      std::cout << "YRange (Initlal) : " << ymin << ":" << ymax << ":" << startvalues[0];
+      std::cout << "YRange (Initlal) : " << ymin << ":" << ymax << ":" << startvalues[1];
     if (normalize % 10 > 0) {
       for (unsigned int k = 0; k < np; ++k) {
-        mpv[k] /= startvalues[0];
-        dmpv[k] /= startvalues[0];
+        mpv[k] /= startvalues[1];
+        dmpv[k] /= startvalues[1];
         if (debug)
           std::cout << "[" << k << "] = " << mpv[k] << " +- " << dmpv[k] << "\n";
       }
-      ymin /= startvalues[0];
-      ymax /= startvalues[0];
-      startvalues[0] = (mpvs.size() == 6) ? 5.0 : 1.0;
+      ymin /= startvalues[1];
+      ymax /= startvalues[1];
+      startvalues[1] = (mpvs.size() == 6) ? 5.0 : 1.0;
       if (debug)
-        std::cout << "YRange (Initlal) : " << ymin << ":" << ymax << ":" << startvalues[0];
+        std::cout << "YRange (Initlal) : " << ymin << ":" << ymax << ":" << startvalues[1];
     }
     int imin = (int)(0.01 * ymin) - 2;
     int imax = (int)(0.01 * ymax) + 3;
     if (normalize % 10 > 0) {
       ymax = 1.2;
-      ymin = 0.6;
+      ymin = 0.8;
     } else {
       ymin = 100 * imin;
       ymax = 100 * imax;
@@ -301,15 +306,15 @@ rType drawMPV(const char* name,
       std::cout << " (Final) : " << ymin << ":" << ymax << std::endl;
 
     TGraphErrors* g = new TGraphErrors(np, lums, mpv, dlum, dmpv);
-    TF1* f = new TF1("f", "[0]*TMath::Exp(-x*[1])");
+    TF1* f = (npar == 2) ? (new TF1("f", "[1]*TMath::Exp(-x*[0])")) : (new TF1("f", "TMath::Exp(-x*[0])"));
     f->SetParameters(startvalues);
     f->SetLineColor(kRed);
 
     double value1(0), error1(0), factor(0);
     for (int j = 0; j < 2; ++j) {
       TFitResultPtr Fit = g->Fit(f, "QS");
-      value1 = Fit->Value(1);
-      error1 = Fit->FitResult::Error(1);
+      value1 = Fit->Value(0);
+      error1 = Fit->FitResult::Error(0);
       factor = sqrt(f->GetChisquare() / np);
       if (factor > 1.2 && ((normalize / 10) % 10 > 0)) {
         for (unsigned int k = 0; k < np; ++k)
@@ -325,8 +330,14 @@ rType drawMPV(const char* name,
     results.chisq = factor * factor;
     g->SetMarkerStyle(8);
     g->SetMarkerColor(kBlue);
+
     std::cout << "ieta " << eta << " iphi " << phi << " depth " << depth << " mu " << value1 << " +- " << error1
               << " Chisq " << f->GetChisquare() << "/" << np << std::endl;
+    std::ofstream log1("slopes_newCode.txt", std::ios_base::app | std::ios_base::out);
+    log1 << "ieta\t" << eta << "\tdepth\t" << depth << "\tmu\t" << value1 << "\terror\t " << error1 << "\tChisq\t"
+         << f->GetChisquare() << std::endl;
+    log1.close();
+
     g->GetXaxis()->SetRangeUser(xmin, xmax);
     g->GetYaxis()->SetRangeUser(ymin, ymax);
     g->SetMarkerSize(1.5);
@@ -335,7 +346,7 @@ rType drawMPV(const char* name,
     } else {
       g->GetYaxis()->SetTitle("MPV_{Charge} (fC)");
     }
-    g->GetXaxis()->SetTitle("Integrated Luminosity (fb^{-1})");
+    g->GetXaxis()->SetTitle("Delivered Luminosity (fb^{-1})");
     g->GetYaxis()->SetTitleSize(0.04);
     g->GetXaxis()->SetTitleSize(0.04);
     g->GetXaxis()->SetNdivisions(20);
@@ -351,12 +362,12 @@ rType drawMPV(const char* name,
       if (depth > 0)
         sprintf(namel, "i#eta %d, i#phi %d, depth %d", eta, phi, depth);
       else
-        sprintf(namel, "i#eta %d, i#phi %d (all depths)", eta, phi);
+        sprintf(namel, "i#eta %d, i#phi %d (combined depths)", eta, phi);
     } else {
       if (depth > 0)
         sprintf(namel, "i#eta %d, depth %d", eta, depth);
       else
-        sprintf(namel, "i#eta %d (all depths)", eta);
+        sprintf(namel, "i#eta %d (combined depths)", eta);
     }
     legend->AddEntry(g, namel, "lp");
     if (drawleg) {
@@ -403,6 +414,7 @@ rType plotMPV(const char* infile,
               int ener = 13,
               int normalize = 0,
               bool save = false,
+              int npar = 1,
               bool debug = false) {
   char name[100];
   int iy = iyear % 100;
@@ -412,7 +424,8 @@ rType plotMPV(const char* infile,
 
   std::map<int, std::pair<double, double> > mpvs;
   readMPVs(infile, eta, phi, depth, nmax, mpvs, debug);
-  rType results = drawMPV(name, eta, phi, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, debug);
+  rType results =
+      drawMPV(name, eta, phi, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
   return results;
 }
 
@@ -426,6 +439,7 @@ rType plot2MPV(const char* infile,
                int ener = 13,
                int normalize = 0,
                bool save = false,
+               int npar = 1,
                bool debug = false) {
   char name[100];
   sprintf(name, "mpvE%dD%d", eta, depth);
@@ -455,7 +469,8 @@ rType plot2MPV(const char* infile,
       mpvs[period] = std::pair<double, double>(mpv, empv);
     }
   }
-  rType results = drawMPV(name, eta, 0, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, debug);
+  rType results =
+      drawMPV(name, eta, 0, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
   return results;
 }
 
@@ -468,10 +483,12 @@ void plotMPVs(const char* infile,
               double lumis = 0.0,
               int ener = 13,
               bool save = false,
+              int npar = 1,
               bool debug = false) {
-  int ieta[20] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
-  int ndep[20] = {6, 6, 6, 6, 6, 6, 6, 6, 5, 3, 3, 5, 6, 6, 6, 6, 6, 6, 6, 6};
-  int idep[20] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
+  const unsigned int nEta = 22;
+  int ieta[nEta] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
+  int ndep[nEta] = {7, 6, 6, 6, 6, 6, 6, 6, 5, 3, 1, 1, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7};
+  int idep[nEta] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
 
   char name[100];
   int iy = iyear % 100;
@@ -481,13 +498,14 @@ void plotMPVs(const char* infile,
   const unsigned int nmax = (iy == 17) ? 13 : 20;
   double lumi = ((lumis > 0) ? lumis : ((iy == 17) ? 49.0 : 68.5));
 
-  for (int k = k0; k < 20; ++k) {
+  for (unsigned int k = k0; k < nEta; ++k) {
     int eta = ieta[k];
     for (int depth = idep[k]; depth <= ndep[k]; ++depth) {
       sprintf(name, "mpvE%dF%dD%d", eta, phi, depth);
       std::map<int, std::pair<double, double> > mpvs;
       readMPVs(infile, eta, phi, depth, nmax, mpvs, debug);
-      rType rt = drawMPV(name, eta, phi, depth, nmax, mpvs, first, true, iyear, lumi, ener, normalize, save, debug);
+      rType rt =
+          drawMPV(name, eta, phi, depth, nmax, mpvs, first, true, iyear, lumi, ener, normalize, save, npar, debug);
       if (rt.pad != nullptr) {
         char line[100];
         sprintf(line, "%3d %2d %d %d   %8.4f  %8.4f  %8.4f", eta, phi, depth, nvx, rt.mean, rt.error, rt.chisq);
@@ -598,11 +616,11 @@ rType plotHist(
 }
 
 void getTruncateMean(const char* infile, double frac, std::string type, int nvx = 2, bool save = false) {
-  int ieta[20] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
-  int ndep[20] = {6, 6, 6, 6, 6, 6, 6, 6, 5, 3, 3, 5, 6, 6, 6, 6, 6, 6, 6, 6};
-  int idep[20] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
+  int ieta[22] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
+  int ndep[22] = {7, 6, 6, 6, 6, 6, 6, 6, 5, 3, 1, 1, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7};
+  int idep[22] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
 
-  for (int k = 0; k < 20; ++k) {
+  for (int k = 0; k < 22; ++k) {
     for (int depth = idep[k]; depth <= ndep[k]; ++depth) {
       rType rt = plotHist(infile, frac, ieta[k], depth, 0, nvx, false);
       if (rt.pad != nullptr) {
@@ -622,42 +640,44 @@ void getTruncateMean(const char* infile, double frac, std::string type, int nvx 
 
 void getTruncatedMeanX(
     const char* infile, std::string type, int nvx = 2, int year = 18, int phi = 0, bool save = false) {
-  int ieta[20] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
-  int ndep[20] = {6, 6, 6, 6, 6, 6, 6, 6, 5, 3, 3, 5, 6, 6, 6, 6, 6, 6, 6, 6};
-  int idep[20] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
-  double frac18[120] = {0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60,
-                        0.60, 0.60, 0.60, 0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.55, 0.60, 0.60, 0.60, 0.60, 0.60,
-                        0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60,
-                        0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-                        0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.65, 0.65, 0.60, 0.60, 0.60,
-                        0.60, 0.65, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.55, 0.60, 0.60, 0.60, 0.60, 0.65,
-                        0.55, 0.60, 0.60, 0.60, 0.60, 0.60, 0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60,
-                        0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.50, 0.55, 0.60, 0.60};
-  double frac17[120] = {0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.65, 0.57, 0.60,
-                        0.55, 0.70, 0.65, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.60, 0.60, 0.65, 0.62, 0.75, 0.65,
-                        0.70, 0.67, 0.60, 0.65, 0.55, 0.65, 0.60, 0.55, 0.75, 0.65, 0.75, 0.70, 0.60, 0.55, 0.75,
-                        0.67, 0.65, 0.60, 0.60, 0.45, 0.50, 0.52, 0.70, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-                        0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.45, 0.50, 0.52, 0.70, 0.65, 0.60, 0.55, 0.75,
-                        0.67, 0.65, 0.60, 0.60, 0.55, 0.75, 0.65, 0.75, 0.70, 0.70, 0.67, 0.60, 0.65, 0.55, 0.65,
-                        0.60, 0.60, 0.65, 0.62, 0.75, 0.65, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.65, 0.57, 0.60,
-                        0.55, 0.70, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.70, 0.65, 0.55, 0.60, 0.60, 0.65};
-  double frac63[120] = {0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.58, 0.60, 0.60,
-                        0.60, 0.62, 0.63, 0.57, 0.60, 0.60, 0.60, 0.65, 0.61, 0.57, 0.60, 0.60, 0.60, 0.62, 0.64,
-                        0.60, 0.60, 0.60, 0.60, 0.63, 0.65, 0.65, 0.60, 0.63, 0.60, 0.64, 0.65, 0.60, 0.60, 0.63,
-                        0.62, 0.62, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60,
-                        0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.63,
-                        0.62, 0.62, 0.65, 0.65, 0.60, 0.63, 0.60, 0.64, 0.65, 0.60, 0.60, 0.60, 0.60, 0.63, 0.65,
-                        0.57, 0.60, 0.60, 0.60, 0.62, 0.64, 0.57, 0.60, 0.60, 0.60, 0.65, 0.61, 0.58, 0.60, 0.60,
-                        0.60, 0.62, 0.63, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.63, 0.60, 0.57, 0.56, 0.60, 0.61};
+  const unsigned int nEta = 22;
+  int ieta[nEta] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
+  int ndep[nEta] = {7, 6, 6, 6, 6, 6, 6, 6, 6, 3, 4, 4, 3, 6, 6, 6, 6, 6, 6, 6, 6, 7};
+  int idep[nEta] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
+  int ioff[nEta] = {0, 7, 13, 19, 25, 31, 37, 43, 49, 54, 56, 57, 58, 60, 65, 71, 77, 83, 89, 95, 101, 107};
+  const unsigned int maxIndx = 114;
+  double frac18[maxIndx] = {
+      0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60,
+      0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.55, 0.60, 0.60, 0.60, 0.60, 0.60, 0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60,
+      0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.80,
+      0.80, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60,
+      0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 0.55, 0.60, 0.60, 0.60, 0.60, 0.60,
+      0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60};
+  double frac17[maxIndx] = {
+      0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.65, 0.57, 0.60, 0.55, 0.70, 0.65,
+      0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.60, 0.60, 0.65, 0.62, 0.75, 0.65, 0.70, 0.67, 0.60, 0.65, 0.55, 0.65, 0.60,
+      0.55, 0.75, 0.65, 0.75, 0.70, 0.60, 0.55, 0.75, 0.67, 0.65, 0.60, 0.60, 0.45, 0.50, 0.52, 0.70, 0.65, 0.60, 0.80,
+      0.80, 0.60, 0.65, 0.60, 0.55, 0.75, 0.67, 0.65, 0.60, 0.55, 0.75, 0.65, 0.75, 0.70, 0.70, 0.67, 0.60, 0.65, 0.55,
+      0.65, 0.60, 0.60, 0.65, 0.62, 0.75, 0.65, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60,
+      0.65, 0.57, 0.60, 0.55, 0.70, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65};
+  double frac63[maxIndx] = {
+      0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.58, 0.60, 0.60, 0.60, 0.62, 0.63,
+      0.57, 0.60, 0.60, 0.60, 0.65, 0.61, 0.57, 0.60, 0.60, 0.60, 0.62, 0.64, 0.60, 0.60, 0.60, 0.60, 0.63, 0.65, 0.65,
+      0.60, 0.63, 0.60, 0.64, 0.65, 0.60, 0.60, 0.63, 0.62, 0.62, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.80,
+      0.80, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.63, 0.62, 0.62, 0.65, 0.65, 0.60, 0.63, 0.60, 0.64,
+      0.65, 0.60, 0.60, 0.60, 0.60, 0.63, 0.65, 0.57, 0.60, 0.60, 0.60, 0.62, 0.64, 0.57, 0.60, 0.60, 0.60, 0.65, 0.61,
+      0.58, 0.60, 0.60, 0.60, 0.62, 0.63, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60};
 
   char name[100];
   sprintf(name, "Data%d_trunc.txt", year);
   std::ofstream log(name, std::ios_base::app | std::ios_base::out);
-  int k0 = (year == 17) ? 10 : 0;
-  for (int k = k0; k < 20; ++k) {
+  int k0 = (year == 17) ? (nEta / 2) : 0;
+  for (unsigned int k = k0; k < nEta; ++k) {
     for (int depth = idep[k]; depth <= ndep[k]; ++depth) {
-      int indx = k * 6 + depth - 1;
+      int indx = ioff[k] + depth - idep[k];
       double frac = ((year == 17) ? ((phi == 0) ? frac17[indx] : frac63[indx]) : frac18[indx]);
+      if (debugMode)
+        std::cout << k << " E " << ieta[k] << " D " << depth << " I " << indx << " R " << frac << std::endl;
       rType rt = plotHist(infile, frac, ieta[k], depth, phi, nvx, false);
       if (rt.pad != nullptr) {
         char line[100];
@@ -758,7 +778,6 @@ void drawSlope(const char* infile,
     pad->SetRightMargin(0.10);
     pad->SetTopMargin(0.10);
     TLegend* legend = new TLegend(0.2206304, 0.8259023, 0.760745, 0.8768577, NULL, "brNDC");
-    //  TLegend *legend = new TLegend(0.25, 0.14, 0.79, 0.19);
     legend->SetFillColor(kWhite);
     legend->SetBorderSize(1);
     unsigned int nmax = slopes.size();
@@ -891,8 +910,6 @@ TCanvas* plotLightLoss(std::string infile = "mu_HE_insitu_2018.txt",
     h->GetZaxis()->SetRangeUser(0.75, 1.25);
     std::map<std::pair<int, int>, double>::const_iterator itr;
 
-    unsigned int nmax = losses.size();
-    int np(0);
     int ieta, depth;
     for (itr = losses.begin(); itr != losses.end(); ++itr) {
       ieta = (itr->first).first;
@@ -910,7 +927,6 @@ TCanvas* plotLightLoss(std::string infile = "mu_HE_insitu_2018.txt",
     a->CenterLabels(kTRUE);
     gPad->Modified();
     gPad->Update();
-
     TPaveText* txt1 = new TPaveText(0.60, 0.91, 0.90, 0.97, "blNDC");
     txt1->SetFillColor(0);
     sprintf(text, "%d, %d TeV %5.1f fb^{-1}", iyear, ener, lumis);

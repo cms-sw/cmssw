@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,7 +50,7 @@
 
 namespace l1t {
 
-  class L1TGlobalAnalyzer : public edm::EDAnalyzer {
+  class L1TGlobalAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit L1TGlobalAnalyzer(const edm::ParameterSet&);
     ~L1TGlobalAnalyzer() override;

@@ -145,7 +145,8 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   //execute the query
   coral::ICursor &fillDataCursor = fillDataQuery->execute();
   //initialize loop variables
-  unsigned short previousFillNumber = 1, currentFill = m_firstFill;
+  unsigned short previousFillNumber = 1;
+  unsigned short currentFill = m_firstFill;
   cond::Time_t previousFillEndTime = 0ULL, afterPreviousFillEndTime = 0ULL, beforeStableBeamStartTime = 0ULL;
   if (tagInfo().size > 0) {
     previousFillNumber = previousFill->fillNumber();

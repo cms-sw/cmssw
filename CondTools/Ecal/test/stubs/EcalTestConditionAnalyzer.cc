@@ -7,11 +7,11 @@
    \date 05 Nov 2008
 */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include <string>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
@@ -21,7 +21,6 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
-
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
@@ -47,92 +46,75 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
-
 /**
  *
  * Test analyzer that reads ecal records from event setup and writes XML files
  *
  */
 
-class EcalTestConditionAnalyzer : public edm::EDAnalyzer {
-
+class EcalTestConditionAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit EcalTestConditionAnalyzer (const edm::ParameterSet&){}
-    
+  explicit EcalTestConditionAnalyzer(const edm::ParameterSet&);
+  ~EcalTestConditionAnalyzer() override = default;
+
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
-  virtual void beginJob(){}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
-
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> adcToGeVConstantToken_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
+  const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainRatiosToken_;
+  const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstantsToken_;
+  const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> intercalibConstantsMCToken_;
+  const edm::ESGetToken<EcalIntercalibErrors, EcalIntercalibErrorsRcd> intercalibErrorsToken_;
+  const edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tbWeightsToken_;
+  const edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> weightXtalGroupsToken_;
 };
 
+EcalTestConditionAnalyzer::EcalTestConditionAnalyzer(const edm::ParameterSet&)
+    : adcToGeVConstantToken_(esConsumes()),
+      channelStatusToken_(esConsumes()),
+      gainRatiosToken_(esConsumes()),
+      intercalibConstantsToken_(esConsumes()),
+      intercalibConstantsMCToken_(esConsumes()),
+      intercalibErrorsToken_(esConsumes()),
+      tbWeightsToken_(esConsumes()),
+      weightXtalGroupsToken_(esConsumes()) {}
 
-void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup){
-
-  using std::string;
-
+void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup) {
   // retrieve records from setup and write XML
- 
-   EcalCondHeader header;
-   header.method_="testmethod";
-   header.version_="testversion";
-   header.datasource_="testdata";
-   header.since_=123;
-   header.tag_="testtag";
-   header.date_="Mar 24 1973";
-  
-   edm::ESHandle<EcalADCToGeVConstant> adctogev;
-   iSetup.get<EcalADCToGeVConstantRcd>().get(adctogev );
- 
-   edm::ESHandle<EcalChannelStatus> chstatus;
-   iSetup.get<EcalChannelStatusRcd>().get(chstatus);
+  EcalCondHeader header;
+  header.method_ = "testmethod";
+  header.version_ = "testversion";
+  header.datasource_ = "testdata";
+  header.since_ = 123;
+  header.tag_ = "testtag";
+  header.date_ = "Mar 24 1973";
 
-   edm::ESHandle<EcalGainRatios> gainratios;
-   iSetup.get<EcalGainRatiosRcd>().get(gainratios);
+  const auto& adctogev = iSetup.getData(adcToGeVConstantToken_);
+  const auto& chstatus = iSetup.getData(channelStatusToken_);
+  const auto& gainratios = iSetup.getData(gainRatiosToken_);
+  const auto& intercalib = iSetup.getData(intercalibConstantsToken_);
+  const auto& intercalibmc = iSetup.getData(intercalibConstantsMCToken_);
+  const auto& intercaliberr = iSetup.getData(intercalibErrorsToken_);
+  const auto& tbweights = iSetup.getData(tbWeightsToken_);
+  const auto& wgroup = iSetup.getData(weightXtalGroupsToken_);
 
-   edm::ESHandle<EcalIntercalibConstants> intercalib;
-   iSetup.get<EcalIntercalibConstantsRcd>().get(intercalib);
+  edm::LogInfo("EcalTestConditionAnalyzer") << "Got all records";
 
-   edm::ESHandle<EcalIntercalibConstantsMC> intercalibmc;
-   iSetup.get<EcalIntercalibConstantsMCRcd>().get(intercalibmc);
+  const std::string ADCfile = "EcalADCToGeVConstant.xml";
+  const std::string ChStatusfile = "EcalChannelStatus.xml";
+  const std::string Grfile = "EcalGainRatios.xml";
+  const std::string InterFile = "EcalIntercalibConstants.xml";
+  const std::string InterMCFile = "EcalIntercalibConstantsMC.xml";
+  const std::string WFile = "EcalTBWeights.xml";
+  const std::string WGFile = "EcalWeightXtalGroups.xml";
 
-   edm::ESHandle<EcalIntercalibErrors> intercaliberr;
-   iSetup.get<EcalIntercalibErrorsRcd>().get(intercaliberr);
-
-
-   edm::ESHandle<EcalTBWeights> tbweights;
-   iSetup.get<EcalTBWeightsRcd>().get(tbweights);
-
-   edm::ESHandle<EcalWeightXtalGroups> wgroup;
-   iSetup.get<EcalWeightXtalGroupsRcd>().get(wgroup);
-
-   std::cout << "Got all records " << std::endl;
-   
-   string ADCfile      = "EcalADCToGeVConstant.xml";
-   string ChStatusfile = "EcalChannelStatus.xml";
-   string Grfile       = "EcalGainRatios.xml";
-   string InterFile    = "EcalIntercalibConstants.xml";
-   string InterMCFile  = "EcalIntercalibConstantsMC.xml";
-   string WFile        = "EcalTBWeights.xml";
-   string WGFile       = "EcalWeightXtalGroups.xml";
-
-   EcalADCToGeVXMLTranslator::writeXML(ADCfile,header,*adctogev); 
-   EcalChannelStatusXMLTranslator::writeXML(ChStatusfile,header,*chstatus);
-   EcalGainRatiosXMLTranslator::writeXML(Grfile,header,*gainratios);
-   EcalIntercalibConstantsXMLTranslator::writeXML(InterFile,header,
-						  *intercalib);
-   EcalTBWeightsXMLTranslator::writeXML(WFile,header,*tbweights);
-   EcalWeightGroupXMLTranslator::writeXML(WGFile,header,*wgroup);
-
+  EcalADCToGeVXMLTranslator::writeXML(ADCfile, header, adctogev);
+  EcalChannelStatusXMLTranslator::writeXML(ChStatusfile, header, chstatus);
+  EcalGainRatiosXMLTranslator::writeXML(Grfile, header, gainratios);
+  EcalIntercalibConstantsXMLTranslator::writeXML(InterFile, header, intercalib);
+  EcalTBWeightsXMLTranslator::writeXML(WFile, header, tbweights);
+  EcalWeightGroupXMLTranslator::writeXML(WGFile, header, wgroup);
 }
 
 DEFINE_FWK_MODULE(EcalTestConditionAnalyzer);
-
-
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "scram b"
-// End:

@@ -21,6 +21,11 @@ public:
 
   static int pixelToChannel(int row, int col) { return (row << GetInstance().column_width) | col; }
 
+  MTDChannelIdentifier(const MTDChannelIdentifier&) = delete;
+  MTDChannelIdentifier& operator=(const MTDChannelIdentifier&) = delete;
+  MTDChannelIdentifier(MTDChannelIdentifier&&) = delete;
+  MTDChannelIdentifier& operator=(MTDChannelIdentifier&&) = delete;
+
 private:
   MTDChannelIdentifier(unsigned int row_w, unsigned int column_w, unsigned int time_w, unsigned int adc_w)
       : row_width(row_w),
@@ -40,11 +45,6 @@ private:
         max_adc(adc_mask) {}
 
   ~MTDChannelIdentifier() = default;
-
-  MTDChannelIdentifier(const MTDChannelIdentifier&) = delete;
-  MTDChannelIdentifier& operator=(const MTDChannelIdentifier&) = delete;
-  MTDChannelIdentifier(MTDChannelIdentifier&&) = delete;
-  MTDChannelIdentifier& operator=(MTDChannelIdentifier&&) = delete;
 
   const int row_width;
   const int column_width;

@@ -34,10 +34,42 @@ process.DoodadESSource = cms.ESSource("DoodadESSource"
                                       , test2 = cms.untracked.string('z')
 )
 
+process.CPU = cms.Service("CPU")
+process.ZombieKillerService = cms.Service("ZombieKillerService")
+process.JobReportService = cms.Service("JobReportService")
+
 # ---------------------------------------------------------------
 
 copyProcess = cms.Process("COPY")
 process.addSubProcess(cms.SubProcess(copyProcess))
+
+# The following services are intended to test the isProcessWideService
+# function which is defined in some services. These services
+# should never be constructed and ignored, because
+# The service from the top level process should be used.
+# They intentionally have an illegal parameter to fail
+# if they are ever constructed.
+copyProcess.MessageLogger = cms.Service("MessageLogger",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.CPU = cms.Service("CPU",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.InitRootHandlers = cms.Service("InitRootHandlers",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.ZombieKillerService = cms.Service("ZombieKillerService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.JobReportService = cms.Service("JobReportService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.SiteLocalConfigService = cms.Service("SiteLocalConfigService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.AdaptorConfig = cms.Service("AdaptorConfig",
+    intentionallyIllegalParameter = cms.bool(True)
+)
 
 copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
                                           , appendToDataLabel = cms.string('abc')

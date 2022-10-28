@@ -1,21 +1,22 @@
-#include "FWCore/Framework/src/StreamSchedule.h"
+#include "FWCore/Framework/interface/StreamSchedule.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
-#include "FWCore/Framework/src/WorkerInPath.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/WorkerInPath.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -27,15 +28,18 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "LuminosityBlockProcessingStatus.h"
+#include "processEDAliases.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <functional>
 #include <iomanip>
+#include <limits>
 #include <list>
 #include <map>
 #include <exception>
+#include <fmt/format.h>
 
 namespace edm {
 
@@ -81,57 +85,264 @@ namespace edm {
       return ptr;
     }
 
-    void initializeBranchToReadingWorker(ParameterSet const& opts,
+    void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
                                          ProductRegistry const& preg,
                                          std::multimap<std::string, Worker*>& branchToReadingWorker) {
-      // See if any data has been marked to be deleted early (removing any duplicates)
-      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
-      if (not vBranchesToDeleteEarly.empty()) {
-        std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
-        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end()),
-                                     vBranchesToDeleteEarly.end());
+      auto vBranchesToDeleteEarly = branchesToDeleteEarly;
+      // Remove any duplicates
+      std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
+      vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end()),
+                                   vBranchesToDeleteEarly.end());
 
-        // Are the requested items in the product registry?
-        auto allBranchNames = preg.allBranchNames();
-        //the branch names all end with a period, which we do not want to compare with
-        for (auto& b : allBranchNames) {
-          b.resize(b.size() - 1);
-        }
-        std::sort(allBranchNames.begin(), allBranchNames.end(), std::less<std::string>());
-        std::vector<std::string> temp;
-        temp.reserve(vBranchesToDeleteEarly.size());
+      // Are the requested items in the product registry?
+      auto allBranchNames = preg.allBranchNames();
+      //the branch names all end with a period, which we do not want to compare with
+      for (auto& b : allBranchNames) {
+        b.resize(b.size() - 1);
+      }
+      std::sort(allBranchNames.begin(), allBranchNames.end(), std::less<std::string>());
+      std::vector<std::string> temp;
+      temp.reserve(vBranchesToDeleteEarly.size());
 
-        std::set_intersection(vBranchesToDeleteEarly.begin(),
-                              vBranchesToDeleteEarly.end(),
-                              allBranchNames.begin(),
-                              allBranchNames.end(),
-                              std::back_inserter(temp));
-        vBranchesToDeleteEarly.swap(temp);
-        if (temp.size() != vBranchesToDeleteEarly.size()) {
-          std::vector<std::string> missingProducts;
-          std::set_difference(temp.begin(),
-                              temp.end(),
-                              vBranchesToDeleteEarly.begin(),
-                              vBranchesToDeleteEarly.end(),
-                              std::back_inserter(missingProducts));
-          LogInfo l("MissingProductsForCanDeleteEarly");
-          l << "The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
-          for (auto const& n : missingProducts) {
-            l << "\n " << n;
-          }
-        }
-        //set placeholder for the branch, we will remove the nullptr if a
-        // module actually wants the branch.
-        for (auto const& branch : vBranchesToDeleteEarly) {
-          branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
+      std::set_intersection(vBranchesToDeleteEarly.begin(),
+                            vBranchesToDeleteEarly.end(),
+                            allBranchNames.begin(),
+                            allBranchNames.end(),
+                            std::back_inserter(temp));
+      vBranchesToDeleteEarly.swap(temp);
+      if (temp.size() != vBranchesToDeleteEarly.size()) {
+        std::vector<std::string> missingProducts;
+        std::set_difference(temp.begin(),
+                            temp.end(),
+                            vBranchesToDeleteEarly.begin(),
+                            vBranchesToDeleteEarly.end(),
+                            std::back_inserter(missingProducts));
+        LogInfo l("MissingProductsForCanDeleteEarly");
+        l << "The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
+        for (auto const& n : missingProducts) {
+          l << "\n " << n;
         }
       }
+      //set placeholder for the branch, we will remove the nullptr if a
+      // module actually wants the branch.
+      for (auto const& branch : vBranchesToDeleteEarly) {
+        branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
+      }
+    }
+
+    Worker* getWorker(std::string const& moduleLabel,
+                      ParameterSet& proc_pset,
+                      WorkerManager& workerManager,
+                      ProductRegistry& preg,
+                      PreallocationConfiguration const* prealloc,
+                      std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+      bool isTracked;
+      ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
+      if (modpset == nullptr) {
+        return nullptr;
+      }
+      assert(isTracked);
+
+      return workerManager.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
+    }
+
+    // If ConditionalTask modules exist in the container of module
+    // names, returns the range (std::pair) for the modules. The range
+    // excludes the special markers '#' (right before the
+    // ConditionalTask modules) and '@' (last element).
+    // If the module name container does not contain ConditionalTask
+    // modules, returns std::pair of end iterators.
+    template <typename T>
+    auto findConditionalTaskModulesRange(T& modnames) {
+      auto beg = std::find(modnames.begin(), modnames.end(), "#");
+      if (beg == modnames.end()) {
+        return std::pair(modnames.end(), modnames.end());
+      }
+      return std::pair(beg + 1, std::prev(modnames.end()));
+    }
+
+    std::optional<std::string> findBestMatchingAlias(
+        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
+        std::string const& productModuleLabel,
+        ConsumesInfo const& consumesInfo) {
+      std::optional<std::string> best;
+      int wildcardsInBest = std::numeric_limits<int>::max();
+      bool bestIsAmbiguous = false;
+
+      auto updateBest = [&best, &wildcardsInBest, &bestIsAmbiguous](
+                            std::string const& label, bool instanceIsWildcard, bool typeIsWildcard) {
+        int const wildcards = static_cast<int>(instanceIsWildcard) + static_cast<int>(typeIsWildcard);
+        if (wildcards == 0) {
+          bestIsAmbiguous = false;
+          return true;
+        }
+        if (not best or wildcards < wildcardsInBest) {
+          best = label;
+          wildcardsInBest = wildcards;
+          bestIsAmbiguous = false;
+        } else if (best and *best != label and wildcardsInBest == wildcards) {
+          bestIsAmbiguous = true;
+        }
+        return false;
+      };
+
+      auto findAlias = aliasMap.equal_range(productModuleLabel);
+      for (auto it = findAlias.first; it != findAlias.second; ++it) {
+        std::string const& aliasInstanceLabel =
+            it->second.instanceLabel != "*" ? it->second.instanceLabel : it->second.originalInstanceLabel;
+        bool const instanceIsWildcard = (aliasInstanceLabel == "*");
+        if (instanceIsWildcard or consumesInfo.instance() == aliasInstanceLabel) {
+          bool const typeIsWildcard = it->second.friendlyClassName == "*";
+          if (typeIsWildcard or (consumesInfo.type().friendlyClassName() == it->second.friendlyClassName)) {
+            if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
+              return it->second.originalModuleLabel;
+            }
+          } else if (consumesInfo.kindOfType() == ELEMENT_TYPE) {
+            //consume is a View so need to do more intrusive search
+            //find matching branches in module
+            auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
+            for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
+              if (typeIsWildcard or itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
+                if (productholderindexhelper::typeIsViewCompatible(consumesInfo.type(),
+                                                                   TypeID(itBranch->second->wrappedType().typeInfo()),
+                                                                   itBranch->second->className())) {
+                  if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
+                    return it->second.originalModuleLabel;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (bestIsAmbiguous) {
+        throw Exception(errors::UnimplementedFeature)
+            << "Encountered ambiguity when trying to find a best-matching alias for\n"
+            << " friendly class name " << consumesInfo.type().friendlyClassName() << "\n"
+            << " module label " << productModuleLabel << "\n"
+            << " product instance name " << consumesInfo.instance() << "\n"
+            << "when processing EDAliases for modules in ConditionalTasks. Two aliases have the same number of "
+               "wildcards ("
+            << wildcardsInBest << ")";
+      }
+      return best;
     }
   }  // namespace
 
   // -----------------------------
 
   typedef std::vector<std::string> vstring;
+
+  // -----------------------------
+
+  class ConditionalTaskHelper {
+  public:
+    using AliasInfo = StreamSchedule::AliasInfo;
+
+    ConditionalTaskHelper(ParameterSet& proc_pset,
+                          ProductRegistry& preg,
+                          PreallocationConfiguration const* prealloc,
+                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                          WorkerManager& workerManager,
+                          std::vector<std::string> const& trigPathNames) {
+      std::unordered_set<std::string> allConditionalMods;
+      for (auto const& pathName : trigPathNames) {
+        auto const modnames = proc_pset.getParameter<vstring>(pathName);
+
+        //Pull out ConditionalTask modules
+        auto condRange = findConditionalTaskModulesRange(modnames);
+        if (condRange.first == condRange.second)
+          continue;
+
+        //the last entry should be ignored since it is required to be "@"
+        allConditionalMods.insert(condRange.first, condRange.second);
+      }
+
+      for (auto const& cond : allConditionalMods) {
+        //force the creation of the conditional modules so alias check can work
+        (void)getWorker(cond, proc_pset, workerManager, preg, prealloc, processConfiguration);
+      }
+
+      fillAliasMap(proc_pset, allConditionalMods);
+      processSwitchEDAliases(proc_pset, preg, *processConfiguration, allConditionalMods);
+
+      //find branches created by the conditional modules
+      for (auto const& prod : preg.productList()) {
+        if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
+          conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
+        }
+      }
+    }
+
+    std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
+
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+        std::unordered_set<std::string> const& conditionalmods) const {
+      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
+      for (auto const& mod : conditionalmods) {
+        auto range = conditionalModsBranches_.equal_range(mod);
+        ret.insert(range.first, range.second);
+      }
+      return ret;
+    }
+
+  private:
+    void fillAliasMap(ParameterSet const& proc_pset, std::unordered_set<std::string> const& allConditionalMods) {
+      auto aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
+      std::string const star("*");
+      for (auto const& alias : aliases) {
+        auto info = proc_pset.getParameter<edm::ParameterSet>(alias);
+        auto aliasedToModuleLabels = info.getParameterNames();
+        for (auto const& mod : aliasedToModuleLabels) {
+          if (not mod.empty() and mod[0] != '@' and allConditionalMods.find(mod) != allConditionalMods.end()) {
+            auto aliasVPSet = info.getParameter<std::vector<edm::ParameterSet>>(mod);
+            for (auto const& aliasPSet : aliasVPSet) {
+              std::string type = star;
+              std::string instance = star;
+              std::string originalInstance = star;
+              if (aliasPSet.exists("type")) {
+                type = aliasPSet.getParameter<std::string>("type");
+              }
+              if (aliasPSet.exists("toProductInstance")) {
+                instance = aliasPSet.getParameter<std::string>("toProductInstance");
+              }
+              if (aliasPSet.exists("fromProductInstance")) {
+                originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
+              }
+
+              aliasMap_.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+            }
+          }
+        }
+      }
+    }
+
+    void processSwitchEDAliases(ParameterSet const& proc_pset,
+                                ProductRegistry& preg,
+                                ProcessConfiguration const& processConfiguration,
+                                std::unordered_set<std::string> const& allConditionalMods) {
+      auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
+      std::vector<std::string> switchEDAliases;
+      for (auto const& module : all_modules) {
+        auto const& mod_pset = proc_pset.getParameter<edm::ParameterSet>(module);
+        if (mod_pset.getParameter<std::string>("@module_type") == "SwitchProducer") {
+          auto const& all_cases = mod_pset.getParameter<std::vector<std::string>>("@all_cases");
+          for (auto const& case_label : all_cases) {
+            auto range = aliasMap_.equal_range(case_label);
+            if (range.first != range.second) {
+              switchEDAliases.push_back(case_label);
+            }
+          }
+        }
+      }
+      detail::processEDAliases(
+          switchEDAliases, allConditionalMods, proc_pset, processConfiguration.processName(), preg);
+    }
+
+    std::unordered_multimap<std::string, AliasInfo> aliasMap_;
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+  };
 
   // -----------------------------
 
@@ -144,11 +355,9 @@ namespace edm {
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
       ProductRegistry& preg,
-      BranchIDListHelper& branchIDListHelper,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration> processConfiguration,
-      bool allowEarlyDelete,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       StreamID streamID,
       ProcessContext const* processContext)
       : workerManager_(modReg, areg, actions),
@@ -162,17 +371,26 @@ namespace edm {
         number_of_unscheduled_modules_(0),
         streamID_(streamID),
         streamContext_(streamID_, processContext),
-        endpathsAreActive_(true),
         skippingEvent_(false) {
-    ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
     std::vector<std::string> const& pathNames = tns.getTrigPaths();
     std::vector<std::string> const& endPathNames = tns.getEndPaths();
 
+    ConditionalTaskHelper conditionalTaskHelper(
+        proc_pset, preg, &prealloc, processConfiguration, workerManager_, pathNames);
+
     int trig_bitpos = 0;
     trig_paths_.reserve(pathNames.size());
     for (auto const& trig_name : pathNames) {
-      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, results(), endPathNames);
+      fillTrigPath(proc_pset,
+                   preg,
+                   &prealloc,
+                   processConfiguration,
+                   trig_bitpos,
+                   trig_name,
+                   results(),
+                   endPathNames,
+                   conditionalTaskHelper);
       ++trig_bitpos;
       hasPath = true;
     }
@@ -189,7 +407,8 @@ namespace edm {
     int bitpos = 0;
     end_paths_.reserve(endPathNames.size());
     for (auto const& end_path_name : endPathNames) {
-      fillEndPath(proc_pset, preg, &prealloc, processConfiguration, bitpos, end_path_name, endPathNames);
+      fillEndPath(
+          proc_pset, preg, &prealloc, processConfiguration, bitpos, end_path_name, endPathNames, conditionalTaskHelper);
       ++bitpos;
     }
 
@@ -236,29 +455,17 @@ namespace edm {
       }
     }
     number_of_unscheduled_modules_ = unscheduledLabels.size();
-
-    initializeEarlyDelete(*modReg, opts, preg, allowEarlyDelete);
-
   }  // StreamSchedule::StreamSchedule
 
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
-                                             edm::ParameterSet const& opts,
-                                             edm::ProductRegistry const& preg,
-                                             bool allowEarlyDelete) {
-    //for now, if have a subProcess, don't allow early delete
-    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-    if (not allowEarlyDelete)
-      return;
-
-    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
-    // registered for this job
+                                             std::vector<std::string> const& branchesToDeleteEarly,
+                                             std::multimap<std::string, std::string> const& referencesToBranches,
+                                             std::vector<std::string> const& modulesToSkip,
+                                             edm::ProductRegistry const& preg) {
+    // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
-    initializeBranchToReadingWorker(opts, preg, branchToReadingWorker);
+    initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);
 
-    //If no delete early items have been specified we don't have to do anything
-    if (branchToReadingWorker.empty()) {
-      return;
-    }
     const std::vector<std::string> kEmpty;
     std::map<Worker*, unsigned int> reserveSizeForWorker;
     unsigned int upperLimitOnReadingWorker = 0;
@@ -289,23 +496,88 @@ namespace edm {
       return;
     }
 
+    std::unordered_set<std::string> modulesToExclude(modulesToSkip.begin(), modulesToSkip.end());
     for (auto w : allWorkers()) {
+      if (modulesToExclude.end() != modulesToExclude.find(w->description()->moduleLabel())) {
+        continue;
+      }
       //determine if this module could read a branch we want to delete early
-      auto pset = pset::Registry::instance()->getMapped(w->description()->parameterSetID());
-      if (nullptr != pset) {
-        auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet", kEmpty);
-        if (not branches.empty()) {
-          ++upperLimitOnReadingWorker;
-        }
-        for (auto const& branch : branches) {
-          auto found = branchToReadingWorker.equal_range(branch);
-          if (found.first != found.second) {
-            ++upperLimitOnIndicies;
-            ++reserveSizeForWorker[w];
-            if (nullptr == found.first->second) {
-              found.first->second = w;
+      auto consumes = w->consumesInfo();
+      if (not consumes.empty()) {
+        bool foundAtLeastOneMatchingBranch = false;
+        for (auto const& product : consumes) {
+          std::string branch = fmt::format("{}_{}_{}_{}",
+                                           product.type().friendlyClassName(),
+                                           product.label().data(),
+                                           product.instance().data(),
+                                           product.process().data());
+          {
+            //Handle case where worker directly consumes product
+            auto found = branchToReadingWorker.end();
+            if (product.process().empty()) {
+              auto startFound = branchToReadingWorker.lower_bound(branch);
+              if (startFound != branchToReadingWorker.end()) {
+                if (startFound->first.substr(0, branch.size()) == branch) {
+                  //match all processNames here, even if it means multiple matches will happen
+                  found = startFound;
+                }
+              }
             } else {
-              branchToReadingWorker.insert(make_pair(found.first->first, w));
+              auto exactFound = branchToReadingWorker.equal_range(branch);
+              if (exactFound.first != exactFound.second) {
+                found = exactFound.first;
+              }
+            }
+            if (found != branchToReadingWorker.end()) {
+              if (not foundAtLeastOneMatchingBranch) {
+                ++upperLimitOnReadingWorker;
+                foundAtLeastOneMatchingBranch = true;
+              }
+              ++upperLimitOnIndicies;
+              ++reserveSizeForWorker[w];
+              if (nullptr == found->second) {
+                found->second = w;
+              } else {
+                branchToReadingWorker.insert(make_pair(found->first, w));
+              }
+            }
+          }
+          {
+            //Handle case where indirectly consumes product
+            auto found = referencesToBranches.end();
+            if (product.process().empty()) {
+              auto startFound = referencesToBranches.lower_bound(branch);
+              if (startFound != referencesToBranches.end()) {
+                if (startFound->first.substr(0, branch.size()) == branch) {
+                  //match all processNames here, even if it means multiple matches will happen
+                  found = startFound;
+                }
+              }
+            } else {
+              //can match exactly
+              auto exactFound = referencesToBranches.equal_range(branch);
+              if (exactFound.first != exactFound.second) {
+                found = exactFound.first;
+              }
+            }
+            if (found != referencesToBranches.end()) {
+              for (auto itr = found; (itr != referencesToBranches.end()) and (itr->first == found->first); ++itr) {
+                auto foundInBranchToReadingWorker = branchToReadingWorker.find(itr->second);
+                if (foundInBranchToReadingWorker == branchToReadingWorker.end()) {
+                  continue;
+                }
+                if (not foundAtLeastOneMatchingBranch) {
+                  ++upperLimitOnReadingWorker;
+                  foundAtLeastOneMatchingBranch = true;
+                }
+                ++upperLimitOnIndicies;
+                ++reserveSizeForWorker[w];
+                if (nullptr == foundInBranchToReadingWorker->second) {
+                  foundInBranchToReadingWorker->second = w;
+                } else {
+                  branchToReadingWorker.insert(make_pair(itr->second, w));
+                }
+              }
             }
           }
         }
@@ -328,7 +600,7 @@ namespace edm {
       if (not unusedBranches.empty()) {
         LogWarning l("UnusedProductsForCanDeleteEarly");
         l << "The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
-             " If possible, remove the producer from the job or add the product to the producer's own 'mightGet' list.";
+             " If possible, remove the producer from the job.";
         for (auto const& n : unusedBranches) {
           l << "\n " << n;
         }
@@ -357,6 +629,7 @@ namespace edm {
           // EarlyDeleteHelper will automatically advance its internal end pointer.
           size_t index = nextOpenIndex;
           size_t nIndices = reserveSizeForWorker[branchAndWorker.second];
+          assert(index < earlyDeleteHelperToBranchIndicies_.size());
           earlyDeleteHelperToBranchIndicies_[index] = earlyDeleteBranchToCount_.size() - 1;
           earlyDeleteHelpers_.emplace_back(beginAddress + index, beginAddress + index + 1, &earlyDeleteBranchToCount_);
           branchAndWorker.second->setEarlyDeleteHelper(&(earlyDeleteHelpers_.back()));
@@ -397,6 +670,120 @@ namespace edm {
     }
   }
 
+  std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
+      Worker* worker,
+      std::unordered_set<std::string>& conditionalModules,
+      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
+      ParameterSet& proc_pset,
+      ProductRegistry& preg,
+      PreallocationConfiguration const* prealloc,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+    std::vector<Worker*> returnValue;
+    auto const& consumesInfo = worker->consumesInfo();
+    auto moduleLabel = worker->description()->moduleLabel();
+    using namespace productholderindexhelper;
+    for (auto const& ci : consumesInfo) {
+      if (not ci.skipCurrentProcess() and
+          (ci.process().empty() or ci.process() == processConfiguration->processName())) {
+        auto productModuleLabel = std::string(ci.label());
+        if (productModuleLabel.empty()) {
+          //this is a consumesMany request
+          for (auto const& branch : conditionalModuleBranches) {
+            //check that the conditional module has not been used
+            if (conditionalModules.find(branch.first) == conditionalModules.end()) {
+              continue;
+            }
+            if (ci.kindOfType() == edm::PRODUCT_TYPE) {
+              if (branch.second->unwrappedTypeID() != ci.type()) {
+                continue;
+              }
+            } else {
+              if (not typeIsViewCompatible(
+                      ci.type(), TypeID(branch.second->wrappedType().typeInfo()), branch.second->className())) {
+                continue;
+              }
+            }
+
+            auto condWorker = getWorker(branch.first, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+            assert(condWorker);
+
+            conditionalModules.erase(branch.first);
+
+            auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                           conditionalModules,
+                                                           conditionalModuleBranches,
+                                                           aliasMap,
+                                                           proc_pset,
+                                                           preg,
+                                                           prealloc,
+                                                           processConfiguration);
+            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
+            returnValue.push_back(condWorker);
+          }
+        } else {
+          //just a regular consumes
+          bool productFromConditionalModule = false;
+          auto itFound = conditionalModules.find(productModuleLabel);
+          if (itFound == conditionalModules.end()) {
+            //Check to see if this was an alias
+            //note that aliasMap was previously filtered so only the conditional modules remain there
+            auto foundAlias = findBestMatchingAlias(conditionalModuleBranches, aliasMap, productModuleLabel, ci);
+            if (foundAlias) {
+              productModuleLabel = *foundAlias;
+              productFromConditionalModule = true;
+              itFound = conditionalModules.find(productModuleLabel);
+              //check that the alias-for conditional module has not been used
+              if (itFound == conditionalModules.end()) {
+                continue;
+              }
+            }
+          } else {
+            //need to check the rest of the data product info
+            auto findBranches = conditionalModuleBranches.equal_range(productModuleLabel);
+            for (auto itBranch = findBranches.first; itBranch != findBranches.second; ++itBranch) {
+              if (itBranch->second->productInstanceName() == ci.instance()) {
+                if (ci.kindOfType() == PRODUCT_TYPE) {
+                  if (ci.type() == itBranch->second->unwrappedTypeID()) {
+                    productFromConditionalModule = true;
+                    break;
+                  }
+                } else {
+                  //this is a view
+                  if (typeIsViewCompatible(ci.type(),
+                                           TypeID(itBranch->second->wrappedType().typeInfo()),
+                                           itBranch->second->className())) {
+                    productFromConditionalModule = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (productFromConditionalModule) {
+            auto condWorker =
+                getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+            assert(condWorker);
+
+            conditionalModules.erase(itFound);
+
+            auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                           conditionalModules,
+                                                           conditionalModuleBranches,
+                                                           aliasMap,
+                                                           proc_pset,
+                                                           preg,
+                                                           prealloc,
+                                                           processConfiguration);
+            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
+            returnValue.push_back(condWorker);
+          }
+        }
+      }
+    }
+    return returnValue;
+  }
+
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
@@ -404,9 +791,30 @@ namespace edm {
                                    std::string const& pathName,
                                    bool ignoreFilters,
                                    PathWorkers& out,
-                                   std::vector<std::string> const& endPathNames) {
+                                   std::vector<std::string> const& endPathNames,
+                                   ConditionalTaskHelper const& conditionalTaskHelper) {
     vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
+
+    //Pull out ConditionalTask modules
+    auto condRange = findConditionalTaskModulesRange(modnames);
+
+    std::unordered_set<std::string> conditionalmods;
+    //An EDAlias may be redirecting to a module on a ConditionalTask
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_map<std::string, unsigned int> conditionalModOrder;
+    if (condRange.first != condRange.second) {
+      for (auto it = condRange.first; it != condRange.second; ++it) {
+        // ordering needs to skip the # token in the path list
+        conditionalModOrder.emplace(*it, it - modnames.begin() - 1);
+      }
+      //the last entry should be ignored since it is required to be "@"
+      conditionalmods = std::unordered_set<std::string>(std::make_move_iterator(condRange.first),
+                                                        std::make_move_iterator(condRange.second));
+
+      conditionalModsBranches = conditionalTaskHelper.conditionalModuleBranches(conditionalmods);
+      modnames.erase(std::prev(condRange.first), modnames.end());
+    }
 
     unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
@@ -428,9 +836,8 @@ namespace edm {
         moduleLabel.erase(0, 1);
       }
 
-      bool isTracked;
-      ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == nullptr) {
+      Worker* worker = getWorker(moduleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+      if (worker == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");
@@ -439,9 +846,7 @@ namespace edm {
             << "The unknown module label \"" << moduleLabel << "\" appears in " << pathType << " \"" << pathName
             << "\"\n please check spelling or remove that label from the path.";
       }
-      assert(isTracked);
 
-      Worker* worker = workerManager_.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
       if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType() == Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
@@ -461,6 +866,20 @@ namespace edm {
       if (runConcurrently && worker->moduleType() == Worker::kFilter and filterAction != WorkerInPath::Ignore) {
         runConcurrently = false;
       }
+
+      auto condModules = tryToPlaceConditionalModules(worker,
+                                                      conditionalmods,
+                                                      conditionalModsBranches,
+                                                      conditionalTaskHelper.aliasMap(),
+                                                      proc_pset,
+                                                      preg,
+                                                      prealloc,
+                                                      processConfiguration);
+      for (auto condMod : condModules) {
+        tmpworkers.emplace_back(
+            condMod, WorkerInPath::Ignore, conditionalModOrder[condMod->description()->moduleLabel()], true);
+      }
+
       tmpworkers.emplace_back(worker, filterAction, placeInPath, runConcurrently);
       ++placeInPath;
     }
@@ -475,9 +894,11 @@ namespace edm {
                                     int bitpos,
                                     std::string const& name,
                                     TrigResPtr trptr,
-                                    std::vector<std::string> const& endPathNames) {
+                                    std::vector<std::string> const& endPathNames,
+                                    ConditionalTaskHelper const& conditionalTaskHelper) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, endPathNames);
+    fillWorkers(
+        proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, endPathNames, conditionalTaskHelper);
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
@@ -504,9 +925,11 @@ namespace edm {
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos,
                                    std::string const& name,
-                                   std::vector<std::string> const& endPathNames) {
+                                   std::vector<std::string> const& endPathNames,
+                                   ConditionalTaskHelper const& conditionalTaskHelper) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames);
+    fillWorkers(
+        proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames, conditionalTaskHelper);
 
     if (!tmpworkers.empty()) {
       //EndPaths are not supposed to stop if SkipEvent type exception happens
@@ -578,6 +1001,12 @@ namespace edm {
       ServiceRegistry::Operate guard(serviceToken);
       Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
+      // Data dependencies need to be set up before marking empty
+      // (End)Paths complete in case something consumes the status of
+      // the empty (EndPath)
+      workerManager_.setupResolvers(ep);
+      workerManager_.setupOnDemandSystem(info);
+
       HLTPathStatus hltPathStatus(hlt::Pass, 0);
       for (int empty_trig_path : empty_trig_paths_) {
         results_->at(empty_trig_path) = hltPathStatus;
@@ -599,9 +1028,6 @@ namespace edm {
           return;
         }
       }
-
-      workerManager_.setupResolvers(ep);
-      workerManager_.setupOnDemandSystem(info);
 
       ++total_events_;
 
@@ -832,16 +1258,13 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::enableEndPaths(bool active) { endpathsAreActive_ = active; }
-
-  bool StreamSchedule::endPathsEnabled() const { return endpathsAreActive_; }
-
   static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
     sum.timesVisited += path.timesVisited(which);
     sum.timesPassed += path.timesPassed(which);
     sum.timesFailed += path.timesFailed(which);
     sum.timesExcept += path.timesExcept(which);
     sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
+    sum.bitPosition = path.bitPosition(which);
   }
 
   static void fillPathSummary(Path const& path, PathSummary& sum) {

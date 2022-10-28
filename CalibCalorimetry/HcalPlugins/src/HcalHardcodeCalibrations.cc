@@ -834,6 +834,10 @@ std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChan
   auto result = std::make_unique<HcalTPChannelParameters>(&topo);
   const std::vector<HcalGenericDetId>& cells = allCells(topo, dbHardcode.killHE());
   for (auto cell : cells) {
+    // Thinking about Phase2 and the new FIR filter,
+    // for now, don't put TT in TPChannelParams
+    if (cell.subdetId() == HcalTriggerTower)
+      continue;
     HcalTPChannelParameter item = dbHardcode.makeHardcodeTPChannelParameter(cell);
     result->addValues(item);
   }

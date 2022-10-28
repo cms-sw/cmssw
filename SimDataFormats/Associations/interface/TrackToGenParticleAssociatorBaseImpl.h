@@ -29,6 +29,9 @@ namespace reco {
   public:
     /// Constructor
     TrackToGenParticleAssociatorBaseImpl();
+    TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl &) = delete;  // stop default
+    const TrackToGenParticleAssociatorBaseImpl &operator=(const TrackToGenParticleAssociatorBaseImpl &) =
+        delete;  // stop default
     virtual ~TrackToGenParticleAssociatorBaseImpl();
 
     /// Association Sim To Reco with Collections (Gen Particle version)
@@ -48,12 +51,6 @@ namespace reco {
     /// compare reco to sim the handle of reco::Track and GenParticle collections
     virtual reco::GenToRecoCollection associateGenToReco(
         const edm::Handle<edm::View<reco::Track>> &tCH, const edm::Handle<reco::GenParticleCollection> &tPCH) const = 0;
-
-  private:
-    TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl &) = delete;  // stop default
-
-    const TrackToGenParticleAssociatorBaseImpl &operator=(const TrackToGenParticleAssociatorBaseImpl &) =
-        delete;  // stop default
   };
 }  // namespace reco
 

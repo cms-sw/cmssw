@@ -75,12 +75,19 @@ TPTask::TPTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                0);
   _cSOIEtCorr_TTSubdet.initialize(_name,
-                                  "EtCorr",
+                                  "EtCorr_EmulvsData",
                                   hcaldqm::hashfunctions::fTTSubdetFW,
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                   0);
+  _cSOIEtCorrEmulL1_TTSubdet.initialize(_name,
+                                        "EtCorr_EmulvsL1",
+                                        hcaldqm::hashfunctions::fTTSubdetFW,
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                                        0);
   for (uint8_t iii = 0; iii < constants::NUM_FGBITS; iii++) {
     _cFGCorr_TTSubdet[iii].initialize(_name,
                                       "FGCorr",
@@ -254,7 +261,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
                                         "EtCutDatavsBX",
                                         hcaldqm::hashfunctions::fTTSubdet,
                                         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtlog2),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                         0);
     _cEtCutEmulvsBX_TTSubdet.initialize(_name,
                                         "EtCutEmulvsBX",
@@ -553,6 +561,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
   _cEtEmul_TTSubdet.book(ib, _emap, _subsystem);
   _cEtCorr_TTSubdet.book(ib, _emap, _subsystem);
   _cSOIEtCorr_TTSubdet.book(ib, _emap, _subsystem);
+  _cSOIEtCorrEmulL1_TTSubdet.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
     _cEtData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cEtEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
@@ -776,7 +785,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       //	ONLINE ONLY!
       if (_ptype == fOnline) {
         _cEtCutDatavsLS_TTSubdet.fill(tid, _currentLS, soiEt_d);
-        _cEtCutDatavsBX_TTSubdet.fill(tid, bx, soiEt_d);
+        _cEtCutDatavsBX_TTSubdet.fill(tid, bx, log2(soiEt_d + 1.));
         _xDataTotal.get(eid)++;
       }
       //	^^^ONLINE ONLY!
@@ -930,8 +939,6 @@ TPTask::TPTask(edm::ParameterSet const& ps)
 
   numHBHE = 0;
   numHF = 0;
-  numCutHBHE = 0;
-  numCutHF = 0;
   numMsnHBHE = 0;
   numMsnHF = 0;
   numCutHBHE = 0;
@@ -1055,6 +1062,39 @@ TPTask::TPTask(edm::ParameterSet const& ps)
     // Compare the sent ("uHTR") and received (L1T "layer1") TPs
     // This algorithm is copied from DQM/L1TMonitor/src/L1TStage2CaloLayer1.cc
     // ...but it turns out to be extremely useful for detecting uHTR problems
+
+    _vEmulTPDigis_SentRec.clear();
+    ComparisonHelper::zip(cemul->begin(),
+                          cemul->end(),
+                          cdataL1Rec->begin(),
+                          cdataL1Rec->end(),
+                          std::inserter(_vEmulTPDigis_SentRec, _vEmulTPDigis_SentRec.begin()),
+                          HcalTrigPrimDigiCollection::key_compare());
+
+    // comparison between emulation TP and L1 TP
+    for (const auto& tpPair : _vEmulTPDigis_SentRec) {
+      const auto& sentTp = tpPair.first;
+      const auto& recdTp = tpPair.second;
+      const int ieta = sentTp.id().ieta();
+      if (abs(ieta) > 28 && sentTp.id().version() != 1)
+        continue;
+
+      const bool towerMasked = recdTp.sample(0).raw() & (1 << 13);
+      const bool linkError = recdTp.sample(0).raw() & (1 << 15);
+      if (towerMasked || linkError)
+        continue;
+
+      HcalTrigTowerDetId tid = sentTp.id();
+      uint32_t rawid = _ehashmap.lookup(tid);
+      if (rawid == 0) {
+        continue;
+      }
+      HcalElectronicsId const& eid(rawid);
+
+      _cSOIEtCorrEmulL1_TTSubdet.fill(tid, eid, recdTp.SOI_compressedEt(), sentTp.SOI_compressedEt());
+    }
+
+    // comparison between sent data TP and L1 TP
     _vTPDigis_SentRec.clear();
     ComparisonHelper::zip(cdata->begin(),
                           cdata->end(),
@@ -1079,20 +1119,23 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         // Do not compare if known to be bad
         continue;
       }
+
+      HcalTrigTowerDetId tid = sentTp.id();
+      uint32_t rawid = _ehashmap.lookup(tid);
+      if (rawid == 0) {
+        continue;
+      }
+      HcalElectronicsId const& eid(rawid);
+
       const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-      const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
+      const bool Hfb1Agreement =
+          (abs(ieta) < 29) ? true
+                           : (recdTp.SOI_compressedEt() == 0 || (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()));
       // Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
       const bool Hfb2Agreement =
           (abs(ieta) < 29) ? true
                            : (recdTp.SOI_compressedEt() == 0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
       if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
-        HcalTrigTowerDetId tid = sentTp.id();
-        uint32_t rawid = _ehashmap.lookup(tid);
-        if (rawid == 0) {
-          continue;
-        }
-        HcalElectronicsId const& eid(rawid);
-
         _cEtMsm_uHTR_L1T_depthlike.fill(tid);
         _cEtMsm_uHTR_L1T_LS.fill(_currentLS);
         _xSentRecL1Msm.get(eid)++;

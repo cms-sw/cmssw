@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 ###################################
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
+import RecoTracker.IterativeTracking.MixedTripletStep_cff
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepTrajectoryBuilder
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMixedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
@@ -73,11 +74,11 @@ hiRegitMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cf
 hiRegitMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryFilter.clone()
 
 hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryFilter')),
-    clustersToSkip       = cms.InputTag('hiRegitMixedTripletStepClusters'),
+    trajectoryFilter     = dict(refToPSet_ = 'hiRegitMixedTripletStepTrajectoryFilter'),
+    clustersToSkip       = 'hiRegitMixedTripletStepClusters',
 )
 
-hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
+hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff._mixedTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMixedTripletStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryBuilder')),
     maxNSeeds = 100000

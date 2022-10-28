@@ -19,6 +19,7 @@ OutALCARECOHcalCalIsoTrkNoHLT_noDrop = cms.PSet(
         'keep *_hbhereco_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
+        'keep *_genParticles_*_*',
         )
 )
 

@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -20,18 +20,22 @@ namespace edm {
 using namespace std;
 using namespace edm;
 
-class TestLumiCorrectionSource : public edm::EDAnalyzer {
+class TestLumiCorrectionSource : public edm::one::EDAnalyzer<> {
 public:
   explicit TestLumiCorrectionSource(edm::ParameterSet const&);
   virtual ~TestLumiCorrectionSource();
 
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+
+private:
+  const edm::ESGetToken<LumiCorrectionParam, LumiCorrectionParamRcd> lumiCorrectionToken_;
 };
 
 // -----------------------------------------------------------------
 
-TestLumiCorrectionSource::TestLumiCorrectionSource(edm::ParameterSet const& ps) {
+TestLumiCorrectionSource::TestLumiCorrectionSource(edm::ParameterSet const& ps)
+    : lumiCorrectionToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
 }
 
@@ -62,8 +66,7 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     float correctedinstlumi = instlumi;
     float recinstlumi = lumisummary->avgInsRecLumi();
     float corrfac = 1.;
-    edm::ESHandle<LumiCorrectionParam> datahandle;
-    es.getData(datahandle);
+    auto datahandle = es.getHandle(lumiCorrectionToken_);
     if (datahandle.isValid()) {
       const LumiCorrectionParam* mydata = datahandle.product();
       std::cout << "correctionparams " << *mydata << std::endl;

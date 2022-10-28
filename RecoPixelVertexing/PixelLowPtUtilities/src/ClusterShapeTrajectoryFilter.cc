@@ -6,14 +6,12 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -32,31 +30,28 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include <vector>
-using namespace std;
 
-/*****************************************************************************/
 ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
     : theCacheToken(iC.consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("cacheSrc"))),
+      theFilterToken(iC.esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
       theFilter(nullptr) {}
 
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter() {}
 
-void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  iSetup.get<TrajectoryFilter::Record>().get("ClusterShapeHitFilter", shape);
-  theFilter = shape.product();
-
-  edm::Handle<SiPixelClusterShapeCache> cache;
-  iEvent.getByToken(theCacheToken, cache);
-  theCache = cache.product();
+void ClusterShapeTrajectoryFilter::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<edm::InputTag>("cacheSrc", edm::InputTag("siPixelClusterShapeCache"));
 }
 
-/*****************************************************************************/
+void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  theFilter = &iSetup.getData(theFilterToken);
+  theCache = &iEvent.get(theCacheToken);
+}
+
 bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   assert(theCache);
-  vector<TrajectoryMeasurement> tms = trajectory.measurements();
+  std::vector<TrajectoryMeasurement> tms = trajectory.measurements();
 
-  for (vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
     const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if (ttRecHit->isValid()) {
@@ -103,7 +98,6 @@ bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   return true;
 }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::toBeContinued(TempTrajectory& trajectory) const {
   assert(theCache);
   const TempTrajectory::DataContainer& tms = trajectory.measurements();
@@ -171,10 +165,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued(TempTrajectory& trajectory) con
   return true;
 }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter(const Trajectory& trajectory) const { return true; }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter(const TempTrajectory& trajectory) const {
   TempTrajectory t = trajectory;
 

@@ -97,7 +97,7 @@ namespace csc {
     unsigned me3Tbin(void) const { return m_me3Tbin; }
     unsigned me4Tbin(void) const { return m_me4Tbin; }
     unsigned mb1Tbin(void) const { return m_mbTbin; }
-    void setBits(unsigned se, unsigned bx0, unsigned bc0) {
+    void setBits(bool se, bool bx0, bool bc0) {
       m_se = se;
       m_bx0 = bx0;
       m_bc0 = bc0;
@@ -117,20 +117,20 @@ namespace csc {
   private:
     std::string m_name;
     //L1TrackId m_id; remove this nested class for now... POOL doesn't like it.
-    unsigned m_endcap, m_sector;
+    unsigned m_endcap = 0, m_sector = 0;
     //CSCCorrelatedLCTDigiCollection track_stubs;  same as above
-    unsigned m_lphi;
-    unsigned m_ptAddress;
-    unsigned m_fr;
-    unsigned me1_id, me2_id, me3_id, me4_id, mb1_id;
-    unsigned m_rank;
-    unsigned m_output_link;
-    bool m_empty;
-    bool m_winner;
+    unsigned m_lphi = 0;
+    unsigned m_ptAddress = 0;
+    unsigned m_fr = 0;
+    unsigned me1_id = 0, me2_id = 0, me3_id = 0, me4_id = 0, mb1_id = 0;
+    unsigned m_rank = 0;
+    unsigned m_output_link = 0;
+    bool m_empty = true;
+    bool m_winner = false;
 
     // Technical information:
-    bool m_se, m_bx0, m_bc0;
-    unsigned m_me1Tbin, m_me2Tbin, m_me3Tbin, m_me4Tbin, m_mbTbin;
+    bool m_se = true, m_bx0 = true, m_bc0 = true;
+    unsigned m_me1Tbin = 0, m_me2Tbin = 0, m_me3Tbin = 0, m_me4Tbin = 0, m_mbTbin = 0;
   };
 }  // namespace csc
 

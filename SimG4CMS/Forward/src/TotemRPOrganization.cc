@@ -23,7 +23,7 @@
 //
 // constructors and destructor
 //
-TotemRPOrganization ::TotemRPOrganization() { edm::LogInfo("ForwardSim") << "Creating TotemRPOrganization"; }
+TotemRPOrganization ::TotemRPOrganization() { edm::LogVerbatim("ForwardSim") << "Creating TotemRPOrganization"; }
 
 TotemRPOrganization ::~TotemRPOrganization() {}
 

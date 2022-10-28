@@ -25,12 +25,33 @@
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 using namespace edm::stream;
 namespace edm {
   namespace stream {
+
+    template <>
+    ProductResolverIndex ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::transformPrefetch_(
+        size_t iTransformIndex) const {
+      return m_streamModules[0]->transformPrefetch_(iTransformIndex);
+    }
+    template <>
+    size_t ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::transformIndex_(
+        edm::BranchDescription const& iBranch) const {
+      return m_streamModules[0]->transformIndex_(iBranch);
+    }
+    template <>
+    void ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::doTransformAsync(WaitingTaskHolder iTask,
+                                                                                   size_t iTransformIndex,
+                                                                                   EventPrincipal const& iEvent,
+                                                                                   ActivityRegistry*,
+                                                                                   ModuleCallingContext const* iMCC,
+                                                                                   ServiceWeakToken const& iToken) {
+      EventForTransformer ev(iEvent, iMCC);
+      m_streamModules[iEvent.streamID()]->transformAsync_(iTask, iTransformIndex, ev, iToken);
+    }
 
     //
     // constants, enums and typedefs
@@ -57,7 +78,7 @@ namespace edm {
       EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};
       mod->produce(e, c);
       commit(e, &mod->previousParentageId_);
       return true;
@@ -76,7 +97,7 @@ namespace edm {
       EventAcquireSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};
       mod->doAcquire_(e, c, holder);
     }
 

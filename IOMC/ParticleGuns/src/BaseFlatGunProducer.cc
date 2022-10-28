@@ -5,7 +5,6 @@
 #include <ostream>
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -27,7 +26,8 @@ using namespace std;
 using namespace CLHEP;
 
 BaseFlatGunProducer::BaseFlatGunProducer(const ParameterSet& pset)
-    : fEvt(nullptr)
+    : fPDGTableToken(esConsumes<Transition::BeginRun>()),
+      fEvt(nullptr)
 // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
   Service<RandomNumberGenerator> rng;
@@ -84,7 +84,7 @@ BaseFlatGunProducer::~BaseFlatGunProducer() {
 }
 
 void BaseFlatGunProducer::beginRun(const edm::Run& r, const EventSetup& es) {
-  es.getData(fPDGTable);
+  fPDGTable = es.getHandle(fPDGTableToken);
   return;
 }
 void BaseFlatGunProducer::endRun(const Run& run, const EventSetup& es) {}

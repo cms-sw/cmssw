@@ -1,11 +1,11 @@
-#include "DetectorDescription/Core/src/CutTubs.h"
+#include "DetectorDescription/Core/interface/CutTubs.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 
 using namespace geant_units;
 using namespace geant_units::operators;

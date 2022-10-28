@@ -10,13 +10,14 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 using namespace edm;
 
-DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config, edm::ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       // Get the Drift Velocity from parameter set.
       vDrift(config.getParameter<double>("driftVelocity")),         // FIXME: Default was 0.00543 cm/ns
       hitResolution(config.getParameter<double>("hitResolution")),  // FIXME: Default is

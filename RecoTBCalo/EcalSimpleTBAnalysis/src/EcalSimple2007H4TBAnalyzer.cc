@@ -10,29 +10,16 @@
 //
 
 #include "RecoTBCalo/EcalSimpleTBAnalysis/interface/EcalSimple2007H4TBAnalyzer.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#include<fstream>
 
 #include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TF1.h"
 
-#include <iostream>
-#include <string>
-#include <stdexcept>
 //
 // constants, enums and typedefs
 //
@@ -47,24 +34,30 @@
 
 //========================================================================
 EcalSimple2007H4TBAnalyzer::EcalSimple2007H4TBAnalyzer(const edm::ParameterSet& iConfig)
-    : xtalInBeam_(0)
+    : rootfile_(iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root")),
+      digiCollection_(iConfig.getParameter<std::string>("digiCollection")),
+      digiProducer_(iConfig.getParameter<std::string>("digiProducer")),
+      hitCollection_(iConfig.getParameter<std::string>("hitCollection")),
+      hitProducer_(iConfig.getParameter<std::string>("hitProducer")),
+      hodoRecInfoCollection_(iConfig.getParameter<std::string>("hodoRecInfoCollection")),
+      hodoRecInfoProducer_(iConfig.getParameter<std::string>("hodoRecInfoProducer")),
+      tdcRecInfoCollection_(iConfig.getParameter<std::string>("tdcRecInfoCollection")),
+      tdcRecInfoProducer_(iConfig.getParameter<std::string>("tdcRecInfoProducer")),
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      eeDigiToken_(consumes<>(edm::InputTag(digiProducer_, digiCollection_))),
+      eeUncalibratedRecHitToken_(consumes<>(edm::InputTag(hitProducer_, hitCollection_))),
+      tbHodoscopeRecInfoToken_(consumes<>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_))),
+      tbTDCRecInfoToken_(consumes<>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_))),
+      tbEventHeaderToken_(consumes<>(edm::InputTag(eventHeaderProducer_))),
+      geometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      xtalInBeam_(0)
 //========================================================================
 {
   //now do what ever initialization is needed
-  rootfile_ = iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root");
-  digiCollection_ = iConfig.getParameter<std::string>("digiCollection");
-  digiProducer_ = iConfig.getParameter<std::string>("digiProducer");
-  hitCollection_ = iConfig.getParameter<std::string>("hitCollection");
-  hitProducer_ = iConfig.getParameter<std::string>("hitProducer");
-  hodoRecInfoCollection_ = iConfig.getParameter<std::string>("hodoRecInfoCollection");
-  hodoRecInfoProducer_ = iConfig.getParameter<std::string>("hodoRecInfoProducer");
-  tdcRecInfoCollection_ = iConfig.getParameter<std::string>("tdcRecInfoCollection");
-  tdcRecInfoProducer_ = iConfig.getParameter<std::string>("tdcRecInfoProducer");
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
-
-  std::cout << "EcalSimple2007H4TBAnalyzer: fetching hitCollection: " << hitCollection_.c_str() << " produced by "
-            << hitProducer_.c_str() << std::endl;
+  edm::LogVerbatim("EcalSimple2007H4TBAnalyzer")
+      << "EcalSimple2007H4TBAnalyzer: fetching hitCollection: " << hitCollection_.c_str() << " produced by "
+      << hitProducer_.c_str();
 }
 
 //========================================================================
@@ -99,14 +92,7 @@ EcalSimple2007H4TBAnalyzer::~EcalSimple2007H4TBAnalyzer()
 void EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   //========================================================================
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-
-  theTBGeometry_ = pG.product();
-  //  const std::vector<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
-  //   std::cout << "Found " << validIds.size() << " channels in the geometry" << std::endl;
-  //   for (unsigned int i=0;i<validIds.size();++i)
-  //     std::cout << EEDetId(validIds[i]) << std::endl;
+  theTBGeometry_ = &iSetup.getData(geometryToken_);
 
   // Amplitude vs TDC offset
   h_ampltdc = new TH2F("h_ampltdc", "Max Amplitude vs TDC offset", 100, 0., 1., 1000, 0., 4000.);
@@ -159,6 +145,10 @@ void EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const&, edm::EventSetup const
 
   h_Shape_ = new TH2F("h_Shape_", "Xtal in Beam Shape", 250, 0, 10, 350, 0, 3500);
 }
+
+//========================================================================
+void EcalSimple2007H4TBAnalyzer::endRun(edm::Run const&, edm::EventSetup const& iSetup) {}
+//========================================================================
 
 //========================================================================
 void EcalSimple2007H4TBAnalyzer::endJob() {
@@ -226,11 +216,9 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
 
   Handle<EEDigiCollection> pdigis;
   const EEDigiCollection* digis = nullptr;
-  //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-  iEvent.getByLabel(digiProducer_, digiCollection_, pdigis);
+  iEvent.getByToken(eeDigiToken_, pdigis);
   if (pdigis.isValid()) {
     digis = pdigis.product();  // get a ptr to the product
-    //iEvent.getByLabel( hitProducer_, phits);
   } else {
     edm::LogError("EcalSimple2007H4TBAnalyzerError") << "Error! can't get the product " << digiCollection_;
   }
@@ -238,19 +226,16 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   // fetch the digis and compute signal amplitude
   Handle<EEUncalibratedRecHitCollection> phits;
   const EEUncalibratedRecHitCollection* hits = nullptr;
-  //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-  iEvent.getByLabel(hitProducer_, hitCollection_, phits);
+  iEvent.getByToken(eeUncalibratedRecHitToken_, phits);
   if (phits.isValid()) {
     hits = phits.product();  // get a ptr to the product
-    //iEvent.getByLabel( hitProducer_, phits);
   } else {
     edm::LogError("EcalSimple2007H4TBAnalyzerError") << "Error! can't get the product " << hitCollection_;
   }
 
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   const EcalTBHodoscopeRecInfo* recHodo = nullptr;
-  //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-  iEvent.getByLabel(hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
+  iEvent.getByToken(tbHodoscopeRecInfoToken_, pHodo);
   if (pHodo.isValid()) {
     recHodo = pHodo.product();  // get a ptr to the product
   } else {
@@ -259,8 +244,7 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
 
   Handle<EcalTBTDCRecInfo> pTDC;
   const EcalTBTDCRecInfo* recTDC = nullptr;
-  //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-  iEvent.getByLabel(tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
+  iEvent.getByToken(tbTDCRecInfoToken_, pTDC);
   if (pTDC.isValid()) {
     recTDC = pTDC.product();  // get a ptr to the product
   } else {
@@ -269,8 +253,7 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
 
   Handle<EcalTBEventHeader> pEventHeader;
   const EcalTBEventHeader* evtHeader = nullptr;
-  //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-  iEvent.getByLabel(eventHeaderProducer_, pEventHeader);
+  iEvent.getByToken(tbEventHeaderToken_, pEventHeader);
   if (pEventHeader.isValid()) {
     evtHeader = pEventHeader.product();  // get a ptr to the product
   } else {
@@ -278,27 +261,22 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   }
 
   if (!hits) {
-    //       std::cout << "1" << std::endl;
     return;
   }
 
   if (!recTDC) {
-    //       std::cout << "2" << std::endl;
     return;
   }
 
   if (!recHodo) {
-    //       std::cout << "3" << std::endl;
     return;
   }
 
   if (!evtHeader) {
-    //       std::cout << "4" << std::endl;
     return;
   }
 
   if (hits->empty()) {
-    //       std::cout << "5" << std::endl;
     return;
   }
 
@@ -306,27 +284,13 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   if (evtHeader->tableIsMoving())
     h_tableIsMoving->Fill(evtHeader->eventNumber());
 
-  //    std::cout << "event " << evtHeader->eventNumber()
-  // 	     << "\trun number " << evtHeader->runNumber()
-  // 	     << "\tburst number " << evtHeader->burstNumber()
-  // 	     << "\tbeginLV1A " << evtHeader->begBurstLV1A()
-  // 	     << "\tendLV1A " << evtHeader->endBurstLV1A()
-  // 	     << "\ttime " << evtHeader->date()
-  // 	     << "\thas errors " << int(evtHeader->syncError())
-  // 	     << std::endl;
-
-  //    std::cout << "scaler";
-  //    for (int iscaler=0;iscaler < 36;iscaler++)
-  //      std::cout << "\t#" << iscaler << " " <<  evtHeader->scaler(iscaler);
-  //    std::cout<<std::endl;
-
   //S6 beam scintillator
   h_S6->Fill(evtHeader->S6ADC());
 
   if (xtalInBeamTmp.null()) {
     xtalInBeamTmp = EBDetId(1, evtHeader->crystalInBeam(), EBDetId::SMCRYSTALMODE);
     xtalInBeam_ = EEDetId(35 - ((xtalInBeamTmp.ic() - 1) % 20), int(int(xtalInBeamTmp.ic()) / int(20)) + 51, -1);
-    std::cout << "Xtal In Beam is " << xtalInBeam_.ic() << xtalInBeam_ << std::endl;
+    edm::LogVerbatim("EcalSimple2007H4TBAnalyzer") << "Xtal In Beam is " << xtalInBeam_.ic() << xtalInBeam_;
     for (unsigned int icry = 0; icry < 25; icry++) {
       unsigned int row = icry / 5;
       unsigned int column = icry % 5;
@@ -341,8 +305,9 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
         auto cell = theTBGeometry_->getGeometry(Xtals5x5[icry]);
         if (!cell)
           continue;
-        std::cout << "** Xtal in the matrix **** row " << row << ", column " << column << ", xtal " << Xtals5x5[icry]
-                  << " Position " << cell->getPosition(0.) << std::endl;
+        edm::LogVerbatim("EcalSimple2007H4TBAnalyzer")
+            << "** Xtal in the matrix **** row " << row << ", column " << column << ", xtal " << Xtals5x5[icry]
+            << " Position " << cell->getPosition(0.);
       }
     }
   } else if (xtalInBeamTmp !=
@@ -351,7 +316,7 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
 
   //Avoid moving table events
   if (evtHeader->tableIsMoving()) {
-    std::cout << "Table is moving" << std::endl;
+    edm::LogVerbatim("EcalSimple2007H4TBAnalyzer") << "Table is moving";
     return;
   }
 
@@ -365,7 +330,7 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     }
   }
   if (maxHitId == EEDetId(0)) {
-    std::cout << "No maxHit found" << std::endl;
+    edm::LogVerbatim("EcalSimple2007H4TBAnalyzer") << "No maxHit found";
     return;
   }
 
@@ -383,12 +348,10 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     for (int sample = 0; sample < myDigi.size(); ++sample) {
       double analogSample = myDigi.sample(sample).adc();
       samples_save[sample] = analogSample;
-      //  std::cout << analogSample << " ";
       if (eMax < analogSample) {
         eMax = analogSample;
       }
     }
-    // std::cout << std::endl;
   }
 
   for (int i = 0; i < 10; ++i)

@@ -20,7 +20,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <memory>
 
@@ -33,10 +33,10 @@ namespace edm {
   class ParameterSet;
 }
 
-class HepPDTAnalyzer : public edm::EDAnalyzer {
+class HepPDTAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HepPDTAnalyzer(const edm::ParameterSet &);
-  ~HepPDTAnalyzer() override;
+  ~HepPDTAnalyzer() override = default;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
@@ -45,7 +45,8 @@ public:
   void printBanner();
 
 private:
-  std::string particleName_;
+  const std::string particleName_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
 };
 
 #endif

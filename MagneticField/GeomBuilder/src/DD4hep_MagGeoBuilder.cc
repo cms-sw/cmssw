@@ -6,19 +6,16 @@
 #include "DD4hep_MagGeoBuilder.h"
 #include "bLayer.h"
 #include "eSector.h"
-#include "FakeInterpolator.h"
+#include "InterpolatorBuilder.h"
 
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
-#include "MagneticField/Interpolation/interface/MFGridFactory.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
@@ -45,8 +42,12 @@ using namespace magneticfield;
 using namespace edm;
 using namespace angle_units::operators;
 
-MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
-    : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
+MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug, bool mergeFile)
+    : tableSet_(tableSet),
+      geometryVersion_(geometryVersion),
+      theGridFiles_(nullptr),
+      debug_(debug),
+      useMergeFileIfAvailable_(mergeFile) {
   LogTrace("MagGeoBuilder") << "Constructing a MagGeoBuilder";
 }
 
@@ -147,6 +148,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
     LogError("MagGeoBuilder") << "Filtered view has no node. Cannot build.";
     return;
   }
+  InterpolatorBuilder interpolatorBuilder(tableSet_, useMergeFileIfAvailable_);
   while (doSubDets) {
     string name = fv.volume().volume().name();
     LogTrace("MagGeoBuilder") << "Name: " << name;
@@ -205,14 +207,20 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       // not replicated in phi)
       // ASSUMPTION: copyno == sector.
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, bInterpolators);
+        auto i = buildInterpolator(v, interpolatorBuilder);
+        if (i) {
+          bInterpolators[v->magFile] = i;
+        }
         ++bVolCount;
       }
     } else {  // Endcaps
       LogTrace("MagGeoBuilder") << " (Endcaps)";
       eVolumes_.push_back(v);
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, eInterpolators);
+        auto i = buildInterpolator(v, interpolatorBuilder);
+        if (i) {
+          eInterpolators[v->magFile] = i;
+        }
         ++eVolCount;
       }
     }
@@ -384,12 +392,14 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   }
 }
 
-void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProviderInterpol*>& interpolators) {
+void MagGeoBuilder::buildMagVolumes(const handles& volumes,
+                                    const map<string, MagProviderInterpol*>& interpolators) const {
   // Build all MagVolumes setting the MagProviderInterpol
   for (auto vol : volumes) {
     const MagProviderInterpol* mp = nullptr;
-    if (interpolators.find(vol->magFile) != interpolators.end()) {
-      mp = interpolators[vol->magFile];
+    auto found = interpolators.find(vol->magFile);
+    if (found != interpolators.end()) {
+      mp = found->second;
     } else {
       edm::LogError("MagGeoBuilder") << "No interpolator found for file " << vol->magFile << " vol: " << vol->volumeno
                                      << "\n"
@@ -428,14 +438,14 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
   }
 }
 
-void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagProviderInterpol*>& interpolators) {
-  // Phi of the master sector
-  double masterSectorPhi = (vol->masterSector - 1) * 1._pi / 6.;
-
+MagProviderInterpol* MagGeoBuilder::buildInterpolator(const volumeHandle* vol, InterpolatorBuilder& builder) const {
+  MagProviderInterpol* retValue = nullptr;
   LogTrace("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
                             << vol->center() << " phi: " << static_cast<double>(vol->center().phi()) / 1._pi
                             << " pi,  file: " << vol->magFile << " master: " << vol->masterSector;
   if (debug_) {
+    // Phi of the master sector
+    double masterSectorPhi = (vol->masterSector - 1) * 1._pi / 6.;
     double delta = std::abs(vol->center().phi() - masterSectorPhi);
     if (delta > (1._pi / 9.)) {
       LogTrace("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta / 1._pi
@@ -443,60 +453,26 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
     }
   }
 
-  if (tableSet_ == "fake" || vol->magFile == "fake") {
-    interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
-    return;
-  }
-
-  string fullPath;
-
   try {
-    edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-    fullPath = mydata.fullPath();
+    retValue = builder.build(vol).release();
   } catch (edm::Exception& exc) {
     cerr << "MagGeoBuilder: exception in reading table; " << exc.what() << endl;
     if (!debug_)
       throw;
-    return;
-  }
-
-  try {
-    if (vol->toExpand()) {
-      //FIXME: see discussion on mergeCylinders above.
-      //       interpolators[vol->magFile] =
-      // 	MFGridFactory::build( fullPath, *(vol->placement()), vol->minPhi(), vol->maxPhi());
-    } else {
-      // If the table is in "local" coordinates, must create a reference
-      // frame that is appropriately rotated along the CMS Z axis.
-
-      GloballyPositioned<float> rf = *(vol->placement());
-
-      if (vol->masterSector != 1) {
-        typedef Basic3DVector<float> Vector;
-
-        GloballyPositioned<float>::RotationType rot(Vector(0, 0, 1), -masterSectorPhi);
-        Vector vpos(vol->placement()->position());
-
-        rf = GloballyPositioned<float>(GloballyPositioned<float>::PositionType(rot.multiplyInverse(vpos)),
-                                       vol->placement()->rotation() * rot);
-      }
-
-      interpolators[vol->magFile] = MFGridFactory::build(fullPath, rf);
-    }
-  } catch (MagException& exc) {
+    return nullptr;
+  } catch (MagException const& exc) {
     LogTrace("MagGeoBuilder") << exc.what();
-    interpolators.erase(vol->magFile);
     if (!debug_)
       throw;
-    return;
+    return nullptr;
   }
 
   if (debug_) {
     // Check that all grid points of the interpolator are inside the volume.
     const MagVolume6Faces tempVolume(
-        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), interpolators[vol->magFile]);
+        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), retValue);
 
-    const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
+    const MFGrid* grid = dynamic_cast<const MFGrid*>(retValue);
     if (grid != nullptr) {
       Dimensions sizes = grid->dimensions();
       LogTrace("MagGeoBuilder") << "Grid has 3 dimensions "
@@ -525,9 +501,10 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
                                 << sizes.w * sizes.h * sizes.d;
     }
   }
+  return retValue;
 }
 
-void MagGeoBuilder::testInside(handles& volumes) {
+void MagGeoBuilder::testInside(handles& volumes) const {
   // test inside() for all volumes.
   LogTrace("MagGeoBuilder") << "--------------------------------------------------";
   LogTrace("MagGeoBuilder") << " inside(center) test";

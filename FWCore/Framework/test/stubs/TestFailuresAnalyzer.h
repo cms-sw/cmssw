@@ -19,24 +19,23 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 // user include files
 
 // forward declarations
-class TestFailuresAnalyzer : public edm::EDAnalyzer {
+class TestFailuresAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit TestFailuresAnalyzer(const edm::ParameterSet&);
-  ~TestFailuresAnalyzer();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const final;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() final;
+  void endJob() final;
 
 private:
   // ----------member data ---------------------------
-  int whichFailure_;
-  unsigned long long eventToThrow_;
+  const int whichFailure_;
+  const unsigned long long eventToThrow_;
 };
 
 #endif /* test_TestFailuresAnalyzer_h */

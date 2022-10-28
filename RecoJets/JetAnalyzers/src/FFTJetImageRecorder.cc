@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,16 +44,15 @@
 //
 // class declaration
 //
-class FFTJetImageRecorder : public edm::EDAnalyzer {
+class FFTJetImageRecorder : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit FFTJetImageRecorder(const edm::ParameterSet&);
-  ~FFTJetImageRecorder() override;
-
-private:
   FFTJetImageRecorder() = delete;
   FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
   FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
+  ~FFTJetImageRecorder() override;
 
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
@@ -70,6 +69,7 @@ private:
 FFTJetImageRecorder::FFTJetImageRecorder(const edm::ParameterSet& ps)
     : init_param(edm::InputTag, histoLabel), counter(0) {
   histoToken = consumes<TH3F>(histoLabel);
+  usesResource(TFileService::kSharedResource);
 }
 
 FFTJetImageRecorder::~FFTJetImageRecorder() {}

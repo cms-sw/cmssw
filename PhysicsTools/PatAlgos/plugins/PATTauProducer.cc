@@ -141,10 +141,7 @@ namespace pat {
 using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
-    : isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
-                                                : edm::ParameterSet(),
-                consumesCollector(),
-                false),
+    : isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       useUserData_(iConfig.exists("userData")),
       posAtECalEntranceComputer_(consumesCollector()) {
   firstOccurence_ = true;
@@ -170,14 +167,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>("embedGenMatch");
-    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-      genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-          iConfig.getParameter<edm::InputTag>("genParticleMatch")));
-    } else {
-      genMatchTokens_ = edm::vector_transform(
-          iConfig.getParameter<std::vector<edm::InputTag>>("genParticleMatch"),
-          [this](edm::InputTag const& tag) { return consumes<edm::Association<reco::GenParticleCollection>>(tag); });
-    }
+    genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
+        iConfig.getParameter<edm::InputTag>("genParticleMatch")));
   }
   addGenJetMatch_ = iConfig.getParameter<bool>("addGenJetMatch");
   if (addGenJetMatch_) {
@@ -273,7 +264,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
   // Check to see if the user wants to add user data
   if (useUserData_) {

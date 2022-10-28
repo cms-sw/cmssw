@@ -27,7 +27,7 @@
     <Include ref='MagneticField/GeomBuilder/data/cmsMagneticField.xml'/>
     <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml'/>
     <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml'/>
-    <!--Materials are irrelevant for the MF geometry, but the DD4Hep parser complains if they are not defined -->
-    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
+    <!--Materials are irrelevant for the MF geometry, but the DD4hep parser complains if they are not defined -->
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v3/materials.xml'/>
   </IncludeSection>
 </DDDefinition>

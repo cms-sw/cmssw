@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 def _label(tag):
     if hasattr(tag, "getModuleLabel"):
@@ -46,11 +45,19 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
 
     #combine all *StepTracks (TODO: write one for HLT)
     if mergeIters and isRECO:
-        process.mergedStepTracks = cms.EDProducer("TrackSimpleMerger",
-            src = cms.VInputTag(m.replace("Seeds", "Tracks").replace("seedTracks", "") for m in process.trackingNtuple.seedTracks)
+        import RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi as _mod
+        process.mergedStepTracks = _mod.TrackCollectionMerger.clone(
+            trackProducers = cms.VInputTag(m.replace("Seeds", "Tracks").replace("seedTracks", "") for m in process.trackingNtuple.seedTracks),
+            inputClassifiers = cms.vstring(m.replace("StepSeeds", "Step").replace("seedTracks", "").replace("dSeeds", "dTracks")
+                                           .replace("InOut", "InOutClassifier").replace("tIn", "tInClassifier")
+                                           for m in process.trackingNtuple.seedTracks),
+            minQuality = "any",
+            enableMerging = False
         )
         process.trackingNtupleSequence.insert(0,process.mergedStepTracks)
         process.trackingNtuple.tracks = "mergedStepTracks"
+        process.trackingNtuple.includeMVA = True
+        process.trackingNtuple.trackMVAs = ["mergedStepTracks"]
 
     ntuplePath = cms.Path(process.trackingNtupleSequence)
 
@@ -71,7 +78,7 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
 
     # remove the validation_stepN and prevalidatin_stepN of phase2 validation...    
     for p in [process.paths_(), process.endpaths_()]:    
-        for pathName, path in six.iteritems(p):    
+        for pathName, path in p.items():    
             if "prevalidation_step" in pathName:    
                 if len(pathName.replace("prevalidation_step", "")) > 0:    
                     modifier.toReplaceWith(path, cms.Path())    
@@ -80,10 +87,10 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
                     modifier.toReplaceWith(path, cms.EndPath())
 
     # Remove all output modules
-    for outputModule in six.itervalues(process.outputModules_()):
-        for path in six.itervalues(process.paths_()):
+    for outputModule in process.outputModules_().values():
+        for path in process.paths_().values():
             path.remove(outputModule)
-        for path in six.itervalues(process.endpaths_()):
+        for path in process.endpaths_().values():
             path.remove(outputModule)
         
 
@@ -149,5 +156,8 @@ def extendedContent(process):
 
     process.trackingNtuple.saveSimHitsP3 = True
     process.trackingNtuple.addSeedCurvCov = True
+
+    process.trackingNtuple.includeOnTrackHitData = True
+    process.trackingNtuple.includeTrackCandidates = True
 
     return process

@@ -20,7 +20,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,7 +51,7 @@ using namespace std;
 // class decleration
 //
 
-class HcalLuttoDB : public edm::EDAnalyzer {
+class HcalLuttoDB : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalLuttoDB(const edm::ParameterSet&);
   ~HcalLuttoDB() override;
@@ -67,9 +67,11 @@ private:
                     HcalElectronicsId eid,
                     const std::vector<unsigned char>& lut,
                     std::ostream& os);
-  bool filePerCrate_;
+  const std::string creationtag_;
+  const std::string targetfirmware_;
+  const bool filePerCrate_;
+  const std::string fileformat_;
   std::string creationstamp_;
-  std::string fileformat_;
   std::ostream* openPerCrate(int crate);
   std::ostream* openPerLut1(HcalElectronicsId eid);
   std::ostream* openPerLut2(HcalElectronicsId eid);
@@ -81,17 +83,15 @@ private:
 };
 // ----------member data ---------------------------
 
-std::string creationtag_;
-std::string targetfirmware_;
 static const int formatRevision_ = 1;
 
 // constructors and destructor
 //
-HcalLuttoDB::HcalLuttoDB(const edm::ParameterSet& iConfig) {
-  creationtag_ = iConfig.getParameter<std::string>("creationtag");
-  targetfirmware_ = iConfig.getParameter<std::string>("targetfirmware");
-  filePerCrate_ = iConfig.getUntrackedParameter<bool>("filePerCrate", true);
-  fileformat_ = iConfig.getParameter<std::string>("filePrefix");
+HcalLuttoDB::HcalLuttoDB(const edm::ParameterSet& iConfig)
+    : creationtag_(iConfig.getParameter<std::string>("creationtag")),
+      targetfirmware_(iConfig.getParameter<std::string>("targetfirmware")),
+      filePerCrate_(iConfig.getUntrackedParameter<bool>("filePerCrate", true)),
+      fileformat_(iConfig.getParameter<std::string>("filePrefix")) {
   tokdb_ = esConsumes<HcalDbService, HcalDbRecord>();
   tokhcalCode_ = esConsumes<HcalTPGCoder, HcalTPGRecord>();
   tokcaloCode_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();

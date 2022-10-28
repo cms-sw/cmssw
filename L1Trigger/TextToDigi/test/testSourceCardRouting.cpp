@@ -1,4 +1,4 @@
-#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+#include "L1Trigger/TextToDigi/interface/SourceCardRouting.h"
 #include <cstdlib>
 #include <iostream>
 #include <sstream>

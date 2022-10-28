@@ -9,7 +9,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 

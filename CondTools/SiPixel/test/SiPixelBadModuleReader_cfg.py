@@ -5,12 +5,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-    lastRun = cms.untracked.uint32(85000),
-    timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(85000),
-    interval = cms.uint32(1)
-)
-
+                            firstRun = cms.untracked.uint32(1))
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
@@ -27,7 +22,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.Timing = cms.Service("Timing")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
 
 process.QualityReader = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -38,9 +35,9 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityFromDbRcd'),
-        tag = cms.string('SiPixelQuality_v03')
+        tag = cms.string('SiPixelQuality_v07_mc')
     )),
-    connect = cms.string('sqlite_file:Quality_v03.db')
+    connect = cms.string('sqlite_file:prova.db')
 )
 
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")

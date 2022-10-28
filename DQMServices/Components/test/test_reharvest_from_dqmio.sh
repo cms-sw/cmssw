@@ -5,7 +5,7 @@ DATASET=/SingleElectron/Run2017D-09Aug2019_UL2017-v1/DQMIO
 WORKFLOW=136.834
 
 # run cmsDriver to generate baseline harvesting config
-$(runTheMatrix.py -l 136.834 -ne | fgrep 'HARVESTING:' | grep -o 'cmsDriver.*') --no_exec
+$(runTheMatrix.py -l $WORKFLOW -ne | fgrep 'HARVESTING:' | grep -o 'cmsDriver.*') --no_exec
 pythonname=$(echo step*_HARVESTING.py)
 
 # copy data to local folder and add it to config

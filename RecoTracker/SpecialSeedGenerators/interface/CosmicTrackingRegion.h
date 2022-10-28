@@ -10,9 +10,8 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
@@ -56,11 +55,12 @@ public:
                        float zVertex,
                        float deltaEta,
                        float deltaPhi,
+                       const MagneticField& magField,
                        float dummy = 0.,
                        const MeasurementTrackerEvent* measurementTracker = nullptr)
       : TrackingRegionBase(dir, vertexPos, Range(-1 / ptMin, 1 / ptMin), rVertex, zVertex),
         theMeasurementTracker_(measurementTracker),
-        measurementTrackerName_("") {}
+        theMagneticField_(&magField) {}
 
   CosmicTrackingRegion(const GlobalVector& dir,
                        const GlobalPoint& vertexPos,
@@ -69,23 +69,21 @@ public:
                        float zVertex,
                        float deltaEta,
                        float deltaPhi,
-                       const edm::ParameterSet& extra,
+                       const MagneticField& magField,
                        const MeasurementTrackerEvent* measurementTracker = nullptr)
       : TrackingRegionBase(dir, vertexPos, Range(-1 / ptMin, 1 / ptMin), rVertex, zVertex),
-        theMeasurementTracker_(measurementTracker) {
-    measurementTrackerName_ = extra.getParameter<std::string>("measurementTrackerName");
-  }
+        theMeasurementTracker_(measurementTracker),
+        theMagneticField_(&magField) {}
 
   CosmicTrackingRegion(CosmicTrackingRegion const& rh)
       : TrackingRegionBase(rh),
         theMeasurementTracker_(rh.theMeasurementTracker_),
-        measurementTrackerName_(rh.measurementTrackerName_) {}
+        theMagneticField_(rh.theMagneticField_) {}
 
-  TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+  TrackingRegion::Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,
-                                              const edm::EventSetup& iSetup,
                                               const DetLayer* outerlayer = nullptr,
                                               float lr = 0,
                                               float gz = 0,
@@ -104,10 +102,10 @@ public:
 
 private:
   template <typename T>
-  void hits_(const edm::EventSetup& es, const T& layer, TrackingRegion::Hits& result) const;
+  void hits_(const T& layer, TrackingRegion::Hits& result) const;
 
   const MeasurementTrackerEvent* theMeasurementTracker_;
-  std::string measurementTrackerName_;
+  const MagneticField* theMagneticField_;
 
   using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
   using cacheHits = std::vector<cacheHitPointer>;

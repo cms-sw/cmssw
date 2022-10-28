@@ -1,6 +1,5 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -91,9 +90,11 @@ Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step* step) const 
 
 TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack) {
   TrackInformation* info = (TrackInformation*)(aTrack->GetUserInformation());
-  if (!info) {
-    edm::LogWarning("SensitiveDetector") << " no TrackInformation available for trackID= " << aTrack->GetTrackID();
-    throw SimG4Exception("SimG4CoreSensitiveDetector: cannot handle hits for " + GetName());
+  if (nullptr == info) {
+    edm::LogWarning("SensitiveDetector") << " no TrackInformation available for trackID= " << aTrack->GetTrackID()
+                                         << " inside SD " << GetName();
+    G4Exception(
+        "SensitiveDetector::cmsTrackInformation()", "sd01", FatalException, "cannot handle hits without trackinfo");
   }
   return info;
 }
@@ -104,15 +105,16 @@ void SensitiveDetector::setNames(const std::vector<std::string>& hnames) {
 }
 
 void SensitiveDetector::NaNTrap(const G4Step* aStep) const {
-  const G4Track* CurrentTrk = aStep->GetTrack();
-  const G4ThreeVector& CurrentPos = CurrentTrk->GetPosition();
-  double xyz = CurrentPos.x() + CurrentPos.y() + CurrentPos.z();
-  const G4ThreeVector& CurrentMom = CurrentTrk->GetMomentum();
-  xyz += CurrentMom.x() + CurrentMom.y() + CurrentMom.z();
+  const G4Track* currentTrk = aStep->GetTrack();
+  const G4ThreeVector& currentPos = currentTrk->GetPosition();
+  double xyz = currentPos.x() + currentPos.y() + currentPos.z();
+  const G4ThreeVector& currentMom = currentTrk->GetMomentum();
+  xyz += currentMom.x() + currentMom.y() + currentMom.z();
 
   if (edm::isNotFinite(xyz)) {
     const G4VPhysicalVolume* pCurrentVol = aStep->GetPreStepPoint()->GetPhysicalVolume();
-    const G4String& NameOfVol = pCurrentVol->GetName();
-    throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected in volume " + NameOfVol);
+    edm::LogWarning("SensitiveDetector") << "NaN detected for trackID= " << currentTrk->GetTrackID() << " inside "
+                                         << pCurrentVol->GetName();
+    G4Exception("SensitiveDetector::NaNTrap()", "sd01", FatalException, "corrupted event or step");
   }
 }

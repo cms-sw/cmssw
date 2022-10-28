@@ -1,12 +1,33 @@
-#include "Validation/RecoParticleFlow/plugins/PFFilter.h"
+// author: Florent Lacroix (UIC)
+// date: 07/14/2009
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+class PFFilter : public edm::global::EDFilter<> {
+public:
+  explicit PFFilter(const edm::ParameterSet &);
+  ~PFFilter() override;
+
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+  void beginJob() override;
+  void endJob() override;
+  bool checkInput() const;
+
+private:
+  std::vector<std::string> collections_;
+  std::vector<std::string> variables_;
+  std::vector<double> min_;
+  std::vector<double> max_;
+  std::vector<int> doMin_;
+  std::vector<int> doMax_;
+};
 
 PFFilter::PFFilter(const edm::ParameterSet &iConfig) {
   collections_ = iConfig.getParameter<std::vector<std::string>>("Collections");
@@ -19,7 +40,7 @@ PFFilter::PFFilter(const edm::ParameterSet &iConfig) {
 
 PFFilter::~PFFilter() {}
 
-bool PFFilter::checkInput() {
+bool PFFilter::checkInput() const {
   if (collections_.size() != min_.size()) {
     std::cout << "Error: in PFFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
@@ -57,7 +78,7 @@ void PFFilter::beginJob() {
   // std::cout << "FL: beginJob" << std::endl;
 }
 
-bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool PFFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   // std::cout << "FL: filter" << std::endl;
   // std::cout << "FL: Mins = " << min_ << std::endl;
 

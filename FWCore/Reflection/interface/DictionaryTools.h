@@ -59,7 +59,7 @@ namespace edm {
 
   bool public_base_classes(std::vector<std::string>& missingDictionaries,
                            TypeID const& typeID,
-                           std::vector<TypeWithDict>& baseTypes);
+                           std::vector<TypeID>& baseTypes);
 }  // namespace edm
 
 #endif  // FWCore_Reflection_DictionaryTools_h

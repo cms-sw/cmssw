@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "G4UserTrackingAction.hh"
 
@@ -12,6 +11,7 @@ class TrackWithHistory;
 class BeginOfTrack;
 class EndOfTrack;
 class CMSSteppingVerbose;
+class TrackInformation;
 
 class TrackingAction : public G4UserTrackingAction {
 public:
@@ -29,11 +29,11 @@ public:
   SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
 
 private:
-  TrackInformationExtractor extractor_;
   EventAction* eventAction_;
-  TrackWithHistory* currentTrack_;
   CMSSteppingVerbose* steppingVerbose_;
-  const G4Track* g4Track_;
+  const G4Track* g4Track_ = nullptr;
+  TrackInformation* trkInfo_ = nullptr;
+  TrackWithHistory* currentTrack_ = nullptr;
   bool checkTrack_;
   bool doFineCalo_;
   bool saveCaloBoundaryInformation_;

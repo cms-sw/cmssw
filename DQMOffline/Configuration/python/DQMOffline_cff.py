@@ -14,10 +14,11 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
-from DQMOffline.Muon.gem_dqm_offline_source_cff import *
+from DQM.GEM.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
+from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQM_FirstStep_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -34,6 +35,8 @@ DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
 
 DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 
+DQMOfflineL1TPhase2 = cms.Sequence( Phase2l1TriggerDqmOffline )
+
 #DPGs
 DQMOfflineEcalOnly = cms.Sequence(
     ecalOnly_dqm_source_offline +
@@ -42,6 +45,9 @@ DQMOfflineEcalOnly = cms.Sequence(
 DQMOfflineEcal = cms.Sequence(
     ecal_dqm_source_offline +
     es_dqm_source_offline )
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(DQMOfflineEcalOnly, DQMOfflineEcalOnly.copyAndExclude([es_dqm_source_offline]))
 
 #offline version of the online DQM: used in validation/certification
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
@@ -94,6 +100,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
 
 DQMOfflineVertex = cms.Sequence( pvMonitor )
 
@@ -117,6 +124,8 @@ DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
 
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
+
+DQMOfflineHeavyFlavor = cms.Sequence( heavyFlavorDQMSource )
 
 DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineMUO *
@@ -162,13 +171,14 @@ from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
-                                        pixelPVMonitor )
+                                        pixelPVMonitor *
+                                        monitorpixelSoASource )
 
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
                                 DQMMessageLogger *
                                 DQMOfflinePhysics *
-                                DQMOfflineVertex 
+                                DQMOfflineVertex
                                 )
 
 DQMOfflineTrackerPhase2 = cms.Sequence( trackerphase2DQMSource )
@@ -182,7 +192,7 @@ DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
 DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMMessageLogger *
-				 DQMOfflineTrackerStrip * 
+				 DQMOfflineTrackerStrip *
 				 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *
@@ -243,10 +253,11 @@ pp_on_AA.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
 from Validation.RecoParticleFlow.miniAODDQM_cff import * # On MiniAOD vs RECO
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import * # MiniAOD PF variables
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
 
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.

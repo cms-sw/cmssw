@@ -24,13 +24,15 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/Tools/interface/CalibrationCluster.h"
@@ -39,10 +41,9 @@
 #include "TH1.h"
 #include "TH2.h"
 
-// class decleration
-//
+// class declaration
 
-class ElectronCalibration : public edm::EDAnalyzer {
+class ElectronCalibration : public edm::one::EDAnalyzer<> {
 public:
   explicit ElectronCalibration(const edm::ParameterSet&);
   ~ElectronCalibration() override;
@@ -57,8 +58,8 @@ private:
 
   // ----------member data ---------------------------
   std::string rootfile_;
-  edm::InputTag recHitLabel_;
-  edm::InputTag electronLabel_;
+  edm::EDGetTokenT<EBRecHitCollection> recHitToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
   edm::InputTag trackLabel_;
   std::string calibAlgo_;
   std::string miscalibfile_;

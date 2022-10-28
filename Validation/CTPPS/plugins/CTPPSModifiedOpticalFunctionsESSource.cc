@@ -129,6 +129,10 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
       double L_x_F = of_F.m_fcn_values[LHCOpticalFunctionsSet::eLx][i];
       double Lp_x = of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpx][i];
 
+      double L_y_N = of_N.m_fcn_values[LHCOpticalFunctionsSet::eLy][i];
+      double L_y_F = of_F.m_fcn_values[LHCOpticalFunctionsSet::eLy][i];
+      double Lp_y = of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i];
+
       //printf("  xi = %.3f, Lp_x = %.3f, %.3f\n", xi, Lp_x, (L_x_F - L_x_N) / de_z);
 
       // apply modification scenario
@@ -166,6 +170,15 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
         applied = true;
       }
 
+      if (scenario_ == "Lpy") {
+        const double a = 2.66, b = 0.015;  // dimensionless
+        const double de_Lp_y = factor_ * (a * xi + b) * Lp_y;
+        Lp_y += de_Lp_y;
+        L_y_N -= de_Lp_y * de_z / 2.;
+        L_y_F += de_Lp_y * de_z / 2.;
+        applied = true;
+      }
+
       // store updated values
       of_N.m_fcn_values[LHCOpticalFunctionsSet::exd][i] = x_d_N;
       of_F.m_fcn_values[LHCOpticalFunctionsSet::exd][i] = x_d_F;
@@ -175,6 +188,12 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
 
       of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpx][i] = Lp_x;
       of_F.m_fcn_values[LHCOpticalFunctionsSet::eLpx][i] = Lp_x;
+
+      of_N.m_fcn_values[LHCOpticalFunctionsSet::eLy][i] = L_y_N;
+      of_F.m_fcn_values[LHCOpticalFunctionsSet::eLy][i] = L_y_F;
+
+      of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
+      of_F.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
     }
 
     // re-initialise splines

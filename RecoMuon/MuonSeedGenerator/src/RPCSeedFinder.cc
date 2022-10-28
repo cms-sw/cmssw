@@ -39,8 +39,9 @@ void RPCSeedFinder::setrecHits(ConstMuonRecHitContainer &recHits) {
   isrecHitsset = true;
 }
 
-void RPCSeedFinder::setEventSetup(const edm::EventSetup &iSetup) {
-  eSetup = &iSetup;
+void RPCSeedFinder::setEventSetup(const MagneticField &field, const RPCGeometry &rpcGeom) {
+  pField = &field;
+  pRPCGeom = &rpcGeom;
   isEventSetupset = true;
 }
 
@@ -54,8 +55,8 @@ void RPCSeedFinder::seed() {
 
   weightedTrajectorySeed theweightedSeed;
   int isGoodSeed = 0;
-  const edm::EventSetup &iSetup = *eSetup;
-  theweightedSeed = oneSeed.seed(iSetup, isGoodSeed);
+
+  theweightedSeed = oneSeed.seed(*pField, *pRPCGeom, isGoodSeed);
   // Push back the good seed
   if (isGoodSeed == 1) {
     cout << "[RPCSeedFinder] --> Seeds from " << oneSeed.nrhit() << " recHits." << endl;

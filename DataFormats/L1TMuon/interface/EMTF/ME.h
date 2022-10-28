@@ -33,6 +33,17 @@ namespace l1t {
             station(-99),
             vp(-99),
             tbin(-99),
+            // Run 3 OTMB data
+            frame(-99),
+            quarter_strip(-99),
+            eighth_strip(-99),
+            slope(-99),
+            run3_pattern(-99),
+            // Run 3 HMT data
+            hmv(-99),
+            hmt_inTime(-99),
+            hmt_outOfTime(-99),
+            // metadata
             stub_num(-99),
             format_errors(0),
             dataword(-99){};
@@ -59,6 +70,17 @@ namespace l1t {
       void set_station(int bits) { station = bits; }
       void set_vp(int bits) { vp = bits; }
       void set_tbin(int bits) { tbin = bits; }
+      // Run 3 OTMB
+      void set_frame(int bits) { frame = bits; }
+      void set_quarter_strip(int bits) { quarter_strip = bits; }
+      void set_eighth_strip(int bits) { eighth_strip = bits; }
+      void set_slope(int bits) { slope = bits; }
+      void set_run3_pattern(int bits) { run3_pattern = bits; }
+      // Run 3 HMT
+      void set_hmv(int bits) { hmv = bits; }
+      void set_hmt_inTime(int bits) { hmt_inTime = bits; }
+      void set_hmt_outOfTime(int bits) { hmt_outOfTime = bits; }
+      // meta data
       void set_stub_num(int bits) { stub_num = bits; }
       void add_format_error() { format_errors += 1; }
       void set_dataword(uint64_t bits) { dataword = bits; }
@@ -83,6 +105,17 @@ namespace l1t {
       int Station() const { return station; }
       int VP() const { return vp; }
       int TBIN() const { return tbin; }
+      // Run 3 OTMB
+      int Frame() const { return frame; }
+      int Quarter_strip() const { return quarter_strip; }
+      int Eighth_strip() const { return eighth_strip; }
+      int Slope() const { return slope; }
+      int Run3_pattern() const { return run3_pattern; }
+      // Run 3 HMT
+      int HMV() const { return hmv; }
+      int HMT_inTime() const { return hmt_inTime; }
+      int HMT_outOfTime() const { return hmt_outOfTime; }
+      // metadata
       int Stub_num() const { return stub_num; }
       int Format_errors() const { return format_errors; }
       uint64_t Dataword() const { return dataword; }
@@ -108,6 +141,17 @@ namespace l1t {
       int station;
       int vp;
       int tbin;
+      // Run 3 OTMB
+      int frame;
+      int quarter_strip;
+      int eighth_strip;
+      int slope;
+      int run3_pattern;
+      // Run 3 HMT
+      int hmv;
+      int hmt_inTime;
+      int hmt_outOfTime;
+      // metadata
       int stub_num;
       int format_errors;
       uint64_t dataword;

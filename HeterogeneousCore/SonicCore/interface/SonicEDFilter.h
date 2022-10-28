@@ -16,8 +16,8 @@ public:
   //typedef to simplify usage
   typedef typename Client::Output Output;
   //constructor
-  SonicEDFilter(edm::ParameterSet const& cfg, const std::string& debugName, bool verbose = true)
-      : SonicAcquirer<Client, edm::stream::EDFilter<edm::ExternalWork, Capabilities...>>(cfg, debugName, verbose) {}
+  SonicEDFilter(edm::ParameterSet const& cfg)
+      : SonicAcquirer<Client, edm::stream::EDFilter<edm::ExternalWork, Capabilities...>>(cfg) {}
   //destructor
   ~SonicEDFilter() override = default;
 

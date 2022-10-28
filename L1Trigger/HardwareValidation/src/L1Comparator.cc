@@ -29,6 +29,7 @@ namespace {
 L1Comparator::L1Comparator(const edm::ParameterSet& iConfig)
     : m_stage1_layer2_{iConfig.getParameter<bool>("stage1_layer2_")},
       verbose_{iConfig.getUntrackedParameter<int>("VerboseFlag", 0)},
+      tokenTriggerKey_{esConsumes<edm::Transition::BeginRun>()},
       m_doSys{fillDoSys(iConfig)},
       m_dumpFileName{iConfig.getUntrackedParameter<std::string>("DumpFile", "")},
       m_dumpMode{iConfig.getUntrackedParameter<int>("DumpMode", 0)},
@@ -197,34 +198,33 @@ std::shared_ptr<L1Comparator::RunCache> L1Comparator::globalBeginRun(edm::Run co
   auto runDoSys = std::make_shared<RunCache>();
   // disable subsystem if not included in current run configuration
   try {
-    edm::ESHandle<L1TriggerKey> pKey;
-    iSetup.get<L1TriggerKeyRcd>().get(pKey);
+    auto const& pKey = iSetup.getData(tokenTriggerKey_);
     *runDoSys = m_doSys;
 
-    (*runDoSys)[RCT] &= (!(pKey->subsystemKey(L1TriggerKey::kRCT).empty()));
-    (*runDoSys)[GCT] &= (!(pKey->subsystemKey(L1TriggerKey::kGCT).empty()));
-    (*runDoSys)[DTF] &= (!(pKey->subsystemKey(L1TriggerKey::kDTTF).empty()));
-    (*runDoSys)[CTF] &= (!(pKey->subsystemKey(L1TriggerKey::kCSCTF).empty()));
-    (*runDoSys)[RPC] &= (!(pKey->subsystemKey(L1TriggerKey::kRPC).empty()));
-    (*runDoSys)[GMT] &= (!(pKey->subsystemKey(L1TriggerKey::kGMT).empty()));
-    (*runDoSys)[GLT] &= (!(pKey->subsystemKey(L1TriggerKey::kGT).empty()));
+    (*runDoSys)[RCT] &= (!(pKey.subsystemKey(L1TriggerKey::kRCT).empty()));
+    (*runDoSys)[GCT] &= (!(pKey.subsystemKey(L1TriggerKey::kGCT).empty()));
+    (*runDoSys)[DTF] &= (!(pKey.subsystemKey(L1TriggerKey::kDTTF).empty()));
+    (*runDoSys)[CTF] &= (!(pKey.subsystemKey(L1TriggerKey::kCSCTF).empty()));
+    (*runDoSys)[RPC] &= (!(pKey.subsystemKey(L1TriggerKey::kRPC).empty()));
+    (*runDoSys)[GMT] &= (!(pKey.subsystemKey(L1TriggerKey::kGMT).empty()));
+    (*runDoSys)[GLT] &= (!(pKey.subsystemKey(L1TriggerKey::kGT).empty()));
 
     if (verbose()) {
-      if (pKey->subsystemKey(L1TriggerKey::kRCT).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kRCT).empty())
         std::cout << "RCT   key is empty. Sub-systems is disabled (" << (*runDoSys)[RCT] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kGCT).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kGCT).empty())
         std::cout << "GCT   key is empty. Sub-systems is disabled (" << (*runDoSys)[GCT] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kDTTF).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kDTTF).empty())
         std::cout << "DTTF  key is empty. Sub-systems is disabled (" << (*runDoSys)[DTF] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kCSCTF).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kCSCTF).empty())
         std::cout << "CSCTF key is empty. Sub-systems is disabled (" << (*runDoSys)[CTF] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kRPC).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kRPC).empty())
         std::cout << "RPC   key is empty. Sub-systems is disabled (" << (*runDoSys)[RPC] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kGMT).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kGMT).empty())
         std::cout << "GMT   key is empty. Sub-systems is disabled (" << (*runDoSys)[GMT] << ")\n";
-      if (pKey->subsystemKey(L1TriggerKey::kGT).empty())
+      if (pKey.subsystemKey(L1TriggerKey::kGT).empty())
         std::cout << "GT    key is empty. Sub-systems is disabled (" << (*runDoSys)[GLT] << ")\n";
-      std::cout << "TSC key = " << pKey->tscKey() << std::endl;
+      std::cout << "TSC key = " << pKey.tscKey() << std::endl;
     }
 
     //access subsystem key if needed, eg:

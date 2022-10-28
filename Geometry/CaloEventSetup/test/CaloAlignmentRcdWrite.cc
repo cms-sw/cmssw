@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Utilities/General/interface/ClassName.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -47,23 +48,23 @@ void CaloAlignmentRcdWrite::writeAlignments(const edm::EventSetup& evtSetup, edm
 
   std::string recordName = Demangle(typeid(T).name())();
 
-  std::cout << "Uploading alignments to the database: " << recordName << std::endl;
+  edm::LogInfo("CaloAlignmentRcdWrite") << "Uploading alignments to the database: " << recordName;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (!poolDbService.isAvailable())
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-  Alignments* alignments = new Alignments(alignmentsES);
+  const Alignments alignments(alignmentsES);
 
-  poolDbService->writeOne<Alignments>(&(*alignments), poolDbService->currentTime(), recordName);
+  poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->currentTime(), recordName);
 }
 
 void CaloAlignmentRcdWrite::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup) {
   if (nEventCalls_ > 0) {
-    std::cout << "Writing to DB to be done only once, "
-              << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
-              << "(Your writing should be fine.)" << std::endl;
+    edm::LogInfo("CaloAlignmentRcdWrite") << "Writing to DB to be done only once, "
+                                          << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
+                                          << "(Your writing should be fine.)";
     return;
   }
 
@@ -71,7 +72,7 @@ void CaloAlignmentRcdWrite::analyze(const edm::Event& /*evt*/, const edm::EventS
   writeAlignments<EEAlignmentRcd>(evtSetup, eeToken_);
   writeAlignments<ESAlignmentRcd>(evtSetup, esToken_);
 
-  std::cout << "done!" << std::endl;
+  edm::LogInfo("CaloAlignmentRcdWrite") << "done!";
   nEventCalls_++;
 }
 

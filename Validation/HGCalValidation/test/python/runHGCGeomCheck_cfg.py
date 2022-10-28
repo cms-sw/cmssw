@@ -1,30 +1,42 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCGeomCheck_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
 
-#from Configuration.Eras.Era_Phase2C12_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
+print(options)
 
-#from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-#process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+####################################################################
+# Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('GeomCheck',Phase2C11M9)
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+inFile = "file:testHGCalSimWatcher" + options.geometry + ".root"
+outFile = "hgcGeomCheck" + options.geometry + ".root"
 
+print("Geometry file: ", geomFile)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
+
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -41,20 +53,16 @@ if hasattr(process,'MessageLogger'):
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-        'file:testHGCalSimWatcherV15.root',
-        )
-                            )
+    fileNames = cms.untracked.vstring(inFile)
+)
 
 process.load('Validation.HGCalValidation.hgcGeomCheck_cff')
 
 process.TFileService = cms.Service("TFileService",
-                                fileName = cms.string('hgcGeomCheckD83.root'),
-				closeFileFast = cms.untracked.bool(True)
-				)
+                                   fileName = cms.string(outFile),
+                                   closeFileFast = cms.untracked.bool(True)
+)
 
 SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
 process.p = cms.Path(process.hgcGeomCheck)
-
-

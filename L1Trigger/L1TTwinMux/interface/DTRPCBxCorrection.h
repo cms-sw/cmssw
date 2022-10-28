@@ -17,15 +17,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
 #include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
 #include "L1Trigger/L1TTwinMux/interface/L1MuTMChambPhContainer.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <iostream>
 
@@ -34,9 +26,7 @@ public:
   DTRPCBxCorrection(L1MuDTChambPhContainer, L1MuDTChambPhContainer);
   ~DTRPCBxCorrection(){};
 
-  void run(const edm::EventSetup& c);
-
-  edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
+  void run(const L1TTwinMuxParams&);
 
   ///Return Output PhContainer
   L1MuDTChambPhContainer getDTContainer() { return m_dt_tsshifted; }

@@ -11,13 +11,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class BTagSkimLeptonJet : public edm::EDFilter {
+class BTagSkimLeptonJet : public edm::one::EDFilter<> {
 public:
   explicit BTagSkimLeptonJet(const edm::ParameterSet&);
   ~BTagSkimLeptonJet() override;

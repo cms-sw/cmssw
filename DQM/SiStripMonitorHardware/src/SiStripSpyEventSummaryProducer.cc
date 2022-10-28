@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,15 +31,14 @@ using edm::LogWarning;
 
 namespace sistrip {
 
-  class SpyEventSummaryProducer : public edm::EDProducer {
+  class SpyEventSummaryProducer : public edm::global::EDProducer<> {
   public:
     SpyEventSummaryProducer(const edm::ParameterSet& config);
-    ~SpyEventSummaryProducer() override;
-    void produce(edm::Event& event, const edm::EventSetup&) override;
+    void produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const override;
 
   private:
-    void warnAboutUnsupportedRunType();
-    static const char* messageLabel_;
+    void warnAboutUnsupportedRunType() const;
+    static const char* const messageLabel_;
     const edm::InputTag rawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
     const sistrip::RunType runType_;
@@ -49,7 +48,7 @@ namespace sistrip {
 
 namespace sistrip {
 
-  const char* SpyEventSummaryProducer::messageLabel_ = "SiStripSpyEventSummaryProducer";
+  const char* const SpyEventSummaryProducer::messageLabel_ = "SiStripSpyEventSummaryProducer";
 
   SpyEventSummaryProducer::SpyEventSummaryProducer(const edm::ParameterSet& config)
       : rawDataTag_(config.getParameter<edm::InputTag>("RawDataTag")),
@@ -59,9 +58,7 @@ namespace sistrip {
     warnAboutUnsupportedRunType();
   }
 
-  SpyEventSummaryProducer::~SpyEventSummaryProducer() {}
-
-  void SpyEventSummaryProducer::produce(edm::Event& event, const edm::EventSetup&) {
+  void SpyEventSummaryProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
     warnAboutUnsupportedRunType();
 
     //get the event number and Bx counter from the first valud FED buffer
@@ -121,7 +118,7 @@ namespace sistrip {
     event.put(std::move(pSummary));
   }
 
-  void SpyEventSummaryProducer::warnAboutUnsupportedRunType() {
+  void SpyEventSummaryProducer::warnAboutUnsupportedRunType() const {
     switch (runType_) {
       case sistrip::DAQ_SCOPE_MODE:
       case sistrip::PHYSICS:

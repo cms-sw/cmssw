@@ -149,9 +149,9 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
     const CLHEP::HepRotation hr(temp);
     const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
     const HepGeom::Transform3D ht3d(hr,  // only scale translation
-                                    k_ScaleFromDD4Hep * h3v);
+                                    k_ScaleFromDD4hep * h3v);
 
-    const DetId id(getDetIdForDD4HepNode(fv));
+    const DetId id(getDetIdForDD4hepNode(fv));
 
     const unsigned int which(geom->alignmentTransformIndexLocal(id));
 
@@ -170,7 +170,7 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
         nullptr == at ? ht3d
                       : (nullptr == globalT ? at->transform() * ht3d : at->transform() * globalT->transform() * ht3d));
 
-    fillGeom(geom, parameters, atr, id, k_ScaleFromDD4Hep);
+    fillGeom(geom, parameters, atr, id, k_ScaleFromDD4hep);
   }
 
   assert(counter <= T::k_NumberOfCellsForCorners);
@@ -197,7 +197,7 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDDDNode(const DDFilteredView& fv)
 }
 
 template <class T>
-unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredView& fv) {
+unsigned int CaloGeometryLoader<T>::getDetIdForDD4hepNode(const cms::DDFilteredView& fv) {
   // perform some consistency checks
   // get the parents and grandparents of this node
 

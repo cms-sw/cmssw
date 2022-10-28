@@ -13,13 +13,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <string>
 #include <vector>
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 #include "Calibration/EcalCalibAlgos/interface/VFillMap.h"
 
@@ -60,37 +64,37 @@ private:
 
 private:
   //! EcalBarrel Input Collection name
-  edm::InputTag m_barrelAlCa;
+  const edm::InputTag m_barrelAlCa;
   //! EcalEndcap Input Collection name
-  edm::InputTag m_endcapAlCa;
+  const edm::InputTag m_endcapAlCa;
   //! To take the electrons
-  edm::InputTag m_ElectronLabel;
+  const edm::InputTag m_ElectronLabel;
   //! reconstruction window size
-  int m_recoWindowSidex;
-  int m_recoWindowSidey;
+  const int m_recoWindowSidex;
+  const int m_recoWindowSidey;
   //! minimum energy per crystal cut
-  double m_minEnergyPerCrystal;
+  const double m_minEnergyPerCrystal;
   //! maximum energy per crystal cut
-  double m_maxEnergyPerCrystal;
+  const double m_maxEnergyPerCrystal;
   //! eta start of the zone of interest
-  int m_etaStart;
+  const int m_etaStart;
   //! eta end of the zone of interest
-  int m_etaEnd;
+  const int m_etaEnd;
   //! eta size of the regions
-  int m_etaWidth;
+  const int m_etaWidth;
   //    std::map<int,float> m_eta;
   //! maximum number of events per Ring
-  int m_maxSelectedNumPerRing;
+  const int m_maxSelectedNumPerRing;
   //! number of events already read per Ring
   std::map<int, int> m_RingNumOfHits;
   //! single blocks calibrators
   std::vector<VEcalCalibBlock *> m_IMACalibBlocks;
   //! minimum coefficient accepted (RAW)
-  double m_minCoeff;
+  const double m_minCoeff;
   //! maximum coefficient accepted (RAW)
-  double m_maxCoeff;
+  const double m_maxCoeff;
   //! to exclude the blocksolver
-  int m_usingBlockSolver;
+  const int m_usingBlockSolver;
   //!position of the cell, borders, coords etc...
   std::map<int, GlobalPoint> m_cellPos;
   std::map<int, int> m_cellPhi;
@@ -101,8 +105,8 @@ private:
   //! LP sets the number of loops to do
   unsigned int m_loops;
   //! LP define the EE region to calibrate
-  int m_startRing;
-  int m_endRing;
+  const int m_startRing;
+  const int m_endRing;
   //!association map between Raw detIds and Rings
   std::map<int, int> m_xtalRing;
   //!association map between  raw detIds and Region
@@ -114,14 +118,21 @@ private:
   std::vector<DetId> m_barrelCells;
   std::vector<DetId> m_endcapCells;
   //!coeffs filenames
-  std::string m_EBcoeffFile;
-  std::string m_EEcoeffFile;
+  const std::string m_EBcoeffFile;
+  const std::string m_EEcoeffFile;
   //!endcap zone to be calibrated
-  int m_EEZone;
+  const int m_EEZone;
   //!EB regions vs. eta index
   std::map<int, int> m_Reg;
   std::string m_mapFillerType;
   bool isfirstcall_;
+
+  //! ED token
+  const edm::EDGetTokenT<EBRecHitCollection> m_ebRecHitToken;
+  const edm::EDGetTokenT<EERecHitCollection> m_eeRecHitToken;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> m_gsfElectronToken;
+  //! ES token
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
 };
 #endif
 #endif

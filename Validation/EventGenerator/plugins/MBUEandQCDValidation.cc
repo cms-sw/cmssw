@@ -32,11 +32,14 @@ MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet)
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
   genjetCollectionToken_ = consumes<reco::GenJetCollection>(genjetCollection_);
   genchjetCollectionToken_ = consumes<reco::GenJetCollection>(genchjetCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 MBUEandQCDValidation::~MBUEandQCDValidation() { delete theCalo; }
 
-void MBUEandQCDValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) { c.getData(fPDGTable); }
+void MBUEandQCDValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  fPDGTable = c.getHandle(fPDGTableToken);
+}
 
 void MBUEandQCDValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
   ///Setting the DQM top directories

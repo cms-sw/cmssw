@@ -15,7 +15,7 @@ pfCandidateDQMAnalyzer = DQMEDAnalyzer('DQMPFCandidateAnalyzer',
     hcalMin      =cms.double(1.),  
 
     CleaningParameters = cleaningParameters.clone(       
-        bypassAllPVChecks = cms.bool(False)
+        bypassAllPVChecks = False
         ),
     METDiagonisticsParameters = multPhiCorr_METDiagnostics,
 
@@ -40,11 +40,11 @@ pfCandidateDQMAnalyzer = DQMEDAnalyzer('DQMPFCandidateAnalyzer',
 )
 
 packedCandidateDQMAnalyzerMiniAOD = pfCandidateDQMAnalyzer.clone(
-    CandType=cms.untracked.string('Packed'),
-    PFCandidateLabel = cms.InputTag('packedPFCandidates', ''),
+    CandType = 'Packed',
+    PFCandidateLabel = 'packedPFCandidates',
     METDiagonisticsParameters = multPhiCorr_METDiagnosticsMiniAOD,
     CleaningParameters = cleaningParameters.clone(
-        vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
+        vertexCollection    =  "goodOfflinePrimaryVerticesDQMforMiniAOD" ,
         ),
 )
 

@@ -60,7 +60,7 @@ namespace trigger {
     TriggerL1AsymHt = -111,
     TriggerL1AsymEtHF = -112,
     TriggerL1AsymHtHF = -113,
-    /// This has all to be decided for Phase-2. Here is Thiago's proposal.
+    // Phase-2: This has all to be decided for Phase-2. Here is Thiago's proposal.
     TriggerL1TkMu = -114,
     TriggerL1TkEle = -115,
     TriggerL1PFJet = -116,
@@ -72,6 +72,8 @@ namespace trigger {
     TriggerL1PFMHT = -122,
     TriggerL1PFTrack = -123,
     TriggerL1Vertex = -124,
+    // Phase-1: MuonShower
+    TriggerL1MuShower = -125,  // stage2 (introduced in Run 3)
 
     /// HLT
     TriggerPhoton = +81,

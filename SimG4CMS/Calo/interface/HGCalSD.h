@@ -20,7 +20,7 @@ class G4Step;
 class HGCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HGCalSD(const std::string &,
-          const edm::EventSetup &,
+          const HGCalDDDConstants *,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);
@@ -50,8 +50,10 @@ private:
   int levelT1_, levelT2_, cornerMinMask_;
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_;
+  int useSimWt_;
   const double tan30deg_;
   std::vector<double> angles_;
+  std::string missingFile_;
 };
 
 #endif  // HGCalSD_h

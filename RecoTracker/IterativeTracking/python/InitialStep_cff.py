@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ### STEP 0 ###
 
 # hit building
@@ -195,13 +198,15 @@ trackingPhase2PU140.toModify(initialStepChi2Est,
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'initialStepTrajectoryFilter'),
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = 'initialStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
+trackingNoLoopers.toModify(initialStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
 trackingPhase1.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
@@ -213,15 +218,17 @@ trackingPhase2PU140.toModify(initialStepTrajectoryBuilder,
 )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_initialStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'initialStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryBuilder')),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'initialStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
+    useHitsSplitting = True,
 )
+initialStepTrackCandidates = _initialStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitInitialStep_cff import trackingMkFitInitialStep
 from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
@@ -250,6 +257,7 @@ trackingMkFitInitialStep.toReplaceWith(initialStepTrackCandidates, mkFitOutputCo
     mkFitSeeds = 'initialStepTrackCandidatesMkFitSeeds',
     tracks = 'initialStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(initialStepTrackCandidatesMkFitConfig, minPt=0.6)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(initialStepTrackCandidates,
@@ -260,13 +268,16 @@ fastSim.toReplaceWith(initialStepTrackCandidates,
 
 
 # fitting
-import RecoTracker.TrackProducer.TrackProducer_cfi
-initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+initialStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'initialStepTrackCandidates',
     AlgorithmName = 'initialStep',
     Fitter        = 'FlexibleKFFittingSmoother'
 )
 fastSim.toModify(initialStepTracks, TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(initialStepTracks, TrajectoryInEvent = True)
 
 #vertices
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
@@ -274,7 +285,12 @@ firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone(
     TrackLabel = 'initialStepTracks',
     vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
 )
-(pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesUnsorted, TkFilterParameters = dict(trackQuality = 'any'))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesUnsorted,
+    TkFilterParameters = dict(
+        trackQuality = 'any',
+        maxNumTracksThreshold = 2**31-1
+    ) 
+)
 
 # we need a replacment for the firstStepPrimaryVerticesUnsorted
 # that includes tracker information of signal and pile up
@@ -328,13 +344,16 @@ trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
      qualityCuts = [-0.95,-0.85,-0.75]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(initialStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(initialStep, trackTfClassifier.clone(
         src         = 'initialStepTracks',
-        qualityCuts = qualityCutDictionary["InitialStep"]
+        qualityCuts = qualityCutDictionary.InitialStep.value()
 ))
+
 (trackdnn & fastSim).toModify(initialStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
 
 pp_on_AA.toModify(initialStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),

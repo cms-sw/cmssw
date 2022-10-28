@@ -85,7 +85,7 @@ private:
   void printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
 
 private:
-  std::unique_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
+  EcalSelectiveReadoutSuppressor suppressor_;
   std::string digiProducer_;         // name of module/plugin/producer making digis
   std::string ebdigiCollection_;     // secondary name given to collection of input digis
   std::string eedigiCollection_;     // secondary name given to collection of input digis
@@ -100,7 +100,8 @@ private:
   const CaloGeometry* theGeometry;
   const EcalTrigTowerConstituentsMap* theTriggerTowerMap;
   const EcalElectronicsMapping* theElecMap;
-  edm::ParameterSet params_;
+
+  bool suppressorSettingsSet_ = false;
 
   bool trigPrimBypass_;
 

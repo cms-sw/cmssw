@@ -16,10 +16,15 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& pset)
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
                                             edm::EventSetup const& setup) {
-  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
+  const auto& gemH = setup.getHandle(geomTokenBeginRun_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/CoPad/Occupancy");
+  booker.setCurrentFolder("GEM/CoPad");
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
@@ -77,8 +82,6 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/CoPad/BunchCrossing");
-
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
       for (const auto& station : region->stations()) {
@@ -95,7 +98,12 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 GEMCoPadDigiValidation::~GEMCoPadDigiValidation() {}
 
 void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = &setup.getData(geomToken_);
+  const auto& gemH = setup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
 
   edm::Handle<GEMCoPadDigiCollection> copad_collection;
   event.getByToken(copad_token_, copad_collection);

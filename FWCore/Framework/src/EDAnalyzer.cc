@@ -11,9 +11,9 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
-#include "SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -36,7 +36,7 @@ namespace edm {
     EventSignalsSentry sentry(act, mcc);
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
     this->analyze(e, c);
     return true;
   }
@@ -55,7 +55,7 @@ namespace edm {
     r.setConsumer(this);
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
+        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
     this->beginRun(r, c);
     return true;
   }
@@ -65,7 +65,7 @@ namespace edm {
     r.setConsumer(this);
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
     this->endRun(r, c);
     return true;
   }
@@ -77,8 +77,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
-                       parentC,
-                       false};
+                       parentC};
     this->beginLuminosityBlock(lb, c);
     return true;
   }
@@ -90,8 +89,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
-                       parentC,
-                       false};
+                       parentC};
     this->endLuminosityBlock(lb, c);
     return true;
   }

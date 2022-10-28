@@ -39,7 +39,7 @@ public:
 
   /** Destructor
    */
-  ~BPHParticleChargeSelect() override {}
+  ~BPHParticleChargeSelect() override = default;
 
   /** Operations
    */

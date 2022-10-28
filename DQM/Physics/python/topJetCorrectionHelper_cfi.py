@@ -15,6 +15,6 @@ topDQMak5PFCHSL2Relative = ak4PFCHSL2Relative.clone()
 topDQMak5PFCHSL3Absolute = ak4PFCHSL3Absolute.clone()
 topDQMak5PFCHSResidual = ak4PFCHSResidual.clone()
 
-topDQMak5PFCHSL2L3 = ak4PFCHSL2L3.clone(correctors = cms.vstring('topDQMak5PFCHSL2Relative','topDQMak5PFCHSL3Absolute'))
-topDQMak5PFCHSL2L3Residual = ak4PFCHSL2L3Residual.clone(correctors = cms.vstring('topDQMak5PFCHSL2Relative','topDQMak5PFCHSL3Absolute','topDQMak5PFCHSResidual'))
+topDQMak5PFCHSL2L3 = ak4PFCHSL2L3.clone(correctors = ('topDQMak5PFCHSL2Relative','topDQMak5PFCHSL3Absolute'))
+topDQMak5PFCHSL2L3Residual = ak4PFCHSL2L3Residual.clone(correctors = ('topDQMak5PFCHSL2Relative','topDQMak5PFCHSL3Absolute','topDQMak5PFCHSResidual'))
 #############################################################################

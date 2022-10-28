@@ -10,11 +10,11 @@
 template <typename T>
 class TICLLayerTileT {
 public:
+  typedef T type;
+
   void fill(double eta, double phi, unsigned int layerClusterId) {
     tile_[globalBin(eta, phi)].push_back(layerClusterId);
   }
-
-  int typeT() const { return T::type; }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
@@ -34,10 +34,29 @@ public:
   }
 
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
+    // The tile only handles one endcap at a time and does not hold mixed eta
+    // values.
+    if (etaMin * etaMax < 0) {
+      return std::array<int, 4>({{0, 0, 0, 0}});
+    }
+    if (etaMax - etaMin < 0) {
+      return std::array<int, 4>({{0, 0, 0, 0}});
+    }
     int etaBinMin = etaBin(etaMin);
     int etaBinMax = etaBin(etaMax);
     int phiBinMin = phiBin(phiMin);
     int phiBinMax = phiBin(phiMax);
+    if (etaMin < 0) {
+      std::swap(etaBinMin, etaBinMax);
+    }
+    // If the search window cross the phi-bin boundary, add T::nPhiBins to the
+    // MAx value. This guarantees that the caller can perform a valid doule
+    // loop on eta and phi. It is the caller responsibility to perform a module
+    // operation on the phiBin values returned by this function, to explore the
+    // correct bins.
+    if (phiBinMax < phiBinMin) {
+      phiBinMax += T::nPhiBins;
+    }
     return std::array<int, 4>({{etaBinMin, etaBinMax, phiBinMin, phiBinMax}});
   }
 
@@ -71,6 +90,8 @@ namespace ticl {
 template <typename T>
 class TICLGenericTile {
 public:
+  // value_type_t is the type of the type of the array used by the incoming <T> type.
+  using constants_type_t = typename T::value_type::type;
   // This class represents a generic collection of Tiles. The additional index
   // numbering is not handled internally. It is the user's responsibility to
   // properly use and consistently access it here.

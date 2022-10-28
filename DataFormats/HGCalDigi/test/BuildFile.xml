@@ -1,0 +1,4 @@
+<bin file="HGCROCSampleTest.cc" name="HGCROCSampleTest">
+  <flags TEST_RUNNER_ARGS=" 200000000 y"/>
+  <use name="DataFormats/HGCalDigi"/>
+</bin>

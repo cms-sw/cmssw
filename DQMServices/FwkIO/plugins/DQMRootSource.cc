@@ -194,20 +194,26 @@ struct DQMTTreeIO {
 
     void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) override {
       // This will populate the fields as defined in setTree method
-      m_tree->GetEntry(iIndex);
+      try {
+        m_tree->GetEntry(iIndex);
 
-      auto key = makeKey(*m_fullName, run, lumi);
-      auto existing = dqmstore->findOrRecycle(key);
-      if (existing) {
-        // TODO: make sure there is sufficient locking here.
-        DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
-      } else {
-        // We make our own MEs here, to avoid a round-trip through the booking API.
-        MonitorElementData meData;
-        meData.key_ = key;
-        meData.value_.object_ = std::unique_ptr<T>((T*)(m_buffer->Clone()));
-        auto me = new MonitorElement(std::move(meData));
-        dqmstore->putME(me);
+        auto key = makeKey(*m_fullName, run, lumi);
+        auto existing = dqmstore->findOrRecycle(key);
+        if (existing) {
+          // TODO: make sure there is sufficient locking here.
+          DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
+        } else {
+          // We make our own MEs here, to avoid a round-trip through the booking API.
+          MonitorElementData meData;
+          meData.key_ = key;
+          meData.value_.object_ = std::unique_ptr<T>((T*)(m_buffer->Clone()));
+          auto me = new MonitorElement(std::move(meData));
+          dqmstore->putME(me);
+        }
+      } catch (cms::Exception& iExcept) {
+        using namespace std::string_literals;
+        iExcept.addContext("failed while reading "s + *m_fullName);
+        throw;
       }
     }
 
@@ -311,9 +317,12 @@ struct DQMTTreeIO {
 class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
+  DQMRootSource(const DQMRootSource&) = delete;
   ~DQMRootSource() override;
 
   // ---------- const member functions ---------------------
+
+  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
 
   // ---------- static member functions --------------------
 
@@ -321,8 +330,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  DQMRootSource(const DQMRootSource&) = delete;
-
   edm::InputSource::ItemType getNextItemType() override;
 
   std::shared_ptr<edm::FileBlock> readFile_() override;
@@ -353,8 +360,6 @@ private:
   bool keepIt(edm::RunNumber_t, edm::LuminosityBlockNumber_t) const;
   void logFileAction(char const* msg, char const* fileName) const;
 
-  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
-
   // ---------- member data --------------------------------
 
   // Properties from python config
@@ -370,8 +375,23 @@ private:
 
   // Index of currenlty processed row in m_fileMetadatas
   unsigned int m_currentIndex;
+
   // All open DQMIO files
-  std::vector<TFile*> m_openFiles;
+  struct OpenFileInfo {
+    OpenFileInfo(TFile* file, edm::JobReport::Token jrToken) : m_file(file), m_jrToken(jrToken) {}
+    ~OpenFileInfo() {
+      edm::Service<edm::JobReport> jr;
+      jr->inputFileClosed(edm::InputType::Primary, m_jrToken);
+    }
+
+    OpenFileInfo(OpenFileInfo&&) = default;
+    OpenFileInfo& operator=(OpenFileInfo&&) = default;
+
+    std::unique_ptr<TFile> m_file;
+    edm::JobReport::Token m_jrToken;
+  };
+  std::vector<OpenFileInfo> m_openFiles;
+
   // An item here is a row read from DQMIO indices (metadata) table
   std::vector<FileMetadata> m_fileMetadatas;
 };
@@ -423,7 +443,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_nextItemType(edm::InputSource::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
-      m_openFiles(std::vector<TFile*>()),
+      m_openFiles(std::vector<OpenFileInfo>()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
@@ -436,9 +456,11 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
     m_treeReaders[kTH1FIndex].reset(new TreeObjectReader<TH1F>(MonitorElementData::Kind::TH1F, m_rescope));
     m_treeReaders[kTH1SIndex].reset(new TreeObjectReader<TH1S>(MonitorElementData::Kind::TH1S, m_rescope));
     m_treeReaders[kTH1DIndex].reset(new TreeObjectReader<TH1D>(MonitorElementData::Kind::TH1D, m_rescope));
+    m_treeReaders[kTH1IIndex].reset(new TreeObjectReader<TH1I>(MonitorElementData::Kind::TH1I, m_rescope));
     m_treeReaders[kTH2FIndex].reset(new TreeObjectReader<TH2F>(MonitorElementData::Kind::TH2F, m_rescope));
     m_treeReaders[kTH2SIndex].reset(new TreeObjectReader<TH2S>(MonitorElementData::Kind::TH2S, m_rescope));
     m_treeReaders[kTH2DIndex].reset(new TreeObjectReader<TH2D>(MonitorElementData::Kind::TH2D, m_rescope));
+    m_treeReaders[kTH2IIndex].reset(new TreeObjectReader<TH2I>(MonitorElementData::Kind::TH2I, m_rescope));
     m_treeReaders[kTH3FIndex].reset(new TreeObjectReader<TH3F>(MonitorElementData::Kind::TH3F, m_rescope));
     m_treeReaders[kTProfileIndex].reset(new TreeObjectReader<TProfile>(MonitorElementData::Kind::TPROFILE, m_rescope));
     m_treeReaders[kTProfile2DIndex].reset(
@@ -451,8 +473,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
 
 DQMRootSource::~DQMRootSource() {
   for (auto& file : m_openFiles) {
-    if (file != nullptr && file->IsOpen()) {
-      file->Close();
+    if (file.m_file && file.m_file->IsOpen()) {
       logFileAction("Closed file", "");
     }
   }
@@ -471,6 +492,8 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
     TFile* file;
+    std::string pfn;
+    std::string lfn;
     std::list<std::string> exInfo;
     //loop over names of a file, each of them corresponds to a data catalog
     bool isGoodFile(true);
@@ -494,7 +517,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
           if (!m_skipBadFiles) {
             edm::Exception ex(edm::errors::FileOpenError, "", e);
             ex.addContext("Opening DQM Root file");
-            ex << "\nInput file " << it->c_str() << " was not found, could not be opened, or is corrupted.\n";
+            ex << "\nInput file " << *it << " was not found, could not be opened, or is corrupted.\n";
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
               ex.addAdditionalInfo(s);
@@ -510,12 +533,14 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       // Check if a file is usable
       if (file && !file->IsZombie()) {
         logFileAction("Successfully opened file ", it->c_str());
+        pfn = *it;
+        lfn = fileitem.logicalFileName();
         break;
       } else {
         if (std::next(it) == fNames.end()) {
           if (!m_skipBadFiles) {
             edm::Exception ex(edm::errors::FileOpenError);
-            ex << "Input file " << it->c_str() << " could not be opened.\n";
+            ex << "Input file " << *it << " could not be opened.\n";
             ex.addContext("Opening DQM Root file");
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
@@ -534,12 +559,21 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     if (!isGoodFile && m_skipBadFiles)
       continue;
 
-    m_openFiles.insert(m_openFiles.begin(), file);
+    std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};
+    if (not guid) {
+      guid = std::make_unique<std::string>(file->GetUUID().AsString());
+      std::transform(guid->begin(), guid->end(), guid->begin(), (int (*)(int))std::toupper);
+    }
+
+    edm::Service<edm::JobReport> jr;
+    auto jrToken = jr->inputFileOpened(
+        pfn, lfn, std::string(), std::string(), "DQMRootSource", "source", *guid, std::vector<std::string>());
+    m_openFiles.emplace_back(file, jrToken);
 
     // Check file format version, which is encoded in the Title of the TFile
     if (strcmp(file->GetTitle(), "1") != 0) {
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Input file " << fNames[0].c_str() << " does not appear to be a DQM Root file.\n";
+      ex << "Input file " << fNames[0] << " does not appear to be a DQM Root file.\n";
     }
 
     // Read metadata from the file

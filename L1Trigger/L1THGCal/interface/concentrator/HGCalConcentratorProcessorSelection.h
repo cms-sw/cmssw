@@ -27,8 +27,7 @@ public:
   void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
            std::tuple<l1t::HGCalTriggerCellBxCollection,
                       l1t::HGCalTriggerSumsBxCollection,
-                      l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput,
-           const edm::EventSetup& es) override;
+                      l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput) override;
 
 private:
   bool fixedDataSizePerHGCROC_;

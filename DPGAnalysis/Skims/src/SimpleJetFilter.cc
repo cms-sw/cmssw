@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,15 +45,13 @@
 // class declaration
 //
 
-class SimpleJetFilter : public edm::EDFilter {
+class SimpleJetFilter : public edm::stream::EDFilter<> {
 public:
   explicit SimpleJetFilter(const edm::ParameterSet&);
   ~SimpleJetFilter() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -64,14 +62,6 @@ private:
   const double m_njetmin;
   JetIDSelectionFunctor m_jetIDfunc;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -138,12 +128,6 @@ bool SimpleJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   return selected;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SimpleJetFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SimpleJetFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SimpleJetFilter);

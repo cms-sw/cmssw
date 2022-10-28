@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -47,7 +47,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-class TestSmoothHits : public edm::EDAnalyzer {
+class TestSmoothHits : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TestSmoothHits(const edm::ParameterSet&);
   ~TestSmoothHits() override;
@@ -55,6 +55,7 @@ public:
 private:
   void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const& run, const edm::EventSetup&) override {}
   void endJob() override;
 
   std::pair<LocalPoint, LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
@@ -76,6 +77,15 @@ private:
   edm::Handle<TrackCandidateCollection> theTCCollection;
   edm::ESHandle<TrajectoryFitter> fit;
   edm::ESHandle<TrajectorySmoother> smooth;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theBuilderToken;
+  edm::EDGetTokenT<TrackCandidateCollection> theTCCollectionToken;
+  edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> fitToken;
+  edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> smoothToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
 
   TFile* file;
   std::stringstream title;

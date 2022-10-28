@@ -7,6 +7,7 @@ from Configuration.Geometry.GeometryDD4hep_cff import *
 DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D86.xml")
 
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
+from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
 from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *

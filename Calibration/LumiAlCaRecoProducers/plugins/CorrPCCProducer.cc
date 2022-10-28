@@ -4,8 +4,9 @@ class:   CorrPCCProducer.cc
 description: Computes the type 1 and type 2 corrections to the luminosity
                 type 1 - first (spillover from previous BXs real clusters)
                 type 2 - after (comes from real activation)
+                pedestal - is a constant noise term for low lumi period
 
-authors:Sam Higginbotham (shigginb@cern.ch) and Chris Palmer (capalmer@cern.ch) 
+authors:Sam Higginbotham (shigginb@cern.ch) and Chris Palmer (capalmer@cern.ch) , Jose Benitez (jose.benitez@cern.ch)
 
 ________________________________________________________________**/
 #include <memory>
@@ -124,8 +125,6 @@ private:
   float pedestal;
   float pedestal_unc;
   TGraphErrors* pedestalGraph;
-
-  LumiCorrections* pccCorrections;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 };
@@ -567,20 +566,18 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     }
 
     //Writing the corrections to SQL lite file for db
-    pccCorrections = new LumiCorrections();
-    pccCorrections->setOverallCorrection(overallCorrection_);
-    pccCorrections->setType1Fraction(type1Frac);
-    pccCorrections->setType1Residual(mean_type1_residual);
-    pccCorrections->setType2Residual(mean_type2_residual);
-    pccCorrections->setCorrectionsBX(correctionScaleFactors_);
+    LumiCorrections pccCorrections;
+    pccCorrections.setOverallCorrection(overallCorrection_);
+    pccCorrections.setType1Fraction(type1Frac);
+    pccCorrections.setType1Residual(mean_type1_residual);
+    pccCorrections.setType2Residual(mean_type2_residual);
+    pccCorrections.setCorrectionsBX(correctionScaleFactors_);
 
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOne<LumiCorrections>(pccCorrections, thisIOV, "LumiCorrectionsRcd");
+      poolDbService->writeOneIOV(pccCorrections, thisIOV, "LumiCorrectionsRcd");
     } else {
       throw std::runtime_error("PoolDBService required.");
     }
-
-    delete pccCorrections;
 
     histoFile->cd();
     corrlumiAvg_h->Write();

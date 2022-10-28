@@ -8,14 +8,12 @@
 
 class dso_hidden MSLayersKeeperX0DetLayer final : public MSLayersKeeper {
 public:
-  MSLayersKeeperX0DetLayer() : isInitialised(false) {}
-  ~MSLayersKeeperX0DetLayer() override {}
-  void init(const edm::EventSetup& iSetup) override;
+  MSLayersKeeperX0DetLayer();
+  ~MSLayersKeeperX0DetLayer() override = default;
   MSLayer layer(const DetLayer* layer) const override { return *theLayersData.findLayer(MSLayer(layer)); }
   const MSLayersAtAngle& layers(float cotTheta) const override { return theLayersData; }
 
 private:
-  bool isInitialised;
   MSLayersAtAngle theLayersData;
 };
 #endif

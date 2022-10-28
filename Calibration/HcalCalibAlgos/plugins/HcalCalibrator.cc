@@ -27,30 +27,85 @@ to the actual calibration code in "endJob()".
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 // user include files
 
-#include "Calibration/HcalCalibAlgos/plugins/HcalCalibrator.h"
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//--------------
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-#include "TFile.h"
+class HcalCalibrator : public edm::one::EDAnalyzer<> {
+public:
+  explicit HcalCalibrator(const edm::ParameterSet&);
+  ~HcalCalibrator() override = default;
+
+  // Added for running the CaloTower creation algorithm
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  const std::string mOutputFile;
+  const std::string mInputFileList;
+
+  const std::string mCalibType;
+  const std::string mCalibMethod;
+  const double mMinTargetE;
+  const double mMaxTargetE;
+  const double mMinCellE;
+  const double mMinEOverP;
+  const double mMaxEOverP;
+  const double mMaxTrkEmE;
+
+  const double mMaxEtThirdJet;
+  const double mMinDPhiDiJets;
+  const bool mSumDepths;
+  const bool mSumSmallDepths;
+  const bool mCombinePhi;
+  const int mHbClusterSize;
+  const int mHeClusterSize;
+
+  const bool mUseConeClustering;
+  const double mMaxConeDist;
+
+  const int mCalibAbsIEtaMax;
+  const int mCalibAbsIEtaMin;
+
+  const double mMaxProbeJetEmFrac;
+  const double mMaxTagJetEmFrac;
+  const double mMaxTagJetAbsEta;
+  const double mMinTagJetEt;
+  const double mMinProbeJetAbsEta;
+
+  const std::string mPhiSymCorFileName;
+  const bool mApplyPhiSymCorFlag;
+
+  const std::string mOutputCorCoefFileName;
+  const std::string mHistoFileName;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+
+  const CaloGeometry* mTheCaloGeometry;
+  const HcalTopology* mTheHcalTopology;
+
+  bool allowMissingInputs_;
+};
 
 // constructor
 
@@ -86,14 +141,9 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mPhiSymCorFileName(conf.getUntrackedParameter<std::string>("phiSymCorFileName")),
       mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
       mOutputCorCoefFileName(conf.getUntrackedParameter<std::string>("outputCorCoefFileName")),
-      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")) {
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-}
-
-// destructor
-
-HcalCalibrator::~HcalCalibrator() {}
+      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) {}
 
 // ------------ method called to for each event  ------------
 
@@ -110,28 +160,28 @@ void HcalCalibrator::beginJob() {}
 
 void HcalCalibrator::endJob() {
   if (mCalibType != "DI_JET" && mCalibType != "ISO_TRACK") {
-    std::cout << "\n\nUnknown calibration type " << mCalibType << std::endl;
-    std::cout << "Please select ISO_TRACK or DI_JET in the python file." << std::endl;
+    edm::LogVerbatim("HcalCalibrator") << "\n\nUnknown calibration type " << mCalibType;
+    edm::LogVerbatim("HcalCalibrator") << "Please select ISO_TRACK or DI_JET in the python file.";
     return;
   }
 
   if (mCalibMethod != "L3" && mCalibMethod != "MATRIX_INV_OF_ETA_AVE" && mCalibMethod != "L3_AND_MTRX_INV") {
-    std::cout << "\n\nUnknown calibration method " << mCalibMethod << std::endl;
-    std::cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV"
-              << std::endl;
-    std::cout << "For DiJets the supported method is L3" << std::endl;
+    edm::LogVerbatim("HcalCalibrator") << "\n\nUnknown calibration method " << mCalibMethod;
+    edm::LogVerbatim("HcalCalibrator")
+        << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV";
+    edm::LogVerbatim("HcalCalibrator") << "For DiJets the supported method is L3";
     return;
   }
 
   if (mCalibType == "DI_JET" && mCalibMethod != "L3") {
-    std::cout << "\n\nDiJet calibration can use only the L3 method. Please change the python file." << std::endl;
+    edm::LogVerbatim("HcalCalibrator")
+        << "\n\nDiJet calibration can use only the L3 method. Please change the python file.";
     return;
   }
 
   if (mCalibAbsIEtaMin < 1 || mCalibAbsIEtaMax > 41 || mCalibAbsIEtaMin > mCalibAbsIEtaMax) {
-    std::cout
-        << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file."
-        << std::endl;
+    edm::LogVerbatim("HcalCalibrator")
+        << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file.";
     return;
   }
 
@@ -189,11 +239,10 @@ void HcalCalibrator::endJob() {
   }
   inputFileList.close();
 
-  std::cout << "\nInput files for processing:" << std::endl;
+  edm::LogVerbatim("HcalCalibrator") << "\nInput files for processing:";
   for (std::vector<TString>::iterator it = inputFiles.begin(); it != inputFiles.end(); ++it) {
-    std::cout << "file: " << it->Data() << std::endl;
+    edm::LogVerbatim("HcalCalibrator") << "file: " << it->Data();
   }
-  std::cout << std::endl;
 
   TChain* fChain = new TChain("hcalCalibTree");
 

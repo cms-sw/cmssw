@@ -82,9 +82,7 @@ protected:
   //	Timing. HBHE Partition is used for TCDS shift monitoring
   hcaldqm::Container1D _cTimingCut_SubdetPM;
   hcaldqm::Container1D _cTimingCut_HBHEPartition;
-  hcaldqm::ContainerProf2D _cTimingCut_FEDVME;
   hcaldqm::ContainerProf2D _cTimingCut_FEDuTCA;
-  hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
   hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
   hcaldqm::ContainerProf2D _cTimingCut_depth;
   hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
@@ -95,18 +93,14 @@ protected:
 
   //	Occupancy w/o a cut. Used for checking missing channels
   hcaldqm::Container2D _cOccupancy_depth;
-  hcaldqm::Container2D _cOccupancy_FEDVME;
   hcaldqm::Container2D _cOccupancy_FEDuTCA;
-  hcaldqm::Container2D _cOccupancy_ElectronicsVME;
   hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
   hcaldqm::ContainerProf1D _cOccupancyvsLS_Subdet;
   hcaldqm::Container1D _cOccupancyvsiphi_SubdetPM;  // online only
   hcaldqm::Container1D _cOccupancyvsieta_Subdet;    //	online only
 
   //	Occupancy w/ a Cut.
-  hcaldqm::Container2D _cOccupancyCut_FEDVME;
   hcaldqm::Container2D _cOccupancyCut_FEDuTCA;
-  hcaldqm::Container2D _cOccupancyCut_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyCut_ElectronicsuTCA;
   hcaldqm::ContainerProf1D _cOccupancyCutvsLS_Subdet;  // online only
   hcaldqm::Container2D _cOccupancyCut_depth;

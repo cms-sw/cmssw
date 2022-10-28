@@ -1,13 +1,80 @@
-#include "PFMultiDepthClusterizer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 
 #include "vdt/vdtMath.h"
 
 #include <iterator>
+#include <unordered_map>
+
+class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
+  typedef PFMultiDepthClusterizer B2DGPF;
+
+public:
+  PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
+
+  ~PFMultiDepthClusterizer() override = default;
+  PFMultiDepthClusterizer(const B2DGPF&) = delete;
+  B2DGPF& operator=(const B2DGPF&) = delete;
+
+  void update(const edm::EventSetup& es) override { _allCellsPosCalc->update(es); }
+
+  void buildClusters(const reco::PFClusterCollection&,
+                     const std::vector<bool>&,
+                     reco::PFClusterCollection& outclus) override;
+
+private:
+  std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
+  double nSigmaEta_;
+  double nSigmaPhi_;
+
+  class ClusterLink {
+  public:
+    ClusterLink(unsigned int i, unsigned int j, double DR, int DZ, double energy) {
+      from_ = i;
+      to_ = j;
+      linkDR_ = DR;
+      linkDZ_ = DZ;
+      linkE_ = energy;
+    }
+
+    ~ClusterLink() = default;
+
+    unsigned int from() const { return from_; }
+    unsigned int to() const { return to_; }
+    double dR() const { return linkDR_; }
+    int dZ() const { return linkDZ_; }
+    double energy() const { return linkE_; }
+
+  private:
+    unsigned int from_;
+    unsigned int to_;
+    double linkDR_;
+    int linkDZ_;
+    double linkE_;
+  };
+
+  void calculateShowerShapes(const reco::PFClusterCollection&, std::vector<double>&, std::vector<double>&);
+  std::vector<ClusterLink> link(const reco::PFClusterCollection&,
+                                const std::vector<double>&,
+                                const std::vector<double>&);
+  std::vector<ClusterLink> prune(std::vector<ClusterLink>&, std::vector<bool>& linkedClusters);
+
+  void expandCluster(reco::PFCluster&,
+                     unsigned int point,
+                     std::vector<bool>& mask,
+                     const reco::PFClusterCollection&,
+                     const std::vector<ClusterLink>& links);
+
+  void absorbCluster(reco::PFCluster&, const reco::PFCluster&);
+};
+
+DEFINE_EDM_PLUGIN(PFClusterBuilderFactory, PFMultiDepthClusterizer, "PFMultiDepthClusterizer");
 
 PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : PFClusterBuilderBase(conf, cc) {
@@ -108,10 +175,11 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::link(
       const reco::PFCluster& cluster1 = clusters[i];
       const reco::PFCluster& cluster2 = clusters[j];
 
-      auto dz = (cluster2.depth() - cluster1.depth());
+      // PFCluster depth stored as double but HCAL layer clusters have integral depths only
+      auto dz = (static_cast<int>(cluster2.depth()) - static_cast<int>(cluster1.depth()));
 
       //Do not link at the same layer and only link inside out!
-      if (dz < 0.0f || std::abs(dz) < 0.2f)
+      if (dz <= 0)
         continue;
 
       auto const& crep1 = cluster1.positionREP();
@@ -154,7 +222,7 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::prune
           mask[j] = true;
         } else if (link1.dZ() > link2.dZ()) {
           mask[i] = true;
-        } else if (fabs(link1.dZ() - link2.dZ()) < 0.2) {  //if same layer-pick based on transverse compatibility
+        } else {  //if same layer-pick based on transverse compatibility
           if (link1.dR() < link2.dR()) {
             mask[j] = true;
           } else if (link1.dR() > link2.dR()) {

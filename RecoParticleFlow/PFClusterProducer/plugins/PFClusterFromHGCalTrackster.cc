@@ -1,9 +1,50 @@
-#include "PFClusterFromHGCalTrackster.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
+
+class PFClusterFromHGCalTrackster : public InitialClusteringStepBase {
+public:
+  PFClusterFromHGCalTrackster(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc) {
+    filterByTracksterPID_ = conf.getParameter<bool>("filterByTracksterPID");
+    filterByTracksterIteration_ = conf.getParameter<bool>("filterByTracksterIteration");
+    pid_threshold_ = conf.getParameter<double>("pid_threshold");
+    filter_on_categories_ = conf.getParameter<std::vector<int> >("filter_on_categories");
+    filter_on_iterations_ = conf.getParameter<std::vector<int> >("filter_on_iterations");
+
+    tracksterToken_ = cc.consumes<std::vector<ticl::Trackster> >(conf.getParameter<edm::InputTag>("tracksterSrc"));
+    clusterToken_ = cc.consumes<reco::CaloClusterCollection>(conf.getParameter<edm::InputTag>("clusterSrc"));
+  }
+
+  ~PFClusterFromHGCalTrackster() override {}
+  PFClusterFromHGCalTrackster(const PFClusterFromHGCalTrackster&) = delete;
+  PFClusterFromHGCalTrackster& operator=(const PFClusterFromHGCalTrackster&) = delete;
+
+  void updateEvent(const edm::Event&) final;
+
+  void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
+                     const std::vector<bool>&,
+                     const std::vector<bool>&,
+                     reco::PFClusterCollection&) override;
+
+private:
+  bool filterByTracksterPID_;
+  bool filterByTracksterIteration_;
+  float pid_threshold_;
+  std::vector<int> filter_on_categories_;
+  std::vector<int> filter_on_iterations_;
+
+  edm::EDGetTokenT<std::vector<ticl::Trackster> > tracksterToken_;
+  edm::Handle<std::vector<ticl::Trackster> > trackstersH_;
+
+  edm::EDGetTokenT<reco::CaloClusterCollection> clusterToken_;
+  edm::Handle<reco::CaloClusterCollection> clusterH_;
+};
+
+DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, PFClusterFromHGCalTrackster, "PFClusterFromHGCalTrackster");
 
 void PFClusterFromHGCalTrackster::updateEvent(const edm::Event& ev) {
   ev.getByToken(tracksterToken_, trackstersH_);
@@ -39,6 +80,12 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
       if (probTotal < pid_threshold_) {
         continue;
       }
+    }
+
+    if (filterByTracksterIteration_ &&
+        std::find(filter_on_iterations_.begin(), filter_on_iterations_.end(), tst.ticlIteration()) ==
+            filter_on_iterations_.end()) {
+      continue;
     }
 
     DetId seed;

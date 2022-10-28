@@ -3,11 +3,12 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 #include <iostream>
 #include <iterator>
-#include <algorithm>
+#include <sstream>
 
-//#define DebugLog
+//#define EDM_ML_DEUG
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
@@ -22,17 +23,20 @@ std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(c
   theHFEtaBounds = m_hcons->getEtaTableHF();
   theHBHEEtaBounds = m_hcons->getEtaTable();
 
-#ifdef DebugLog
-  std::cout << "CaloTowerHardcodeGeometryLoader: theHBHEEtaBounds = ";
-  std::copy(theHBHEEtaBounds.begin(), theHBHEEtaBounds.end(), std::ostream_iterator<double>(std::cout, ","));
-  std::cout << std::endl;
+#ifdef EDM_ML_DEUG
+  std::ostringstream st1;
+  st1 << "CaloTowerHardcodeGeometryLoader: theHBHEEtaBounds = ";
+  std::copy(theHBHEEtaBounds.begin(), theHBHEEtaBounds.end(), std::ostream_iterator<double>(st1, ","));
+  edm::LogVerbatim("HCalGeom") << st1.str();
 
-  std::cout << "CaloTowerHardcodeGeometryLoader: lastHBRing = " << m_limits->lastHBRing()
-            << ", lastHERing = " << m_limits->lastHERing() << std::endl;
-  std::cout << "CaloTowerHardcodeGeometryLoader: HcalTopology: firstHBRing = " << hcaltopo->firstHBRing()
-            << ", lastHBRing = " << hcaltopo->lastHBRing() << ", firstHERing = " << hcaltopo->firstHERing()
-            << ", lastHERing = " << hcaltopo->lastHERing() << ", firstHFRing = " << hcaltopo->firstHFRing()
-            << ", lastHFRing = " << hcaltopo->lastHFRing() << std::endl;
+  edm::LogVerbatim("HCalGeom") << "CaloTowerHardcodeGeometryLoader: lastHBRing = " << m_limits->lastHBRing()
+                               << ", lastHERing = " << m_limits->lastHERing();
+  edm::LogVerbatim("HCalGeom") << "CaloTowerHardcodeGeometryLoader: HcalTopology: firstHBRing = "
+                               << hcaltopo->firstHBRing() << ", lastHBRing = " << hcaltopo->lastHBRing()
+                               << ", firstHERing = " << hcaltopo->firstHERing()
+                               << ", lastHERing = " << hcaltopo->lastHERing()
+                               << ", firstHFRing = " << hcaltopo->firstHFRing()
+                               << ", lastHFRing = " << hcaltopo->lastHFRing();
 #endif
 
   CaloTowerGeometry* geom = new CaloTowerGeometry(m_limits);
@@ -69,9 +73,9 @@ void CaloTowerHardcodeGeometryLoader::makeCell(uint32_t din, CaloSubdetectorGeom
   int sign = (ieta > 0) ? (1) : (-1);
   double eta1, eta2;
 
-#ifdef DebugLog
-  std::cout << "CaloTowerHardcodeGeometryLoader: ieta = " << ieta << ", iphi = " << iphi << ", etaRing = " << etaRing
-            << std::endl;
+#ifdef EDM_ML_DEUG
+  edm::LogVerbatim("HCalGeom") << "CaloTowerHardcodeGeometryLoader: ieta = " << ieta << ", iphi = " << iphi
+                               << ", etaRing = " << etaRing;
 #endif
 
   if (abs(ieta) > m_limits->lastHERing()) {
@@ -91,9 +95,9 @@ void CaloTowerHardcodeGeometryLoader::makeCell(uint32_t din, CaloSubdetectorGeom
   double phi_low = dphi_nominal * (iphi - 1);  // low-edge boundaries are constant...
   double phi = phi_low + dphi_half;
 
-#ifdef DebugLog
-  std::cout << "CaloTowerHardcodeGeometryLoader: eta1 = " << eta1 << ", eta2 = " << eta2 << ", eta = " << eta
-            << ", phi = " << phi << std::endl;
+#ifdef EDM_ML_DEUG
+  edm::LogVerbatim("HCalGeom") << "CaloTowerHardcodeGeometryLoader: eta1 = " << eta1 << ", eta2 = " << eta2
+                               << ", eta = " << eta << ", phi = " << phi;
 #endif
 
   double x, y, z, thickness;
@@ -131,9 +135,9 @@ void CaloTowerHardcodeGeometryLoader::makeCell(uint32_t din, CaloSubdetectorGeom
   hh.emplace_back(fabs(eta));
   hh.emplace_back(fabs(z));
 
-#ifdef DebugLog
-  std::cout << "CaloTowerHardcodeGeometryLoader: x = " << x << ", y = " << y << ", z = " << z
-            << ", thickness = " << thickness << std::endl;
+#ifdef EDM_ML_DEUG
+  edm::LogVerbatim("HCalGeom") << "CaloTowerHardcodeGeometryLoader: x = " << x << ", y = " << y << ", z = " << z
+                               << ", thickness = " << thickness;
 #endif
 
   geom->newCell(point, point, point, CaloCellGeometry::getParmPtr(hh, geom->parMgr(), geom->parVecVec()), id);

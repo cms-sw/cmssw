@@ -15,10 +15,8 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalTriggerSumsBxCollection>& collHandle,
-           l1t::HGCalTowerMapBxCollection& collTowerMap,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
-    towermap2D_->eventSetup(es);
+           l1t::HGCalTowerMapBxCollection& collTowerMap) override {
+    towermap2D_->setGeometry(geometry());
 
     /* create a persistent vector of pointers to the trigger-sums */
     std::vector<edm::Ptr<l1t::HGCalTriggerSums>> triggerSumsPtrs;
@@ -32,8 +30,6 @@ public:
   }
 
 private:
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-
   /* algorithms instances */
   std::unique_ptr<HGCalTowerMap2DImpl> towermap2D_;
 };

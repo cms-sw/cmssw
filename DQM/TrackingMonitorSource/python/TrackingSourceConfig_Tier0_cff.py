@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
-import six
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -260,7 +259,7 @@ from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 def _copyIfExists(mod, pset, name):
     if hasattr(pset, name):
         setattr(mod, name, getattr(pset, name))
-for _step, _pset in six.iteritems(seedMonitoring):
+for _step, _pset in seedMonitoring.items():
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )

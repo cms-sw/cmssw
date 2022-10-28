@@ -5,7 +5,7 @@
  *  \authors: Vadim Khotilovich
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,7 +28,7 @@
 
 using namespace std;
 
-class GEMDigiReader : public edm::EDAnalyzer {
+class GEMDigiReader : public edm::one::EDAnalyzer<> {
 public:
   explicit GEMDigiReader(const edm::ParameterSet& pset);
 
@@ -37,31 +37,29 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
-  edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
-  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > gemDigiSimLinkToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
+  const edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > gemDigiSimLinkToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 };
 
 GEMDigiReader::GEMDigiReader(const edm::ParameterSet& pset)
     : simhitToken_(consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simhitToken"))),
       gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
       gemDigiSimLinkToken_(
-          consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("gemDigiSimLinkToken"))) {}
+          consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("gemDigiSimLinkToken"))),
+      geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {}
 
 void GEMDigiReader::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   LogDebug("GEMDigiReader") << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
-  edm::ESHandle<GEMGeometry> pDD;
-  eventSetup.get<MuonGeometryRecord>().get(pDD);
+  const auto& pDD = eventSetup.getHandle(geomToken_);
 
-  edm::Handle<edm::PSimHitContainer> simHits;
-  event.getByToken(simhitToken_, simHits);
+  const auto& simHits = event.getHandle(simhitToken_);
 
-  edm::Handle<GEMDigiCollection> digis;
-  event.getByToken(gemDigiToken_, digis);
+  const auto& digis = event.getHandle(gemDigiToken_);
 
-  edm::Handle<edm::DetSetVector<StripDigiSimLink> > thelinkDigis;
-  event.getByToken(gemDigiSimLinkToken_, thelinkDigis);
+  const auto& thelinkDigis = event.getHandle(gemDigiSimLinkToken_);
 
   GEMDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = digis->begin(); detUnitIt != digis->end(); ++detUnitIt) {

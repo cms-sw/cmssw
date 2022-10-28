@@ -1,6 +1,7 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -23,16 +24,20 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 using namespace std;
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : CkfTrajectoryBuilder(conf,
+                           iC,
                            BaseCkfTrajectoryBuilder::createTrajectoryFilter(
                                conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC)) {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter)
-    : BaseCkfTrajectoryBuilder(conf, std::move(filter)) {
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                           edm::ConsumesCollector iC,
+                                           std::unique_ptr<TrajectoryFilter> filter)
+    : BaseCkfTrajectoryBuilder(conf, iC, std::move(filter)) {
   theMaxCand = conf.getParameter<int>("maxCand");
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
@@ -44,6 +49,18 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::u
     theUniqueName = ss.str();
     LogDebug("CkfPattern")<<"my unique name is: "<<theUniqueName;
   */
+}
+
+void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
+  iDesc.add<int>("maxCand", 5);
+  iDesc.add<double>("lostHitPenalty", 30.);
+  iDesc.add<bool>("intermediateCleaning", true);
+  iDesc.add<bool>("alwaysUseInvalidHits", true);
+
+  edm::ParameterSetDescription psdTF;
+  psdTF.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("trajectoryFilter", psdTF);
 }
 
 /*

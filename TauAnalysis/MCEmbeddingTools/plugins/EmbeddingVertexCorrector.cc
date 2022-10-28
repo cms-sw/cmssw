@@ -44,7 +44,6 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace HepMC {
@@ -63,7 +62,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginRun(const edm::Run&, const edm::EventSetup& iEventSetup) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -89,15 +87,6 @@ EmbeddingVertexCorrector::~EmbeddingVertexCorrector() {}
 // member functions
 //
 
-void EmbeddingVertexCorrector::beginRun(const edm::Run&, const edm::EventSetup& iEventSetup) {
-  // edm::ESHandle< SimBeamSpotObjects > beamhandle;
-  // iEventSetup.get<SimBeamSpotObjectsRcd>().get(beamhandle);
-
-  edm::ESHandle<BeamSpotObjects> beamhandle;
-  iEventSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
-
-  edm::LogInfo("TauEmbedding") << "beam handle\n" << (*beamhandle);
-}
 // ------------ method called to produce the data  ------------
 void EmbeddingVertexCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

@@ -106,3 +106,6 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev,
   // return truth if at least one good pair found
   return npairs > 0;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPFTauPairLeadTrackDzMatchFilter);

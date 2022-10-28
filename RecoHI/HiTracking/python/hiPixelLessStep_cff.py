@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
-from RecoTracker.IterativeTracking.PixelLessStep_cff import *
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers,pixelLessStepHitDoublets,pixelLessStepTracks,pixelLessStepHitTriplets,pixelLessStepSeeds
 from .HIPixelTripletSeeds_cff import *
 from .HIPixel3PrimTracks_cfi import *
 
@@ -42,7 +42,8 @@ pixelLessStepTrajectoryFilter.minimumNumberOfHits = 5
 pixelLessStepTrajectoryFilter.minPt = 0.7
 
 # MAKING OF TRACK CANDIDATES
-pixelLessStepTrackCandidates.clustersToSkip = 'hiPixelLessStepClusters'
+from RecoTracker.IterativeTracking.PixelLessStep_cff import _pixelLessStepTrackCandidatesCkf
+pixelLessStepTrackCandidates = _pixelLessStepTrackCandidatesCkf.clone(clustersToSkip = 'hiPixelLessStepClusters')
 
 # TRACK FITTING
 hiPixelLessStepTracks = pixelLessStepTracks.clone()

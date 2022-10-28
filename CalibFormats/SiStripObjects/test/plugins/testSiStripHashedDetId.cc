@@ -1,9 +1,18 @@
+// system includes
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <time.h>
+#include <vector>
+#include <cstdint>
 
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
-#include "CalibFormats/SiStripObjects/test/plugins/testSiStripHashedDetId.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -12,18 +21,30 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <time.h>
-#include <vector>
-#include <cstdint>
+
+/**
+   @class test_SiStripHashedDetId
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripHashedDetId.
+*/
+class testSiStripHashedDetId : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripHashedDetId(const edm::ParameterSet &);
+  ~testSiStripHashedDetId();
+
+  void initialize(edm::EventSetup const &);
+  void analyze(const edm::Event &, const edm::EventSetup &);
+
+private:
+  //-------------- member data ----------------//
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+};
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-testSiStripHashedDetId::testSiStripHashedDetId(const edm::ParameterSet &pset) {
+testSiStripHashedDetId::testSiStripHashedDetId(const edm::ParameterSet &pset) : geomToken_(esConsumes()) {
   edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
                                  << " Constructing object...";
 }
@@ -42,8 +63,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
                                  << " Tests the generation of DetId hash map...";
 
   // Retrieve geometry
-  edm::ESHandle<TrackerGeometry> geom;
-  setup.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle geom = setup.getHandle(geomToken_);
 
   // Build list of DetIds
   std::vector<uint32_t> dets;
@@ -182,3 +202,5 @@ void testSiStripHashedDetId::analyze(const edm::Event &event, const edm::EventSe
   LogTrace(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+DEFINE_FWK_MODULE(testSiStripHashedDetId);

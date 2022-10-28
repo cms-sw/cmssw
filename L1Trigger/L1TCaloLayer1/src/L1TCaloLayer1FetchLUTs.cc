@@ -27,6 +27,7 @@
 using namespace l1tcalo;
 
 bool L1TCaloLayer1FetchLUTs(
+    const L1TCaloLayer1FetchLUTsTokens &iTokens,
     const edm::EventSetup &iSetup,
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
@@ -41,18 +42,16 @@ bool L1TCaloLayer1FetchLUTs(
     bool useHFLUT,
     int fwVersion) {
   int hfValid = 1;
-  edm::ESHandle<HcalTrigTowerGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  if (!pG->use1x1()) {
+  const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
+  if (!pG.use1x1()) {
     edm::LogError("L1TCaloLayer1FetchLUTs")
         << "Using Stage2-Layer1 but HCAL Geometry has use1x1 = 0! HF will be suppressed.  Check Global Tag, etc.";
     hfValid = 0;
   }
 
   // CaloParams contains all persisted parameters for Layer 1
-  edm::ESHandle<l1t::CaloParams> paramsHandle;
-  iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
-  if (paramsHandle.product() == nullptr) {
+  edm::ESHandle<l1t::CaloParams> paramsHandle = iSetup.getHandle(iTokens.params_);
+  if (not paramsHandle.isValid()) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloParams object! Check Global Tag, etc.";
     return false;
   }
@@ -133,9 +132,8 @@ bool L1TCaloLayer1FetchLUTs(
   const double ecalLSB = 0.5;
 
   // get energy scale to convert input from HCAL
-  edm::ESHandle<CaloTPGTranscoder> decoder;
-  iSetup.get<CaloTPGRecord>().get(decoder);
-  if (decoder.product() == nullptr) {
+  edm::ESHandle<CaloTPGTranscoder> decoder = iSetup.getHandle(iTokens.decoder_);
+  if (not decoder.isValid()) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloTPGTranscoder object! Check Global Tag, etc.";
     return false;
   }

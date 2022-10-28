@@ -59,18 +59,18 @@ void SiPixelRecHitQuality::warningObsolete() {
 }
 
 void SiPixelRecHitQuality::warningOutOfBoundQbin(int iValue, QualWordType const& iQualWord) {
-  edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = "
-                                 << iValue << " QualityWord = " << iQualWord;
+  edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word: Qbin = " << iValue
+                                 << " and QualityWord = " << iQualWord << " --> Now defaulting to Qbin = 0.0";
 }
 
 void SiPixelRecHitQuality::warningOutOfBoundProb(const char* iName, float iProb, QualWordType const& iQualWord) {
-  edm::LogWarning("OutOfBounds") << "Prob " << iName
-                                 << " outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << iProb
-                                 << " QualityWord = " << iQualWord;
+  edm::LogWarning("OutOfBounds") << "Prob" << iName << " outside the bounds of the quality word: Prob" << iName
+                                 << " = 1+" << iProb - 1 << " and QualityWord = " << iQualWord
+                                 << " --> Now defaulting to Prob" << iName << " = 0.0";
 }
 
 void SiPixelRecHitQuality::warningOutOfBoundRaw(const char* iName, int iRaw, QualWordType const& iQualWord) {
-  edm::LogWarning("OutOfBounds") << "Probability " << iName
-                                 << " outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << iRaw
-                                 << " QualityWord = " << iQualWord;
+  edm::LogWarning("OutOfBounds") << "Probability" << iName << " outside the bounds of the quality word: Raw = " << iRaw
+                                 << " and QualityWord = " << iQualWord << " --> Now defaulting to Prob" << iName
+                                 << " = 0.0";
 }

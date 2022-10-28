@@ -3,8 +3,7 @@ from __future__ import print_function
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 def printWeights( weights ):
-    import six
-    for key, value in six.iteritems(weights):
+    for key, value in weights.items():
         print(key)
         print(value) 
 

@@ -29,6 +29,7 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
+  edm::ESGetToken<hcal::raw::ElectronicsMappingGPU, HcalElectronicsMapRcd> eMappingToken_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   using ProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor1, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef01> digisF01HEToken_;
@@ -70,7 +71,8 @@ void HcalRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc
 }
 
 HcalRawToDigiGPU::HcalRawToDigiGPU(const edm::ParameterSet& ps)
-    : rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
+    : eMappingToken_{esConsumes()},
+      rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
       digisF01HEToken_{produces<ProductTypef01>(ps.getParameter<std::string>("digisLabelF01HE"))},
       digisF5HBToken_{produces<ProductTypef5>(ps.getParameter<std::string>("digisLabelF5HB"))},
       digisF3HBToken_{produces<ProductTypef3>(ps.getParameter<std::string>("digisLabelF3HB"))},
@@ -92,9 +94,7 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
 
   // conditions
-  edm::ESHandle<hcal::raw::ElectronicsMappingGPU> eMappingHandle;
-  setup.get<HcalElectronicsMapRcd>().get(eMappingHandle);
-  auto const& eMappingProduct = eMappingHandle->getProduct(ctx.stream());
+  auto const& eMappingProduct = setup.getData(eMappingToken_).getProduct(ctx.stream());
 
   // bundle up conditions
   hcal::raw::ConditionsProducts conditions{eMappingProduct};

@@ -47,6 +47,7 @@ namespace lhef {
   class LHEReader::FileSource : public LHEReader::Source {
   public:
     FileSource(const std::string &fileURL) {
+      using namespace edm::storage;
       auto storage = StorageFactory::get()->open(fileURL, IOFlags::OpenRead);
 
       if (!storage)

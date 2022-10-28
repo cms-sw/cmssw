@@ -139,6 +139,8 @@ namespace muon {
       {"MvaVVTight", reco::Muon::MvaVVTight},
       {"LowPtMvaLoose", reco::Muon::LowPtMvaLoose},
       {"LowPtMvaMedium", reco::Muon::LowPtMvaMedium},
+      {"MvaIDwpMedium", reco::Muon::MvaIDwpMedium},
+      {"MvaIDwpTight", reco::Muon::MvaIDwpTight},
       {nullptr, (reco::Muon::Selector)-1}};
 
   reco::Muon::Selector selectorFromString(const std::string& label);

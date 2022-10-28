@@ -32,6 +32,7 @@ namespace edm {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
+
     LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
@@ -71,6 +72,10 @@ namespace edm {
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
+    enum ShouldWriteLumi { kUninitialized, kNo, kYes };
+    ShouldWriteLumi shouldWriteLumi() const { return shouldWriteLumi_; }
+    void setShouldWriteLumi(ShouldWriteLumi value) { shouldWriteLumi_ = value; }
+
   private:
     unsigned int transitionIndex_() const override;
 
@@ -79,6 +84,8 @@ namespace edm {
     LuminosityBlockAuxiliary aux_;
 
     LuminosityBlockIndex index_;
+
+    ShouldWriteLumi shouldWriteLumi_ = kUninitialized;
   };
 }  // namespace edm
 #endif

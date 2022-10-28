@@ -14,6 +14,8 @@
 #include "TLatex.h"
 
 #include <string>
+#include <memory>
+#include <array>
 
 namespace {
   enum { kEBChannels = 61200, kEEChannels = 14648, kSides = 2 };
@@ -30,7 +32,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       TH2F* barrel = new TH2F("EB", "EB TPG Crystal Status", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "EE+ TPG Crystal Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "EE- TPG Crystal Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -100,9 +102,9 @@ namespace {
       float xma[3] = {1.0, 0.5, 1.0};
       float ymi[3] = {0.47, 0.0, 0.0};
       float yma[3] = {0.94, 0.47, 0.47};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
       for (int obj = 0; obj < 3; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]);
         pad[obj]->Draw();
       }
 
@@ -248,9 +250,9 @@ namespace {
       float xma[3] = {1.0, 0.5, 1.0};
       float ymi[3] = {0.47, 0.0, 0.0};
       float yma[3] = {0.94, 0.47, 0.47};
-      std::vector<TPad*> pad;
+      std::vector<std::unique_ptr<TPad>> pad;
       for (int obj = 0; obj < 3; obj++) {
-        pad.push_back(new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]));
+        pad.emplace_back(new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]));
         pad[obj]->Draw();
       }
 
@@ -282,7 +284,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       auto iov = iovs.front();  //get reference to 1st element in the vector iovs
       std::shared_ptr<EcalTPGCrystalStatus> payload =
           fetchPayload(std::get<1>(iov));   //std::get<1>(iov) refers to the Hash in the tuple iov
@@ -349,9 +351,9 @@ namespace {
       t1.SetTextColor(2);
       t1.DrawLatex(0.5, 0.96, Form("EcalTPGCrystalStatus Error Summary, IOV %i", run));
 
-      TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
-      pad->Draw();
-      pad->cd();
+      TPad pad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+      pad.Draw();
+      pad.cd();
       align->Draw("TEXT");
 
       drawTable(NbRows, NbColumns);

@@ -20,42 +20,23 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
-
 #include "CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.h"
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-SimpleTestPrintOutPixelCalibAnalyzer::SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet& iConfig)
-
-{
+SimpleTestPrintOutPixelCalibAnalyzer::SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet& iConfig) {
   tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi> >(edm::InputTag("siPixelCalibDigis"));
-}
-
-SimpleTestPrintOutPixelCalibAnalyzer::~SimpleTestPrintOutPixelCalibAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
 // member functions
 //
-void SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   Handle<DetSetVector<SiPixelCalibDigi> > pIn;
@@ -66,23 +47,19 @@ void SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, c
     uint32_t detid = digiIter->id;
     DetSet<SiPixelCalibDigi>::const_iterator ipix;
     for (ipix = digiIter->data.begin(); ipix != digiIter->end(); ++ipix) {
-      std::cout << std::endl;
+      edm::LogPrint("SimpleTestPrintOutPixelCalibAnalyzer") << std::endl;
       for (uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint)
-        std::cout << "\t Det ID " << detid << " row:" << ipix->row() << " col:" << ipix->col() << " point " << ipoint
-                  << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint)
-                  << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
+        edm::LogPrint("SimpleTestPrintOutPixelCalibAnalyzer")
+            << "\t Det ID " << detid << " row:" << ipix->row() << " col:" << ipix->col() << " point " << ipoint
+            << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint)
+            << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
     }
   }
 }
 // ------------ method called to for each event  ------------
-void SimpleTestPrintOutPixelCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SimpleTestPrintOutPixelCalibAnalyzer::analyze(edm::StreamID id,
+                                                   edm::Event const& iEvent,
+                                                   edm::EventSetup const& iSetup) const {
   using namespace edm;
-
   printInfo(iEvent, iSetup);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SimpleTestPrintOutPixelCalibAnalyzer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SimpleTestPrintOutPixelCalibAnalyzer::endJob() {}

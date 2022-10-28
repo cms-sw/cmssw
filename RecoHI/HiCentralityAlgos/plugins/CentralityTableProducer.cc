@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -36,7 +36,7 @@ using namespace std;
 // class decleration
 //
 
-class CentralityTableProducer : public edm::EDAnalyzer {
+class CentralityTableProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CentralityTableProducer(const edm::ParameterSet&);
   ~CentralityTableProducer() override;
@@ -59,7 +59,6 @@ private:
   string rootTag_;
   ofstream text_;
 
-  CentralityTable* CT;
   const CentralityBins* CB;
 
   unsigned int runnum_;
@@ -77,6 +76,7 @@ private:
 // constructors and destructor
 //
 CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig) : text_("bins.txt"), runnum_(0) {
+  usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile", true);
   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB", false);
@@ -118,8 +118,8 @@ void CentralityTableProducer::endJob() {
     // Get values from root file
     CB = (CentralityBins*)inputTFile_->Get(Form("%s/run%d", rootTag_.data(), runnum_));
     cout << rootTag_.data() << endl;
-    CT = new CentralityTable();
-    CT->m_table.reserve(CB->getNbins());
+    CentralityTable CT;
+    CT.m_table.reserve(CB->getNbins());
 
     text_ << "# BinEdge NpartMean NpartVar NcollMean NcollVar NhardMean NhardVar bMean bVar" << endl;
     for (int j = 0; j < CB->getNbins(); j++) {
@@ -134,18 +134,14 @@ void CentralityTableProducer::endJob() {
       thisBin->b.mean = CB->bMeanOfBin(j);
       thisBin->b.var = CB->bSigmaOfBin(j);
       printBin(thisBin);
-      CT->m_table.push_back(*thisBin);
+      CT.m_table.push_back(*thisBin);
       if (thisBin)
         delete thisBin;
     }
 
     edm::Service<cond::service::PoolDBOutputService> pool;
     if (pool.isAvailable()) {
-      if (pool->isNewTagRequest("HeavyIonRcd")) {
-        pool->createNewIOV<CentralityTable>(CT, pool->beginOfTime(), pool->endOfTime(), "HeavyIonRcd");
-      } else {
-        pool->appendSinceTime<CentralityTable>(CT, pool->currentTime(), "HeavyIonRcd");
-      }
+      pool->writeOneIOV(CT, pool->currentTime(), "HeavyIonRcd");
     }
   }
 }

@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -60,8 +59,8 @@ private:
   std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTStub<T> > > > ttStubsTokens_;
   std::vector<edm::EDGetTokenT<TTClusterAssociationMap<T> > > ttClusterTruthTokens_;
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
-  edm::ESHandle<TrackerTopology> theTrackerTopology_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTrackerTopologyToken_;
 
   /// Mandatory methods
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -92,6 +91,9 @@ TTStubAssociator<T>::TTStubAssociator(const edm::ParameterSet& iConfig) {
 
     produces<TTStubAssociationMap<T> >(iTag.instance());
   }
+
+  theTrackerGeometryToken_ = esConsumes();
+  theTrackerTopologyToken_ = esConsumes();
 }
 
 /// Destructor
@@ -103,9 +105,6 @@ template <typename T>
 void TTStubAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Print some information when loaded
   edm::LogInfo("TTStubAssociator< ") << templateNameFinder<T>() << " > loaded.";
-
-  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology_);
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry_);
 }
 
 /// End run

@@ -237,6 +237,8 @@ void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c)
   TrackCounter = 1;
 }
 
+void SiStripLAProfileBooker::endRun(const edm::Run&, const edm::EventSetup& c) {}
+
 SiStripLAProfileBooker::~SiStripLAProfileBooker() {
   detparmap::iterator detpariter;
   for (detpariter = detmap.begin(); detpariter != detmap.end(); ++detpariter)

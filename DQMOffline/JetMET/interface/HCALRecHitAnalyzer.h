@@ -10,7 +10,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 

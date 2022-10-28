@@ -209,6 +209,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet &ps
   edm::LogInfo("") << "now examining file " << currentfilename;
   m_fileindex++;
   // reading both castor and other ('normal'/dcap) files.
+  using namespace edm::storage;
   IOOffset size = -1;
   StorageFactory::getToModify()->enableAccounting(true);
 
@@ -253,7 +254,7 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {}
 bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID &id,
                                                    edm::TimeValue_t &time,
                                                    edm::EventAuxiliary::ExperimentType &) {
-  Storage &m_file = *storage;
+  edm::storage::Storage &m_file = *storage;
 
   // create product (raw data)
   buffers = std::make_unique<FEDRawDataCollection>();

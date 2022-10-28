@@ -96,6 +96,11 @@ namespace fwlite {
     // himself.
     Event(
         TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+
+    Event(Event const&) = delete;  // stop default
+
+    Event const& operator=(Event const&) = delete;  // stop default
+
     ~Event() override;
 
     ///Advance to next event in the TFile
@@ -188,10 +193,6 @@ namespace fwlite {
     friend class internal::ProductGetter;
     friend class ChainEvent;
     friend class EventHistoryGetter;
-
-    Event(Event const&) = delete;  // stop default
-
-    Event const& operator=(Event const&) = delete;  // stop default
 
     edm::ProcessHistory const& history() const;
     void updateAux(Long_t eventIndex) const;

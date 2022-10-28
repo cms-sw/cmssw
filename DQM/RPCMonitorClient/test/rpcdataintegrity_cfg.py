@@ -82,10 +82,6 @@ process.qTesterRPC = DQMQualityTester(
     qtestOnEndLumi =  cms.untracked.bool(True)                               
 )
 
-################ Chamber Quality ##################
-process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
-process.rpcChamberQuality.minEvents =  cms.untracked.int32(1)
-
 ############# Message Logger ####################
 process.MessageLogger = cms.Service("MessageLogger",
      debugModules = cms.untracked.vstring('rpcdqmclient'),
@@ -109,10 +105,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 ################# Path ###########################
-#process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
+#process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcEventSummary*process.dqmSaver)
 
 
-process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcMonitorRaw*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.rpcFEDIntegrity*process.dqmSaver)
+process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcMonitorRaw*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.rpcFEDIntegrity*process.dqmSaver)
 
 
 #process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.dqmSaver)

@@ -27,6 +27,7 @@ private:
   // inputs
   edm::EDGetToken inputnose_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 
   std::unique_ptr<HGCalVFEProcessorBase> vfeProcess_;
 };
@@ -34,7 +35,8 @@ private:
 DEFINE_FWK_MODULE(HFNoseVFEProducer);
 
 HFNoseVFEProducer::HFNoseVFEProducer(const edm::ParameterSet& conf)
-    : inputnose_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("noseDigis"))) {
+    : inputnose_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("noseDigis"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   // setup VFE parameters
   const edm::ParameterSet& vfeParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("ProcessorName");
@@ -45,7 +47,7 @@ HFNoseVFEProducer::HFNoseVFEProducer(const edm::ParameterSet& conf)
 }
 
 void HFNoseVFEProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
   vfeProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -58,7 +60,7 @@ void HFNoseVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (nose_digis_h.isValid()) {
     const HGCalDigiCollection& nose_digis = *nose_digis_h;
-    vfeProcess_->run(nose_digis, *vfe_trigcell_output, es);
+    vfeProcess_->run(nose_digis, *vfe_trigcell_output);
   }
 
   // Put in the event

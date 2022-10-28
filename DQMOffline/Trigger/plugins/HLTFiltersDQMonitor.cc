@@ -204,6 +204,15 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
             }
             LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [bin=" << mePath_binLabels.size() + 1
                          << "] Module = \"" << moduleLabel << "\"";
+
+            if (std::find(mePath_binLabels.begin(), mePath_binLabels.end(), moduleLabel) != mePath_binLabels.end()) {
+              edm::LogInfo("Input") << "module \"" << moduleLabel << "\" included multiple times in path \""
+                                    << iPathName << "\""
+                                    << "-> only 1 bin labelled \"" << moduleLabel
+                                    << "\" will be created in the DQM MonitorElement of the path";
+              continue;
+            }
+
             mePath_binLabels.emplace_back(moduleLabel);
           }
 
@@ -439,7 +448,7 @@ void HLTFiltersDQMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folderName", "HLT/Filters");
   desc.add<std::string>("efficPlotNamePrefix", "effic_");
-  desc.add<edm::InputTag>("triggerResults", edm::InputTag("triggerResults::HLT"));
+  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults::HLT"));
   desc.add<edm::InputTag>("triggerSummaryAOD", edm::InputTag("hltTriggerSummaryAOD::HLT"));
   desc.add<edm::InputTag>("triggerSummaryRAW", edm::InputTag("hltTriggerSummaryRAW::HLT"));
   descriptions.add("hltFiltersDQMonitor", desc);

@@ -27,7 +27,9 @@ class TrajectoryCleanerBySharedHits;
 
 class InOutConversionTrackFinder : public ConversionTrackFinder {
 public:
-  InOutConversionTrackFinder(const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder* trajectoryBuilder);
+  InOutConversionTrackFinder(const edm::ParameterSet& config,
+                             const BaseCkfTrajectoryBuilder* trajectoryBuilder,
+                             edm::ConsumesCollector iC);
 
   ~InOutConversionTrackFinder() override;
   std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds,

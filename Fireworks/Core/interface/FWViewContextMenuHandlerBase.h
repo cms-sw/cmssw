@@ -55,12 +55,11 @@ public:
     */
   virtual void select(int iEntryIndex, const FWModelId& id, int iX, int iY) = 0;
 
-protected:
-private:
   FWViewContextMenuHandlerBase(const FWViewContextMenuHandlerBase&) = delete;  // stop default
 
   const FWViewContextMenuHandlerBase& operator=(const FWViewContextMenuHandlerBase&) = delete;  // stop default
 
+private:
   ///Called when have to add entries to the context menu
   virtual void init(MenuEntryAdder&, const FWModelId& id) = 0;
 };

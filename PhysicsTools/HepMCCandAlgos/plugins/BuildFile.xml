@@ -1,6 +1,7 @@
 <export>
 </export>
 <library name="PhysicsToolsHepMCCandAlgos_plugins" file="*.cc">
+  <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>

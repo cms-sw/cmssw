@@ -67,7 +67,7 @@ public:
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit const* det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const* det, SiStripBadStrip const&);
 
   void initializeEvent(const edm::EventSetup& iSetup);
 
@@ -134,7 +134,6 @@ private:
   const double inefficiency;
   const double pedOffset;
   const bool PreMixing_;
-  const edm::ESGetToken<SiStripBadStrip, SiStripBadChannelRcd> deadChannelToken_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken_;
   const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleSimRcd> lorentzAngleToken_;
 

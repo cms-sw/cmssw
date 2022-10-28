@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # and rerun PAT (because sometimes validation is ran without PAT sequence enables)
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
 patJetsBDHadron = patJets.clone(
-    tagInfoSources = cms.VInputTag(cms.InputTag('pfImpactParameterTagInfos')),
-    addTagInfos = cms.bool(True)
+    tagInfoSources = cms.VInputTag('pfImpactParameterTagInfos'),
+    addTagInfos = True
 )
 
 # my analyzer

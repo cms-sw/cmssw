@@ -14,12 +14,13 @@
 #include "TTree.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -41,19 +42,19 @@ typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
 #include "helper.h"
 
-class MakeAngleLUT : public edm::EDAnalyzer {
+class MakeAngleLUT : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit MakeAngleLUT(const edm::ParameterSet&);
-  virtual ~MakeAngleLUT();
+  ~MakeAngleLUT() override;
 
 private:
   //virtual void beginJob();
   //virtual void endJob();
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void generateLUTs();
 
@@ -73,7 +74,7 @@ private:
 
 // _____________________________________________________________________________
 MakeAngleLUT::MakeAngleLUT(const edm::ParameterSet& iConfig)
-    : geometry_translator_(),
+    : geometry_translator_(consumesCollector()),
       config_(iConfig),
       verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
       outfile_(iConfig.getParameter<std::string>("outfile")),

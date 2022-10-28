@@ -1,16 +1,39 @@
-
-#include "DataFormats/SiStripCommon/test/plugins/test_SiStripKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
+#include <string>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <time.h>
+
+// user includes
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+/**
+   @class testSiStripKey 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripKey.
+*/
+class testSiStripKey : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripKey(const edm::ParameterSet&);
+  ~testSiStripKey();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  sistrip::KeyType keyType_;
+  uint32_t key_;
+  std::string path_;
+};
 
 using namespace sistrip;
 
@@ -134,3 +157,6 @@ void testSiStripKey::analyze(const edm::Event& event, const edm::EventSetup& set
   LogTrace(mlDqmCommon_) << "[SiStripKey::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripKey);

@@ -61,27 +61,31 @@ namespace PFJetMETcorrInputProducer_namespace {
     reco::Candidate::LorentzVector operator()(const T& jet) const { return jet.p4(); }
   };
 
+  // functor to retrieve additional scales of jets
+  // general template just returns 1 because only pat::Jet keeps track of the scales
+  // specialized template for pat::Jet returns combined factor of additional scales
+  template <typename T>
+  class AdditionalScalesT {
+  public:
+    AdditionalScalesT() {}
+    float operator()(const T& jet) const { return 1.0; }
+  };
+
 }  // namespace PFJetMETcorrInputProducer_namespace
 
 template <typename T, typename Textractor>
 class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<> {
 public:
-  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
-      : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        offsetCorrLabel_(""),
-        skipMuonSelection_(nullptr) {
+  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg) : skipMuonSelection_(nullptr) {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
-
-    if (cfg.exists("offsetCorrLabel")) {
-      offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
-      offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
-    }
+    offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
+    offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
     jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
     jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
-    jetCorrEtaMax_ = (cfg.exists("jetCorrEtaMax")) ? cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
@@ -196,6 +200,9 @@ private:
         corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
         corrJetP4 = jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      // retrieve additional jet energy scales in case of pat::Jets (done via specialized template defined for pat::Jets) and apply them
+      const static PFJetMETcorrInputProducer_namespace::AdditionalScalesT<T> additionalScales{};
+      corrJetP4 *= additionalScales(jet);
 
       if (corrJetP4.pt() > type1JetPtThreshold_) {
         reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
@@ -251,8 +258,6 @@ private:
               (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-
-  std::string moduleLabel_;
 
   edm::EDGetTokenT<std::vector<T> > token_;
 

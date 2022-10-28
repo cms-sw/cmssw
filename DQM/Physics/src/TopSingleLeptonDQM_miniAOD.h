@@ -117,7 +117,7 @@ namespace TopSingleLepton_miniAOD {
     std::unique_ptr<StringCutObjectSelector<pat::Muon> > muonSelect_;
 
     /// jetCorrector
-    std::string jetCorrector_;
+    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets

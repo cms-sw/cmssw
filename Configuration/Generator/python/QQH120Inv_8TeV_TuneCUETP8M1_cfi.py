@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          # put here the efficiency of your filter (1. if no filter)
                          filterEfficiency = cms.untracked.double(1.0),

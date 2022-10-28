@@ -15,10 +15,11 @@
     (a) = (a) | (b); \
   } while (0)
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const &config, edm::ConsumesCollector &&collector)
+VertexClassifier::VertexClassifier(edm::ParameterSet const &config, edm::ConsumesCollector collector)
     : VertexCategories(),
-      tracer_(config, std::move(collector)),
-      hepMCLabel_(config.getUntrackedParameter<edm::InputTag>("hepMC")) {
+      tracer_(config, collector),
+      hepMCLabel_(config.getUntrackedParameter<edm::InputTag>("hepMC")),
+      particleDataTableToken_(collector.esConsumes()) {
   collector.consumes<edm::HepMCProduct>(hepMCLabel_);
   // Set the history depth after hadronization
   tracer_.depth(-2);
@@ -38,7 +39,7 @@ void VertexClassifier::newEvent(edm::Event const &event, edm::EventSetup const &
   event.getByLabel(hepMCLabel_, mcInformation_);
 
   // Get the partivle data table
-  setup.getData(particleDataTable_);
+  particleDataTable_ = setup.getHandle(particleDataTableToken_);
 
   // Create the list of primary vertices associated to the event
   genPrimaryVertices();

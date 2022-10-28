@@ -54,6 +54,8 @@ namespace edm {
 
     public:
       ELdestination();
+      ELdestination(const ELdestination& orig) = delete;
+      ELdestination& operator=(const ELdestination& orig) = delete;
       virtual ~ELdestination();
 
       // -----  Methods invoked by the ELadministrator:
@@ -134,10 +136,6 @@ namespace edm {
 
       // -----  Verboten methods:
       //
-    private:
-      ELdestination(const ELdestination& orig) = delete;
-      ELdestination& operator=(const ELdestination& orig) = delete;
-
     };  // ELdestination
 
     struct close_and_delete {

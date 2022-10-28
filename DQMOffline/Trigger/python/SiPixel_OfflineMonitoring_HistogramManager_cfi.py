@@ -7,22 +7,22 @@ OverlayCurvesForTiming.enabled = False #switch to overlay digi/clusters curves f
 #PerLayer2D.enabled             = True # 2D maps/profiles of layers
 #PerLayer1D.enabled             = True # normal histos per layer
 
-hltSiPixelPhase1Geometry = SiPixelPhase1Geometry.clone()
-hltSiPixelPhase1Geometry.max_lumisection   = 2500
-hltSiPixelPhase1Geometry.max_bunchcrossing = 3600
-# online-specific things
-hltSiPixelPhase1Geometry.onlineblock    =  20 # #LS after which histograms are reset
-hltSiPixelPhase1Geometry.n_onlineblocks = 100 # #blocks to keep for histograms with history
-
-hltDefaultHistoDigiCluster = DefaultHistoDigiCluster.clone()
-hltDefaultHistoDigiCluster.topFolderName = cms.string("HLT/Pixel")
-
-hltDefaultHistoReadout = DefaultHistoReadout.clone()
-hltDefaultHistoReadout.topFolderName = cms.string("HLT/Pixel")
-
-hltDefaultHistoTrack = DefaultHistoTrack.clone()
-hltDefaultHistoTrack.topFolderName= cms.string("HLT/Pixel/TrackClusters")
-
+hltSiPixelPhase1Geometry = SiPixelPhase1Geometry.clone(
+    max_lumisection   = 2500,
+    max_bunchcrossing = 3600,
+    # online-specific things
+    onlineblock    =  20, # #LS after which histograms are reset
+    n_onlineblocks = 100 # #blocks to keep for histograms with history
+)
+hltDefaultHistoDigiCluster = DefaultHistoDigiCluster.clone(
+    topFolderName = "HLT/Pixel"
+)
+hltDefaultHistoReadout = DefaultHistoReadout.clone(
+    topFolderName = "HLT/Pixel"
+)
+hltDefaultHistoTrack = DefaultHistoTrack.clone(
+    topFolderName= "HLT/Pixel/TrackClusters"
+)
 hltStandardSpecificationPixelmapProfile = [#produces pixel map with the mean (TProfile)
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")

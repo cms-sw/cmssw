@@ -8,7 +8,6 @@
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -42,7 +41,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "TDirectory.h"
 #include "TFile.h"
@@ -58,7 +58,7 @@ typedef std::vector<TrajectoryMeasurement> MeasurementContainer;
 typedef std::pair<const GeomDet *, TrajectoryStateOnSurface> DetWithState;
 typedef std::vector<Trajectory> Trajectories;
 
-class RPCRecHitFilter : public edm::EDFilter {
+class RPCRecHitFilter : public edm::stream::EDFilter<> {
 public:
   explicit RPCRecHitFilter(const edm::ParameterSet &);
   ~RPCRecHitFilter() override {}
@@ -66,7 +66,14 @@ public:
 private:
   bool filter(edm::Event &, const edm::EventSetup &) override;
 
-  std::string RPCDataLabel;
+  // es token
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeoToken_;
+
+  // event token
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken_;
+
+  std::string RPCDataLabel_;
 
   int centralBX_, BXWindow_, minHits_, hitsInStations_;
 

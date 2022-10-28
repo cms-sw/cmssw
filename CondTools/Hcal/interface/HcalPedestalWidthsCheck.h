@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -39,7 +39,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalPedestalWidthsCheck : public edm::EDAnalyzer {
+class HcalPedestalWidthsCheck : public edm::one::EDAnalyzer<> {
 public:
   HcalPedestalWidthsCheck(edm::ParameterSet const& ps);
 

@@ -25,7 +25,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -36,12 +36,12 @@
 // RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+#include "L1Trigger/TextToDigi/interface/SourceCardRouting.h"
 
 #include <fstream>
 #include <iostream>
 
-class RctDigiToSourceCardText : public edm::EDAnalyzer {
+class RctDigiToSourceCardText : public edm::one::EDAnalyzer<> {
 public:
   explicit RctDigiToSourceCardText(const edm::ParameterSet &);
   ~RctDigiToSourceCardText() override;

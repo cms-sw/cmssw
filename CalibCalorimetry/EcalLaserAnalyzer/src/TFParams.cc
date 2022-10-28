@@ -708,12 +708,14 @@ void TFParams::zero_mat_nk(matrice M, int nk) {
 }
 void TFParams::print_mat_nk(matrice M, int nk) {
   int j;
-  if (M.coeff == nullptr)
+  if (M.coeff == nullptr) {
     printf(" erreur : affichage d'une matrice vide \n");
-  printf(" nk = %d m_nli %d M_ncol %d \n", nk, M.nb_lignes, M.nb_colonnes);
-  for (j = 0; j < M.nb_colonnes; j++)
-    printf(" MATRICE nk= %d j= %d  ---> %e \n", nk, j, M.coeff[nk][j]);
-  printf(" apres passage d'impression \n");
+  } else {
+    printf(" nk = %d m_nli %d M_ncol %d \n", nk, M.nb_lignes, M.nb_colonnes);
+    for (j = 0; j < M.nb_colonnes; j++)
+      printf(" MATRICE nk= %d j= %d  ---> %e \n", nk, j, M.coeff[nk][j]);
+    printf(" apres passage d'impression \n");
+  }
   return;
 }
 void TFParams::inverse_mat(matrice A, matrice M) {
@@ -758,7 +760,7 @@ void TFParams::inverse_mat(matrice A, matrice M) {
 }
 Double_t TFParams::polfit(Int_t ns, Int_t imax, Double_t par3d[dimout], Double_t errpj[dimmat][dimmat], double *adcpj) {
   double val, val2, val3, adfmx[dimmat], parfp3[dimout];
-  double ius[dimmat], maskp3[dimmat];
+  double ius[dimmat] = {0.}, maskp3[dimmat];
   double deglib, fit3, tm, h, xki2;
   int i, nus, ilow, isup;
   val = adcpj[imax];

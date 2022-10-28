@@ -5,7 +5,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 #include <string>
@@ -165,9 +164,9 @@ std::vector<uint32_t> MP7FileReader::searchLinks() {
       boost::split(tokens, tmp, boost::is_any_of(" \t"), boost::token_compress_on);
       // Convert it into uint32 s
       std::vector<uint32_t> links;
-      std::transform(
-          tokens.begin(), tokens.end(), std::back_inserter(links), boost::lexical_cast<uint32_t, const std::string&>);
-      return links;
+      std::transform(tokens.begin(), tokens.end(), std::back_inserter(links), [](const std::string& str) {
+        return std::stoul(str);
+      });
     } else {
       throw std::logic_error("Unexpected line found!");
     }
@@ -201,7 +200,7 @@ std::vector<std::vector<uint64_t> > MP7FileReader::readRows() {
 
     if (boost::regex_match(line, what, reFrame_)) {
       // check frame number
-      uint32_t n = boost::lexical_cast<uint32_t>(what[1].str());
+      uint32_t n = std::stoul(what[1].str());
 
       if (n != data.size()) {
         std::stringstream ss;

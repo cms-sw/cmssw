@@ -3,11 +3,11 @@
 
 // system include files
 #include <memory>
-#include "tbb/task_arena.h"
 
 // forward declarations
 namespace edm {
   class ActivityRegistry;
+  class ModuleTypeResolverBase;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
@@ -15,12 +15,12 @@ namespace edm {
 
     std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
                                                                unsigned subProcessIndex,
-                                                               ActivityRegistry*,
-                                                               tbb::task_arena*);
+                                                               ActivityRegistry*);
 
-    void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params);
-
-    void validateEventSetupParameters(ParameterSet& pset);
+    void fillEventSetupProvider(ModuleTypeResolverBase const* resolver,
+                                EventSetupsController& esController,
+                                EventSetupProvider& cp,
+                                ParameterSet& params);
   }  // namespace eventsetup
 }  // namespace edm
 #endif

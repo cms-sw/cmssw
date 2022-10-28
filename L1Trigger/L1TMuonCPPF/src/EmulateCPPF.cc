@@ -17,6 +17,7 @@ EmulateCPPF::EmulateCPPF(const edm::ParameterSet &iConfig, edm::ConsumesCollecto
       recHitToken_(iConsumes.consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
       rpcDigiSimLinkToken_(iConsumes.consumes<edm::DetSetVector<RPCDigiSimLink> >(
           iConfig.getParameter<edm::InputTag>("rpcDigiSimLinkLabel"))),
+      rpcGeomToken_(iConsumes.esConsumes()),
       cppfSource_(CppfSource::EventSetup),
       MaxClusterSize_(0) {
   MaxClusterSize_ = iConfig.getParameter<int>("MaxClusterSize");
@@ -58,8 +59,15 @@ void EmulateCPPF::process(const edm::Event &iEvent,
   if (cppfSource_ == CppfSource::File) {  // Using the look up table to fill the information
     cppf_recHit.clear();
     for (auto &recHit_processor : recHit_processors_) {
-      recHit_processor.processLook(
-          iEvent, iSetup, recHitToken_, rpcDigiToken_, rpcDigiSimLinkToken_, CppfVec_1, cppf_recHit, MaxClusterSize_);
+      recHit_processor.processLook(iEvent,
+                                   iSetup,
+                                   recHitToken_,
+                                   rpcDigiToken_,
+                                   rpcDigiSimLinkToken_,
+                                   rpcGeomToken_,
+                                   CppfVec_1,
+                                   cppf_recHit,
+                                   MaxClusterSize_);
     }
   } else if (cppfSource_ == CppfSource::EventSetup) {
     // Clear output collections
@@ -79,7 +87,8 @@ void EmulateCPPF::process(const edm::Event &iEvent,
     // cppf_rpcDigi );
     // }
     for (auto &recHit_processor : recHit_processors_) {
-      recHit_processor.process(iEvent, iSetup, recHitToken_, rpcDigiToken_, rpcDigiSimLinkToken_, cppf_recHit);
+      recHit_processor.process(
+          iEvent, iSetup, recHitToken_, rpcDigiToken_, rpcDigiSimLinkToken_, rpcGeomToken_, cppf_recHit);
     }
   }
 }  // End void EmulateCPPF::process()

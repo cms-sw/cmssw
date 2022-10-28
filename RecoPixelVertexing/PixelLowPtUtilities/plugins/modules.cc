@@ -30,10 +30,11 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,
 
 // TrajectoryFilter
 #include "FWCore/Utilities/interface/typelookup.h"
+#include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
-DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ClusterShapeTrajectoryFilter, "ClusterShapeTrajectoryFilter");
+DEFINE_EDM_VALIDATED_PLUGIN(TrajectoryFilterFactory, ClusterShapeTrajectoryFilter, "ClusterShapeTrajectoryFilter");
 
 // the seed comparitor to remove seeds on incompatible angle/cluster compatibility
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
@@ -41,7 +42,7 @@ DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ClusterShapeTrajectoryFilter, "Cluste
 DEFINE_EDM_PLUGIN(SeedComparitorFactory, LowPtClusterShapeSeedComparitor, "LowPtClusterShapeSeedComparitor");
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/StripSubClusterShapeTrajectoryFilter.h"
-DEFINE_EDM_PLUGIN(TrajectoryFilterFactory,
-                  StripSubClusterShapeTrajectoryFilter,
-                  "StripSubClusterShapeTrajectoryFilter");
+DEFINE_EDM_VALIDATED_PLUGIN(TrajectoryFilterFactory,
+                            StripSubClusterShapeTrajectoryFilter,
+                            "StripSubClusterShapeTrajectoryFilter");
 DEFINE_EDM_PLUGIN(SeedComparitorFactory, StripSubClusterShapeSeedFilter, "StripSubClusterShapeSeedFilter");

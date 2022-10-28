@@ -5,8 +5,6 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include <iostream>
 #include <algorithm>
@@ -14,7 +12,7 @@
 #include "TFile.h"
 #include "TCanvas.h"
 
-SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig) {
+SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig) : dcsToken_(esConsumes()) {
   // get all digi collections
   digiProducersList_ = iConfig.getParameter<Parameters>("DigiProducersList");
 }
@@ -88,8 +86,7 @@ SyncDCSO2O::~SyncDCSO2O() {
 void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<SiStripDetVOff> detVOff;
-  iSetup.get<SiStripDetVOffRcd>().get(detVOff);
+  const SiStripDetVOff* detVOff = &iSetup.getData(dcsToken_);
 
   std::vector<uint32_t> detIds;
   detVOff->getDetIds(detIds);

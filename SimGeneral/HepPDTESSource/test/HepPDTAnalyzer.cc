@@ -11,15 +11,13 @@ using namespace edm;
 using namespace std;
 
 HepPDTAnalyzer::HepPDTAnalyzer(const edm::ParameterSet &iConfig)
-    : particleName_(iConfig.getParameter<std::string>("particleName")) {}
-
-HepPDTAnalyzer::~HepPDTAnalyzer() {}
+    : particleName_(iConfig.getParameter<std::string>("particleName")),
+      tok_pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {}
 
 void HepPDTAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
+  const auto &pdt = iSetup.getHandle(tok_pdt_);
 
   if (particleName_ == "all") {
     std::cout << " Number of particles in table = " << pdt->size() << std::endl;

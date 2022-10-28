@@ -4,6 +4,7 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   IOOffset size;
   bool exists = StorageFactory::get()->check("/etc/passwd", &size);
 

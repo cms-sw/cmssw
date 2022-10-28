@@ -1,4 +1,3 @@
-<use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Common"/>
 <export>
   <lib name="1"/>

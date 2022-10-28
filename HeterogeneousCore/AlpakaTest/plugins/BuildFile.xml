@@ -1,0 +1,27 @@
+<!-- host-only plugins -->
+<library file="*.cc" name="HeterogeneousCoreAlpakaTestPlugins">
+  <use name="alpaka"/>
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="HeterogeneousCoreAlpakaTestPluginsPortable">
+  <use name="alpaka"/>
+  <!--
+  The dependency on "DataFormats/PortableTestObjects" automatically expands to include
+  the host-only library (if it exists) and the corresponding Alpaka libraries (if they exist)
+  -->
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

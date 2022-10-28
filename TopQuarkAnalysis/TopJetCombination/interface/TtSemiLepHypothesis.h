@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,12 +28,10 @@
    The buildKey and the buildHypo methods have to implemented by derived classes.
 **/
 
-class TtSemiLepHypothesis : public edm::EDProducer {
+class TtSemiLepHypothesis : public edm::stream::EDProducer<> {
 public:
   /// default constructor
   explicit TtSemiLepHypothesis(const edm::ParameterSet&);
-  /// default destructor
-  ~TtSemiLepHypothesis() override;
 
 protected:
   /// produce the event hypothesis as CompositeCandidate and Key
@@ -45,12 +43,11 @@ protected:
   std::string jetCorrectionLevel(const std::string& quarkType);
   /// use one object in a collection to set a ShallowClonePtrCandidate
   template <typename C>
-  void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
+  std::unique_ptr<reco::ShallowClonePtrCandidate> makeCandidate(const edm::Handle<C>& handle, const int& idx);
   /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
-                    const int& idx,
-                    reco::ShallowClonePtrCandidate*& clone,
-                    const std::string& correctionLevel);
+  std::unique_ptr<reco::ShallowClonePtrCandidate> makeCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
+                                                                const int& idx,
+                                                                const std::string& correctionLevel);
   /// set neutrino, using mW = 80.4 to calculate the neutrino pz
   void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met,
                    const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
@@ -109,23 +106,22 @@ protected:
   int numberOfRealNeutrinoSolutions_;
   /// candidates for internal use for the creation of the hypothesis
   /// candidate
-  reco::ShallowClonePtrCandidate* lightQ_;
-  reco::ShallowClonePtrCandidate* lightQBar_;
-  reco::ShallowClonePtrCandidate* hadronicB_;
-  reco::ShallowClonePtrCandidate* leptonicB_;
-  reco::ShallowClonePtrCandidate* neutrino_;
-  reco::ShallowClonePtrCandidate* lepton_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightQ_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightQBar_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> hadronicB_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> leptonicB_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> neutrino_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lepton_;
 };
 
 // has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
 template <typename C>
-void TtSemiLepHypothesis::setCandidate(const edm::Handle<C>& handle,
-                                       const int& idx,
-                                       reco::ShallowClonePtrCandidate*& clone) {
+std::unique_ptr<reco::ShallowClonePtrCandidate> TtSemiLepHypothesis::makeCandidate(const edm::Handle<C>& handle,
+                                                                                   const int& idx) {
   typedef typename C::value_type O;
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
+  return std::make_unique<reco::ShallowClonePtrCandidate>(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
 }
 
 #endif

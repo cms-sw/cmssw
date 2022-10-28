@@ -55,6 +55,12 @@ GEMGeometryAnalyzer::GEMGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
   ofos << "======================== Opening output file" << std::endl;
 }
 
+namespace {
+  bool compareSupChm(const GEMSuperChamber* schm1, const GEMSuperChamber* schm2) {
+    return (schm1->id().v12Form() < schm2->id().v12Form());
+  }
+}  // namespace
+
 GEMGeometryAnalyzer::~GEMGeometryAnalyzer() {
   ofos.close();
   ofos << "======================== Closing output file" << std::endl;
@@ -131,7 +137,9 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
         ofos << "      GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has "
              << ring->nSuperChambers() << " super chambers." << endl;
         int i = 1;
-        for (auto sch : ring->superChambers()) {
+        auto supChmSort = ring->superChambers();
+        std::sort(supChmSort.begin(), supChmSort.end(), compareSupChm);
+        for (auto sch : supChmSort) {
           GEMDetId schId(sch->id());
           ofos << "        GEMSuperChamber " << i << ", GEMDetId = " << schId.rawId() << ", " << schId << " has "
                << sch->nChambers() << " chambers." << endl;
@@ -231,6 +239,10 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
                      << "    \t\tDimensions[cm]: b = " << bottomEdge * 2 << ", B = " << topEdge * 2
                      << ", h  = " << height * 2 << endl
                      << "    \t\tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+                     << "    \t\tfirst strip pos = (" << roll->toGlobal(lEdge1).x() << ", "
+                     << roll->toGlobal(lEdge1).y() << ", " << roll->toGlobal(lEdge1).z() << ")" << endl
+                     << "    \t\tlast  strip pos = (" << roll->toGlobal(lEdgeN).x() << ", "
+                     << roll->toGlobal(lEdgeN).y() << ", " << roll->toGlobal(lEdgeN).z() << ")" << endl
                      << "    \t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top(eta,phi) = (" << teta
                      << ", " << tphi << ")" << endl
                      << "    \t\tcenter(x,y,z)[cm] = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = ("

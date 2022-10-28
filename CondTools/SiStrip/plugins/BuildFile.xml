@@ -9,6 +9,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CalibTracker/Records"/>
 <use name="CondCore/DBOutputService"/>
+<use name="CondCore/SiStripPlugins"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="DataFormats/SiStripDetId"/>

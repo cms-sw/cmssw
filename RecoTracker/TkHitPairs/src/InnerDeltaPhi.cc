@@ -7,6 +7,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/Math/interface/ExtVec.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #if !defined(__INTEL_COMPILER)
 #define USE_VECTORS_HERE
@@ -83,7 +84,8 @@ namespace {
 InnerDeltaPhi::InnerDeltaPhi(const DetLayer& outlayer,
                              const DetLayer& layer,
                              const TrackingRegion& region,
-                             const edm::EventSetup& iSetup,
+                             const MagneticField& field,
+                             const MultipleScatteringParametrisationMaker& msmaker,
                              bool precise,
                              float extraTolerance)
     : innerIsBarrel(layer.isBarrel()),
@@ -99,12 +101,10 @@ InnerDeltaPhi::InnerDeltaPhi(const DetLayer& outlayer,
       theVtxZ(region.origin().z()),
       thePtMin(region.ptMin()),
       theVtx(region.origin().x(), region.origin().y()),
-      sigma(&layer, iSetup)
-
-{
+      sigma(msmaker.parametrisation(&layer)) {
   float zMinOrigin = theVtxZ - region.originZBound();
   float zMaxOrigin = theVtxZ + region.originZBound();
-  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, iSetup);
+  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, field);
 
   if (innerIsBarrel)
     initBarrelLayer(layer);

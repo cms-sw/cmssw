@@ -27,6 +27,8 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
+
 //----------------------
 // Base Class Headers --
 //----------------------
@@ -41,11 +43,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
@@ -111,7 +116,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static const L1MuBMTFConfig* config() { return m_config; }
+  static const L1MuBMTFConfig* config() { return m_config.get(); }
 
   l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
   l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
@@ -138,9 +143,10 @@ private:
   std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
   L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
 
-  static L1MuBMTFConfig* m_config;  ///< Track Finder configuration
+  static std::shared_ptr<L1MuBMTFConfig> m_config;  ///< Track Finder configuration
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;
 };
 
 #endif

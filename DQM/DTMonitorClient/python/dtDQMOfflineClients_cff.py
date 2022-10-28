@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorClient.dtChamberEfficiencyClient_cfi import *
+from DQMOffline.MuonDPG.dtTnPEfficiencyClient_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
 segmentTest.normalizeHistoPlots = True
 segmentTest.runOnline = False
@@ -26,6 +27,7 @@ dtQualityTests = DQMQualityTester(
 dtClients = cms.Sequence(segmentTest+
                          dtResolutionAnalysisTest+
                          dtChamberEfficiencyClient+
+                         dtTnPEfficiencyClient+
                          triggerEffTest+
                          blockedROChannelTest+
                          dtRunConditionVarClient+

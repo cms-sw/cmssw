@@ -29,6 +29,7 @@ public:
   bool hitSignalReweight(const PSimHit& hit,
                          std::map<int, float, std::less<int> >& hit_signal,
                          const size_t hitIndex,
+                         const size_t hitIndex4CR,
                          const unsigned int tofBin,
                          const PixelTopology* topol,
                          uint32_t detID,
@@ -36,12 +37,21 @@ public:
                          unsigned short int processType,
                          const bool& boolmakeDigiSimLinks);
 
+  bool lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          PixelSimHitExtraInfo& loopTempSH,
+                          signal_map_type& theNewDigiSignal,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);
+
 private:
   // Internal typedef
   typedef std::map<uint32_t, signal_map_type> signalMaps;
   typedef GloballyPositioned<double> Frame;
   typedef std::vector<edm::ParameterSet> Parameters;
   typedef boost::multi_array<float, 2> array_2d;
+
+  std::vector<SiPixelTemplateStore2D> templateStores_;
 
   // Variables and objects for the charge reweighting using 2D templates
   SiPixelTemplate2D templ2D;
@@ -51,10 +61,11 @@ private:
   int IDnum, IDden;
 
   const bool UseReweighting;
+  bool applyLateReweighting_;
   const bool PrintClusters;
   const bool PrintTemplates;
 
-  std::vector<SiPixelTemplateStore2D> templateStores_;
+  static constexpr float cmToMicrons = 10000.f;
 
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_den_token_;
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_num_token_;

@@ -11,7 +11,7 @@
 // user include files
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -23,13 +23,12 @@
 // class decleration
 //
 
-class TestPSetAnalyzer : public edm::EDAnalyzer {
+class TestPSetAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit TestPSetAnalyzer(edm::ParameterSet const&);
-  ~TestPSetAnalyzer();
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
 
   edm::LuminosityBlockID testLumi_;
   edm::LuminosityBlockRange testLRange_;
@@ -120,26 +119,12 @@ TestPSetAnalyzer::TestPSetAnalyzer(edm::ParameterSet const& iConfig) {
   }
 }
 
-TestPSetAnalyzer::~TestPSetAnalyzer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void TestPSetAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-}
+void TestPSetAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestPSetAnalyzer);

@@ -16,12 +16,9 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <cmath>
 
@@ -31,7 +28,8 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 // constructor ----------------------------------------------------------------
 
 AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-    : applyBasicCuts_(cfg.getParameter<bool>("applyBasicCuts")),
+    : tTopoToken_(iC.esConsumes()),
+      applyBasicCuts_(cfg.getParameter<bool>("applyBasicCuts")),
       applyNHighestPt_(cfg.getParameter<bool>("applyNHighestPt")),
       applyMultiplicityFilter_(cfg.getParameter<bool>("applyMultiplicityFilter")),
       seedOnlyFromAbove_(cfg.getParameter<int>("seedOnlyFrom")),
@@ -222,7 +220,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm
 
 // destructor -----------------------------------------------------------------
 
-AlignmentTrackSelector::~AlignmentTrackSelector() {}
+AlignmentTrackSelector::~AlignmentTrackSelector() = default;
 
 // do selection ---------------------------------------------------------------
 
@@ -321,9 +319,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track* trackp,
                                                const edm::Event& evt,
                                                const edm::EventSetup& eSetup) const {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &eSetup.getData(tTopoToken_);
 
   // checking hit requirements beyond simple number of valid hits
 

@@ -7,13 +7,13 @@ def to_timestamp(obj):
     """
     Takes a datetime object and outputs a timestamp string with the format Y-m-d H:m:S.f
     """
-    return obj.strftime('%Y-%m-%d %H:%M:%S.%f') if isinstance(obj, datetime.datetime) else obj
+    return obj.strftime('%d-%b-%y %I:%M:%S.%f %p') if isinstance(obj, datetime.datetime) else obj
 
 def to_datetime(date_string):
     """
     Takes a date string with the format Y-m-d H:m:S.f and gives back a datetime.datetime object
     """
-    return datetime.datetime.strptime(date_string.replace(",", "."), "%Y-%m-%d %H:%M:%S.%f")
+    return datetime.datetime.strptime(date_string.replace(",", "."), "%d-%b-%y %I:%M:%S.%f %p")
 
 def friendly_since(time_type, since):
     """

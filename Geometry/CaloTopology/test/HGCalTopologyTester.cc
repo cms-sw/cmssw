@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -85,15 +85,15 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
       std::vector<DetId> ids = topology.neighbors(id);
       unsigned int k(0);
       if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
-        std::cout << (HGCSiliconDetId)(id) << " has " << ids.size() << " neighbours:" << std::endl;
+        edm::LogVerbatim("HGCalGeom") << (HGCSiliconDetId)(id) << " has " << ids.size() << " neighbours:";
         for (const auto& idn : ids) {
-          std::cout << "[" << k << "] " << (HGCSiliconDetId)(idn) << std::endl;
+          edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HGCSiliconDetId)(idn);
           ++k;
         }
       } else {
-        std::cout << (HGCScintillatorDetId)(id) << " has " << ids.size() << " neighbours:" << std::endl;
+        edm::LogVerbatim("HGCalGeom") << (HGCScintillatorDetId)(id) << " has " << ids.size() << " neighbours:";
         for (const auto& idn : ids) {
-          std::cout << "[" << k << "] " << (HGCScintillatorDetId)(idn) << "\n";
+          edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HGCScintillatorDetId)(idn);
           ++k;
         }
       }

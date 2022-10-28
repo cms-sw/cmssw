@@ -374,16 +374,15 @@ float EcalEndcapSimHitsValidation::eCluster2x2(MapType &themap) {
   float e258 = themap[2] + themap[5] + themap[8];
 
   if ((e012 > e678 || e012 == e678) && (e036 > e258 || e036 == e258))
-    return E22 = themap[0] + themap[1] + themap[3] + themap[4];
+    E22 = themap[0] + themap[1] + themap[3] + themap[4];
   else if ((e012 > e678 || e012 == e678) && (e036 < e258 || e036 == e258))
-    return E22 = themap[1] + themap[2] + themap[4] + themap[5];
+    E22 = themap[1] + themap[2] + themap[4] + themap[5];
   else if ((e012 < e678 || e012 == e678) && (e036 > e258 || e036 == e258))
-    return E22 = themap[3] + themap[4] + themap[6] + themap[7];
+    E22 = themap[3] + themap[4] + themap[6] + themap[7];
   else if ((e012 < e678 || e012 == e678) && (e036 < e258 || e036 == e258))
-    return E22 = themap[4] + themap[5] + themap[7] + themap[8];
-  else {
-    return E22;
-  }
+    E22 = themap[4] + themap[5] + themap[7] + themap[8];
+
+  return E22;
 }
 
 float EcalEndcapSimHitsValidation::eCluster4x4(float e33, MapType &themap) {
@@ -394,16 +393,15 @@ float EcalEndcapSimHitsValidation::eCluster4x4(float e33, MapType &themap) {
   float e0_24 = themap[20] + themap[21] + themap[22] + themap[23] + themap[24];
 
   if ((e0_4 > e0_24 || e0_4 == e0_24) && (e0_20 > e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[0] + themap[1] + themap[2] + themap[3] + themap[5] + themap[10] + themap[15];
+    E44 = e33 + themap[0] + themap[1] + themap[2] + themap[3] + themap[5] + themap[10] + themap[15];
   else if ((e0_4 > e0_24 || e0_4 == e0_24) && (e0_20 < e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[1] + themap[2] + themap[3] + themap[4] + themap[9] + themap[14] + themap[19];
+    E44 = e33 + themap[1] + themap[2] + themap[3] + themap[4] + themap[9] + themap[14] + themap[19];
   else if ((e0_4 < e0_24 || e0_4 == e0_24) && (e0_20 > e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[5] + themap[10] + themap[15] + themap[20] + themap[21] + themap[22] + themap[23];
+    E44 = e33 + themap[5] + themap[10] + themap[15] + themap[20] + themap[21] + themap[22] + themap[23];
   else if ((e0_4 < e0_24 || e0_4 == e0_24) && (e0_20 < e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[21] + themap[22] + themap[23] + themap[24] + themap[9] + themap[14] + themap[19];
-  else {
-    return E44;
-  }
+    E44 = e33 + themap[21] + themap[22] + themap[23] + themap[24] + themap[9] + themap[14] + themap[19];
+
+  return E44;
 }
 
 uint32_t EcalEndcapSimHitsValidation::getUnitWithMaxEnergy(MapType &themap) {

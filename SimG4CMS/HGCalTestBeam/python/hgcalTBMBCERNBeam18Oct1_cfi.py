@@ -18,5 +18,5 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
         MaximumZ = cms.double(25000.),
         StopName = cms.string("HGCal"),
     ),
-    type = cms.string('HGCalTBMB')
+    type = cms.string('HGCalTBMBProducer')
 ))

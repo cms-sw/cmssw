@@ -13,9 +13,16 @@
 
 #include "G4ThreeVector.hh"
 
+#include <string>
+#include <vector>
+
 class HGCalNumberingScheme {
 public:
-  HGCalNumberingScheme(const HGCalDDDConstants& hgc, const DetId::Detector& det, const std::string& name);
+  HGCalNumberingScheme(const HGCalDDDConstants& hgc,
+                       const DetId::Detector& det,
+                       const std::string& name,
+                       const std::string& fileName);
+  HGCalNumberingScheme() = delete;
   ~HGCalNumberingScheme();
 
   /**
@@ -26,11 +33,13 @@ public:
 private:
   void checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const;
 
-  HGCalNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode mode_;
-  DetId::Detector det_;
-  std::string name_;
+  const DetId::Detector det_;
+  const std::string name_;
+  int firstLayer_;
+  std::vector<int> dumpDets_;
+  std::vector<int> indices_;
 };
 
 #endif

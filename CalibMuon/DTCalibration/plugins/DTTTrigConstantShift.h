@@ -11,6 +11,8 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -25,7 +27,7 @@ namespace dtCalibration {
   class DTTTrigConstantShift : public DTTTrigBaseCorrection {
   public:
     // Constructor
-    DTTTrigConstantShift(const edm::ParameterSet&);
+    DTTTrigConstantShift(const edm::ParameterSet&, edm::ConsumesCollector);
 
     // Destructor
     ~DTTTrigConstantShift() override;
@@ -34,12 +36,12 @@ namespace dtCalibration {
     DTTTrigData correction(const DTSuperLayerId&) override;
 
   private:
-    std::string dbLabel_;
     std::string calibChamber_;
     double value_;
 
     const DTTtrig* tTrigMap_;
     DTChamberId chosenChamberId_;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
   };
 
 }  // namespace dtCalibration

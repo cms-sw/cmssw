@@ -74,8 +74,8 @@ if DBFORMAT=="Legacy" :
     if TYPE=="TTrigDB" : RECORD = "DTTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTMtimeRcd"
     if TYPE=="UncertDB" :
-        RECORD = "DTRecoUncertaintiesRcd"
-        print('\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code')
+        RECORD = ""
+        print('\nERROR, Legacy RecoUncertDB is no longer supported')
 elif DBFORMAT=="DTRecoConditions" :
     if TYPE=="TTrigDB" : RECORD = "DTRecoConditionsTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTRecoConditionsVdriftRcd"

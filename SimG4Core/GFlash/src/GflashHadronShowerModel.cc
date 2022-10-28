@@ -75,7 +75,7 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   G4bool trigger = false;
 
   // mininum energy cutoff to parameterize
-  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV < Gflash::energyCutOff)
+  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff * CLHEP::GeV)
     return trigger;
 
   // check whether this is called from the normal GPIL or the wrapper process
@@ -144,11 +144,11 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
         spotIter->getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(), spotIter->getTime());
 
-    G4VPhysicalVolume *aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+    const G4VPhysicalVolume *aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
     if (aCurrentVolume == nullptr)
       continue;
 
-    G4LogicalVolume *lv = aCurrentVolume->GetLogicalVolume();
+    const G4LogicalVolume *lv = aCurrentVolume->GetLogicalVolume();
     if (lv->GetRegion()->GetName() != "CaloRegion")
       continue;
 
@@ -237,6 +237,7 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack &f
 }
 
 G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
+  const double invcm = 1.0 / CLHEP::cm;
   G4bool isExcluded = false;
   int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
 
@@ -245,19 +246,19 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTra
   G4double eta = fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity();
   if (std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) {
     if (verbosity > 0) {
-      edm::LogInfo("SimGeneralGFlash") << "GflashHadronShowerModel: excluding region of eta = " << eta;
+      edm::LogVerbatim("SimGeneralGFlash") << "GflashHadronShowerModel: excluding region of eta = " << eta;
     }
     return true;
   } else {
-    G4StepPoint *postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
+    const G4StepPoint *postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition() / cm);
+    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition() * invcm);
     G4double distOut = 9999.0;
 
     // exclude the region where the shower starting point is inside the
     // preshower
     if (std::fabs(eta) > Gflash::EtaMin[Gflash::kENCA] &&
-        std::fabs((postStep->GetPosition()).getZ() / cm) < Gflash::Zmin[Gflash::kENCA]) {
+        std::fabs((postStep->GetPosition()).getZ() / CLHEP::cm) < Gflash::Zmin[Gflash::kENCA]) {
       return true;
     }
 
@@ -267,20 +268,20 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTra
     //@@@if we extend parameterization including Magnet/HO, we need to change
     // this strategy
     if (kCalor == Gflash::kHB) {
-      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() / cm;
+      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() * invcm;
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     } else if (kCalor == Gflash::kHE) {
-      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ() / cm);
+      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ() * invcm);
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     }
 
     //@@@remove this print statement later
     if (isExcluded && verbosity > 0) {
-      std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << " DistanceToOut " << distOut << " from ("
-                << (postStep->GetPosition()).getRho() / cm << ":" << (postStep->GetPosition()).getZ() / cm
-                << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV << std::endl;
+      G4cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << " DistanceToOut " << distOut << " from ("
+             << (postStep->GetPosition()).getRho() * invcm << ":" << (postStep->GetPosition()).getZ() * invcm
+             << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / CLHEP::GeV << G4endl;
     }
   }
 

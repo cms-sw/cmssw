@@ -15,28 +15,16 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
-#include <vector>
-#include "TLine.h"
 
 using namespace cms;
 using namespace edm;
@@ -61,6 +49,22 @@ EcalCosmicsHists::EcalCosmicsHists(const edm::ParameterSet& iConfig)
       endcapClusterCollection_(iConfig.getParameter<edm::InputTag>("endcapClusterCollection")),
       l1GTReadoutRecTag_(iConfig.getUntrackedParameter<std::string>("L1GlobalReadoutRecord", "gtDigis")),
       l1GMTReadoutRecTag_(iConfig.getUntrackedParameter<std::string>("L1GlobalMuonReadoutRecord", "gtDigis")),
+      barrelClusterToken_(consumes<reco::SuperClusterCollection>(barrelClusterCollection_)),
+      endcapClusterToken_(consumes<reco::SuperClusterCollection>(endcapClusterCollection_)),
+      ebRecHitToken_(consumes<EcalRecHitCollection>(ecalRecHitCollectionEB_)),
+      eeRecHitToken_(consumes<EcalRecHitCollection>(ecalRecHitCollectionEE_)),
+      ecalRawDataToken_(consumes<EcalRawDataCollection>(ecalRawDataColl_)),
+      tracksToken_(consumes<reco::TrackCollection>(edm::InputTag("cosmicMuons"))),
+      tracksBarrelToken_(consumes<reco::TrackCollection>(edm::InputTag("cosmicMuonsBarrelOnly"))),
+      hbheRecHitToken_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
+      hfRecHitToken_(consumes<HFRecHitCollection>(edm::InputTag("hfreco"))),
+      hoRecHitToken_(consumes<HORecHitCollection>(edm::InputTag("horeco"))),
+      l1MuGMTToken_(consumes<L1MuGMTReadoutCollection>(l1GMTReadoutRecTag_)),
+      l1GTReadoutToken_(consumes<L1GlobalTriggerReadoutRecord>(l1GTReadoutRecTag_)),
+      gtRecordToken_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigis"))),
+      ecalADCToGeVConstantToken_(esConsumes()),
+      l1MenuToken_(esConsumes()),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()),
       runNum_(-1),
       histRangeMax_(iConfig.getUntrackedParameter<double>("histogramMaxRange", 1.8)),
       histRangeMin_(iConfig.getUntrackedParameter<double>("histogramMinRange", 0.0)),
@@ -115,17 +119,11 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   //LogDebug("EcalCosmicsHists")<< "Timestamp: " << iEvent.id().run() << " " << iEvent.id().event() << " " << iEvent.time().value();
 
   // check DB payload
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+  const auto& agc = iSetup.getData(ecalADCToGeVConstantToken_);
   if (naiveEvtNum_ <= 1) {
-    LogWarning("EcalCosmicsHists") << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count";
-    LogWarning("EcalCosmicsHists") << "Global EE ADC->GeV scale: " << agc->getEEValue() << " GeV/ADC count";
+    LogWarning("EcalCosmicsHists") << "Global EB ADC->GeV scale: " << agc.getEBValue() << " GeV/ADC count";
+    LogWarning("EcalCosmicsHists") << "Global EE ADC->GeV scale: " << agc.getEEValue() << " GeV/ADC count";
   }
-  //float adcEBconst = agc->getEBValue();
-  //float adcEEconst = agc->getEEValue();
-
-  //
 
   //===================TIMESTAMP INFORMTION=================================
   // Code added to get the time in seconds
@@ -136,14 +134,14 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   //std::cout << "Event Time " << eventTime << " High " <<timeStampHigh<< " low"<<timeStampLow <<" value " <<iEvent.time().value() << std::endl;
   //========================================================================
 
-  iEvent.getByLabel(barrelClusterCollection_, bscHandle);
+  iEvent.getByToken(barrelClusterToken_, bscHandle);
   if (!(bscHandle.isValid())) {
     LogWarning("EcalCosmicsHists") << barrelClusterCollection_ << " not available";
     return;
   }
   LogDebug("EcalCosmicsHists") << "event " << ievt;
 
-  iEvent.getByLabel(endcapClusterCollection_, escHandle);
+  iEvent.getByToken(endcapClusterToken_, escHandle);
   if (!(escHandle.isValid())) {
     LogWarning("EcalCosmicsHists") << endcapClusterCollection_ << " not available";
     hasEndcapClusters = false;
@@ -151,20 +149,20 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   }
 
   Handle<EcalRecHitCollection> hits;
-  iEvent.getByLabel(ecalRecHitCollectionEB_, hits);
+  iEvent.getByToken(ebRecHitToken_, hits);
   if (!(hits.isValid())) {
     LogWarning("EcalCosmicsHists") << ecalRecHitCollectionEB_ << " not available";
     return;
   }
   Handle<EcalRecHitCollection> hitsEE;
-  iEvent.getByLabel(ecalRecHitCollectionEE_, hitsEE);
+  iEvent.getByToken(eeRecHitToken_, hitsEE);
   if (!(hitsEE.isValid())) {
     LogWarning("EcalCosmicsHists") << ecalRecHitCollectionEE_ << " not available";
     return;
   }
 
   Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(ecalRawDataColl_, DCCHeaders);
+  iEvent.getByToken(ecalRawDataToken_, DCCHeaders);
   if (!DCCHeaders.isValid())
     LogWarning("EcalCosmicsHists") << "DCC headers not available";
 
@@ -662,7 +660,7 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //				     << " ) " << std::endl;
 
       if (!EEDetId::validDetId(ix, iy, iz)) {
-        LogWarning("EcalCosmicsHists") << "INVALID EE DetId !!!" << endl;
+        LogWarning("EcalCosmicsHists") << "INVALID EE DetId !!!";
         return;
       }
 
@@ -1007,10 +1005,9 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
 
   // get reco tracks
   edm::Handle<reco::TrackCollection> recoTracks;
-  iEvent.getByLabel("cosmicMuons", recoTracks);
+  iEvent.getByToken(tracksToken_, recoTracks);
 
   if (recoTracks.isValid()) {
-    //    LogWarning("EcalCosmicsHists") << "... Valid TrackAssociator recoTracks !!! " << recoTracks.product()->size();
     std::map<int, std::vector<DetId> > trackDetIdMap;
     int tracks = 0;
     for (reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end();
@@ -1171,16 +1168,15 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       numberofCosmicsWTrackHist_->Fill(numSeeds);
     }
   } else {
-    //    LogWarning("EcalCosmicsHists") << "!!! No TrackAssociator recoTracks !!!";
+    LogWarning("EcalCosmicsHists") << "!!! No TrackAssociator recoTracks !!!";
   }
 
   // Study on Tracks for High Energy events
   edm::Handle<reco::TrackCollection> recoTracksBarrel;
-  iEvent.getByLabel("cosmicMuonsBarrelOnly", recoTracksBarrel);
+  iEvent.getByToken(tracksBarrelToken_, recoTracksBarrel);
   if (!recoTracksBarrel.isValid()) {
-    //edm::LogWarning("EcalCosmicsHists") << "RecoTracksBarrel not valid!! " ;
+    edm::LogWarning("EcalCosmicsHists") << "RecoTracksBarrel not valid!! ";
   } else {
-    //edm::LogWarning("EcalCosmicsHists") << "Number of barrel reco tracks found in the event: " << recoTracksBarrel->size() ;
     HighEnergy_numRecoTrackBarrel->Fill(recoTracksBarrel->size());
     for (reco::TrackCollection::const_iterator recoTrack = recoTracksBarrel->begin();
          recoTrack != recoTracksBarrel->end();
@@ -1259,16 +1255,15 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
 
   //hcal rechits
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel("hbhereco", hbhe);
+  iEvent.getByToken(hbheRecHitToken_, hbhe);
 
   edm::Handle<HFRecHitCollection> hfrh;
-  iEvent.getByLabel("hfreco", hfrh);
+  iEvent.getByToken(hfRecHitToken_, hfrh);
 
   edm::Handle<HORecHitCollection> horh;
-  iEvent.getByLabel("horeco", horh);
+  iEvent.getByToken(hoRecHitToken_, horh);
 
   if (hbhe.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HBHE RecHits collection size " << hbhe->size();
     const HBHERecHitCollection hbheHit = *(hbhe.product());
     for (HBHERecHitCollection::const_iterator hhit = hbheHit.begin(); hhit != hbheHit.end(); hhit++) {
       //      if (hhit->energy() > 0.6){
@@ -1276,21 +1271,19 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //      }
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HBHE RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HBHE RecHits **NOT** VALID!! ";
   }
 
   if (hfrh.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HF RecHits collection size " << hfrh->size();
     const HFRecHitCollection hfHit = *(hfrh.product());
     for (HFRecHitCollection::const_iterator hhit = hfHit.begin(); hhit != hfHit.end(); hhit++) {
       hcalEnergy_HF_->Fill(hhit->energy());
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HF RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HF RecHits **NOT** VALID!! ";
   }
 
   if (horh.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HO RecHits collection size " << horh->size();
     const HORecHitCollection hoHit = *(horh.product());
     for (HORecHitCollection::const_iterator hhit = hoHit.begin(); hhit != hoHit.end(); hhit++) {
       //     if (hhit->energy() > 0.6){
@@ -1298,7 +1291,7 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //     }
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HO RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HO RecHits **NOT** VALID!! ";
   }
 
   // *** end of HCAL code *** //
@@ -1313,7 +1306,7 @@ std::vector<bool> EcalCosmicsHists::determineTriggers(const edm::Event& iEvent, 
 
   // get the GMTReadoutCollection
   Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-  iEvent.getByLabel(l1GMTReadoutRecTag_, gmtrc_handle);
+  iEvent.getByToken(l1MuGMTToken_, gmtrc_handle);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
   if (!(gmtrc_handle.isValid())) {
     LogWarning("EcalCosmicsHists") << "l1MuGMTReadoutCollection"
@@ -1322,31 +1315,29 @@ std::vector<bool> EcalCosmicsHists::determineTriggers(const edm::Event& iEvent, 
   }
   // get hold of L1GlobalReadoutRecord
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  iEvent.getByLabel(l1GTReadoutRecTag_, L1GTRR);
+  iEvent.getByToken(l1GTReadoutToken_, L1GTRR);
 
   //Ecal
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  eventSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  const auto& menu = eventSetup.getData(l1MenuToken_);
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  iEvent.getByLabel(edm::InputTag("gtDigis"), gtRecord);
+  iEvent.getByToken(gtRecordToken_, gtRecord);
   // Get dWord after masking disabled bits
   const DecisionWord dWord = gtRecord->decisionWord();
 
-  bool l1SingleEG1 = menu->gtAlgorithmResult("L1_SingleEG1", dWord);
-  bool l1SingleEG5 = menu->gtAlgorithmResult("L1_SingleEG5", dWord);
-  bool l1SingleEG8 = menu->gtAlgorithmResult("L1_SingleEG8", dWord);
-  bool l1SingleEG10 = menu->gtAlgorithmResult("L1_SingleEG10", dWord);
-  bool l1SingleEG12 = menu->gtAlgorithmResult("L1_SingleEG12", dWord);
-  bool l1SingleEG15 = menu->gtAlgorithmResult("L1_SingleEG15", dWord);
-  bool l1SingleEG20 = menu->gtAlgorithmResult("L1_SingleEG20", dWord);
-  bool l1SingleEG25 = menu->gtAlgorithmResult("L1_SingleEG25", dWord);
-  bool l1DoubleNoIsoEGBTBtight = menu->gtAlgorithmResult("L1_DoubleNoIsoEG_BTB_tight", dWord);
-  bool l1DoubleNoIsoEGBTBloose = menu->gtAlgorithmResult("L1_DoubleNoIsoEG_BTB_loose ", dWord);
-  bool l1DoubleNoIsoEGTopBottom = menu->gtAlgorithmResult("L1_DoubleNoIsoEGTopBottom", dWord);
-  bool l1DoubleNoIsoEGTopBottomCen = menu->gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCen", dWord);
-  bool l1DoubleNoIsoEGTopBottomCen2 = menu->gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCen2", dWord);
-  bool l1DoubleNoIsoEGTopBottomCenVert = menu->gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCenVert", dWord);
+  bool l1SingleEG1 = menu.gtAlgorithmResult("L1_SingleEG1", dWord);
+  bool l1SingleEG5 = menu.gtAlgorithmResult("L1_SingleEG5", dWord);
+  bool l1SingleEG8 = menu.gtAlgorithmResult("L1_SingleEG8", dWord);
+  bool l1SingleEG10 = menu.gtAlgorithmResult("L1_SingleEG10", dWord);
+  bool l1SingleEG12 = menu.gtAlgorithmResult("L1_SingleEG12", dWord);
+  bool l1SingleEG15 = menu.gtAlgorithmResult("L1_SingleEG15", dWord);
+  bool l1SingleEG20 = menu.gtAlgorithmResult("L1_SingleEG20", dWord);
+  bool l1SingleEG25 = menu.gtAlgorithmResult("L1_SingleEG25", dWord);
+  bool l1DoubleNoIsoEGBTBtight = menu.gtAlgorithmResult("L1_DoubleNoIsoEG_BTB_tight", dWord);
+  bool l1DoubleNoIsoEGBTBloose = menu.gtAlgorithmResult("L1_DoubleNoIsoEG_BTB_loose ", dWord);
+  bool l1DoubleNoIsoEGTopBottom = menu.gtAlgorithmResult("L1_DoubleNoIsoEGTopBottom", dWord);
+  bool l1DoubleNoIsoEGTopBottomCen = menu.gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCen", dWord);
+  bool l1DoubleNoIsoEGTopBottomCen2 = menu.gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCen2", dWord);
+  bool l1DoubleNoIsoEGTopBottomCenVert = menu.gtAlgorithmResult("L1_DoubleNoIsoEGTopBottomCenVert", dWord);
 
   l1Triggers[4] = l1SingleEG1 || l1SingleEG5 || l1SingleEG8 || l1SingleEG10 || l1SingleEG12 || l1SingleEG15 ||
                   l1SingleEG20 || l1SingleEG25 || l1DoubleNoIsoEGBTBtight || l1DoubleNoIsoEGBTBloose ||
@@ -1568,9 +1559,7 @@ void EcalCosmicsHists::initHists(int FED) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalCosmicsHists::beginRun(edm::Run const&, edm::EventSetup const& eventSetup) {
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  eventSetup.get<EcalMappingRcd>().get(handle);
-  ecalElectronicsMap_ = handle.product();
+  ecalElectronicsMap_ = &eventSetup.getData(ecalMappingToken_);
 
   //Here I will init some of the specific histograms
   int numBins = 200;  //(int)round(histRangeMax_-histRangeMin_)+1;
@@ -2754,6 +2743,8 @@ void EcalCosmicsHists::beginRun(edm::Run const&, edm::EventSetup const& eventSet
   EEP_FedsNumXtalsInClusterHist_ =
       new TH1F("NumActiveXtalsInClusterAllHist", "Number of active Xtals in Cluster EEP;NumXtals", 100, 0, 100);
 }
+
+void EcalCosmicsHists::endRun(edm::Run const&, edm::EventSetup const& eventSetup) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EcalCosmicsHists::endJob() {

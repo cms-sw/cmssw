@@ -20,42 +20,38 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-
-#include <DataFormats/ForwardDetId/interface/BTLDetId.h>
-#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
-
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 // class definition
-class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
+class NavigationSchoolAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit NavigationSchoolAnalyzer(const edm::ParameterSet&);
-  ~NavigationSchoolAnalyzer();
+  ~NavigationSchoolAnalyzer() override = default;
 
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(edm::Run const& run, const edm::EventSetup&) override{};
 
-  std::string theNavigationSchoolName;
+  const std::string theNavigationSchoolName_;
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoTokenBR_;
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolTokenBR_;
+
   const TrackerTopology* tTopo;
   void print(std::ostream& os, const DetLayer* dl);
   void print(std::ostream& os, const NavigationSchool::StateType& layers);
@@ -230,65 +226,58 @@ void printOldStyle(std::ostream& os, const NavigationSchool& nav) {
 
 // the analyzer itself
 NavigationSchoolAnalyzer::NavigationSchoolAnalyzer(const edm::ParameterSet& iConfig)
-    : theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchoolName")) {}
-
-NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
+    : theNavigationSchoolName_(iConfig.getParameter<std::string>("navigationSchoolName")),
+      navSchoolToken_(esConsumes(edm::ESInputTag("", theNavigationSchoolName_))),
+      tTopoTokenBR_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", theNavigationSchoolName_))),
+      navSchoolTokenBR_(esConsumes<edm::Transition::BeginRun>()) {}
 
 #include <sstream>
 #include <fstream>
 
 void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
   std::ostringstream byNav;
   std::ostringstream byGeom;
   std::ostringstream oldStyle;
 
-  std::ofstream ByNavFile(theNavigationSchoolName + "_ByNav.log");
-  std::ofstream ByGeomFile(theNavigationSchoolName + "_ByGeom.log");
-  std::ofstream oldStyleFile(theNavigationSchoolName + "_oldStyle.log");
+  std::ofstream ByNavFile(theNavigationSchoolName_ + "_ByNav.log");
+  std::ofstream ByGeomFile(theNavigationSchoolName_ + "_ByGeom.log");
+  std::ofstream oldStyleFile(theNavigationSchoolName_ + "_oldStyle.log");
 
   //get the navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
-  print(byNav, nav.product());
-  printUsingGeom(byGeom, *nav.product());
-  printOldStyle(oldStyle, *nav.product());
+  const NavigationSchool* nav = &iSetup.getData(navSchoolToken_);
+  print(byNav, nav);
+  printUsingGeom(byGeom, *nav);
+  printOldStyle(oldStyle, *nav);
 
   ByNavFile << byNav.str() << std::endl;
   ByGeomFile << byGeom.str() << std::endl;
   oldStyleFile << oldStyle.str() << std::endl;
 
   if (oldStyle.str() != byGeom.str())
-    std::cout << "Error: Navigation by Geom is not consistent with old Style Navigation in " << theNavigationSchoolName
-              << "\n"
-              << std::endl;
+    edm::LogPrint("NavigationSchoolAnalyzer")
+        << "Error: Navigation by Geom is not consistent with old Style Navigation in " << theNavigationSchoolName_
+        << "\n";
 
-  // NavigationSetter setter(*nav.product());
-  std::cout << "NavigationSchoolAnalyzer "
-            << "hello at event" << std::endl;
-  std::cout << "NavigationSchoolAnalyzer "
-            << "NavigationSchool display of: " << theNavigationSchoolName << "\n"
-            << byNav.str() << std::endl;
+  // NavigationSetter setter(*nav);
+  edm::LogPrint("NavigationSchoolAnalyzer") << "NavigationSchoolAnalyzer "
+                                            << "hello at event";
+  edm::LogPrint("NavigationSchoolAnalyzer") << "NavigationSchoolAnalyzer "
+                                            << "NavigationSchool display of: " << theNavigationSchoolName_ << "\n"
+                                            << byNav.str();
 
-  std::cout << "\n\nNavigationSchoolAnalyzer "
-            << "NavigationSchool display using Geometry" << std::endl;
-  std::cout << byGeom.str() << std::endl;
+  edm::LogPrint("NavigationSchoolAnalyzer") << "\n\nNavigationSchoolAnalyzer "
+                                            << "NavigationSchool display using Geometry";
+  edm::LogPrint("NavigationSchoolAnalyzer") << byGeom.str();
 }
 
 void NavigationSchoolAnalyzer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
+  tTopo = &iSetup.getData(tTopoTokenBR_);
 
   //get the navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
+  const NavigationSchool* nav = &iSetup.getData(navSchoolTokenBR_);
   // NavigationSetter setter(*nav.product());
-  edm::LogInfo("NavigationSchoolAnalyzer") << "NavigationSchool display of: " << theNavigationSchoolName << "\n";
-  print(std::cout, nav.product());
+  edm::LogInfo("NavigationSchoolAnalyzer") << "NavigationSchool display of: " << theNavigationSchoolName_ << "\n";
+  print(std::cout, nav);
 }
 
 //define this as a plug-in

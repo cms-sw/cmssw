@@ -171,7 +171,11 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  minVertexNdf        = cms.untracked.double(10.),
                                                  minVertexMeanWeight = cms.untracked.double(0.5),
                                                  runControl = cms.untracked.bool(True),
-                                                 runControlNumber = cms.untracked.vuint32(320040)
+                                                 runControlNumber = cms.untracked.vuint32(320040),
+                                                 sumpTStartScale = cms.untracked.double(1.),
+                                                 sumpTEndScale = cms.untracked.double(1000.),
+                                                 nTrackBins = cms.untracked.double(60.),
+                                                 nVtxBins = cms.untracked.double(40.)
                                                  )
 
 process.TFileService = cms.Service("TFileService",

@@ -27,28 +27,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet) {
 
   // std::cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << std::endl;
 
-  Init();
-  fObjectManager = (TEcnaObject*)pObjectManager;
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaRun", i_this);
-
-  //............................ fCnaParCout
-  fCnaParCout = nullptr;
-  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
-  if (iCnaParCout == 0) {
-    fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/
-  } else {
-    fCnaParCout = (TEcnaParCout*)iCnaParCout;
-  }
-
-  //............................ fCnaParPaths
-  fCnaParPaths = nullptr;
-  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
-  if (iCnaParPaths == 0) {
-    fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/
-  } else {
-    fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;
-  }
+  Init(pObjectManager);
 
   //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
   //fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
@@ -76,31 +55,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet) {
 }
 
 TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int_t& NbOfSamples) {
-  //fCnaParPaths = 0; fCnaParPaths = new TEcnaParPaths();  //fCnew++;
-  //fCnaParCout = 0;  fCnaParCout  = new TEcnaParCout();   //fCnew++;
-
-  Init();
-  fObjectManager = (TEcnaObject*)pObjectManager;
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaRun", i_this);
-
-  //............................ fCnaParCout
-  fCnaParCout = nullptr;
-  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
-  if (iCnaParCout == 0) {
-    fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/
-  } else {
-    fCnaParCout = (TEcnaParCout*)iCnaParCout;
-  }
-
-  //............................ fCnaParPaths
-  fCnaParPaths = nullptr;
-  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
-  if (iCnaParPaths == 0) {
-    fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/
-  } else {
-    fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;
-  }
+  Init(pObjectManager);
 
   //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
   //fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
@@ -131,7 +86,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
 //.... return true or false according to the existence of the path. The path itself is in an attribute of fCnaParPaths.
 Bool_t TEcnaRun::GetPathForResults() { return fCnaParPaths->GetPathForResultsRootFiles(); }
 
-void TEcnaRun::Init() {
+void TEcnaRun::Init(TEcnaObject* pObjectManager) {
   //Initialisation
 
   fCnew = 0;
@@ -244,6 +199,25 @@ void TEcnaRun::Init() {
 
   fTagAvMeanCorss = nullptr;
   fTagAvSigCorss = nullptr;
+
+  fObjectManager = (TEcnaObject*)pObjectManager;
+  pObjectManager->RegisterPointer("TEcnaRun", (Long_t)this);
+
+  //............................ fCnaParCout
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  if (iCnaParCout == 0) {
+    fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/
+  } else {
+    fCnaParCout = (TEcnaParCout*)iCnaParCout;
+  }
+
+  //............................ fCnaParPaths
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  if (iCnaParPaths == 0) {
+    fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/
+  } else {
+    fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;
+  }
 
   //................................................... Code Print  ( Init() )
   fCodePrintNoComment = fCnaParCout->GetCodePrint("NoComment");
@@ -1352,8 +1326,8 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc) {
 //    Get the ROOT file name (long and short)
 //
 //-------------------------------------------------------------------------
-TString TEcnaRun::GetRootFileName() { return fRootFileName; }
-TString TEcnaRun::GetRootFileNameShort() { return fRootFileNameShort; }
+const TString& TEcnaRun::GetRootFileName() const { return fRootFileName; }
+const TString& TEcnaRun::GetRootFileNameShort() const { return fRootFileNameShort; }
 
 //###################################################################################################
 //
@@ -3452,8 +3426,8 @@ Bool_t TEcnaRun::WriteNewRootFile(const TString& TypAna) {
 //   (called by TEcnaGui in Calculations method)
 //
 //-------------------------------------------------------------------------
-TString TEcnaRun::GetNewRootFileName() { return fNewRootFileName; }
-TString TEcnaRun::GetNewRootFileNameShort() { return fNewRootFileNameShort; }
+const TString& TEcnaRun::GetNewRootFileName() const { return fNewRootFileName; }
+const TString& TEcnaRun::GetNewRootFileNameShort() const { return fNewRootFileNameShort; }
 
 //--------------------------------------------------------------------
 //

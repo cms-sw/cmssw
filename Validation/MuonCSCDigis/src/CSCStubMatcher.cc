@@ -22,6 +22,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   const auto& cscLCT = pSet.getParameter<edm::ParameterSet>("cscLCT");
   minBXLCT_ = cscLCT.getParameter<int>("minBX");
   maxBXLCT_ = cscLCT.getParameter<int>("maxBX");
+  matchTypeTightLCT_ = cscLCT.getParameter<bool>("matchTypeTight");
   verboseLCT_ = cscLCT.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
   addGhostLCTs_ = cscLCT.getParameter<bool>("addGhosts");
@@ -36,10 +37,15 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
     gemDigiMatcher_.reset(new GEMDigiMatcher(pSet, std::move(iC)));
   cscDigiMatcher_.reset(new CSCDigiMatcher(pSet, std::move(iC)));
 
-  clctToken_ = iC.consumes<CSCCLCTDigiCollection>(cscCLCT.getParameter<edm::InputTag>("inputTag"));
-  alctToken_ = iC.consumes<CSCALCTDigiCollection>(cscALCT.getParameter<edm::InputTag>("inputTag"));
-  lctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscLCT.getParameter<edm::InputTag>("inputTag"));
-  mplctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscMPLCT.getParameter<edm::InputTag>("inputTag"));
+  clctInputTag_ = cscCLCT.getParameter<edm::InputTag>("inputTag");
+  alctInputTag_ = cscALCT.getParameter<edm::InputTag>("inputTag");
+  lctInputTag_ = cscLCT.getParameter<edm::InputTag>("inputTag");
+  mplctInputTag_ = cscMPLCT.getParameter<edm::InputTag>("inputTag");
+
+  clctToken_ = iC.consumes<CSCCLCTDigiCollection>(clctInputTag_);
+  alctToken_ = iC.consumes<CSCALCTDigiCollection>(alctInputTag_);
+  lctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(lctInputTag_);
+  mplctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(mplctInputTag_);
 
   geomToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
@@ -72,10 +78,29 @@ void CSCStubMatcher::match(const SimTrack& t, const SimVertex& v) {
   // clear collections
   clear();
 
-  matchCLCTsToSimTrack(clcts);
-  matchALCTsToSimTrack(alcts);
-  matchLCTsToSimTrack(lcts);
-  matchMPLCTsToSimTrack(mplcts);
+  if (!alctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get ALCTs with label " << alctInputTag_.encode();
+  } else {
+    matchALCTsToSimTrack(alcts);
+  }
+
+  if (!clctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get CLCTs with label " << clctInputTag_.encode();
+  } else {
+    matchCLCTsToSimTrack(clcts);
+  }
+
+  if (!lctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get LCTs with label " << lctInputTag_.encode();
+  } else {
+    matchLCTsToSimTrack(lcts);
+  }
+
+  if (!mplctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get MPLCTs with label " << mplctInputTag_.encode();
+  } else {
+    matchMPLCTsToSimTrack(mplcts);
+  }
 }
 
 void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
@@ -117,6 +142,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
     if (isME1a)
       ring = 1;
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
+    auto id2 = ch_id2.rawId();  // CLCTs should be sorted into the det of the CLCTs.
 
     const auto& clcts_in_det = clcts.get(ch_id2);
 
@@ -132,7 +158,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         continue;
 
       // store all CLCTs in this chamber
-      chamber_to_clcts_all_[id].push_back(*c);
+      chamber_to_clcts_all_[id2].push_back(*c);
 
       // check that at least 3 comparator digis were matched!
       int nMatches = 0;
@@ -166,13 +192,14 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         edm::LogInfo("CSCStubMatcher") << "clctGOOD";
 
       // store matching CLCTs in this chamber
-      if (std::find(chamber_to_clcts_[id].begin(), chamber_to_clcts_[id].end(), *c) == chamber_to_clcts_[id].end()) {
-        chamber_to_clcts_[id].push_back(*c);
+      if (std::find(chamber_to_clcts_[id2].begin(), chamber_to_clcts_[id2].end(), *c) == chamber_to_clcts_[id2].end()) {
+        chamber_to_clcts_[id2].push_back(*c);
       }
     }
-    if (chamber_to_clcts_[id].size() > 2) {
-      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id].size() << " in " << ch_id;
-      for (auto& c : chamber_to_clcts_[id])
+    if (chamber_to_clcts_[id2].size() > 2) {
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id2].size() << " in "
+                                     << ch_id2;
+      for (auto& c : chamber_to_clcts_[id2])
         edm::LogInfo("CSCStubMatcher") << "  " << c;
     }
   }
@@ -196,8 +223,9 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
 
     int ring = ch_id.ring();
     if (ring == 4)
-      ring = 1;  //use ME1b id to get CLCTs
+      ring = 1;  //use ME1b id to get ALCTs
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
+    auto id2 = ch_id2.rawId();  // ALCTs should be sorted into the det of the ALCTs.
 
     const auto& alcts_in_det = alcts.get(ch_id2);
     for (auto a = alcts_in_det.first; a != alcts_in_det.second; ++a) {
@@ -214,7 +242,7 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
       int wg = a->getKeyWG() + 1;  // as ALCT wiregroups numbers start from 0
 
       // store all ALCTs in this chamber
-      chamber_to_alcts_all_[id].push_back(*a);
+      chamber_to_alcts_all_[id2].push_back(*a);
 
       // match by wiregroup with the digis
       if (digi_wgs.find(wg) == digi_wgs.end()) {
@@ -224,13 +252,14 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
         edm::LogInfo("CSCStubMatcher") << "alctGOOD";
 
       // store matching ALCTs in this chamber
-      if (std::find(chamber_to_alcts_[id].begin(), chamber_to_alcts_[id].end(), *a) == chamber_to_alcts_[id].end()) {
-        chamber_to_alcts_[id].push_back(*a);
+      if (std::find(chamber_to_alcts_[id2].begin(), chamber_to_alcts_[id2].end(), *a) == chamber_to_alcts_[id2].end()) {
+        chamber_to_alcts_[id2].push_back(*a);
       }
     }
-    if (chamber_to_alcts_[id].size() > 2) {
-      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id].size() << " in " << ch_id;
-      for (auto& a : chamber_to_alcts_[id])
+    if (chamber_to_alcts_[id2].size() > 2) {
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id2].size() << " in "
+                                     << ch_id;
+      for (auto& a : chamber_to_alcts_[id2])
         edm::LogInfo("CSCStubMatcher") << "  " << a;
     }
   }
@@ -258,6 +287,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
     if (ring == 4)
       ring = 1;
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
+    auto id2 = ch_id2.rawId();  // LCTs should be sorted into the det of the LCTs.
 
     const auto& lcts_in_det = lcts.get(ch_id2);
 
@@ -275,28 +305,9 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       // Add ghost LCTs when there are two in bx
       // and the two don't share half-strip or wiregroup
       if (bx_to_lcts[bx].size() == 2 and addGhostLCTs_) {
-        // don't do this in station ME1/1 or ME2/1
-        if (!(ch_id.ring() == 1 and (ch_id.station() == 1 or ch_id.station() == 2))) {
-          auto lct11 = bx_to_lcts[bx][0];
-          auto lct22 = bx_to_lcts[bx][1];
-          int wg1 = lct11.getKeyWG();
-          int wg2 = lct22.getKeyWG();
-          int hs1 = lct11.getStrip();
-          int hs2 = lct22.getStrip();
-
-          if (!(wg1 == wg2 || hs1 == hs2) and lct11.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
-              lct22.getType() == CSCCorrelatedLCTDigi::ALCTCLCT) {
-            CSCCorrelatedLCTDigi lct12 = lct11;
-            lct12.setWireGroup(wg2);
-            lct12.setALCT(lct22.getALCT());
-            lcts_tmp.push_back(lct12);
-
-            CSCCorrelatedLCTDigi lct21 = lct22;
-            lct21.setWireGroup(wg1);
-            lct21.setALCT(lct11.getALCT());
-            lcts_tmp.push_back(lct21);
-          }
-        }
+        auto lct11 = bx_to_lcts[bx][0];
+        auto lct22 = bx_to_lcts[bx][1];
+        addGhostLCTs(lct11, lct22, lcts_tmp);
       }
     }
 
@@ -367,13 +378,13 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
 
       bool lct_tight_matched = alct_clct or alct_gem or clct_gem;
       bool lct_loose_matched = lct_clct_match or lct_alct_match;
-      bool lct_matched = lct_loose_matched or lct_tight_matched;
+      bool lct_matched = matchTypeTightLCT_ ? lct_tight_matched : lct_loose_matched;
 
       if (lct_matched) {
         if (verboseLCT_)
           edm::LogInfo("CSCStubMatcher") << "...was matched";
-        if (std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
-          chamber_to_lcts_[id].emplace_back(lct);
+        if (std::find(chamber_to_lcts_[id2].begin(), chamber_to_lcts_[id2].end(), lct) == chamber_to_lcts_[id2].end()) {
+          chamber_to_lcts_[id2].emplace_back(lct);
         }
       }
     }  // lct loop over
@@ -638,9 +649,15 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   CSCDetId cscId(rawId);
   CSCDetId keyId(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
   float fractional_strip = lct.getFractionalStrip();
-  // case ME1/a
-  if (cscId.station() == 1 and cscId.ring() == 4 and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
-    fractional_strip -= CSCConstants::NUM_STRIPS_ME1B;
+  // case ME1/1
+  if (cscId.station() == 1 and (cscId.ring() == 4 || cscId.ring() == 1)) {
+    int ring = 1;  // Default to ME1/b
+    if (lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
+      ring = 4;  // Change to ME1/a if the HalfStrip Number exceeds the range of ME1/b
+      fractional_strip -= CSCConstants::NUM_STRIPS_ME1B;
+    }
+    CSCDetId cscId_(cscId.endcap(), cscId.station(), ring, cscId.chamber(), cscId.layer());
+    cscId = cscId_;
   }
   // regular cases
   const auto& chamber = cscGeometry_->chamber(cscId);
@@ -662,4 +679,28 @@ void CSCStubMatcher::clear() {
   chamber_to_alcts_.clear();
   chamber_to_lcts_.clear();
   chamber_to_mplcts_.clear();
+}
+
+void CSCStubMatcher::addGhostLCTs(const CSCCorrelatedLCTDigi& lct11,
+                                  const CSCCorrelatedLCTDigi& lct22,
+                                  CSCCorrelatedLCTDigiContainer& lcts_tmp) const {
+  int wg1 = lct11.getKeyWG();
+  int wg2 = lct22.getKeyWG();
+  int hs1 = lct11.getStrip();
+  int hs2 = lct22.getStrip();
+
+  if (!(wg1 == wg2 || hs1 == hs2)) {
+    // flip the ALCTs
+    CSCCorrelatedLCTDigi lct12 = lct11;
+    lct12.setWireGroup(wg2);
+    lct12.setALCT(lct22.getALCT());
+    lct12.setCLCT(lct11.getCLCT());
+    lcts_tmp.push_back(lct12);
+
+    CSCCorrelatedLCTDigi lct21 = lct22;
+    lct21.setWireGroup(wg1);
+    lct21.setALCT(lct11.getALCT());
+    lct21.setCLCT(lct22.getCLCT());
+    lcts_tmp.push_back(lct21);
+  }
 }

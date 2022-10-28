@@ -1,11 +1,13 @@
 /*
 //\class GEMGeometryBuilder
 
- Description: GEM Geometry builder from DD and DD4HEP
+ Description: GEM Geometry builder from DD and DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
-              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
               Updated by Sunanda Banerjee (Fermilab) to make it working for dd4hep
               Updated:  7 August 2020 
+              Updated by Ian J. Watson (ian.james.watson@cern.ch) to allow GE2/1 demonstrator to be built
+              Updated: 7 December 2021
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -49,6 +51,37 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   std::string value = "MuonEndCapGEM";
 
   // Asking only for the MuonGEM's
+  DDSpecificsMatchesValueFilter filterGE2{DDValue(attribute, value, 0.0)};
+  DDFilteredView fvGE2(*cview, filterGE2);
+
+  MuonGeometryNumbering mdddnum(muonConstants);
+  GEMNumberingScheme gemNum(muonConstants);
+
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  int nGE21 = 0;
+  bool doSuper = fvGE2.firstChild();
+  while (doSuper) {
+    // getting chamber id from eta partitions
+    fvGE2.firstChild();
+    fvGE2.firstChild();
+    int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fvGE2.geoHistory()));
+    GEMDetId detIdCh = GEMDetId(rawidCh);
+    if (detIdCh.station() == 2)
+      nGE21++;
+
+    // back to chambers
+    fvGE2.parent();
+    fvGE2.parent();
+    doSuper = fvGE2.nextSibling();
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fv(*cview, filter);
 
@@ -57,10 +90,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   edm::LogVerbatim("Geometry") << "About to run through the GEM structure\n"
                                << " First logical part " << fv.logicalPart().name().name();
 #endif
-  bool doSuper = fv.firstChild();
-
-  MuonGeometryNumbering mdddnum(muonConstants);
-  GEMNumberingScheme gemNum(muonConstants);
+  doSuper = fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels "
@@ -93,7 +123,12 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
+
+    // In Run 3 we also have a GE2/1 station at layer 2. We make sure
+    // the superchamber gets built but also we build on the first
+    // layer for the other stations so the superchamber is in the
+    // right position there.
+    if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
@@ -151,7 +186,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  buildRegions(theGeometry, superChambers);
+  buildRegions(theGeometry, superChambers, demonstratorGeometry);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
@@ -301,15 +336,15 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFiltere
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
 }
 
-// DD4HEP
+// DD4hep
 
 void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
                                const cms::DDCompactView* cview,
                                const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
-  const cms::DDFilter filter(attribute, value);
-  cms::DDFilteredView fv(*cview, filter);
+  const cms::DDFilter filterGE2(attribute, value);
+  cms::DDFilteredView fvGE2(*cview, filterGE2);
 
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
@@ -318,6 +353,30 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   int theLevelPart = muonConstants.getValue("level");
   int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
+
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  int nGE21 = 0;
+  while (fvGE2.firstChild()) {
+    const auto& history = fvGE2.history();
+    MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
+    GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
+    if (detId.station() == GEMDetId::minStationId0) {
+    } else {
+      if (fvGE2.level() == levelChamb) {
+        if (detId.station() == 2)
+          nGE21++;
+      }
+    }
+  }
+
+  bool demonstratorGeometry = nGE21 == 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fv(*cview, filter);
   std::vector<GEMSuperChamber*> superChambers;
   std::vector<GEMChamber*> chambers;
 
@@ -354,7 +413,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if (detId.layer() == 1) {
+        if ((detId.layer() == 1) || (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
           GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
           superChambers.emplace_back(gemSuperChamber);
         }
@@ -378,7 +437,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     theGeometry.add(gemChamber);
   }
 
-  buildRegions(theGeometry, superChambers);
+  buildRegions(theGeometry, superChambers, demonstratorGeometry);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
@@ -386,17 +445,17 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, 
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
 
-  double dy = k_ScaleFromDD4Hep * dpar[3];   //length is along local Y
-  double dz = k_ScaleFromDD4Hep * dpar[2];   // thickness is long local Z
-  double dx1 = k_ScaleFromDD4Hep * dpar[0];  // bottom width is along local X
-  double dx2 = k_ScaleFromDD4Hep * dpar[1];  // top width is along loc
+  double dy = k_ScaleFromDD4hep * dpar[3];   //length is along local Y
+  double dz = k_ScaleFromDD4hep * dpar[2];   // thickness is long local Z
+  double dx1 = k_ScaleFromDD4hep * dpar[0];  // bottom width is along local X
+  double dx2 = k_ScaleFromDD4hep * dpar[1];  // top width is along loc
 
   auto solidB = solid.solidB();
   dpar = solidB.dimensions();
   const int nch = 2;
   const double chgap = 2.105;
 
-  dz += (k_ScaleFromDD4Hep * dpar[2]);  // chamber thickness
+  dz += (k_ScaleFromDD4hep * dpar[2]);  // chamber thickness
   dz *= nch;                            // 2 chambers in superchamber
   dz += chgap;                          // gap between chambers
 
@@ -412,15 +471,15 @@ GEMChamber* GEMGeometryBuilder::buildChamber(cms::DDFilteredView& fv, GEMDetId d
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
 
-  double dy = k_ScaleFromDD4Hep * dpar[3];   //length is along local Y
-  double dz = k_ScaleFromDD4Hep * dpar[2];   // thickness is long local Z
-  double dx1 = k_ScaleFromDD4Hep * dpar[0];  // bottom width is along local X
-  double dx2 = k_ScaleFromDD4Hep * dpar[1];  // top width is along local X
+  double dy = k_ScaleFromDD4hep * dpar[3];   //length is along local Y
+  double dz = k_ScaleFromDD4hep * dpar[2];   // thickness is long local Z
+  double dx1 = k_ScaleFromDD4hep * dpar[0];  // bottom width is along local X
+  double dx2 = k_ScaleFromDD4hep * dpar[1];  // top width is along local X
 
   auto solidB = solid.solidB();
   dpar = solidB.dimensions();
 
-  dz += (k_ScaleFromDD4Hep * dpar[2]);  // chamber thickness
+  dz += (k_ScaleFromDD4hep * dpar[2]);  // chamber thickness
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -441,9 +500,9 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars{float(k_ScaleFromDD4Hep * dpar[0]),
-                                float(k_ScaleFromDD4Hep * dpar[1]),
-                                float(k_ScaleFromDD4Hep * dpar[3]),
+  const std::vector<float> pars{float(k_ScaleFromDD4hep * dpar[0]),
+                                float(k_ScaleFromDD4hep * dpar[1]),
+                                float(k_ScaleFromDD4hep * dpar[3]),
                                 float(nStrips),
                                 float(nPads),
                                 float(dPhi)};
@@ -452,7 +511,7 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
   RCPBoundPlane surf(
       boundPlane(fv,
                  new TrapezoidalPlaneBounds(
-                     k_ScaleFromDD4Hep * dpar[0], k_ScaleFromDD4Hep * dpar[1], k_ScaleFromDD4Hep * dpar[3], ti),
+                     k_ScaleFromDD4hep * dpar[0], k_ScaleFromDD4hep * dpar[1], k_ScaleFromDD4hep * dpar[3], ti),
                  isOdd));
 
   std::string_view name = fv.name();
@@ -469,7 +528,7 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
   // extract the position
   const Double_t* tran = fv.trans();
   Surface::PositionType posResult(
-      k_ScaleFromDD4Hep * tran[0], k_ScaleFromDD4Hep * tran[1], k_ScaleFromDD4Hep * tran[2]);
+      k_ScaleFromDD4hep * tran[0], k_ScaleFromDD4hep * tran[1], k_ScaleFromDD4hep * tran[2]);
 
   // now the rotation
   DDRotationMatrix rota;
@@ -496,7 +555,9 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
 }
 
-void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vector<GEMSuperChamber*>& superChambers) {
+void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
+                                      const std::vector<GEMSuperChamber*>& superChambers,
+                                      bool demonstratorGeometry) {
   // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re + 2) {
     GEMRegion* region = new GEMRegion(re);
@@ -523,9 +584,14 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vecto
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
-              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+              // this particular layer 1 chamber *should* be missing in the demonstrator geometry (we only have layer 2)
+              if (!demonstratorGeometry or
+                  not(chId.region() == 1 and chId.station() == 2 and chId.chamber() == 16 and chId.layer() == 1)) {
+                edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+              }
+            } else {
+              superChamber->add(chamber);
             }
-            superChamber->add(chamber);
           }
           ring->add(superChamber);
           theGeometry.add(superChamber);

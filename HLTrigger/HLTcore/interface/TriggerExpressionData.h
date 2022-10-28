@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionData_h
-#define HLTrigger_HLTfilters_TriggerExpressionData_h
+#ifndef HLTrigger_HLTcore_TriggerExpressionData_h
+#define HLTrigger_HLTcore_TriggerExpressionData_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -75,7 +75,7 @@ namespace triggerExpression {
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
+      if (not m_hltResultsTag.label().empty() and not m_usePathStatus)
         m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
         m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
@@ -112,7 +112,7 @@ namespace triggerExpression {
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
+      if (not m_hltResultsTag.label().empty() and not m_usePathStatus)
         m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
         m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
@@ -220,4 +220,4 @@ namespace triggerExpression {
 
 }  // namespace triggerExpression
 
-#endif  // HLTrigger_HLTfilters_TriggerExpressionData_h
+#endif  // HLTrigger_HLTcore_TriggerExpressionData_h

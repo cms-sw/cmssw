@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -48,15 +48,12 @@
 // class decleration
 //
 
-class RPCConeConnectionsAna : public edm::EDAnalyzer {
+class RPCConeConnectionsAna : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCConeConnectionsAna(const edm::ParameterSet&);
-  ~RPCConeConnectionsAna();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
   void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
@@ -67,6 +64,10 @@ private:
   int m_sectorEnd;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<L1RPCConeBuilder, L1RPCConeBuilderRcd> m_coneBuilderToken;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> m_rpcGeomToken;
+  edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> m_coneDefToken;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> m_nmapToken;
 };
 
 //
@@ -89,35 +90,28 @@ RPCConeConnectionsAna::RPCConeConnectionsAna(const edm::ParameterSet& iConfig)
 
   m_sectorBeg = iConfig.getParameter<int>("minSector");
   m_sectorEnd = iConfig.getParameter<int>("maxSector");
-}
 
-RPCConeConnectionsAna::~RPCConeConnectionsAna() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  m_coneBuilderToken = esConsumes();
+  m_rpcGeomToken = esConsumes();
+  m_coneDefToken = esConsumes();
+  m_nmapToken = esConsumes();
 }
 
 //
 // member functions
 //
 
-// ------------ method called to for each event  ------------
-void RPCConeConnectionsAna::beginJob() {}
-
 // ------------ method called once each job just before starting event loop  ------------
 void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& evtSetup) {
   std::map<int, int> PACmap;
 
-  edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-  evtSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  edm::ESHandle<L1RPCConeBuilder> coneBuilder = evtSetup.getHandle(m_coneBuilderToken);
 
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  edm::ESHandle<RPCGeometry> rpcGeom = evtSetup.getHandle(m_rpcGeomToken);
 
-  edm::ESHandle<L1RPCConeDefinition> coneDef;
-  evtSetup.get<L1RPCConeDefinitionRcd>().get(coneDef);
+  edm::ESHandle<L1RPCConeDefinition> coneDef = evtSetup.getHandle(m_coneDefToken);
 
-  edm::ESHandle<RPCEMap> nmap;
-  evtSetup.get<RPCEMapRcd>().get(nmap);
+  edm::ESHandle<RPCEMap> nmap = evtSetup.getHandle(m_nmapToken);
   const RPCEMap* eMap = nmap.product();
   edm::ESHandle<RPCReadOutMapping> map = eMap->convert();
 
@@ -221,9 +215,6 @@ void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void RPCConeConnectionsAna::endJob() {}
 
 int RPCConeConnectionsAna::getDCCNumber(int iTower, int iSec) {
   int tbNumber = 0;

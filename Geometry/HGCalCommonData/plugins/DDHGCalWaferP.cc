@@ -21,8 +21,8 @@
 class DDHGCalWaferP : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferP();
-  ~DDHGCalWaferP() override;
+  DDHGCalWaferP() {}
+  ~DDHGCalWaferP() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -51,14 +51,6 @@ private:
   int posSense_;                         // Position depleted layer
   std::string nameSpace_;                // Namespace to be used
 };
-
-DDHGCalWaferP::DDHGCalWaferP() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: Creating an instance";
-#endif
-}
-
-DDHGCalWaferP::~DDHGCalWaferP() {}
 
 void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
                                const DDVectorArguments& vArgs,
@@ -107,16 +99,12 @@ void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
   posSense_ = static_cast<int>(nArgs["PosSensitive"]);
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: NameSpace " << nameSpace_ << " Sensitive Layer Name " << senseName_
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: NameSpace " << nameSpace_ << ": Sensitive Layer Name " << senseName_
                                 << " Thickness " << senseT_ << " Type " << senseType_ << " Position " << posSense_;
 #endif
 }
 
 void DDHGCalWaferP::execute(DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferP...";
-#endif
-
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * waferSize_;

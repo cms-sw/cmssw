@@ -211,7 +211,7 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
     histManager_.bookAllFEDHistograms(ibooker);
 
   //dummy error object
-  SPYHistograms::Errors lError;
+  SPYHistograms::Errors lError = {};
   for (uint16_t lFedId = sistrip::FED_ID_MIN; lFedId <= sistrip::FED_ID_MAX; ++lFedId)
     histManager_.bookFEDHistograms(ibooker, lFedId, lError, true);
 }

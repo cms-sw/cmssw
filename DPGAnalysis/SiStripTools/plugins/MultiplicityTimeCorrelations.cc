@@ -27,7 +27,7 @@
 #include <climits>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -57,7 +57,7 @@
 // class decleration
 //
 
-class MultiplicityTimeCorrelations : public edm::EDAnalyzer {
+class MultiplicityTimeCorrelations : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit MultiplicityTimeCorrelations(const edm::ParameterSet&);
   ~MultiplicityTimeCorrelations() override;
@@ -66,6 +66,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void endJob() override;
 
   // ----------member data ---------------------------
@@ -128,6 +129,8 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
       _trnumb(),
       _dbxbins(iConfig.getUntrackedParameter<std::vector<int> >("dbxBins")) {
   //now do what ever initialization is needed
+
+  usesResource(TFileService::kSharedResource);
 
   // configure the filter
 

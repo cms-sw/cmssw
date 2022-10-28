@@ -41,9 +41,9 @@ namespace gs {
       return (const_cast<T *>(data_))[index];
     }
 
-  private:
     ArrayAdaptor() = delete;
 
+  private:
     const T *data_;
     std::size_t size_;
     bool writetemCl_;

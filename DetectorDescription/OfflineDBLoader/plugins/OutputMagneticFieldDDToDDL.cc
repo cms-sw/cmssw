@@ -51,6 +51,7 @@ private:
   int m_rotNumSeed;
   std::string m_fname;
   std::ostream* m_xos;
+  edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> ddToken_;
 };
 
 bool ddsvaluesCmp::operator()(const DDsvalues_type& sv1, const DDsvalues_type& sv2) const {
@@ -86,6 +87,8 @@ OutputMagneticFieldDDToDDL::OutputMagneticFieldDDToDDL(const edm::ParameterSet& 
   (*m_xos) << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
   (*m_xos) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">\n";
   (*m_xos) << std::fixed << std::setprecision(18);
+
+  ddToken_ = esConsumes<DDCompactView, IdealMagneticFieldRecord>();
 }
 
 OutputMagneticFieldDDToDDL::~OutputMagneticFieldDDToDDL() {
@@ -97,8 +100,7 @@ OutputMagneticFieldDDToDDL::~OutputMagneticFieldDDToDDL() {
 void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   edm::LogInfo("OutputMagneticFieldDDToDDL") << "OutputMagneticFieldDDToDDL::beginRun";
 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealMagneticFieldRecord>().get(pDD);
+  edm::ESTransientHandle<DDCompactView> pDD = es.getTransientHandle(ddToken_);
 
   const auto& gra = pDD->graph();
 

@@ -23,6 +23,7 @@ using namespace edm;
 using namespace std;
 
 ESDataCertificationTask::ESDataCertificationTask(const ParameterSet& ps) {
+  usesResource("DQMStore");
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -58,6 +59,8 @@ void ESDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& l
                                                    const edm::EventSetup& iSetup) {
   this->reset();
 }
+
+void ESDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void ESDataCertificationTask::reset(void) {
   if (meESDataCertificationSummary_)

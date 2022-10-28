@@ -17,7 +17,6 @@
 #include "JetMETCorrections/Algorithms/interface/JetCorrectorImplMakerBase.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -35,9 +34,9 @@
 //
 // constructors and destructor
 //
-JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(edm::ParameterSet const& iPSet)
+JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(edm::ParameterSet const& iPSet, edm::ConsumesCollector iC)
     : level_(iPSet.getParameter<std::string>("level")),
-      algo_(iPSet.getParameter<std::string>("algorithm")),
+      algoToken_(iC.esConsumes(edm::ESInputTag("", iPSet.getParameter<std::string>("algorithm")))),
       cacheId_(0) {}
 
 // JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase& rhs)
@@ -55,9 +54,8 @@ std::shared_ptr<FactorizedJetCorrectorCalculator const> JetCorrectorImplMakerBas
     edm::EventSetup const& iSetup, std::function<void(std::string const&)> iLevelCheck) {
   auto const& rec = iSetup.get<JetCorrectionsRecord>();
   if (cacheId_ != rec.cacheIdentifier()) {
-    edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    rec.get(algo_, JetCorParColl);
-    auto const& parameters = ((*JetCorParColl)[level_]);
+    auto const& JetCorParColl = rec.get(algoToken_);
+    auto const& parameters = JetCorParColl[level_];
 
     iLevelCheck(parameters.definitions().level());
     std::vector<JetCorrectorParameters> vParam;

@@ -12,7 +12,7 @@
 #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,14 +29,16 @@
 // class declaration
 //
 
-class TestTrackerReader : public edm::EDAnalyzer {
+class TestTrackerReader : public edm::one::EDAnalyzer<> {
 public:
-  explicit TestTrackerReader(const edm::ParameterSet&) : rot(0) {}
+  explicit TestTrackerReader(const edm::ParameterSet&) : aliToken_(esConsumes()), aliErrToken_(esConsumes()), rot(0) {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrToken_;
   float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* rot;
 };
@@ -45,10 +47,8 @@ void TestTrackerReader::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   // Retrieve alignment[Error]s from DBase
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(aliErrToken_);
 
   edm::LogVerbatim("DumpAlignments") << "\n----------------------\n";
   for (std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin(); it != alignments->m_align.end();

@@ -13,8 +13,6 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
@@ -32,34 +30,6 @@ namespace PhysicsTools {
 
     bool update(const Calibration::MVAComputer *computer);
     bool update(const Calibration::MVAComputerContainer *container, const char *calib);
-
-    template <class T>
-    bool update(const edm::EventSetup &es) {
-      edm::ESHandle<Calibration::MVAComputer> handle;
-      es.get<T>().get(handle);
-      return update(handle.product());
-    }
-
-    template <class T>
-    bool update(const edm::EventSetup &es, const char *calib) {
-      edm::ESHandle<Calibration::MVAComputerContainer> handle;
-      es.get<T>().get(handle);
-      return update(handle.product(), calib);
-    }
-
-    template <class T>
-    bool update(const char *label, const edm::EventSetup &es) {
-      edm::ESHandle<Calibration::MVAComputer> handle;
-      es.get<T>().get(label, handle);
-      return update(handle.product());
-    }
-
-    template <class T>
-    bool update(const char *label, const edm::EventSetup &es, const char *calib) {
-      edm::ESHandle<Calibration::MVAComputerContainer> handle;
-      es.get<T>().get(label, handle);
-      return update(handle.product(), calib);
-    }
 
     operator bool() const { return computer.get(); }
 

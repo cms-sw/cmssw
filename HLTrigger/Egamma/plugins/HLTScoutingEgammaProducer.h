@@ -82,9 +82,12 @@ private:
   const double egammaPtCut;
   const double egammaEtaCut;
   const double egammaHoverECut;
+  const std::vector<double> egammaSigmaIEtaIEtaCut;
+  const std::vector<double> absEtaBinUpperEdges;
   const int mantissaPrecision;
   const bool saveRecHitTiming;
   const int rechitMatrixSize;
+  const bool rechitZeroSuppression;
 
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEB_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEE_;

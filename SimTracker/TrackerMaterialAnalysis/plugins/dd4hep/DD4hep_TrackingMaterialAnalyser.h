@@ -33,7 +33,7 @@ private:
   void saveLayerPlots();
 
   edm::EDGetTokenT<std::vector<MaterialAccountingTrack> > m_materialToken;
-  edm::ESInputTag m_tag;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_dddToken;
   SplitMode m_splitMode;
   bool m_skipAfterLastDetector;
   bool m_skipBeforeFirstDetector;

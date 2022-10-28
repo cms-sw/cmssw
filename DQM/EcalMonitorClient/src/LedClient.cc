@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
-
+#include <fstream>
 namespace ecaldqm {
   LedClient::LedClient()
       : DQWorkerClient(),
@@ -70,6 +70,17 @@ namespace ecaldqm {
       expectedAmplitude_[iME] = inExpectedAmplitude[iWL];
       expectedTiming_[iME] = inExpectedTiming[iWL];
       expectedPNAmplitude_[iME] = inExpectedPNAmplitude[iWL];
+    }
+
+    //Get the list of known problematic Supercrystal ids and store them in the vector SClist_
+    std::string SClistpath = edm::FileInPath("DQM/EcalMonitorClient/data/LedTowers/SClist.dat").fullPath();
+    std::ifstream infile;
+    infile.open((SClistpath).c_str());
+    uint32_t detid;
+    int ix, iy, iz;
+    while (!infile.eof()) {
+      infile >> ix >> iy >> iz >> detid;
+      SClist_.push_back(detid);
     }
 
     qualitySummaries_.insert("Quality");
@@ -153,11 +164,23 @@ namespace ecaldqm {
           intensity /= forwardFactor_;
 
         float aRmsThr(sqrt(pow(aMean * toleranceAmpRMSRatio_, 2) + pow(3., 2)));
-        if (intensity < toleranceAmplitude_ || aRms > aRmsThr ||
-            std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ || tRms > toleranceTimRMS_)
-          qItr->setBinContent(doMask ? kMBad : kBad);
-        else
-          qItr->setBinContent(doMask ? kMGood : kGood);
+
+        EcalScDetId scid = EEDetId(id).sc();  //Get the Endcap SC id for the given crystal id.
+
+        //For the known bad Supercrystals in the SClist, bad quality flag is only set based on the amplitude RMS
+        //and everything else is ignored.
+        if (std::find(SClist_.begin(), SClist_.end(), int(scid)) != SClist_.end()) {
+          if (aRms > aRmsThr)
+            qItr->setBinContent(doMask ? kMBad : kBad);
+          else
+            qItr->setBinContent(doMask ? kMGood : kGood);
+        } else {
+          if (intensity < toleranceAmplitude_ || aRms > aRmsThr ||
+              std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ || tRms > toleranceTimRMS_)
+            qItr->setBinContent(doMask ? kMBad : kBad);
+          else
+            qItr->setBinContent(doMask ? kMGood : kGood);
+        }
       }
 
       towerAverage_(meQualitySummary, meQuality, 0.2);

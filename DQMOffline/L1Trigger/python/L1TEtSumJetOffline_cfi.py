@@ -87,8 +87,8 @@ goodPFJetsForL1T = cms.EDFilter(
 from L1Trigger.L1TNtuples.L1TPFMetNoMuProducer_cfi import l1tPFMetNoMu
 
 l1tPFMetNoMuForDQM = l1tPFMetNoMu.clone(
-    pfMETCollection=cms.InputTag('pfMETT1'),
-    muonCollection=cms.InputTag('muons'),
+    pfMETCollection= 'pfMet',  ## Was 'pfMETT1', threw errors - AWB 2022.09.28
+    muonCollection= 'muons'
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
@@ -168,11 +168,11 @@ ppRef_2017.toModify(
 
 # emulator module
 l1tEtSumJetOfflineDQMEmu = l1tEtSumJetOfflineDQM.clone(
-    stage2CaloLayer2JetSource=cms.InputTag("simCaloStage2Digis"),
-    stage2CaloLayer2EtSumSource=cms.InputTag("simCaloStage2Digis"),
+    stage2CaloLayer2JetSource = "simCaloStage2Digis",
+    stage2CaloLayer2EtSumSource = "simCaloStage2Digis",
 
-    histFolderEtSum=cms.string('L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
-    histFolderJet=cms.string('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'),
+    histFolderEtSum = 'L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco',
+    histFolderJet= 'L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'
 )
 
 # sequences

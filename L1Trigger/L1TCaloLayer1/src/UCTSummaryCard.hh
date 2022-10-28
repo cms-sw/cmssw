@@ -19,6 +19,14 @@ public:
                  uint32_t eGammaSeedIn = 5,
                  double eGammaIsolationFactorIn = 0.3);
 
+  // No copy constructor is needed
+
+  UCTSummaryCard(const UCTSummaryCard&) = delete;
+
+  // No equality operator is needed
+
+  const UCTSummaryCard& operator=(const UCTSummaryCard&) = delete;
+
   virtual ~UCTSummaryCard();
 
   // To set up event data before processing
@@ -52,14 +60,6 @@ public:
   void print();
 
 private:
-  // No copy constructor is needed
-
-  UCTSummaryCard(const UCTSummaryCard&) = delete;
-
-  // No equality operator is needed
-
-  const UCTSummaryCard& operator=(const UCTSummaryCard&) = delete;
-
   // Helper functions
 
   bool processRegion(UCTRegionIndex regionIndex);

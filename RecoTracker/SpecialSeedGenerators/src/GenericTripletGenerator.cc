@@ -24,11 +24,11 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
         << "You are using " << layers.numberOfLayersInSet() << " layers in set instead of 3 ";
   std::map<float, OrderedHitTriplet> radius_triplet_map;
   for (SeedingLayerSetsHits::SeedingLayerSet ls : layers) {
-    auto innerHits = region.hits(es, ls[0]);
+    auto innerHits = region.hits(ls[0]);
     //std::cout << "innerHits.size()=" << innerHits.size() << std::endl;
-    auto middleHits = region.hits(es, ls[1]);
+    auto middleHits = region.hits(ls[1]);
     //std::cout << "middleHits.size()=" << middleHits.size() << std::endl;
-    auto outerHits = region.hits(es, ls[2]);
+    auto outerHits = region.hits(ls[2]);
     //std::cout << "outerHits.size()=" << outerHits.size() << std::endl;
     //std::cout << "trying " << innerHits.size()*middleHits.size()*outerHits.size() << " combinations "<<std::endl;
     for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++) {

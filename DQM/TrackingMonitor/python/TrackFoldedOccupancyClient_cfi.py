@@ -19,25 +19,25 @@ phase1Pixel.toModify(TrackerMapFoldedClient, EtaMin=-3., EtaMax=3.)
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(TrackerMapFoldedClient, EtaMin=-4.5, EtaMax=4.5)
 
-TrackerMapFoldedClient_highpurity_dzPV0p1=TrackerMapFoldedClient.clone(
-    TrackQuality=cms.string('highPurityTracks/dzPV0p1')
+TrackerMapFoldedClient_highpurity_dzPV0p1 = TrackerMapFoldedClient.clone(
+    TrackQuality = 'highPurityTracks/dzPV0p1'
 )
 
-TrackerMapFoldedClient_highpurity_pt0to1=TrackerMapFoldedClient.clone(
-    TrackQuality=cms.string('highPurityTracks/pt_0to1')
+TrackerMapFoldedClient_highpurity_pt0to1 = TrackerMapFoldedClient.clone(
+    TrackQuality = 'highPurityTracks/pt_0to1'
 )
 
-TrackerMapFoldedClient_highpurity_pt1=TrackerMapFoldedClient.clone(
-    TrackQuality=cms.string('highPurityTracks/pt_1')
+TrackerMapFoldedClient_highpurity_pt1 = TrackerMapFoldedClient.clone(
+    TrackQuality = 'highPurityTracks/pt_1'
 )
 
 foldedMapClientSeq=cms.Sequence(TrackerMapFoldedClient*TrackerMapFoldedClient_highpurity_dzPV0p1*TrackerMapFoldedClient_highpurity_pt0to1*TrackerMapFoldedClient_highpurity_pt1)
 
 #run3
-TrackerMapFoldedClient_hiConformalPixelTracks=TrackerMapFoldedClient.clone(
-    TrackQuality = cms.string('hiConformalPixelTracks')
+TrackerMapFoldedClient_hiConformalPixelTracks = TrackerMapFoldedClient.clone(
+    TrackQuality = 'hiConformalPixelTracks'
 )
 
-folded_with_conformalpixtkclient= cms.Sequence(TrackerMapFoldedClient_hiConformalPixelTracks+foldedMapClientSeq.copy())
+folded_with_conformalpixtkclient = cms.Sequence(TrackerMapFoldedClient_hiConformalPixelTracks+foldedMapClientSeq.copy())
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(foldedMapClientSeq, folded_with_conformalpixtkclient)

@@ -27,9 +27,8 @@ public:
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     auto npuTab = std::make_unique<nanoaod::FlatTable>(1, "Pileup", true);
 
-    edm::Handle<std::vector<reco::Vertex>> pvsIn;
-    iEvent.getByToken(pvTag_, pvsIn);
-    const double refpvz = (*pvsIn)[0].position().z();
+    const auto& pvProd = iEvent.get(pvTag_);
+    const double refpvz = pvProd.at(0).position().z();
 
     edm::Handle<std::vector<PileupSummaryInfo>> npuInfo;
     if (iEvent.getByToken(npuTag_, npuInfo)) {
@@ -42,7 +41,7 @@ public:
   void fillNPUObjectTable(const std::vector<PileupSummaryInfo>& npuProd, nanoaod::FlatTable& out, double refpvz) const {
     // Get BX 0
     unsigned int bx0 = 0;
-    unsigned int nt = 0;
+    float nt = 0;
     unsigned int npu = 0;
 
     auto zbin = std::lower_bound(vz_.begin(), vz_.end() - 1, std::abs(refpvz));
@@ -87,7 +86,8 @@ public:
     out.addColumnValue<float>("nTrueInt",
                               nt,
                               "the true mean number of the poisson distribution for this event from which the number "
-                              "of interactions each bunch crossing has been sampled");
+                              "of interactions each bunch crossing has been sampled",
+                              10);
     out.addColumnValue<int>(
         "nPU",
         npu,

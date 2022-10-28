@@ -20,7 +20,6 @@ class ppEra_Run3(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.addEI=True
         self.eras=Run3
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3' ]

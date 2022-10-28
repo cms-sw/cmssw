@@ -29,15 +29,15 @@ public:
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
 DDTestDumpGeometry::DDTestDumpGeometry(const ParameterSet& iConfig)
-    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")), m_token(esConsumes(m_tag)) {}
 
 void DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpGeometry::analyze: " << m_tag;
-  ESTransientHandle<DDDetector> det;
-  iEventSetup.get<IdealGeometryRecord>().get(m_tag, det);
+  ESTransientHandle<DDDetector> det = iEventSetup.getTransientHandle(m_token);
 
   TGeoManager const& geom = det->manager();
 
@@ -46,7 +46,10 @@ void DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   TString path;
   while ((node = next())) {
     next.GetPath(path);
-    LogVerbatim("Geometry") << path << ": " << node->GetVolume()->GetName();
+    path.ReplaceAll("xml-memory-buffer:", "");  // Remove artifact of DB reading
+    TString nodeName(node->GetVolume()->GetName());
+    nodeName.ReplaceAll("xml-memory-buffer:", "");  // Remove artifact of DB reading
+    LogVerbatim("DumpGeometry") << path << ": " << nodeName;
   }
 }
 

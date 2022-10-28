@@ -138,6 +138,13 @@ void HcalElectronicsSim::analogToDigital(
 void HcalElectronicsSim::analogToDigital(
     CLHEP::HepRandomEngine* engine, CaloSamples& lf, QIE10DataFrame& result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine, lf, result, preMixFactor, preMixBits);
+  if (!PreMixDigis) {
+    const HFSimParameters& pars = static_cast<const HFSimParameters&>(theParameterMap->simParameters(lf.id()));
+    if (pars.threshold_currentTDC() > 0.) {
+      HcalTDC theTDC((pars.threshold_currentTDC()));
+      theTDC.timing(lf, result);
+    }
+  }
 }
 
 void HcalElectronicsSim::analogToDigital(

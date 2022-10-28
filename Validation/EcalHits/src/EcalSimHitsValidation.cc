@@ -19,7 +19,7 @@ using namespace std;
 
 EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
     : g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-      HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"))) {
+      HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("moduleLabelMC"))) {
   EBHitsCollectionToken =
       consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EBHitsCollection")));
   EEHitsCollectionToken =

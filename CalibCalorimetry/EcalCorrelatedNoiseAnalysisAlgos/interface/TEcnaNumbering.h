@@ -86,11 +86,11 @@ public:
 
   TEcnaNumbering();
   TEcnaNumbering(TEcnaObject*, const TString&);
-  TEcnaNumbering(const TString&, const TEcnaParEcal*);
+  TEcnaNumbering(const TString&, TEcnaParEcal*);
   ~TEcnaNumbering() override;
 
   void SetEcalSubDetector(const TString&);
-  void SetEcalSubDetector(const TString&, const TEcnaParEcal*);
+  void SetEcalSubDetector(const TString&, TEcnaParEcal*);
 
   //================================== BARREL
 

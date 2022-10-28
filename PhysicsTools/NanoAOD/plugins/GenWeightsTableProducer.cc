@@ -830,7 +830,7 @@ public:
             }
           } else if (std::regex_search(lines[iLine], groups, weightgroupRwgt)) {
             std::string groupname = groups.str(1);
-            if (groupname == "mg_reweighting") {
+            if (groupname.find("mg_reweighting") != std::string::npos) {
               if (lheDebug)
                 std::cout << ">>> Looks like a LHE weights for reweighting" << std::endl;
               for (++iLine; iLine < nLines; ++iLine) {
@@ -1107,6 +1107,13 @@ public:
       out->addVFloatWithNorm("LHEPdfSumw" + label,
                              "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel,
                              sumPDFs,
+                             runCounter->sumw);
+      auto sumPS = runCounter->sumPS;
+      for (auto& val : sumPS)
+        val *= norm;
+      out->addVFloatWithNorm("PSSumw" + label,
+                             "Sum of genEventWeight * PSWeight[i], divided by genEventSumw" + doclabel,
+                             sumPS,
                              runCounter->sumw);
       if (!runCounter->sumRwgt.empty()) {
         auto sumRwgts = runCounter->sumRwgt;

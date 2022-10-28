@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -53,7 +53,7 @@
 //
 
 template <class T>
-class BigEventsDebugger : public edm::EDAnalyzer {
+class BigEventsDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit BigEventsDebugger(const edm::ParameterSet&);
   ~BigEventsDebugger() override;
@@ -100,6 +100,7 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 

@@ -10,15 +10,20 @@
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 class DTMtime;
 class DTRecoConditions;
 class MagneticField;
+class DTMtimeRcd;
+class DTRecoConditionsVdriftRcd;
+class IdealMagneticFieldRecord;
+class DTRecoConditionsUncertRcd;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTLinearDriftFromDBAlgo(const edm::ParameterSet& config);
+  DTLinearDriftFromDBAlgo(const edm::ParameterSet& config, edm::ConsumesCollector cc);
 
   /// Destructor
   ~DTLinearDriftFromDBAlgo() override;
@@ -76,15 +81,22 @@ private:
                        DTRecHit1D& newHit1D,
                        int step) const;
 
-  //Map of meantimes
+  // Map of meantimes (old DB format)
   const DTMtime* mTimeMap;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
+
+  // Drift velocity (new DB format)
+  const DTRecoConditions* vDriftMap;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftMapToken_;
 
   // MF field
   const MagneticField* field;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
   int nominalB;
 
   // Map of hit uncertainties
   const DTRecoConditions* uncertMap;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsUncertRcd> uncertMapToken_;
 
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;
@@ -102,6 +114,10 @@ private:
   // Assign hit uncertainties based on new uncertainties DB
   // If false, the value taken from vdrift DB is used instead.
   bool useUncertDB;
+
+  // Read legacy format for vdrift and ttrig DBs
+  bool readLegacyTTrigDB;
+  bool readLegacyVDriftDB;
 
   // Switch on/off the verbosity
   const bool debug;

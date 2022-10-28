@@ -53,14 +53,14 @@ public:
   // ---------- member functions ---------------------------
   void destroy();
 
-  sigc::signal<void, const FWViewBase*> beingDestroyed_;
-  sigc::signal<void, Int_t, Int_t> openSelectedModelContextMenu_;
+  sigc::signal<void(const FWViewBase*)> beingDestroyed_;
+  sigc::signal<void(Int_t, Int_t)> openSelectedModelContextMenu_;
 
 protected:
   ~FWViewBase() override;
   FWViewType m_type;
 
-private:
+public:
   FWViewBase(const FWViewBase&) = delete;  // stop default
 
   const FWViewBase& operator=(const FWViewBase&) = delete;  // stop default

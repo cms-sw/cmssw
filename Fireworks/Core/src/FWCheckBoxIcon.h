@@ -39,11 +39,11 @@ public:
   // ---------- member functions ---------------------------
   void setChecked(bool iChecked) { m_checked = iChecked; }
 
-private:
   FWCheckBoxIcon(const FWCheckBoxIcon&) = delete;  // stop default
 
   const FWCheckBoxIcon& operator=(const FWCheckBoxIcon&) = delete;  // stop default
 
+private:
   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
 
   // ---------- member data --------------------------------

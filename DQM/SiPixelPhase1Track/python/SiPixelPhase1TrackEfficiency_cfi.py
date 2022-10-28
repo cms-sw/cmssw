@@ -74,9 +74,8 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   xlabel = "#valid/(#valid+#missing)",
   dimensions = 1,
   specs = VPSet(
-    #2D profile maps per layer
     StandardSpecification2DProfile,
-
+    
     #profiles per layer and shell
     Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder")
                             .reduce("MEAN")
@@ -94,9 +93,20 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
     Specification().groupBy("PXForward/PXDisk")
                    .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
-                   .save()
+                   .save(),
 
-    #StandardSpecificationPixelmapProfile    
+    Specification(PerLayer2D)
+			.groupBy("PXBarrel/PXLayer/Lumisection")
+			.groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                        .groupBy("PXBarrel", "EXTEND_Y")
+                        .reduce("MEAN")
+                        .save(),
+    Specification(PerLayer2D)
+			.groupBy("PXForward/PXDisk/Lumisection")
+                        .groupBy("PXForward/PXDisk", "EXTEND_X")
+                        .groupBy("PXForward", "EXTEND_Y")
+                        .reduce("MEAN")
+                        .save(),
   )
 )
 
@@ -139,7 +149,8 @@ SiPixelPhase1TrackEfficiencyAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackEfficien
         tracker = cms.InputTag("MeasurementTrackerEvent"),
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry,
-        triggerflags = trigger.SiPixelPhase1Triggers
+        triggerflags = trigger.SiPixelPhase1Triggers,
+        VertexCut = cms.untracked.bool(True)
 )
 
 SiPixelPhase1TrackEfficiencyHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

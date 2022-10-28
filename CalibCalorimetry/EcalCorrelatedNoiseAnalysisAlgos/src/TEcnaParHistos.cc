@@ -67,7 +67,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
   SetEcalSubDetector(SubDet.Data());
 }
 
-TEcnaParHistos::TEcnaParHistos(const TString& SubDet, const TEcnaParEcal* pEcal, const TEcnaNumbering* pEcalNumbering) {
+TEcnaParHistos::TEcnaParHistos(const TString& SubDet, TEcnaParEcal* pEcal, TEcnaNumbering* pEcalNumbering) {
   // Constructor with argument
 
   //std::cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << std::endl;
@@ -128,9 +128,7 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet) {
   fFlagSubDet = fEcal->GetEcalSubDetector();
 }
 
-void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
-                                        const TEcnaParEcal* pEcal,
-                                        const TEcnaNumbering* pEcalNumbering) {
+void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet, TEcnaParEcal* pEcal, TEcnaNumbering* pEcalNumbering) {
   // Set Subdetector (EB or EE)
 
   fEcal = nullptr;
@@ -138,7 +136,7 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
     fEcal = new TEcnaParEcal(SubDet.Data()); /*fCnew++*/
     ;
   } else {
-    fEcal = (TEcnaParEcal*)pEcal;
+    fEcal = pEcal;
   }
 
   Int_t MaxCar = fgMaxCar;
@@ -150,7 +148,7 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
     fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal); /*fCnew++*/
     ;
   } else {
-    fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;
+    fEcalNumbering = pEcalNumbering;
   }
 }
 
@@ -1541,7 +1539,6 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString& comment) {
 
     fCdelete++;
   } else {
-    title_g1 = new TPaveText(0, 0, 0, 0);
     title_g1 = nullptr;
     fCnewRoot++;
   }
@@ -2158,22 +2155,24 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
     TText* t3 = nullptr;
     if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+") {
       t3 = com_bot_mid->AddText("       <=== LVRB       ");
-    }
-    if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-") {
+    } else if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-") {
       t3 = com_bot_mid->AddText("       LVRB ===>       ");
     }
-    t3->SetTextColor(couleur_rouge);
+    if (t3 != nullptr) {
+      t3->SetTextColor(couleur_rouge);
+    }
   }
 
   if (fEcalNumbering->GetTowerLvrbType(SMtower) == "bottom") {
     TText* t4 = nullptr;
     if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+") {
       t4 = com_bot_mid->AddText("        LVRB ===>       ");
-    }
-    if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-") {
+    } else if (fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-") {
       t4 = com_bot_mid->AddText("        <=== LVRB       ");
     }
-    t4->SetTextColor(couleur_bleu_fonce);
+    if (t4 != nullptr) {
+      t4->SetTextColor(couleur_bleu_fonce);
+    }
   }
   return com_bot_mid;
 

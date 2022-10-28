@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 
-process = cms.Process('HLT',Run3)
+process = cms.Process('HLT',Run3_DDD)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -105,7 +105,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
@@ -115,8 +115,10 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
-process.schedule.extend(process.HLTSchedule)
+# process.schedule imported from cff in HLTrigger.Configuration
+process.schedule.insert(0, process.digitisation_step)
+process.schedule.insert(1, process.L1simulation_step)
+process.schedule.insert(2, process.digi2raw_step)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)

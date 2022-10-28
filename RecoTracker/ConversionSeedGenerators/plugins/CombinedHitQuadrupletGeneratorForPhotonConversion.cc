@@ -33,7 +33,7 @@ void CombinedHitQuadrupletGeneratorForPhotonConversion::hitPairs(const TrackingR
   assert(layers.numberOfLayersInSet() == 2);
 
   for (SeedingLayerSetsHits::LayerSetIndex i = 0; i < hlayers->size() && result.size() < maxHitQuadruplets; ++i) {
-    theGenerator->hitPairs(region, result, layers[i], ev, es);
+    theGenerator->hitPairs(region, result, layers[i]);
   }
   theLayerCache.clear();
 }

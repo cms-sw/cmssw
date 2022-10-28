@@ -4,13 +4,13 @@
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "RecoJets/JetAlgorithms/interface/QjetsPlugin.h"
 
-class QjetsAdder : public edm::EDProducer {
+class QjetsAdder : public edm::stream::EDProducer<> {
 public:
   explicit QjetsAdder(const edm::ParameterSet& iConfig)
       : src_(iConfig.getParameter<edm::InputTag>("src")),
@@ -41,7 +41,6 @@ private:
   double jetRad_;
   std::string mJetAlgo_;
   int QjetsPreclustering_;
-  edm::Service<edm::RandomNumberGenerator> rng_;
 };
 
 #endif

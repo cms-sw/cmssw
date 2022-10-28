@@ -46,7 +46,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
@@ -61,7 +61,7 @@
 #include <vector>
 
 #include <functional>
-#include "tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
 #include <regex>
 
 namespace edm {
@@ -205,11 +205,12 @@ private:
   edm::GetterOfProducts<reco::PFJetCollection> getPFJetCollection_;
   edm::GetterOfProducts<reco::PFTauCollection> getPFTauCollection_;
   edm::GetterOfProducts<l1t::MuonBxCollection> getL1TMuonParticleCollection_;
+  edm::GetterOfProducts<l1t::MuonShowerBxCollection> getL1TMuonShowerParticleCollection_;
   edm::GetterOfProducts<l1t::EGammaBxCollection> getL1TEGammaParticleCollection_;
   edm::GetterOfProducts<l1t::JetBxCollection> getL1TJetParticleCollection_;
   edm::GetterOfProducts<l1t::TauBxCollection> getL1TTauParticleCollection_;
   edm::GetterOfProducts<l1t::EtSumBxCollection> getL1TEtSumParticleCollection_;
-  edm::GetterOfProducts<l1t::TkMuonCollection> getL1TTkMuonCollection_;
+  edm::GetterOfProducts<l1t::TrackerMuonCollection> getL1TTkMuonCollection_;
   edm::GetterOfProducts<l1t::TkElectronCollection> getL1TTkElectronCollection_;
   edm::GetterOfProducts<l1t::TkEmCollection> getL1TTkEmCollection_;
   edm::GetterOfProducts<l1t::PFJetCollection> getL1TPFJetCollection_;

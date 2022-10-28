@@ -31,7 +31,7 @@ sipixelQTester = DQMQualityTester(
 
 #Heavy Ion QualityTester
 sipixelQTesterHI = sipixelQTester.clone(
-    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest_heavyions.xml')
+    qtList = 'DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest_heavyions.xml'
 )
 
 #DataCertification:
@@ -44,8 +44,7 @@ PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)
 PixelOfflineDQMClientWithDataCertification = cms.Sequence(sipixelQTester+
                                                           sipixelEDAClient+
                                                           sipixelDaqInfo+
-                                                          sipixelDcsInfo+
-                                                          sipixelCertification)
+                                                          sipixelDcsInfo)
 PixelOfflineDQMClientNoDataCertification = cms.Sequence(sipixelQTester+
                                                           sipixelEDAClient)
 PixelOfflineDQMClientNoDataCertification_cosmics = cms.Sequence(sipixelQTester+

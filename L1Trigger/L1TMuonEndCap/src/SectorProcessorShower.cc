@@ -10,8 +10,10 @@ void SectorProcessorShower::configure(const edm::ParameterSet& pset, int endcap,
 
   enableTwoLooseShowers_ = pset.getParameter<bool>("enableTwoLooseShowers");
   enableOneNominalShower_ = pset.getParameter<bool>("enableOneNominalShowers");
+  enableOneTightShower_ = pset.getParameter<bool>("enableOneTightShowers");
   nLooseShowers_ = pset.getParameter<unsigned>("nLooseShowers");
   nNominalShowers_ = pset.getParameter<unsigned>("nNominalShowers");
+  nTightShowers_ = pset.getParameter<unsigned>("nTightShowers");
 }
 
 void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
@@ -47,27 +49,26 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
       selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isLooseInTime(); }));
   const unsigned nNominalInTime(std::count_if(
       selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isNominalInTime(); }));
-  const unsigned nLooseOutOfTime(std::count_if(
-      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isLooseOutOfTime(); }));
-  const unsigned nNominalOutOfTime(std::count_if(
-      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isNominalOutOfTime(); }));
+  const unsigned nTightInTime(std::count_if(
+      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isTightInTime(); }));
 
   const bool hasTwoLooseInTime(nLooseInTime >= nLooseShowers_);
   const bool hasOneNominalInTime(nNominalInTime >= nNominalShowers_);
-  const bool hasTwoLooseOutOfTime(nLooseOutOfTime >= nLooseShowers_);
-  const bool hasOneNominalOutOfTime(nNominalOutOfTime >= nNominalShowers_);
+  const bool hasOneTightInTime(nTightInTime >= nTightShowers_);
 
-  const bool acceptLoose(enableTwoLooseShowers_ and (hasTwoLooseInTime or hasTwoLooseOutOfTime));
-  const bool acceptNominal(enableOneNominalShower_ and (hasOneNominalInTime or hasOneNominalOutOfTime));
+  // for startup Run-3 we're not considering out of time triggers
+  const bool acceptLoose(enableTwoLooseShowers_ and hasTwoLooseInTime);
+  const bool acceptNominal(enableOneNominalShower_ and hasOneNominalInTime);
+  const bool acceptTight(enableOneTightShower_ and hasOneTightInTime);
+
   // trigger condition
-  const bool accept(acceptLoose or acceptNominal);
+  const bool accept(acceptLoose or acceptNominal or acceptTight);
 
   if (accept) {
     // shower output
-    l1t::RegionalMuonShower out_shower(
-        hasOneNominalInTime, hasOneNominalOutOfTime, hasTwoLooseInTime, hasTwoLooseOutOfTime);
-    out_shower.setEndcap(endcap_);
-    out_shower.setSector(sector_);
+    l1t::RegionalMuonShower out_shower(hasOneNominalInTime, false, hasTwoLooseInTime, false, hasOneTightInTime, false);
+    l1t::tftype tftype = (endcap_ == 1) ? l1t::tftype::emtf_pos : l1t::tftype::emtf_neg;
+    out_shower.setTFIdentifiers(sector_ - 1, tftype);
     out_showers.push_back(0, out_shower);
   }
 }

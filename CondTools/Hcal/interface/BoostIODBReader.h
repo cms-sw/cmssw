@@ -26,7 +26,7 @@
 #include "CondFormats/Serialization/interface/eos/portable_oarchive.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -39,7 +39,7 @@
 // class declaration
 //
 template <class DataType, class RecordType>
-class BoostIODBReader : public edm::EDAnalyzer {
+class BoostIODBReader : public edm::one::EDAnalyzer<> {
 public:
   typedef DataType data_type;
   typedef RecordType record_type;
@@ -50,17 +50,17 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  std::string outputFile_;
+  const std::string outputFile_;
+  const edm::ESGetToken<DataType, RecordType> tok_;
 };
 
 template <class DataType, class RecordType>
 BoostIODBReader<DataType, RecordType>::BoostIODBReader(const edm::ParameterSet& ps)
-    : outputFile_(ps.getParameter<std::string>("outputFile")) {}
+    : outputFile_(ps.getParameter<std::string>("outputFile")), tok_(esConsumes<DataType, RecordType>()) {}
 
 template <class DataType, class RecordType>
 void BoostIODBReader<DataType, RecordType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESGetToken<DataType, RecordType> tok = esConsumes<DataType, RecordType>();
-  const DataType* p = &iSetup.getData(tok);
+  const DataType* p = &iSetup.getData(tok_);
 
   std::ofstream of(outputFile_.c_str(), std::ios_base::binary);
   if (!of.is_open())

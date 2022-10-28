@@ -6,24 +6,13 @@
 #include <map>
 #include <string>
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,19 +20,15 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -68,7 +53,7 @@ public:
   };
 
   explicit HGCalSimHitValidation(const edm::ParameterSet&);
-  ~HGCalSimHitValidation() override {}
+  ~HGCalSimHitValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -81,30 +66,41 @@ private:
   void analyzeHits(std::vector<PCaloHit>& hits);
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   void fillHitsInfo(std::pair<hitsinfo, energysum> hit_, unsigned int itimeslice, double esum);
-  bool defineGeometry(const DDCompactView* ddViewH);
-  bool defineGeometry(const cms::DDCompactView* ddViewH);
+
+  TH1F* createHisto(std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX = true);
+  void histoSetting(TH1F*& histo,
+                    const char* xTitle,
+                    const char* yTitle = "",
+                    Color_t lineColor = kBlack,
+                    Color_t markerColor = kBlack,
+                    int linewidth = 1);
+  void histoSetting(TH2F*& histo,
+                    const char* xTitle,
+                    const char* yTitle = "",
+                    Color_t lineColor = kBlack,
+                    Color_t markerColor = kBlack,
+                    int linewidth = 1);
+  void fillMuonTomoHistos(int partialType, std::pair<hitsinfo, energysum> hit_);
 
   // ----------member data ---------------------------
   const std::string nameDetector_, caloHitSource_;
   const HGCalDDDConstants* hgcons_;
   const std::vector<double> times_;
   const int verbosity_;
-  const bool fromDDD_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
-  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> tok_cpv_;
-  const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tok_cpvc_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
-  bool symmDet_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   unsigned int layers_;
   int firstLayer_;
-  std::map<uint32_t, HepGeom::Transform3D> transMap_;
 
   std::vector<MonitorElement*> HitOccupancy_Plus_, HitOccupancy_Minus_;
   std::vector<MonitorElement*> EtaPhi_Plus_, EtaPhi_Minus_;
   MonitorElement *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
   static const unsigned int maxTime_ = 6;
   std::vector<MonitorElement*> energy_[maxTime_];
+  std::vector<MonitorElement*> energyFWF_, energyFWCN_, energyFWCK_;
+  std::vector<MonitorElement*> energyPWF_, energyPWCN_, energyPWCK_;
+  std::vector<MonitorElement*> hitXYFWF_, hitXYFWCN_, hitXYFWCK_, hitXYB_;
   unsigned int nTimes_;
 };
 
@@ -113,15 +109,11 @@ HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig)
       caloHitSource_(iConfig.getParameter<std::string>("CaloHitSource")),
       times_(iConfig.getParameter<std::vector<double> >("TimeSlices")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      fromDDD_(iConfig.getUntrackedParameter<bool>("fromDDD", true)),
       tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})),
-      tok_cpv_(esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
-      tok_cpvc_(esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
-      symmDet_(true),
+      tok_hepMC_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))),
       firstLayer_(1) {
-  tok_hepMC_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_));
   nTimes_ = (times_.size() > maxTime_) ? maxTime_ : times_.size();
 }
 
@@ -133,15 +125,13 @@ void HGCalSimHitValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::vector<double> >("TimeSlices", times);
   desc.addUntracked<int>("Verbosity", 0);
   desc.addUntracked<bool>("TestNumber", true);
-  desc.addUntracked<bool>("fromDDD", true);
   descriptions.add("hgcalSimHitValidationEE", desc);
 }
 
 void HGCalSimHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Generator input
   if (verbosity_ > 0) {
-    edm::Handle<edm::HepMCProduct> evtMC;
-    iEvent.getByToken(tok_hepMC_, evtMC);
+    const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_hepMC_);
     if (!evtMC.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
     } else {
@@ -156,8 +146,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   //Now the hits
-  edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
-  iEvent.getByToken(tok_hits_, theCaloHitContainers);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hits_);
   if (theCaloHitContainers.isValid()) {
     if (verbosity_ > 0)
       edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " << theCaloHitContainers->size();
@@ -185,10 +174,9 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     double time = hits[i].time();
     uint32_t id_ = hits[i].id();
     int cell, sector, subsector(0), layer, zside;
-    int subdet(0), cell2(0), type(0);
+    int cell2(0), type(0);
     if (hgcons_->waferHexagon8()) {
       HGCSiliconDetId detId = HGCSiliconDetId(id_);
-      subdet = ForwardEmpty;
       cell = detId.cellU();
       cell2 = detId.cellV();
       sector = detId.waferU();
@@ -198,7 +186,6 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       zside = detId.zside();
     } else if (hgcons_->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
-      subdet = ForwardEmpty;
       sector = detId.ietaAbs();
       cell = detId.iphi();
       subsector = 1;
@@ -206,7 +193,8 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       layer = detId.layer();
       zside = detId.zside();
     } else {
-      HGCalTestNumbering::unpackHexagonIndex(id_, subdet, zside, layer, sector, type, cell);
+      edm::LogError("HGCalValidation") << "Wrong geometry mode " << hgcons_->geomMode();
+      continue;
     }
     nused++;
     if (verbosity_ > 1)
@@ -219,10 +207,8 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     std::pair<float, float> xy;
     if (hgcons_->waferHexagon8()) {
       xy = hgcons_->locateCell(layer, sector, subsector, cell, cell2, false, true);
-    } else if (hgcons_->tileTrapezoid()) {
-      xy = hgcons_->locateCellTrap(layer, sector, cell, false);
     } else {
-      xy = hgcons_->locateCell(cell, layer, sector, false);
+      xy = hgcons_->locateCellTrap(layer, sector, cell, false);
     }
     double zp = hgcons_->waferZ(layer, false);
     if (zside < 0)
@@ -274,6 +260,13 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     energysum esum = (*itr).second.second;
     int layer = hinfo.layer;
     double eta = hinfo.eta;
+    int type, part, orient;
+    int partialType = -1;
+    if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive")) {
+      HGCSiliconDetId detId = HGCSiliconDetId((*itr).first);
+      std::tie(type, part, orient) = hgcons_->waferType(detId);
+      partialType = part;
+    }
 
     for (unsigned int itimeslice = 0; itimeslice < nTimes_; itimeslice++) {
       fillHitsInfo((*itr).second, itimeslice, esum.eTime[itimeslice]);
@@ -283,6 +276,8 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       fillOccupancyMap(OccupancyMap_plus, layer);
     else
       fillOccupancyMap(OccupancyMap_minus, layer);
+
+    fillMuonTomoHistos(partialType, (*itr).second);
   }
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "With map:used:total " << hits.size() << "|" << nused << "|"
@@ -325,94 +320,55 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo, energysum> hits, un
   }
 }
 
-bool HGCalSimHitValidation::defineGeometry(const DDCompactView* ddViewH) {
-  if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DDD) for " << nameDetector_ << " : "
-                                        << hgcons_;
+void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsinfo, energysum> hits) {
+  hitsinfo hinfo = hits.first;
+  energysum esum = hits.second;
+  double edep =
+      esum.eTime[0] * CLHEP::GeV /
+      CLHEP::keV;  //index 0 and 1 corresponds to 25 ns and 1000 ns, respectively. In addititon, chaging energy loss unit to keV.
 
-  if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-    const DDCompactView& cview = *ddViewH;
-    std::string attribute = "Volume";
-    std::string value = nameDetector_;
-
-    DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0)};
-    DDFilteredView fv(cview, filter);
-    bool dodet = fv.firstChild();
-
-    while (dodet) {
-      const DDSolid& sol = fv.logicalPart().solid();
-      const std::string& name = sol.name().fullname();
-      int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
-      if (isd > 0) {
-        std::vector<int> copy = fv.copyNumbers();
-        int nsiz = static_cast<int>(copy.size());
-        int lay = (nsiz > 0) ? copy[nsiz - 1] : -1;
-        int sec = (nsiz > 1) ? copy[nsiz - 2] : -1;
-        int zp = (nsiz > 3) ? copy[nsiz - 4] : -1;
-        if (zp != 1)
-          zp = -1;
-        const DDTrap& trp = static_cast<DDTrap>(sol);
-        int subs = (trp.alpha1() > 0 ? 1 : 0);
-        symmDet_ = (trp.alpha1() == 0 ? true : false);
-        uint32_t id = HGCalTestNumbering::packSquareIndex(zp, lay, sec, subs, 0);
-        DD3Vector x, y, z;
-        fv.rotation().GetComponents(x, y, z);
-        const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-        const CLHEP::HepRotation hr(rotation);
-        const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
-        const HepGeom::Transform3D ht3d(hr, h3v);
-        transMap_.insert(std::make_pair(id, ht3d));
-        if (verbosity_ > 2)
-          edm::LogVerbatim("HGCalValidation") << HGCalDetId(id) << " Transform using " << h3v << " and " << hr;
+  unsigned int ilayer = hinfo.layer;
+  double x = hinfo.x * CLHEP::mm / CLHEP::cm;  // chaging length unit to cm.
+  double y = hinfo.y * CLHEP::mm / CLHEP::cm;
+  if (ilayer < layers_) {
+    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+      // Fill the energy loss histograms for MIP
+      if (!TMath::AreEqualAbs(edep, 0.0, 1.e-5)) {  //to avoid peak at zero due Eloss less than 10 mili eV.
+        if (hinfo.type == HGCSiliconDetId::HGCalFine) {
+          if (partialType == 0)
+            energyFWF_.at(ilayer)->Fill(edep);
+          if (partialType > 0)
+            energyPWF_.at(ilayer)->Fill(edep);
+        }
+        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin) {
+          if (partialType == 0)
+            energyFWCN_.at(ilayer)->Fill(edep);
+          if (partialType > 0)
+            energyPWCN_.at(ilayer)->Fill(edep);
+        }
+        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick) {
+          if (partialType == 0)
+            energyFWCK_.at(ilayer)->Fill(edep);
+          if (partialType > 0)
+            energyPWCK_.at(ilayer)->Fill(edep);
+        }
       }
-      dodet = fv.next();
-    }
-    if (verbosity_ > 0)
-      edm::LogVerbatim("HGCalValidation") << "Finds " << transMap_.size() << " elements and SymmDet_ = " << symmDet_;
-  }
-  return true;
-}
 
-bool HGCalSimHitValidation::defineGeometry(const cms::DDCompactView* ddViewH) {
-  if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DD4hep) for " << nameDetector_ << " : "
-                                        << hgcons_;
+      // Fill the XY distribution of detector hits
+      if (hinfo.type == HGCSiliconDetId::HGCalFine)
+        hitXYFWF_.at(ilayer)->Fill(x, y);
 
-  if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-    const cms::DDCompactView& cview = *ddViewH;
-    const cms::DDFilter filter("Volume", nameDetector_);
-    cms::DDFilteredView fv(cview, filter);
+      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin)
+        hitXYFWCN_.at(ilayer)->Fill(x, y);
 
-    while (fv.firstChild()) {
-      const auto& name = fv.name();
-      int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
-      if (isd > 0) {
-        const auto& copy = fv.copyNos();
-        int nsiz = static_cast<int>(copy.size());
-        int lay = (nsiz > 0) ? copy[0] : -1;
-        int sec = (nsiz > 1) ? copy[1] : -1;
-        int zp = (nsiz > 3) ? copy[3] : -1;
-        if (zp != 1)
-          zp = -1;
-        const auto& pars = fv.parameters();
-        int subs = (pars[6] > 0 ? 1 : 0);
-        symmDet_ = (pars[6] == 0 ? true : false);
-        uint32_t id = HGCalTestNumbering::packSquareIndex(zp, lay, sec, subs, 0);
-        DD3Vector x, y, z;
-        fv.rotation().GetComponents(x, y, z);
-        const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-        const CLHEP::HepRotation hr(rotation);
-        const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
-        const HepGeom::Transform3D ht3d(hr, h3v);
-        transMap_.insert(std::make_pair(id, ht3d));
-        if (verbosity_ > 2)
-          edm::LogVerbatim("HGCalValidation") << HGCalDetId(id) << " Transform using " << h3v << " and " << hr;
-      }
-    }
-    if (verbosity_ > 0)
-      edm::LogVerbatim("HGCalValidation") << "Finds " << transMap_.size() << " elements and SymmDet_ = " << symmDet_;
-  }
-  return true;
+      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick)
+        hitXYFWCK_.at(ilayer)->Fill(x, y);
+
+    }  //is Silicon
+    if (nameDetector_ == "HGCalHEScintillatorSensitive") {
+      hitXYB_.at(ilayer)->Fill(x, y);
+    }  //is Scintillator
+  }    //layer condition
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -420,13 +376,6 @@ void HGCalSimHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& 
   hgcons_ = &iSetup.getData(tok_hgcal_);
   layers_ = hgcons_->layers(false);
   firstLayer_ = hgcons_->firstLayer();
-  if (fromDDD_) {
-    const DDCompactView* pDD = &iSetup.getData(tok_cpv_);
-    defineGeometry(pDD);
-  } else {
-    const cms::DDCompactView* pDD = &iSetup.getData(tok_cpvc_);
-    defineGeometry(pDD);
-  }
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << layers_ << " Layers with first at "
                                         << firstLayer_;
@@ -464,12 +413,137 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const
       histoname << "energy_time_" << itimeslice << "_layer_" << istr1;
       energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(), "energy_", 100, 0, 0.1));
     }
-  }
 
+    ///////////// Histograms for Energy loss in full wafers////////////
+    if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive")) {
+      histoname.str("");
+      histoname << "energy_FullWafer_Fine_layer_" << istr1;
+      TH1F* hEdepFWF = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepFWF, "Eloss (keV)", "", kRed, kRed, 2);
+      energyFWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWF));
+      hEdepFWF->Delete();
+
+      histoname.str("");
+      histoname << "energy_FullWafer_CoarseThin_layer_" << istr1;
+      TH1F* hEdepFWCN = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepFWCN, "Eloss (keV)", "", kGreen + 1, kGreen + 1, 2);
+      energyFWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCN));
+      hEdepFWCN->Delete();
+
+      histoname.str("");
+      histoname << "energy_FullWafer_CoarseThick_layer_" << istr1;
+      TH1F* hEdepFWCK = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepFWCK, "Eloss (keV)", "", kMagenta, kMagenta, 2);
+      energyFWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCK));
+      hEdepFWCK->Delete();
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+    ///////////// Histograms for Energy loss in partial wafers////////////
+    if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive")) {
+      histoname.str("");
+      histoname << "energy_PartialWafer_Fine_layer_" << istr1;
+      TH1F* hEdepPWF = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepPWF, "Eloss (keV)", "", kRed, kRed, 2);
+      energyPWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWF));
+      hEdepPWF->Delete();
+
+      histoname.str("");
+      histoname << "energy_PartialWafer_CoarseThin_layer_" << istr1;
+      TH1F* hEdepPWCN = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepPWCN, "Eloss (keV)", "", kGreen + 1, kGreen + 1, 2);
+      energyPWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCN));
+      hEdepPWCN->Delete();
+
+      histoname.str("");
+      histoname << "energy_PartialWafer_CoarseThick_layer_" << istr1;
+      TH1F* hEdepPWCK = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepPWCK, "Eloss (keV)", "", kMagenta, kMagenta, 2);
+      energyPWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCK));
+      hEdepPWCK->Delete();
+    }
+    ///////////////////////////////////////////////////////////////////
+
+    // ///////////// Histograms for the XY distribution of fired cells/scintillator tiles ///////////////
+    if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive")) {
+      histoname.str("");
+      histoname << "hitXY_FullWafer_Fine_layer_" << istr1;
+      TH2F* hitXYFWF = new TH2F(
+          Form("hitXYFWF_%s", histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300., 100, -300., 300.);
+      histoSetting(hitXYFWF, "x (cm)", "y (cm)", kRed, kRed);
+      hitXYFWF_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWF));
+      hitXYFWF->Delete();
+
+      histoname.str("");
+      histoname << "hitXY_FullWafer_CoarseThin_layer_" << istr1;
+      TH2F* hitXYFWCN = new TH2F(
+          Form("hitXYFWCN_%s", histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300., 100, -300., 300.);
+      histoSetting(hitXYFWCN, "x (cm)", "y (cm)", kGreen + 1, kGreen + 1);
+      hitXYFWCN_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWCN));
+      hitXYFWCN->Delete();
+
+      histoname.str("");
+      histoname << "hitXY_FullWafer_CoarseThick_layer_" << istr1;
+      TH2F* hitXYFWCK = new TH2F(
+          Form("hitXYFWCK_%s", histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300., 100, -300., 300.);
+      histoSetting(hitXYFWCK, "x (cm)", "y (cm)", kMagenta, kMagenta);
+      hitXYFWCK_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWCK));
+      hitXYFWCK->Delete();
+    }
+
+    if (nameDetector_ == "HGCalHEScintillatorSensitive") {
+      histoname.str("");
+      histoname << "hitXY_Scintillator_layer_" << istr1;
+      TH2F* hitXYB = new TH2F(
+          Form("hitXYB_%s", histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300., 100, -300., 300.);
+      histoSetting(hitXYB, "x (cm)", "y (cm)", kBlue, kBlue);
+      hitXYB_.push_back(iB.book2D(histoname.str().c_str(), hitXYB));
+      hitXYB->Delete();
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+  }
   MeanHitOccupancy_Plus_ = iB.book1D("MeanHitOccupancy_Plus", "MeanHitOccupancy_Plus", layers_, 0.5, layers_ + 0.5);
   MeanHitOccupancy_Minus_ = iB.book1D("MeanHitOccupancy_Minus", "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
 }
 
+TH1F* HGCalSimHitValidation::createHisto(
+    std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX) {
+  TH1F* hist = nullptr;
+  if (isLogX) {
+    Double_t xbins[nbins + 1];
+    double dx = (maxIndexX - minIndexX) / nbins;
+    for (int i = 0; i <= nbins; i++) {
+      xbins[i] = TMath::Power(10, (minIndexX + i * dx));
+    }
+    hist = new TH1F(Form("hEdep_%s", histname.c_str()), histname.c_str(), nbins, xbins);
+  } else {
+    hist = new TH1F(Form("hEdep_%s", histname.c_str()), histname.c_str(), nbins, minIndexX, maxIndexX);
+  }
+  return hist;
+}
+
+void HGCalSimHitValidation::histoSetting(
+    TH1F*& histo, const char* xTitle, const char* yTitle, Color_t lineColor, Color_t markerColor, int lineWidth) {
+  histo->SetStats();
+  histo->SetLineColor(lineColor);
+  histo->SetLineWidth(lineWidth);
+  histo->SetMarkerColor(markerColor);
+  histo->GetXaxis()->SetTitle(xTitle);
+  histo->GetYaxis()->SetTitle(yTitle);
+}
+
+void HGCalSimHitValidation::histoSetting(
+    TH2F*& histo, const char* xTitle, const char* yTitle, Color_t lineColor, Color_t markerColor, int lineWidth) {
+  histo->SetStats();
+  histo->SetLineColor(lineColor);
+  histo->SetLineWidth(lineWidth);
+  histo->SetMarkerColor(markerColor);
+  histo->SetMarkerStyle(kFullCircle);
+  histo->SetMarkerSize(0.6);
+  histo->GetXaxis()->SetTitle(xTitle);
+  histo->GetYaxis()->SetTitle(yTitle);
+}
 #include "FWCore/Framework/interface/MakerMacros.h"
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalSimHitValidation);

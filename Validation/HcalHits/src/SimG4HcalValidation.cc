@@ -2,28 +2,36 @@
 // File: SimG4Validation.cc
 // Description: Main analysis class for Hcal Validation of G4 Hits
 ///////////////////////////////////////////////////////////////////////////////
-#include "Validation/HcalHits/interface/SimG4HcalValidation.h"
-
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/Calo/interface/HCalSD.h"
+#include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+
+#include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
+#include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
@@ -31,10 +39,88 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 using namespace geant_units::operators;
 
-SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
-    : jetf(nullptr), numberingFromDDD(nullptr), org(nullptr) {
+class SimG4HcalValidation : public SimProducer,
+                            public Observer<const BeginOfRun *>,
+                            public Observer<const BeginOfEvent *>,
+                            public Observer<const EndOfEvent *>,
+                            public Observer<const G4Step *> {
+public:
+  SimG4HcalValidation(const edm::ParameterSet &p);
+  SimG4HcalValidation(const SimG4HcalValidation &) = delete;  // stop default
+  const SimG4HcalValidation &operator=(const SimG4HcalValidation &) = delete;
+  ~SimG4HcalValidation() override;
+
+  void registerConsumes(edm::ConsumesCollector) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void beginRun(edm::EventSetup const &) override;
+
+private:
+  void init();
+
+  // observer classes
+  void update(const BeginOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const G4Step *step) override;
+  void update(const EndOfEvent *evt) override;
+
+  // jetfinding and analysis-related stuff
+  void fill(const EndOfEvent *ev);
+  void layerAnalysis(PHcalValidInfoLayer &);
+  void nxNAnalysis(PHcalValidInfoNxN &);
+  void jetAnalysis(PHcalValidInfoJets &);
+  void fetchHits(PHcalValidInfoLayer &);
+  void clear();
+  void collectEnergyRdir(const double, const double);
+  double getHcalScale(std::string, int) const;
+
+private:
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
+
+  // Keep parameters to instantiate Jet finder later
+  std::unique_ptr<SimG4HcalHitJetFinder> jetf;
+
+  // Keep reference to instantiate HcalNumberingFromDDD later
+  std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
+
+  // Keep parameters to instantiate HcalTestNumberingScheme later
+  std::unique_ptr<HcalTestNumberingScheme> org;
+
+  // Hit cache for cluster analysis
+  std::vector<CaloHit> hitcache;  // e, eta, phi, time, layer, calo type
+
+  // scale factors :
+  std::vector<float> scaleHB;
+  std::vector<float> scaleHE;
+  std::vector<float> scaleHF;
+
+  // to read from parameter set
+  std::vector<std::string> names;
+  double coneSize, ehitThreshold, hhitThreshold;
+  float timeLowlim, timeUplim, eta0, phi0, jetThreshold;
+  bool applySampling, hcalOnly;
+  int infolevel;
+  std::string labelLayer, labelNxN, labelJets;
+
+  // eta and phi size of windows around eta0, phi0
+  std::vector<double> dEta;
+  std::vector<double> dPhi;
+
+  // some private members for ananlysis
+  unsigned int count;
+  double edepEB, edepEE, edepHB, edepHE, edepHO;
+  double edepd[5], edepl[20];
+  double een, hen, hoen;  // Energy sum in ECAL, HCAL, HO
+  double vhitec, vhithc, enEcal, enHcal;
+};
+
+SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HcalValidation");
   infolevel = m_Anal.getParameter<int>("InfoLevel");
   hcalOnly = m_Anal.getParameter<bool>("HcalClusterOnly");
@@ -58,7 +144,7 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
   if (infolevel > 1)
     produces<PHcalValidInfoJets>(labelJets);
 
-  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of begin/end events and "
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialized as observer of begin/end events and "
                                 << "of G4step with Parameter values: \n\tInfoLevel     = " << infolevel
                                 << "\n\thcalOnly      = " << hcalOnly << "\n\tapplySampling = " << applySampling
                                 << "\n\tconeSize      = " << coneSize << "\n\tehitThreshold = " << ehitThreshold
@@ -72,18 +158,12 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
 
 SimG4HcalValidation::~SimG4HcalValidation() {
   edm::LogVerbatim("ValidHcal") << "\n -------->  Total number of selected entries"
-                                << " : " << count << "\nPointers:: JettFinder " << jetf << ", Numbering Scheme " << org
-                                << " and FromDDD " << numberingFromDDD;
-  if (jetf) {
-    edm::LogVerbatim("ValidHcal") << "Delete Jetfinder";
-    delete jetf;
-    jetf = nullptr;
-  }
-  if (numberingFromDDD) {
-    edm::LogVerbatim("ValidHcal") << "Delete HcalNumberingFromDDD";
-    delete numberingFromDDD;
-    numberingFromDDD = nullptr;
-  }
+                                << " : " << count;
+}
+
+void SimG4HcalValidation::registerConsumes(edm::ConsumesCollector cc) {
+  ddconsToken_ = cc.esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::Initialize ESGetToken for HcalDDDSimConstants";
 }
 
 void SimG4HcalValidation::produce(edm::Event &e, const edm::EventSetup &) {
@@ -131,23 +211,20 @@ void SimG4HcalValidation::init() {
   }
 
   // jetfinder conse size setting
-  jetf = new SimG4HcalHitJetFinder(coneSize);
+  jetf = std::make_unique<SimG4HcalHitJetFinder>(coneSize);
 
   // counter
   count = 0;
 }
 
-void SimG4HcalValidation::update(const BeginOfJob *job) {
+void SimG4HcalValidation::beginRun(edm::EventSetup const &es) {
   // Numbering From DDD
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  const HcalDDDSimConstants *hcons = hdc.product();
-  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise "
-                                << "HcalNumberingFromDDD";
-  numberingFromDDD = new HcalNumberingFromDDD(hcons);
+  const HcalDDDSimConstants *hcons = &es.getData(ddconsToken_);
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD";
+  numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcons);
 
   // Numbering scheme
-  org = new HcalTestNumberingScheme(false);
+  org = std::make_unique<HcalTestNumberingScheme>(false);
 }
 
 void SimG4HcalValidation::update(const BeginOfRun *run) {
@@ -167,8 +244,8 @@ void SimG4HcalValidation::update(const BeginOfRun *run) {
       HCalSD *theCaloSD = dynamic_cast<HCalSD *>(aSD);
       edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD with name " << theCaloSD->GetName()
                                     << " in this Setup";
-      if (org) {
-        theCaloSD->setNumberingScheme(org);
+      if (org.get()) {
+        theCaloSD->setNumberingScheme(org.get());
         edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a new numbering scheme";
       }
     }
@@ -721,3 +798,9 @@ double SimG4HcalValidation::getHcalScale(std::string det, int layer) const {
 
   return tmp;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+
+DEFINE_SIMWATCHER(SimG4HcalValidation);

@@ -1,68 +1,187 @@
 // system include files
+#include <map>
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 // user include files
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Calibration/HcalCalibAlgos/plugins/Analyzer_minbias.h"
-#include "DataFormats/Provenance/interface/StableProvenance.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
-#include <fstream>
-#include <sstream>
+#include "TTree.h"
 
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+//
+// class declaration
+//
+namespace cms {
+  class Analyzer_minbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+  public:
+    explicit Analyzer_minbias(const edm::ParameterSet&);
+    ~Analyzer_minbias() override;
+
+    void beginJob() override;
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void endJob() override;
+
+  private:
+    // ----------member data ---------------------------
+    std::string fOutputFileName_;
+    bool theRecalib_;
+    std::string hcalfile_;
+    std::ofstream* myout_hcal;
+
+    // names of modules, producing object collections
+    TFile* hOutputFile;
+    TTree* myTree;
+    TH1F* hCalo1[73][43];
+    TH1F* hCalo2[73][43];
+    TH1F* hCalo1mom2[73][43];
+    TH1F* hCalo2mom2[73][43];
+    TH1F* hbheNoiseE;
+    TH1F* hbheSignalE;
+    TH1F* hfNoiseE;
+    TH1F* hfSignalE;
+
+    TH2F* hHBHEsize_vs_run;
+    TH2F* hHFsize_vs_run;
+    // Root tree members
+    int nevent_run;
+    int mydet, mysubd, depth, iphi, ieta;
+    float phi, eta;
+    float mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB, occup;
+    float mom0_Noise, mom1_Noise, mom2_Noise, mom3_Noise, mom4_Noise;
+    float mom0_Diff, mom1_Diff, mom2_Diff, mom3_Diff, mom4_Diff;
+
+    // Noise subtraction
+
+    double meannoise_pl[73][43], meannoise_min[73][43];
+    double noise_pl[73][43], noise_min[73][43];
+
+    // counters
+
+    double nevent;
+    double theMBFillDetMapPl0[5][5][73][43];
+    double theMBFillDetMapPl1[5][5][73][43];
+    double theMBFillDetMapPl2[5][5][73][43];
+    double theMBFillDetMapPl4[5][5][73][43];
+
+    double theMBFillDetMapMin0[5][5][73][43];
+    double theMBFillDetMapMin1[5][5][73][43];
+    double theMBFillDetMapMin2[5][5][73][43];
+    double theMBFillDetMapMin4[5][5][73][43];
+
+    double theNSFillDetMapPl0[5][5][73][43];
+    double theNSFillDetMapPl1[5][5][73][43];
+    double theNSFillDetMapPl2[5][5][73][43];
+    double theNSFillDetMapPl4[5][5][73][43];
+
+    double theNSFillDetMapMin0[5][5][73][43];
+    double theNSFillDetMapMin1[5][5][73][43];
+    double theNSFillDetMapMin2[5][5][73][43];
+    double theNSFillDetMapMin4[5][5][73][43];
+
+    double theDFFillDetMapPl0[5][5][73][43];
+    double theDFFillDetMapPl1[5][5][73][43];
+    double theDFFillDetMapPl2[5][5][73][43];
+    double theDFFillDetMapMin0[5][5][73][43];
+    double theDFFillDetMapMin1[5][5][73][43];
+    double theDFFillDetMapMin2[5][5][73][43];
+
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+    const edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
+
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_;
+    const edm::EDGetTokenT<HORecHitCollection> tok_hoNoise_;
+    const edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
+
+    //
+    const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
+
+    const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
+    const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> tok_l1gt_;
+  };
+}  // namespace cms
 
 //
 // constructors and destructor
 //
 namespace cms {
-  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig) {
+  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
+      : fOutputFileName_(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
+        theRecalib_(iConfig.getParameter<bool>("Recalib")),
+        tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"))),
+        tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"))),
+        tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"))),
+        tok_data_(consumes<FEDRawDataCollection>(edm::InputTag(iConfig.getParameter<std::string>("InputLabel")))),
+        tok_hbheNoise_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"))),
+        tok_hoNoise_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"))),
+        tok_hfNoise_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"))),
+        tok_gtRec_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"))),
+        tok_hbheNorm_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
+        tok_respCorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+        tok_l1gt_(esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>()) {
     usesResource(TFileService::kSharedResource);
     // get name of output file with histogramms
-    fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
     // get names of modules, producing object collections
-
-    tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
-    tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"));
-    tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
-    tok_data_ = consumes<FEDRawDataCollection>(edm::InputTag(iConfig.getParameter<std::string>("InputLabel")));
-
-    tok_hbheNoise_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"));
-    tok_hoNoise_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"));
-    tok_hfNoise_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"));
-
-    // this was hardcodded..
-    tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
-    tok_hbheNorm_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-
-    tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-    tok_l1gt_ = esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>();
-
-    theRecalib = iConfig.getParameter<bool>("Recalib");
-
-    //
+    // some of the label names are hardcodded..
     //
     for (int i = 0; i < 73; i++) {
       for (int j = 0; j < 43; j++) {
@@ -70,8 +189,6 @@ namespace cms {
         noise_pl[i][j] = 0.;
       }
     }
-    //
-    //
   }
 
   Analyzer_minbias::~Analyzer_minbias() {
@@ -85,7 +202,7 @@ namespace cms {
   }
 
   void Analyzer_minbias::beginJob() {
-    //  hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
+    edm::Service<TFileService> fs;
     myTree = fs->make<TTree>("RecJet", "RecJet Tree");
     myTree->Branch("mydet", &mydet, "mydet/I");
     myTree->Branch("mysubd", &mysubd, "mysubd/I");
@@ -132,14 +249,12 @@ namespace cms {
         meannoise_pl[i][j] = 0.;
         meannoise_min[i][j] = 0.;
 
-        //     for(int l=1;l<5;l++){
         k = i * 1000 + j;
         sprintf(str0, "mpl%d", k);
         sprintf(str1, "mmin%d", k);
 
         sprintf(str10, "vpl%d", k);
         sprintf(str11, "vmin%d", k);
-        //      edm::LogVerbatim("AnalyzerMB")<<" "<<i<<" "<<j;
         if (j < 30) {
           // first order moment
           hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
@@ -151,7 +266,6 @@ namespace cms {
         } else {
           // HF
           // first order moment
-          //   edm::LogVerbatim("AnalyzerMB")<<" "<<i<<" "<<j<<" "<<k;
           if (j < 40) {
             hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
             hCalo2[i][j] = fs->make<TH1F>(str1, "h1", 320, -10., 10.);
@@ -168,7 +282,6 @@ namespace cms {
             hCalo2mom2[i][j] = fs->make<TH1F>(str11, "h11", 320, 0., 120.);
           }
         }  // HE/HF boundary
-           //     } // l
       }    // j
     }      // i
 
@@ -286,12 +399,6 @@ namespace cms {
 
     edm::LogVerbatim("AnalyzerMB") << " Number of cells " << ii;
 
-    //  hOutputFile->Write();
-    //  hOutputFile->cd();
-    //  myTree->Write();
-    //  hHBHEsize_vs_run->Write() ;
-    //  hHFsize_vs_run->Write() ;
-
     for (int i = 1; i < 73; i++) {
       for (int j = 1; j < 43; j++) {
         hCalo1[i][j]->Write();
@@ -300,12 +407,6 @@ namespace cms {
         hCalo2mom2[i][j]->Write();
       }
     }
-
-    //  hbheNoiseE->Write() ;
-    //  hfNoiseE->Write() ;
-    //  hbheSignalE->Write() ;
-    //  hfSignalE->Write() ;
-    //  hOutputFile->Close() ;
 
     edm::LogVerbatim("AnalyzerMB") << " File is closed ";
 
@@ -332,85 +433,10 @@ namespace cms {
                                      << " , " << provenance->moduleLabel() << " , "
                                      << provenance->productInstanceName();
     }
-    /*
-      edm::Handle<FEDRawDataCollection> rawdata;  
-      iEvent.getByToken(tok_data_,rawdata);
-
-      if (!rawdata.isValid()) {
-      edm::LogVerbatim("AnalyzerMB")<<" No valid collection ";
-      } else {
-      edm::LogVerbatim("AnalyzerMB")<<" Valid collection ";
-      int calibType = -1 ; int numEmptyFEDs = 0 ; 
-      std::vector<int> calibTypeCounter(8,0) ; 
-      for (int i=FEDNumbering::MINHCALFEDID;
-        i<=FEDNumbering::MAXHCALFEDID; i++) {
-	const FEDRawData& fedData = rawdata->FEDData(i) ; 
-	if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
-	if ( fedData.size() < 24 ) continue ; 
-	//      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-	//      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
-	}
-	edm::LogVerbatim("AnalyzerMB")<<" NumFed "<<numEmptyFEDs<<" "<<calibType;
-	}
-    */
-    /*
-      std::vector<edm::Handle<FEDRawDataCollection> > rawdata1;
-      iEvent.getManyByType(rawdata1);
-      
-      for(std::vector<edm::Handle<FEDRawDataCollection> >::const_iterator it = rawdata1.begin();it != rawdata1.end(); it++) {
-
-      edm::LogVerbatim("AnalyzerMB")<<" Many by Type product name "<< (*it).provenance()->processName()<<
-      " "<<(*it).provenance()->moduleLabel();
-
-      if((*it).provenance()->moduleLabel() == "hltHcalCalibrationRaw") {
-      int calibType = -1 ; int numEmptyFEDs = 0 ; 
-  
-      for (int i=FEDNumbering::MINHCALFEDID;
-        i<=FEDNumbering::MAXHCALFEDID; i++) {
-	const FEDRawData& fedData = (*it)->FEDData(i) ; 
-	edm::LogVerbatim("AnalyzerMB")<<" FED size "<<fedData.size();
-	if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
-	if ( fedData.size() < 24 ) continue ; 
-	int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-	edm::LogVerbatim("AnalyzerMB")<<" Value "<<value;
-      }
-      edm::LogVerbatim("AnalyzerMB")<<" Many by Type NumFed "<<numEmptyFEDs<<" "<<calibType;
-     }
-   }
-
-   
-    */
-
-    /*
-      const L1GtTriggerMenu* menu = &iSetup.getData(tok_l1gt_);
-      const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
-
-      edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-      iEvent.getByToken(tok_gtRec_, gtRecord);
- 
-      if (!gtRecord.isValid()) {
-
-      //     LogDebug("L1GlobalTriggerRecordProducer")
-      //       << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
-      //       << m_l1GtReadoutRecord
-      //       << "\n Returning empty L1GlobalTriggerRecord.\n\n";
-      edm::LogVerbatim("AnalyzerMB")<<" No L1 trigger record ";
-      } else {
-
-      const DecisionWord dWord = gtRecord->decisionWord();
-
-      for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) {
-      bool decision=menu->gtAlgorithmResult(itAlgo->first,dWord);
-      if(decision == 1) edm::LogVerbatim("AnalyzerMB")<<" Trigger "<<itAlgo->first<<" "<<decision;
-      }
-      
-    }
-    */
-
     const HcalRespCorrs* myRecalib = nullptr;
-    if (theRecalib) {
+    if (theRecalib_) {
       myRecalib = &iSetup.getData(tok_respCorr_);
-    }  // theRecalib
+    }  // theRecalib_
 
     // Noise part for HB HE
 
@@ -428,16 +454,14 @@ namespace cms {
       }
     }
 
-    edm::Handle<HBHERecHitCollection> hbheNormal;
-    iEvent.getByToken(tok_hbheNorm_, hbheNormal);
+    const edm::Handle<HBHERecHitCollection> hbheNormal = iEvent.getHandle(tok_hbheNorm_);
     if (!hbheNormal.isValid()) {
       edm::LogWarning("AnalyzerMB") << " hbheNormal failed ";
     } else {
       edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
     }
 
-    edm::Handle<HBHERecHitCollection> hbheNS;
-    iEvent.getByToken(tok_hbheNoise_, hbheNS);
+    const edm::Handle<HBHERecHitCollection> hbheNS = iEvent.getHandle(tok_hbheNoise_);
 
     if (!hbheNS.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe"
@@ -451,31 +475,25 @@ namespace cms {
 
     if (HithbheNS.size() != 5184) {
       edm::LogWarning("AnalyzerMB") << " HBHE problem " << rnnum << " " << HithbheNS.size();
-      //          return;
     }
-    edm::Handle<HBHERecHitCollection> hbheMB;
-    iEvent.getByToken(tok_hbhe_, hbheMB);
+    const edm::Handle<HBHERecHitCollection> hbheMB = iEvent.getHandle(tok_hbhe_);
 
     if (!hbheMB.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe"
                                     << " product! No HBHE MB";
-      //   return ;
     }
 
     const HBHERecHitCollection HithbheMB = *(hbheMB.product());
     edm::LogVerbatim("AnalyzerMB") << " HBHE MB size of collection " << HithbheMB.size();
     if (HithbheMB.size() != 5184) {
       edm::LogWarning("AnalyzerMB") << " HBHE problem " << rnnum << " " << HithbheMB.size();
-      //   return;
     }
 
-    edm::Handle<HFRecHitCollection> hfNS;
-    iEvent.getByToken(tok_hfNoise_, hfNS);
+    const edm::Handle<HFRecHitCollection> hfNS = iEvent.getHandle(tok_hfNoise_);
 
     if (!hfNS.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
                                     << " product! No HF NS ";
-      // return ;
     }
 
     const HFRecHitCollection HithfNS = *(hfNS.product());
@@ -483,30 +501,26 @@ namespace cms {
     hHFsize_vs_run->Fill(rnnum, (float)HithfNS.size());
     if (HithfNS.size() != 1728) {
       edm::LogWarning("AnalyzerMB") << " HF problem " << rnnum << " " << HithfNS.size();
-      //    return;
     }
 
-    edm::Handle<HFRecHitCollection> hfMB;
-    iEvent.getByToken(tok_hf_, hfMB);
+    const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hf_);
 
     if (!hfMB.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
                                     << " product! No HF MB";
-      // return ;
     }
 
     const HFRecHitCollection HithfMB = *(hfMB.product());
     edm::LogVerbatim("AnalyzerMB") << " HF MB size of collection " << HithfMB.size();
     if (HithfMB.size() != 1728) {
       edm::LogWarning("AnalyzerMB") << " HF problem " << rnnum << " " << HithfMB.size();
-      //      return;
     }
 
     for (HBHERecHitCollection::const_iterator hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -549,14 +563,6 @@ namespace cms {
           edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
                                          << energyhit;
 
-        // if( hid.ieta() > 0 ) {
-        //  hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-        //  hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-        // } else {
-        //  hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-        //  hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-        // } // eta><0
-
       }  // depth=1
 
     }  // HBHE_NS
@@ -567,7 +573,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -627,7 +633,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -671,14 +677,6 @@ namespace cms {
       if (hid.depth() == 1) {
         hfNoiseE->Fill(energyhit);
 
-        //if( hid.ieta() > 0 ) {
-        // hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-        // hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-        //} else {
-        // hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-        // hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-        //} // eta><0
-
       }  // depth=1
 
     }  // HBHE_NS
@@ -689,7 +687,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());

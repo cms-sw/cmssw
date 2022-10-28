@@ -17,7 +17,7 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -64,7 +64,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTEcalResonanceFilter : public edm::EDFilter {
+class HLTEcalResonanceFilter : public edm::stream::EDFilter<> {
 public:
   explicit HLTEcalResonanceFilter(const edm::ParameterSet &);
   ~HLTEcalResonanceFilter() override;
@@ -186,7 +186,7 @@ private:
   double mip_;
   double gamma_;
 
-  PreshowerClusterAlgo *presh_algo_;  // algorithm doing the real work
+  std::unique_ptr<PreshowerClusterAlgo> presh_algo_;  // algorithm doing the real work
 
   std::map<DetId, EcalRecHit> m_esrechit_map;
   std::set<DetId> m_used_strips;

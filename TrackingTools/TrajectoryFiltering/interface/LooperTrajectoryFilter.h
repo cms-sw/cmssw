@@ -1,8 +1,8 @@
 #ifndef LooperTrajectoryFilter_H
 #define LooperTrajectoryFilter_H
 
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class LooperTrajectoryFilter final : public TrajectoryFilter {
 public:
@@ -19,6 +19,12 @@ public:
     theExtraNumberOfHitsBeforeTheFirstLoop = pset.getParameter<int>("extraNumberOfHitsBeforeTheFirstLoop");
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<int>("minNumberOfHitsForLoopers", 13);
+    iDesc.add<int>("minNumberOfHitsPerLoop", 4);
+    iDesc.add<int>("extraNumberOfHitsBeforeTheFirstLoop", 4);
+  }
+
   bool qualityFilter(const Trajectory& traj) const override { return QF<Trajectory>(traj); }
   bool qualityFilter(const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj); }
 
@@ -26,14 +32,6 @@ public:
   bool toBeContinued(Trajectory& traj) const override { return TBC<Trajectory>(traj); }
 
   std::string name() const override { return "LooperTrajectoryFilter"; }
-
-  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
-    edm::ParameterSetDescription desc;
-    desc.add<int>("minNumberOfHitsForLoopers", 13);
-    desc.add<int>("minNumberOfHitsPerLoop", 4);
-    desc.add<int>("extraNumberOfHitsBeforeTheFirstLoop", 4);
-    return desc;
-  }
 
 protected:
   template <class T>

@@ -10,7 +10,6 @@
 
 // Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,15 +62,21 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   theL2SeededTkLabel =
       trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance", std::string());
 
-  produces<reco::TrackCollection>(theL2SeededTkLabel);
   produces<TrackingRecHitCollection>(theL2SeededTkLabel);
   produces<reco::TrackExtraCollection>(theL2SeededTkLabel);
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>(theL2SeededTkLabel);
   produces<vector<Trajectory>>(theL2SeededTkLabel);
   produces<TrajTrackAssociationCollection>(theL2SeededTkLabel);
 
-  produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>();
   produces<vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
 

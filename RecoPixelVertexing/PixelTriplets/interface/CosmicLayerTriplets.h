@@ -6,8 +6,6 @@
  */
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
@@ -18,12 +16,18 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+class GeometricSearchTracker;
+class TrackerTopology;
 
 #include <vector>
 class CosmicLayerTriplets {
 public:
-  CosmicLayerTriplets(){};
+  CosmicLayerTriplets(std::string geometry,
+                      const SiStripRecHit2DCollection &collrphi,
+                      const GeometricSearchTracker &track,
+                      const TrackerTopology &ttopo) {
+    init(collrphi, std::move(geometry), track, ttopo);
+  };
   ~CosmicLayerTriplets();
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
   typedef std::pair<SeedLayerPairs::LayerPair, std::vector<const LayerWithHits *> > LayerPairAndLayers;
@@ -40,18 +44,14 @@ private:
   LayerWithHits *lh3;
   LayerWithHits *lh4;
 
-  edm::ESWatcher<TrackerRecoGeometryRecord> watchTrackerGeometry_;
-
   std::vector<BarrelDetLayer const *> bl;
   //MP
   std::vector<LayerWithHits *> allLayersWithHits;
 
-public:
-  void init(const SiStripRecHit2DCollection &collstereo,
-            const SiStripRecHit2DCollection &collrphi,
-            const SiStripMatchedRecHit2DCollection &collmatched,
+  void init(const SiStripRecHit2DCollection &collrphi,
             std::string geometry,
-            const edm::EventSetup &iSetup);
+            const GeometricSearchTracker &track,
+            const TrackerTopology &ttopo);
 
 private:
   std::string _geometry;

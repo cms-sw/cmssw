@@ -17,12 +17,17 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToFlyingCascadeBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -34,22 +39,18 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHLbToJPsiL0Builder : public BPHDecayToResFlyingBuilder {
+class BPHLbToJPsiL0Builder
+    : public BPHDecayToResFlyingBuilder<BPHRecoCandidate, BPHPlusMinusCandidate, BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHLbToJPsiL0Builder(const edm::EventSetup& es,
+  BPHLbToJPsiL0Builder(const BPHEventSetupWrapper& es,
                        const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
                        const std::vector<BPHPlusMinusConstCandPtr>& l0Collection)
-      : BPHDecayToResFlyingBuilder(es,
-                                   "JPsi",
-                                   BPHParticleMasses::jPsiMass,
-                                   BPHParticleMasses::jPsiMWidth,
-                                   jpsiCollection,
-                                   "Lambda0",
-                                   BPHParticleMasses::lambda0Mass,
-                                   BPHParticleMasses::lambda0MSigma,
-                                   l0Collection) {
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth),
+        BPHDecayToFlyingCascadeBuilderBase("Lambda0", BPHParticleMasses::lambda0Mass, BPHParticleMasses::lambda0MSigma),
+        BPHDecayToResFlyingBuilder(jpsiCollection, l0Collection) {
     setResMassRange(2.80, 3.40);
     setFlyingMassRange(0.00, 3.00);
     setMassRange(3.50, 8.00);
@@ -64,7 +65,7 @@ public:
 
   /** Destructor
    */
-  ~BPHLbToJPsiL0Builder() override {}
+  ~BPHLbToJPsiL0Builder() override = default;
 
   /** Operations
    */
@@ -79,6 +80,9 @@ public:
   double getJPsiMassMax() const { return getResMassMax(); }
   double getLambda0MassMin() const { return getFlyingMassMin(); }
   double getLambda0MassMax() const { return getFlyingMassMax(); }
+
+  /// setup parameters for BPHRecoBuilder
+  void setup(void* parameters) override {}
 };
 
 #endif

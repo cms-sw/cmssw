@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 VERSION='1.00'
 import os,sys,time
@@ -8,7 +8,6 @@ from RecoLuminosity.LumiDB import selectionParser
 from RecoLuminosity.LumiDB import csvLumibyLSParser
 from math import exp
 from math import sqrt
-import six
 
 def parseInputFile(inputfilename):
     '''
@@ -97,7 +96,7 @@ if __name__ == '__main__':
 
     # loop over pileup JSON as source, since it should have more lumi sections
 
-    for (run, LSPUlist) in sorted (six.iteritems(inputPileupRange)):
+    for (run, LSPUlist) in sorted (inputPileupRange.items()):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
         if run in inputRange.keys():

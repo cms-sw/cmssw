@@ -1,15 +1,15 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "RecoTauTag/RecoTau/plugins/PFTauSelectorDefinition.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class PFTauSelector : public ObjectSelectorStream<PFTauSelectorDefinition> {
+class PFTauSelector : public ObjectSelector<PFTauSelectorDefinition> {
 public:
-  PFTauSelector(const edm::ParameterSet& ps) : ObjectSelectorStream<PFTauSelectorDefinition>(ps) {}
+  PFTauSelector(const edm::ParameterSet& ps) : ObjectSelector<PFTauSelectorDefinition>(ps) {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.setComment("PF tau selector module");

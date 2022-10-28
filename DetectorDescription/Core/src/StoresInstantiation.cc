@@ -7,18 +7,16 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/src/Division.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <tbb/concurrent_vector.h>
-#include <tbb/concurrent_unordered_map.h>
 
 template class DDI::Singleton<AxesNames>;
 template class DDI::Singleton<DDRoot>;

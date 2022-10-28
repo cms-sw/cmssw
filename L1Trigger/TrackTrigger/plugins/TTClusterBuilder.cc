@@ -18,11 +18,9 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
   this->RetrieveRawHits(rawHits, iEvent);
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(tTopoToken);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> tGeomHandle = iSetup.getHandle(tGeomToken);
-  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken);
+  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(tGeomToken);
+  auto const& theClusterFindingAlgo = iSetup.getData(theClusterFindingAlgoToken);
 
   // Loop on the OT stacks
   for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
@@ -49,9 +47,9 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     /// calls the constructor to the Cluster class!
     bool isPSP = (theTrackerGeom->getDetectorType(lowerDetid) == TrackerGeometry::ModuleType::Ph2PSP);
     if (lowerHitFind != rawHits.end())
-      theClusterFindingAlgoHandle->Cluster(lowerHits, lowerHitFind->second, isPSP);
+      theClusterFindingAlgo.Cluster(lowerHits, lowerHitFind->second, isPSP);
     if (upperHitFind != rawHits.end())
-      theClusterFindingAlgoHandle->Cluster(upperHits, upperHitFind->second, false);
+      theClusterFindingAlgo.Cluster(upperHits, upperHitFind->second, false);
 
     /// Create TTCluster objects and store them
     /// Use the FastFiller with edmNew::DetSetVector

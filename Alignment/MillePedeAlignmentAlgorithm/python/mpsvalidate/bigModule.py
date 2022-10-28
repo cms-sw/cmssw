@@ -106,20 +106,20 @@ def plot(MillePedeUser, alignables, config):
             for i in range(3):
                 # get first and last bin with content and chose the one which
                 # has a greater distance to the center
-                if (abs(numberOfBins / 2 - plot.histo[i].FindFirstBinAbove()) > abs(plot.histo[i].FindLastBinAbove() - numberOfBins / 2)):
+                if (abs(numberOfBins // 2 - plot.histo[i].FindFirstBinAbove()) > abs(plot.histo[i].FindLastBinAbove() - numberOfBins // 2)):
                     plot.maxBinShift[i] = abs(
-                        numberOfBins / 2 - plot.histo[i].FindFirstBinAbove())
+                        numberOfBins // 2 - plot.histo[i].FindFirstBinAbove())
                     # set the maxShift value
                     plot.maxShift[i] = plot.histo[i].GetBinCenter(
                         plot.histo[i].FindFirstBinAbove())
                 else:
                     plot.maxBinShift[i] = abs(
-                        plot.histo[i].FindLastBinAbove() - numberOfBins / 2)
+                        plot.histo[i].FindLastBinAbove() - numberOfBins // 2)
                     # set the maxShift value
                     plot.maxShift[i] = plot.histo[i].GetBinCenter(
                         plot.histo[i].FindLastBinAbove())
                 # skip empty histogram
-                if (abs(plot.maxBinShift[i]) == numberOfBins / 2 + 1):
+                if (abs(plot.maxBinShift[i]) == numberOfBins // 2 + 1):
                     plot.maxBinShift[i] = 0
 
             # three types of ranges
@@ -179,10 +179,10 @@ def plot(MillePedeUser, alignables, config):
             # count entries which are not shown anymore
             for i in range(3):
                 # bin 1 to begin of histogram
-                for j in range(1, numberOfBins / 2 - plot.binShift[i]):
+                for j in range(1, numberOfBins // 2 - plot.binShift[i]):
                     plot.hiddenEntries[i] += plot.histo[i].GetBinContent(j)
                 # from the end of shown bins to the end of histogram
-                for j in range(numberOfBins / 2 + plot.binShift[i], plot.histo[i].GetNbinsX()):
+                for j in range(numberOfBins // 2 + plot.binShift[i], plot.histo[i].GetNbinsX()):
                     plot.hiddenEntries[i] += plot.histo[i].GetBinContent(j)
 
             # apply new range

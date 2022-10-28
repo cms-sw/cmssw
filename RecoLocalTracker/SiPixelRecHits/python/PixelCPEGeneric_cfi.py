@@ -44,9 +44,8 @@ from Configuration.Eras.Modifier_phase2_3DPixels_cff import phase2_3DPixels
 from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 (phase2_tracker & (phase2_3DPixels & PixelCPEGeneric)).toModify(PixelCPEGenericESProducer,
                                                                 UseErrorsFromTemplates = False,    # no GenErrors
-                                                                LoadTemplatesFromDB = False,       # do not load templates
+                                                                LoadTemplatesFromDB = False        # do not load templates
                                                                 )
-
 # customize the Pixel CPE generic producer for phase2 square pixels
 # Do use Template errors for square pixels even in the first tracking step
 # This is needed because hardcoded errors in https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEGeneric.cc#L113

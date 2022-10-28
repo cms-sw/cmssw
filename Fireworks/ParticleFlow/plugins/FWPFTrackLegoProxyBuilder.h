@@ -33,10 +33,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFTrackLegoProxyBuilder(const FWPFTrackLegoProxyBuilder&) = delete;
   const FWPFTrackLegoProxyBuilder& operator=(const FWPFTrackLegoProxyBuilder&) = delete;
 
+private:
   // --------------------- Member Functions --------------------------
   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
   void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc) override;

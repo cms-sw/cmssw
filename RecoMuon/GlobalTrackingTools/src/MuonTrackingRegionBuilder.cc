@@ -16,11 +16,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
@@ -90,6 +95,11 @@ void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par, edm::Consume
 
   // Input muon collection
   inputCollectionToken = iC.consumes<reco::TrackCollection>(par.getParameter<edm::InputTag>("input"));
+
+  bfieldToken = iC.esConsumes();
+  if (thePrecise) {
+    msmakerToken = iC.esConsumes();
+  }
 }
 
 //
@@ -104,7 +114,7 @@ std::vector<std::unique_ptr<TrackingRegion>> MuonTrackingRegionBuilder::regions(
 
   int nRegions = 0;
   for (auto it = tracks->cbegin(), ed = tracks->cend(); it != ed && nRegions < theMaxRegions; ++it) {
-    result.push_back(region(*it, ev));
+    result.push_back(region(*it, ev, es));
     nRegions++;
   }
 
@@ -121,13 +131,17 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
 //
 // ToDo: Not sure if this is needed?
 //
-void MuonTrackingRegionBuilder::setEvent(const edm::Event& event) { theEvent = &event; }
+void MuonTrackingRegionBuilder::setEvent(const edm::Event& event, const edm::EventSetup& es) {
+  theEvent = &event;
+  theEventSetup = &es;
+}
 
 //
 //	Main member function called to create the ROI
 //
 std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::region(const reco::Track& staTrack,
-                                                                                   const edm::Event& ev) const {
+                                                                                   const edm::Event& ev,
+                                                                                   const edm::EventSetup& es) const {
   // get track momentum/direction at vertex
   const math::XYZVector& mom = staTrack.momentum();
   GlobalVector dirVector(mom.x(), mom.y(), mom.z());
@@ -223,8 +237,24 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
     measurementTracker = hmte.product();
   }
 
-  auto region = std::make_unique<RectangularEtaPhiTrackingRegion>(
-      dirVector, vertexPos, minPt, deltaR, deltaZ, region_dEta, region_dPhi, theOnDemand, thePrecise, measurementTracker);
+  const auto& bfield = es.getData(bfieldToken);
+  const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+  if (thePrecise) {
+    msmaker = &es.getData(msmakerToken);
+  }
+
+  auto region = std::make_unique<RectangularEtaPhiTrackingRegion>(dirVector,
+                                                                  vertexPos,
+                                                                  minPt,
+                                                                  deltaR,
+                                                                  deltaZ,
+                                                                  region_dEta,
+                                                                  region_dPhi,
+                                                                  bfield,
+                                                                  msmaker,
+                                                                  thePrecise,
+                                                                  theOnDemand,
+                                                                  measurementTracker);
 
   LogDebug("MuonTrackingRegionBuilder") << "the region parameters are:\n"
                                         << "\n dirVector: " << dirVector << "\n vertexPos: " << vertexPos

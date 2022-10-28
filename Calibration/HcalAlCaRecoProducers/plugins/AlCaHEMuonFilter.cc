@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaHEMuons {
+namespace alCaHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
-}  // namespace AlCaHEMuons
+}  // namespace alCaHEMuonFilter
 
-class AlCaHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaHEMuons::Counters> > {
+class AlCaHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaHEMuonFilter::Counters> > {
 public:
-  explicit AlCaHEMuonFilter(edm::ParameterSet const&, const AlCaHEMuons::Counters* count);
+  explicit AlCaHEMuonFilter(edm::ParameterSet const&, const alCaHEMuonFilter::Counters* count);
   ~AlCaHEMuonFilter() override;
 
-  static std::unique_ptr<AlCaHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaHEMuons::Counters>();
+  static std::unique_ptr<alCaHEMuonFilter::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaHEMuonFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaHEMuons::Counters* counters);
+  static void globalEndJob(const alCaHEMuonFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -65,18 +65,17 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigNames_, HLTNames_;
-  std::string processName_;
-  bool pfCut_;
-  double trackIsoCut_, caloIsoCut_, pfIsoCut_, muonptCut_, muonetaCut_;
-  int preScale_;
   unsigned int nRun_, nAll_, nGood_, nFinal_;
-  edm::InputTag triggerResults_, labelMuon_;
-  edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const std::vector<std::string> trigNames_;
+  const std::string processName_;
+  const edm::InputTag triggerResults_, labelMuon_;
+  const bool pfCut_;
+  const double trackIsoCut_, caloIsoCut_, pfIsoCut_, muonptCut_, muonetaCut_;
+  const int preScale_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
 //
@@ -90,29 +89,27 @@ private:
 //
 // constructors and destructor
 //
-AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0), nFinal_(0) {
-  //now do what ever initialization is needed
-  trigNames_ = iConfig.getParameter<std::vector<std::string> >("triggers");
-  processName_ = iConfig.getParameter<std::string>("processName");
-  triggerResults_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-  labelMuon_ = iConfig.getParameter<edm::InputTag>("muonLabel");
-  muonptCut_ = iConfig.getParameter<double>("muonPtCut");
-  muonetaCut_ = iConfig.getParameter<double>("muonEtaCut");
-  pfCut_ = iConfig.getParameter<bool>("pfCut");
-  pfIsoCut_ = iConfig.getParameter<double>("pfIsolationCut");
-  trackIsoCut_ = iConfig.getParameter<double>("trackIsolationCut");
-  caloIsoCut_ = iConfig.getParameter<double>("caloIsolationCut");
-  preScale_ = iConfig.getParameter<int>("preScale");
-  if (preScale_ < 1)
-    preScale_ = 1;
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(triggerResults_);
-  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
-
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const alCaHEMuonFilter::Counters* count)
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      nFinal_(0),
+      trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+      processName_(iConfig.getParameter<std::string>("processName")),
+      triggerResults_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
+      labelMuon_(iConfig.getParameter<edm::InputTag>("muonLabel")),
+      pfCut_(iConfig.getParameter<bool>("pfCut")),
+      trackIsoCut_(iConfig.getParameter<double>("trackIsolationCut")),
+      caloIsoCut_(iConfig.getParameter<double>("caloIsolationCut")),
+      pfIsoCut_(iConfig.getParameter<double>("pfIsolationCut")),
+      muonptCut_(iConfig.getParameter<double>("muonPtCut")),
+      muonetaCut_(iConfig.getParameter<double>("muonEtaCut")),
+      preScale_(iConfig.getParameter<int>("preScale") > 0 ? iConfig.getParameter<int>("preScale") : 1),
+      tok_trigRes_(consumes<edm::TriggerResults>(triggerResults_)),
+      tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
+  // load the parameters and define tokens for access
 
   edm::LogVerbatim("HEMuon") << "Parameters read from config file \n"
                              << "Process " << processName_ << "  Prescale " << preScale_ << "  Isolation Cuts "
@@ -138,8 +135,7 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     bool ok(false);
     std::vector<std::string> modules;
@@ -166,13 +162,13 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
       const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
       // Relevant blocks from iEvent
-      edm::Handle<reco::MuonCollection> _Muon;
-      iEvent.getByToken(tok_Muon_, _Muon);
+      edm::Handle<reco::MuonCollection> muonHandle = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
+      edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon Handle " << muonHandle.isValid();
 #endif
-      if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+      if (muonHandle.isValid()) {
+        for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+             ++RecMuon) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                      << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
@@ -230,7 +226,7 @@ void AlCaHEMuonFilter::endStream() {
   globalCache()->nFinal_ += nFinal_;
 }
 
-void AlCaHEMuonFilter::globalEndJob(const AlCaHEMuons::Counters* count) {
+void AlCaHEMuonFilter::globalEndJob(const alCaHEMuonFilter::Counters* count) {
   edm::LogVerbatim("HEMuon") << "Selects " << count->nFinal_ << " out of " << count->nGood_ << " good events out of "
                              << count->nAll_ << " total # of events\n";
 }
@@ -257,7 +253,6 @@ void AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::string>("processName", "HLT");
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonLabel", edm::InputTag("muons"));
-  desc.add<double>("minimumMuonP", 10.0);
   desc.add<std::vector<std::string> >("triggers", triggers);
   desc.add<double>("muonPtCut", 20.0);
   desc.add<double>("muonEtaCut", 1.305);

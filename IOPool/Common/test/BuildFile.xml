@@ -9,4 +9,6 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
+  <test name="testIOPoolCommonLumiOverlap" command="test_overlap_lumi_fast_copy.sh"/>
+
 </environment>

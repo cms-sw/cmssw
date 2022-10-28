@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <sys/time.h>
+using namespace edm::storage;
 
 namespace {
   char const* const kOperationNames[] = {
@@ -13,7 +14,7 @@ namespace {
       "write",        "writeActual", "writeViaCache", "writev"};
 
   //Storage class names to the value of the token to which they are assigned
-  tbb::concurrent_unordered_map<std::string, int> s_nameToToken;
+  oneapi::tbb::concurrent_unordered_map<std::string, int> s_nameToToken;
   std::atomic<int> s_nextTokenValue{0};
 }  // namespace
 
@@ -92,7 +93,7 @@ void StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   }
 }
 
-const StorageAccount::StorageStats& StorageAccount::summary(void) { return m_stats; }
+const StorageAccount::StorageStats& StorageAccount::summary() { return m_stats; }
 
 StorageAccount::Counter& StorageAccount::counter(StorageClassToken token, Operation operation) {
   auto& opstats = m_stats[token.value()];

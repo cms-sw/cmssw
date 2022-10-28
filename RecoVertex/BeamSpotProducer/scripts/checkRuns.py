@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import range
-import sys,os,commands,re
+import sys,os,re
 import xmlrpclib
 from CommonMethods import *
 try: # FUTURE: Python 2.6, prior to 2.6 requires simplejson

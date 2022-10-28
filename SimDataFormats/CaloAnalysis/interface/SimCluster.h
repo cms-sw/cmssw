@@ -213,14 +213,17 @@ public:
   float simEnergy() const { return simhit_energy_; }
 
   /** @brief add simhit's energy to cluster */
-  void addSimHit(const PCaloHit &hit) { simhit_energy_ += hit.energy(); }
+  void addSimHit(const PCaloHit &hit) {
+    simhit_energy_ += hit.energy();
+    ++nsimhits_;
+  }
 
 private:
-  uint64_t nsimhits_;
+  uint64_t nsimhits_{0};
   EncodedEventId event_;
 
-  uint32_t particleId_;
-  float simhit_energy_;
+  uint32_t particleId_{0};
+  float simhit_energy_{0.f};
   std::vector<uint32_t> hits_;
   std::vector<float> fractions_;
   std::vector<float> energies_;

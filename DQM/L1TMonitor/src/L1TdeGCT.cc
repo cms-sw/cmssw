@@ -421,7 +421,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       it->rank(rankarr);
       float rnkv = rankarr[0];
 
-      double wei = 1.;
+      double wei;
 
       unsigned int mask = (~0x0);
 
@@ -433,16 +433,14 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
 
       //type: 0:agree 1:loc.agree, 2:loc.disagree, 3:data.only, 4:emul.only
-      if (it->type() < 4)
+      if (type < 4)
         sysncand[0]->Fill(ccid);
-      if (it->type() < 5 && it->type() != 3)
+      if (type < 5 && type != 3)
         sysncand[1]->Fill(ccid);
 
       errortype[ccid]->Fill(type);
 
-      wei = 1.;
-      if (!type)
-        wei = 0.;
+      wei = (type == 0) ? 0. : 1.;
       if (etav != nullVal && phiv != nullVal)
         etaphi[ccid]->Fill(etav, phiv, wei);
       if (etav != nullVal)
@@ -452,15 +450,12 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       rnk[ccid]->Fill(rnkv, wei);
 
       //exclude e-only cands (only data)
-      wei = 1.;
-      if (type == 4)
-        wei = 0.;
+      wei = (type == 4) ? 0. : 1.;
       if (etav != nullVal)
         etaData[ccid]->Fill(etav, wei);
       if (phiv != nullVal)
         phiData[ccid]->Fill(phiv, wei);
       rnkData[ccid]->Fill(rnkv, wei);
-      wei = 1;
 
       // GCT trigger bits
       unsigned int word[2];
@@ -484,10 +479,8 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
       ///bitset loop
       for (int ibit = 0; ibit < 32; ibit++) {
-        wei = 1.;
         //comparison gives no info if there's only 1 candidate
-        if (type == 3 || type == 4)
-          wei = 0.;
+        wei = (type == 3 || type == 4) ? 0. : 1.;
         if (dbits[ibit])
           dword[ccid]->Fill(ibit, wei);
         if (ebits[ibit])
@@ -496,7 +489,6 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
           deword[ccid]->Fill(ibit, wei);
         //if(dembits[ibit])masked[sid]->Fill(ibit,wei);
       }
-      wei = 1;
     }
 
     //error rates per GCT trigger object type
@@ -606,7 +598,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       it->rank(rankarr);
       float rnkv = rankarr[0];
 
-      double wei = 1.;
+      double wei;
 
       unsigned int mask = (~0x0);
 
@@ -618,14 +610,12 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
 
       //type: 0:agree 1:loc.agree, 2:loc.disagree, 3:data.only, 4:emul.only
-      if (it->type() < 4)
+      if (type < 4)
         sysncand[0]->Fill(ccid);
-      if (it->type() < 5 && it->type() != 3)
+      if (type < 5 && type != 3)
         sysncand[1]->Fill(ccid);
       errortype_stage1layer2[ccid]->Fill(type);
-      wei = 1.;
-      if (!type)
-        wei = 0.;
+      wei = (type == 0) ? 0. : 1.;
       if (etav != nullVal && phiv != nullVal)
         etaphi_stage1layer2[ccid]->Fill(etav, phiv, wei);
       if (etav != nullVal)
@@ -635,15 +625,12 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       rnk_stage1layer2[ccid]->Fill(rnkv, wei);
 
       //exclude e-only cands (only data)
-      wei = 1.;
-      if (type == 4)
-        wei = 0.;
+      wei = (type == 4) ? 0. : 1.;
       if (etav != nullVal)
         etaData_stage1layer2[ccid]->Fill(etav, wei);
       if (phiv != nullVal)
         phiData_stage1layer2[ccid]->Fill(phiv, wei);
       rnkData_stage1layer2[ccid]->Fill(rnkv, wei);
-      wei = 1;
 
       // GCT trigger bits
       unsigned int word_stage1layer2[2];
@@ -667,10 +654,8 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
       ///bitset loop
       for (int ibit = 0; ibit < 32; ibit++) {
-        wei = 1.;
         //comparison gives no info if there's only 1 candidate
-        if (type == 3 || type == 4)
-          wei = 0.;
+        wei = (type == 3 || type == 4) ? 0. : 1.;
         if (dbits[ibit])
           dword_stage1layer2[ccid]->Fill(ibit, wei);
         if (ebits[ibit])
@@ -679,7 +664,6 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
           deword_stage1layer2[ccid]->Fill(ibit, wei);
         //if(dembits[ibit])masked[sid]->Fill(ibit,wei);
       }
-      wei = 1;
     }
     //error rates per GCT trigger object type
     int hasCol[nStage1Layer2Coll_] = {0};

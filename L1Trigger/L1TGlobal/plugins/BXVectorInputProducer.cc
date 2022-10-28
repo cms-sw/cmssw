@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,6 +31,7 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -55,7 +56,7 @@ namespace l1t {
   // class declaration
   //
 
-  class BXVectorInputProducer : public EDProducer {
+  class BXVectorInputProducer : public one::EDProducer<> {
   public:
     explicit BXVectorInputProducer(const ParameterSet&);
     ~BXVectorInputProducer() override;
@@ -64,17 +65,12 @@ namespace l1t {
 
   private:
     void produce(Event&, EventSetup const&) override;
-    void beginJob() override;
-    void endJob() override;
-    void beginRun(Run const& iR, EventSetup const& iE) override;
-    void endRun(Run const& iR, EventSetup const& iE) override;
 
-    int convertPhiToHW(double iphi, int steps);
-    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps);
-    int convertPtToHW(double ipt, int maxPt, double step);
+    int convertPhiToHW(double iphi, int steps) const;
+    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps) const;
+    int convertPtToHW(double ipt, int maxPt, double step) const;
 
     // ----------member data ---------------------------
-    unsigned long long m_paramsCacheId;  // Cache-ID from current parameters, to check if needs to be updated.
     //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     //std::shared_ptr<const FirmwareVersion> m_fwv;
     //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
@@ -84,6 +80,7 @@ namespace l1t {
     int bxLast_;
 
     unsigned int maxNumMuCands_;
+    unsigned int maxNumMuShowerCands_;
     unsigned int maxNumJetCands_;
     unsigned int maxNumEGCands_;
     unsigned int maxNumTauCands_;
@@ -101,16 +98,20 @@ namespace l1t {
     // Tokens for inputs from other parts of the L1 system
     edm::EDGetToken egToken;
     edm::EDGetToken muToken;
+    edm::EDGetToken muShowerToken;
     edm::EDGetToken tauToken;
     edm::EDGetToken jetToken;
     edm::EDGetToken etsumToken;
-
-    int counter_;
 
     std::vector<l1t::Muon> muonVec_bxm2;
     std::vector<l1t::Muon> muonVec_bxm1;
     std::vector<l1t::Muon> muonVec_bx0;
     std::vector<l1t::Muon> muonVec_bxp1;
+
+    std::vector<l1t::MuonShower> muonShowerVec_bxm2;
+    std::vector<l1t::MuonShower> muonShowerVec_bxm1;
+    std::vector<l1t::MuonShower> muonShowerVec_bx0;
+    std::vector<l1t::MuonShower> muonShowerVec_bxp1;
 
     std::vector<l1t::EGamma> egammaVec_bxm2;
     std::vector<l1t::EGamma> egammaVec_bxm1;
@@ -139,6 +140,7 @@ namespace l1t {
   BXVectorInputProducer::BXVectorInputProducer(const ParameterSet& iConfig) {
     egToken = consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<InputTag>("egInputTag"));
     muToken = consumes<BXVector<l1t::Muon>>(iConfig.getParameter<InputTag>("muInputTag"));
+    muShowerToken = consumes<BXVector<l1t::MuonShower>>(iConfig.getParameter<InputTag>("muShowerInputTag"));
     tauToken = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
     jetToken = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
     etsumToken = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
@@ -146,6 +148,7 @@ namespace l1t {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
     produces<BXVector<l1t::Muon>>();
+    produces<BXVector<l1t::MuonShower>>();
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
@@ -155,6 +158,7 @@ namespace l1t {
     bxLast_ = iConfig.getParameter<int>("bxLast");
 
     maxNumMuCands_ = iConfig.getParameter<unsigned int>("maxMuCand");
+    maxNumMuShowerCands_ = iConfig.getParameter<unsigned int>("maxMuShowerCand");
     maxNumJetCands_ = iConfig.getParameter<unsigned int>("maxJetCand");
     maxNumEGCands_ = iConfig.getParameter<unsigned int>("maxEGCand");
     maxNumTauCands_ = iConfig.getParameter<unsigned int>("maxTauCand");
@@ -168,7 +172,6 @@ namespace l1t {
     emptyBxEvt_ = iConfig.getParameter<int>("emptyBxEvt");
 
     // set cache id to zero, will be set at first beginRun:
-    m_paramsCacheId = 0;
     eventCnt_ = 0;
   }
 
@@ -186,6 +189,7 @@ namespace l1t {
 
     // Setup vectors
     std::vector<l1t::Muon> muonVec;
+    std::vector<l1t::MuonShower> muonShowerVec;
     std::vector<l1t::EGamma> egammaVec;
     std::vector<l1t::Tau> tauVec;
     std::vector<l1t::Jet> jetVec;
@@ -198,6 +202,7 @@ namespace l1t {
     //outputs
     std::unique_ptr<l1t::EGammaBxCollection> egammas(new l1t::EGammaBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::MuonBxCollection> muons(new l1t::MuonBxCollection(0, bxFirst, bxLast));
+    std::unique_ptr<l1t::MuonShowerBxCollection> muonShowers(new l1t::MuonShowerBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::TauBxCollection> taus(new l1t::TauBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::JetBxCollection> jets(new l1t::JetBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::EtSumBxCollection> etsums(new l1t::EtSumBxCollection(0, bxFirst, bxLast));
@@ -227,6 +232,20 @@ namespace l1t {
       for (std::vector<l1t::Muon>::const_iterator mu = inputMuons->begin(bx); mu != inputMuons->end(bx); ++mu) {
         if (mu->hwPt() > muEtThreshold_ && muonVec.size() < maxNumMuCands_) {
           muonVec.push_back((*mu));
+        }
+      }
+    } else {
+      LogTrace("l1t|Global") << ">>> input Mu collection not found!" << std::endl;
+    }
+
+    // Make sure that you can get input Muon Showers
+    Handle<BXVector<l1t::MuonShower>> inputMuonShowers;
+    if (iEvent.getByToken(muToken, inputMuonShowers)) {
+      for (std::vector<l1t::MuonShower>::const_iterator mu = inputMuonShowers->begin(bx);
+           mu != inputMuonShowers->end(bx);
+           ++mu) {
+        if (mu->isValid() && muonShowerVec.size() < maxNumMuCands_) {
+          muonShowerVec.push_back((*mu));
         }
       }
     } else {
@@ -292,6 +311,28 @@ namespace l1t {
     } else {
       // this event is part of empty trailer...clear out data
       muonVec.clear();
+    }
+
+    // Fill MuonShowers
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm2.size()); iMuShower++) {
+      muonShowers->push_back(-2, muonShowerVec_bxm2[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm1.size()); iMuShower++) {
+      muonShowers->push_back(-1, muonShowerVec_bxm1[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bx0.size()); iMuShower++) {
+      muonShowers->push_back(0, muonShowerVec_bx0[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxp1.size()); iMuShower++) {
+      muonShowers->push_back(1, muonShowerVec_bxp1[iMuShower]);
+    }
+    if (emptyBxTrailer_ <= (emptyBxEvt_ - eventCnt_)) {
+      for (int iMuShower = 0; iMuShower < int(muonShowerVec.size()); iMuShower++) {
+        muonShowers->push_back(2, muonShowerVec[iMuShower]);
+      }
+    } else {
+      // this event is part of empty trailer...clear out data
+      muonShowerVec.clear();
     }
 
     // Fill Egammas
@@ -384,55 +425,43 @@ namespace l1t {
 
     iEvent.put(std::move(egammas));
     iEvent.put(std::move(muons));
+    iEvent.put(std::move(muonShowers));
     iEvent.put(std::move(taus));
     iEvent.put(std::move(jets));
     iEvent.put(std::move(etsums));
 
     // Now shift the bx data by one to prepare for next event.
     muonVec_bxm2 = muonVec_bxm1;
+    muonShowerVec_bxm2 = muonShowerVec_bxm1;
     egammaVec_bxm2 = egammaVec_bxm1;
     tauVec_bxm2 = tauVec_bxm1;
     jetVec_bxm2 = jetVec_bxm1;
     etsumVec_bxm2 = etsumVec_bxm1;
 
     muonVec_bxm1 = muonVec_bx0;
+    muonShowerVec_bxm1 = muonShowerVec_bx0;
     egammaVec_bxm1 = egammaVec_bx0;
     tauVec_bxm1 = tauVec_bx0;
     jetVec_bxm1 = jetVec_bx0;
     etsumVec_bxm1 = etsumVec_bx0;
 
     muonVec_bx0 = muonVec_bxp1;
+    muonShowerVec_bx0 = muonShowerVec_bxp1;
     egammaVec_bx0 = egammaVec_bxp1;
     tauVec_bx0 = tauVec_bxp1;
     jetVec_bx0 = jetVec_bxp1;
     etsumVec_bx0 = etsumVec_bxp1;
 
     muonVec_bxp1 = muonVec;
+    muonShowerVec_bxp1 = muonShowerVec;
     egammaVec_bxp1 = egammaVec;
     tauVec_bxp1 = tauVec;
     jetVec_bxp1 = jetVec;
     etsumVec_bxp1 = etsumVec;
   }
 
-  // ------------ method called once each job just before starting event loop ------------
-  void BXVectorInputProducer::beginJob() {}
-
-  // ------------ method called once each job just after ending the event loop ------------
-  void BXVectorInputProducer::endJob() {}
-
-  // ------------ method called when starting to processes a run ------------
-
-  void BXVectorInputProducer::beginRun(Run const& iR, EventSetup const& iE) {
-    LogDebug("l1t|Global") << "BXVectorInputProducer::beginRun function called...\n";
-
-    counter_ = 0;
-  }
-
-  // ------------ method called when ending the processing of a run ------------
-  void BXVectorInputProducer::endRun(Run const& iR, EventSetup const& iE) {}
-
   // ------------ methods to convert from physical to HW values ------------
-  int BXVectorInputProducer::convertPhiToHW(double iphi, int steps) {
+  int BXVectorInputProducer::convertPhiToHW(double iphi, int steps) const {
     double phiMax = 2 * M_PI;
     if (iphi < 0)
       iphi += 2 * M_PI;
@@ -443,7 +472,7 @@ namespace l1t {
     return hwPhi;
   }
 
-  int BXVectorInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps) {
+  int BXVectorInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps) const {
     double binWidth = (maxEta - minEta) / steps;
 
     //if we are outside the limits, set error
@@ -462,7 +491,7 @@ namespace l1t {
     return binNum;
   }
 
-  int BXVectorInputProducer::convertPtToHW(double ipt, int maxPt, double step) {
+  int BXVectorInputProducer::convertPtToHW(double ipt, int maxPt, double step) const {
     int hwPt = int(ipt / step + 0.0001);
     // if above max Pt, set to largest value
     if (hwPt > maxPt)

@@ -52,13 +52,19 @@ void PreMixingMTDWorker::initializeEvent(const edm::Event& e, const edm::EventSe
 void PreMixingMTDWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
   edm::Handle<PMTDSimAccumulator> handle;
   e.getByToken(signalToken_, handle);
-  digitizer_->accumulate(*handle);
+  if (handle.isValid())
+    digitizer_->accumulate(*handle);
+  else
+    edm::LogWarning("MtdMix") << "PreMixingMTDWorker::Cannot find Signal collection";
 }
 
 void PreMixingMTDWorker::addPileups(const PileUpEventPrincipal& pep, const edm::EventSetup& ES) {
   edm::Handle<PMTDSimAccumulator> handle;
   pep.getByLabel(pileInputTag_, handle);
-  digitizer_->accumulate(*handle);
+  if (handle.isValid())
+    digitizer_->accumulate(*handle);
+  else
+    edm::LogWarning("MtdMix") << "PreMixingMTDWorker::Cannot find PileUp collection";
 }
 
 void PreMixingMTDWorker::put(edm::Event& e,

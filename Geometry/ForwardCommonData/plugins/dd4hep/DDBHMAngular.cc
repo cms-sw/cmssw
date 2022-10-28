@@ -57,11 +57,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     parent.placeVolume(child, jj + 1, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child.name() << " number " << jj + 1
-                                    << " positioned in " << parent.name() << " at " << tran << " with " << rot;
+                                    << " positioned in " << parent.name() << " at " << tran << " with " << rotMat
+                                    << " : " << rot;
 #endif
   }
   return 1;
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_forward_DDBHMAngular, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_bhmalgo_DDBHMAngular, algorithm)

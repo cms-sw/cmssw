@@ -9,21 +9,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    ThresholdReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
     cerr = cms.untracked.PSet(
         enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        enable = cms.untracked.bool(True)
     ),
-    debugModules = cms.untracked.vstring(''),
-    files = cms.untracked.PSet(
-        ThresholdReader = cms.untracked.PSet(
-
-        )
-    )
+    debugModules = cms.untracked.vstring('')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -41,7 +33,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripThresholdRcd'),
         tag = cms.string('SiStripThreshold_Fake_30X')
@@ -49,9 +41,8 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.reader = cms.EDAnalyzer("SiStripThresholdReader",
-                              printDebug = cms.untracked.uint32(5)
-                              )
-
+                                printDebug = cms.untracked.uint32(5)
+                               )
 
 process.p1 = cms.Path(process.reader)
 

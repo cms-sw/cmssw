@@ -7,7 +7,7 @@
 // Author:      W. David Dagenhart
 // Created:     22 Feb 2019
 
-#include "FWCore/Framework/src/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Utilities/interface/EDMException.h"

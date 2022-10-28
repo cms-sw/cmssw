@@ -35,7 +35,8 @@ SiPixelPhase1SummaryOnline = DQMEDHarvester("SiPixelPhase1Summary",
             )
         ),
     # Number of dead ROCs required to generate an error. Order must be layers 1-4, ring1, ring2.
-    DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
+    DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+    DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
 SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
@@ -67,8 +68,8 @@ SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
             MapHist = cms.string("mean_charge")
             )
         ),
-        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
-
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+        DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
 SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
@@ -92,7 +93,8 @@ SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
             MapHist = cms.string("mean_charge")
             )
         ),
-        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+        DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester

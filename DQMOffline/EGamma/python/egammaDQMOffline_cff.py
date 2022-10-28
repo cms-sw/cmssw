@@ -13,34 +13,36 @@ photonAnalysis.Verbosity = cms.untracked.int32(0)
 photonAnalysis.standAlone = cms.bool(False)
 
 
-stdPhotonAnalysis = DQMOffline.EGamma.photonAnalyzer_cfi.photonAnalysis.clone()
-stdPhotonAnalysis.ComponentName = cms.string('stdPhotonAnalysis')
-stdPhotonAnalysis.analyzerName = cms.string('stdPhotonAnalyzer')
-stdPhotonAnalysis.phoProducer = cms.InputTag('photons')
-stdPhotonAnalysis.OutputMEsInRootFile = cms.bool(False)
-stdPhotonAnalysis.Verbosity = cms.untracked.int32(0)
-stdPhotonAnalysis.standAlone = cms.bool(False)
+stdPhotonAnalysis = DQMOffline.EGamma.photonAnalyzer_cfi.photonAnalysis.clone(
+  ComponentName = 'stdPhotonAnalysis',
+  analyzerName = 'stdPhotonAnalyzer',
+  phoProducer = 'photons',
+  OutputMEsInRootFile = False,
+  Verbosity = 0,
+  standAlone = False
+)
 
 piZeroAnalysis.OutputMEsInRootFile = cms.bool(False)
 piZeroAnalysis.Verbosity = cms.untracked.int32(0)
 piZeroAnalysis.standAlone = cms.bool(False)
 
 
-zmumugammaOldAnalysis = DQMOffline.EGamma.zmumugammaAnalyzer_cfi.zmumugammaAnalysis.clone()
-zmumugammaOldAnalysis.ComponentName = cms.string('zmumugammaOldAnalysis')
-zmumugammaOldAnalysis.analyzerName = cms.string('zmumugammaOldValidation')
-zmumugammaOldAnalysis.phoProducer = cms.InputTag('photons')
-
+zmumugammaOldAnalysis = DQMOffline.EGamma.zmumugammaAnalyzer_cfi.zmumugammaAnalysis.clone(
+    ComponentName = 'zmumugammaOldAnalysis',
+    analyzerName = 'zmumugammaOldValidation',
+    phoProducer = 'photons'
+)
 # HGCal customizations
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone()
-stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCalFromMultiCl'
-stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMultiCl'
-stdPhotonAnalysisHGCal.phoProducer = 'photonsFromMultiCl'
-stdPhotonAnalysisHGCal.isolationStrength = 2
-stdPhotonAnalysisHGCal.etaMin = -3.0
-stdPhotonAnalysisHGCal.etaMax = 3.0
-stdPhotonAnalysisHGCal.maxPhoEta = 3.0
+stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone(
+  ComponentName = 'stdPhotonAnalyzerHGCal',
+  analyzerName = 'stdPhotonAnalyzerHGCal',
+  phoProducer = 'photonsHGC',
+  isolationStrength = 2,
+  etaMin = -3.0,
+  etaMax = 3.0,
+  maxPhoEta = 3.0,
+)
 
 egammaDQMOffline = cms.Sequence(photonAnalysis*stdPhotonAnalysis*zmumugammaOldAnalysis*zmumugammaAnalysis*piZeroAnalysis*electronAnalyzerSequence)
 _egammaDQMOfflineHGCal = egammaDQMOffline.copy()

@@ -1,9 +1,9 @@
-#include "FWCore/Framework/src/GlobalSchedule.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/interface/GlobalSchedule.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -30,11 +30,12 @@ namespace edm {
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration> processConfiguration,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       ProcessContext const* processContext)
-      : actReg_(areg), processContext_(processContext) {
-    workerManagers_.reserve(prealloc.numberOfLuminosityBlocks());
-    for (unsigned int i = 0; i < prealloc.numberOfLuminosityBlocks(); ++i) {
+      : actReg_(areg), processContext_(processContext), numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()) {
+    unsigned int nManagers = prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns();
+    workerManagers_.reserve(nManagers);
+    for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
     }
     for (auto const& moduleLabel : iModulesToUse) {

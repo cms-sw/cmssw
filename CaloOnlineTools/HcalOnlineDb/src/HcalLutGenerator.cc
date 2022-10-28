@@ -4,14 +4,10 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 #include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
 
 HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig) {
   _tag = iConfig.getParameter<std::string>("tag");
@@ -20,18 +16,15 @@ HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig) {
   tok_inCoder_ = esConsumes<HcalTPGCoder, HcalTPGRecord>();
   tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
   tok_hcalChStatus_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  tok_hcalCoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
 }
-
-HcalLutGenerator::~HcalLutGenerator() {}
 
 void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const HcalTPGCoder* inputCoder = &iSetup.getData(tok_inCoder_);
   const HcalDbService* hcalcond = &iSetup.getData(tok_dbservice_);
   const HcalChannelQuality* _cq = &iSetup.getData(tok_hcalChStatus_);
 
-  edm::ESHandle<CaloTPGTranscoder> outTranscoder;
-  iSetup.get<CaloTPGRecord>().get(outTranscoder);
-
+  edm::ESHandle<CaloTPGTranscoder> outTranscoder = iSetup.getHandle(tok_hcalCoder_);
   edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
   transcoder.swap(outTranscoder);
 
@@ -40,5 +33,3 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   manager.createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC(_tag, *inputCoder, *transcoder, _lin_file, split_by_crate);
 }
-
-void HcalLutGenerator::endJob() {}

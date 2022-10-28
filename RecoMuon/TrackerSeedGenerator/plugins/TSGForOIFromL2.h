@@ -91,20 +91,30 @@ private:
   const double pT1_, pT2_, pT3_;
   const double eta1_, eta2_, eta3_, eta4_, eta5_, eta6_, eta7_;
   const double SF1_, SF2_, SF3_, SF4_, SF5_, SF6_;
+  const double SFHld_, SFHd_;
 
   /// Distance of L2 TSOSs before and after updated with vertex
   const double tsosDiff1_;
   const double tsosDiff2_;
 
+  /// Displaced reconstruction
+  const bool displacedReco_;
+
   /// Counters and flags for the implementation
   const std::string propagatorName_;
   const std::string theCategory_;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tmpTkGeometryToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> sHPOppositeToken_;
 
   /// Create seeds without hits on a given layer (TOB or TEC)
   void makeSeedsWithoutHits(const GeometricSearchDet& layer,
                             const TrajectoryStateOnSurface& tsos,
                             const Propagator& propagatorAlong,
-                            edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                            const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
                             double errorSF,
                             unsigned int& hitlessSeedsMade,
                             unsigned int& numSeedsMade,
@@ -114,8 +124,8 @@ private:
   void makeSeedsFromHits(const GeometricSearchDet& layer,
                          const TrajectoryStateOnSurface& tsos,
                          const Propagator& propagatorAlong,
-                         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                         edm::Handle<MeasurementTrackerEvent>& measurementTracker,
+                         const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                         const edm::Handle<MeasurementTrackerEvent>& measurementTracker,
                          double errorSF,
                          unsigned int& hitSeedsMade,
                          unsigned int& numSeedsMade,

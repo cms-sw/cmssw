@@ -93,6 +93,7 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
 
   //Check if HGCal volumes are selected
   isHGCal = false;
+  //if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "CALOECTSRear") != m_selectedNames.end()) {
   if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
     isHGCal = true;
   }
@@ -150,20 +151,23 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   }
 
   //For the HGCal case:
-  //In the beginning of each track, the track will first hit SS and it will
-  //save the upper z volume boundary. So, the low boundary of the first SS
-  //volume is never saved. So, here we give the low boundary hardcoded.
-  //This can be found by running
-  //Geometry/HGCalCommonData/test/testHGCalParameters_cfg.py
-  //on the geometry under study and looking for zFront print out.
+  //In the beginning of each track, the track will first hit an HGCAL volume and it will
+  //save the upper z volume boundary. So, the low boundary of the first
+  //volume is never saved. Here we give the low boundary of the first volume.
+  //This can be found by asking first to run not on 'HGCal' volume below but
+  //on 'CALOECTSRear', which at the moment of this writing it contains
+  //HGCalService, HGCal and thermal screen. You should run Fireworks to
+  //check if these naming conventions and volumes are valid in the future.
+  //Then, check the VolumesZPosition.txt file to see where CEService ends and
+  //put that number in hgcalzfront. Keep in mind to run on the desired volume above here:
+  //https://github.com/cms-sw/cmssw/blob/master/SimTracker/TrackerMaterialAnalysis/plugins/TrackingMaterialProducer.cc#L95
+  //and to replace the volume name of the material first hit at the file creation line below
   if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outerHGCalEta &&
       fabs(track->GetMomentum().eta()) < innerHGCalEta) {
     if (track->GetMomentum().eta() > 0.) {
-      outVolumeZpositionTxt << "StainlessSteel " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
-                            << std::endl;
+      outVolumeZpositionTxt << "Air " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 << std::endl;
     } else if (track->GetMomentum().eta() <= 0.) {
-      outVolumeZpositionTxt << "StainlessSteel " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
-                            << std::endl;
+      outVolumeZpositionTxt << "Air " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 << std::endl;
     }
   }
 

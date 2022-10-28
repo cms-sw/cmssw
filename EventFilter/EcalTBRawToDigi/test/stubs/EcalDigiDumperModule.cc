@@ -8,7 +8,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
@@ -17,7 +17,7 @@
 #include <iostream>
 #include <vector>
 
-class EcalDigiDumperModule : public edm::EDAnalyzer {
+class EcalDigiDumperModule : public edm::one::EDAnalyzer<> {
 public:
   EcalDigiDumperModule(const edm::ParameterSet& ps) {
     verbosity = ps.getUntrackedParameter<int>("verbosity", 1);

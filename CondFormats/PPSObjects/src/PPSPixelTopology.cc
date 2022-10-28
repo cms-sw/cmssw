@@ -1,5 +1,4 @@
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
-//#include <iostream>
 
 // Constructors
 
@@ -28,16 +27,17 @@ unsigned short PPSPixelTopology::pixelIndex(PixelInfo pI) const {
 
 bool PPSPixelTopology::isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2 = true) const {
   // check hit fiducial boundaries
-  double xModuleSize = 2 * ((no_of_pixels_simX_ / 2. + 1) * pitch_simX_ + dead_edge_width_);
+  const double xModuleSize = 2 * ((no_of_pixels_simX_ / 2. + 1) * pitch_simX_ + dead_edge_width_);
   if (xLocalCoordinate < -xModuleSize / 2. || xLocalCoordinate > xModuleSize / 2.)
     return false;
 
-  double yModuleSize = (no_of_pixels_simY_ + 4.) * pitch_simY_ + 2. * dead_edge_width_;
-  double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
+  const double yModuleSize = (no_of_pixels_simY_ + 4.) * pitch_simY_ + 2. * dead_edge_width_;
+  const double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
   if (is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
-
-  if (!is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
+  if (!is3x2 && (runType_ == "Run2") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
+    return false;
+  if (!is3x2 && (runType_ == "Run3") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
 
   return true;
@@ -71,27 +71,27 @@ PPSPixelTopology::PixelInfo PPSPixelTopology::getPixelsInvolved(
 void PPSPixelTopology::pixelRange(
     unsigned int arow, unsigned int acol, double& lower_x, double& higher_x, double& lower_y, double& higher_y) const {
   // x and y in the system  of Geant4 SIMULATION
-  arow = (2 * ROCSizeInX - 1) - arow;
-  if (arow > (2 * ROCSizeInX - 1) || acol > (3 * ROCSizeInY - 1))
+  arow = (2 * rpixValues::ROCSizeInX - 1) - arow;
+  if (arow > (2 * rpixValues::ROCSizeInX - 1) || acol > (3 * rpixValues::ROCSizeInY - 1))
     throw cms::Exception("PPSPixelTopology") << "pixel rows or columns exceeding limits";
 
   // rows (x segmentation)
   if (arow == 0) {
     lower_x = dead_edge_width_ - phys_active_edge_dist_;  // 50 um
     higher_x = dead_edge_width_ + pitch_simX_;            // 300 um
-  } else if (arow <= (ROCSizeInX - 2)) {
+  } else if (arow <= (rpixValues::ROCSizeInX - 2)) {
     lower_x = dead_edge_width_ + arow * pitch_simX_;
     higher_x = dead_edge_width_ + (arow + 1) * pitch_simX_;
-  } else if (arow == (ROCSizeInX - 1)) {
+  } else if (arow == (rpixValues::ROCSizeInX - 1)) {
     lower_x = dead_edge_width_ + arow * pitch_simX_;
     higher_x = dead_edge_width_ + (arow + 2) * pitch_simX_;
-  } else if (arow == ROCSizeInX) {
+  } else if (arow == rpixValues::ROCSizeInX) {
     lower_x = dead_edge_width_ + (arow + 1) * pitch_simX_;
     higher_x = dead_edge_width_ + (arow + 3) * pitch_simX_;
-  } else if (arow <= (2 * ROCSizeInX - 2)) {
+  } else if (arow <= (2 * rpixValues::ROCSizeInX - 2)) {
     lower_x = dead_edge_width_ + (arow + 2) * pitch_simX_;
     higher_x = dead_edge_width_ + (arow + 3) * pitch_simX_;
-  } else if (arow == (2 * ROCSizeInX - 1)) {
+  } else if (arow == (2 * rpixValues::ROCSizeInX - 1)) {
     lower_x = dead_edge_width_ + (arow + 2) * pitch_simX_;
     higher_x = dead_edge_width_ + (arow + 3) * pitch_simX_ + phys_active_edge_dist_;
   }
@@ -99,28 +99,28 @@ void PPSPixelTopology::pixelRange(
   if (acol == 0) {
     lower_y = dead_edge_width_ - phys_active_edge_dist_;  // 50 um
     higher_y = dead_edge_width_ + pitch_simY_;            // 350 um
-  } else if (acol <= (ROCSizeInY - 2)) {
+  } else if (acol <= (rpixValues::ROCSizeInY - 2)) {
     lower_y = dead_edge_width_ + acol * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 1) * pitch_simY_;
-  } else if (acol == (ROCSizeInY - 1)) {
+  } else if (acol == (rpixValues::ROCSizeInY - 1)) {
     lower_y = dead_edge_width_ + acol * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 2) * pitch_simY_;
-  } else if (acol == ROCSizeInY) {
+  } else if (acol == rpixValues::ROCSizeInY) {
     lower_y = dead_edge_width_ + (acol + 1) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 3) * pitch_simY_;
-  } else if (acol <= (2 * ROCSizeInY - 2)) {
+  } else if (acol <= (2 * rpixValues::ROCSizeInY - 2)) {
     lower_y = dead_edge_width_ + (acol + 2) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 3) * pitch_simY_;
-  } else if (acol == (2 * ROCSizeInY - 1)) {
+  } else if (acol == (2 * rpixValues::ROCSizeInY - 1)) {
     lower_y = dead_edge_width_ + (acol + 2) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 4) * pitch_simY_;
-  } else if (acol == (2 * ROCSizeInY)) {
+  } else if (acol == (2 * rpixValues::ROCSizeInY)) {
     lower_y = dead_edge_width_ + (acol + 3) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 5) * pitch_simY_;
-  } else if (acol <= (3 * ROCSizeInY - 2)) {
+  } else if (acol <= (3 * rpixValues::ROCSizeInY - 2)) {
     lower_y = dead_edge_width_ + (acol + 4) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 5) * pitch_simY_;
-  } else if (acol == (3 * ROCSizeInY - 1)) {
+  } else if (acol == (3 * rpixValues::ROCSizeInY - 1)) {
     lower_y = dead_edge_width_ + (acol + 4) * pitch_simY_;
     higher_y = dead_edge_width_ + (acol + 5) * pitch_simY_ + phys_active_edge_dist_;
   }
@@ -163,19 +163,19 @@ unsigned int PPSPixelTopology::row(double x) const {
   unsigned int arow;
   if (x <= (dead_edge_width_ + pitch_simX_))
     arow = 0;
-  else if (x <= (dead_edge_width_ + (ROCSizeInX - 1) * pitch_simX_))
+  else if (x <= (dead_edge_width_ + (rpixValues::ROCSizeInX - 1) * pitch_simX_))
     arow = int((x - dead_edge_width_ - pitch_simX_) / pitch_simX_) + 1;
-  else if (x <= (dead_edge_width_ + (ROCSizeInX + 1) * pitch_simX_))
-    arow = (ROCSizeInX - 1);
-  else if (x <= (dead_edge_width_ + (ROCSizeInX + 3) * pitch_simX_))
-    arow = ROCSizeInX;
-  else if (x <= (dead_edge_width_ + (2 * ROCSizeInX + 2) * pitch_simX_))
+  else if (x <= (dead_edge_width_ + (rpixValues::ROCSizeInX + 1) * pitch_simX_))
+    arow = (rpixValues::ROCSizeInX - 1);
+  else if (x <= (dead_edge_width_ + (rpixValues::ROCSizeInX + 3) * pitch_simX_))
+    arow = rpixValues::ROCSizeInX;
+  else if (x <= (dead_edge_width_ + (2 * rpixValues::ROCSizeInX + 2) * pitch_simX_))
     arow = int((x - dead_edge_width_ - pitch_simX_) / pitch_simX_) - 1;
   else
-    arow = (2 * ROCSizeInX - 1);
+    arow = (2 * rpixValues::ROCSizeInX - 1);
 
-  arow = (2 * ROCSizeInX - 1) - arow;
-  if (arow > (2 * ROCSizeInX - 1))
+  arow = (2 * rpixValues::ROCSizeInX - 1) - arow;
+  if (arow > (2 * rpixValues::ROCSizeInX - 1))
     throw cms::Exception("PPSPixelTopology") << " pixel row number exceeding limit";
 
   return arow;
@@ -193,22 +193,22 @@ unsigned int PPSPixelTopology::col(double y) const {
 
   if (y <= (dead_edge_width_ + pitch_simY_))
     column = 0;
-  else if (y <= (dead_edge_width_ + (ROCSizeInY - 1) * pitch_simY_))
+  else if (y <= (dead_edge_width_ + (rpixValues::ROCSizeInY - 1) * pitch_simY_))
     column = int((y - dead_edge_width_ - pitch_simY_) / pitch_simY_) + 1;
-  else if (y <= (dead_edge_width_ + (ROCSizeInY + 1) * pitch_simY_))
-    column = ROCSizeInY - 1;
-  else if (y <= (dead_edge_width_ + (ROCSizeInY + 3) * pitch_simY_))
-    column = ROCSizeInY;
-  else if (y <= (dead_edge_width_ + (2 * ROCSizeInY + 1) * pitch_simY_))
+  else if (y <= (dead_edge_width_ + (rpixValues::ROCSizeInY + 1) * pitch_simY_))
+    column = rpixValues::ROCSizeInY - 1;
+  else if (y <= (dead_edge_width_ + (rpixValues::ROCSizeInY + 3) * pitch_simY_))
+    column = rpixValues::ROCSizeInY;
+  else if (y <= (dead_edge_width_ + (2 * rpixValues::ROCSizeInY + 1) * pitch_simY_))
     column = int((y - dead_edge_width_ - pitch_simY_) / pitch_simY_) - 1;
-  else if (y <= (dead_edge_width_ + (2 * ROCSizeInY + 3) * pitch_simY_))
-    column = 2 * ROCSizeInY - 1;
-  else if (y <= (dead_edge_width_ + (2 * ROCSizeInY + 5) * pitch_simY_))
-    column = 2 * ROCSizeInY;
-  else if (y <= (dead_edge_width_ + (3 * ROCSizeInY + 3) * pitch_simY_))
+  else if (y <= (dead_edge_width_ + (2 * rpixValues::ROCSizeInY + 3) * pitch_simY_))
+    column = 2 * rpixValues::ROCSizeInY - 1;
+  else if (y <= (dead_edge_width_ + (2 * rpixValues::ROCSizeInY + 5) * pitch_simY_))
+    column = 2 * rpixValues::ROCSizeInY;
+  else if (y <= (dead_edge_width_ + (3 * rpixValues::ROCSizeInY + 3) * pitch_simY_))
     column = int((y - dead_edge_width_ - pitch_simY_) / pitch_simY_) - 3;
   else
-    column = (3 * ROCSizeInY - 1);
+    column = (3 * rpixValues::ROCSizeInY - 1);
 
   return column;
 }

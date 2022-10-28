@@ -35,22 +35,21 @@
 
 class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
 public:
-  WriteCTPPSBeamParameters(const edm::ParameterSet&) {}
+  WriteCTPPSBeamParameters(const edm::ParameterSet&)
+      : tokenBeamParameters_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>()) {}
+
   ~WriteCTPPSBeamParameters() override = default;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
 };
 
 //---------------------------------------------------------------------------------------
 
 void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSBeamParameters> bp;
-  iSetup.get<CTPPSBeamParametersRcd>().get(bp);
-
-  // Pointer for the conditions data object
-  const CTPPSBeamParameters* p = bp.product();
-
+  const auto& beamParam = iSetup.getData(tokenBeamParameters_);
   // Using "lumiid" as IOV
   const edm::LuminosityBlock& iLBlock = iEvent.getLuminosityBlock();
   edm::LuminosityBlockID lu(iLBlock.run(), iLBlock.id().luminosityBlock());
@@ -64,8 +63,7 @@ void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::Even
   // Write to database or sqlite file
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(p, ilumi, "CTPPSBeamParametersRcd");
-  // poolDbService->writeOne( p, poolDbService->currentTime(), "CTPPSBeamParametersRcd"  );
+    poolDbService->writeOneIOV(beamParam, ilumi, "CTPPSBeamParametersRcd");
   else
     throw std::runtime_error("PoolDBService required.");
 }

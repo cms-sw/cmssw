@@ -2,12 +2,11 @@
 
 from __future__ import print_function
 import optparse
-import commands
+import subprocess
 import pprint
 import re
 import os
 import sys
-import six
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)"')
 #colonRE      = re.compile (r':+')
@@ -216,7 +215,7 @@ if __name__ == "__main__":
     dumpCommand = 'edmDumpEventContent %s %s' % (regexLine, filename1)
     if options.verboseDebug:
         print(dumpCommand, '\n')
-    output = commands.getoutput (dumpCommand).split("\n")
+    output = subprocess.getoutput (dumpCommand).split("\n")
     if not len(output):
         raise RuntimeError("No output from edmDumpEventContent.")
     if options.verboseDebug:
@@ -238,7 +237,7 @@ if __name__ == "__main__":
    #########################################
    ## Run useReflexToDescribeForGenObject ##
    #########################################
-    for key, value in sorted (six.iteritems(collection)):
+    for key, value in sorted (collection.items()):
         name      = value[0].name
         prettyName = nonAlphaRE.sub('', name)
         descriptionName = prettyName + '.txt'
@@ -279,7 +278,7 @@ if __name__ == "__main__":
     ##################################
     ## Run edmOneToOneComparison.py ##
     ##################################
-    for key, value in sorted (six.iteritems(collection)):
+    for key, value in sorted (collection.items()):
         #print "%-40s" % key,
         for obj in value:
             # print "  ", obj.label(),
@@ -331,4 +330,4 @@ if __name__ == "__main__":
         summaryCmd = 'summarizeEdmComparisonLogfiles.py %s %s logfiles' \
                      % (summaryOptions, summaryMask)
         print(summaryCmd)
-        print(commands.getoutput (summaryCmd))
+        print(subprocess.getoutput (summaryCmd))

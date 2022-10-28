@@ -23,15 +23,15 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripBadStrip'),
+        record = cms.string('SiStripBadStripRcd'),
         tag = cms.string('SiStripBadChannel_v1')
     ))
 )
 
-process.prod = cms.EDFilter("SiStripBadChannelBuilder",
+process.prod = cms.EDAnalyzer("SiStripBadChannelBuilder",
     printDebug = cms.untracked.bool(True),
     BadComponentList = cms.untracked.VPSet(cms.PSet(
         BadChannelList = cms.vuint32(4, 5, 6, 7, 8, 
@@ -60,7 +60,7 @@ process.prod = cms.EDFilter("SiStripBadChannelBuilder",
             BadModule = cms.uint32(470394789)
         )),
     IOVMode = cms.string('Run'),
-    Record = cms.string('SiStripBadStrip'),
+    Record = cms.string('SiStripBadStripRcd'),
     doStoreOnDB = cms.bool(True),
     file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
     SinceAppendMode = cms.bool(True)

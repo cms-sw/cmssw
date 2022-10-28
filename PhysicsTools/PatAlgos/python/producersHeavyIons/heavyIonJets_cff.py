@@ -34,7 +34,8 @@ hiCleanedGenJetsTask_ = hiGenJetsTask.copyAndExclude([hiSignalGenParticles,ak4Hi
 hiCleanedGenJetsTask_.add(cleanedPartons,ak4HiGenJetsCleaned)
 genJetSubEvent.toReplaceWith(hiGenJetsTask,hiCleanedGenJetsTask_)
 
-from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, pfEmptyCollection, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation, akCs4PFJets
+from RecoHI.HiJetAlgos.PackedPFTowers_cfi import PackedPFTowers
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import pfEmptyCollection, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation, akCs4PFJets
 from RecoHI.HiTracking.highPurityGeneralTracks_cfi import highPurityGeneralTracks
 from RecoJets.JetAssociationProducers.ak5JTA_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import impactParameterTagInfos, trackCountingHighEffBJetTags, trackCountingHighPurBJetTags, jetProbabilityBJetTags, jetBProbabilityBJetTags, secondaryVertexTagInfos, combinedSecondaryVertexV2BJetTags, simpleSecondaryVertexHighEffBJetTags, simpleSecondaryVertexHighPurBJetTags
@@ -50,7 +51,7 @@ from RecoBTag.ImpactParameter.trackCounting3D3rdComputer_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 
 recoPFJetsHIpostAODTask = cms.Task(
-    PFTowers,
+    PackedPFTowers,
     pfEmptyCollection,
     ak4PFJetsForFlow,
     hiFJRhoFlowModulation,
@@ -78,8 +79,7 @@ _recoPFJetsHIpostAODTask.add(ak4PFJets,pfNoPileUpJMETask,ak4PFJetsCHS)
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(recoPFJetsHIpostAODTask, _recoPFJetsHIpostAODTask)
 
 
-recoJetsHIpostAODTask = cms.Task(
-    recoPFJetsHIpostAODTask,
+recoGenJetsHIpostAODTask = cms.Task(
     allPartons,
     hiGenJetsTask,
     )

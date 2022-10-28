@@ -25,21 +25,23 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
-  edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
-  edm::Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
-  double timeLowerBound, timeUpperBound;
-  long layer;
-  bool z_plus;
-  bool z_minus;
-  bool enableTimeFilter;
-  bool enablePositionLines;
-  bool enableEdges;
-  double displayMode;
-  double proportionalityFactor;
-
   FWTracksterLayersProxyBuilder(const FWTracksterLayersProxyBuilder &) = delete;                   // stop default
   const FWTracksterLayersProxyBuilder &operator=(const FWTracksterLayersProxyBuilder &) = delete;  // stop default
+
+private:
+  edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle_;
+  edm::Handle<std::vector<reco::CaloCluster>> layerClustersHandle_;
+  double timeLowerBound_, timeUpperBound_;
+  long layer_;
+  double saturation_energy_;
+  bool heatmap_;
+  bool z_plus_;
+  bool z_minus_;
+  bool enableTimeFilter_;
+  bool enablePositionLines_;
+  bool enableEdges_;
+  double displayMode_;
+  double proportionalityFactor_;
 
   void setItem(const FWEventItem *iItem) override;
 
@@ -64,12 +66,12 @@ void FWTracksterLayersProxyBuilder::setItem(const FWEventItem *iItem) {
 }
 
 void FWTracksterLayersProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) {
-  iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
-  iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters"), layerClustersHandle);
-  if (TimeValueMapHandle.isValid()) {
-    timeLowerBound = item()->getConfig()->value<double>("TimeLowerBound(ns)");
-    timeUpperBound = item()->getConfig()->value<double>("TimeUpperBound(ns)");
-    if (timeLowerBound > timeUpperBound) {
+  iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle_);
+  iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters"), layerClustersHandle_);
+  if (TimeValueMapHandle_.isValid()) {
+    timeLowerBound_ = item()->getConfig()->value<double>("TimeLowerBound(ns)");
+    timeUpperBound_ = item()->getConfig()->value<double>("TimeUpperBound(ns)");
+    if (timeLowerBound_ > timeUpperBound_) {
       edm::LogWarning("InvalidParameters")
           << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
     }
@@ -77,18 +79,20 @@ void FWTracksterLayersProxyBuilder::build(const FWEventItem *iItem, TEveElementL
     edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
-  if (!layerClustersHandle.isValid()) {
+  if (!layerClustersHandle_.isValid()) {
     edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
-  layer = item()->getConfig()->value<long>("Layer");
-  z_plus = item()->getConfig()->value<bool>("Z+");
-  z_minus = item()->getConfig()->value<bool>("Z-");
-  enableTimeFilter = item()->getConfig()->value<bool>("EnableTimeFilter");
-  enablePositionLines = item()->getConfig()->value<bool>("EnablePositionLines");
-  enableEdges = item()->getConfig()->value<bool>("EnableEdges");
-  displayMode = item()->getConfig()->value<double>("DisplayMode");
-  proportionalityFactor = item()->getConfig()->value<double>("ProportionalityFactor");
+  layer_ = item()->getConfig()->value<long>("Layer");
+  saturation_energy_ = item()->getConfig()->value<double>("EnergyCutOff");
+  heatmap_ = item()->getConfig()->value<bool>("Heatmap");
+  z_plus_ = item()->getConfig()->value<bool>("Z+");
+  z_minus_ = item()->getConfig()->value<bool>("Z-");
+  enableTimeFilter_ = item()->getConfig()->value<bool>("EnableTimeFilter");
+  enablePositionLines_ = item()->getConfig()->value<bool>("EnablePositionLines");
+  enableEdges_ = item()->getConfig()->value<bool>("EnableEdges");
+  displayMode_ = item()->getConfig()->value<double>("DisplayMode");
+  proportionalityFactor_ = item()->getConfig()->value<double>("ProportionalityFactor");
 
   FWHeatmapProxyBuilderTemplate::build(iItem, product, vc);
 }
@@ -97,40 +101,58 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
                                           unsigned int iIndex,
                                           TEveElement &oItemHolder,
                                           const FWViewContext *) {
-  if (enableTimeFilter && TimeValueMapHandle.isValid()) {
-    const float time = TimeValueMapHandle->get(iIndex).first;
-    if (time < timeLowerBound || time > timeUpperBound)
+  if (enableTimeFilter_ && TimeValueMapHandle_.isValid()) {
+    const float time = TimeValueMapHandle_->get(iIndex).first;
+    if (time < timeLowerBound_ || time > timeUpperBound_)
       return;
   }
 
   const ticl::Trackster &trackster = iData;
   const size_t N = trackster.vertices().size();
-  const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle;
+  const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle_;
+  TEveStraightLineSet *position_marker = nullptr;
+
+  if (enablePositionLines_) {
+    position_marker = new TEveStraightLineSet;
+    position_marker->SetLineWidth(2);
+    position_marker->SetLineColor(kWhite);
+  }
 
   for (size_t i = 0; i < N; ++i) {
     const reco::CaloCluster layerCluster = layerClusters[trackster.vertices(i)];
     const math::XYZPoint &position = layerCluster.position();
     const size_t nHits = layerCluster.size();
-    const double energy = layerCluster.correctedEnergy();
+    const double energy = layerCluster.energy();
     float radius = 0;
+    auto detIdOnLayer = layerCluster.seed();
 
-    // discard everything thats not at the side that we are intersted in
-    const bool z = (layerCluster.seed() >> 25) & 0x1;
-    if (((z_plus & z_minus) != 1) && (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
+    const auto *parameters = item()->getGeom()->getParameters(detIdOnLayer);
+    const int layer = parameters[1];
+    const int zside = parameters[2];
+    const bool isSilicon = parameters[3];
+
+    auto const z_selection_is_on = z_plus_ ^ z_minus_;
+    auto const z_plus_selection_ok = z_plus_ && (zside == 1);
+    auto const z_minus_selection_ok = z_minus_ && (zside == -1);
+    if (!z_minus_ && !z_plus_)
+      continue;
+    if (z_selection_is_on && !(z_plus_selection_ok || z_minus_selection_ok))
       continue;
 
-    if (displayMode == 0) {
+    if (layer_ > 0 && (layer != layer_))
+      continue;
+
+    if (displayMode_ == 0) {
       radius = sqrt(nHits);
-    } else if (displayMode == 1) {
+    } else if (displayMode_ == 1) {
       radius = nHits;
-    } else if (displayMode == 2) {
+    } else if (displayMode_ == 2) {
       radius = energy;
-    } else if (displayMode == 3) {
+    } else if (displayMode_ == 3) {
       radius = energy / nHits;
-    } else if (displayMode == 4) {
-      const bool isScintillator = layerCluster.seed().det() == DetId::HGCalHSc;
+    } else if (displayMode_ == 4) {
       float area = 0;
-      if (isScintillator) {
+      if (!isSilicon) {
         const bool isFine = (HGCScintillatorDetId(layerCluster.seed()).type() == 0);
         float dphi = (isFine) ? 1.0 * M_PI / 180. : 1.25 * M_PI / 180.;
         int ir = HGCScintillatorDetId(layerCluster.seed()).iradiusAbs();
@@ -146,72 +168,77 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       radius = sqrt(nHits * area) / M_PI;
     }
 
-    auto eveCircle = new TEveGeoShape("Circle");
-    auto tube = new TGeoTube(0., proportionalityFactor * radius, 0.1);
+    auto *eveCircle = new TEveGeoShape("Circle");
+    auto tube = new TGeoTube(0., proportionalityFactor_ * radius, 0.1);
     eveCircle->SetShape(tube);
     eveCircle->InitMainTrans();
     eveCircle->RefMainTrans().Move3PF(position.x(), position.y(), position.z());
     setupAddElement(eveCircle, &oItemHolder);
+    // Apply heatmap color coding **after** the call to setupAddElement, that will internally setup the color.
+    if (heatmap_) {
+      const float normalized_energy = fmin(energy / saturation_energy_, 1.0f);
+      const uint8_t colorFactor = gradient_steps * normalized_energy;
+      eveCircle->SetFillColor(
+          TColor::GetColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]));
+    } else {
+      eveCircle->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+      eveCircle->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+    }
 
     // seed and cluster position
     const float crossScale = 1.0f + fmin(energy, 5.0f);
-    if (enablePositionLines) {
-      TEveStraightLineSet *position_marker = new TEveStraightLineSet;
-      position_marker->SetLineWidth(2);
-      position_marker->SetLineColor(kOrange);
+    if (enablePositionLines_) {
       auto const &pos = layerCluster.position();
       const float position_crossScale = crossScale * 0.5;
       position_marker->AddLine(
           pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
       position_marker->AddLine(
           pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
-
-      oItemHolder.AddElement(position_marker);
     }
   }
 
-  if (enableEdges) {
+  if (enablePositionLines_)
+    oItemHolder.AddElement(position_marker);
+
+  if (enableEdges_) {
     auto &edges = trackster.edges();
+
+    TEveStraightLineSet *adjacent_marker = new TEveStraightLineSet;
+    adjacent_marker->SetLineWidth(2);
+    adjacent_marker->SetLineColor(kYellow);
+
+    TEveStraightLineSet *non_adjacent_marker = new TEveStraightLineSet;
+    non_adjacent_marker->SetLineWidth(2);
+    non_adjacent_marker->SetLineColor(kRed);
 
     for (auto edge : edges) {
       auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
 
-      const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
-      const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
-      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer())
-                                       : (HGCSiliconDetId(doublet.first.seed()).layer());
-      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer())
-                                         : (HGCSiliconDetId(doublet.second.seed()).layer());
+      int layerIn = item()->getGeom()->getParameters(doublet.first.seed())[1];
+      int layerOut = item()->getGeom()->getParameters(doublet.second.seed())[1];
 
-      // Check if offset is needed
-      const int offset = 28;
-      const int offsetIn = offset * (doublet.first.seed().det() != DetId::HGCalEE);
-      const int offsetOut = offset * (doublet.second.seed().det() != DetId::HGCalEE);
-      layerIn += offsetIn;
-      layerOut += offsetOut;
-
-      const bool isAdjacent = (layerOut - layerIn) == 1;
-
-      TEveStraightLineSet *marker = new TEveStraightLineSet;
-      marker->SetLineWidth(2);
-      if (isAdjacent) {
-        marker->SetLineColor(kYellow);
-      } else {
-        marker->SetLineColor(kRed);
-      }
+      const bool isAdjacent = std::abs(layerOut - layerIn) == 1;
 
       // draw 3D cross
-      if (layer == 0 || fabs(layerIn - layer) == 0 || fabs(layerOut - layer) == 0) {
-        marker->AddLine(doublet.first.x(),
-                        doublet.first.y(),
-                        doublet.first.z(),
-                        doublet.second.x(),
-                        doublet.second.y(),
-                        doublet.second.z());
+      if (layer_ == 0 || fabs(layerIn - layer_) == 0 || fabs(layerOut - layer_) == 0) {
+        if (isAdjacent)
+          adjacent_marker->AddLine(doublet.first.x(),
+                                   doublet.first.y(),
+                                   doublet.first.z(),
+                                   doublet.second.x(),
+                                   doublet.second.y(),
+                                   doublet.second.z());
+        else
+          non_adjacent_marker->AddLine(doublet.first.x(),
+                                       doublet.first.y(),
+                                       doublet.first.z(),
+                                       doublet.second.x(),
+                                       doublet.second.y(),
+                                       doublet.second.z());
       }
-
-      oItemHolder.AddElement(marker);
     }
+    oItemHolder.AddElement(adjacent_marker);
+    oItemHolder.AddElement(non_adjacent_marker);
   }
 }
 

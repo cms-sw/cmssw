@@ -26,6 +26,7 @@
 #include "../interface/SLHCEvent.h"
 #include "../interface/Track.h"
 #include "../interface/Settings.h"
+#include "../interface/StubStreamData.h"
 #include "../interface/TrackletEventProcessor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -208,7 +209,16 @@ int main(const int argc, const char **argv) {
     edm::LogVerbatim("Tracklet") << "Process event: " << eventnum << " with " << ev.nstubs() << " stubs and "
                                  << ev.nsimtracks() << " simtracks";
 
-    eventProcessor.event(ev);
+    // Output track streams per nonant from track-builders.
+    constexpr unsigned int numStubStreamsPerTrack = settings.extended() ? N_SEED : N_SEED_PROMPT;
+    // Max. number of projection layers for any tracklet seed.
+    constexpr unsigned int maxNumProjectionLayers = 8;
+    constexpr unsigned int numStreamsTrack = N_SECTOR * numStubStreamsTrack;
+    constexpr unsigned int numStreamsStub = numStreamsTrack * maxNumProjectionLayers;
+    std::vector<std::vector<std::string>> tracksStream(numStreamsTrack);
+    std::vector<std::vector<StubStreamData>> stubsStream(numStreamsStub);
+
+    eventProcessor.event(ev, tracksStream, stubsStream);
 
     const std::vector<Track> &tracks = eventProcessor.tracks();
 
@@ -226,9 +236,9 @@ int main(const int argc, const char **argv) {
         L1SimTrack simtrack = ev.simtrack(isimtrack);
         if (simtrack.pt() < 2.0)
           continue;
-        if (fabs(simtrack.eta()) > 2.4)
+        if (std::abs(simtrack.eta()) > 2.4)
           continue;
-        if (fabs(simtrack.vz()) > 15.0)
+        if (std::abs(simtrack.vz()) > 15.0)
           continue;
         if (hypot(simtrack.vx(), simtrack.vy()) > 0.1)
           continue;
@@ -325,4 +335,6 @@ int main(const int argc, const char **argv) {
   }
 
   eventProcessor.printSummary();
+
+  exit(0);
 }

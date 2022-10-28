@@ -34,15 +34,15 @@ public:
 
   virtual double getEt(const reco::PFCandidate&) const = 0;
 
+  FWPFCandidateTowerProxyBuilder(const FWPFCandidateTowerProxyBuilder&) = delete;                   // stop default
+  const FWPFCandidateTowerProxyBuilder& operator=(const FWPFCandidateTowerProxyBuilder&) = delete;  // stop default
+
 protected:
   void fillCaloData() override;
   FWHistSliceSelector* instantiateSliceSelector() override;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
 private:
-  FWPFCandidateTowerProxyBuilder(const FWPFCandidateTowerProxyBuilder&) = delete;                   // stop default
-  const FWPFCandidateTowerProxyBuilder& operator=(const FWPFCandidateTowerProxyBuilder&) = delete;  // stop default
-
   // ---------- member data --------------------------------
   const reco::PFCandidateCollection* m_towers;
 };
@@ -64,7 +64,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWECalPFCandidateProxyBuilder(const FWECalPFCandidateProxyBuilder&) = delete;                   // stop default
   const FWECalPFCandidateProxyBuilder& operator=(const FWECalPFCandidateProxyBuilder&) = delete;  // stop default
 };
@@ -86,7 +85,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHCalPFCandidateProxyBuilder(const FWHCalPFCandidateProxyBuilder&) = delete;  // stop default
 
   const FWHCalPFCandidateProxyBuilder& operator=(const FWHCalPFCandidateProxyBuilder&) = delete;  // stop default

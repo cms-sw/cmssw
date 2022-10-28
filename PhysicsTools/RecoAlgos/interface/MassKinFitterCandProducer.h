@@ -6,12 +6,12 @@
  *
  */
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "PhysicsTools/RecoUtils/interface/CandMassKinFitter.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class MassKinFitterCandProducer : public edm::EDProducer {
+class MassKinFitterCandProducer : public edm::stream::EDProducer<> {
 public:
   explicit MassKinFitterCandProducer(const edm::ParameterSet &, CandMassKinFitter * = nullptr);
 

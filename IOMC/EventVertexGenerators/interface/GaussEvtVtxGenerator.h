@@ -16,6 +16,10 @@ namespace CLHEP {
 class GaussEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
   GaussEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  GaussEvtVtxGenerator(const GaussEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  GaussEvtVtxGenerator& operator=(const GaussEvtVtxGenerator& rhs) = delete;
   ~GaussEvtVtxGenerator() override;
 
   /// return a new event vertex
@@ -37,12 +41,6 @@ public:
   void meanY(double m = 0) { fMeanY = m; }
   /// set mean in Z in cm
   void meanZ(double m = 0) { fMeanZ = m; }
-
-private:
-  /** Copy constructor */
-  GaussEvtVtxGenerator(const GaussEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  GaussEvtVtxGenerator& operator=(const GaussEvtVtxGenerator& rhs) = delete;
 
 private:
   double fSigmaX, fSigmaY, fSigmaZ;

@@ -14,13 +14,13 @@ args = parser.parse_args()
 
 f = uproot.open(args.filename)
 things = f.keys()
-if b'Indices;1' in things:
-  indices = f[b'Indices']
-  runs = indices.array(b"Run")
-  lumis = indices.array(b"Lumi")
-  firstindex = indices.array(b"FirstIndex")
-  lastindex = indices.array(b"LastIndex")
-  types = indices.array(b"Type")
+if 'Indices;1' in things:
+  indices = f['Indices']
+  runs = indices['Run'].array()
+  lumis = indices['Lumi'].array()
+  firstindex = indices['FirstIndex'].array()
+  lastindex = indices['LastIndex'].array()
+  types = indices['Type'].array()
 
   counts = defaultdict(lambda: 0)
   for run, lumi, first, last, type in zip(runs, lumis, firstindex, lastindex, types):
@@ -54,5 +54,3 @@ if b'Indices;1' in things:
 
 else:
   print("This does not look like DQMIO data.")
-
-

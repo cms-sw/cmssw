@@ -183,6 +183,7 @@ process.source.fileNames = cms.vstring( $dataset )
 process.source.preScale = cms.uint32( $prescale )
 process.source.orderedRead = cms.bool(True)
 process.source.verbosity = cms.untracked.int32(0)
+process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID()
 EOF
 else
 cat >> "$TMPFILE" <<EOF
@@ -215,6 +216,7 @@ fi
 cmssw_path="${cmssw_path}process.dumpRaw"
 cat >> "$TMPFILE" <<EOF
 process.load("EventFilter.EcalRawToDigi.EcalDumpRaw_cfi")
+process.dumpRaw.fedRawDataCollectionTag = "source"
 process.dumpRaw.l1aMinX = $l1axmin
 process.dumpRaw.l1aMaxX = $l1axmax
 

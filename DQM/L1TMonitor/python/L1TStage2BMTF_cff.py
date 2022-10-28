@@ -30,17 +30,17 @@ l1tStage2BmtfZeroSupp = DQMEDAnalyzer(
 )
 
 # ZS of validation events (to be used after fat event filter)
-l1tStage2BmtfZeroSuppFatEvts = l1tStage2BmtfZeroSupp.clone()
-l1tStage2BmtfZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/zeroSuppression/FatEvts")
-l1tStage2BmtfZeroSuppFatEvts.maxFEDReadoutSize = cms.untracked.int32(25000)
-
+l1tStage2BmtfZeroSuppFatEvts = l1tStage2BmtfZeroSupp.clone(
+    monitorDir = "L1T/L1TStage2BMTF/zeroSuppression/FatEvts",
+    maxFEDReadoutSize = 25000
+)
 # Plots for BMTF's Secondary Algo
-l1tStage2BmtfSecond = l1tStage2Bmtf.clone()
-l1tStage2BmtfSecond.bmtfSource = cms.InputTag("bmtfDigis","BMTF2")
-l1tStage2BmtfSecond.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary")
-l1tStage2BmtfSecond.verbose = cms.untracked.bool(False)
-l1tStage2BmtfSecond.hasDisplacementInfo = cms.untracked.bool(True)
-
+l1tStage2BmtfSecond = l1tStage2Bmtf.clone(
+    bmtfSource = "bmtfDigis:BMTF2",
+    monitorDir = "L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary",
+    verbose = False,
+    hasDisplacementInfo = cms.untracked.bool(True)
+)
 # sequences
 l1tStage2BmtfOnlineDQMSeq = cms.Sequence(
     l1tStage2Bmtf +

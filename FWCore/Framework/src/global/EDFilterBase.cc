@@ -23,9 +23,10 @@
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -62,7 +63,7 @@ namespace edm {
       EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       bool returnValue = this->filter(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
       return returnValue;
@@ -79,9 +80,26 @@ namespace edm {
       EventAcquireSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       this->doAcquire_(e.streamID(), e, c, holder);
     }
+
+    void EDFilterBase::doTransformAsync(WaitingTaskHolder iTask,
+                                        size_t iTransformIndex,
+                                        EventPrincipal const& iEvent,
+                                        ActivityRegistry*,
+                                        ModuleCallingContext const* iMCC,
+                                        ServiceWeakToken const& iToken) {
+      EventForTransformer ev(iEvent, iMCC);
+      transformAsync_(iTask, iTransformIndex, ev, iToken);
+    }
+
+    size_t EDFilterBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
+    ProductResolverIndex EDFilterBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+    void EDFilterBase::transformAsync_(WaitingTaskHolder iTask,
+                                       std::size_t iIndex,
+                                       edm::EventForTransformer& iEvent,
+                                       ServiceWeakToken const& iToken) const {}
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       const auto nStreams = iPrealloc.numberOfStreams();
@@ -91,6 +109,8 @@ namespace edm {
       }
       previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
+      preallocRuns(iPrealloc.numberOfRuns());
+      preallocRunsSummary(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
@@ -132,11 +152,8 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
       r.setProducer(this);
@@ -151,7 +168,7 @@ namespace edm {
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doEndRunSummary_(r, c);
       this->doEndRunProduce_(r, c);
       this->doEndRun_(cnstR, c);
@@ -166,8 +183,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
       lb.setProducer(this);
@@ -184,8 +200,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doEndLuminosityBlockSummary_(cnstLb, c);
       this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
@@ -198,11 +213,8 @@ namespace edm {
       Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doStreamBeginRun_(id, r, c);
     }
     void EDFilterBase::doStreamEndRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
@@ -210,7 +222,7 @@ namespace edm {
       r.setConsumer(this);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
@@ -223,8 +235,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doStreamBeginLuminosityBlock_(id, lb, c);
     }
 
@@ -237,13 +248,14 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doStreamEndLuminosityBlock_(id, lb, c);
       this->doStreamEndLuminosityBlockSummary_(id, lb, c);
     }
 
     void EDFilterBase::preallocStreams(unsigned int) {}
+    void EDFilterBase::preallocRuns(unsigned int) {}
+    void EDFilterBase::preallocRunsSummary(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
     void EDFilterBase::preallocLumisSummary(unsigned int) {}
     void EDFilterBase::preallocate(PreallocationConfiguration const&) {}

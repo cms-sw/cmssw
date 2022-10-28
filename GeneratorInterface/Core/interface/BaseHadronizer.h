@@ -17,9 +17,11 @@
 #include <memory>
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct3.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -51,12 +53,16 @@ namespace gen {
     // GenRunInfo and GenEvent passing
     GenRunInfoProduct& getGenRunInfo() { return genRunInfo_; }
     std::unique_ptr<HepMC::GenEvent> getGenEvent() { return std::move(genEvent_); }
+    std::unique_ptr<HepMC3::GenEvent> getGenEvent3() { return std::move(genEvent3_); }
     std::unique_ptr<GenEventInfoProduct> getGenEventInfo() { return std::move(genEventInfo_); }
+    std::unique_ptr<GenEventInfoProduct3> getGenEventInfo3() { return std::move(genEventInfo3_); }
     virtual std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const;
     std::unique_ptr<lhef::LHEEvent> getLHEEvent() { return std::move(lheEvent_); }
 
     void resetEvent(std::unique_ptr<HepMC::GenEvent> event) { genEvent_ = std::move(event); }
+    void resetEvent3(std::unique_ptr<HepMC3::GenEvent> event3) { genEvent3_ = std::move(event3); }
     void resetEventInfo(std::unique_ptr<GenEventInfoProduct> eventInfo) { genEventInfo_ = std::move(eventInfo); }
+    void resetEventInfo3(std::unique_ptr<GenEventInfoProduct3> eventInfo) { genEventInfo3_ = std::move(eventInfo); }
 
     // LHERunInfo and LHEEvent passing
     const std::shared_ptr<lhef::LHERunInfo>& getLHERunInfo() const { return lheRunInfo_; }
@@ -80,11 +86,16 @@ namespace gen {
     void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
     void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine, unsigned int ncpu);
     void cleanLHE();
+    unsigned int getVHepMC() { return ivhepmc; }
 
   protected:
+    unsigned int ivhepmc = 2;
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
     std::unique_ptr<HepMC::GenEvent>& event() { return genEvent_; }
     std::unique_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
+    //HepMC3:
+    std::unique_ptr<HepMC3::GenEvent>& event3() { return genEvent3_; }
+    std::unique_ptr<GenEventInfoProduct3>& eventInfo3() { return genEventInfo3_; }
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo* lheRunInfo() { return lheRunInfo_.get(); }
@@ -98,7 +109,9 @@ namespace gen {
 
     GenRunInfoProduct genRunInfo_;
     std::unique_ptr<HepMC::GenEvent> genEvent_;
+    std::unique_ptr<HepMC3::GenEvent> genEvent3_;
     std::unique_ptr<GenEventInfoProduct> genEventInfo_;
+    std::unique_ptr<GenEventInfoProduct3> genEventInfo3_;
 
     std::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
     std::unique_ptr<lhef::LHEEvent> lheEvent_;

@@ -1,7 +1,6 @@
 #include "CalibMuon/RPCCalibration/interface/RPCCalibSetUp.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

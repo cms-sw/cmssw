@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    UserCode/CalibratedDigis
+// Package:    L1Trigger/DTTriggerPhase2
 // Class:      CalibratedDigis
 //
-/**\class CalibratedDigis CalibratedDigis.cc UserCode/CalibratedDigis/plugins/CalibratedDigis.cc
+/**\class CalibratedDigis CalibratedDigis.cc L1Trigger/DTTriggerPhase2/plugins/CalibratedDigis.cc
 
  Description: [one line class summary]
 
@@ -25,13 +25,13 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 
@@ -90,12 +90,13 @@ CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
   dtDigisToken = consumes<DTDigiCollection>(dtDigiTag);
 
   theSync = DTTTrigSyncFactory::get()->create(iConfig.getParameter<string>("tTrigMode"),
-                                              iConfig.getParameter<ParameterSet>("tTrigModeConfig"));
+                                              iConfig.getParameter<ParameterSet>("tTrigModeConfig"),
+                                              consumesCollector());
 
   flat_calib_ = iConfig.getParameter<int>("flat_calib");
   timeOffset_ = iConfig.getParameter<int>("timeOffset");
 
-  scenario = iConfig.getUntrackedParameter<int>("scenario");
+  scenario = iConfig.getParameter<int>("scenario");
 
   produces<DTDigiCollection>();
   //now do what ever other initialization is needed

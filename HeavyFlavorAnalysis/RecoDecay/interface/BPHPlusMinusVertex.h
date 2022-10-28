@@ -22,6 +22,8 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+class BPHEventSetupWrapper;
+
 //---------------
 // C++ Headers --
 //---------------
@@ -49,10 +51,9 @@ public:
   virtual const ClosestApproachInRPhi& cAppInRPhi() const;
 
 protected:
-  BPHPlusMinusVertex(const edm::EventSetup* es);
+  BPHPlusMinusVertex(const BPHEventSetupWrapper* es);
 
-  // utility functions to check/enforce the number of decay particles
-  // at 2
+  // utility functions to check/enforce the number of decay particles at 2
   template <class T>
   static bool chkName(const T& cont, const std::string& name, const std::string& msg);
   template <class T>

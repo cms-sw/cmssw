@@ -19,7 +19,6 @@ class Reco(Scenario):
     def __init__(self):
         Scenario.__init__(self)
         self.recoSeq=''
-        self.addEI=False
         self.cbSc=self.__class__.__name__
         self.promptModifiers = cms.ModifierChain()
         self.expressModifiers = cms.ModifierChain()
@@ -60,13 +59,16 @@ class Reco(Scenario):
         if ('nThreads' in args) :
             options.nThreads=args['nThreads']
 
-        miniAODStep=''
+        miniAODStep = ''
+        nanoAODStep = ''
 
-# if miniAOD is asked for - then retrieve the miniaod config 
         if 'outputs' in args:
+            print(args['outputs']) 
             for a in args['outputs']:
                 if a['dataTier'] == 'MINIAOD':
-                    miniAODStep=',PAT' 
+                    miniAODStep = ',PAT' 
+                if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
+                    nanoAODStep = ',NANO' 
 
         self._checkRepackedFlag(options, **args)
 
@@ -74,10 +76,11 @@ class Reco(Scenario):
             options.customisation_file=args['customs']
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'
+        options.step += self.recoSeq + eiStep + step + PhysicsSkimStep
+        options.step += miniAODStep + nanoAODStep
+        options.step += ',DQM' + dqmStep + ',ENDJOB'
 
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
@@ -118,8 +121,6 @@ class Reco(Scenario):
             options.nThreads=args['nThreads']
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+',DQM'+dqmStep+',ENDJOB'
 
@@ -161,10 +162,13 @@ class Reco(Scenario):
             options.step +='FILTER:'+args['preFilter']+','
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
-        options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
+        if 'beamSplashRun' in args:
+            options.step += 'RAW2DIGI,L1Reco,RECO'+args['beamSplashRun']+',ENDJOB'
+            print("Using RECO%s step in visualizationProcessing" % args['beamSplashRun'])
+        else :
+            options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
+
 
 
         dictIO(options,args)

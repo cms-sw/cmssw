@@ -20,7 +20,7 @@
   \version  $Id: MuonCleanerBySegments.cc,v 1.1 2012/08/11 13:00:50 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,7 +35,7 @@
 namespace modules {
 
   template <typename T>
-  class MuonCleanerBySegmentsT : public edm::EDProducer {
+  class MuonCleanerBySegmentsT : public edm::stream::EDProducer<> {
   public:
     explicit MuonCleanerBySegmentsT(const edm::ParameterSet &iConfig);
     ~MuonCleanerBySegmentsT() override {}

@@ -118,10 +118,10 @@ private:
   typedef std::map<std::string, cond::GTEntry_t> TagCollection;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
-  std::map<std::string, cond::Time_t> m_refreshTimeForRecord;
+  std::map<std::string, std::pair<cond::Time_t, bool> > m_refreshTimeForRecord;
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPool;
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPoolForLumiConditions;
-  std::map<std::string, cond::Time_t> m_lastRecordRuns;
+  std::map<std::string, unsigned int> m_lastRecordRuns;
 
   edm::SerialTaskQueue m_queue;
   std::mutex m_mutex;

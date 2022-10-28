@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,7 +11,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class EmptySimHits : public edm::EDProducer {
+class EmptySimHits : public edm::one::EDProducer<> {
 public:
   explicit EmptySimHits(const edm::ParameterSet&);
   ~EmptySimHits() override{};
@@ -23,14 +23,13 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override{};
 
-  std::vector<std::string> pCaloHitInstanceLabels;
-  std::vector<std::string> pSimHitInstanceLabels;
+  const std::vector<std::string> pSimHitInstanceLabels;
+  const std::vector<std::string> pCaloHitInstanceLabels;
 };
 
-EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig) {
-  pSimHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels");
-  pCaloHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pCaloHitInstanceLabels");
-
+EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig)
+    : pSimHitInstanceLabels(iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels")),
+      pCaloHitInstanceLabels(iConfig.getParameter<std::vector<std::string> >("pCaloHitInstanceLabels")) {
   for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
     produces<edm::PSimHitContainer>(pSimHitInstanceLabels[i]);
   }

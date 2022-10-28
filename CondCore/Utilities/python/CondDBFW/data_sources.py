@@ -3,8 +3,6 @@
 This file contains the base DataSource class, and all sub classes that implement their own methods for parsing data.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 import json
 
@@ -107,7 +105,7 @@ class sqlite_schema(data_source):
 				sql_query = "select %s from %s" % (column_string, table)
 				results = cursor.execute(sql_query).fetchall()
 				for n in range(0, len(results)):
-					results[n] = dict(zip(table_to_columns[table], map(str, results[n])))
+					results[n] = dict(list(zip(table_to_columns[table], list(map(str, results[n])))))
 				table_to_data[str(table)] = results
 			self._data = json_data_node.make(table_to_data)
 		else:
@@ -129,9 +127,9 @@ class json_data_node(object):
 	# be created in code that shouldn't be doing it.
 	@staticmethod
 	def make(data):
-		if isinstance(data, list):
+		if type(data) == list:
 			return json_list(data)
-		elif isinstance(data, dict):
+		elif type(data) == dict:
 			return json_dict(data)
 		else:
 			return json_basic(data)
@@ -159,12 +157,12 @@ class json_data_node(object):
 		# traverse json_data_node structure, and find all lists
 		# if this node in the structure is a list, return all sub lists
 		lists = []
-		if isinstance(self._data, type_name):
+		if type(self._data) == type_name:
 			lists.append(self._data)
-		if isinstance(self._data, list):
+		if type(self._data) == list:
 			for item in self._data:
 				lists += json_data_node.make(item).find(type_name)
-		elif isinstance(self._data, dict):
+		elif type(self._data) == dict:
 			for key in self._data:
 				lists += json_data_node.make(self._data[key]).find(type_name)
 		return lists
@@ -198,7 +196,7 @@ class json_list(json_data_node):
 	def __iter__(self):
 		return self
 
-	def next(self):
+	def __next__(self):
 		if self.iterator_index > len(self._data)-1:
 			self.reset()
 			raise StopIteration
@@ -227,13 +225,13 @@ class json_list(json_data_node):
 
 	def get_members(self, member_name):
 		# assume self.data() is a list
-		if not(type(member_name) in [str, unicode]):
+		if not(type(member_name) in [str, str]):
 			raise TypeError("Value given for member name must be a string.")
 		type_of_first_item = self.data()[0].__class__
 		for item in self.data():
 			if item.__class__ != type_of_first_item:
 				return None
-		return json_data_node.make(map(lambda item : getattr(item, member_name), self.data()))
+		return json_data_node.make([getattr(item, member_name) for item in self.data()])
 
 	# format methods
 
@@ -245,7 +243,7 @@ class json_list(json_data_node):
 
 		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "Tag", "IOV", "Payload"]:
 			# copy data
-			new_data = map(lambda item : item.as_dicts(convert_timestamps=convert_timestamps), [item for item in self.data()])
+			new_data = [item.as_dicts(convert_timestamps=convert_timestamps) for item in [item for item in self.data()]]
 			return new_data
 		else:
 			print("Data in json_list was not the correct type.")
@@ -281,7 +279,7 @@ class json_list(json_data_node):
 			table_name = None
 			data = self.data()
 			# gets headers stored in first dictionary
-			headers = data[0].keys()
+			headers = list(data[0].keys())
 
 		if columns != None:
 			headers = columns
@@ -298,7 +296,7 @@ class json_list(json_data_node):
 
 		if col_width == None:
 			import subprocess
-			table_width = int(0.95*int(subprocess.check_output(["stty", "size"]).split(" ")[1]))
+			table_width = int(0.95*int(subprocess.check_output([b'stty', b'size']).split(b' ')[1]))
 			col_width = int(table_width/len(headers))
 
 		if hide != None:
@@ -335,7 +333,7 @@ class json_list(json_data_node):
 			for column in fit:
 
 				if not(column in headers):
-					print("'%s' is not a valid column." % column)
+					print(("'%s' is not a valid column." % column))
 					return
 
 				column_to_width[column] = max_width_of_column(column, data)

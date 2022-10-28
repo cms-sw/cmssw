@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #define base parameters for the HGCROC simulation in the SimCalorimetry/HGCalSimProducers/src/HGCFEElectronics.cc
 
-hgcROCSettings = cms.PSet( 
+hgcROCSettings = cms.PSet(
     # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
     fwVersion         = cms.uint32(2),
     # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
@@ -16,9 +16,9 @@ hgcROCSettings = cms.PSet(
     # the tdc resolution smearing (in picoseconds)
     tdcResolutionInPs = cms.double( 0.001 ),
     # jitter for timing noise term ns
-    jitterNoise_ns = cms.vdouble(25., 25., 25.),
+    jitterNoise_ns = cms.vdouble(5., 5., 5.),
     # jitter for timing noise term ns
-    jitterConstant_ns = cms.vdouble(0.0004, 0.0004, 0.0004),
+    jitterConstant_ns = cms.vdouble(0.02, 0.02, 0.02),
     # LSB for TDC, assuming 12 bit dynamic range to 10 pC
     tdcNbits          = cms.uint32(12),
     # TDC saturation

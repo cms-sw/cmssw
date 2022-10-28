@@ -346,6 +346,108 @@ void MaterialBudgetHGCalHistos::book() {
   hmgr->addHistoProf2(new TProfile2D(
       "1372", "MB ortho prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
+  // Polystyrene
+  hmgr->addHistoProf1(new TProfile("1410", "MB prof Eta [Polystyrene];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("1420", "MB prof Phi [Polystyrene];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("1430",
+                                     "MB prof Eta  Phi [Polystyrene];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("1440", "MB prof R [Polystyrene];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1450", "MB prof sum R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1452", "MB ortho prof sum R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1460", "MB prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1470", "MB prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("1472",
+                                     "MB ortho prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
+  // HGC_EEConnector
+  hmgr->addHistoProf1(new TProfile("1510", "MB prof Eta [HGC_EEConnector];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("1520", "MB prof Phi [HGC_EEConnector];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("1530",
+                                     "MB prof Eta  Phi [HGC_EEConnector];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("1540", "MB prof R [HGC_EEConnector];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1550", "MB prof sum R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("1552",
+                                     "MB ortho prof sum R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1560", "MB prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1570", "MB prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("1572",
+                                     "MB ortho prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
+  // HGC_HEConnector
+  hmgr->addHistoProf1(new TProfile("1610", "MB prof Eta [HGC_HEConnector];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("1620", "MB prof Phi [HGC_HEConnector];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("1630",
+                                     "MB prof Eta  Phi [HGC_HEConnector];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("1640", "MB prof R [HGC_HEConnector];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1650", "MB prof sum R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("1652",
+                                     "MB ortho prof sum R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1660", "MB prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1670", "MB prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("1672",
+                                     "MB ortho prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
   //=========================================================================================================
   // total Lambda0
   hmgr->addHistoProf1(new TProfile("10010", "IL prof Eta;#eta;#lambda/#lambda_{0} ", netabin_, etaMin_, etaMax_));
@@ -747,6 +849,144 @@ void MaterialBudgetHGCalHistos::book() {
                                      rMin_,
                                      rMax_));
 
+  // Polystyrene
+  hmgr->addHistoProf1(
+      new TProfile("11410", "IL prof Eta [Polystyrene];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11420", "IL prof Phi [Polystyrene];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("11430",
+                                     "IL prof Eta  Phi [Polystyrene];#eta;#varphi;#lambda/#lambda_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11440", "IL prof R [Polystyrene];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11450", "IL prof sum R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11452",
+                                     "IL ortho prof sum R  z [Polystyrene];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHisto2(new TH2F(
+      "11460", "IL prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11470", "IL prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11472",
+                                     "IL ortho prof local R  z [Polystyrene];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
+  // HGC_EEConnector
+  hmgr->addHistoProf1(
+      new TProfile("11510", "IL prof Eta [HGC_EEConnector];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile(
+      "11520", "IL prof Phi [HGC_EEConnector];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("11530",
+                                     "IL prof Eta  Phi [HGC_EEConnector];#eta;#varphi;#lambda/#lambda_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11540", "IL prof R [HGC_EEConnector];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11550", "IL prof sum R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11552",
+                                     "IL ortho prof sum R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHisto2(new TH2F("11560",
+                           "IL prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                           nzbin_,
+                           zMin_,
+                           zMax_,
+                           nrbin_,
+                           rMin_,
+                           rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11570",
+                                     "IL prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11572",
+                                     "IL ortho prof local R  z [HGC_EEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
+  // HGC_HEConnector
+  hmgr->addHistoProf1(
+      new TProfile("11610", "IL prof Eta [HGC_HEConnector];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile(
+      "11620", "IL prof Phi [HGC_HEConnector];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("11630",
+                                     "IL prof Eta  Phi [HGC_HEConnector];#eta;#varphi;#lambda/#lambda_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11640", "IL prof R [HGC_HEConnector];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11650", "IL prof sum R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11652",
+                                     "IL ortho prof sum R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHisto2(new TH2F("11660",
+                           "IL prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                           nzbin_,
+                           zMin_,
+                           zMax_,
+                           nrbin_,
+                           rMin_,
+                           rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11670",
+                                     "IL prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11672",
+                                     "IL ortho prof local R  z [HGC_HEConnector];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
+
   std::cout << "=== booking user histos done ===" << std::endl;
 }
 
@@ -831,10 +1071,26 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
     hmgr->getHistoProf1(1220)->Fill(theData->getPhi(), theData->getKaptonMB());
     hmgr->getHistoProf2(1230)->Fill(theData->getEta(), theData->getPhi(), theData->getKaptonMB());
 
-    // Kapton
+    // Aluminium
     hmgr->getHistoProf1(1310)->Fill(theData->getEta(), theData->getAluminiumMB());
     hmgr->getHistoProf1(1320)->Fill(theData->getPhi(), theData->getAluminiumMB());
     hmgr->getHistoProf2(1330)->Fill(theData->getEta(), theData->getPhi(), theData->getAluminiumMB());
+
+    // Polystyrene
+    hmgr->getHistoProf1(1410)->Fill(theData->getEta(), theData->getPolystyreneMB());
+    hmgr->getHistoProf1(1420)->Fill(theData->getPhi(), theData->getPolystyreneMB());
+    hmgr->getHistoProf2(1430)->Fill(theData->getEta(), theData->getPhi(), theData->getPolystyreneMB());
+
+    // HGC_EEConnector
+    hmgr->getHistoProf1(1510)->Fill(theData->getEta(), theData->getHGC_EEConnectorMB());
+    hmgr->getHistoProf1(1520)->Fill(theData->getPhi(), theData->getHGC_EEConnectorMB());
+    hmgr->getHistoProf2(1530)->Fill(theData->getEta(), theData->getPhi(), theData->getHGC_EEConnectorMB());
+
+    // HGC_HEConnector
+    hmgr->getHistoProf1(1610)->Fill(theData->getEta(), theData->getHGC_HEConnectorMB());
+    hmgr->getHistoProf1(1620)->Fill(theData->getPhi(), theData->getHGC_HEConnectorMB());
+    hmgr->getHistoProf2(1630)->Fill(theData->getEta(), theData->getPhi(), theData->getHGC_HEConnectorMB());
+
     //
     // Compute the total x/X0 crossed at each step radius for each path
     //
@@ -853,6 +1109,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
     float theTotalMB_EPX = 0.0;
     float theTotalMB_KAP = 0.0;
     float theTotalMB_ALU = 0.0;
+    float theTotalMB_POL = 0.0;
+    float theTotalMB_EEC = 0.0;
+    float theTotalMB_HEC = 0.0;
     for (int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
       theTotalMB_TOT += theData->getStepDmb(iStep);
       theTotalMB_COP += theData->getCopperDmb(iStep);
@@ -868,6 +1127,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       theTotalMB_EPX += theData->getEpoxyDmb(iStep);
       theTotalMB_KAP += theData->getKaptonDmb(iStep);
       theTotalMB_ALU += theData->getAluminiumDmb(iStep);
+      theTotalMB_POL += theData->getPolystyreneDmb(iStep);
+      theTotalMB_EEC += theData->getHGC_EEConnectorDmb(iStep);
+      theTotalMB_HEC += theData->getHGC_HEConnectorDmb(iStep);
 
       int iCop = 0;
       int iSci = 0;
@@ -882,6 +1144,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       int iEpx = 0;
       int iKap = 0;
       int iAlu = 0;
+      int iPol = 0;
+      int iEec = 0;
+      int iHec = 0;
       if (theData->getCopperDmb(iStep) > 0.) {
         iCop = 1;
       }
@@ -920,6 +1185,15 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       }
       if (theData->getAluminiumDmb(iStep) > 0.) {
         iAlu = 1;
+      }
+      if (theData->getPolystyreneDmb(iStep) > 0.) {
+        iPol = 1;
+      }
+      if (theData->getHGC_EEConnectorDmb(iStep) > 0.) {
+        iEec = 1;
+      }
+      if (theData->getHGC_HEConnectorDmb(iStep) > 0.) {
+        iHec = 1;
       }
 
       float deltaRadius = sqrt(pow(theData->getStepFinalX(iStep) - theData->getStepInitialX(iStep), 2) +
@@ -1072,6 +1346,30 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
         hmgr->getHisto2(1360)->Fill(z, polarRadius, iAlu * fillValue);
         hmgr->getHistoProf2(1370)->Fill(z, polarRadius, iAlu * fillValue);
         hmgr->getHistoProf2(1372)->Fill(z, polarRadius, iAlu * fillValue * costhetacorrection);
+
+        // Polystyrene
+        hmgr->getHistoProf1(1440)->Fill(polarRadius, theTotalMB_POL);
+        hmgr->getHistoProf2(1450)->Fill(z, polarRadius, theTotalMB_POL);
+        hmgr->getHistoProf2(1452)->Fill(z, polarRadius, theTotalMB_POL * costhetacorrection);
+        hmgr->getHisto2(1460)->Fill(z, polarRadius, iPol * fillValue);
+        hmgr->getHistoProf2(1470)->Fill(z, polarRadius, iPol * fillValue);
+        hmgr->getHistoProf2(1472)->Fill(z, polarRadius, iPol * fillValue * costhetacorrection);
+
+        // HGC_EEConnector
+        hmgr->getHistoProf1(1540)->Fill(polarRadius, theTotalMB_EEC);
+        hmgr->getHistoProf2(1550)->Fill(z, polarRadius, theTotalMB_EEC);
+        hmgr->getHistoProf2(1552)->Fill(z, polarRadius, theTotalMB_EEC * costhetacorrection);
+        hmgr->getHisto2(1560)->Fill(z, polarRadius, iEec * fillValue);
+        hmgr->getHistoProf2(1570)->Fill(z, polarRadius, iEec * fillValue);
+        hmgr->getHistoProf2(1572)->Fill(z, polarRadius, iEec * fillValue * costhetacorrection);
+
+        // HGC_HEConnector
+        hmgr->getHistoProf1(1640)->Fill(polarRadius, theTotalMB_HEC);
+        hmgr->getHistoProf2(1650)->Fill(z, polarRadius, theTotalMB_HEC);
+        hmgr->getHistoProf2(1652)->Fill(z, polarRadius, theTotalMB_HEC * costhetacorrection);
+        hmgr->getHisto2(1660)->Fill(z, polarRadius, iHec * fillValue);
+        hmgr->getHistoProf2(1670)->Fill(z, polarRadius, iHec * fillValue);
+        hmgr->getHistoProf2(1672)->Fill(z, polarRadius, iHec * fillValue * costhetacorrection);
       }
     }
 
@@ -1146,6 +1444,21 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
     hmgr->getHistoProf1(11320)->Fill(theData->getPhi(), theData->getAluminiumIL());
     hmgr->getHistoProf2(11330)->Fill(theData->getEta(), theData->getPhi(), theData->getAluminiumIL());
 
+    // Polystyrene
+    hmgr->getHistoProf1(11410)->Fill(theData->getEta(), theData->getPolystyreneIL());
+    hmgr->getHistoProf1(11420)->Fill(theData->getPhi(), theData->getPolystyreneIL());
+    hmgr->getHistoProf2(11430)->Fill(theData->getEta(), theData->getPhi(), theData->getPolystyreneIL());
+
+    // HGC_EEConnector
+    hmgr->getHistoProf1(11510)->Fill(theData->getEta(), theData->getHGC_EEConnectorIL());
+    hmgr->getHistoProf1(11520)->Fill(theData->getPhi(), theData->getHGC_EEConnectorIL());
+    hmgr->getHistoProf2(11530)->Fill(theData->getEta(), theData->getPhi(), theData->getHGC_EEConnectorIL());
+
+    // HGC_HEConnector
+    hmgr->getHistoProf1(11610)->Fill(theData->getEta(), theData->getHGC_HEConnectorIL());
+    hmgr->getHistoProf1(11620)->Fill(theData->getPhi(), theData->getHGC_HEConnectorIL());
+    hmgr->getHistoProf2(11630)->Fill(theData->getEta(), theData->getPhi(), theData->getHGC_HEConnectorIL());
+
     // Compute the total l/l0 crossed at each step radius for each path
     float theTotalIL_TOT = 0.0;
     float theTotalIL_COP = 0.0;
@@ -1161,6 +1474,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
     float theTotalIL_EPX = 0.0;
     float theTotalIL_KAP = 0.0;
     float theTotalIL_ALU = 0.0;
+    float theTotalIL_POL = 0.0;
+    float theTotalIL_EEC = 0.0;
+    float theTotalIL_HEC = 0.0;
     for (int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
       theTotalIL_TOT += theData->getStepDil(iStep);
       theTotalIL_COP += theData->getCopperDil(iStep);
@@ -1176,6 +1492,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       theTotalIL_EPX += theData->getEpoxyDil(iStep);
       theTotalIL_KAP += theData->getKaptonDil(iStep);
       theTotalIL_ALU += theData->getAluminiumDil(iStep);
+      theTotalIL_POL += theData->getPolystyreneDil(iStep);
+      theTotalIL_EEC += theData->getHGC_EEConnectorDil(iStep);
+      theTotalIL_HEC += theData->getHGC_HEConnectorDil(iStep);
 
       int iCop = 0;
       int iSci = 0;
@@ -1190,6 +1509,9 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       int iEpx = 0;
       int iKap = 0;
       int iAlu = 0;
+      int iPol = 0;
+      int iEec = 0;
+      int iHec = 0;
 
       if (theData->getCopperDil(iStep) > 0.) {
         iCop = 1;
@@ -1229,6 +1551,15 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
       }
       if (theData->getAluminiumDil(iStep) > 0.) {
         iAlu = 1;
+      }
+      if (theData->getPolystyreneDil(iStep) > 0.) {
+        iPol = 1;
+      }
+      if (theData->getHGC_EEConnectorDil(iStep) > 0.) {
+        iEec = 1;
+      }
+      if (theData->getHGC_HEConnectorDil(iStep) > 0.) {
+        iHec = 1;
       }
 
       float deltaRadius = sqrt(pow(theData->getStepFinalX(iStep) - theData->getStepInitialX(iStep), 2) +
@@ -1379,6 +1710,30 @@ void MaterialBudgetHGCalHistos::fillEndTrack() {
         hmgr->getHisto2(11360)->Fill(z, polarRadius, iAlu * fillValue);
         hmgr->getHistoProf2(11370)->Fill(z, polarRadius, iAlu * fillValue);
         hmgr->getHistoProf2(11372)->Fill(z, polarRadius, iAlu * fillValue * costhetacorrection);
+
+        // Polystyrene
+        hmgr->getHistoProf1(11440)->Fill(polarRadius, theTotalIL_POL);
+        hmgr->getHistoProf2(11450)->Fill(z, polarRadius, theTotalIL_POL);
+        hmgr->getHistoProf2(11452)->Fill(z, polarRadius, theTotalIL_POL * costhetacorrection);
+        hmgr->getHisto2(11460)->Fill(z, polarRadius, iPol * fillValue);
+        hmgr->getHistoProf2(11470)->Fill(z, polarRadius, iPol * fillValue);
+        hmgr->getHistoProf2(11472)->Fill(z, polarRadius, iPol * fillValue * costhetacorrection);
+
+        // HGC_EEConnector
+        hmgr->getHistoProf1(11540)->Fill(polarRadius, theTotalIL_EEC);
+        hmgr->getHistoProf2(11550)->Fill(z, polarRadius, theTotalIL_EEC);
+        hmgr->getHistoProf2(11552)->Fill(z, polarRadius, theTotalIL_EEC * costhetacorrection);
+        hmgr->getHisto2(11560)->Fill(z, polarRadius, iEec * fillValue);
+        hmgr->getHistoProf2(11570)->Fill(z, polarRadius, iEec * fillValue);
+        hmgr->getHistoProf2(11572)->Fill(z, polarRadius, iEec * fillValue * costhetacorrection);
+
+        // HGC_HEConnector
+        hmgr->getHistoProf1(11640)->Fill(polarRadius, theTotalIL_HEC);
+        hmgr->getHistoProf2(11650)->Fill(z, polarRadius, theTotalIL_HEC);
+        hmgr->getHistoProf2(11652)->Fill(z, polarRadius, theTotalIL_HEC * costhetacorrection);
+        hmgr->getHisto2(11660)->Fill(z, polarRadius, iHec * fillValue);
+        hmgr->getHistoProf2(11670)->Fill(z, polarRadius, iHec * fillValue);
+        hmgr->getHistoProf2(11672)->Fill(z, polarRadius, iHec * fillValue * costhetacorrection);
       }
     }
 
@@ -1407,6 +1762,9 @@ void MaterialBudgetHGCalHistos::endOfRun() {
   hmgr->getHisto2(1160)->Divide(hmgr->getHisto2(999));
   hmgr->getHisto2(1260)->Divide(hmgr->getHisto2(999));
   hmgr->getHisto2(1360)->Divide(hmgr->getHisto2(999));
+  hmgr->getHisto2(1460)->Divide(hmgr->getHisto2(999));
+  hmgr->getHisto2(1560)->Divide(hmgr->getHisto2(999));
+  hmgr->getHisto2(1660)->Divide(hmgr->getHisto2(999));
 
   hmgr->getHisto2(10060)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(10160)->Divide(hmgr->getHisto2(1999));
@@ -1422,6 +1780,9 @@ void MaterialBudgetHGCalHistos::endOfRun() {
   hmgr->getHisto2(11160)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(11260)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(11360)->Divide(hmgr->getHisto2(1999));
+  hmgr->getHisto2(11460)->Divide(hmgr->getHisto2(1999));
+  hmgr->getHisto2(11560)->Divide(hmgr->getHisto2(1999));
+  hmgr->getHisto2(11660)->Divide(hmgr->getHisto2(1999));
 
   std::cout << "=== save user histos ===" << std::endl;
   hmgr->save(theFileName);

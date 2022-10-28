@@ -14,13 +14,13 @@
 using namespace std;
 
 // Constructor
-DTHitAssociator::DTHitAssociator(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
+DTHitAssociator::Config::Config(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : DTsimhitsTag(conf.getParameter<edm::InputTag>("DTsimhitsTag")),
       DTsimhitsXFTag(conf.getParameter<edm::InputTag>("DTsimhitsXFTag")),
       DTdigiTag(conf.getParameter<edm::InputTag>("DTdigiTag")),
       DTdigisimlinkTag(conf.getParameter<edm::InputTag>("DTdigisimlinkTag")),
       DTrechitTag(conf.getParameter<edm::InputTag>("DTrechitTag")),
-
+      geomToken(iC.esConsumes()),
       // nice printout of DT hits
       dumpDT(conf.getParameter<bool>("dumpDT")),
       // CrossingFrame used or not ?
@@ -29,53 +29,18 @@ DTHitAssociator::DTHitAssociator(const edm::ParameterSet &conf, edm::ConsumesCol
       links_exist(conf.getParameter<bool>("links_exist")),
       // associatorByWire links to a RecHit all the "valid" SimHits on the same
       // DT wire
-      associatorByWire(conf.getParameter<bool>("associatorByWire")),
-
-      printRtS(true) {
+      associatorByWire(conf.getParameter<bool>("associatorByWire")) {
   if (crossingframe) {
-    iC.consumes<CrossingFrame<PSimHit>>(DTsimhitsXFTag);
+    DTsimhitsXFToken = iC.consumes<CrossingFrame<PSimHit>>(DTsimhitsXFTag);
   } else if (!DTsimhitsTag.label().empty()) {
-    iC.consumes<edm::PSimHitContainer>(DTsimhitsTag);
+    DTsimhitsToken = iC.consumes<edm::PSimHitContainer>(DTsimhitsTag);
   }
-  iC.consumes<DTDigiCollection>(DTdigiTag);
-  iC.consumes<DTDigiSimLinkCollection>(DTdigisimlinkTag);
+  DTdigiToken = iC.consumes<DTDigiCollection>(DTdigiTag);
+  DTdigisimlinkToken = iC.consumes<DTDigiSimLinkCollection>(DTdigisimlinkTag);
 
-  if (dumpDT && printRtS) {
-    iC.consumes<DTRecHitCollection>(DTrechitTag);
+  if (dumpDT) {
+    DTrechitToken = iC.consumes<DTRecHitCollection>(DTrechitTag);
   }
-}
-
-DTHitAssociator::DTHitAssociator(const edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup,
-                                 const edm::ParameterSet &conf,
-                                 bool printRtS)
-    :  // input collection labels
-      DTsimhitsTag(conf.getParameter<edm::InputTag>("DTsimhitsTag")),
-      DTsimhitsXFTag(conf.getParameter<edm::InputTag>("DTsimhitsXFTag")),
-      DTdigiTag(conf.getParameter<edm::InputTag>("DTdigiTag")),
-      DTdigisimlinkTag(conf.getParameter<edm::InputTag>("DTdigisimlinkTag")),
-      DTrechitTag(conf.getParameter<edm::InputTag>("DTrechitTag")),
-
-      // nice printout of DT hits
-      dumpDT(conf.getParameter<bool>("dumpDT")),
-      // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
-      // Event contain the DTDigiSimLink collection ?
-      links_exist(conf.getParameter<bool>("links_exist")),
-      // associatorByWire links to a RecHit all the "valid" SimHits on the same
-      // DT wire
-      associatorByWire(conf.getParameter<bool>("associatorByWire")),
-
-      printRtS(true)
-
-{
-  initEvent(iEvent, iSetup);
-}
-
-void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  LogTrace("DTHitAssociator") << "DTHitAssociator constructor: dumpDT = " << dumpDT
-                              << ", crossingframe = " << crossingframe << ", links_exist = " << links_exist
-                              << ", associatorByWire = " << associatorByWire;
 
   if (!links_exist && !associatorByWire) {
     LogTrace("DTHitAssociator") << "*** WARNING in DTHitAssociator::DTHitAssociator: associatorByWire "
@@ -83,21 +48,38 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
                                 << "    \t (missing DTDigiSimLinkCollection ?)";
     associatorByWire = true;
   }
+}
+
+DTHitAssociator::DTHitAssociator(const edm::Event &iEvent,
+                                 const edm::EventSetup &iSetup,
+                                 const Config &conf,
+                                 bool printRtS)
+    :  // input collection labels
+      config_(conf),
+      printRtS(true)
+
+{
+  initEvent(iEvent, iSetup);
+}
+
+void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  LogTrace("DTHitAssociator") << "DTHitAssociator constructor: dumpDT = " << config_.dumpDT
+                              << ", crossingframe = " << config_.crossingframe
+                              << ", links_exist = " << config_.links_exist
+                              << ", associatorByWire = " << config_.associatorByWire;
 
   // need DT Geometry to discard hits for which the drift time parametrisation
   // is not applicable
-  edm::ESHandle<DTGeometry> muonGeom;
-  iSetup.get<MuonGeometryRecord>().get(muonGeom);
+  edm::ESHandle<DTGeometry> muonGeom = iSetup.getHandle(config_.geomToken);
 
   // Get the DT SimHits from the event and map PSimHit by DTWireId
   mapOfSimHit.clear();
   bool takeHit(true);
 
-  if (crossingframe) {
-    edm::Handle<CrossingFrame<PSimHit>> xFrame;
-    LogTrace("DTHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << DTsimhitsXFTag;
-    iEvent.getByLabel(DTsimhitsXFTag, xFrame);
-    unique_ptr<MixCollection<PSimHit>> DTsimhits(new MixCollection<PSimHit>(xFrame.product()));
+  if (config_.crossingframe) {
+    LogTrace("DTHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << config_.DTsimhitsXFTag;
+    CrossingFrame<PSimHit> const &xFrame = iEvent.get(config_.DTsimhitsXFToken);
+    unique_ptr<MixCollection<PSimHit>> DTsimhits(new MixCollection<PSimHit>(&xFrame));
     LogTrace("DTHitAssociator") << "... size = " << DTsimhits->size();
     MixCollection<PSimHit>::MixItr isimhit;
     for (isimhit = DTsimhits->begin(); isimhit != DTsimhits->end(); isimhit++) {
@@ -105,13 +87,12 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       takeHit = SimHitOK(muonGeom, *isimhit);
       mapOfSimHit[wireid].push_back(make_pair(*isimhit, takeHit));
     }
-  } else if (!DTsimhitsTag.label().empty()) {
-    edm::Handle<edm::PSimHitContainer> DTsimhits;
-    LogTrace("DTHitAssociator") << "getting PSimHit collection - " << DTsimhitsTag;
-    iEvent.getByLabel(DTsimhitsTag, DTsimhits);
-    LogTrace("DTHitAssociator") << "... size = " << DTsimhits->size();
+  } else if (!config_.DTsimhitsTag.label().empty()) {
+    LogTrace("DTHitAssociator") << "getting PSimHit collection - " << config_.DTsimhitsTag;
+    edm::PSimHitContainer const &DTsimhits = iEvent.get(config_.DTsimhitsToken);
+    LogTrace("DTHitAssociator") << "... size = " << DTsimhits.size();
     edm::PSimHitContainer::const_iterator isimhit;
-    for (isimhit = DTsimhits->begin(); isimhit != DTsimhits->end(); isimhit++) {
+    for (isimhit = DTsimhits.begin(); isimhit != DTsimhits.end(); isimhit++) {
       DTWireId wireid((*isimhit).detUnitId());
       takeHit = SimHitOK(muonGeom, *isimhit);
       mapOfSimHit[wireid].push_back(make_pair(*isimhit, takeHit));
@@ -120,9 +101,8 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
 
   // Get the DT Digi collection from the event
   mapOfDigi.clear();
-  edm::Handle<DTDigiCollection> digis;
-  LogTrace("DTHitAssociator") << "getting DTDigi collection - " << DTdigiTag;
-  iEvent.getByLabel(DTdigiTag, digis);
+  LogTrace("DTHitAssociator") << "getting DTDigi collection - " << config_.DTdigiTag;
+  edm::Handle<DTDigiCollection> digis = iEvent.getHandle(config_.DTdigiToken);
 
   if (digis.isValid()) {
     // Map DTDigi by DTWireId
@@ -141,14 +121,13 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
   }
 
   mapOfLinks.clear();
-  if (links_exist) {
+  if (config_.links_exist) {
     // Get the DT DigiSimLink collection from the event and map DTDigiSimLink by
     // DTWireId
-    edm::Handle<DTDigiSimLinkCollection> digisimlinks;
-    LogTrace("DTHitAssociator") << "getting DTDigiSimLink collection - " << DTdigisimlinkTag;
-    iEvent.getByLabel(DTdigisimlinkTag, digisimlinks);
+    LogTrace("DTHitAssociator") << "getting DTDigiSimLink collection - " << config_.DTdigisimlinkTag;
+    DTDigiSimLinkCollection const &digisimlinks = iEvent.get(config_.DTdigisimlinkToken);
 
-    for (DTDigiSimLinkCollection::DigiRangeIterator detUnit = digisimlinks->begin(); detUnit != digisimlinks->end();
+    for (DTDigiSimLinkCollection::DigiRangeIterator detUnit = digisimlinks.begin(); detUnit != digisimlinks.end();
          ++detUnit) {
       const DTLayerId &layerid = (*detUnit).first;
       const DTDigiSimLinkCollection::Range &range = (*detUnit).second;
@@ -161,17 +140,16 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
     }
   }
 
-  if (dumpDT && printRtS) {
+  if (config_.dumpDT && printRtS) {
     // Get the DT rechits from the event
-    edm::Handle<DTRecHitCollection> DTrechits;
-    LogTrace("DTHitAssociator") << "getting DTRecHit1DPair collection - " << DTrechitTag;
-    iEvent.getByLabel(DTrechitTag, DTrechits);
-    LogTrace("DTHitAssociator") << "... size = " << DTrechits->size();
+    LogTrace("DTHitAssociator") << "getting DTRecHit1DPair collection - " << config_.DTrechitTag;
+    DTRecHitCollection const &DTrechits = iEvent.get(config_.DTrechitToken);
+    LogTrace("DTHitAssociator") << "... size = " << DTrechits.size();
 
     // map DTRecHit1DPair by DTWireId
     mapOfRecHit.clear();
     DTRecHitCollection::const_iterator rechit;
-    for (rechit = DTrechits->begin(); rechit != DTrechits->end(); ++rechit) {
+    for (rechit = DTrechits.begin(); rechit != DTrechits.end(); ++rechit) {
       DTWireId wireid = (*rechit).wireId();
       mapOfRecHit[wireid].push_back(*rechit);
     }
@@ -291,7 +269,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
 
   DTWireId wireid = dtrechit->wireId();
 
-  if (associatorByWire) {
+  if (config_.associatorByWire) {
     // matching based on DTWireId : take only "valid" SimHits on that wire
 
     auto found = mapOfSimHit.find(wireid);
@@ -365,7 +343,7 @@ std::vector<PSimHit> DTHitAssociator::associateHit(const TrackingRecHit &hit) co
   if (dtrechit) {
     DTWireId wireid = dtrechit->wireId();
 
-    if (associatorByWire) {
+    if (config_.associatorByWire) {
       // matching based on DTWireId : take only "valid" SimHits on that wire
 
       auto found = mapOfSimHit.find(wireid);

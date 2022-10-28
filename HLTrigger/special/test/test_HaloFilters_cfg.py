@@ -104,9 +104,6 @@ process.hltTrackerHaloFilter = cms.EDFilter( "HLTTrackerHaloFilter",
 process.HLT_BeamHalo = cms.Path( process.HLTBeginSequence  + process.hltL1sL1BptxXORBscMinBiasOR  + process.HLTDoLocalPixel + process.hltPixelActivityFilter + process.HLTDoLocalStrips + process.hltTrackerHaloFilter + process.HLTEndSequence )
 
 
-process.m_HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_BeamHalo, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
-
-
 #Deal with the global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
@@ -119,8 +116,5 @@ process.out_step     = cms.EndPath( process.hltTimer + process.output)
 
 
 # Schedule definition
-
-process.schedule = cms.Schedule(process.m_HLTSchedule)
-
+process.schedule = cms.Schedule(*( process.HLTriggerFirstPath, process.HLT_BeamHalo, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
 process.schedule.extend([process.endjob_step,process.out_step])
-

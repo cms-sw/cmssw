@@ -5,7 +5,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,19 +29,16 @@ using namespace edm;
 using namespace Geom;
 using namespace std;
 
-class queryField : public edm::EDAnalyzer {
+class queryField : public edm::one::EDAnalyzer<> {
 public:
-  queryField(const edm::ParameterSet& pset) {}
+  queryField(const edm::ParameterSet&) : m_fieldToken(esConsumes()) {}
 
-  ~queryField() {}
+  ~queryField() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
-    ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) final {
+    auto const& field = setup.getData(m_fieldToken);
 
-    field = magfield.product();
-
-    cout << "Field Nominal Value: " << field->nominalValue() << endl;
+    cout << "Field Nominal Value: " << field.nominalValue() << endl;
 
     double x, y, z;
 
@@ -53,12 +50,12 @@ public:
 
       GlobalPoint g(x, y, z);
 
-      cout << "At R=" << g.perp() << " phi=" << g.phi() << " B=" << field->inTesla(g) << endl;
+      cout << "At R=" << g.perp() << " phi=" << g.phi() << " B=" << field.inTesla(g) << endl;
     }
   }
 
 private:
-  const MagneticField* field;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_fieldToken;
 };
 
 DEFINE_FWK_MODULE(queryField);

@@ -50,6 +50,7 @@ private:
   void endJob() override {}
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
   edm::Service<TFileService> fs_;
   std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap<HFNoseDetId>>> noiseMaps_;
   std::map<std::pair<DetId::Detector, int>, TH1F *> layerN_, layerCCE_, layerNoise_, layerIleak_, layerSN_, layerF_,
@@ -64,7 +65,8 @@ private:
 };
 
 //
-HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
+HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig)
+    : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource("TFileService");
   fs_->file().cd();
 
@@ -98,8 +100,7 @@ HFNoseNoiseMapAnalyzer::~HFNoseNoiseMapAnalyzer() {}
 //
 void HFNoseNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   //get geometry
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
+  const auto &geom = es.getHandle(tokGeom_);
 
   std::vector<DetId::Detector> dets = {DetId::Forward};
   for (const auto &d : dets) {

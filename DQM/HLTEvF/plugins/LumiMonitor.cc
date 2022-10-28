@@ -1,6 +1,4 @@
 #include <string>
-#include <vector>
-#include <map>
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
@@ -9,7 +7,6 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -58,6 +55,8 @@ private:
   static MEbinning getHistoPSet(const edm::ParameterSet& pset);
   static MEbinning getHistoLSPSet(const edm::ParameterSet& pset);
 
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> const trkTopoToken_;
+
   std::string folderName_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
@@ -83,7 +82,8 @@ private:
 // -----------------------------
 
 LumiMonitor::LumiMonitor(const edm::ParameterSet& config)
-    : folderName_(config.getParameter<std::string>("FolderName")),
+    : trkTopoToken_{esConsumes()},
+      folderName_(config.getParameter<std::string>("FolderName")),
       lumiScalersToken_(consumes<LumiScalersCollection>(config.getParameter<edm::InputTag>("scalers"))),
       lumi_binning_(getHistoPSet(
           config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lumiPSet"))),
@@ -222,7 +222,7 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
     edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
     event.getByToken(pixelClustersToken_, pixelClusters);
     if (pixelClusters.isValid()) {
-      auto const& tTopo = edm::get<TrackerTopology, TrackerTopologyRcd>(setup);
+      auto const& tTopo = setup.getData(trkTopoToken_);
 
       // Count the number of clusters with at least a minimum
       // number of pixels per cluster and at least a minimum charge.

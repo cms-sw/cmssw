@@ -17,11 +17,12 @@
 #include "HLTrigger/JetMET/interface/HLTHcalLaserFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
 #include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleanerWithrechit.h"
-#include "HLTrigger/JetMET/interface/PFJetsMatchedToFilteredCaloJetsProducer.h"
 #include "HLTrigger/JetMET/interface/HLTNVFilter.h"
 #include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMETCleanerUsingJetID.h"
+
+#include "HLTrigger/JetMET/plugins/HLTJetHFCleaner.h"
 
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
@@ -96,6 +97,8 @@
 //
 #include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
 #include "HLTrigger/JetMET/src/HLTExclDiJetFilter.cc"
+//
+#include "HLTJetsMatchedToFilteredJetsProducer.h"
 
 using namespace reco;
 using namespace trigger;
@@ -178,7 +181,6 @@ DEFINE_FWK_MODULE(HLTHcalLaserFilter);
 DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleaner);
 DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleanerWithrechit);
 DEFINE_FWK_MODULE(HLTNVFilter);
-DEFINE_FWK_MODULE(PFJetsMatchedToFilteredCaloJetsProducer);
 DEFINE_FWK_MODULE(HLTMETCleanerUsingJetID);
 
 //Work with all jet collections without changing the module name
@@ -248,3 +250,22 @@ DEFINE_FWK_MODULE(HLTFatPFJetMassFilter);
 
 DEFINE_FWK_MODULE(HLTExclDiCaloJetFilter);
 DEFINE_FWK_MODULE(HLTExclDiPFJetFilter);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::CaloJet, reco::CaloJetRef>
+    HLTCaloJetsMatchedToFilteredCaloJetsProducer;
+DEFINE_FWK_MODULE(HLTCaloJetsMatchedToFilteredCaloJetsProducer);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::CaloJet, reco::PFJetRef> HLTCaloJetsMatchedToFilteredPFJetsProducer;
+DEFINE_FWK_MODULE(HLTCaloJetsMatchedToFilteredPFJetsProducer);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::PFJet, reco::CaloJetRef> HLTPFJetsMatchedToFilteredCaloJetsProducer;
+DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredCaloJetsProducer);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::PFJet, reco::PFJetRef> HLTPFJetsMatchedToFilteredPFJetsProducer;
+DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredPFJetsProducer);
+
+typedef HLTJetHFCleaner<reco::CaloJet> HLTCaloJetHFCleaner;
+DEFINE_FWK_MODULE(HLTCaloJetHFCleaner);
+
+typedef HLTJetHFCleaner<reco::PFJet> HLTPFJetHFCleaner;
+DEFINE_FWK_MODULE(HLTPFJetHFCleaner);

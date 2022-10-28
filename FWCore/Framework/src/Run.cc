@@ -1,8 +1,8 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -20,6 +20,8 @@ namespace edm {
       : provRecorder_(rp, md, isAtEnd), aux_(rp.aux()), moduleCallingContext_(moduleCallingContext) {}
 
   Run::~Run() {}
+
+  RunAuxiliary const& Run::runAuxiliary() const { return aux_; }
 
   Run::CacheIdentifier_t Run::cacheIdentifier() const { return runPrincipal().cacheIdentifier(); }
 

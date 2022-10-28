@@ -54,7 +54,12 @@ void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(gemClusterToken_, gemClustersH_);
   iEvent.getByToken(gemCoPadToken_, gemCoPadsH_);
 
-  gemGeometry_ = &iSetup.getData(geomToken_);
+  const auto gemH = iSetup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    gemGeometry_ = nullptr;
+    edm::LogError("GEMDigiMatcher") << "Failed to initialize GEM geometry.";
+  }
+  gemGeometry_ = gemH.product();
 }
 
 /// do the matching
@@ -91,9 +96,8 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
 
   // loop on the simlinks
   for (auto itsimlink = digisSL.begin(); itsimlink != digisSL.end(); itsimlink++) {
+    GEMDetId p_id(itsimlink->id);
     for (auto sl = itsimlink->data.begin(); sl != itsimlink->data.end(); ++sl) {
-      GEMDetId p_id(sl->getDetUnitId());
-
       // ignore simlinks in non-matched chambers
       const auto& detids(muonSimHitMatcher_->detIds());
       if (detids.find(p_id.rawId()) == detids.end())
@@ -105,8 +109,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
 
       if (verboseSimLink_)
         edm::LogInfo("GEMDigiMatcher") << "GEMDigiSimLink " << p_id << " " << sl->getStrip() << " " << sl->getBx()
-                                       << " " << sl->getEnergyLoss() << " " << sl->getTimeOfFlight() << " "
-                                       << sl->getParticleType() << std::endl;
+                                       << " " << sl->getTrackId() << std::endl;
 
       // consider only the muon hits
       if (simMuOnly_ && std::abs(sl->getParticleType()) != 13)
@@ -119,10 +122,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
       // loop on the matched simhits
       for (const auto& simhit : muonSimHitMatcher_->hitsInDetId(p_id.rawId())) {
         // check if the simhit properties agree
-        if (simhit.particleType() == sl->getParticleType() and simhit.trackId() == sl->getTrackId() and
-            std::abs(simhit.energyLoss() - sl->getEnergyLoss()) < 0.001 and
-            std::abs(simhit.timeOfFlight() - sl->getTimeOfFlight()) < 0.001 and
-            simhit.entryPoint() == sl->getEntryPoint() and simhit.momentumAtEntry() == sl->getMomentumAtEntry()) {
+        if (simhit.trackId() == sl->getTrackId() and simhit.particleType() == sl->getParticleType()) {
           detid_to_simLinks_[p_id.rawId()].push_back(*sl);
           if (verboseSimLink_)
             edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
@@ -179,17 +179,11 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
   }
 }
 void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
-  const auto& det_ids = muonSimHitMatcher_->detIds();
-  for (const auto& id : det_ids) {
-    GEMDetId p_id(id);
+  for (auto it = pads.begin(); it != pads.end(); ++it) {
+    const GEMDetId& p_id = (*it).first;
+    const auto& padsvec = (*it).second;
 
-    const auto& pads_in_det = pads.get(p_id);
-
-    for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
-      // ignore 16-partition GE2/1 pads
-      if (p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
-        continue;
-
+    for (auto pad = padsvec.first; pad != padsvec.second; ++pad) {
       // check that the pad BX is within the range
       if (pad->bx() < minBXPad_ || pad->bx() > maxBXPad_)
         continue;
@@ -197,9 +191,45 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
       if (verbosePad_)
         edm::LogInfo("GEMDigiMatcher") << "GEMPad " << p_id << " " << *pad << endl;
 
-      // check that it matches a pad that was hit by SimHits from our track
-      for (auto digi : detid_to_digis_[p_id.rawId()]) {
-        if (digi.strip() / 2 == pad->pad()) {
+      auto digivec = detid_to_digis_[p_id.rawId()];
+      /*
+        For GE1/1 and ME0 (and obsolete 8-partition GE2/1) geometries, the matching
+        is pretty simple. Each simhit is converted to a digi. Two digis in neighboring
+        strips are ed together into a pad. So for these geometries you just need
+        to match pads to simtracks that are in the same eta partition (detid) as the
+        simhit is in.  By convention, all pads in the 16-partition GE2/1 geometry are
+        assigned to odd partition numbers. For the 16-partition GE2/1 geometry, you may
+        have a track with simhits in eta partition 1 and 2 on the same strip and only
+        produce 1 pad associated to eta partition 1. Therefore, for pads with odd
+        partition number N, you need to consider the digis in the even partition number
+        N+1.
+      */
+      if (p_id.roll() % 2 == 1 && p_id.isGE21() && pad->nPartitions() == GEMPadDigi::GE21SplitStrip) {
+        // make the GEMDetId for the neighboring partition
+        GEMDetId p_id2(p_id.region(), p_id.ring(), p_id.station(), p_id.layer(), p_id.chamber(), p_id.roll() + 1);
+
+        // make a temporary container for its digis
+        auto digivec2 = detid_to_digis_[p_id2.rawId()];
+
+        // now add it to the container for the digis in the odd partition number
+        digivec.insert(digivec.end(), digivec2.begin(), digivec2.end());
+      }
+      for (const auto& digi : digivec) {
+        // for 8-partition geometries, the pad number equals the strip number divided by two
+        const bool match8Partition(digi.strip() / 2 == pad->pad());
+
+        // for 16-partition geometries, the pad number is the strip number itself
+        const bool match16Partition(digi.strip() == pad->pad());
+
+        // now consider the different cases separately
+        const bool matchGE0(p_id.isME0() and match8Partition);
+        const bool matchGE11(p_id.isGE11() and match8Partition);
+        const bool matchGE21_8(p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21 and match8Partition);
+        const bool matchGE21_16(p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip and
+                                match16Partition);
+
+        // OR them together
+        if (matchGE0 or matchGE11 or matchGE21_8 or matchGE21_16) {
           detid_to_pads_[p_id.rawId()].push_back(*pad);
           chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
           superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
@@ -213,18 +243,11 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
 }
 
 void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& clusters) {
-  const auto& det_ids = muonSimHitMatcher_->detIds();
-  for (auto id : det_ids) {
-    GEMDetId p_id(id);
-
-    auto clusters_in_det = clusters.get(p_id);
-
-    for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
-      bool isMatched;
-
-      // ignore 16-partition GE2/1 pads
-      if (p_id.isGE21() and cluster->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
-        continue;
+  for (auto it = clusters.begin(); it != clusters.end(); ++it) {
+    const GEMDetId p_id = (*it).first;
+    const auto clvec = (*it).second;
+    for (auto cluster = clvec.first; cluster != clvec.second; ++cluster) {
+      bool isMatched = false;
 
       // check that the cluster BX is within the range
       if (cluster->bx() < minBXCluster_ || cluster->bx() > maxBXCluster_)
@@ -235,14 +258,14 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
 
       // check that at least one pad was hit by the track
       for (const auto& p : cluster->pads()) {
-        for (auto pad : detid_to_pads_[id]) {
+        for (const auto& pad : detid_to_pads_[p_id.rawId()]) {
           if (pad.pad() == p) {
             isMatched = true;
           }
         }
       }
       if (isMatched) {
-        detid_to_clusters_[id].push_back(*cluster);
+        detid_to_clusters_[p_id.rawId()].push_back(*cluster);
         chamber_to_clusters_[p_id.chamberId().rawId()].push_back(*cluster);
         superchamber_to_clusters_[p_id.superChamberId().rawId()].push_back(*cluster);
         if (verboseCluster_)

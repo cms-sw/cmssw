@@ -42,6 +42,11 @@ namespace edm {
 
       static ThreadSafeRegistry* instance();
 
+      // The following two are not implemented.
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
+
+      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
+
       /// Retrieve the value_type object with the given key.
       /// If we return 'true', then 'result' carries the
       /// value_type object.
@@ -83,11 +88,6 @@ namespace edm {
     private:
       ThreadSafeRegistry();
       ~ThreadSafeRegistry();
-
-      // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
-
-      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
 
       mutable std::mutex mutex_;
       collection_type data_;

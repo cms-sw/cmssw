@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import os, commands,time,sys
+import os, time,sys
 
 class configuration:
    datasetPat  = '/StreamExpress/Run2018*-SiStripCalMinBias__AAG__-Express-v*/ALCARECO'
@@ -73,7 +73,7 @@ class configuration:
       #Check castor path exists FIXME
       cmd = self.eosLs.replace("-lrth","")+self.CASTORDIR
       cmd = cmd[:-2]+"*"
-      (status,output) = commands.getstatusoutput(cmd)
+      (status,output) = subprocess.getstatusoutput(cmd)
       if status or not self.CASTORDIR.split("/")[-1] in output:
          print(cmd)
          print(output)

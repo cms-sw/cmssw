@@ -18,7 +18,7 @@
 // #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@
 // class declaration
 //
 
-class TestConverter : public edm::EDAnalyzer {
+class TestConverter : public edm::one::EDAnalyzer<> {
   typedef SurveyDataReader::MapType MapType;
   typedef SurveyDataReader::PairType PairType;
   typedef SurveyDataReader::MapTypeOr MapTypeOr;
@@ -55,6 +55,10 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrToken_;
+
   TTree* theTree;
   TFile* theFile;
   edm::ParameterSet theParameterSet;
@@ -72,7 +76,8 @@ private:
 //
 // constructors and destructor
 //
-TestConverter::TestConverter(const edm::ParameterSet& iConfig) : theParameterSet(iConfig) {
+TestConverter::TestConverter(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()), aliToken_(esConsumes()), aliErrToken_(esConsumes()), theParameterSet(iConfig) {
   // Open root file and define tree
   std::string fileName = theParameterSet.getUntrackedParameter<std::string>("fileName", "test.root");
   theFile = new TFile(fileName.c_str(), "RECREATE");
@@ -105,9 +110,7 @@ void TestConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
   //
   // Read in the survey information from the text files
@@ -140,10 +143,8 @@ void TestConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
 
   // Retrieve alignment[Error]s from DBase
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(aliErrToken_);
 
   std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
   // int countDet = 0;

@@ -395,7 +395,10 @@ def output(args, string, *parameters, **kwargs):
 
     output_file = kwargs.get('output_file', sys.stdout)
 
-    print(string % parameters + colors.end, end=' ', file=output_file)
+    to_print = string + colors.end
+    if len(parameters)>0:
+        to_print = string % parameters + colors.end
+    print(to_print, end=' ', file=output_file)
 
     if kwargs.get('newline', True):
         print(file=output_file)
@@ -573,7 +576,7 @@ def search(args):
     session = connection.session()
 
     max_limit = 100
-    if args.limit > max_limit:
+    if args.limit is not None and int(args.limit) > max_limit:
         raise Exception('The limit on the number of returned results is capped at %s. Please use a reasonable limit.' % max_limit)
 
     if connection.is_frontier and ':' in args.string:
@@ -738,6 +741,24 @@ def _get_last_frozen_since( session, tagName, fcsr=None ):
     res = query.scalar()
     logging.debug('Last frozen since in destination tag is %s' %res)
     return res
+
+def _get_maxtime_for_boost_version( session, timeType, boost_version):
+    BoostRunMap = session.get_dbtype(conddb.BoostRunMap)
+    q = session.query(BoostRunMap).order_by(BoostRunMap.boost_version.asc())
+    time = (maxSince,maxSince,maxSince)
+    for r in q:
+        r= _rawdict(r)
+        if boost_version < r['boost_version']:
+            tlumi = r['run_number']<<32|0x1
+            time = (r['run_number'],tlumi,r['run_start_time'])
+            break
+    if timeType=='Run':
+        return time[0]
+    elif timeType=='Lumi':
+        return time[1]
+    elif timeType=='Time':
+        return time[2]
+    return None
 
 class run_to_timestamp( object ):
     def __init__( self, session ):
@@ -1833,8 +1854,13 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
 
         logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
     else:
+        maxTime = _get_maxtime_for_boost_version( session1, tag['time_type'], cond2xml.boost_version_for_this_release())
+        logging.info('Max time for boost version %s is %s'%(cond2xml.boost_version_for_this_release(),maxTime))
         query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
         lastIov = None
+        prevIovSince = None
+        targetIovSince = None
+        targetIovPayload = None
         for iov in query:
             iov = _rawdict(iov)
             since = iov['since'] 
@@ -1842,9 +1868,15 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                 lastIov = since
             else:
                 if lastIov != since:
-                    iovs[since] = iov['payload_hash']
-                    hashes.add( iov['payload_hash'] )
-                    break
+                    if targetIovSince is None:
+                        targetIovSince = since
+                    if since < maxTime: 
+                        targetIovPayload = iov['payload_hash']
+                        prevIovSince = since
+                        break
+        iovs[prevIovSince]=targetIovPayload
+        iovs[targetIovSince]=targetIovPayload
+        hashes.add(targetIovPayload)
     logfun = logging.info 
     if len(iovs)==0:
         logfun = logging.warning
@@ -2523,16 +2555,16 @@ def dump(args):
             filter(IOV.tag_name == name).\
             distinct():
             if args.format == 'xml':
-                xmlProcessor.payload2xml(session, payload)
+                xmlProcessor.payload2xml(session, payload, args.destfile)
             else:
                 _dump_payload(session, payload, args.loadonly)
 
-    elif args.type == 'gt' and _exists(session, conddb.GlobalTag.name, name) != None:
+    elif args.type == 'gt' and _exists(session, GlobalTag.name, name) != None:
         for payload, in session.query(IOV.payload_hash).\
             filter(GlobalTagMap.global_tag_name == name, IOV.tag_name == GlobalTagMap.tag_name).\
             distinct():
             if args.format == 'xml':
-                xmlProcessor.payload2xml(session, payload)
+                xmlProcessor.payload2xml(session, payload, args.destfile)
             else:
                 _dump_payload(session, payload, args.loadonly)
 
@@ -2628,6 +2660,7 @@ def setProtection( args ):
     action = 'Access restriction altered.'
     note = ''
     if args.remove:
+        TagAuthorization = session.get_dbtype(conddb.TagAuthorization)
         query = session.query(TagAuthorization).filter(TagAuthorization.tag_name == args.tag)
         query = query.filter(TagAuthorization.access_type == input_access_code)
         for code in db_access_code_map.keys():

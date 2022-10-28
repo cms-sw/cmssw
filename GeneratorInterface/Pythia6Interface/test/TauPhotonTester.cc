@@ -13,22 +13,23 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-class TauPhotonTester : public edm::EDAnalyzer {
+class TauPhotonTester : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   //
   explicit TauPhotonTester(const edm::ParameterSet&);
-  virtual ~TauPhotonTester() {}  // no need to delete ROOT stuff
-                                 // as it'll be deleted upon closing TFile
+  ~TauPhotonTester() override {}  // no need to delete ROOT stuff
+                                  // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endJob() override;
 
 private:
   int fTauPhotonCounter;
@@ -39,6 +40,7 @@ private:
   TH1D* fPhotonEnergyGt10MeV;
   TH1D* fPhotonPtGt10MeV;
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
   int fVerbosity;
 };
 
@@ -48,6 +50,9 @@ using namespace std;
 TauPhotonTester::TauPhotonTester(const ParameterSet& pset)
     : fTauPhotonCounter(0), fTauDecPhotonCounter(0), fTauPhotonVtxCounter(0), fVerbosity(0) {
   fVerbosity = pset.getUntrackedParameter<int>("Verbosity", 0);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
+  consumes<HepMCProduct>(edm::InputTag("VtxSmeared"));
+  usesResource(TFileService::kSharedResource);
 }
 
 void TauPhotonTester::beginJob() {
@@ -62,7 +67,7 @@ void TauPhotonTester::beginJob() {
 }
 
 void TauPhotonTester::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-  es.getData(fPDGTable);
+  fPDGTable = es.getHandle(fPDGTableToken);
 
   return;
 }

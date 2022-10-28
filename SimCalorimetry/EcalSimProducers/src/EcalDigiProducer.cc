@@ -29,7 +29,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESDigitizer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
@@ -49,14 +48,17 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params,
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::ConsumesCollector &iC)
     : DigiAccumulatorMixMod(),
-      m_APDShape(true),
-      m_EBShape(true),
-      m_EEShape(true),
+      m_APDShape(iC),
+      m_EBShape(iC),
+      m_EEShape(iC),
       m_ESShape(),
       m_EBdigiCollection(params.getParameter<std::string>("EBdigiCollection")),
       m_EEdigiCollection(params.getParameter<std::string>("EEdigiCollection")),
       m_ESdigiCollection(params.getParameter<std::string>("ESdigiCollection")),
       m_hitsProducerTag(params.getParameter<std::string>("hitsProducer")),
+      m_HitsEBToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
+      m_HitsEEToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"))),
+      m_HitsESToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsES"))),
       m_pedestalsToken(iC.esConsumes()),
       m_icalToken(iC.esConsumes()),
       m_laserToken(iC.esConsumes()),
@@ -310,28 +312,18 @@ void EcalDigiProducer::accumulateCaloHits(HitsHandle const &ebHandle,
 
 void EcalDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // Step A: Get Inputs
-  edm::Handle<std::vector<PCaloHit>> ebHandle;
+  const edm::Handle<std::vector<PCaloHit>> &ebHandle = e.getHandle(m_HitsEBToken_);
   if (m_doEB) {
-    m_EBShape.setEventSetup(eventSetup);   // need to set the eventSetup here, otherwise pre-mixing
-                                           // module will not wrk
-    m_APDShape.setEventSetup(eventSetup);  //
-    edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
-    e.getByLabel(ebTag, ebHandle);
+    m_EBShape.setEventSetup(eventSetup);
+    m_APDShape.setEventSetup(eventSetup);
   }
 
-  edm::Handle<std::vector<PCaloHit>> eeHandle;
+  const edm::Handle<std::vector<PCaloHit>> &eeHandle = e.getHandle(m_HitsEEToken_);
   if (m_doEE) {
-    m_EEShape.setEventSetup(eventSetup);  // need to set the eventSetup here, otherwise pre-mixing
-                                          // module will not work
-    edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
-    e.getByLabel(eeTag, eeHandle);
+    m_EEShape.setEventSetup(eventSetup);
   }
 
-  edm::Handle<std::vector<PCaloHit>> esHandle;
-  if (m_doES) {
-    edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
-    e.getByLabel(esTag, esHandle);
-  }
+  const edm::Handle<std::vector<PCaloHit>> &esHandle = e.getHandle(m_HitsESToken_);
 
   accumulateCaloHits(ebHandle, eeHandle, esHandle, 0);
 }
@@ -571,10 +563,4 @@ void EcalDigiProducer::setESNoiseSignalGenerator(EcalBaseSignalGenerator *noiseG
   // noiseGenerator->setParameterMap(theParameterMap);
   if (nullptr != m_ESDigitizer)
     m_ESDigitizer->setNoiseSignalGenerator(noiseGenerator);
-}
-
-void EcalDigiProducer::beginRun(edm::Run const &run, edm::EventSetup const &setup) {
-  m_EBShape.setEventSetup(setup);
-  m_EEShape.setEventSetup(setup);
-  m_APDShape.setEventSetup(setup);
 }

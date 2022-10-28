@@ -128,7 +128,7 @@ namespace JME {
         this->max = max;
       }
 
-      bool is_inside(float value) const { return (value >= min) && (value <= max); }
+      bool is_inside(float value) const { return (value >= min) && (value < max); }
 
       COND_SERIALIZABLE;
     };

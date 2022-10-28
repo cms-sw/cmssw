@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -37,26 +38,26 @@
 // class declaration
 //
 
-namespace AlCaGammaJet {
+namespace alCaGammaJetSelector {
   struct Counters {
     Counters() : nProcessed_(0), nSelected_(0) {}
     mutable std::atomic<unsigned int> nProcessed_, nSelected_;
   };
-}  // namespace AlCaGammaJet
+}  // namespace alCaGammaJetSelector
 
-class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaGammaJet::Counters> > {
+class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<alCaGammaJetSelector::Counters> > {
 public:
-  explicit AlCaGammaJetSelector(const edm::ParameterSet&, const AlCaGammaJet::Counters* count);
-  ~AlCaGammaJetSelector() override;
+  explicit AlCaGammaJetSelector(const edm::ParameterSet&, const alCaGammaJetSelector::Counters* count);
+  ~AlCaGammaJetSelector() override = default;
 
-  static std::unique_ptr<AlCaGammaJet::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaGammaJet::Counters>();
+  static std::unique_ptr<alCaGammaJetSelector::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaGammaJetSelector::Counters>();
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaGammaJet::Counters* counters);
+  static void globalEndJob(const alCaGammaJetSelector::Counters* counters);
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
@@ -86,7 +87,8 @@ private:
 //
 // constructors and destructor
 //
-AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig, const AlCaGammaJet::Counters* counters) {
+AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig,
+                                           const alCaGammaJetSelector::Counters* counters) {
   nProcessed_ = 0;
   nSelected_ = 0;
 
@@ -101,8 +103,6 @@ AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig, con
   tok_PFJet_ = consumes<reco::PFJetCollection>(labelPFJet_);
 }
 
-AlCaGammaJetSelector::~AlCaGammaJetSelector() {}
-
 //
 // member functions
 //
@@ -116,7 +116,7 @@ void AlCaGammaJetSelector::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS"));
   desc.add<double>("MinPtJet", 10.0);
   desc.add<double>("MinPtPhoton", 10.0);
-  descriptions.addDefault(desc);
+  descriptions.add("alcaGammaJetSelector", desc);
 }
 
 // ------------ method called on each new Event  ------------
@@ -124,16 +124,14 @@ bool AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   nProcessed_++;
 
   // Access the collections from iEvent
-  edm::Handle<reco::PhotonCollection> phoHandle;
-  iEvent.getByToken(tok_Photon_, phoHandle);
+  auto const& phoHandle = iEvent.getHandle(tok_Photon_);
   if (!phoHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get the product " << labelPhoton_;
     return false;  // do not filter
   }
   const reco::PhotonCollection photons = *(phoHandle.product());
 
-  edm::Handle<reco::PFJetCollection> pfjetHandle;
-  iEvent.getByToken(tok_PFJet_, pfjetHandle);
+  auto const& pfjetHandle = iEvent.getHandle(tok_PFJet_);
   if (!pfjetHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFJet_;
     return false;  // do not filter
@@ -156,7 +154,7 @@ void AlCaGammaJetSelector::endStream() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 
-void AlCaGammaJetSelector::globalEndJob(const AlCaGammaJet::Counters* count) {
+void AlCaGammaJetSelector::globalEndJob(const alCaGammaJetSelector::Counters* count) {
   edm::LogWarning("AlCaGammaJet") << "Finds " << count->nSelected_ << " good events out of " << count->nProcessed_;
 }
 

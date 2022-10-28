@@ -92,28 +92,4 @@ void TestESDummyDataAnalyzer::endJob() {
   }
 }
 
-class TestESDummyDataNoPrefetchAnalyzer : public edm::one::EDAnalyzer<edm::RunCache<DummyRunCache>> {
-public:
-  explicit TestESDummyDataNoPrefetchAnalyzer(const edm::ParameterSet&) {}
-
-private:
-  std::shared_ptr<DummyRunCache> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void globalEndRun(const edm::Run&, const edm::EventSetup&) override {}
-};
-
-std::shared_ptr<DummyRunCache> TestESDummyDataNoPrefetchAnalyzer::globalBeginRun(const edm::Run&,
-                                                                                 const edm::EventSetup& iES) const {
-  edm::ESHandle<edm::eventsetup::test::DummyData> h;
-  iES.getData(h);
-  *h;
-  return {};
-}
-void TestESDummyDataNoPrefetchAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iES) {
-  edm::ESHandle<edm::eventsetup::test::DummyData> h;
-  iES.getData(h);
-  *h;
-}
-
 DEFINE_FWK_MODULE(TestESDummyDataAnalyzer);
-DEFINE_FWK_MODULE(TestESDummyDataNoPrefetchAnalyzer);

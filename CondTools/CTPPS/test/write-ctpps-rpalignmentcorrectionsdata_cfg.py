@@ -12,8 +12,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 
 # load the alignment xml file
-process.load("CondFormats.PPSObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
-#process.ctppsRPAlignmentCorrectionsDataESSourceXML.XMLFile = cms.string("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
+process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MeasuredFiles = cms.vstring("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")

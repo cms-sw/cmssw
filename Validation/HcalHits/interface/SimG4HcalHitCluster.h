@@ -12,7 +12,7 @@
 class SimG4HcalHitCluster {
 public:
   SimG4HcalHitCluster();
-  virtual ~SimG4HcalHitCluster();
+  ~SimG4HcalHitCluster() = default;
 
   double e() const { return ec; }
   double eta() const { return etac; }

@@ -17,10 +17,10 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include <memory>
 
@@ -36,6 +36,7 @@ public:
 private:
   std::string rootDDName_;  // this must be the form namespace:name
   std::string label_;
+  edm::ESGetToken<FileBlob, MFGeometryFileRcd> geomToken_;
 
   DDI::Store<DDName, DDI::Material*> matStore_;
   DDI::Store<DDName, DDI::Solid*> solidStore_;
@@ -47,7 +48,9 @@ private:
 XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer(const edm::ParameterSet& iConfig)
     : rootDDName_(iConfig.getParameter<std::string>("rootDDName")), label_(iConfig.getParameter<std::string>("label")) {
   usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
-  setWhatProduced(this);
+
+  auto cc = setWhatProduced(this);
+  geomToken_ = cc.consumesFrom<FileBlob, MFGeometryFileRcd>(edm::ESInputTag("", label_));
 }
 
 XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer(void) {}
@@ -56,8 +59,7 @@ XMLIdealMagneticFieldGeometryESProducer::ReturnType XMLIdealMagneticFieldGeometr
     const IdealMagneticFieldRecord& iRecord) {
   using namespace edm::es;
 
-  edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<MFGeometryFileRcd>().get(label_, gdd);
+  edm::ESTransientHandle<FileBlob> gdd = iRecord.getTransientHandle(geomToken_);
 
   DDName ddName(rootDDName_);
   DDLogicalPart rootNode(ddName);

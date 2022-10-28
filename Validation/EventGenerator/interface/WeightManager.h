@@ -7,8 +7,9 @@
 // a vector of GenEventInfoProducts
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <vector>
 
@@ -23,6 +24,7 @@ public:
   ~WeightManager(){};
 
   double weight(const edm::Event&);
+  std::vector<std::vector<double>> weightsCollection(const edm::Event&);
 
 private:
   bool _useHepMC;
@@ -30,7 +32,7 @@ private:
   edm::InputTag _hepmcCollection;
 
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
-  std::vector<edm::EDGetTokenT<std::vector<edm::InputTag> > > genEventInfosTokens_;
+  std::vector<edm::EDGetTokenT<GenEventInfoProduct>> genEventInfosTokens_;
 };
 
 #endif

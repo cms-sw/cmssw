@@ -10,19 +10,20 @@
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/src/SubProcess.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -35,6 +36,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -47,6 +49,7 @@
 #include <sstream>
 
 #include "make_shared_noexcept_false.h"
+#include "processEDAliases.h"
 
 namespace edm {
 
@@ -62,12 +65,13 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
-                                                        PreallocationConfiguration const& iPrealloc,
-                                                        ProductRegistry& preg,
-                                                        ExceptionToActionTable const& actions,
-                                                        std::shared_ptr<ActivityRegistry> areg,
-                                                        std::shared_ptr<ProcessConfiguration> processConfiguration) {
+    std::shared_ptr<TriggerResultInserter> makeInserter(
+        ParameterSet& proc_pset,
+        PreallocationConfiguration const& iPrealloc,
+        ProductRegistry& preg,
+        ExceptionToActionTable const& actions,
+        std::shared_ptr<ActivityRegistry> areg,
+        std::shared_ptr<ProcessConfiguration const> processConfiguration) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
@@ -109,7 +113,7 @@ namespace edm {
                                  PreallocationConfiguration const& iPrealloc,
                                  ProductRegistry& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string const& moduleTypeName) {
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", moduleTypeName);
@@ -142,201 +146,6 @@ namespace edm {
           }
           throw;
         }
-      }
-    }
-
-    void checkAndInsertAlias(std::string const& friendlyClassName,
-                             std::string const& moduleLabel,
-                             std::string const& productInstanceName,
-                             std::string const& processName,
-                             std::string const& alias,
-                             std::string const& instanceAlias,
-                             ProductRegistry const& preg,
-                             std::multimap<BranchKey, BranchKey>& aliasMap,
-                             std::map<BranchKey, BranchKey>& aliasKeys) {
-      std::string const star("*");
-
-      BranchKey key(friendlyClassName, moduleLabel, productInstanceName, processName);
-      if (preg.productList().find(key) == preg.productList().end()) {
-        // No product was found matching the alias.
-        // We throw an exception only if a module with the specified module label was created in this process.
-        for (auto const& product : preg.productList()) {
-          if (moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
-            throw Exception(errors::Configuration, "EDAlias does not match data\n")
-                << "There are no products of type '" << friendlyClassName << "'\n"
-                << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
-          }
-        }
-      }
-
-      if (auto iter = aliasMap.find(key); iter != aliasMap.end()) {
-        // If the same EDAlias defines multiple products pointing to the same product, throw
-        if (iter->second.moduleLabel() == alias) {
-          throw Exception(errors::Configuration, "EDAlias conflict\n")
-              << "The module label alias '" << alias << "' is used for multiple products of type '" << friendlyClassName
-              << "' with module label '" << moduleLabel << "' and instance name '" << productInstanceName
-              << "'. One alias has the instance name '" << iter->first.productInstanceName()
-              << "' and the other has the instance name '" << instanceAlias << "'.";
-        }
-      }
-
-      std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
-      BranchKey aliasKey(friendlyClassName, alias, theInstanceAlias, processName);
-      if (preg.productList().find(aliasKey) != preg.productList().end()) {
-        throw Exception(errors::Configuration, "EDAlias conflicts with data\n")
-            << "A product of type '" << friendlyClassName << "'\n"
-            << "with module label '" << alias << "' and instance name '" << theInstanceAlias << "'\n"
-            << "already exists.\n";
-      }
-      auto iter = aliasKeys.find(aliasKey);
-      if (iter != aliasKeys.end()) {
-        // The alias matches a previous one.  If the same alias is used for different product, throw.
-        if (iter->second != key) {
-          throw Exception(errors::Configuration, "EDAlias conflict\n")
-              << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
-              << "are used for multiple products of type '" << friendlyClassName << "'\n"
-              << "One has module label '" << moduleLabel << "' and product instance name '" << productInstanceName
-              << "',\n"
-              << "the other has module label '" << iter->second.moduleLabel() << "' and product instance name '"
-              << iter->second.productInstanceName() << "'.\n";
-        }
-      } else {
-        auto prodIter = preg.productList().find(key);
-        if (prodIter != preg.productList().end()) {
-          if (!prodIter->second.produced()) {
-            throw Exception(errors::Configuration, "EDAlias\n")
-                << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
-                << "are used for a product of type '" << friendlyClassName << "'\n"
-                << "with module label '" << moduleLabel << "' and product instance name '" << productInstanceName
-                << "',\n"
-                << "An EDAlias can only be used for products produced in the current process. This one is not.\n";
-          }
-          aliasMap.insert(std::make_pair(key, aliasKey));
-          aliasKeys.insert(std::make_pair(aliasKey, key));
-        }
-      }
-    }
-
-    void processEDAliases(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
-      std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
-      if (aliases.empty()) {
-        return;
-      }
-      std::string const star("*");
-      std::string const empty("");
-      ParameterSetDescription desc;
-      desc.add<std::string>("type");
-      desc.add<std::string>("fromProductInstance", star);
-      desc.add<std::string>("toProductInstance", star);
-
-      std::multimap<BranchKey, BranchKey> aliasMap;
-
-      std::map<BranchKey, BranchKey> aliasKeys;  // Used to search for duplicates or clashes.
-
-      // Auxiliary search structure to support wildcard for friendlyClassName
-      std::multimap<std::string, BranchKey> moduleLabelToBranches;
-      for (auto const& prod : preg.productList()) {
-        if (processName == prod.second.processName()) {
-          moduleLabelToBranches.emplace(prod.first.moduleLabel(), prod.first);
-        }
-      }
-
-      // Now, loop over the alias information and store it in aliasMap.
-      for (std::string const& alias : aliases) {
-        ParameterSet const& aliasPSet = proc_pset.getParameterSet(alias);
-        std::vector<std::string> vPSetNames = aliasPSet.getParameterNamesForType<VParameterSet>();
-        for (std::string const& moduleLabel : vPSetNames) {
-          VParameterSet vPSet = aliasPSet.getParameter<VParameterSet>(moduleLabel);
-          for (ParameterSet& pset : vPSet) {
-            desc.validate(pset);
-            std::string friendlyClassName = pset.getParameter<std::string>("type");
-            std::string productInstanceName = pset.getParameter<std::string>("fromProductInstance");
-            std::string instanceAlias = pset.getParameter<std::string>("toProductInstance");
-
-            if (friendlyClassName == star) {
-              bool processHasLabel = false;
-              bool match = false;
-              for (auto it = moduleLabelToBranches.lower_bound(moduleLabel);
-                   it != moduleLabelToBranches.end() && it->first == moduleLabel;
-                   ++it) {
-                processHasLabel = true;
-                if (productInstanceName != star and productInstanceName != it->second.productInstanceName()) {
-                  continue;
-                }
-                match = true;
-
-                checkAndInsertAlias(it->second.friendlyClassName(),
-                                    moduleLabel,
-                                    it->second.productInstanceName(),
-                                    processName,
-                                    alias,
-                                    instanceAlias,
-                                    preg,
-                                    aliasMap,
-                                    aliasKeys);
-              }
-              if (not match and processHasLabel) {
-                // No product was found matching the alias.
-                // We throw an exception only if a module with the specified module label was created in this process.
-                // Note that if that condition is ever relatex, it  might be best to throw an exception with different
-                // message (omitting productInstanceName) in case 'productInstanceName == start'
-                throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
-                    << "There are no products with module label '" << moduleLabel << "' and product instance name '"
-                    << productInstanceName << "'.\n";
-              }
-            } else if (productInstanceName == star) {
-              bool match = false;
-              BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
-              for (ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
-                   it != preg.productList().end() && it->first.friendlyClassName() == friendlyClassName &&
-                   it->first.moduleLabel() == moduleLabel;
-                   ++it) {
-                if (it->first.processName() != processName) {
-                  continue;
-                }
-                match = true;
-
-                checkAndInsertAlias(friendlyClassName,
-                                    moduleLabel,
-                                    it->first.productInstanceName(),
-                                    processName,
-                                    alias,
-                                    instanceAlias,
-                                    preg,
-                                    aliasMap,
-                                    aliasKeys);
-              }
-              if (!match) {
-                // No product was found matching the alias.
-                // We throw an exception only if a module with the specified module label was created in this process.
-                for (auto const& product : preg.productList()) {
-                  if (moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
-                    throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
-                        << "There are no products of type '" << friendlyClassName << "'\n"
-                        << "with module label '" << moduleLabel << "'.\n";
-                  }
-                }
-              }
-            } else {
-              checkAndInsertAlias(friendlyClassName,
-                                  moduleLabel,
-                                  productInstanceName,
-                                  processName,
-                                  alias,
-                                  instanceAlias,
-                                  preg,
-                                  aliasMap,
-                                  aliasKeys);
-            }
-          }
-        }
-      }
-
-      // Now add the new alias entries to the product registry.
-      for (auto const& aliasEntry : aliasMap) {
-        ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
-        assert(it != preg.productList().end());
-        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
     }
 
@@ -648,6 +457,18 @@ namespace edm {
         }
       }
     };
+
+    template <typename F>
+    auto doCleanup(F&& iF) {
+      auto wrapped = [f = std::move(iF)](std::exception_ptr const* iPtr, edm::WaitingTaskHolder iTask) {
+        CMS_SA_ALLOW try { f(); } catch (...) {
+        }
+        if (iPtr) {
+          iTask.doneWaiting(*iPtr);
+        }
+      };
+      return wrapped;
+    }
   }  // namespace
   // -----------------------------
 
@@ -658,14 +479,9 @@ namespace edm {
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
-                     BranchIDListHelper& branchIDListHelper,
-                     ProcessBlockHelperBase& processBlockHelper,
-                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                     SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
-                     std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool hasSubprocesses,
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext)
       :  //Only create a resultsInserter if there is a trigger path
@@ -677,8 +493,7 @@ namespace edm {
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
-        wantSummary_(tns.wantSummary()),
-        endpathsAreActive_(true) {
+        wantSummary_(tns.wantSummary()) {
     makePathStatusInserters(pathStatusInserters_,
                             *pathNames_,
                             prealloc,
@@ -706,11 +521,9 @@ namespace edm {
                                                                                tns,
                                                                                prealloc,
                                                                                preg,
-                                                                               branchIDListHelper,
                                                                                actions,
                                                                                areg,
                                                                                processConfiguration,
-                                                                               !hasSubprocesses,
                                                                                StreamID{i},
                                                                                processContext));
     }
@@ -749,9 +562,24 @@ namespace edm {
                                                        areg,
                                                        processConfiguration,
                                                        processContext);
+  }
 
+  void Schedule::finishSetup(ParameterSet& proc_pset,
+                             service::TriggerNamesService const& tns,
+                             ProductRegistry& preg,
+                             BranchIDListHelper& branchIDListHelper,
+                             ProcessBlockHelperBase& processBlockHelper,
+                             ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                             SubProcessParentageHelper const* subProcessParentageHelper,
+                             std::shared_ptr<ActivityRegistry> areg,
+                             std::shared_ptr<ProcessConfiguration> processConfiguration,
+                             bool hasSubprocesses,
+                             PreallocationConfiguration const& prealloc,
+                             ProcessContext const* processContext) {
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
+    const std::string kTriggerResults("TriggerResults");
+
     std::set<std::string> usedModuleLabels;
     for (auto const& worker : allWorkers()) {
       if (worker->description()->moduleLabel() != kTriggerResults) {
@@ -761,13 +589,23 @@ namespace edm {
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
     std::map<std::string, std::vector<std::pair<std::string, int>>> outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels, outputModulePathPositions);
-    processEDAliases(proc_pset, processConfiguration->processName(), preg);
+    {
+      std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
+      detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
+    }
 
     // At this point all BranchDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
-    if (nUnscheduledModules > 0) {
-      std::set<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin() + nUnscheduledModules);
-      preg.setUnscheduledProducts(unscheduledModules);
+    {
+      auto const& unsched = streamSchedules_[0]->unscheduledWorkers();
+      if (not unsched.empty()) {
+        std::set<std::string> unscheduledModules;
+        std::transform(unsched.begin(),
+                       unsched.end(),
+                       std::insert_iterator<std::set<std::string>>(unscheduledModules, unscheduledModules.begin()),
+                       [](auto worker) { return worker->description()->moduleLabel(); });
+        preg.setUnscheduledProducts(unscheduledModules);
+      }
     }
 
     processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
@@ -1031,14 +869,12 @@ namespace edm {
                                      << "Name"
                                      << "";
 
-        unsigned int bitpos = 0;
         for (auto const& mod : p.moduleInPathSummaries) {
           LogFwkVerbatim("FwkSummary") << "TrigReport " << std::right << std::setw(5) << 1 << std::right << std::setw(5)
-                                       << bitpos << " " << std::right << std::setw(10) << mod.timesVisited << " "
-                                       << std::right << std::setw(10) << mod.timesPassed << " " << std::right
+                                       << mod.bitPosition << " " << std::right << std::setw(10) << mod.timesVisited
+                                       << " " << std::right << std::setw(10) << mod.timesPassed << " " << std::right
                                        << std::setw(10) << mod.timesFailed << " " << std::right << std::setw(10)
                                        << mod.timesExcept << " " << mod.moduleLabel << "";
-          ++bitpos;
         }
       }
 
@@ -1239,30 +1075,25 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
 
-            activityRegistry->postGlobalWriteRunSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-    for (auto& c : all_output_communicators_) {
-      c->writeRunAsync(tHolder, rp, processContext, activityRegistry, mergeableRunProductMetadata);
-    }
+      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
+
+      activityRegistry->postGlobalWriteRunSignal_(globalContext);
+    })) |
+        chain::runLast(task);
   }
 
   void Schedule::writeProcessBlockAsync(WaitingTaskHolder task,
@@ -1277,30 +1108,22 @@ namespace edm {
                                 Timestamp::invalidTimestamp(),
                                 processContext);
 
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+      ServiceRegistry::Operate op(token);
+      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeProcessBlockAsync(nextTask, pbp, processContext, activityRegistry);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-            activityRegistry->postWriteProcessBlockSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
-
-    for (auto& c : all_output_communicators_) {
-      c->writeProcessBlockAsync(tHolder, pbp, processContext, activityRegistry);
-    }
+      activityRegistry->postWriteProcessBlockSignal_(globalContext);
+    })) |
+        chain::runLast(std::move(task));
   }
 
   void Schedule::writeLumiAsync(WaitingTaskHolder task,
@@ -1315,29 +1138,21 @@ namespace edm {
                                 lbp.beginTime(),
                                 processContext);
 
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      ServiceRegistry::Operate op(token);
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-            activityRegistry->postGlobalWriteLumiSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
-    for (auto& c : all_output_communicators_) {
-      c->writeLumiAsync(tHolder, lbp, processContext, activityRegistry);
-    }
+      activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+    })) |
+        chain::runLast(task);
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -1440,6 +1255,16 @@ namespace edm {
     moduleRegistry_->deleteModule(iLabel, areg->preModuleDestructionSignal_, areg->postModuleDestructionSignal_);
   }
 
+  void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                                       std::multimap<std::string, std::string> const& referencesToBranches,
+                                       std::vector<std::string> const& modulesToSkip,
+                                       edm::ProductRegistry const& preg) {
+    for (auto& stream : streamSchedules_) {
+      stream->initializeEarlyDelete(
+          *moduleRegistry(), branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);
+    }
+  }
+
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
@@ -1533,15 +1358,6 @@ namespace edm {
       ++i;
     }
   }
-
-  void Schedule::enableEndPaths(bool active) {
-    endpathsAreActive_ = active;
-    for (auto& s : streamSchedules_) {
-      s->enableEndPaths(active);
-    }
-  }
-
-  bool Schedule::endPathsEnabled() const { return endpathsAreActive_; }
 
   void Schedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents = 0;

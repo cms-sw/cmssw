@@ -4,6 +4,7 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   bool exists = StorageFactory::get()->check("http://home.web.cern.ch");
 
   std::cout << "exists = " << exists << "\n";

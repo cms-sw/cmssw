@@ -13,7 +13,6 @@
 #include "DataFormats/JetReco/interface/CastorJetID.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "RecoJets/JetProducers/interface/CastorJetIDHelper.h"
-#include "RecoJets/JetProducers/plugins/CastorJetIDProducer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 

@@ -11,7 +11,6 @@ from Validation.RecoTrack.plotting.ntuple import *
 import analysis
 
 from math import sqrt, copysign, sin, cos, pi
-import six
 
 class EventPlotter(object):
     '''
@@ -678,7 +677,7 @@ class EventPlotter(object):
 
 	    if normalised:
 		norm_cff = analysis.Get_Normalisation_Coefficients()
-		for i, v in six.iteritems(data_dict):
+		for i, v in data_dict.items():
 		    data_dict[i] = int(round(v*norm_cff[i]))
             
 	    name = ""

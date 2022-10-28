@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
@@ -60,6 +60,6 @@ private:
   AlignmentTwoBodyDecayTrackSelector theTwoBodyDecaySelector;
 };
 
-typedef ObjectSelectorStream<TrackConfigSelector> AlignmentTrackSelectorModule;
+typedef ObjectSelector<TrackConfigSelector> AlignmentTrackSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentTrackSelectorModule);

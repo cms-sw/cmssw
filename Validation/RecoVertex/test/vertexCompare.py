@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This is an example of plotting the standard vertex validation
 # plots from an explicit set of DQM root files.

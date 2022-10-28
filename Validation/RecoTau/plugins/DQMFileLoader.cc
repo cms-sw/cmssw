@@ -118,6 +118,7 @@ void TauDQMFileLoader::cfgEntryFileSet::print() const {
 //
 
 TauDQMFileLoader::TauDQMFileLoader(const edm::ParameterSet& cfg) {
+  usesResource("DQMStore");
   std::cout << "<TauDQMFileLoader::TauDQMFileLoader>:" << std::endl;
 
   cfgError_ = 0;

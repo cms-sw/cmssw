@@ -59,40 +59,8 @@ process.productionSequence = cms.Sequence()
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-process.productionSequence += process.hgcalTriggerPrimitives
-
-process.load('SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff')
-process.productionSequence += process.simEcalEBTriggerPrimitiveDigis
-
-process.load("L1Trigger.TrackFindingTracklet.Tracklet_cfi")
-L1TRK_PROC  =  process.TTTracksFromTrackletEmulation
-L1TRK_NAME  = "TTTracksFromTrackletEmulation"
-L1TRK_LABEL = "Level1TTTracks"
-
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-process.productionSequence += process.offlineBeamSpot
-
-process.productionSequence += process.TTTracksFromTrackletEmulation
-
-process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
-process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
-process.productionSequence += process.TrackTriggerAssociatorTracks
-
-process.load("L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi")
-process.productionSequence += process.L1TkPrimaryVertex
-
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.productionSequence += process.SimL1Emulator
-
-process.load("L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi")
-process.productionSequence += process.pfTracksFromL1Tracks
-
-process.load("L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff")
-process.productionSequence += process.l1ParticleFlow
-
-process.load('L1Trigger.L1CaloTrigger.Phase1L1TJets_cff')
-process.productionSequence += process.Phase1L1TJetsSequence
 
 ############################################################
 # Generator-level (visible) hadronic taus
@@ -156,29 +124,29 @@ process.out = cms.OutputModule("PoolOutputModule",
     ),
     outputCommands = cms.untracked.vstring(
         'drop *_*_*_*',                                 
-        'keep *_l1pfCandidates_PF_*',
-        'keep *_l1pfCandidates_Puppi_*',
-        'keep *_l1pfProducer*_z0_*',
-        'keep *_pfTracksFromL1Tracks*_*_*',
-        'keep *_pfClustersFrom*_*_*',
-        'keep *_TTTracksFromTracklet_*_*',
-        'keep *_VertexProducer_*_*',                                
-        'keep *_L1TkPrimaryVertex_*_*',
+        'keep *_l1tLayer1_PF_*',
+        'keep *_l1tLayer1_Puppi_*',
+        'keep *_l1tPFProducer*_z0_*',
+        'keep *_l1tPFTracksFromL1Tracks*_*_*',
+        'keep *_l1tPFClustersFrom*_*_*',
+        'keep *_l1tTTTracksFromTracklet_*_*',
+        'keep *_l1tVertexProducer_*_*',                                
+        'keep *_l1tTkPrimaryVertex_*_*',
         'keep *_slimmedTaus_*_*',
         'keep *_packedPFCandidates_*_*',
         'keep *_generator_*_*',
         'keep *_caloStage2Digis_*_*',
-        'keep *_HPSPFTauProducer*PF_*_*',                           
-        'keep *_HPSPFTauProducer*Puppi_*_*',                            
+        'keep *_l1tHPSPFTauProducer*PF_*_*',                           
+        'keep *_l1tHPSPFTauProducer*Puppi_*_*',                            
         'keep *_prunedGenParticles_*_*',
         'keep *_tauGenJetsSelectorAllHadrons_*_*',
         'keep *_particleFlow_*_*',
         'keep *_generalTracks_*_*',
         'keep *_electronGsfTracks_*_*',
         'keep *_offlineSlimmedPrimaryVertices_*_*',                           
-        'keep *_L1PFTauProducer_*_*',
+        'keep *_l1tPFTauProducer_*_*',
         'keep *_slimmedAddPileupInfo_*_*', 
-        "keep *_Phase1L1TJetProducer_*_*",
+        "keep *_l1tPhase1JetProducer_*_*",
     )                           
 )
 process.outpath = cms.EndPath(process.out)

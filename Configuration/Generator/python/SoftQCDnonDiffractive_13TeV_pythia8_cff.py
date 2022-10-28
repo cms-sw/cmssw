@@ -5,7 +5,7 @@ from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 
 
 
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
                          crossSection = cms.untracked.double(71.39e+09),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(1),

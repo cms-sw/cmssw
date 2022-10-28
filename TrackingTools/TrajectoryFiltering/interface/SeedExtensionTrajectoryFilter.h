@@ -1,6 +1,7 @@
 #ifndef SeedExtensionTrajectoryFilter_H
 #define SeedExtensionTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class SeedExtensionTrajectoryFilter final : public TrajectoryFilter {
@@ -11,6 +12,12 @@ public:
       : theStrict(pset.getParameter<bool>("strictSeedExtension")),
         thePixel(pset.getParameter<bool>("pixelSeedExtension")),
         theExtension(pset.getParameter<int>("seedExtension")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<bool>("strictSeedExtension", false);
+    iDesc.add<bool>("pixelSeedExtension", false);
+    iDesc.add<int>("seedExtension", 0);
+  }
 
   bool qualityFilter(const Trajectory& traj) const override { return QF(traj); }
   bool qualityFilter(const TempTrajectory& traj) const override { return QF(traj); }

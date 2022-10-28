@@ -393,7 +393,7 @@ void Phase1PixelMaps::drawForwardMaps(const std::string& currentHistoName, TCanv
 }
 
 //============================================================================
-void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas) {
+void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption) {
   auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
 
   if (!m_isBooked.second || !m_isBooked.first || !found) {
@@ -411,7 +411,8 @@ void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanv
     pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerSize(0.5);
   }
   pxbTh2PolyBarrelSummary[currentHistoName]->GetZaxis()->SetTitleOffset(1.4);
-  pxbTh2PolyBarrelSummary[currentHistoName]->Draw();
+  pxbTh2PolyBarrelSummary[currentHistoName]->Draw("AL");
+  pxbTh2PolyBarrelSummary[currentHistoName]->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
 
   canvas.cd(2);
   adjustCanvasMargins(canvas.cd(2), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
@@ -420,7 +421,8 @@ void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanv
     pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerSize(0.5);
   }
   pxfTh2PolyForwardSummary[currentHistoName]->GetZaxis()->SetTitleOffset(1.4);
-  pxfTh2PolyForwardSummary[currentHistoName]->Draw();
+  pxfTh2PolyForwardSummary[currentHistoName]->Draw("AL");
+  pxfTh2PolyForwardSummary[currentHistoName]->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
 }
 
 //============================================================================

@@ -5,7 +5,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -24,8 +23,7 @@ PixelNtupletsFitter::PixelNtupletsFitter(float nominalB, const MagneticField* fi
     : nominalB_(nominalB), field_(field), useRiemannFit_(useRiemannFit) {}
 
 std::unique_ptr<reco::Track> PixelNtupletsFitter::run(const std::vector<const TrackingRecHit*>& hits,
-                                                      const TrackingRegion& region,
-                                                      const edm::EventSetup&) const {
+                                                      const TrackingRegion& region) const {
   using namespace riemannFit;
 
   std::unique_ptr<reco::Track> ret;

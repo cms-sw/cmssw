@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TChain.h>
 #include <TFile.h>
-#include <boost/lexical_cast.hpp>
 #include <fstream>
 #include <regex>
 
@@ -20,6 +19,8 @@ namespace sistrip {
         highBin(conf.getParameter<double>("HighBin")),
         vMethods(conf.getParameter<std::vector<int> >("Methods")),
         tTopoToken_(esConsumes<edm::Transition::EndRun>()) {}
+
+  EnsembleCalibrationLA::~EnsembleCalibrationLA(){};
 
   void EnsembleCalibrationLA::endJob() {
     Book book("la_ensemble");
@@ -41,6 +42,8 @@ namespace sistrip {
     write_samples_plots(book);
     write_calibrations();
   }
+
+  void EnsembleCalibrationLA::beginRun(const edm::Run&, const edm::EventSetup& eSetup) {}
 
   void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetup) {
     tTopo_ = &eSetup.getData(tTopoToken_);
@@ -64,7 +67,7 @@ namespace sistrip {
         if (std::regex_match(ensemble.first, format)) {
           const bool TIB = "TIB" == std::regex_replace(ensemble.first, format, "\\1");
           const bool stereo = "s" == std::regex_replace(ensemble.first, format, "\\3");
-          const unsigned layer = boost::lexical_cast<unsigned>(std::regex_replace(ensemble.first, format, "\\2"));
+          const unsigned layer = std::stoul(std::regex_replace(ensemble.first, format, "\\2"));
           label = std::regex_replace(ensemble.first, format, "\\4");
           index = LA_Filler_Fitter::layer_index(TIB, stereo, layer);
 

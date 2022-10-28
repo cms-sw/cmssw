@@ -14,11 +14,9 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -55,7 +53,6 @@
 // include the centrality variables
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

@@ -44,8 +44,9 @@ FakeTTrig::FakeTTrig(const ParameterSet& pset) : dataBaseWriteWasDone(false) {
 
   // further configurable smearing
   smearing = pset.getUntrackedParameter<double>("smearing");
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
-
+  ttrigToken_ =
+      esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+  dtGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
@@ -58,11 +59,11 @@ FakeTTrig::~FakeTTrig() { cout << "[FakeTTrig] Destructor called! " << endl; }
 
 void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
   cout << "[FakeTTrig] entered into beginRun! " << endl;
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 
   // Get the tTrig reference map
   if (ps.getUntrackedParameter<bool>("readDB", true))
-    setup.get<DTTtrigRcd>().get(dbLabel, tTrigMapRef);
+    tTrigMapRef = setup.getHandle(ttrigToken_);
 }
 
 void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
@@ -77,7 +78,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
     // Get the superlayers and layers list
     vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
     // Create the object to be written to DB
-    DTTtrig* tTrigMap = new DTTtrig();
+    DTTtrig tTrigMap;
 
     for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
       // get the time of fly
@@ -100,7 +101,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
       double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
       // if the FakeTtrig is scaled of a number of bunch crossing
       //  double fakeTTrig = pedestral - 75.;
-      tTrigMap->set(slId, fakeTTrig, 0, 0, DTTimeUnits::ns);
+      tTrigMap.set(slId, fakeTTrig, 0, 0, DTTimeUnits::ns);
     }
 
     // Write the object in the DB

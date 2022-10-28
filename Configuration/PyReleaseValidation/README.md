@@ -32,14 +32,24 @@ The offsets currently in use are:
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
-* 0.502: Patatrack, pixel only quadruplets, on GPU
+* 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
+* 0.504: Patatrack, pixel only quadruplets, GPU profiling
 * 0.505: Patatrack, pixel only triplets, on CPU
-* 0.506: Patatrack, pixel only triplets, on GPU
-* 0.511: Patatrack, ECAL only CPU
-* 0.512: Patatrack, ECAL only GPU
-* 0.521: Patatrack, HCAL only CPU
-* 0.522: Patatrack, HCAL only GPU
+* 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
+* 0.508: Patatrack, pixel only triplets, GPU profiling
+* 0.511: Patatrack, ECAL only, on CPU
+* 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
+* 0.513: Patatrack, ECAL only, GPU vs. CPU validation
+* 0.514: Patatrack, ECAL only, GPU profiling
+* 0.521: Patatrack, HCAL only, on CPU
+* 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
+* 0.524: Patatrack, HCAL only, GPU profiling
+* 0.591: Patatrack, full reco with pixel quadruplets, on CPU
+* 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
+* 0.595: Patatrack, full reco with pixel triplets, on CPU
+* 0.596: Patatrack, full reco with pixel triplets, with automatic offload to GPU if available
 * 0.6: HE Collapse (old depth segmentation for 2018)
+* 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.8: BPH Parking (Run-2)
 * 0.9: Vector hits
@@ -47,9 +57,13 @@ The offsets currently in use are:
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
 * 0.24: 0 Tesla (Run-2, Run-3)
-* 0.61: `phase2_ecal_devel` era
+* 0.31: Photon energy corrections with DRN architecture
+* 0.61: ECAL `phase2_ecal_devel` era, on CPU
+* 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
+* 0.75: Phase-2 HLT
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
@@ -57,8 +71,13 @@ The offsets currently in use are:
 * 0.999: 0.99 with Phase-2 premixing with PU50
 * 0.9821: Production-like premixing stage2
 * 0.9921: Production-like premixing stage1+stage2
-* 0.911: DD4Hep reading geometry from XML
-* 0.912: DD4Hep reading geometry from the DB
+* 0.911: DD4hep reading geometry from XML
+* 0.912: DD4hep reading geometry from the DB
+* 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
+* 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
+* 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
+* 0.302: FastSim Run-3 trackingOnly validation
+* 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton

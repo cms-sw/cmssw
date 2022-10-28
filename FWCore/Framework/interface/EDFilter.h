@@ -19,6 +19,7 @@ These products should be informational products about the filter decision.
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 #include <string>
 #include <vector>
@@ -35,6 +36,12 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
 
+  /**
+   * The legacy EDFilter class is deprecated. We annotate the
+   * constructor only with the CMS_DEPRECATED, because with gcc it
+   * turns out to flag deriving classes more reliably than annotating
+   * the entire class.
+   */
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
     template <typename T>
@@ -43,7 +50,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDFilter ModuleType;
 
-    EDFilter();
+    CMS_DEPRECATED EDFilter();
     ~EDFilter() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);

@@ -7,9 +7,6 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
-
 #include <iomanip>
 
 namespace ecaldqm {
@@ -53,8 +50,8 @@ namespace ecaldqm {
     // Read-in Status records:
     // Status records stay constant over run so they are read-in only once here
     // but filled by LS in runOnRealTPs() because MEs are not yet booked at beginRun()
-    _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd);
-    _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd);
+    TTStatus = &_es.getData(TTStatusRcd_);
+    StripStatus = &_es.getData(StripStatusRcd_);
   }
 
   void TrigPrimTask::beginEvent(edm::Event const& _evt,
@@ -94,14 +91,7 @@ namespace ecaldqm {
         std::upper_bound(bxBinEdgesFine_.begin(), bxBinEdgesFine_.end(), _evt.bunchCrossing()));
     bxBinFine_ = static_cast<int>(pBinFine - bxBinEdgesFine_.begin()) - 0.5;
 
-    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
-    _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd_);
-    const EcalTPGTowerStatus* TTStatus = TTStatusRcd_.product();
     const EcalTPGTowerStatusMap& towerMap = TTStatus->getMap();
-
-    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd_;
-    _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd_);
-    const EcalTPGStripStatus* StripStatus = StripStatusRcd_.product();
     const EcalTPGStripStatusMap& stripMap = StripStatus->getMap();
 
     MESet& meTTMaskMap(MEs_.at("TTMaskMap"));
@@ -188,6 +178,8 @@ namespace ecaldqm {
 
   void TrigPrimTask::setTokens(edm::ConsumesCollector& _collector) {
     lhcStatusInfoRecordToken_ = _collector.consumes<TCDSRecord>(lhcStatusInfoCollectionTag_);
+    TTStatusRcd_ = _collector.esConsumes<edm::Transition::BeginRun>();
+    StripStatusRcd_ = _collector.esConsumes<edm::Transition::BeginRun>();
   }
 
   void TrigPrimTask::runOnRealTPs(EcalTrigPrimDigiCollection const& _tps) {
@@ -269,7 +261,6 @@ namespace ecaldqm {
     MESet& meTTMaskMapAll(MEs_.at("TTMaskMapAll"));
 
     // Fill from TT Status Rcd
-    const EcalTPGTowerStatus* TTStatus(TTStatusRcd.product());
     const EcalTPGTowerStatusMap& TTStatusMap(TTStatus->getMap());
     for (EcalTPGTowerStatusMap::const_iterator ttItr(TTStatusMap.begin()); ttItr != TTStatusMap.end(); ++ttItr) {
       const EcalTrigTowerDetId ttid(ttItr->first);
@@ -278,7 +269,6 @@ namespace ecaldqm {
     }                                                                     // TTs
 
     // Fill from Strip Status Rcd
-    const EcalTPGStripStatus* StripStatus(StripStatusRcd.product());
     const EcalTPGStripStatusMap& StripStatusMap(StripStatus->getMap());
     for (EcalTPGStripStatusMap::const_iterator stItr(StripStatusMap.begin()); stItr != StripStatusMap.end(); ++stItr) {
       const EcalTriggerElectronicsId stid(stItr->first);

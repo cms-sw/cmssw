@@ -1,19 +1,21 @@
 # Test CSCValidation running on raw relval file - Tim Cox - 09.09.2013 
 # For raw relval in 700, with useDigis ON, and request only 100 events.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-# As of 09.09.2013 only a temp gloabl tag exists for 620/700
-process.GlobalTag.globaltag = 'PRE_62_V8::All'
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
+
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound') )

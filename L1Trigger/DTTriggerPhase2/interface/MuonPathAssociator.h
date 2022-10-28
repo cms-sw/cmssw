@@ -74,7 +74,7 @@ private:
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); }
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
   bool clean_chi2_correlation_;
   bool useBX_correlation_;
   bool allow_confirmation_;
@@ -83,7 +83,6 @@ private:
   double dTanPsi_correlate_TP_;
   double minx_match_2digis_;
   double chi2corTh_;
-  std::string geometry_tag_;
 
   //shift
   edm::FileInPath shift_filename_;

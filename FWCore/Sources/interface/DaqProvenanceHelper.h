@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
@@ -26,7 +26,7 @@ namespace edm {
 
   struct DaqProvenanceHelper {
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
-    typedef tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
+    typedef oneapi::tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
     void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {

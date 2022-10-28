@@ -39,7 +39,7 @@ public:
 
   /** Destructor
    */
-  ~BPHParticleNeutralVeto() override {}
+  ~BPHParticleNeutralVeto() override = default;
 
   /** Operations
    */

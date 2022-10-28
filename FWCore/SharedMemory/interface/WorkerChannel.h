@@ -63,6 +63,9 @@ namespace edm::shared_memory {
      */
     template <typename F>
     void handleTransitions(F&& iF) {
+      if (stopRequested()) {
+        return;
+      }
       while (true) {
         waitForController();
         if (stopRequested()) {
@@ -78,7 +81,11 @@ namespace edm::shared_memory {
     void shouldKeepEvent(bool iChoice) { *keepEvent_ = iChoice; }
 
     ///These are here for expert use
-    void notifyController() { cndToController_.notify_all(); }
+    void notifyController() {
+      //change in transitionID_ used to signal worker finished
+      *transitionID_ = ~(*transitionID_);
+      cndToController_.notify_all();
+    }
     void waitForController() { cndFromController_.wait(lock_); }
 
     // ---------- const member functions ---------------------------

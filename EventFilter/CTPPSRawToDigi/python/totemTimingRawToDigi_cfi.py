@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+
 from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 
 totemTimingRawToDigi = totemVFATRawToDigi.clone(
-    subSystem = cms.string('TotemTiming'),
+    subSystem = 'TotemTiming',
     
-    # IMPORTANT: leave empty to load the default configuration from
-    #    DataFormats/FEDRawData/interface/FEDNumbering.h
-    fedIds = cms.vuint32(),
+    fedIds = cms.vuint32(586, 587), #as declared in DataFormats/FEDRawData/interface/FEDNumbering.h
     
     RawToDigi = cms.PSet(
     verbosity = cms.untracked.uint32(0),
@@ -26,3 +28,7 @@ totemTimingRawToDigi = totemVFATRawToDigi.clone(
     printUnknownFrameSummary = cms.untracked.uint32(0)
   )
 )
+
+# for Run 2 backward compatibility
+(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemTimingRawToDigi,
+fedIds = [] )

@@ -200,24 +200,24 @@ public:
   void resetWMOffsets();
 
   // signals
-  sigc::signal<void> filterButtonClicked_;
-  sigc::signal<void, const TGWindow*> showEventFilterGUI_;
-  sigc::signal<void, const std::string&> writeToConfigurationFile_;
-  sigc::signal<void, const std::string&> writePartialToConfigurationFile_;
-  sigc::signal<void, const std::string&> loadFromConfigurationFile_;
-  sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
-  sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
-  sigc::signal<void> goingToQuit_;
-  sigc::signal<void> writeToPresentConfigurationFile_;
+  sigc::signal<void()> filterButtonClicked_;
+  sigc::signal<void(const TGWindow*)> showEventFilterGUI_;
+  sigc::signal<void(const std::string&)> writeToConfigurationFile_;
+  sigc::signal<void(const std::string&)> writePartialToConfigurationFile_;
+  sigc::signal<void(const std::string&)> loadFromConfigurationFile_;
+  sigc::signal<void(const std::string&)> loadPartialFromConfigurationFile_;
+  sigc::signal<void(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t)> changedEventId_;
+  sigc::signal<void()> goingToQuit_;
+  sigc::signal<void()> writeToPresentConfigurationFile_;
 
-  sigc::signal<void> changedRunEntry_;
-  sigc::signal<void> changedEventEntry_;
-  sigc::signal<void, Float_t> changedDelayBetweenEvents_;
+  sigc::signal<void()> changedRunEntry_;
+  sigc::signal<void()> changedEventEntry_;
+  sigc::signal<void(Float_t)> changedDelayBetweenEvents_;
 
-private:
   FWGUIManager(const FWGUIManager&) = delete;                   // stop default
   const FWGUIManager& operator=(const FWGUIManager&) = delete;  // stop default
 
+private:
   TEveWindow* getSwapCandidate();
 
   void newItem(const FWEventItem*);

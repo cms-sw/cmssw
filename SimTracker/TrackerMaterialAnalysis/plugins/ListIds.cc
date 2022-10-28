@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -80,18 +79,21 @@ private:
   // otherwise the matching will fail.
   bool printMaterial_;
   std::vector<std::string> materials_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> dddToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geoToken_;
 };
 
 ListIds::ListIds(const edm::ParameterSet &pset)
     : printMaterial_(pset.getUntrackedParameter<bool>("printMaterial")),
-      materials_(pset.getUntrackedParameter<std::vector<std::string> >("materials")) {}
+      materials_(pset.getUntrackedParameter<std::vector<std::string> >("materials")),
+      dddToken_(esConsumes()),
+      geoToken_(esConsumes()) {}
 
 ListIds::~ListIds() {}
 
 void ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
   std::cout << "______________________________ DDD ______________________________" << std::endl;
-  edm::ESTransientHandle<DDCompactView> hDdd;
-  setup.get<IdealGeometryRecord>().get(hDdd);
+  auto hDdd = setup.getTransientHandle(dddToken_);
 
   std::string attribute = "TkDDDStructure";
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
@@ -134,11 +136,10 @@ void ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
   std::cout << "______________________________ std::vector<GeomDet*> from TrackerGeometry::dets() "
                "______________________________"
             << std::endl;
-  edm::ESHandle<TrackerGeometry> hGeo;
-  setup.get<TrackerDigiGeometryRecord>().get(hGeo);
+  auto const &geo = setup.getData(geoToken_);
 
   std::cout << std::fixed << std::setprecision(3);
-  auto const &dets = hGeo->dets();
+  auto const &dets = geo.dets();
   for (unsigned int i = 0; i < dets.size(); ++i) {
     const GeomDet &det = *dets[i];
 

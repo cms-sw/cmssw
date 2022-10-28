@@ -52,6 +52,7 @@ private:
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
   const edm::EDGetTokenT<TrackingVertexCollection> trackingVertices_;
   const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryInfo_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken_;
   // tracking particle associators by order of preference
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associators_;
   // eta bounds
@@ -88,6 +89,7 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet &co
       trackingVertices_(consumes<TrackingVertexCollection>(conf.getParameter<edm::InputTag>("trackingVertexSrc"))),
       pileupSummaryInfo_(
           consumes<std::vector<PileupSummaryInfo>>(conf.getParameter<edm::InputTag>("pileupSummaryInfo"))),
+      builderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       associators_(edm::vector_transform(
           conf.getParameter<std::vector<edm::InputTag>>("associators"),
           [this](const edm::InputTag &tag) { return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); })),
@@ -132,8 +134,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt, cons
   evt.getByToken(pileupSummaryInfo_, pileupSummaryH);
 
   // transient track builder
-  edm::ESHandle<TransientTrackBuilder> theB;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  auto const &builder = es.getData(builderToken_);
 
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks;
@@ -181,7 +182,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt, cons
     }
 
     if (track_tps != associatedTracks.back().end() && track_tps->val.size() == 1) {
-      reco::TransientTrack tt = theB->build(*tkref);
+      reco::TransientTrack tt = builder.build(*tkref);
       float time = extractTrackVertexTime(*track_tps->val[0].first, tt);
       generalTrackTimes.push_back(time);
     } else {

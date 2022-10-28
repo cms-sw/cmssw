@@ -21,15 +21,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
@@ -44,7 +41,7 @@
 // class declaration
 //
 
-class L1TStage2InputPatternWriter : public edm::EDAnalyzer {
+class L1TStage2InputPatternWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TStage2InputPatternWriter(const edm::ParameterSet&);
   ~L1TStage2InputPatternWriter() override;

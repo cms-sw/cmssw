@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,22 +45,20 @@
 // class decleration
 //
 template <class T>
-class MultiplicityProducer : public edm::EDProducer {
+class MultiplicityProducer : public edm::global::EDProducer<> {
 public:
   explicit MultiplicityProducer(const edm::ParameterSet&);
   ~MultiplicityProducer() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   int multiplicity(typename T::const_iterator det) const;
   int detSetMultiplicity(typename T::const_iterator det) const;
 
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<T> m_collectionToken;
-  bool m_clustersize;
+  const bool m_clustersize;
   std::map<unsigned int, std::string> m_subdets;
   std::map<unsigned int, DetIdSelector> m_subdetsels;
 };
@@ -107,7 +105,7 @@ MultiplicityProducer<T>::~MultiplicityProducer() {
 
 // ------------ method called to produce the data  ------------
 template <class T>
-void MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MultiplicityProducer<T>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   LogDebug("Multiplicity") << " Ready to loop";
 
   using namespace edm;
@@ -130,9 +128,11 @@ void MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
     unsigned int subdet = detid.subdetId();
 
     //    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += det->size();
-    if (m_subdets.find(subdet) != m_subdets.end() && !m_subdetsels[subdet].isValid())
-      (*mults)[subdet] += multiplicity(det);
-
+    if (m_subdets.find(subdet) != m_subdets.end()) {
+      auto detsel = m_subdetsels.find(subdet);
+      if (detsel == m_subdetsels.end() or !detsel->second.isValid())
+        (*mults)[subdet] += multiplicity(det);
+    }
     for (std::map<unsigned int, DetIdSelector>::const_iterator detsel = m_subdetsels.begin();
          detsel != m_subdetsels.end();
          ++detsel) {
@@ -144,19 +144,11 @@ void MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
 
   for (std::map<unsigned int, int>::const_iterator it = mults->begin(); it != mults->end(); ++it) {
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first << " "
-                             << m_subdets[it->first];
+                             << m_subdets.find(it->first)->second;
   }
 
   iEvent.put(std::move(mults));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-template <class T>
-void MultiplicityProducer<T>::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-template <class T>
-void MultiplicityProducer<T>::endJob() {}
 
 template <class T>
 int MultiplicityProducer<T>::multiplicity(typename T::const_iterator det) const {

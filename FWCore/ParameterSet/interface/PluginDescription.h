@@ -123,8 +123,7 @@ namespace edm {
                                     std::set<ParameterTypes>& wildcardTypes) const final {}
 
     void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const final {
-      loadPlugin(findType(pset));
-      cache_->validate(pset);
+      loadDescription(findType(pset)).validate(pset);
       //all names are good
       auto n = pset.getParameterNames();
       validatedLabels.insert(n.begin(), n.end());
@@ -138,10 +137,7 @@ namespace edm {
           conf.allowNoCache();
           edmplugin::PluginManager::configure(conf);
         }
-
-        loadPlugin(defaultType_);
-
-        cache_->writeCfi(os, startWithComma, indentation);
+        loadDescription(defaultType_).writeCfi(os, startWithComma, indentation);
         wroteSomething = true;
       }
     }
@@ -187,7 +183,7 @@ namespace edm {
         new_dfh.init();
         new_dfh.setSection(newSection);
 
-        loadDescription(info.name_)->print(os, new_dfh);
+        loadDescription(info.name_).print(os, new_dfh);
 
         previousName = info.name_;
       }
@@ -216,38 +212,30 @@ namespace edm {
       return iPSet.getUntrackedParameter<std::string>(typeLabel_, defaultType_);
     }
 
-    void loadPlugin(std::string const& iName) const {
-      if (not cache_) {
-        cache_ = loadDescription(iName);
-      }
-    }
-
-    std::shared_ptr<ParameterSetDescription> loadDescription(std::string const& iName) const {
+    ParameterSetDescription loadDescription(std::string const& iName) const {
       using CreatedType = PluginDescriptionAdaptorBase<typename T::CreatedType>;
       std::unique_ptr<CreatedType> a(edmplugin::PluginFactory<CreatedType*()>::get()->create(iName));
 
-      std::shared_ptr<ParameterSetDescription> desc = std::make_shared<ParameterSetDescription>(a->description());
+      ParameterSetDescription desc = a->description();
 
       //There is no way to check to see if a node already wants a label
       if (typeLabelIsTracked_) {
         if (defaultType_.empty()) {
-          desc->add<std::string>(typeLabel_);
+          desc.add<std::string>(typeLabel_);
         } else {
-          desc->add<std::string>(typeLabel_, defaultType_);
+          desc.add<std::string>(typeLabel_, defaultType_);
         }
       } else {
         if (defaultType_.empty()) {
-          desc->addUntracked<std::string>(typeLabel_);
+          desc.addUntracked<std::string>(typeLabel_);
         } else {
-          desc->addUntracked<std::string>(typeLabel_, defaultType_);
+          desc.addUntracked<std::string>(typeLabel_, defaultType_);
         }
       }
       return desc;
     }
 
     // ---------- member data --------------------------------
-    //Validation of plugins is only done on one thread at a time
-    CMS_SA_ALLOW mutable std::shared_ptr<ParameterSetDescription> cache_;
     std::string typeLabel_;
     std::string defaultType_;
     bool typeLabelIsTracked_;

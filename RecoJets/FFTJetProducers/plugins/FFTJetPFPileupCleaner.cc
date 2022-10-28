@@ -22,7 +22,7 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,22 +42,19 @@
 //
 // class declaration
 //
-class FFTJetPFPileupCleaner : public edm::EDProducer {
+class FFTJetPFPileupCleaner : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetPFPileupCleaner(const edm::ParameterSet&);
+  FFTJetPFPileupCleaner() = delete;
+  FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
+  FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
   ~FFTJetPFPileupCleaner() override;
 
 protected:
   // methods
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
 private:
-  FFTJetPFPileupCleaner() = delete;
-  FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
-  FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
-
   bool isRemovable(reco::PFCandidate::ParticleType ptype) const;
   void setRemovalBit(reco::PFCandidate::ParticleType ptype, bool onOff);
   void buildRemovalMask();
@@ -445,12 +442,6 @@ void FFTJetPFPileupCleaner::buildRemovalMask() {
   setRemovalBit(reco::PFCandidate::h_HF, remove_h_HF);
   setRemovalBit(reco::PFCandidate::egamma_HF, remove_egamma_HF);
 }
-
-// ------------ method called once each job just before starting event loop
-void FFTJetPFPileupCleaner::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetPFPileupCleaner::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetPFPileupCleaner);

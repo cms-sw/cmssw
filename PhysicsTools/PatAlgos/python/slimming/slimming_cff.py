@@ -6,18 +6,21 @@ from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices4D_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVerticesWithBS_cfi import *
-from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
+from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import *
+from CommonTools.ParticleFlow.pfEGammaToCandidateRemapper_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticleAssociation_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedCaloJets_cfi  import *
+from PhysicsTools.PatAlgos.slimming.slimmedJPTJets_cfi  import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTrackExtras_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
+from PhysicsTools.PatAlgos.slimming.slimmedDisplacedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
@@ -44,6 +47,7 @@ slimmingTask = cms.Task(
     selectedPatTrigger,
     slimmedPatTrigger,
     slimmedCaloJets,
+    slimmedJPTJets,
     slimmedJets,
     slimmedJetsAK8,
     slimmedGenJets,
@@ -52,6 +56,8 @@ slimmingTask = cms.Task(
     slimmedLowPtElectronsTask,
     slimmedMuonTrackExtras,
     slimmedMuons,
+    slimmedDisplacedMuonTrackExtras,
+    slimmedDisplacedMuons,
     slimmedPhotons,
     slimmedOOTPhotons,
     slimmedTaus,
@@ -68,12 +74,18 @@ slimmingTask = cms.Task(
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets]))
 
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
                                  slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
+(pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
+                                                   slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import hiEvtPlane
@@ -92,13 +104,21 @@ pp_on_AA.toReplaceWith(
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexAssociationCleaned,slimmingTask.copy()))
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexWithBSAssociationCleaned,slimmingTask.copy()))
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
-pp_on_AA.toReplaceWith(
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
                                        offlineSlimmedPrimaryVertices4D)
 phase2_timing.toReplaceWith(slimmingTask,_phase2_timing_slimmingTask)
+
+from PhysicsTools.PatAlgos.slimming.patPhotonDRNCorrector_cfi import patPhotonsDRN
+from Configuration.ProcessModifiers.photonDRN_cff import _photonDRN
+_photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsDRN))

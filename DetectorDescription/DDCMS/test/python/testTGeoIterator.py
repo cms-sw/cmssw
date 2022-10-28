@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     cout = cms.untracked.PSet(
         enable = cms.untracked.bool(True),
-        enableStatistics = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(False),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('WARNING')
     ),
@@ -25,7 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             ERROR = cms.untracked.PSet(
                 limit = cms.untracked.int32(0)
             ),
-            Geometry = cms.untracked.PSet(
+            DumpGeometry = cms.untracked.PSet(
                 limit = cms.untracked.int32(-1)
             ),
             INFO = cms.untracked.PSet(
@@ -34,7 +34,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             WARNING = cms.untracked.PSet(
                 limit = cms.untracked.int32(0)
             ),
-            enableStatistics = cms.untracked.bool(True),
+            enableStatistics = cms.untracked.bool(False),
             noLineBreaks = cms.untracked.bool(True),
             threshold = cms.untracked.string('INFO')
         )

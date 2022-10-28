@@ -83,21 +83,24 @@ class QueryAttrHandler : public XrdCl::ResponseHandler {
   friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
 
 public:
+  QueryAttrHandler() = delete;
   ~QueryAttrHandler() override = default;
   QueryAttrHandler(const QueryAttrHandler &) = delete;
   QueryAttrHandler &operator=(const QueryAttrHandler &) = delete;
 
-  static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs,
+  QueryAttrHandler(const std::string &url) : m_fs(url) {}
+
+  static XrdCl::XRootDStatus query(const std::string &url,
                                    const std::string &attr,
                                    std::chrono::milliseconds timeout,
                                    std::string &result) {
-    auto handler = std::make_unique<QueryAttrHandler>();
+    auto handler = std::make_unique<QueryAttrHandler>(url);
     auto l_state = std::make_shared<QueryAttrState>();
     handler->m_state = l_state;
     XrdCl::Buffer arg(attr.size());
     arg.FromString(attr);
 
-    XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
+    XrdCl::XRootDStatus st = handler->m_fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
     if (!st.IsOK()) {
       return st;
     }
@@ -121,8 +124,6 @@ public:
   }
 
 private:
-  QueryAttrHandler() {}
-
   void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
     // NOTE: we own the status and response pointers.
     std::unique_ptr<XrdCl::AnyObject> response_mgr;
@@ -176,6 +177,7 @@ private:
     std::unique_ptr<XrdCl::Buffer> m_response;
   };
   std::weak_ptr<QueryAttrState> m_state;
+  XrdCl::FileSystem m_fs;
 };
 
 Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
@@ -217,7 +219,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 }
 
 bool Source::getHostname(const std::string &id, std::string &hostname) {
-  size_t pos = id.find(':');
+  size_t pos = id.find_last_of(':');
   hostname = id;
   if ((pos != std::string::npos) && (pos > 0)) {
     hostname = id.substr(0, pos);
@@ -329,9 +331,8 @@ bool Source::getXrootdSiteFromURL(std::string url, std::string &site) {
   XrdCl::Buffer arg(attr.size());
   arg.FromString(attr);
 
-  XrdCl::FileSystem fs(url);
   std::string rsite;
-  XrdCl::XRootDStatus st = QueryAttrHandler::query(fs, "sitename", std::chrono::seconds(1), rsite);
+  XrdCl::XRootDStatus st = QueryAttrHandler::query(url, "sitename", std::chrono::seconds(1), rsite);
   if (!st.IsOK()) {
     XrdCl::URL xurl(url);
     getDomain(xurl.GetHostName(), site);

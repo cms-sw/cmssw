@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -248,6 +248,13 @@ namespace edm {
   }
 
   template <>
+  inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc,
+                                                               WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
+  }
+
+  template <>
   inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
                                                                     WaitingTaskWithArenaHolder& holder) {
@@ -259,6 +266,153 @@ namespace edm {
                                                                   ModuleCallingContext const* mcc,
                                                                   WaitingTaskWithArenaHolder& holder) {
     module_->doAcquire(info, activityRegistry(), mcc, holder);
+  }
+
+  template <typename T>
+  inline void WorkerT<T>::implDoTransformAsync(WaitingTaskHolder iTask,
+                                               size_t iTransformIndex,
+                                               EventPrincipal const& iEvent,
+                                               ParentContext const& iParent,
+                                               ServiceWeakToken const& weakToken) {
+    CMS_SA_ALLOW try {
+      ServiceRegistry::Operate guard(weakToken.lock());
+
+      ModuleCallingContext mcc(
+          &module_->moduleDescription(), ModuleCallingContext::State::kPrefetching, iParent, nullptr);
+      module_->doTransformAsync(iTask, iTransformIndex, iEvent, activityRegistry(), &mcc, weakToken);
+    } catch (...) {
+      iTask.doneWaiting(std::current_exception());
+      return;
+    }
+    iTask.doneWaiting(std::exception_ptr());
+  }
+
+  template <>
+  inline void WorkerT<EDFilter>::implDoTransformAsync(WaitingTaskHolder task,
+                                                      size_t iTransformIndex,
+                                                      EventPrincipal const& iEvent,
+                                                      ParentContext const& iParent,
+                                                      ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<EDProducer>::implDoTransformAsync(WaitingTaskHolder task,
+                                                        size_t iTransformIndex,
+                                                        EventPrincipal const& iEvent,
+                                                        ParentContext const& iParent,
+                                                        ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<EDAnalyzer>::implDoTransformAsync(WaitingTaskHolder task,
+                                                        size_t iTransformIndex,
+                                                        EventPrincipal const& iEvent,
+                                                        ParentContext const& iParent,
+                                                        ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<global::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                    size_t iTransformIndex,
+                                                                    EventPrincipal const& iEvent,
+                                                                    ParentContext const& iParent,
+                                                                    ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<global::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                      size_t iTransformIndex,
+                                                                      EventPrincipal const& iEvent,
+                                                                      ParentContext const& iParent,
+                                                                      ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<limited::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                     size_t iTransformIndex,
+                                                                     EventPrincipal const& iEvent,
+                                                                     ParentContext const& iParent,
+                                                                     ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<limited::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                       size_t iTransformIndex,
+                                                                       EventPrincipal const& iEvent,
+                                                                       ParentContext const& iParent,
+                                                                       ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<one::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                 size_t iTransformIndex,
+                                                                 EventPrincipal const& iEvent,
+                                                                 ParentContext const& iParent,
+                                                                 ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<one::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                   size_t iTransformIndex,
+                                                                   EventPrincipal const& iEvent,
+                                                                   ParentContext const& iParent,
+                                                                   ServiceWeakToken const& weakToken) {}
+  template <>
+  inline void WorkerT<stream::EDAnalyzerAdaptorBase>::implDoTransformAsync(WaitingTaskHolder task,
+                                                                           size_t iTransformIndex,
+                                                                           EventPrincipal const& iEvent,
+                                                                           ParentContext const& iParent,
+                                                                           ServiceWeakToken const& weakToken) {}
+
+  template <typename T>
+  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const {
+    return -1;
+  }
+  template <>
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
+    return module_->transformIndex_(iBranch);
+  }
+
+  template <typename T>
+  inline ProductResolverIndex WorkerT<T>::itemToGetForTransform(size_t iTransformIndex) const {
+    return -1;
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<global::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<global::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<stream::EDProducerAdaptorBase>::itemToGetForTransform(
+      size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<limited::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<limited::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<one::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<one::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+    return module_->transformPrefetch_(iTransformIndex);
   }
 
   template <typename T>
@@ -689,22 +843,6 @@ namespace edm {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
 
-    std::vector<ProductResolverIndex> s_emptyIndexList;
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(void const*) { return s_emptyIndexList; }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(ProducerBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDProducerAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDFilterAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
   }  // namespace
 
   template <typename T>
@@ -713,11 +851,6 @@ namespace edm {
       std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
           iIndicies) {
     resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description()->moduleLabel());
-  }
-
-  template <typename T>
-  std::vector<ProductResolverIndex> const& WorkerT<T>::itemsShouldPutInEvent() const {
-    return itemsShouldPutInEventImpl(&module());
   }
 
   template <>
@@ -794,6 +927,82 @@ namespace edm {
   template <>
   Worker::Types WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleType() const {
     return Worker::kAnalyzer;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDAnalyzer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDProducer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDFilter>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDProducerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDFilterAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

@@ -5,7 +5,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -105,6 +104,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("simulateElectronBkg", true);
   // flase == simulate only neutral bkg
   desc.add<bool>("simulateIntrinsicNoise", false);
+  desc.add<bool>("bx0filter", false);
 
   desc.add<double>("instLumi", 7.5);
   // in units of 1E34 cm^-2 s^-1. Internally the background is parmetrized from FLUKA+GEANT result at 5E+34 (PU 140). We are adding a 1.5 factor for PU 200

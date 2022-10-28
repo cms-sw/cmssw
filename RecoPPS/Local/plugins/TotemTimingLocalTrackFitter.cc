@@ -5,6 +5,7 @@
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
  *   Mateusz Szpyrka (mateusz.szpyrka@cern.ch)
+ *   Christopher Misan (krzysztof.misan@cern.ch)
  *
  ****************************************************************************/
 
@@ -21,12 +22,13 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 
 #include "RecoPPS/Local/interface/TotemTimingTrackRecognition.h"
-
+template <typename T>
 class TotemTimingLocalTrackFitter : public edm::stream::EDProducer<> {
 public:
   explicit TotemTimingLocalTrackFitter(const edm::ParameterSet&);
@@ -34,40 +36,32 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
+  static edm::ParameterSetDescription fillDescriptionsShared(edm::ConfigurationDescriptions&);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit> > recHitsToken_;
   const int maxPlaneActiveChannels_;
-  std::map<TotemTimingDetId, TotemTimingTrackRecognition> trk_algo_map_;
+  const edm::ParameterSet trk_algo_params_;
+  std::map<CTPPSDetId, TotemTimingTrackRecognition> trk_algo_map_;
 };
-
-TotemTimingLocalTrackFitter::TotemTimingLocalTrackFitter(const edm::ParameterSet& iConfig)
+template <typename T>
+TotemTimingLocalTrackFitter<T>::TotemTimingLocalTrackFitter(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<edm::DetSetVector<TotemTimingRecHit> >(iConfig.getParameter<edm::InputTag>("recHitsTag"))),
-      maxPlaneActiveChannels_(iConfig.getParameter<int>("maxPlaneActiveChannels")) {
+      maxPlaneActiveChannels_(iConfig.getParameter<int>("maxPlaneActiveChannels")),
+      trk_algo_params_(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams")) {
   produces<edm::DetSetVector<TotemTimingLocalTrack> >();
-
-  for (unsigned short armNo = 0; armNo < 2; armNo++)
-    for (unsigned short rpNo = 0; rpNo < 2; rpNo++) {
-      TotemTimingDetId id(armNo, 1, rpNo, 0, 0);
-      TotemTimingTrackRecognition trk_algo(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams"));
-      trk_algo_map_.insert(std::make_pair(id, trk_algo));
-    }
 }
-
-void TotemTimingLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <typename T>
+void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto pOut = std::make_unique<edm::DetSetVector<TotemTimingLocalTrack> >();
 
   edm::Handle<edm::DetSetVector<TotemTimingRecHit> > recHits;
   iEvent.getByToken(recHitsToken_, recHits);
 
-  for (const auto& trk_algo_entry : trk_algo_map_)
-    pOut->find_or_insert(trk_algo_entry.first);
-
-  std::map<TotemTimingDetId, int> planeActivityMap;
+  std::map<T, int> planeActivityMap;
 
   auto motherId = [](const edm::det_id_type& detid) {
-    TotemTimingDetId out(detid);
-    out.setStation(1);
+    T out(detid);
     out.setChannel(0);
     return out;
   };
@@ -77,6 +71,12 @@ void TotemTimingLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventSe
 
   // feed hits to the track producers
   for (const auto& vec : *recHits) {
+    const CTPPSDetId raw_detid(vec.detId());
+    T detid(raw_detid.arm(), raw_detid.station(), raw_detid.rp());
+    // if algorithm is not found, build it
+    if (trk_algo_map_.count(detid) == 0)
+      trk_algo_map_.insert(std::make_pair(detid, trk_algo_params_));
+
     auto detId = motherId(vec.detId());
     if (planeActivityMap[detId] > maxPlaneActiveChannels_)
       continue;
@@ -91,8 +91,10 @@ void TotemTimingLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventSe
   }
 
   // retrieves tracks for all hit sets
-  for (auto& trk_algo_entry : trk_algo_map_)
+  for (auto& trk_algo_entry : trk_algo_map_) {
+    pOut->find_or_insert(trk_algo_entry.first);
     trk_algo_entry.second.produceTracks(pOut->operator[](trk_algo_entry.first));
+  }
 
   iEvent.put(std::move(pOut));
 
@@ -100,8 +102,9 @@ void TotemTimingLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventSe
   for (auto& trk_algo_entry : trk_algo_map_)
     trk_algo_entry.second.clear();
 }
-
-void TotemTimingLocalTrackFitter::fillDescriptions(edm::ConfigurationDescriptions& descr) {
+template <typename T>
+edm::ParameterSetDescription TotemTimingLocalTrackFitter<T>::fillDescriptionsShared(
+    edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("totemTimingRecHits"))
       ->setComment("input rechits collection to retrieve");
@@ -140,8 +143,20 @@ void TotemTimingLocalTrackFitter::fillDescriptions(edm::ConfigurationDescription
   trackingAlgoParams.add<double>("yWidth", 0.0)->setComment("vertical track width");
   desc.add<edm::ParameterSetDescription>("trackingAlgorithmParams", trackingAlgoParams)
       ->setComment("list of parameters associated to the track recognition algorithm");
-
+  return desc;
+}
+template <>
+void TotemTimingLocalTrackFitter<TotemTimingDetId>::fillDescriptions(edm::ConfigurationDescriptions& descr) {
+  auto desc = fillDescriptionsShared(descr);
   descr.add("totemTimingLocalTracks", desc);
 }
 
-DEFINE_FWK_MODULE(TotemTimingLocalTrackFitter);
+template <>
+void TotemTimingLocalTrackFitter<CTPPSDiamondDetId>::fillDescriptions(edm::ConfigurationDescriptions& descr) {
+  auto desc = fillDescriptionsShared(descr);
+  descr.add("diamondSampicLocalTracks", desc);
+}
+template class TotemTimingLocalTrackFitter<CTPPSDiamondDetId>;
+template class TotemTimingLocalTrackFitter<TotemTimingDetId>;
+DEFINE_FWK_MODULE(TotemTimingLocalTrackFitter<TotemTimingDetId>);
+DEFINE_FWK_MODULE(TotemTimingLocalTrackFitter<CTPPSDiamondDetId>);

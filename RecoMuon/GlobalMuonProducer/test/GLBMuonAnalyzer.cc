@@ -5,9 +5,11 @@
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
 
-#include "RecoMuon/GlobalMuonProducer/test/GLBMuonAnalyzer.h"
+// Base Class Headers
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,11 +34,55 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+class GLBMuonAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  /// Constructor
+  GLBMuonAnalyzer(const edm::ParameterSet &pset);
+
+  /// Destructor
+  ~GLBMuonAnalyzer() override;
+
+  // Operations
+
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+
+  void beginJob() override;
+  void endJob() override;
+
+protected:
+private:
+  edm::InputTag theGLBMuonLabel;
+
+  std::string theRootFileName;
+  TFile *theFile;
+
+  // Histograms
+  TH1F *hPtRec;
+  TH1F *hPtSim;
+  TH1F *hPres;
+  TH1F *h1_Pres;
+  TH1F *hPTDiff;
+  TH1F *hPTDiff2;
+  TH2F *hPTDiffvsEta;
+  TH2F *hPTDiffvsPhi;
+
+  // Counters
+  int numberOfSimTracks;
+  int numberOfRecTracks;
+
+  std::string theDataType;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+};
+
 using namespace std;
 using namespace edm;
 
 /// Constructor
-GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet& pset) {
+GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet &pset) {
+  theMGFieldToken = esConsumes();
+  theTrackingGeometryToken = esConsumes();
   theGLBMuonLabel = pset.getUntrackedParameter<edm::InputTag>("GlobalTrackCollectionLabel");
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -91,7 +137,7 @@ void GLBMuonAnalyzer::endJob() {
   theFile->Close();
 }
 
-void GLBMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
+void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   //LogTrace("Analyzer") << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   MuonPatternRecoDumper debug;
 
@@ -99,11 +145,9 @@ void GLBMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) 
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theGLBMuonLabel, staTracks);
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  ESHandle<MagneticField> theMGField = eventSetup.getHandle(theMGFieldToken);
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(theTrackingGeometryToken);
 
   double recPt = 0.;
   double simPt = 0.;
@@ -186,3 +230,5 @@ void GLBMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) 
   }
   LogTrace("Analyzer") << "---" << endl;
 }
+
+DEFINE_FWK_MODULE(GLBMuonAnalyzer);

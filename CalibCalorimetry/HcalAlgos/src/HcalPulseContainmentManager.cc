@@ -3,15 +3,18 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 
-HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror)
-    : entries_(), shapes_(), max_fracerror_(max_fracerror) {
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror, bool phaseAsInSim)
+    : entries_(), shapes_(), max_fracerror_(max_fracerror), phaseAsInSim_(phaseAsInSim) {
   hcalTimeSlew_delay_ = nullptr;
 }
 
-HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror, edm::ConsumesCollector iC)
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror,
+                                                         bool phaseAsInSim,
+                                                         edm::ConsumesCollector iC)
     : entries_(),
       shapes_(iC),
       max_fracerror_(max_fracerror),
+      phaseAsInSim_(phaseAsInSim),
       delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))) {}
 
 void HcalPulseContainmentManager::beginRun(edm::EventSetup const& es) {
@@ -75,7 +78,7 @@ const HcalPulseContainmentCorrection* HcalPulseContainmentManager::get(const Hca
       toAdd,
       fixedphase_ns,
       shape,
-      HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
+      HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, phaseAsInSim_, max_fracerror_, hcalTimeSlew_delay_));
   entries_.push_back(entry);
   return &(entries_.back().correction_);
 }

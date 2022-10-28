@@ -1,6 +1,6 @@
 #ifndef RecoLuminosity_LumiProducer_genLumiRaw_h
 #define RecoLuminosity_LumiProducer_genLumiRaw_h
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,18 +19,19 @@
    one job can generate data for at most 1 run and unlimited number of LS
 **/
 
-class genLumiRaw : public edm::EDAnalyzer {
+class genLumiRaw : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit genLumiRaw(edm::ParameterSet const&);
-  virtual ~genLumiRaw();
+  ~genLumiRaw();
 
 private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override {}
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
 
   void generateRunSummary(unsigned int runnumber, unsigned int totalCMSls);
   void generateHLT(unsigned int runnumber, unsigned int lsnumber);

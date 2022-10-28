@@ -98,9 +98,9 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object,
     switch (param) {
       case TopKinFitter::kEtEtaPhi:
         CovM3(0, 0) = pow(object.resolEt(resolutionProvider), 2);
-        if (dynamic_cast<const reco::Jet*>(&object))
+        if constexpr (std::is_same_v<T, reco::Jet>)
           CovM3(0, 0) *= getEtaDependentScaleFactor(object);
-        if (dynamic_cast<const reco::MET*>(&object))
+        else if constexpr (std::is_same_v<T, reco::MET>)
           CovM3(1, 1) = pow(9999., 2);
         else
           CovM3(1, 1) = pow(object.resolEta(resolutionProvider), 2);
@@ -109,7 +109,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object,
         break;
       case TopKinFitter::kEtThetaPhi:
         CovM3(0, 0) = pow(object.resolEt(resolutionProvider), 2);
-        if (dynamic_cast<const reco::Jet*>(&object))
+        if constexpr (std::is_same_v<T, reco::Jet>)
           CovM3(0, 0) *= getEtaDependentScaleFactor(object);
         CovM3(1, 1) = pow(object.resolTheta(resolutionProvider), 2);
         CovM3(2, 2) = pow(object.resolPhi(resolutionProvider), 2);
@@ -137,20 +137,20 @@ template <class T>
 CovarianceMatrix::ObjectType CovarianceMatrix::getObjectType(const pat::PATObject<T>& object, const bool isBJet) {
   ObjectType objType;
   // jets
-  if (dynamic_cast<const reco::Jet*>(&object)) {
+  if constexpr (std::is_same_v<T, reco::Jet>) {
     if (isBJet)
       objType = kBJet;
     else
       objType = kUdscJet;
   }
   // muons
-  else if (dynamic_cast<const reco::Muon*>(&object))
+  else if constexpr (std::is_same_v<T, reco::Muon>)
     objType = kMuon;
   // electrons
-  else if (dynamic_cast<const reco::GsfElectron*>(&object))
+  else if constexpr (std::is_same_v<T, reco::GsfElectron>)
     objType = kElectron;
   // MET
-  else if (dynamic_cast<const reco::MET*>(&object))
+  else if constexpr (std::is_same_v<T, reco::MET>)
     objType = kMet;
   // catch anything else
   else

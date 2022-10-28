@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -11,10 +11,11 @@ using namespace std;
       
 \author J. Mans - Minnesota
 */
-class HcalDigiDump : public edm::EDAnalyzer {
+class HcalDigiDump : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalDigiDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  ~HcalDigiDump() override = default;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 };
 
 HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {

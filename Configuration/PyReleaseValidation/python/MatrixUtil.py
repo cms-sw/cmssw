@@ -118,7 +118,7 @@ class InputInfo(object):
         
     def das(self, das_options, dataset):
         if len(self.run) != 0 or self.ls:
-            queries = self.queries(dataset)[:3]
+            queries = self.queries(dataset)
             if len(self.run) != 0:
               command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
@@ -149,9 +149,13 @@ class InputInfo(object):
     def lumis(self):
       query_lumis = []
       if self.ls:
-        for run in self.ls.keys():
+        for run in sorted(self.ls.keys()):
           run_lumis = []
-          for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
+          for rng in self.ls[run]:
+              if isinstance(rng, int):
+                  run_lumis.append(str(rng))
+              else:
+                  run_lumis.append(str(rng[0])+","+str(rng[1]))
           query_lumis.append(":".join(run_lumis))
       return query_lumis
 
@@ -167,7 +171,7 @@ class InputInfo(object):
             # and use step1_lumiRanges.log to run only on LS which respect your selection
 
             # DO WE WANT T2_CERN ?
-            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
+            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in sorted(self.ls.keys())]
             #return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
 
 

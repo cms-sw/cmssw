@@ -18,8 +18,11 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTTTrigFillWithAverage::DTTTrigFillWithAverage(const ParameterSet& pset) : foundAverage_(false) {
-    dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
+  DTTTrigFillWithAverage::DTTTrigFillWithAverage(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : foundAverage_(false) {
+    ttrigToken_ =
+        cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+    dtGeomToken_ = cc.esConsumes<edm::Transition::BeginRun>();
   }
 
   DTTTrigFillWithAverage::~DTTTrigFillWithAverage() {}
@@ -27,11 +30,11 @@ namespace dtCalibration {
   void DTTTrigFillWithAverage::setES(const EventSetup& setup) {
     // Get tTrig record from DB
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
+    tTrig = setup.getHandle(ttrigToken_);
     tTrigMap_ = &*tTrig;
 
     // Get geometry from Event Setup
-    setup.get<MuonGeometryRecord>().get(muonGeom_);
+    muonGeom_ = setup.getHandle(dtGeomToken_);
   }
 
   DTTTrigData DTTTrigFillWithAverage::correction(const DTSuperLayerId& slId) {

@@ -150,7 +150,6 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
 #endif
         if (rand < prob_HF) {  // survived in HF
           wlatten.push_back(lambda);
-          rand = G4UniformRand();
           double effHEM = computeHEMEff(lambda);
           // compute number of bounces in air guide
           rand = G4UniformRand();
@@ -166,6 +165,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
           double tang = sin_air / std::sqrt(1. - sin_air * sin_air);
           int nbounce = length_lg / tlength * tang + 0.5;
           double eff = pow(effHEM, nbounce);
+          rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM " << effHEM << " eff "
                                        << eff << " Random " << rand << " Survive? " << (rand < eff);

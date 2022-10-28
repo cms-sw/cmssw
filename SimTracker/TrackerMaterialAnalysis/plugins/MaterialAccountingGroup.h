@@ -61,15 +61,14 @@ public:
   /// explicit constructors
   MaterialAccountingGroup(const std::string& name, const DDCompactView& geometry);
 
-  /// destructor
-  ~MaterialAccountingGroup(void);
-
-private:
   /// stop default copy ctor
   MaterialAccountingGroup(const MaterialAccountingGroup& layer) = delete;
 
   /// stop default assignment operator
   MaterialAccountingGroup& operator=(const MaterialAccountingGroup& layer) = delete;
+
+  /// destructor
+  ~MaterialAccountingGroup(void);
 
 public:
   /// buffer material from a detector, if the detector is inside the DetLayer bounds

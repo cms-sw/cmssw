@@ -15,7 +15,11 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
       fileName_(ps.getUntrackedParameter<std::string>("fileName", std::string("ecalPedDigiDump"))),
       barrelDigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
       endcapDigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection")),
-      headerProducer_(ps.getParameter<edm::InputTag>("headerProducer")) {
+      headerProducer_(ps.getParameter<edm::InputTag>("headerProducer")),
+      rawDataToken_(consumes<EcalRawDataCollection>(headerProducer_)),
+      ebDigiToken_(consumes<EBDigiCollection>(barrelDigiCollection_)),
+      eeDigiToken_(consumes<EEDigiCollection>(endcapDigiCollection_)),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()) {
   using namespace std;
 
   fedMap_ = new EcalFedMap();
@@ -103,10 +107,10 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
 EcalPedHists::~EcalPedHists() {}
 
 void EcalPedHists::beginRun(edm::Run const&, edm::EventSetup const& c) {
-  edm::ESHandle<EcalElectronicsMapping> elecHandle;
-  c.get<EcalMappingRcd>().get(elecHandle);
-  ecalElectronicsMap_ = elecHandle.product();
+  ecalElectronicsMap_ = &c.getData(ecalMappingToken_);
 }
+
+void EcalPedHists::endRun(edm::Run const&, edm::EventSetup const& c) {}
 
 void EcalPedHists::endJob(void) {
   using namespace std;
@@ -177,9 +181,8 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // loop over the headers, this is to detect missing FEDs if all are selected
   if (allFEDsSelected_) {
     edm::Handle<EcalRawDataCollection> DCCHeaders;
-    try {
-      e.getByLabel(headerProducer_, DCCHeaders);
-    } catch (std::exception& ex) {
+    e.getByToken(rawDataToken_, DCCHeaders);
+    if (!DCCHeaders.isValid()) {
       edm::LogError("EcalPedHists") << "Error! can't get the product " << headerProducer_;
       return;
     }
@@ -206,9 +209,8 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // (one digi for each crystal)
   // TODO; SIC: fix this behavior
   Handle<EBDigiCollection> barrelDigis;
-  try {
-    e.getByLabel(barrelDigiCollection_, barrelDigis);
-  } catch (std::exception& ex) {
+  e.getByToken(ebDigiToken_, barrelDigis);
+  if (!barrelDigis.isValid()) {
     edm::LogError("EcalPedOffset") << "Error! can't get the product " << barrelDigiCollection_;
     barrelDigisFound = false;
   }
@@ -216,9 +218,8 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // (one digi for each crystal)
   // TODO; SIC: fix this behavior
   Handle<EEDigiCollection> endcapDigis;
-  try {
-    e.getByLabel(endcapDigiCollection_, endcapDigis);
-  } catch (std::exception& ex) {
+  e.getByToken(eeDigiToken_, endcapDigis);
+  if (!endcapDigis.isValid()) {
     edm::LogError("EcalPedOffset") << "Error! can't get the product " << endcapDigiCollection_;
     endcapDigisFound = false;
   }

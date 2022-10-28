@@ -12,6 +12,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -361,11 +362,49 @@ namespace edmtest {
     e.put(std::make_unique<Prodigal>(parent->value));
   }
 
+  class IntProductFilter : public edm::global::EDFilter<> {
+  public:
+    explicit IntProductFilter(edm::ParameterSet const& p)
+        : token_(consumes(p.getParameter<edm::InputTag>("label"))),
+          threshold_(p.getParameter<int>("threshold")),
+          shouldProduce_(p.getParameter<bool>("shouldProduce")) {
+      if (shouldProduce_) {
+        putToken_ = produces<edmtest::IntProduct>();
+      }
+    }
+
+    bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+      auto const& product = iEvent.get(token_);
+      if (product.value < threshold_) {
+        return false;
+      }
+      if (shouldProduce_) {
+        iEvent.emplace(putToken_, product);
+      }
+      return true;
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<edm::InputTag>("label");
+      desc.add<int>("threshold", 0);
+      desc.add<bool>("shouldProduce", false);
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    const edm::EDGetTokenT<edmtest::IntProduct> token_;
+    edm::EDPutTokenT<edmtest::IntProduct> putToken_;
+    const int threshold_;
+    const bool shouldProduce_;
+  };
+
 }  // namespace edmtest
 
 using edmtest::AVSimpleProducer;
 using edmtest::DSTVProducer;
 using edmtest::DSVProducer;
+using edmtest::IntProductFilter;
 using edmtest::OVSimpleProducer;
 using edmtest::ProdigalProducer;
 using edmtest::SCSimpleProducer;
@@ -377,3 +416,4 @@ DEFINE_FWK_MODULE(AVSimpleProducer);
 DEFINE_FWK_MODULE(DSVProducer);
 DEFINE_FWK_MODULE(DSTVProducer);
 DEFINE_FWK_MODULE(ProdigalProducer);
+DEFINE_FWK_MODULE(IntProductFilter);

@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "CAHitNtupletGeneratorOnGPU.h"
@@ -30,10 +31,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void beginJob() override;
+  void endJob() override;
+
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   bool onGPU_;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
   edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DGPU>> tokenHitGPU_;
   edm::EDPutTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenTrackGPU_;
   edm::EDGetTokenT<TrackingRecHit2DCPU> tokenHitCPU_;
@@ -43,7 +48,7 @@ private:
 };
 
 CAHitNtupletCUDA::CAHitNtupletCUDA(const edm::ParameterSet& iConfig)
-    : onGPU_(iConfig.getParameter<bool>("onGPU")), gpuAlgo_(iConfig, consumesCollector()) {
+    : onGPU_(iConfig.getParameter<bool>("onGPU")), tokenField_(esConsumes()), gpuAlgo_(iConfig, consumesCollector()) {
   if (onGPU_) {
     tokenHitGPU_ =
         consumes<cms::cuda::Product<TrackingRecHit2DGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
@@ -64,8 +69,12 @@ void CAHitNtupletCUDA::fillDescriptions(edm::ConfigurationDescriptions& descript
   descriptions.add("pixelTracksCUDA", desc);
 }
 
+void CAHitNtupletCUDA::beginJob() { gpuAlgo_.beginJob(); }
+
+void CAHitNtupletCUDA::endJob() { gpuAlgo_.endJob(); }
+
 void CAHitNtupletCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  auto bf = 1. / PixelRecoUtilities::fieldInInvGev(es);
+  auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
   if (onGPU_) {
     auto hHits = iEvent.getHandle(tokenHitGPU_);

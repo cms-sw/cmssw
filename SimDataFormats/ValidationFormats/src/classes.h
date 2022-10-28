@@ -6,4 +6,5 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
+#include "SimDataFormats/ValidationFormats/interface/MaterialAccountingCalo.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"

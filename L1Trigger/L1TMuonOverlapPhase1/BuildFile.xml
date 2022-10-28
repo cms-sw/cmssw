@@ -1,0 +1,36 @@
+<export>
+  <lib name="1"/>  
+  <use name="DataFormats/L1TMuon"/>
+  <use name="L1Trigger/RPCTrigger"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/RPCGeometry"/>  
+  <use name="root"/> 
+  <use name="xerces-c"/>
+</export>
+
+<flags ADD_SUBDIR="1"/>
+
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/RPCGeometry"/>  
+<use name="Geometry/Records"/>
+<use name="L1Trigger/DTUtilities"/>
+<use name="L1Trigger/L1TMuon"/>
+<use name="L1Trigger/RPCTrigger"/>
+<use name="SimDataFormats/DigiSimLinks"/>  
+<use name="SimDataFormats/TrackingAnalysis"/>  
+<use name="TrackPropagation/SteppingHelixPropagator"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+
+<lib name="boost_timer"/>
+<use name="roofit"/>
+<use name="root"/>
+<use name="xerces-c"/>

@@ -16,6 +16,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ),
     timetype = cms.untracked.string('Run'),
     connect = cms.string('sqlite_file:anothertest.db'),
+    autoCommit = cms.untracked.bool(True),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
         tag = cms.string('mytest')

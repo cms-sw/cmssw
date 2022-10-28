@@ -16,7 +16,7 @@ BeamSpotOnlinePopConSourceHandler::BeamSpotOnlinePopConSourceHandler(edm::Parame
 BeamSpotOnlinePopConSourceHandler::~BeamSpotOnlinePopConSourceHandler() {}
 
 bool checkPayloadAge(const BeamSpotOnlineObjects& payload, unsigned int maxAge) {
-  long creationTimeInSeconds = payload.GetCreationTime() >> 32;
+  long creationTimeInSeconds = payload.creationTime() >> 32;
   auto timeNow = std::chrono::system_clock::now();
   auto nowSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeNow.time_since_epoch()).count();
   long age = nowSinceEpoch - creationTimeInSeconds;
@@ -29,7 +29,7 @@ std::unique_ptr<BeamSpotOnlineObjects> makeDummyPayload() {
   ret = std::make_unique<BeamSpotOnlineObjects>();
   auto timeNow = std::chrono::system_clock::now();
   auto nowSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeNow.time_since_epoch()).count();
-  ret->SetCreationTime(nowSinceEpoch << 32);
+  ret->setCreationTime(nowSinceEpoch << 32);
   return ret;
 }
 

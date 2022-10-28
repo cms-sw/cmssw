@@ -14,7 +14,8 @@ using namespace edm;
 
 class DDTestCompactView : public one::EDAnalyzer<> {
 public:
-  explicit DDTestCompactView(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+  explicit DDTestCompactView(const ParameterSet& iConfig)
+      : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")), m_token(esConsumes(m_tag)) {}
 
   void beginJob() override {}
   void analyze(Event const& iEvent, EventSetup const&) override;
@@ -22,12 +23,12 @@ public:
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<DDCompactView, IdealGeometryRecord> m_token;
 };
 
 void DDTestCompactView::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestCompactView::analyze: " << m_tag;
-  ESTransientHandle<DDCompactView> cpv;
-  iEventSetup.get<IdealGeometryRecord>().get(m_tag, cpv);
+  ESTransientHandle<DDCompactView> cpv = iEventSetup.getTransientHandle(m_token);
 
   std::cout << "Get trackerParameters:detIdShifts:\n";
   auto const& vec = cpv->getVector<int>("detIdShifts");

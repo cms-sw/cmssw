@@ -13,10 +13,6 @@ typedef Vector2DBase<float, GlobalTag> Global2DVector;
 
 #include <vector>
 
-namespace edm {
-  class EventSetup;
-}
-
 class TrackerGeometry;
 class TrackingRecHit;
 class ClusterShapeHitFilter;
@@ -25,7 +21,12 @@ class SiPixelClusterShapeCache;
 
 class ClusterShapeTrackFilter : public PixelTrackFilterBase {
 public:
-  ClusterShapeTrackFilter(const SiPixelClusterShapeCache *cache, double ptmin, double ptmax, const edm::EventSetup &es);
+  ClusterShapeTrackFilter(const SiPixelClusterShapeCache *cache,
+                          double ptmin,
+                          double ptmax,
+                          const TrackerGeometry *tracker,
+                          const ClusterShapeHitFilter *shape,
+                          const TrackerTopology *ttopo);
   ~ClusterShapeTrackFilter() override;
   bool operator()(const reco::Track *, const std::vector<const TrackingRecHit *> &hits) const override;
 

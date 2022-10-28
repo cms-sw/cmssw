@@ -10,10 +10,10 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
@@ -41,8 +41,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug");
 
   // Get the label to retrieve digis from the event
-  digiLabel = pset.getUntrackedParameter<string>("digiLabel");
-  consumes<DTDigiCollection>(edm::InputTag(digiLabel));
+  std::string digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+  digiToken = consumes<DTDigiCollection>(edm::InputTag(digiLabel));
 
   // Switch on/off the DB writing
   findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", false);
@@ -67,7 +67,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   // Get the synchronizer
   if (doSubtractT0) {
     theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
+                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector());
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels", "false");
@@ -77,6 +78,10 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
   if (debug)
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
+
+  if (checkNoisyChannels) {
+    theStatusMapToken = esConsumes();
+  }
 }
 
 // Destructor
@@ -100,13 +105,12 @@ void DTTTrigCalibration::analyze(const edm::Event& event, const edm::EventSetup&
     cout << "[DTTTrigCalibration] #Event: " << event.id().event() << endl;
 
   // Get the digis from the event
-  Handle<DTDigiCollection> digis;
-  event.getByLabel(digiLabel, digis);
+  const edm::Handle<DTDigiCollection>& digis = event.getHandle(digiToken);
 
   ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
     // Get the map of noisy channels
-    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = eventSetup.getHandle(theStatusMapToken);
   }
 
   if (doSubtractT0)

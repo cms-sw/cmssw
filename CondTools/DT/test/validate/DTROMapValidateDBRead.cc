@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,11 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 DTROMapValidateDBRead::DTROMapValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtreadoutmappingToken_(esConsumes()) {}
 
-DTROMapValidateDBRead::DTROMapValidateDBRead(int i) {}
-
-DTROMapValidateDBRead::~DTROMapValidateDBRead() {}
+DTROMapValidateDBRead::DTROMapValidateDBRead(int i) : dtreadoutmappingToken_(esConsumes()) {}
 
 void DTROMapValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -41,8 +41,7 @@ void DTROMapValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   //  std::ifstream chkFile( run_fn.str().c_str() );
   std::ifstream chkFile(dataFileName.c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTReadOutMapping> ro;
-  context.get<DTReadOutMappingRcd>().get(ro);
+  auto ro = context.getHandle(dtreadoutmappingToken_);
   std::cout << ro->mapRobRos() << " " << ro->mapCellTdc() << std::endl;
   std::cout << std::distance(ro->begin(), ro->end()) << " data in the container" << std::endl;
   int whe;

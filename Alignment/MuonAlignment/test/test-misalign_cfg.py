@@ -49,7 +49,7 @@ process.CSCGeometryMisalignedMuonProducer = cms.ESProducer("CSCGeometryESModule"
 process.GEMGeometryMisalignedMuonProducer = cms.ESProducer("GEMGeometryESModule",
     appendToDataLabel = cms.string('idealForMuonMisalignedProducer'),
     fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
+    fromDD4hep = cms.bool(False),
     alignmentsLabel = cms.string(''),
     applyAlignment = cms.bool(False)
 )

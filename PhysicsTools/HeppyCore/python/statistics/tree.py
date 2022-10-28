@@ -1,7 +1,6 @@
 import numpy
 from ROOT import TTree
 import ROOT
-import six
 
 class Tree(object):
     
@@ -102,12 +101,12 @@ class Tree(object):
         self.vecdefaults[varName] = default
 
     def reset(self):
-        for name,value in six.iteritems(self.vars):
+        for name,value in self.vars.items():
             if name in self.fillers:
                 self.fillers[name](value, self.defaults[name])
             else:
                 value[0]=self.defaults[name]
-        for name,value in six.iteritems(self.vecvars):
+        for name,value in self.vecvars.items():
             if isinstance(value, numpy.ndarray):
                 value.fill(self.vecdefaults[name])
             else:

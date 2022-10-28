@@ -81,7 +81,7 @@ public:
   void setEventCenter(float, float, float);
   void resetEventCenter();
 
-  mutable sigc::signal<void, const CmsShowCommon*> eventCenterChanged_;
+  mutable sigc::signal<void(const CmsShowCommon*)> eventCenterChanged_;
 
 protected:
   const FWColorManager* colorManager() const;
@@ -112,7 +112,7 @@ protected:
   bool m_useBeamSpot;
   TEveVector m_externalEventCenter;  //cached
 
-private:
+public:
   CmsShowCommon(const CmsShowCommon&) = delete;                   // stop default
   const CmsShowCommon& operator=(const CmsShowCommon&) = delete;  // stop default
 };

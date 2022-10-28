@@ -9,7 +9,6 @@ Toy EDAnalyzers for testing purposes only.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
@@ -36,14 +35,14 @@ namespace edmtest {
   //
   // every call to NonAnalyzer::analyze does nothing.
   //
-  class NonAnalyzer : public edm::EDAnalyzer {
+  class NonAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {}
-    virtual ~NonAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~NonAnalyzer() override {}
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
   };
 
-  void NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {}
+  void NonAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {}
 
   //--------------------------------------------------------------------
   //
@@ -51,29 +50,42 @@ namespace edmtest {
   public:
     IntTestAnalyzer(edm::ParameterSet const& iPSet)
         : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))) {}
+          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))),
+          missing_(iPSet.getUntrackedParameter<bool>("valueMustBeMissing")) {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<int>("valueMustMatch");
       desc.addUntracked<edm::InputTag>("moduleLabel");
+      desc.addUntracked<bool>("valueMustBeMissing", false);
       descriptions.addDefault(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
-      auto const& prod = iEvent.get(token_);
-      if (prod.value != value_) {
+      auto const& prod = iEvent.getHandle(token_);
+      if (missing_) {
+        if (prod.isValid()) {
+          edm::ProductLabels labels;
+          labelsForToken(token_, labels);
+          throw cms::Exception("ValueNotMissing")
+              << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process
+              << "\" is being produced, which is not expected.";
+        }
+        return;
+      }
+      if (prod->value != value_) {
         edm::ProductLabels labels;
         labelsForToken(token_, labels);
         throw cms::Exception("ValueMismatch")
             << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
-            << prod.value << " but it was supposed to be " << value_;
+            << prod->value << " but it was supposed to be " << value_;
       }
     }
 
   private:
     int const value_;
     edm::EDGetTokenT<IntProduct> const token_;
+    bool const missing_;
   };
 
   //--------------------------------------------------------------------
@@ -265,14 +277,14 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class SCSimpleAnalyzer : public edm::EDAnalyzer {
+  class SCSimpleAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     SCSimpleAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const final;
   };
 
-  void SCSimpleAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void SCSimpleAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     // Get the product back out; it should be sorted.
     edm::Handle<SCSimpleProduct> h;
     e.getByLabel("scs", h);
@@ -330,23 +342,23 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class DSVAnalyzer : public edm::EDAnalyzer {
+  class DSVAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const final;
 
   private:
-    void do_sorted_stuff(edm::Event const& e);
-    void do_unsorted_stuff(edm::Event const& e);
+    void do_sorted_stuff(edm::Event const& e) const;
+    void do_unsorted_stuff(edm::Event const& e) const;
   };
 
-  void DSVAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void DSVAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     do_sorted_stuff(e);
     do_unsorted_stuff(e);
   }
 
-  void DSVAnalyzer::do_sorted_stuff(edm::Event const& e) {
+  void DSVAnalyzer::do_sorted_stuff(edm::Event const& e) const {
     typedef DSVSimpleProduct product_type;
     typedef product_type::value_type detset;
     typedef detset::value_type value_type;
@@ -370,7 +382,7 @@ namespace edmtest {
     }
   }
 
-  void DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) {
+  void DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) const {
     typedef DSVWeirdProduct product_type;
     typedef product_type::value_type detset;
     typedef detset::value_type value_type;

@@ -5,7 +5,8 @@ process = cms.Process("DumpDBToFile")
 process.load("CondCore.CondDB.CondDB_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ''
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
 process.load("CondCore.CondDB.CondDB_cfi")
 

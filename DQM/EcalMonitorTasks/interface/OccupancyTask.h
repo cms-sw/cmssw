@@ -11,6 +11,7 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 namespace ecaldqm {
   class OccupancyTask : public DQWorkerTask {
@@ -29,8 +30,8 @@ namespace ecaldqm {
     void runOnDigis(DigiCollection const&, Collections);
     void runOnTPDigis(EcalTrigPrimDigiCollection const&);
     void runOnRecHits(EcalRecHitCollection const&, Collections);
-    void setEventTime(const edm::TimeValue_t& iTime);
     void setTokens(edm::ConsumesCollector&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   private:
     void setParams(edm::ParameterSet const&) override;
@@ -39,6 +40,12 @@ namespace ecaldqm {
     float recHitThreshold_;
     float tpThreshold_;
     edm::TimeValue_t m_iTime;
+    edm::InputTag metadataTag;
+    edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
+    double scal_pu;
+    bool FindPUinLS = false;
+    int nEv;
+    bool lumiCheck_;
   };
 
   inline bool OccupancyTask::analyze(void const* _p, Collections _collection) {

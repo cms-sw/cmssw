@@ -48,6 +48,7 @@ public:
 private:
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 
   const bool theSaveToDB;  /// whether or not writing to DB
@@ -71,6 +72,7 @@ MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet
   auto cc = setWhatProduced(this);
   geomDetToken_ = cc.consumes();
   ptpToken_ = cc.consumes();
+  ptitpToken_ = cc.consumes();
   topoToken_ = cc.consumes();
 }
 
@@ -87,9 +89,10 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
   // Create the tracker geometry from ideal geometry
   const GeometricDet* gD = &iRecord.get(geomDetToken_);
   const PTrackerParameters& ptp = iRecord.get(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &iRecord.get(ptitpToken_);
 
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  std::unique_ptr<TrackerGeometry> theTracker(trackerBuilder.build(gD, ptp, tTopo));
+  std::unique_ptr<TrackerGeometry> theTracker(trackerBuilder.build(gD, ptitp, ptp, tTopo));
 
   // Create the alignable hierarchy
   auto theAlignableTracker = std::make_unique<AlignableTracker>(&(*theTracker), tTopo);
@@ -97,14 +100,14 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder(&(*theAlignableTracker));
   scenarioBuilder.applyScenario(theScenario);
-  Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
+  Alignments alignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   // Store result to EventSetup
   GeometryAligner aligner;
   aligner.applyAlignments<TrackerGeometry>(&(*theTracker),
-                                           alignments,
-                                           alignmentErrors,
+                                           &alignments,
+                                           &alignmentErrors,
                                            AlignTransform());  // dummy global position
 
   // Write alignments to DB: have to sort beforhand!
@@ -114,16 +117,12 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
     if (!poolDbService.isAvailable())  // Die if not available
       throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
     if (theSaveFakeScenario) {  // make empty!
-      alignments->clear();
-      alignmentErrors->clear();
+      alignments.clear();
+      alignmentErrors.clear();
     }
-    poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
-    poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
-  } else {
-    // poolDbService::writeOne takes over ownership
-    // we have to delete in the case that containers are not written
-    delete alignments;
-    delete alignmentErrors;
+    poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
   }
 
   edm::LogInfo("MisalignedTracker") << "Producer done";

@@ -37,11 +37,10 @@ public:
 
   virtual void updateEditor();
 
-private:
   FWParameterSetterEditorBase(const FWParameterSetterEditorBase&) = delete;  // stop default
 
   const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
 };
 

@@ -7,6 +7,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="Ecal*.cc moduleDD4Hep.cc" name="GeometryEcalAlgoDD4HepPlugin">
+<library file="Ecal*.cc moduleDD4hep.cc" name="GeometryEcalAlgoDD4hepPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>

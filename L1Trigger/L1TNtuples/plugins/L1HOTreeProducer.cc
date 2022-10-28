@@ -9,7 +9,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,10 +30,10 @@
 // class declaration
 //
 
-class L1HOTreeProducer : public edm::EDAnalyzer {
+class L1HOTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1HOTreeProducer(const edm::ParameterSet&);
-  ~L1HOTreeProducer() override;
+  ~L1HOTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -52,21 +52,19 @@ private:
   TTree* tree_;
 
   // EDM input tags
-  edm::EDGetTokenT<edm::SortedCollection<HODataFrame>> hoDataFrameToken_;
+  const edm::EDGetTokenT<edm::SortedCollection<HODataFrame>> hoDataFrameToken_;
 };
 
-L1HOTreeProducer::L1HOTreeProducer(const edm::ParameterSet& iConfig) {
-  hoDataFrameToken_ =
-      consumes<edm::SortedCollection<HODataFrame>>(iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"));
-
+L1HOTreeProducer::L1HOTreeProducer(const edm::ParameterSet& iConfig)
+    : hoDataFrameToken_(consumes<edm::SortedCollection<HODataFrame>>(
+          iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"))) {
   l1HOData = l1HO.getData();
+  usesResource(TFileService::kSharedResource);
 
   // set up output
   tree_ = fs_->make<TTree>("L1HOTree", "L1HOTree");
   tree_->Branch("L1HO", "L1Analysis::L1AnalysisL1HODataFormat", &l1HOData, 32000, 3);
 }
-
-L1HOTreeProducer::~L1HOTreeProducer() {}
 
 //
 // member functions

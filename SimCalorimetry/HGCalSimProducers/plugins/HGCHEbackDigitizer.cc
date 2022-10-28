@@ -25,7 +25,7 @@ public:
 private:
   //calice-like digitization parameters
   uint32_t algo_;
-  bool scaleByTileArea_, scaleBySipmArea_, scaleByDose_, thresholdFollowsMIP_;
+  bool scaleByDose_, thresholdFollowsMIP_;
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   std::string doseMapFile_, sipmMapFile_;
@@ -53,26 +53,31 @@ private:
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
-  scaleByTileArea_ = cfg.getParameter<bool>("scaleByTileArea");
-  scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
-  sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
+  sipmMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   unsigned int scaleByDoseAlgo = cfg.getParameter<edm::ParameterSet>("noise").getParameter<uint32_t>("scaleByDoseAlgo");
   scaleByDoseFactor_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("scaleByDoseFactor");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
+  double refIdark = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("referenceIdark");
+  xTalk_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("referenceXtalk");
   thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
   keV2MIP_ = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_ = 1.0;  //keV2MIP_; // hack for HEB
   this->det_ = DetId::HGCalHSc;
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_ = cfg.getParameter<double>("nTotalPE");
-  xTalk_ = cfg.getParameter<double>("xTalk");
   sdPixels_ = cfg.getParameter<double>("sdPixels");
 
   scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
+  scal_.setReferenceDarkCurrent(refIdark);
   scal_.setFluenceScaleFactor(scaleByDoseFactor_);
   scal_.setSipmMap(sipmMapFile_);
+  scal_.setReferenceCrossTalk(xTalk_);
+  //the ADC will be updated on the fly depending on the gain
+  //but the TDC scale needs to be updated to use pe instead of MIP units
+  if (scaleByDose_)
+    this->myFEelectronics_->setTDCfsc(2 * scal_.getNPeInSiPM());
 }
 
 //
@@ -141,6 +146,20 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
   // needed to compute the radiation and geometry scale factors
   scal_.setGeometry(theGeom);
 
+  //vanilla reference values are indepenent of the ids and were set by
+  //configuration in the python - no need to recomput them every time
+  //in the digitization loop
+  float scaledPePerMip = nPEperMIP_;                                //needed to scale according to tile geometry
+  float tunedNoise = nPEperMIP_ * noise_MIP_;                       //flat noise case
+  float vanillaADCThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
+  float adcLsb(this->myFEelectronics_->getADClsb());
+  float maxADC(-1);  //vanilla will rely on what has been configured by default
+  uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(vanillaADCThr / adcLsb * scaledPePerMip / nPEperMIP_)
+                                       : std::floor(vanillaADCThr / adcLsb));
+  float nTotalPixels(nTotalPE_);
+  float xTalk(xTalk_);
+  int gainIdx(0);
+
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
@@ -148,33 +167,20 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
 
-    float scaledPePerMip = nPEperMIP_;           //needed to scale according to tile geometry
-    float tunedNoise = nPEperMIP_ * noise_MIP_;  //flat noise case
-    float sipmFactor = 1.;                       //standard 2 mm^2 sipm
-
-    if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
-    {
-      double radius(0);
-      if (scaleByTileArea_ or scaleByDose_ or scaleBySipmArea_)
-        radius = scal_.computeRadius(id);
-
-      //take into account the tile size
-      if (scaleByTileArea_)
-        scaledPePerMip *= scal_.scaleByTileArea(id, radius);
-
-      //take into account the darkening of the scintillator and SiPM dark current
-      if (scaleByDose_) {
-        auto dosePair = scal_.scaleByDose(id, radius);
-        scaledPePerMip *= dosePair.first;
-        tunedNoise = dosePair.second;
-      }
-
-      //take into account the sipm size
-      if (scaleBySipmArea_) {
-        sipmFactor = scal_.scaleBySipmArea(id, radius);
-        scaledPePerMip *= sipmFactor;
-        tunedNoise *= sqrt(sipmFactor);
-      }
+    //in case realistic scenario (noise, fluence, dose, sipm/tile area) are to be used
+    //we update vanilla values with the realistic ones
+    if (id.det() == DetId::HGCalHSc && scaleByDose_) {
+      HGCScintillatorDetId scId(id.rawId());
+      double radius = scal_.computeRadius(scId);
+      auto opChar = scal_.scaleByDose(scId, radius);
+      scaledPePerMip = opChar.s;
+      tunedNoise = opChar.n;
+      gainIdx = opChar.gain;
+      thrADC = opChar.thrADC;
+      adcLsb = scal_.getLSBPerGain()[gainIdx];
+      maxADC = scal_.getMaxADCPerGain()[gainIdx] - 1e-6;
+      nTotalPixels = opChar.ntotalPE;
+      xTalk = opChar.xtalk;
     }
 
     //set mean for poissonian noise
@@ -194,28 +200,41 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       const uint32_t npe = npeS + npeN;
 
       //take into account SiPM saturation
-      float nTotalPixels = nTotalPE_ * sipmFactor;
-      const float x = vdt::fast_expf(-((float)npe) / nTotalPixels);
-      uint32_t nPixel(0);
-      if (xTalk_ * x != 1)
-        nPixel = (uint32_t)std::max(nTotalPixels * (1.f - x) / (1.f - xTalk_ * x), 0.f);
-
-      //take into account the gain fluctuations of each pixel
-      //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
-
-      //scale to calibrated response depending on the thresholdFollowsMIP_ flag
-      float totalMIPs = thresholdFollowsMIP_ ? std::max((npe - meanN), 0.f) / nPEperMIP_ : nPixel / nPEperMIP_;
-
-      if (debug && totalIniMIPs > 0) {
-        LogDebug("HGCHEbackDigitizer") << "npeS: " << npeS << " npeN: " << npeN << " npe: " << npe
-                                       << " meanN: " << meanN << " noise_MIP_: " << noise_MIP_
-                                       << " nPEperMIP_: " << nPEperMIP_ << " scaledPePerMip: " << scaledPePerMip
-                                       << " nPixel: " << nPixel;
-        LogDebug("HGCHEbackDigitizer") << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
+      uint32_t nPixel(npe);
+      if (xTalk >= 0) {
+        const float x = vdt::fast_expf(-((float)npe) / nTotalPixels);
+        if (xTalk_ * x != 1)
+          nPixel = (uint32_t)std::max(nTotalPixels * (1.f - x) / (1.f - xTalk_ * x), 0.f);
       }
 
-      //store charge
-      chargeColl[i] = totalMIPs;
+      //take into account the gain fluctuations of each pixel
+      //FDG: just a note for now, par to be defined
+      //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05);
+
+      //realistic behavior: subtract the pedestal
+      //Note: for now the saturation effects are ignored...
+      if (scaleByDose_) {
+        float pedestal(meanN);
+        if (scal_.ignoreAutoPedestalSubtraction())
+          pedestal = 0.f;
+        chargeColl[i] = std::max(nPixel - pedestal, 0.f);
+      }
+      //vanilla simulation: scale back to MIP units... and to calibrated response depending on the thresholdFollowsMIP_ flag
+      else {
+        float totalMIPs = thresholdFollowsMIP_ ? std::max((nPixel - meanN), 0.f) / nPEperMIP_ : nPixel / nPEperMIP_;
+
+        if (debug && totalIniMIPs > 0) {
+          LogDebug("HGCHEbackDigitizer") << "npeS: " << npeS << " npeN: " << npeN << " npe: " << npe
+                                         << " meanN: " << meanN << " noise_MIP_: " << noise_MIP_
+                                         << " nPEperMIP_: " << nPEperMIP_ << " scaledPePerMip: " << scaledPePerMip
+                                         << " nPixel: " << nPixel;
+          LogDebug("HGCHEbackDigitizer") << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs
+                                         << std::endl;
+        }
+
+        //store charge
+        chargeColl[i] = totalMIPs;
+      }
 
       //update time of arrival
       toa[i] = cell.hit_info[1][i];
@@ -225,12 +244,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    float adcThr = this->myFEelectronics_->getADCThreshold();  //this is in MIPs
-    float adcLsb = this->myFEelectronics_->getADClsb();
-    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
-                                         : std::floor(adcThr / adcLsb));
-
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC, adcLsb, gainIdx, maxADC);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);

@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("PixelLumiDQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("PixelLumiDQM", Run3)
 
 unitTest=False
 if 'unitTest=True' in sys.argv:
@@ -72,7 +73,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -112,7 +113,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------
 process.load("DQM.PixelLumi.PixelLumiDQM_cfi") 
 
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.pixel_lumi_dqm.logFileName = "pixel_lumi.txt"
 else:
     process.pixel_lumi_dqm.logFileName = "/nfshome0/dqmpro/pixel_lumi.txt"
@@ -142,3 +143,4 @@ process.p = cms.Path(process.Reco*process.DQMmodules)
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Final Source settings:", process.source)

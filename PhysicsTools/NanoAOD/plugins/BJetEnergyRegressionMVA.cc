@@ -29,15 +29,12 @@
 
 class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
 public:
-  explicit BJetEnergyRegressionMVA(const edm::ParameterSet& iConfig)
-      : BaseMVAValueMapProducer<pat::Jet>(iConfig),
-        pvsrc_(edm::stream::EDProducer<>::consumes<std::vector<reco::Vertex>>(
-            iConfig.getParameter<edm::InputTag>("pvsrc"))),
-        svsrc_(edm::stream::EDProducer<>::consumes<edm::View<reco::VertexCompositePtrCandidate>>(
-            iConfig.getParameter<edm::InputTag>("svsrc"))),
-        rhosrc_(edm::stream::EDProducer<>::consumes<double>(iConfig.getParameter<edm::InputTag>("rhosrc")))
+  explicit BJetEnergyRegressionMVA(const edm::ParameterSet& iConfig, const BaseMVACache* cache)
+      : BaseMVAValueMapProducer<pat::Jet>(iConfig, cache),
+        pvsrc_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvsrc"))),
+        svsrc_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc"))),
+        rhosrc_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhosrc"))) {}
 
-  {}
   void readAdditionalCollections(edm::Event& iEvent, const edm::EventSetup&) override {
     iEvent.getByToken(pvsrc_, pvs_);
     iEvent.getByToken(svsrc_, svs_);

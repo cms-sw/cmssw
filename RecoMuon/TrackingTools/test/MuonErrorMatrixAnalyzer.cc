@@ -61,6 +61,7 @@ MuonErrorMatrixAnalyzer::MuonErrorMatrixAnalyzer(const edm::ParameterSet& iConfi
     Surface::RotationType R;
     refRSurface = Cylinder::build(theRadius, O, R);
     thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
+    thePropagatorToken = esConsumes(edm::ESInputTag("", thePropagatorName));
     theZ = iConfig.getParameter<double>("z");
     if (theZ != 0) {
       //plane can only be specified if R is specified
@@ -139,11 +140,11 @@ void MuonErrorMatrixAnalyzer::analyze_from_errormatrix(const edm::Event& iEvent,
 
   if (theRadius != 0) {
     //get a propagator
-    iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
+    thePropagator = iSetup.getHandle(thePropagatorToken);
   }
 
   //get the mag field
-  iSetup.get<IdealMagneticFieldRecord>().get(theField);
+  theField = iSetup.getHandle(theFieldToken);
 
   //open a collection of track
   edm::Handle<reco::TrackCollection> tracks;
@@ -192,7 +193,7 @@ void MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const 
   using namespace edm;
 
   //get the mag field
-  iSetup.get<IdealMagneticFieldRecord>().get(theField);
+  theField = iSetup.getHandle(theFieldToken);
 
   //open a collection of track
   edm::Handle<View<reco::Track> > tracks;

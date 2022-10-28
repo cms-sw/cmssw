@@ -17,7 +17,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,15 +39,24 @@ static const int kLEAD_WIDTH = 40;  // First field width
 // class declaration
 //
 
-class TestTrackerHierarchy : public edm::EDAnalyzer {
+class TestTrackerHierarchy : public edm::one::EDAnalyzer<> {
 public:
   explicit TestTrackerHierarchy(const edm::ParameterSet& pSet)
-      : dumpAlignments_(pSet.getUntrackedParameter<bool>("dumpAlignments")) {}
+      : tTopoToken_(esConsumes()),
+        tkGeomToken_(esConsumes()),
+        aliToken_(esConsumes()),
+        aliErrToken_(esConsumes()),
+        dumpAlignments_(pSet.getUntrackedParameter<bool>("dumpAlignments")) {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrToken_;
+
   void dumpAlignable(const Alignable*, unsigned int, unsigned int);
   void printInfo(const Alignable*, unsigned int);
   void dumpAlignments(const edm::EventSetup& setup, AlignableTracker* aliTracker) const;
@@ -60,13 +69,10 @@ private:
 
 void TestTrackerHierarchy::analyze(const edm::Event&, const edm::EventSetup& setup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
   edm::LogInfo("TrackerHierarchy") << "Starting!";
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  setup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+
+  const TrackerGeometry* trackerGeometry = &setup.getData(tkGeomToken_);
   alignableTracker_ = std::make_unique<AlignableTracker>(&(*trackerGeometry), tTopo);
 
   leaders_ = "";
@@ -126,8 +132,7 @@ void TestTrackerHierarchy::printInfo(const Alignable* alignable, unsigned int id
 
 //__________________________________________________________________________________________________
 void TestTrackerHierarchy::dumpAlignments(const edm::EventSetup& setup, AlignableTracker* aliTracker) const {
-  edm::ESHandle<Alignments> alignments;
-  setup.get<TrackerAlignmentRcd>().get(alignments);
+  const Alignments* alignments = &setup.getData(aliToken_);
   if (alignments->empty()) {
     edm::LogWarning("TrackerAlignment") << "@SUB=dumpAlignments"
                                         << "No TrackerAlignmentRcd.";

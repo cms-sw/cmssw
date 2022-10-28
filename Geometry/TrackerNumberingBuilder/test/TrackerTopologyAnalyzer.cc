@@ -5,7 +5,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -16,24 +15,29 @@
 
 class TrackerTopologyAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit TrackerTopologyAnalyzer(const edm::ParameterSet&){};
-  ~TrackerTopologyAnalyzer() override{};
+  explicit TrackerTopologyAnalyzer(const edm::ParameterSet&);
+  ~TrackerTopologyAnalyzer() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokTopo_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokGeo_;
 };
+
+TrackerTopologyAnalyzer::TrackerTopologyAnalyzer(const edm::ParameterSet&)
+    : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      tokGeo_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
 void TrackerTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tokTopo_);
 
   typedef std::vector<DetId> DetIdContainer;
 
-  edm::ESHandle<TrackerGeometry> geo;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geo);
+  const auto& geo = iSetup.getHandle(tokGeo_);
 
   DetIdContainer allIds = geo->detIds();
   unsigned int nOk = 0;

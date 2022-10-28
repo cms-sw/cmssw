@@ -11,10 +11,13 @@
 #include "TPaveStats.h"
 #include "TStyle.h"
 #include "TList.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/deltaPhi.h"  // for deltaPhi
+#include "DataFormats/Math/interface/Rounding.h"  // for rounding
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define MMDEBUG // uncomment for debugging at compile time
 #ifdef MMDEBUG
@@ -28,7 +31,29 @@ namespace AlignmentPI {
 
   // size of the phase-I Tracker APE payload (including both SS + DS modules)
   static const unsigned int phase0size = 19876;
-  static const float cmToUm = 10000;
+  static const float cmToUm = 10000.f;
+  static const float tomRad = 1000.f;
+
+  // method to zero all elements whose difference from 2Pi
+  // is less than the tolerance (2*10e-7)
+  inline double returnZeroIfNear2PI(const double phi) {
+    const double tol = 2.e-7;  // default tolerance 1.e-7 doesn't account for possible variations
+    if (cms_rounding::roundIfNear0(std::abs(phi) - 2 * M_PI, tol) == 0.f) {
+      return 0.f;
+    } else {
+      return phi;
+    }
+  }
+
+  // method to bring back around 0 all elements whose  difference
+  // frm 2Pi is is less than the tolerance (in micro-rad)
+  inline double trim2PIs(const double phi, const double tolerance = 1.f) {
+    if (std::abs((std::abs(phi) - 2 * M_PI) * tomRad) < tolerance) {
+      return (std::abs(phi) - 2 * M_PI);
+    } else {
+      return phi;
+    }
+  }
 
   enum coordinate {
     t_x = 1,
@@ -45,7 +70,7 @@ namespace AlignmentPI {
 
   enum index { XX = 1, XY = 2, XZ = 3, YZ = 4, YY = 5, ZZ = 6 };
 
-  enum partitions { BPix = 1, FPix = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+  enum partitions { INVALID = 0, BPix = 1, FPix = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
 
   enum class PARTITION {
     BPIX,   // 0 Barrel Pixel
@@ -864,6 +889,11 @@ namespace AlignmentPI {
                                                   const std::map<AlignmentPI::coordinate, float>& GPR)
   /*--------------------------------------------------------------------*/
   {
+    // zero in the n. modules per partition...
+    for (const auto& p : PARTITIONS) {
+      nmodules[p] = 0.;
+    }
+
     for (const auto& ali : input) {
       if (DetId(ali.rawId()).det() != DetId::Tracker) {
         edm::LogWarning("TkAlBarycenters::computeBarycenters")
@@ -945,19 +975,179 @@ namespace AlignmentPI {
     }
 
     for (const auto& p : PARTITIONS) {
+      // take the arithmetic mean
       Xbarycenters[p] /= nmodules[p];
       Ybarycenters[p] /= nmodules[p];
       Zbarycenters[p] /= nmodules[p];
 
+      // add the Tracker Global Position Record
       Xbarycenters[p] += GPR.at(AlignmentPI::t_x);
       Ybarycenters[p] += GPR.at(AlignmentPI::t_y);
       Zbarycenters[p] += GPR.at(AlignmentPI::t_z);
 
-      COUT << p << "|"
+      COUT << "Partition: " << p << " n. modules: " << nmodules[p] << "|"
            << " X: " << std::right << std::setw(12) << Xbarycenters[p] << " Y: " << std::right << std::setw(12)
            << Ybarycenters[p] << " Z: " << std::right << std::setw(12) << Zbarycenters[p] << std::endl;
     }
   }
+
+  /*--------------------------------------------------------------------*/
+  inline void fillComparisonHistogram(const AlignmentPI::coordinate& coord,
+                                      std::vector<int>& boundaries,
+                                      const std::vector<AlignTransform>& ref_ali,
+                                      const std::vector<AlignTransform>& target_ali,
+                                      std::unique_ptr<TH1F>& compare)
+  /*--------------------------------------------------------------------*/
+  {
+    int counter = 0; /* start the counter */
+    AlignmentPI::partitions currentPart = AlignmentPI::BPix;
+    for (unsigned int i = 0; i < ref_ali.size(); i++) {
+      if (ref_ali[i].rawId() == target_ali[i].rawId()) {
+        counter++;
+        int subid = DetId(ref_ali[i].rawId()).subdetId();
+
+        auto thePart = static_cast<AlignmentPI::partitions>(subid);
+        if (thePart != currentPart) {
+          currentPart = thePart;
+          boundaries.push_back(counter);
+        }
+
+        CLHEP::HepRotation target_rot(target_ali[i].rotation());
+        CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
+
+        align::RotationType target_ROT(target_rot.xx(),
+                                       target_rot.xy(),
+                                       target_rot.xz(),
+                                       target_rot.yx(),
+                                       target_rot.yy(),
+                                       target_rot.yz(),
+                                       target_rot.zx(),
+                                       target_rot.zy(),
+                                       target_rot.zz());
+
+        align::RotationType ref_ROT(ref_rot.xx(),
+                                    ref_rot.xy(),
+                                    ref_rot.xz(),
+                                    ref_rot.yx(),
+                                    ref_rot.yy(),
+                                    ref_rot.yz(),
+                                    ref_rot.zx(),
+                                    ref_rot.zy(),
+                                    ref_rot.zz());
+
+        const std::vector<double> deltaRot = {::deltaPhi(align::toAngles(target_ROT)[0], align::toAngles(ref_ROT)[0]),
+                                              ::deltaPhi(align::toAngles(target_ROT)[1], align::toAngles(ref_ROT)[1]),
+                                              ::deltaPhi(align::toAngles(target_ROT)[2], align::toAngles(ref_ROT)[2])};
+
+        const auto& deltaTrans = target_ali[i].translation() - ref_ali[i].translation();
+
+        switch (coord) {
+          case AlignmentPI::t_x:
+            compare->SetBinContent(i + 1, deltaTrans.x() * AlignmentPI::cmToUm);
+            break;
+          case AlignmentPI::t_y:
+            compare->SetBinContent(i + 1, deltaTrans.y() * AlignmentPI::cmToUm);
+            break;
+          case AlignmentPI::t_z:
+            compare->SetBinContent(i + 1, deltaTrans.z() * AlignmentPI::cmToUm);
+            break;
+          case AlignmentPI::rot_alpha:
+            compare->SetBinContent(i + 1, deltaRot[0] * AlignmentPI::tomRad);
+            break;
+          case AlignmentPI::rot_beta:
+            compare->SetBinContent(i + 1, deltaRot[1] * AlignmentPI::tomRad);
+            break;
+          case AlignmentPI::rot_gamma:
+            compare->SetBinContent(i + 1, deltaRot[2] * AlignmentPI::tomRad);
+            break;
+          default:
+            edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
+            break;
+        }  // switch on the coordinate
+      }    // check on the same detID
+    }      // loop on the components
+  }
+
+  /*--------------------------------------------------------------------*/
+  inline void fillComparisonHistograms(std::vector<int>& boundaries,
+                                       const std::vector<AlignTransform>& ref_ali,
+                                       const std::vector<AlignTransform>& target_ali,
+                                       std::unordered_map<AlignmentPI::coordinate, std::unique_ptr<TH1F> >& compare,
+                                       bool diff = false,
+                                       AlignmentPI::partitions checkPart = AlignmentPI::INVALID)
+  /*--------------------------------------------------------------------*/
+  {
+    int counter = 0; /* start the counter */
+    AlignmentPI::partitions currentPart = AlignmentPI::BPix;
+    for (unsigned int i = 0; i < ref_ali.size(); i++) {
+      if (ref_ali[i].rawId() == target_ali[i].rawId()) {
+        counter++;
+        int subid = DetId(ref_ali[i].rawId()).subdetId();
+
+        auto thePart = static_cast<AlignmentPI::partitions>(subid);
+
+        // in case it has to be filtered
+        if (checkPart > 0 && thePart != checkPart) {
+          continue;
+        }
+
+        if (thePart != currentPart) {
+          currentPart = thePart;
+          boundaries.push_back(counter);
+        }
+
+        CLHEP::HepRotation target_rot(target_ali[i].rotation());
+        CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
+
+        align::RotationType target_ROT(target_rot.xx(),
+                                       target_rot.xy(),
+                                       target_rot.xz(),
+                                       target_rot.yx(),
+                                       target_rot.yy(),
+                                       target_rot.yz(),
+                                       target_rot.zx(),
+                                       target_rot.zy(),
+                                       target_rot.zz());
+
+        align::RotationType ref_ROT(ref_rot.xx(),
+                                    ref_rot.xy(),
+                                    ref_rot.xz(),
+                                    ref_rot.yx(),
+                                    ref_rot.yy(),
+                                    ref_rot.yz(),
+                                    ref_rot.zx(),
+                                    ref_rot.zy(),
+                                    ref_rot.zz());
+
+        const std::vector<double> deltaRot = {::deltaPhi(align::toAngles(target_ROT)[0], align::toAngles(ref_ROT)[0]),
+                                              ::deltaPhi(align::toAngles(target_ROT)[1], align::toAngles(ref_ROT)[1]),
+                                              ::deltaPhi(align::toAngles(target_ROT)[2], align::toAngles(ref_ROT)[2])};
+
+        const auto& deltaTrans = target_ali[i].translation() - ref_ali[i].translation();
+
+        // fill the histograms
+        if (diff) {
+          compare[AlignmentPI::t_x]->Fill(deltaTrans.x() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_y]->Fill(deltaTrans.y() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_z]->Fill(deltaTrans.z() * AlignmentPI::cmToUm);
+
+          compare[AlignmentPI::rot_alpha]->Fill(deltaRot[0] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_beta]->Fill(deltaRot[1] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_gamma]->Fill(deltaRot[2] * AlignmentPI::tomRad);
+        } else {
+          compare[AlignmentPI::t_x]->SetBinContent(i + 1, deltaTrans.x() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_y]->SetBinContent(i + 1, deltaTrans.y() * AlignmentPI::cmToUm);
+          compare[AlignmentPI::t_z]->SetBinContent(i + 1, deltaTrans.z() * AlignmentPI::cmToUm);
+
+          compare[AlignmentPI::rot_alpha]->SetBinContent(i + 1, deltaRot[0] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_beta]->SetBinContent(i + 1, deltaRot[1] * AlignmentPI::tomRad);
+          compare[AlignmentPI::rot_gamma]->SetBinContent(i + 1, deltaRot[2] * AlignmentPI::tomRad);
+        }
+
+      }  // if it's the same detid
+    }    // loop on detids
+  }
+
 }  // namespace AlignmentPI
 
 #endif

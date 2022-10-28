@@ -1,13 +1,8 @@
 #include "RecoJets/JetProducers/interface/JetMuonHitsIDHelper.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-// #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -29,7 +24,8 @@
 
 using namespace std;
 
-reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC) {
+reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC)
+    : trackingGeometryToken_(iC.esConsumes()) {
   isRECO_ = true;  // This will be "true" initially, then if the product isn't found, set to false once
   numberOfHits1RPC_ = 0;
   numberOfHits2RPC_ = 0;
@@ -55,8 +51,7 @@ void reco::helper::JetMuonHitsIDHelper::calculate(const edm::Event& event,
   if (isRECO_) {  // This will be "true" initially, then if the product isn't found, set to false once
 
     // Get tracking geometry
-    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-    iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+    auto const& trackingGeometry = iSetup.getData(trackingGeometryToken_);
 
     //####READ RPC RecHits Collection########
     //#In config: RpcRecHits     = cms.InputTag("rpcRecHits")
@@ -78,7 +73,7 @@ void reco::helper::JetMuonHitsIDHelper::calculate(const edm::Event& event,
       RPCRecHit const& hit = *itRPC;
       DetId detid = hit.geographicalId();
       LocalPoint lp = hit.localPosition();
-      const GeomDet* gd = trackingGeometry->idToDet(detid);
+      const GeomDet* gd = trackingGeometry.idToDet(detid);
       GlobalPoint gp = gd->toGlobal(lp);
       double dR2 = reco::deltaR(jet.eta(), jet.phi(), static_cast<double>(gp.eta()), static_cast<double>(gp.phi()));
       if (dR2 < 0.5) {

@@ -3,13 +3,13 @@ import FWCore.ParameterSet.Config as cms
 # Ideal geometry, needed for transient ECAL alignement
 from Configuration.Geometry.GeometryExtended2017_cff import *
 
-
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon

@@ -13,7 +13,6 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -218,7 +217,6 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   }
 
   std::string alias(cfg.getParameter<std::string>("@module_label"));
-  produces<reco::TrackCollection>().setBranchAlias(alias + "Tracks");
   if (copyExtras_) {
     produces<reco::TrackExtraCollection>().setBranchAlias(alias + "TrackExtras");
     produces<TrackingRecHitCollection>().setBranchAlias(alias + "RecHits");
@@ -227,6 +225,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
     produces<std::vector<Trajectory>>().setBranchAlias(alias + "Trajectories");
     produces<TrajTrackAssociationCollection>().setBranchAlias(alias + "TrajectoryTrackAssociations");
   }
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>().setBranchAlias(alias + "Tracks");
 }
 
 AnalyticalTrackSelector::~AnalyticalTrackSelector() {}

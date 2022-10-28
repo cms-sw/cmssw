@@ -61,12 +61,12 @@ namespace edm {
 class ExpressLumiProducer : public edm::one::EDProducer<edm::BeginLuminosityBlockProducer> {
 public:
   struct PerLSData {
-    unsigned int lsnum;
-    float lumivalue;
-    unsigned long long deadcount;
-    unsigned int numorbit;
-    unsigned int startorbit;
-    unsigned int bitzerocount;
+    unsigned int lsnum = 0;
+    float lumivalue = 0.0;
+    unsigned long long deadcount = 0;
+    unsigned int numorbit = 0;
+    unsigned int startorbit = 0;
+    unsigned int bitzerocount = 0;
     std::vector<float> bunchlumivalue;
     std::vector<float> bunchlumierror;
     std::vector<short> bunchlumiquality;
@@ -215,14 +215,8 @@ void ExpressLumiProducer::fillLSCache(unsigned int runnumber, unsigned int curre
       lsmin = (lsmax - m_cachesize) > 0 ? (lsmax - m_cachesize + 1) : 1;
     }
     for (unsigned int n = lsmin; n <= lsmax; ++n) {
-      PerLSData l;
-      std::vector<float> mytmp(3564, 0.0);
-      l.bunchlumivalue.swap(mytmp);
-      std::vector<float> myerrtmp(3564, 0.0);
-      l.bunchlumierror.swap(myerrtmp);
-      std::vector<short> myqtmp(3564, 0);
-      l.bunchlumiquality.swap(myqtmp);
-      m_lscache.insert(std::make_pair(n, l));
+      m_lscache.insert(std::make_pair(
+          n, PerLSData{.bunchlumivalue = {3564, 0.0}, .bunchlumierror = {3564, 0.0}, .bunchlumiquality = {3564, 0}}));
     }
 
     coral::AttributeList lumisummaryBindVariables;

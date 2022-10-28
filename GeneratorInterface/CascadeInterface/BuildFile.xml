@@ -1,8 +1,0 @@
-<use name="boost"/>
-<use name="clhep"/>
-<use name="pythia6"/>
-<use name="cascade"/>
-<use name="f77compiler"/>
-<export>
-  <lib name="1"/>
-</export>

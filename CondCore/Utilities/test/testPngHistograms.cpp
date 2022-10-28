@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
   std::string tag = std::string("BasicPayload_v10.0");
-  cond::Time_t since = boost::lexical_cast<unsigned long long>("901");
+  cond::Time_t since = std::stoull("901");
 
   std::cout << "## PNG Histo" << std::endl;
 

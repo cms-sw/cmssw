@@ -71,7 +71,8 @@ public:
 
   int nWords() const { return m_WordCounter; }
 
-  void interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
+  void interpretRawData(
+      const bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
 
   int nDigis() const { return m_DigiCounter; }
 
@@ -83,7 +84,8 @@ public:
     short unsigned int fedch;
   };
 
-  void formatRawData(unsigned int lvl1_ID,
+  void formatRawData(const bool& isRun3,
+                     unsigned int lvl1_ID,
                      RawData& fedRawData,
                      const Digis& digis,
                      std::vector<PPSPixelIndex> v_iDdet2fed);
@@ -98,8 +100,8 @@ private:
   bool m_IncludeErrors;
   RPixErrorChecker m_ErrorCheck;
 
-  int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
-  Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
+  int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift, m_COL_shift, m_ROW_shift;
+  Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask, m_COL_mask, m_ROW_mask;
 
   int checkError(const Word32& data) const;
 

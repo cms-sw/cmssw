@@ -20,6 +20,10 @@ public:
   /// Construct with an event. The collections get put into the event when the object instance goes out of scope (i.e. in the destructor).
   RctUnpackCollections(edm::Event& event);
 
+  /// deliberately not implemented!
+  RctUnpackCollections(const RctUnpackCollections&) = delete;             ///< Copy ctor
+  RctUnpackCollections& operator=(const RctUnpackCollections&) = delete;  ///< Assignment op
+
   /// Destructor - the last action of this object is to put the rct collections into the event provided on construction.
   ~RctUnpackCollections();
 
@@ -30,10 +34,6 @@ public:
   }  ///< Input calo regions from the RCT to the RCT.
 
 private:
-  RctUnpackCollections(const RctUnpackCollections&) = delete;  ///< Copy ctor - deliberately not implemented!
-  RctUnpackCollections& operator=(const RctUnpackCollections&) =
-      delete;  ///< Assignment op - deliberately not implemented!
-
   edm::Event&
       m_event;  ///< The event the collections will be put into on destruction of the RctUnpackCollections instance.
 

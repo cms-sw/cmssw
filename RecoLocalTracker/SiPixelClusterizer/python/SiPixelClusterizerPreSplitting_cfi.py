@@ -23,3 +23,11 @@ gpu.toModify(siPixelClustersPreSplitting,
         )
     )
 )
+
+from Configuration.ProcessModifiers.siPixelDigiMorphing_cff import siPixelDigiMorphing
+siPixelDigiMorphing.toModify(
+    siPixelClustersPreSplitting,
+    cpu = dict(
+         src = 'siPixelDigisMorphed'
+    )
+)

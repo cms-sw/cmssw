@@ -3,13 +3,14 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 class CosmicSeedCreator final : public SeedCreator {
 public:
-  CosmicSeedCreator(const edm::ParameterSet &extra) { maxseeds_ = extra.getParameter<int>("maxseeds"); }
+  CosmicSeedCreator(const edm::ParameterSet &extra, edm::ConsumesCollector &&);
 
   ~CosmicSeedCreator() override {}
 
@@ -23,7 +24,9 @@ public:
 private:
   const TrackingRegion *region = nullptr;
   const SeedComparitor *filter = nullptr;
-  edm::ESHandle<MagneticField> bfield;
+  const MagneticField *bfield = nullptr;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
 
   unsigned int maxseeds_;
 };

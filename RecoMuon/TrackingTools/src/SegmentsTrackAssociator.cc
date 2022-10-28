@@ -46,6 +46,7 @@ SegmentsTrackAssociator::SegmentsTrackAssociator(const ParameterSet& iConfig, ed
 
   dtSegmentsToken = iC.consumes<DTRecSegment4DCollection>(theDTSegmentLabel);
   cscSegmentsToken = iC.consumes<CSCSegmentCollection>(theCSCSegmentLabel);
+  trackingGeometryToken = iC.esConsumes();
 }
 
 SegmentsTrackAssociator::~SegmentsTrackAssociator() {}
@@ -58,8 +59,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
   iEvent.getByToken(dtSegmentsToken, dtSegments);
   Handle<CSCSegmentCollection> cscSegments;
   iEvent.getByToken(cscSegmentsToken, cscSegments);
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeometryToken);
 
   DTRecSegment4DCollection::const_iterator segment;
   CSCSegmentCollection::const_iterator segment2;

@@ -3,7 +3,8 @@
 #include "Utilities/StorageFactory/src/Throw.h"
 #include <cassert>
 
-using namespace IOFlags;
+using namespace edm::storage;
+using namespace edm::storage::IOFlags;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -54,24 +55,15 @@ using namespace IOFlags;
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 /** Create a new file object without a file attached to it.  */
-File::File(void) {
-  fd(EDM_IOFD_INVALID);
-  m_flags = 0;
-}
+File::File() : m_fd(EDM_IOFD_INVALID) { m_flags = 0; }
 
 /** Create a new file object from a file descriptor.  The descriptor
     will be closed automatically when the file object is destructed
     if @a autoclose is @c true (the default).  */
-File::File(IOFD fd, bool autoclose /* = true */) {
-  this->fd(fd);
-  m_flags = autoclose ? InternalAutoClose : 0;
-}
+File::File(IOFD fd, bool autoclose /* = true */) : m_fd(fd) { m_flags = autoclose ? InternalAutoClose : 0; }
 
 /** Internal function for copying file objects to retain the state flags. */
-File::File(IOFD fd, unsigned flags) {
-  this->fd(fd);
-  m_flags = flags;
-}
+File::File(IOFD fd, unsigned flags) : m_fd(fd) { m_flags = flags; }
 
 /** Create a new file object by calling #open() with the given arguments.  */
 File::File(const char *name, int flags /*= OpenRead*/, int perms /*= 0666*/) { open(name, flags, perms); }
@@ -115,10 +107,10 @@ File *File::duplicate(bool copy) const {
 /** Internal implementation of #duplicate() to actually duplicate the
     file handle into @a child. */
 File *File::duplicate(File *child) const {
-  IOFD fd = this->fd();
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
   assert(child);
-  child->fd(sysduplicate(fd));
+  child->m_fd = sysduplicate(fd);
   child->m_flags = m_flags;
   return child;
 }
@@ -171,19 +163,19 @@ void File::open(const char *name, int flags /*= OpenRead*/, int perms /*= 0666*/
 
   sysopen(name, flags, perms, newfd, newflags);
 
-  fd(newfd);
+  m_fd = newfd;
   m_flags = newflags;
 }
 
 void File::attach(IOFD fd) {
-  this->fd(fd);
+  m_fd = fd;
   m_flags = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
 /** Prefetch data for the file.  */
 bool File::prefetch(const IOPosBuffer *what, IOSize n) {
-  IOFD fd = this->fd();
+  IOFD fd = m_fd;
   for (IOSize i = 0; i < n; ++i) {
 #if F_RDADVISE
     radvisory info;
@@ -199,12 +191,6 @@ bool File::prefetch(const IOPosBuffer *what, IOSize n) {
   return true;
 }
 
-/** Read from the file.  */
-IOSize File::read(void *into, IOSize n) { return IOChannel::read(into, n); }
-
-/** Read from the file.  */
-IOSize File::readv(IOBuffer *into, IOSize length) { return IOChannel::readv(into, length); }
-
 /** Write to the file.  */
 IOSize File::write(const void *from, IOSize n) {
   // FIXME: This may create a race condition or cause trouble on
@@ -212,7 +198,7 @@ IOSize File::write(const void *from, IOSize n) {
   if (m_flags & OpenAppend)
     position(0, END);
 
-  IOSize s = IOChannel::write(from, n);
+  IOSize s = syswrite(from, n);
 
   if (m_flags & OpenUnbuffered)
     // FIXME: Exception handling?
@@ -228,7 +214,7 @@ IOSize File::writev(const IOBuffer *from, IOSize length) {
   if (m_flags & OpenAppend)
     position(0, END);
 
-  IOSize s = IOChannel::writev(from, length);
+  IOSize s = syswritev(from, length);
 
   if (m_flags & OpenUnbuffered)
     // FIXME: Exception handling?
@@ -238,8 +224,8 @@ IOSize File::writev(const IOBuffer *from, IOSize length) {
 }
 
 /** Close the file.  */
-void File::close(void) {
-  IOFD fd = this->fd();
+void File::close() {
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
 
   int error;
@@ -247,15 +233,15 @@ void File::close(void) {
     throwStorageError("FileCloseError", "Calling File::close()", "sysclose", error);
 
   m_flags &= ~InternalAutoClose;
-  this->fd(EDM_IOFD_INVALID);
+  m_fd = EDM_IOFD_INVALID;
 }
 
 /** Close the file and ignore all errors.  */
-void File::abort(void) {
-  IOFD fd = this->fd();
+void File::abort() {
+  IOFD fd = m_fd;
   if (fd != EDM_IOFD_INVALID) {
     sysclose(fd);
     m_flags &= ~InternalAutoClose;
-    this->fd(EDM_IOFD_INVALID);
+    m_fd = EDM_IOFD_INVALID;
   }
 }

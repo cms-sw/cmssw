@@ -7,6 +7,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -32,6 +33,8 @@ class StripSubClusterShapeFilterBase {
 public:
   StripSubClusterShapeFilterBase(const edm::ParameterSet &iConfig, edm::ConsumesCollector &iC);
   virtual ~StripSubClusterShapeFilterBase();
+
+  static void fillPSetDescription(edm::ParameterSetDescription &iDesc);
 
 protected:
   void setEventBase(const edm::Event &, const edm::EventSetup &);
@@ -85,6 +88,10 @@ public:
       : StripSubClusterShapeFilterBase(iConfig, iC) {}
 
   ~StripSubClusterShapeTrajectoryFilter() override {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+    StripSubClusterShapeFilterBase::fillPSetDescription(iDesc);
+  }
 
   bool qualityFilter(const TempTrajectory &) const override;
   bool qualityFilter(const Trajectory &) const override;

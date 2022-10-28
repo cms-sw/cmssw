@@ -75,7 +75,8 @@ private:
   bool areThereEnoughHits(const ProtoCand& tupl);
 
   // Private attributes
-  bool debug_, allowUncorrelatedPatterns_;
+  const bool debug_;
+  bool allowUncorrelatedPatterns_;
   unsigned short int minNLayerHits_, minSingleSLHitsMax_, minSingleSLHitsMin_, minUncorrelatedHits_, upperNumber_,
       lowerNumber_;
   double angletan_, anglebinwidth_, posbinwidth_, maxdeltaAngDeg_, maxdeltaPos_, maxDistanceToWire_;

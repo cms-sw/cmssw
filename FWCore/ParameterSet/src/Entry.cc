@@ -252,25 +252,25 @@ namespace edm {
         break;
       }
       case kTint64: {  // Int64
-        int val;
+        long long int val;
         if (!decode(val, rep))
           throwEntryError("int64", rep);
         break;
       }
       case kTvint64: {  // vInt64
-        std::vector<int> val;
+        std::vector<long long int> val;
         if (!decode(val, rep))
           throwEntryError("vector<int64>", rep);
         break;
       }
       case kTuint64: {  // Uint64
-        unsigned val;
+        unsigned long long int val;
         if (!decode(val, rep))
           throwEntryError("unsigned int64", rep);
         break;
       }
       case kTvuint64: {  // vUint64
-        std::vector<unsigned> val;
+        std::vector<unsigned long long int> val;
         if (!decode(val, rep))
           throwEntryError("vector<unsigned int64>", rep);
         break;

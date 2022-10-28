@@ -305,8 +305,8 @@ phase2_timing_layer.toModify( theMixObjects,
     )
 )
 
-from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
-ctpps_2021.toModify( theMixObjects,
+from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
+ctpps_2022.toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),cms.InputTag("g4SimHits","CTPPSPixelHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits' ],

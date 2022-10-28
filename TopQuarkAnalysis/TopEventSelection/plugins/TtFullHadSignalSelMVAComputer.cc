@@ -11,46 +11,26 @@
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
 TtFullHadSignalSelMVAComputer::TtFullHadSignalSelMVAComputer(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
-  produces<double>("DiscSel");
-}
-
-TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer() {}
+    : mvaToken_(esConsumes()),
+      jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+      putToken_(produces("DiscSel")) {}
 
 void TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<double> pOutDisc(new double);
+  mvaComputer.update(&setup.getData(mvaToken_), "ttFullHadSignalSelMVA");
 
-  mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
-
-  // read name of the last processor in the MVA calibration
-  // (to be used as meta information)
-  edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtFullHadSignalSelMVARcd>().get(calibContainer);
-  std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
-
-  edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByToken(jetsToken_, jets);
+  const auto& jets = evt.get(jetsToken_);
 
   //calculation of InputVariables
   //see TopQuarkAnalysis/TopTools/interface/TtFullHadSignalSel.h
   //                             /src/TtFullHadSignalSel.cc
   //all objects, jets, which are needed for the calculation
   //of the input-variables have to be passed to this class
-  TtFullHadSignalSel selection(*jets);
+  TtFullHadSignalSel selection(jets);
 
   double discrim = evaluateTtFullHadSignalSel(mvaComputer, selection);
 
-  *pOutDisc = discrim;
-
-  evt.put(std::move(pOutDisc), "DiscSel");
-
-  DiscSel = discrim;
+  evt.emplace(putToken_, discrim);
 }
-
-void TtFullHadSignalSelMVAComputer::beginJob() {}
-
-void TtFullHadSignalSelMVAComputer::endJob() {}
 
 // implement the plugins for the computer container
 // -> register TtFullHadSignalSelMVARcd

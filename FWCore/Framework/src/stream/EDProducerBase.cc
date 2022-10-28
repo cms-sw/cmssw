@@ -69,6 +69,13 @@ void EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 
+size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
+edm::ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
+                                     std::size_t iIndex,
+                                     edm::EventForTransformer& iEvent,
+                                     ServiceWeakToken const& iToken) const {}
+
 void EDProducerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
 static const std::string kBaseType("EDProducer");

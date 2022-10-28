@@ -23,7 +23,7 @@
 
 class CombinedTrajectoryFactory : public TrajectoryFactoryBase {
 public:
-  CombinedTrajectoryFactory(const edm::ParameterSet &config);
+  CombinedTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
   ~CombinedTrajectoryFactory() override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -56,8 +56,8 @@ private:
 
 using namespace std;
 
-CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &config)
-    : TrajectoryFactoryBase(config), theUseAllFactories(config.getParameter<bool>("useAllFactories")) {
+CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config, iC), theUseAllFactories(config.getParameter<bool>("useAllFactories")) {
   vector<string> factoryNames = config.getParameter<vector<string>>("TrajectoryFactoryNames");
   for (auto const &factoryName : factoryNames) {
     // auto_ptr to avoid missing a delete due to throw...
@@ -68,7 +68,7 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &co
                                         << "separated strings, but is '" << factoryName << "'";
     }
     const edm::ParameterSet factoryCfg = config.getParameter<edm::ParameterSet>(namePset->At(1)->GetName());
-    theFactories.emplace_back(TrajectoryFactoryPlugin::get()->create(namePset->At(0)->GetName(), factoryCfg));
+    theFactories.emplace_back(TrajectoryFactoryPlugin::get()->create(namePset->At(0)->GetName(), factoryCfg, iC));
   }
 }
 

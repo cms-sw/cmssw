@@ -177,6 +177,8 @@ private:
 
   const Tokens tokens_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeomToken_;
+
   float minPtToSaveHits_;
   bool saveHitsPlusPi_;
   bool saveHitsPlusHalfPi_;
@@ -193,6 +195,7 @@ EgammaHLTExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset, edm::Consu
 
 EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset)
     : tokens_(pset, consumesCollector()),
+      caloGeomToken_{esConsumes()},
       minPtToSaveHits_(pset.getParameter<double>("minPtToSaveHits")),
       saveHitsPlusPi_(pset.getParameter<bool>("saveHitsPlusPi")),
       saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")),
@@ -295,8 +298,7 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
     egTrigObjColls.emplace_back(std::move(egTrigObjs));
   }
 
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  auto const caloGeomHandle = eventSetup.getHandle(caloGeomToken_);
 
   auto filterAndStoreRecHits = [caloGeomHandle, &event, this](const auto& egTrigObjs, const auto& tokenLabels) {
     for (const auto& tokenLabel : tokenLabels) {

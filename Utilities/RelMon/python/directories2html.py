@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from builtins import range
 from os import chdir,getcwd,listdir,makedirs
 from os.path import basename,join,exists
-import cgi
+import html
 
 import sys
 theargv=sys.argv
@@ -508,7 +508,7 @@ def build_gauge(total_success_rate,minrate=.80,small=False,escaped=False):
     gauge_link+="&chma=10,10,10,0"
   img_tag= '<img src="%s">'%gauge_link
   if escaped:
-    img_tag=cgi.escape(img_tag)    
+    img_tag=html.escape(img_tag)    
   return img_tag
 
 #-------------------------------------------------------------------------------
@@ -624,7 +624,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
 def make_twiki_table(dir_dict,aggregation_rules):
   
   # decide the release
-  meta= dir_dict.items()[0][1].meta
+  meta= list(dir_dict.items())[0][1].meta
   releases=sorted([meta.release1,meta.release2])
   latest_release=releases[1].split("-")[0]
   

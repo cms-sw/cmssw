@@ -16,6 +16,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 namespace edm {
   class EDProductGetter;
@@ -48,15 +49,13 @@ public:
 
   //create the pf candidate to vertex association and the inverse map
   std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>> createMappings(
-      edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup);
+      edm::Handle<reco::PFCandidateCollection> pfCandH);
 
   //create the pf candidate to vertex association map
-  std::unique_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection>,
-                                                                const edm::EventSetup&);
+  std::unique_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection>);
 
   //create the vertex to pf candidate association map
-  std::unique_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection>,
-                                                                const edm::EventSetup&);
+  std::unique_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection>);
 
   //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
   std::unique_ptr<PFCandToVertexAssMap> SortPFCandAssociationMap(PFCandToVertexAssMap*,
@@ -76,7 +75,10 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot_;
   edm::Handle<reco::BeamSpot> beamspotH;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bField_;
   edm::ESHandle<MagneticField> bFieldH;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> token_TrackingGeometry_;
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometryH;
 };
 
 #endif

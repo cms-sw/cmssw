@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -58,9 +59,9 @@ void HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
           if (topology.valid(detId)) {
             auto cell = caloGeom->getGeometry((DetId)(detId));
             if (cell) {
-              std::cout << detId << " " << cell->getPosition() << std::endl;
+              edm::LogVerbatim("HCalGeom") << detId << " " << cell->getPosition();
             } else {
-              std::cout << detId << " position not found" << std::endl;
+              edm::LogVerbatim("HCalGeom") << detId << " position not found";
               ++nfail0;
             }
           }
@@ -73,14 +74,13 @@ void HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
   for (auto id : ids) {
     if (!topology.valid(id)) {
-      std::cout << HcalDetId(id) << " declared as invalid == ERROR\n";
+      edm::LogVerbatim("HCalGeom") << HcalDetId(id) << " declared as invalid == ERROR";
       ++nfail1;
     }
   }
 
-  std::cout << "\nNumber of failures:\nTopology certifies but geometry fails " << nfail0
-            << "\nGeometry certifies but Topology fails " << nfail1 << std::endl
-            << std::endl;
+  edm::LogVerbatim("HCalGeom") << "\nNumber of failures:\nTopology certifies but geometry fails " << nfail0
+                               << "\nGeometry certifies but Topology fails " << nfail1 << std::endl;
 }
 
 DEFINE_FWK_MODULE(HcalDetIdTester);

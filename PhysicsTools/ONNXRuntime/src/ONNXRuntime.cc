@@ -27,9 +27,7 @@ namespace cms::Ort {
     if (session_options) {
       session_ = std::make_unique<Session>(env_, model_path.c_str(), *session_options);
     } else {
-      SessionOptions sess_opts;
-      sess_opts.SetIntraOpNumThreads(1);
-      session_ = std::make_unique<Session>(env_, model_path.c_str(), sess_opts);
+      session_ = std::make_unique<Session>(env_, model_path.c_str(), defaultSessionOptions());
     }
     AllocatorWithDefaultOptions allocator;
 
@@ -78,6 +76,17 @@ namespace cms::Ort {
 
   ONNXRuntime::~ONNXRuntime() {}
 
+  SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend) {
+    SessionOptions sess_opts;
+    sess_opts.SetIntraOpNumThreads(1);
+    if (backend == Backend::cuda) {
+      // https://www.onnxruntime.ai/docs/reference/execution-providers/CUDA-ExecutionProvider.html
+      OrtCUDAProviderOptions options;
+      sess_opts.AppendExecutionProvider_CUDA(options);
+    }
+    return sess_opts;
+  }
+
   FloatArrays ONNXRuntime::run(const std::vector<std::string>& input_names,
                                FloatArrays& input_values,
                                const std::vector<std::vector<int64_t>>& input_shapes,
@@ -104,6 +113,10 @@ namespace cms::Ort {
       } else {
         input_dims = input_shapes[input_pos];
         // rely on the given input_shapes to set the batch size
+        if (input_dims[0] != batch_size) {
+          throw cms::Exception("RuntimeError") << "The first element of `input_shapes` (" << input_dims[0]
+                                               << ") does not match the given `batch_size` (" << batch_size << ")";
+        }
       }
       auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
       if (expected_len != (int64_t)value->size()) {

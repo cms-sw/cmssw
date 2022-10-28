@@ -16,7 +16,7 @@ namespace edm {
   class ParameterSet;
 }
 
-class ParabolicParametrizedMagneticField : public MagneticField {
+class ParabolicParametrizedMagneticField final : public MagneticField {
 public:
   /// Default constructor, use default values for 3.8T map
   explicit ParabolicParametrizedMagneticField();

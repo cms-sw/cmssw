@@ -4,8 +4,16 @@
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
 //         Updated:  May 2020, Suvankar Roy Chowdhury
+
+// std library includes
 #include <fstream>
+#include <iostream>
+
+// root includes
 #include "TNamed.h"
+#include "TMath.h"
+
+// user file includes
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -24,15 +32,9 @@
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
-
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-
-#include "TMath.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
-#include <iostream>
-
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"

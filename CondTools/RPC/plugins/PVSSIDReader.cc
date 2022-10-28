@@ -3,32 +3,31 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondTools/RPC/interface/RPCDBSimSetUp.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 #include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
 
-class PVSSIDReader : public edm::EDAnalyzer {
+class PVSSIDReader : public edm::one::EDAnalyzer<> {
 public:
   PVSSIDReader(const edm::ParameterSet& iConfig);
   ~PVSSIDReader() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+
+private:
+  edm::ESGetToken<RPCObPVSSmap, RPCObPVSSmapRcd> pvssmap_token_;
 };
 
-PVSSIDReader::PVSSIDReader(const edm::ParameterSet& iConfig) {}
+PVSSIDReader::PVSSIDReader(const edm::ParameterSet& iConfig) : pvssmap_token_(esConsumes()) {}
 
 PVSSIDReader::~PVSSIDReader() {}
 
 void PVSSIDReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-  edm::ESHandle<RPCObPVSSmap> pvssmapRcd;
-  evtSetup.get<RPCObPVSSmapRcd>().get(pvssmapRcd);
+  const RPCObPVSSmap* pvssmap = &evtSetup.getData(pvssmap_token_);
   edm::LogInfo("PVSSIDReader") << "[PVSSIDReader::analyze] End Reading Pvssmap" << std::endl;
-
-  const RPCObPVSSmap* pvssmap = pvssmapRcd.product();
   std::vector<RPCObPVSSmap::Item> mypvssmap = pvssmap->ObIDMap_rpc;
   std::vector<RPCObPVSSmap::Item>::iterator ipvssmap;
 

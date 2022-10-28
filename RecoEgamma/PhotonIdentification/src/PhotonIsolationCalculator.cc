@@ -48,6 +48,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   hcalChannelQualityToken_ = decltype(hcalChannelQualityToken_){iC.esConsumes(edm::ESInputTag("", "withTopo"))};
   hcalSevLvlComputerToken_ = decltype(hcalSevLvlComputerToken_){iC.esConsumes()};
   towerMapToken_ = decltype(towerMapToken_){iC.esConsumes()};
+  ecalSevLvlToken_ = iC.esConsumes();
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
@@ -499,12 +500,9 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+  const EcalSeverityLevelAlgo* sevLevel = &iSetup.getData(ecalSevLvlToken_);
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(caloGeometryToken_);
 
   EgammaRecHitIsolation phoIsoEB(
       RCone, RConeInner, etaSlice, etMin, eMin, geoHandle, *rechitsCollectionEB_, sevLevel, DetId::Ecal);

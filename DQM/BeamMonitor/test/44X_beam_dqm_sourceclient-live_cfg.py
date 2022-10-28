@@ -151,6 +151,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
 
     process.p = cms.Path(process.scalersRawToDigi
+                         *process.onlineMetaDataDigis
                          *process.dqmTKStatus
                          *process.hltTriggerTypeFilter
                          *process.dqmcommon
@@ -247,6 +248,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     
     process.p = cms.Path(process.scalersRawToDigi
+                        *process.onlineMetaDataDigis
                         *process.dqmTKStatus
                         *process.hltTriggerTypeFilter
                         *process.filter_step

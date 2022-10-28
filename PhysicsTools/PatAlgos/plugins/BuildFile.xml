@@ -33,6 +33,7 @@
   <use name="RecoMET/METAlgorithms"/>
   <use name="RecoTracker/DeDx"/>
   <use name="TrackingTools/IPTools"/>
+  <use name="TrackingTools/Records"/>
   <use name="RecoTauTag/RecoTau"/>
   <use name="root"/>
 </library>

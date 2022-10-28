@@ -17,7 +17,6 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,6 +26,8 @@
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -43,6 +44,8 @@
 class DTGeometry;
 class DTChamberId;
 class DTLayerId;
+class DTMtime;
+class DTRecoConditions;
 
 class DTRunConditionVarClient : public DQMEDHarvester {
 public:
@@ -99,7 +102,11 @@ private:
   float minBadT0Sigma;
 
   edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
-  const DTMtime* mTimeMap_;
+  const DTMtime* mTimeMap_;  // legacy DB object
+
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
   bool bookingdone;
 

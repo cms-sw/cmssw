@@ -19,6 +19,10 @@ namespace hgcal {
     LayerClusterToCaloParticleAssociator() = default;
     LayerClusterToCaloParticleAssociator(LayerClusterToCaloParticleAssociator &&) = default;
     LayerClusterToCaloParticleAssociator &operator=(LayerClusterToCaloParticleAssociator &&) = default;
+    LayerClusterToCaloParticleAssociator(const LayerClusterToCaloParticleAssociator &) = delete;  // stop default
+    const LayerClusterToCaloParticleAssociator &operator=(const LayerClusterToCaloParticleAssociator &) =
+        delete;  // stop default
+
     ~LayerClusterToCaloParticleAssociator() = default;
 
     // ---------- const member functions ---------------------
@@ -35,11 +39,6 @@ namespace hgcal {
     }
 
   private:
-    LayerClusterToCaloParticleAssociator(const LayerClusterToCaloParticleAssociator &) = delete;  // stop default
-
-    const LayerClusterToCaloParticleAssociator &operator=(const LayerClusterToCaloParticleAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToCaloParticleAssociatorBaseImpl> m_impl;
   };

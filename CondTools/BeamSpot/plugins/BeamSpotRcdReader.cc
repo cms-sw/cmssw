@@ -55,7 +55,6 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   struct theBSfromDB {
     int run;
@@ -70,6 +69,7 @@ private:
     void init();
   } theBSfromDB_;
 
+  const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamSpotToken_;
   edm::Service<TFileService> tFileService;
   TTree* bstree_;
 
@@ -79,22 +79,15 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
-BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig) : bstree_(nullptr) {
+BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig)
+    : beamSpotToken_(esConsumes()), bstree_(nullptr) {
   //now do what ever initialization is needed
   usesResource("TFileService");
   std::string fileName(iConfig.getUntrackedParameter<std::string>("rawFileName"));
   if (!fileName.empty()) {
-    output_.reset(new std::ofstream(fileName.c_str()));
+    output_ = std::make_unique<std::ofstream>(fileName.c_str());
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";
       output_.reset();
@@ -102,10 +95,7 @@ BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig) : bstree_
   }
 }
 
-BeamSpotRcdReader::~BeamSpotRcdReader() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+BeamSpotRcdReader::~BeamSpotRcdReader() = default;
 
 //
 // member functions
@@ -139,19 +129,17 @@ void BeamSpotRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup&
     output << " for runs: " << iEvent.id().run() << " - " << iEvent.id().luminosityBlock() << std::endl;
 
     // Get BeamSpot from EventSetup:
-    edm::ESHandle<BeamSpotObjects> beamhandle;
-    iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
-    const BeamSpotObjects* mybeamspot = beamhandle.product();
+    const BeamSpotObjects* mybeamspot = &iSetup.getData(beamSpotToken_);
 
     theBSfromDB_.run = iEvent.id().run();
     theBSfromDB_.ls = iEvent.id().luminosityBlock();
-    theBSfromDB_.BSx0_ = mybeamspot->GetX();
-    theBSfromDB_.BSy0_ = mybeamspot->GetY();
-    theBSfromDB_.BSz0_ = mybeamspot->GetZ();
-    theBSfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
-    theBSfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
-    theBSfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
-    theBSfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
+    theBSfromDB_.BSx0_ = mybeamspot->x();
+    theBSfromDB_.BSy0_ = mybeamspot->y();
+    theBSfromDB_.BSz0_ = mybeamspot->z();
+    theBSfromDB_.Beamsigmaz_ = mybeamspot->sigmaZ();
+    theBSfromDB_.Beamdxdz_ = mybeamspot->dxdz();
+    theBSfromDB_.BeamWidthX_ = mybeamspot->beamWidthX();
+    theBSfromDB_.BeamWidthY_ = mybeamspot->beamWidthY();
 
     bstree_->Fill();
 
@@ -180,9 +168,6 @@ void BeamSpotRcdReader::beginJob() {
   bstree_->Branch("BeamWidthX", &theBSfromDB_.BeamWidthX_, "BeamWidthX/F");
   bstree_->Branch("BeamWidthY", &theBSfromDB_.BeamWidthY_, "BeamWidthY/F");
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void BeamSpotRcdReader::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BeamSpotRcdReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

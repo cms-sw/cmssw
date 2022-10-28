@@ -16,7 +16,6 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
@@ -31,14 +30,14 @@ using namespace std;
 using namespace edm;
 
 DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset)
-    : theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
+    : theRecHits4DToken_(consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"))),
       //writeVDriftDB_(pset.getUntrackedParameter<bool>("writeVDriftDB", false)),
-      theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")) {
+      theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
+      dtGeomToken_(esConsumes()) {
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Constructor called!";
 
   edm::ConsumesCollector collector(consumesCollector());
   select_ = new DTSegmentSelector(pset, collector);
-  consumes<DTRecSegment4DCollection>(edm::InputTag(theRecHits4DLabel_));
   // the root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTVDriftHistos.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -59,11 +58,10 @@ void DTVDriftSegmentCalibration::analyze(const Event& event, const EventSetup& e
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Get the rechit collection from the event
-  Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel_, all4DSegments);
+  const Handle<DTRecSegment4DCollection>& all4DSegments = event.getHandle(theRecHits4DToken_);
 
   DTChamberId chosenChamberId;
   if (theCalibChamber_ != "All") {

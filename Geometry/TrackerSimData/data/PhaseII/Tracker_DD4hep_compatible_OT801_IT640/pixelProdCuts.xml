@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!--
+============= XML GENERATION METADATA HEADER =============
+tkLayout revision: dev-jan-21-3457-cebbdc7
+tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
+Adinda De Wit (adewit on lxplus733.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2021-04-15.11:52:52
+note: see OT801_IT800_2021_04_15.cfg for full config files
+=========== END XML GENERATION METADATA HEADER ===========
+-->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="trackerProdCuts.xml" eval="true">
+    <SpecPar name="tracker-dead-pixel">
+      <PartSelector path="//Phase2PixelBarrel"/>
+      <PartSelector path="//Phase2PixelEndcap"/>
+      <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1*mm"/>
+    </SpecPar>
+    
+    <SpecPar name="tracker-sens-pixel">
+<PartSelector path="//ITLayer1R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer1R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD1R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9SD2R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD1R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10SD2R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD1R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11SD2R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD1R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12SD2R5EModuleInnerPixelActive"/>
+      <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
+    </SpecPar>
+
+  </SpecParSection>
+</DDDefinition>
+
+

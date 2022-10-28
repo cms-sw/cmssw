@@ -12,7 +12,7 @@ using namespace reco;
 /*************************************************************************************/
 
 PFCand_AssoMapAlgos::PFCand_AssoMapAlgos(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
-    : PF_PU_AssoMapAlgos(iConfig, iC) {
+    : PF_PU_AssoMapAlgos(iConfig, iC), token_bField_(iC.esConsumes()), token_TrackingGeometry_(iC.esConsumes()) {
   input_MaxNumAssociations_ = iConfig.getParameter<int>("MaxNumberOfAssociations");
 
   token_VertexCollection_ = iC.consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
@@ -33,14 +33,15 @@ void PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::Eve
   //get the input vertex collection
   iEvent.getByToken(token_VertexCollection_, vtxcollH);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
+  bFieldH = iSetup.getHandle(token_bField_);
+  trackingGeometryH = iSetup.getHandle(token_TrackingGeometry_);
 }
 
 /*************************************************************************************/
 /* create the pf candidate to vertex association and the inverse map                 */
 /*************************************************************************************/
 std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>>
-PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
+PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfCandH) {
   unique_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
   unique_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
@@ -77,10 +78,11 @@ PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfC
     } else {
       TransientTrack transtrk(PFCtrackref, &(*bFieldH));
       transtrk.setBeamSpot(*beamspotH);
-      transtrk.setES(iSetup);
+      transtrk.setTrackingGeometry(trackingGeometryH);
 
       for (int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite) {
-        VertexStepPair assocVtx = FindAssociation(PFCtrackref, vtxColl_help, bFieldH, iSetup, beamspotH, assoc_ite);
+        VertexStepPair assocVtx =
+            FindAssociation(PFCtrackref, vtxColl_help, bFieldH, trackingGeometryH, beamspotH, assoc_ite);
         int step = assocVtx.second;
         double distance = (IPTools::absoluteImpactParameter3D(transtrk, *(assocVtx.first))).second.value();
 
@@ -107,8 +109,8 @@ PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfC
 /*************************************************************************************/
 
 std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::CreatePFCandToVertexMap(
-    edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
-  return createMappings(pfCandH, iSetup).first;
+    edm::Handle<reco::PFCandidateCollection> pfCandH) {
+  return createMappings(pfCandH).first;
 }
 
 /*************************************************************************************/
@@ -116,8 +118,8 @@ std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::CreatePFCandToVertexM
 /*************************************************************************************/
 
 std::unique_ptr<VertexToPFCandAssMap> PFCand_AssoMapAlgos::CreateVertexToPFCandMap(
-    edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
-  return createMappings(pfCandH, iSetup).second;
+    edm::Handle<reco::PFCandidateCollection> pfCandH) {
+  return createMappings(pfCandH).second;
 }
 
 /*************************************************************************************/

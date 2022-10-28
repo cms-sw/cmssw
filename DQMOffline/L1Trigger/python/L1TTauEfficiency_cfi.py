@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TTauOffline_cfi
-import six
 
 variables = {
     'tau': L1TTauOffline_cfi.tauEfficiencyThresholds,
@@ -34,6 +33,5 @@ l1tTauEfficiency = DQMEDHarvester(
 )
 
 l1tTauEmuEfficiency = l1tTauEfficiency.clone(
-    subDirs=cms.untracked.vstring(
-        'L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco'),
+    subDirs= ['L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco']
 )

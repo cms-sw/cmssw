@@ -27,7 +27,7 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -56,7 +56,7 @@ class L1RCTParameters;
 // class declaration
 //
 
-class L1RCTLutWriter : public edm::EDAnalyzer {
+class L1RCTLutWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1RCTLutWriter(const edm::ParameterSet &);
   ~L1RCTLutWriter() override;

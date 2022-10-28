@@ -118,7 +118,7 @@ namespace trklet {
         throw cms::Exception("BadConfig")
             << __FILE__ << " " << __LINE__ << " maxStep module = " << module << " not known";
       }
-      return maxstep_.at(module) + maxstepoffset_;
+      return extended_ ? (maxstep_.at(module) + maxstepoffset_extended_) : (maxstep_.at(module) + maxstepoffset_);
     }
 
     double zlength() const { return zlength_; }
@@ -224,9 +224,10 @@ namespace trklet {
     unsigned int maxStubsPerBin() const { return maxStubsPerBin_; }
 
     std::string geomext() const {
+      std::string geo = extended_ ? "hourglassExtended" : "hourglass";
       if (combined_)
-        return "hourglassCombined";
-      return extended_ ? "hourglassExtended" : "hourglass";
+        geo += "Combined";
+      return geo;
     }
 
     bool exactderivatives() const { return exactderivatives_; }
@@ -240,6 +241,13 @@ namespace trklet {
     bool doKF() const { return doKF_; }
     bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
+    void setFakefit(bool fakefit) { fakefit_ = fakefit; }
+    bool storeTrackBuilderOutput() const { return storeTrackBuilderOutput_; }
+    void setStoreTrackBuilderOutput(bool storeTrackBuilderOutput) {
+      storeTrackBuilderOutput_ = storeTrackBuilderOutput;
+    }
+    void setRemovalType(std::string removalType) { removalType_ = removalType; }
+    void setDoMultipleMatches(bool doMultipleMatches) { doMultipleMatches_ = doMultipleMatches; }
 
     // configurable
     unsigned int nHelixPar() const { return nHelixPar_; }
@@ -249,6 +257,8 @@ namespace trklet {
     void setExtended(bool extended) { extended_ = extended; }
     bool combined() const { return combined_; }
     void setCombined(bool combined) { combined_ = combined; }
+    bool reduced() const { return reduced_; }
+    void setReduced(bool reduced) { reduced_ = reduced; }
 
     double bfield() const { return bfield_; }
     void setBfield(double bfield) { bfield_ = bfield; }
@@ -278,6 +288,7 @@ namespace trklet {
     void setNbitsseed(unsigned int nbitsseed) { nbitsseed_ = nbitsseed; }
     void setNbitsseedextended(unsigned int nbitsseed) { nbitsseedextended_ = nbitsseed; }
 
+    // Phi width of nonant including overlaps (at widest point).
     double dphisectorHG() const {
       //These values are used in the DTC emulation code.
       double rsectmin = 21.8;
@@ -295,6 +306,7 @@ namespace trklet {
     double phicritminmc() const { return phicritmin() - dphicritmc_; }
     double phicritmaxmc() const { return phicritmax() + dphicritmc_; }
 
+    // Stub digitization granularities
     double kphi() const { return dphisectorHG() / (1 << nphibitsstub(0)); }
     double kphi1() const { return dphisectorHG() / (1 << nphibitsstub(N_LAYER - 1)); }
     double kphi(unsigned int layerdisk) const { return dphisectorHG() / (1 << nphibitsstub(layerdisk)); }
@@ -380,6 +392,7 @@ namespace trklet {
     int chisqphifactbits() const { return chisqphifactbits_; }
     int chisqzfactbits() const { return chisqzfactbits_; }
 
+    // Helix param digisation granularities
     //0.02 here is the maximum range in rinv values that can be represented
     double krinvpars() const {
       int shift = ceil(-log2(0.02 * rmaxdisk_ / ((1 << nbitsrinv_) * dphisectorHG())));
@@ -409,7 +422,7 @@ namespace trklet {
 
     double bendcut(int ibend, int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
-        layerdisk += (N_LAYER - 1);
+        layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
       if (bendcut <= 0.0)
         std::cout << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule << std::endl;
@@ -417,6 +430,10 @@ namespace trklet {
       return bendcut;
     }
 
+    // DTC in given ATCA crate slot.
+    std::string slotToDTCname(unsigned int slot) const { return slotToDTCname_.at(slot); }
+
+    // Tracker layers read by given DTC.
     const std::vector<int>& dtcLayers(const std::string& dtcName) const {
       auto iter = dtclayers_.find(dtcName);
       assert(iter != dtclayers_.end());
@@ -426,10 +443,19 @@ namespace trklet {
     double bendcutte(int ibend, int layerdisk, bool isPSmodule) const { return bendcut(ibend, layerdisk, isPSmodule); }
 
     double bendcutme(int ibend, int layerdisk, bool isPSmodule) const {
-      //FIXME temporary fix until phiprojderdisk bits adjusted. But requires coordinatin with HLS
+      //Should understand why larger cut needed in disks
       double fact = (layerdisk < N_LAYER) ? 1.0 : 1.8;
       return fact * bendcut(ibend, layerdisk, isPSmodule);
     }
+
+    //layers/disks used by each seed
+    std::array<std::array<int, 3>, N_SEED> seedlayers() const { return seedlayers_; }
+
+    //projection layers by seed index. For each seeding index (row) the list of layers that we consider projections to
+    std::array<std::array<unsigned int, N_LAYER - 2>, N_SEED> projlayers() const { return projlayers_; }
+
+    //projection disks by seed index. For each seeding index (row) the list of diks that we consider projections to
+    std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks() const { return projdisks_; }
 
   private:
     std::string fitPatternFile_;
@@ -477,6 +503,11 @@ namespace trklet {
          {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2}},
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
 
+    // FIX: There should be 3 PS10G slots & 3 PS (5G) ones.
+    // (Will change output files used by HLS).
+    std::vector<std::string> slotToDTCname_{
+        "PS10G_1", "PS10G_2", "PS10G_3", "PS10G_4", "PS_1", "PS_2", "2S_1", "2S_2", "2S_3", "2S_4", "2S_5", "2S_6"};
+
     std::map<std::string, std::vector<int> > dtclayers_{{"PS10G_1", {0, 6, 8, 10}},
                                                         {"PS10G_2", {0, 7, 9}},
                                                         {"PS10G_3", {1, 7}},
@@ -520,6 +551,7 @@ namespace trklet {
 
     double ptcutte_{1.8};  //Minimum pt in TE
 
+    // VALUE AUTOMATICALLY INCREASED FOR EXTENDED TRACKING BY PYTHON CFG
     unsigned int nbitstrackletindex_{7};  //Bits used to store the tracklet index
 
     unsigned int nbitsitc_{4};           //Bits used to store the iTC, a unique
@@ -603,14 +635,23 @@ namespace trklet {
          {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
+    // These are the number of bits to represent lutval for VM memories in TE
     std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 11, 0}},
                                                                   {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
                                                                   {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
 
+    // These are the number of bits to represent lutval for VM memories in TED
+    // TO DO: tune lutwidthtabextended_ values
+
+    /* std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtabextended_{ */
+    /*     {{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}}, */
+    /*      {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}}, */
+    /*      {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}}; */
+
     std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtabextended_{
-        {{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}},
-         {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
-         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}};
+        {{{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}},
+         {{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}},
+         {{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}}}};
 
     //layers/disks used by each seed
     std::array<std::array<int, 3>, N_SEED> seedlayers_{{{{0, 1, -1}},   //L1L2
@@ -749,36 +790,62 @@ namespace trklet {
     // Set to 0 (default) means standard truncation
     // Set to large value, e.g. 10000, to disable truncation
     unsigned int maxstepoffset_{0};
+    // turn off truncation for displaced tracking (not implemented properly for displaced seeding)
+    unsigned int maxstepoffset_extended_{10000};
 
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
+
+    //IR should be set to 108 to match the FW for the summer chain, but ultimately should be at 156
     std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
                                                                          //input links running at 25 Gbits/s
-                                                           {"VMR", 108},
-                                                           {"TE", 108},
+                                                           //Set to 108 to match firmware project 240 MHz clock
+
+                                                           {"VMR", 107},
+                                                           {"TE", 107},
                                                            {"TC", 108},
                                                            {"PR", 108},
                                                            {"ME", 108},
-                                                           {"MC", 105},
+                                                           //NOTE: The MC is set to 108, but `mergedepth`
+                                                           //removes 3 iterations to emulate the delay
+                                                           //due to the HLS priority encoder
+                                                           {"MC", 108},
+                                                           {"TB", 108},
                                                            {"MP", 108},
                                                            {"TP", 108},
                                                            {"TRE", 108}};
 
     // If set to true this will generate debub printout in text files
-    std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},           {"TE", false},
-                                                            {"CT", false},           {"HitPattern", false},
-                                                            {"ChiSq", false},        {"Seeds", false},
-                                                            {"FT", false},           {"Residuals", false},
-                                                            {"StubBend", false},     {"MC", false},
-                                                            {"MP", false},           {"ME", false},
-                                                            {"AP", false},           {"VMP", false},
-                                                            {"TrackProjOcc", false}, {"TC", false},
-                                                            {"Pars", false},         {"TPars", false},
-                                                            {"TPD", false},          {"TrackletPars", false},
-                                                            {"TED", false},          {"TP", false},
-                                                            {"TRE", false},          {"VMR", false},
-                                                            {"StubsLayer", false},   {"StubsLayerSector", false},
-                                                            {"HitEff", false},       {"MatchEff", false},
-                                                            {"IFit", false},         {"AS", false}};
+    std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
+                                                            {"TE", false},
+                                                            {"CT", false},
+                                                            {"HitPattern", false},
+                                                            {"ChiSq", false},
+                                                            {"Seeds", false},
+                                                            {"FT", false},
+                                                            {"Residuals", false},
+                                                            {"StubBend", false},
+                                                            {"MC", false},
+                                                            {"MP", false},
+                                                            {"ME", false},
+                                                            {"AP", false},
+                                                            {"VMP", false},
+                                                            {"TrackProjOcc", false},
+                                                            {"TC", false},
+                                                            {"Pars", false},
+                                                            {"TPars", false},
+                                                            {"TPD", false},
+                                                            {"TrackletPars", false},
+                                                            {"TED", false},
+                                                            {"TP", false},
+                                                            {"TRE", false},
+                                                            {"VMR", false},
+                                                            {"StubsLayer", false},
+                                                            {"StubsLayerSector", false},
+                                                            {"HitEff", false},
+                                                            {"MatchEff", false},
+                                                            {"IFit", false},
+                                                            {"AS", false},
+                                                            {"WriteEmptyProj", false}};
 
     std::array<double, N_DSS_MOD> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
     std::array<double, N_DSS_MOD> rDSSouter_mod_{{66.4903, 76.7750, 84.4562, 94.9920, 102.3160}};
@@ -832,8 +899,8 @@ namespace trklet {
     int nrinvBitsTable_{3};  //number of bits for tabulating rinv dependence
 
     unsigned int MEBinsBits_{3};
-    unsigned int MEBinsDisks_{8};  //on each side
-    unsigned int maxStubsPerBin_{16};
+    unsigned int MEBinsDisks_{8};      //on each side
+    unsigned int maxStubsPerBin_{15};  //16 causes overflow!
 
     // Options for chisq fit
     bool exactderivatives_{false};
@@ -848,32 +915,42 @@ namespace trklet {
     unsigned int minIndStubs_{3};  // not used with merge removal
 
 #ifdef USEHYBRID
+    // Duplicate track removal algo. VALUE HERE OVERRIDDEN BY PYTHON CFG
     std::string removalType_{"merge"};
     // "CompareBest" (recommended) Compares only the best stub in each track for each region (best = smallest phi residual)
     // and will merge the two tracks if stubs are shared in three or more regions
     // "CompareAll" Compares all stubs in a region, looking for matches, and will merge the two tracks if stubs are shared in three or more regions
     std::string mergeComparison_{"CompareBest"};
     bool doKF_{true};
-#endif
-
-#ifndef USEHYBRID
-    bool doKF_{false};
+#else
     std::string removalType_{"ichi"};
     std::string mergeComparison_{""};
+    bool doKF_{false};
 #endif
 
+    // VALUE OVERRIDDEN BY PYTHON CFG
     // When false, match calculator does not save multiple matches, even when doKF=true.
     // This is a temporary fix for compatibilty with HLS. We will need to implement multiple match
     // printing in emulator eventually, possibly after CMSSW-integration inspired rewrites
     // Use false when generating HLS files, use true when doing full hybrid tracking
     bool doMultipleMatches_{true};
 
+    // NEXT 2 VALUES OVERRIDDEN BY PYTHON CFG
     // if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage
     bool fakefit_{false};
+    // if true, EDProducer fills additional bit & clock accurate TrackBuilder EDProduct
+    bool storeTrackBuilderOutput_{false};
 
+    // NEXT 3 VALUES OVERRIDDEN BY PYTHON CFG
     unsigned int nHelixPar_{4};  // 4 or 5 param helix fit
     bool extended_{false};       // turn on displaced tracking
-    bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
+    bool reduced_{false};        // use reduced (Summer Chain) config
+
+    // Use combined TP (TE+TC) and MP (PR+ME+MC) configuration (with prompt tracking)
+    bool combined_{false};
+    // N.B. To use combined modules with extended tracking, edit
+    // Tracklet_cfi.py to refer to *_hourglassExtendedCombined.dat,
+    // but leave combined_=false.
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 
@@ -891,7 +968,7 @@ namespace trklet {
   };
 
   constexpr unsigned int N_TILTED_RINGS = 12;  // # of tilted rings per half-layer in TBPS layers
-  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {{7, 11, 15}};  // # of modules/plank in TBPS
+  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {{7, 11, 15}};  // # of flat barrel modules/plank in TBPS
 
   constexpr unsigned int N_TRKLSEED = 7;  // # of tracklet seeds
   constexpr unsigned int N_PROJ = 4;      // # of projections (beyond stubs from tracklet seed)

@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,13 +20,13 @@
 
 #include <iostream>
 
-class CorrectECALIsolation : public edm::EDAnalyzer {
+class CorrectECALIsolation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CorrectECALIsolation(const edm::ParameterSet&);
-  ~CorrectECALIsolation();
+  ~CorrectECALIsolation() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::ParameterSet conf_;
 
@@ -40,6 +40,8 @@ private:
 };
 
 CorrectECALIsolation::CorrectECALIsolation(const edm::ParameterSet& iConfig) : conf_(iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   isData_ = iConfig.getUntrackedParameter<bool>("isData", false);
   tokenGsfElectrons_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("Electrons"));
 

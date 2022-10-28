@@ -1,7 +1,6 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/GenParticleInfoExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -73,8 +72,9 @@ void TrackWithHistory::checkAtEnd(const G4Track* gt) {
                                         << "\nAt end:          " << vmomdir;
     ok = false;
   }
+
   if (!ok)
-    throw SimG4Exception("TrackWithHistory::checkAtEnd failed");
+    G4Exception("TrackWithHistory::checkAtEnd()", "mc001", FatalException, "check at track end failed");
 }
 
 int TrackWithHistory::extractGenID(const G4Track* gt) const {

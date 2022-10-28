@@ -42,6 +42,8 @@ namespace npstat {
     inline explicit ArrayNDScanner(const std::vector<unsigned>& shape) {
       initialize(shape.empty() ? static_cast<unsigned*>(nullptr) : &shape[0], shape.size());
     }
+
+    ArrayNDScanner() = delete;
     //@}
 
     /** Dimensionality of the scan */
@@ -79,8 +81,6 @@ namespace npstat {
     inline void setState(const unsigned long state) { state_ = state <= maxState_ ? state : maxState_; }
 
   private:
-    ArrayNDScanner() = delete;
-
     void initialize(const unsigned* shape, unsigned lenShape);
 
     unsigned long strides_[CHAR_BIT * sizeof(unsigned long)];

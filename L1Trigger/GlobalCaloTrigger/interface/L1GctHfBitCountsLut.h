@@ -1,7 +1,7 @@
 #ifndef L1GCTHFBITCOUNTSLUT_H_
 #define L1GCTHFBITCOUNTSLUT_H_
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 
 #include <vector>

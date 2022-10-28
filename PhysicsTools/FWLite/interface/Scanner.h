@@ -254,7 +254,7 @@ namespace fwlite {
       if (htemplate != nullptr) {
         if ((strcmp(hname, "htemp") == 0) && (strcmp(hname, htemplate->GetName()) != 0))
           htempDelete();
-        hist = (TH1 *)hist->Clone(hname);
+        hist = (TH1 *)htemplate->Clone(hname);
       } else if (drawopt.Contains("SAME", TString::kIgnoreCase)) {
         hist = getSameH1(hname);
       }

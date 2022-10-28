@@ -6,7 +6,7 @@
    \date 19 May 2005
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -17,17 +17,17 @@
 
 namespace edm {
 
-  class TestSchedulerModule2 : public EDProducer {
+  class TestSchedulerModule2 : public global::EDProducer<> {
   public:
     explicit TestSchedulerModule2(ParameterSet const& p) : pset_(p) { produces<edmtest::StringProduct>(); }
 
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const final;
 
   private:
     ParameterSet pset_;
   };
 
-  void TestSchedulerModule2::produce(Event& e, EventSetup const&) {
+  void TestSchedulerModule2::produce(StreamID, Event& e, EventSetup const&) const {
     std::string myname = pset_.getParameter<std::string>("module_name");
     e.put(std::make_unique<edmtest::StringProduct>(myname));
   }

@@ -13,9 +13,9 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToChargedXXbarBuilder.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //---------------
@@ -31,52 +31,50 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(const edm::EventSetup& es,
-                                                         const std::string& d1Name,
-                                                         const std::string& d2Name,
-                                                         double dMass,
-                                                         double dSigma,
-                                                         const BPHRecoBuilder::BPHGenericCollection* d1Collection,
-                                                         const BPHRecoBuilder::BPHGenericCollection* d2Collection)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, d1Collection, d2Collection), pMass(dMass), pSigma(dSigma) {}
+BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& posName,
+                                                         const string& negName,
+                                                         double daugMass,
+                                                         double daugSigma,
+                                                         const BPHRecoBuilder::BPHGenericCollection* posCollection,
+                                                         const BPHRecoBuilder::BPHGenericCollection* negCollection)
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, posName, negName, posCollection, negCollection),
+      BPHDecayToChargedXXbarBuilder(es, posName, negName, daugMass, daugSigma, posCollection, negCollection),
+      pMass(daugMass),
+      pSigma(daugSigma) {}
 
-BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(const edm::EventSetup& es,
-                                                         const std::string& d1Name,
-                                                         const std::string& d2Name,
-                                                         double dMass,
-                                                         double dSigma,
-                                                         const std::vector<reco::VertexCompositeCandidate>* v0Collection,
-                                                         const std::string& searchList)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, v0Collection, searchList), pMass(dMass), pSigma(dSigma) {}
+BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& posName,
+                                                         const string& negName,
+                                                         double daugMass,
+                                                         double daugSigma,
+                                                         const vector<reco::VertexCompositeCandidate>* v0Collection,
+                                                         const string& searchList)
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, posName, negName, v0Collection, searchList),
+      BPHDecayToChargedXXbarBuilder(es, posName, negName, daugMass, daugSigma, nullptr, nullptr),
+      pMass(daugMass),
+      pSigma(daugSigma) {}
 
-BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(
-    const edm::EventSetup& es,
-    const std::string& d1Name,
-    const std::string& d2Name,
-    double dMass,
-    double dSigma,
-    const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
-    const std::string& searchList)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, vpCollection, searchList), pMass(dMass), pSigma(dSigma) {}
-
-//--------------
-// Destructor --
-//--------------
-BPHDecayToV0SameMassBuilder::~BPHDecayToV0SameMassBuilder() {}
+BPHDecayToV0SameMassBuilder::BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& posName,
+                                                         const string& negName,
+                                                         double daugMass,
+                                                         double daugSigma,
+                                                         const vector<reco::VertexCompositePtrCandidate>* vpCollection,
+                                                         const string& searchList)
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, posName, negName, vpCollection, searchList),
+      BPHDecayToChargedXXbarBuilder(es, posName, negName, daugMass, daugSigma, nullptr, nullptr),
+      pMass(daugMass),
+      pSigma(daugSigma) {}
 
 //--------------
 // Operations --
 //--------------
 void BPHDecayToV0SameMassBuilder::buildFromBPHGenericCollection() {
-  BPHDecayToChargedXXbarBuilder b(*evSetup, p1Name, p2Name, pMass, pSigma, p1Collection, p2Collection);
-
-  b.setPtMin(ptMin);
-  b.setEtaMax(etaMax);
-  b.setMassRange(getMassMin(), getMassMax());
-  b.setProbMin(getProbMin());
-
-  cList = b.build();
-
+  BPHDecayToChargedXXbarBuilder::fillRecList();
   return;
 }
 
@@ -84,6 +82,14 @@ BPHPlusMinusCandidatePtr BPHDecayToV0SameMassBuilder::buildCandidate(const reco:
                                                                      const reco::Candidate* c2,
                                                                      const void* v0,
                                                                      v0Type type) {
+  if (c1->p4().pt() < ptMin)
+    return nullptr;
+  if (c2->p4().pt() < ptMin)
+    return nullptr;
+  if (fabs(c1->p4().eta()) > etaMax)
+    return nullptr;
+  if (fabs(c2->p4().eta()) > etaMax)
+    return nullptr;
   BPHPlusMinusCandidatePtr cand = BPHPlusMinusCandidateWrap::create(evSetup);
   if (c1->charge() > 0) {
     cand->add(p1Name, c1, pMass, pSigma);

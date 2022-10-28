@@ -54,11 +54,13 @@ public:
 private:
   std::string label_;
   std::string fname_;
+  edm::ESGetToken<FileBlob, GeometryFileRcd> geomToken_;
 };
 
 ExtractXMLFile::ExtractXMLFile(const edm::ParameterSet& iConfig)
     : label_(iConfig.getUntrackedParameter<std::string>("label", "")),
-      fname_(iConfig.getUntrackedParameter<std::string>("fname", "")) {}
+      fname_(iConfig.getUntrackedParameter<std::string>("fname", "")),
+      geomToken_(esConsumes<FileBlob, GeometryFileRcd>(edm::ESInputTag("", label_))) {}
 
 ExtractXMLFile::~ExtractXMLFile() {}
 
@@ -66,8 +68,7 @@ void ExtractXMLFile::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
 
   std::cout << "Here I am " << std::endl;
-  edm::ESHandle<FileBlob> gdd;
-  iSetup.get<GeometryFileRcd>().get(label_, gdd);
+  edm::ESHandle<FileBlob> gdd = iSetup.getHandle(geomToken_);
   std::ofstream f(fname_.c_str());
   (*gdd).write(f);
   std::cout << "finished" << std::endl;

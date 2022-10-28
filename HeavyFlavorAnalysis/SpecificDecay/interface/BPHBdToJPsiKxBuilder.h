@@ -17,12 +17,16 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -34,20 +38,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBdToJPsiKxBuilder : public BPHDecayToResResBuilder {
+class BPHBdToJPsiKxBuilder
+    : public BPHDecayToResResBuilder<BPHRecoCandidate, BPHPlusMinusCandidate, BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHBdToJPsiKxBuilder(const edm::EventSetup& es,
+  BPHBdToJPsiKxBuilder(const BPHEventSetupWrapper& es,
                        const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
                        const std::vector<BPHPlusMinusConstCandPtr>& kx0Collection)
-      : BPHDecayToResResBuilder(es,
-                                "JPsi",
-                                BPHParticleMasses::jPsiMass,
-                                BPHParticleMasses::jPsiMWidth,
-                                jpsiCollection,
-                                "Kx0",
-                                kx0Collection) {
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth),
+        BPHDecayToResResBuilder(jpsiCollection, "Kx0", kx0Collection) {
     setRes1MassRange(2.80, 3.40);
     setRes2MassRange(0.80, 1.00);
     setMassRange(3.50, 8.00);
@@ -62,7 +63,7 @@ public:
 
   /** Destructor
    */
-  ~BPHBdToJPsiKxBuilder() override {}
+  ~BPHBdToJPsiKxBuilder() override = default;
 
   /** Operations
    */
@@ -77,6 +78,9 @@ public:
   double getJPsiMassMax() const { return getRes1MassMax(); }
   double getKxMassMin() const { return getRes2MassMin(); }
   double getKxMassMax() const { return getRes2MassMax(); }
+
+  /// setup parameters for BPHRecoBuilder
+  void setup(void* parameters) override {}
 };
 
 #endif

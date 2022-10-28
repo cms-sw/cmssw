@@ -14,7 +14,7 @@
 class CSCGeometryAsChambers : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCGeometryAsChambers(const edm::ParameterSet&);
-  ~CSCGeometryAsChambers() override;
+  ~CSCGeometryAsChambers() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -26,19 +26,20 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
 };
 
 CSCGeometryAsChambers::CSCGeometryAsChambers(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(132), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryAsChambers") {}
-
-CSCGeometryAsChambers::~CSCGeometryAsChambers() {}
+    : dashedLineWidth_(132),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryAsChambers"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryAsChambers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << myName() << ": Analyzer..." << std::endl;
   std::cout << "start " << dashedLine_ << std::endl;
 
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const edm::ESHandle<CSCGeometry>& pDD = iSetup.getHandle(tokGeom_);
   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;
   std::cout << " I have " << pDD->dets().size() << " detectors" << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " types"

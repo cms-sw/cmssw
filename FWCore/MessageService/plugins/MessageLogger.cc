@@ -23,6 +23,7 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,6 +31,7 @@
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 
@@ -284,10 +286,14 @@ namespace edm {
       iRegistry.watchPostModuleGlobalBeginRun(this, &MessageLogger::postModuleGlobalBeginRun);
       iRegistry.watchPreModuleGlobalEndRun(this, &MessageLogger::preModuleGlobalEndRun);
       iRegistry.watchPostModuleGlobalEndRun(this, &MessageLogger::postModuleGlobalEndRun);
+      iRegistry.watchPreModuleWriteRun(this, &MessageLogger::preModuleWriteRun);
+      iRegistry.watchPostModuleWriteRun(this, &MessageLogger::postModuleWriteRun);
       iRegistry.watchPreModuleGlobalBeginLumi(this, &MessageLogger::preModuleGlobalBeginLumi);
       iRegistry.watchPostModuleGlobalBeginLumi(this, &MessageLogger::postModuleGlobalBeginLumi);
       iRegistry.watchPreModuleGlobalEndLumi(this, &MessageLogger::preModuleGlobalEndLumi);
       iRegistry.watchPostModuleGlobalEndLumi(this, &MessageLogger::postModuleGlobalEndLumi);
+      iRegistry.watchPreModuleWriteLumi(this, &MessageLogger::preModuleWriteLumi);
+      iRegistry.watchPostModuleWriteLumi(this, &MessageLogger::postModuleWriteLumi);
 
       iRegistry.watchPreEvent(this, &MessageLogger::preEvent);
       iRegistry.watchPostEvent(this, &MessageLogger::postEvent);
@@ -319,6 +325,9 @@ namespace edm {
 
       iRegistry.watchPrePathEvent(this, &MessageLogger::prePathEvent);
       iRegistry.watchPostPathEvent(this, &MessageLogger::postPathEvent);
+
+      iRegistry.watchPreESModule(this, &MessageLogger::preESModule);
+      iRegistry.watchPostESModule(this, &MessageLogger::postESModule);
 
       MessageDrop* messageDrop = MessageDrop::instance();
       nonModule_debugEnabled = messageDrop->debugEnabled;
@@ -702,6 +711,15 @@ namespace edm {
       unEstablishModule(mod, "AfterModGlobalEndLumi");
     }
 
+    void MessageLogger::preModuleWriteLumi(GlobalContext const& context, ModuleCallingContext const& mod) {
+      establishModule(lumiInfoBegin_ + context.luminosityBlockIndex().value(),
+                      mod,
+                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kWriteLuminosityBlock)]);
+    }
+    void MessageLogger::postModuleWriteLumi(GlobalContext const& stream, ModuleCallingContext const& mod) {
+      unEstablishModule(mod, "AfterModWriteLumi");
+    }
+
     void MessageLogger::preModuleGlobalEndRun(GlobalContext const& context, ModuleCallingContext const& mod) {
       establishModule(runInfoBegin_ + context.runIndex().value(),
                       mod,
@@ -709,6 +727,15 @@ namespace edm {
     }
     void MessageLogger::postModuleGlobalEndRun(GlobalContext const& stream, ModuleCallingContext const& mod) {
       unEstablishModule(mod, "AfterModGlobalEndRun");
+    }
+
+    void MessageLogger::preModuleWriteRun(GlobalContext const& context, ModuleCallingContext const& mod) {
+      establishModule(runInfoBegin_ + context.runIndex().value(),
+                      mod,
+                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kWriteRun)]);
+    }
+    void MessageLogger::postModuleWriteRun(GlobalContext const& stream, ModuleCallingContext const& mod) {
+      unEstablishModule(mod, "AfterModWriteRun");
     }
 
     void MessageLogger::preModuleEndStream(StreamContext const&, ModuleCallingContext const& mcc) {
@@ -728,6 +755,22 @@ namespace edm {
       unEstablishModule(iDescription, "AfterModEndJob");
     }
 
+    void MessageLogger::preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const& context) {
+      MessageDrop* messageDrop = MessageDrop::instance();
+      auto desc = context.componentDescription();
+      // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
+      // Change Log 17
+      auto label = &desc->label_;
+      if (label->empty() or (*label)[0] == '\0') {
+        label = &desc->type_;
+      }
+      //make sure ES module IDs do not conflict with ED module IDs
+      messageDrop->setModuleWithPhase(desc->type_, *label, 1000000 + desc->id_, "@callESModule");
+    }
+    void MessageLogger::postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&) {
+      MessageDrop* messageDrop = MessageDrop::instance();
+      messageDrop->setSinglet("@finishedCallESModule");  // Change Log 17
+    }
     //
     // callbacks that don't know about the module
     //
@@ -748,9 +791,9 @@ namespace edm {
     void MessageLogger::preSourceRunLumi() { establish("source"); }
     void MessageLogger::postSourceRunLumi() { unEstablish("AfterSource"); }
 
-    void MessageLogger::preFile(std::string const&, bool) { establish("file_open"); }
-    void MessageLogger::preFileClose(std::string const&, bool) { establish("file_close"); }
-    void MessageLogger::postFile(std::string const&, bool) { unEstablish("AfterFile"); }
+    void MessageLogger::preFile(std::string const&) { establish("file_open"); }
+    void MessageLogger::preFileClose(std::string const&) { establish("file_close"); }
+    void MessageLogger::postFile(std::string const&) { unEstablish("AfterFile"); }
 
     void MessageLogger::preEvent(StreamContext const& iContext) {
       assert(iContext.streamID().value() < transitionInfoCache_.size());

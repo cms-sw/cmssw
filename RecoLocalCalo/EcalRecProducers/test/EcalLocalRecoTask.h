@@ -1,5 +1,5 @@
-#ifndef EcalLocalRecoTask_H
-#define EcalLocalRecoTask_H
+#ifndef RecoLocalCalo_EcalRecProducers_EcalLocalRecoTask_h
+#define RecoLocalCalo_EcalRecProducers_EcalLocalRecoTask_h
 
 /*
  * \file EcalLocalRecoTask.h
@@ -8,11 +8,10 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,6 +19,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
@@ -29,32 +31,24 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
-#include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <string>
 
-class EcalLocalRecoTask : public edm::EDAnalyzer {
+class EcalLocalRecoTask : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   /// Constructor
-  EcalLocalRecoTask(const edm::ParameterSet& ps);
+  explicit EcalLocalRecoTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalLocalRecoTask();
+  ~EcalLocalRecoTask() override;
 
-protected:
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  // BeginJob
-  void beginJob();
-
-  // EndJob
-  void endJob(void);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
@@ -77,6 +71,8 @@ private:
   edm::EDGetTokenT<ESDigiCollection> ESdigiToken_;
 
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> cfToken_;
+
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalToken_;
 
   MonitorElement* meEBUncalibRecHitMaxSampleRatio_;
   MonitorElement* meEBUncalibRecHitPedestal_;

@@ -3,12 +3,15 @@
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include "ConversionRegion.h"
 
 class DetLayer;
+class IdealMagneticFieldRecord;
+class MagneticField;
 class TrackingRegion;
 
 class dso_hidden HitPairGeneratorFromLayerPairForPhotonConversion {  // : public HitPairGenerator {
@@ -18,7 +21,8 @@ public:
   typedef SeedingLayerSetsHits::SeedingLayerSet Layers;
   typedef SeedingLayerSetsHits::SeedingLayer Layer;
 
-  HitPairGeneratorFromLayerPairForPhotonConversion(unsigned int inner,
+  HitPairGeneratorFromLayerPairForPhotonConversion(edm::ConsumesCollector iC,
+                                                   unsigned int inner,
                                                    unsigned int outer,
                                                    LayerCacheType* layerCache,
                                                    unsigned int nSize = 30000,
@@ -41,9 +45,12 @@ public:
                    float& Phimax,
                    const DetLayer& layer,
                    const ConversionRegion& convRegion,
-                   const edm::EventSetup& es);
-  bool getPhiRange(
-      float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const edm::EventSetup& es);
+                   const MagneticField& field);
+  bool getPhiRange(float& Phimin,
+                   float& Phimax,
+                   const float& layerR,
+                   const ConversionRegion& convRegion,
+                   const MagneticField& field);
   bool checkRZCompatibilityWithSeedTrack(const RecHitsSortedInPhi::Hit& hit,
                                          const DetLayer& layer,
                                          const ConversionRegion& convRegion);
@@ -55,6 +62,7 @@ private:
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
   const unsigned int theMaxElement;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
   std::stringstream ss;
 };

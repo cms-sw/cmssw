@@ -6,14 +6,14 @@
  *  \author Chang Liu - Purdue University <chang.liu@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 class MuonServiceProxy;
 
-class CosmicMuonLinksProducer : public edm::EDProducer {
+class CosmicMuonLinksProducer : public edm::stream::EDProducer<> {
 public:
   explicit CosmicMuonLinksProducer(const edm::ParameterSet&);
 

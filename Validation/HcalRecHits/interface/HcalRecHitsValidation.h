@@ -57,7 +57,7 @@
 class HcalRecHitsValidation : public DQMEDAnalyzer {
 public:
   HcalRecHitsValidation(edm::ParameterSet const &conf);
-  ~HcalRecHitsValidation() override;
+  ~HcalRecHitsValidation() override = default;
   void analyze(edm::Event const &ev, edm::EventSetup const &c) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -68,26 +68,27 @@ private:
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1, double phi2);
 
-  std::string topFolderName_;
-
-  std::string outputFile_;
-  std::string hcalselector_;
-  std::string ecalselector_;
-  std::string sign_;
-  std::string mc_;
-  bool testNumber_;
+  const std::string topFolderName_;
+  const std::string outputFile_;
+  const std::string hcalselector_;
+  const std::string ecalselector_;
+  const std::string sign_;
+  const std::string mc_;
+  const bool testNumber_;
 
   // RecHit Collection input tags
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<EBRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EERecHitCollection> tok_EE_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hh_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
-  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  const edm::InputTag EBRecHitCollectionLabel_;
+  const edm::InputTag EERecHitCollectionLabel_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const edm::EDGetTokenT<EBRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EERecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hh_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
 
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_Geom_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_Geom_;
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;

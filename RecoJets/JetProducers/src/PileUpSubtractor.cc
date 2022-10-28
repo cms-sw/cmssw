@@ -19,6 +19,7 @@ using namespace std;
 
 PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
   geo_ = nullptr;
+  geoToken_ = iC.esConsumes();
   doAreaFastjet_ = iConfig.getParameter<bool>("doAreaFastjet");
   doRhoFastjet_ = iConfig.getParameter<bool>("doRhoFastjet");
   nSigmaPU_ = iConfig.getParameter<double>("nSigmaPU");
@@ -58,9 +59,7 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetu
   LogDebug("PileUpSubtractor") << "The subtractor setting up geometry...\n";
 
   if (geo_ == nullptr) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = pG.product();
+    geo_ = &iSetup.getData(geoToken_);
     std::vector<DetId> alldid = geo_->getValidDetIds();
 
     int ietaold = -10000;

@@ -30,6 +30,8 @@ public:
   uint32 size() const;
   uint32 bufferSize() const { return size_; }
 
+  static uint32 computeHeaderSize(uint32 l1t_bit_count, uint32 hlt_bit_count);
+
 private:
   uint8* buf_;
   uint32 size_;

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -61,13 +61,14 @@
 // class decleration
 //
 
-class TrackCount : public edm::EDAnalyzer {
+class TrackCount : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit TrackCount(const edm::ParameterSet&);
   ~TrackCount() override;
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -145,6 +146,7 @@ TrackCount::TrackCount(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
+  usesResource(TFileService::kSharedResource);
   // histogram parameters
 
   const unsigned int netabin1d = iConfig.getUntrackedParameter<unsigned int>("netabin1D", 120);

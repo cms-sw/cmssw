@@ -6,8 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtendedReco_cff")
 
 #Magnetic Field
 #
@@ -25,22 +24,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.MaterialBudget=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

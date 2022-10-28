@@ -45,7 +45,7 @@ protected:
   const TClass *m_modelType;
   mutable void *m_data;
 
-private:
+public:
   FWItemRandomAccessorBase(const FWItemRandomAccessorBase &) = delete;  // stop default
 
   const FWItemRandomAccessorBase &operator=(const FWItemRandomAccessorBase &) = delete;  // stop default

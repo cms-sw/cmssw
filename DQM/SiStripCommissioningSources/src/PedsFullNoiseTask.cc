@@ -9,8 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/lexical_cast.hpp"
-
 // -----------------------------------------------------------------------------
 //
 PedsFullNoiseTask::PedsFullNoiseTask(DQMStore* dqm, const FedChannelConnection& conn, const edm::ParameterSet& pset)

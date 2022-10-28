@@ -9,7 +9,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,9 +21,6 @@
 
 class EcalZeroSuppressionProducer : public edm::stream::EDProducer<> {
 public:
-  // The following is not yet used, but will be the primary
-  // constructor when the parameter set system is available.
-  //
   explicit EcalZeroSuppressionProducer(const edm::ParameterSet &params);
   ~EcalZeroSuppressionProducer() override;
 
@@ -34,20 +30,21 @@ public:
   void initCalibrations(const edm::EventSetup &eventSetup);
 
 private:
-  double glbBarrelThreshold_;
-  double glbEndcapThreshold_;
+  const double glbBarrelThreshold_;
+  const double glbEndcapThreshold_;
 
-  std::string digiProducer_;        // name of module/plugin/producer making digis
-  std::string EBdigiCollection_;    // secondary name given to collection of digis
-  std::string EEdigiCollection_;    // secondary name given to collection of digis
-  std::string EBZSdigiCollection_;  // secondary name given to collection of digis
-  std::string EEZSdigiCollection_;  // secondary name given to collection of digis
+  const std::string digiProducer_;        // name of module/plugin/producer making digis
+  const std::string ebDigiCollection_;    // secondary name given to collection of digis
+  const std::string eeDigiCollection_;    // secondary name given to collection of digis
+  const std::string ebZSdigiCollection_;  // secondary name given to collection of digis
+  const std::string eeZSdigiCollection_;  // secondary name given to collection of digis
 
   EcalZeroSuppressor<EBDataFrame> theBarrelZeroSuppressor_;
   EcalZeroSuppressor<EEDataFrame> theEndcapZeroSuppressor_;
 
-  edm::EDGetTokenT<EBDigiCollection> EB_token;
-  edm::EDGetTokenT<EEDigiCollection> EE_token;
+  const edm::EDGetTokenT<EBDigiCollection> ebToken_;
+  const edm::EDGetTokenT<EEDigiCollection> eeToken_;
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalToken_;
 };
 
 #endif

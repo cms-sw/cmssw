@@ -1,7 +1,30 @@
-#include "CondTools/SiStrip/plugins/SiStripThresholdBuilder.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
 #include <iostream>
 #include <fstream>
+
+class SiStripThresholdBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripThresholdBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripThresholdBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::FileInPath fp_;
+  uint32_t printdebug_;
+};
 
 SiStripThresholdBuilder::SiStripThresholdBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
@@ -14,10 +37,13 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
   edm::LogInfo("SiStripThresholdBuilder")
       << "... creating dummy SiStripThreshold Data for Run " << run << "\n " << std::endl;
 
-  SiStripThreshold* obj = new SiStripThreshold();
+  SiStripThreshold obj;
+
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
 
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+  for (const auto& it : DetInfos) {
     count++;
     //Generate Pedestal for det detid
     SiStripThreshold::Container theSiStripVector;
@@ -32,7 +58,7 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
       }
       float cTh = (CLHEP::RandFlat::shoot(1.) * 30.);
 
-      obj->setData(strip, lTh, hTh, cTh, theSiStripVector);
+      obj.setData(strip, lTh, hTh, cTh, theSiStripVector);
       if (count < (int)printdebug_) {
         std::stringstream ss;
         theSiStripVector.back().print(ss);
@@ -45,10 +71,10 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
             << "FirstStrip_and_Hth: " << theSiStripVector.back().FirstStrip_and_Hth << " \n"
             << ss.str() << std::endl;
       }
-      obj->setData(strip + 1, lTh, hTh, theSiStripVector);
+      obj.setData(strip + 1, lTh, hTh, theSiStripVector);
       strip = (uint16_t)(CLHEP::RandFlat::shoot(strip + 2, 128 * it.second.nApvs));
     }
-    if (!obj->put(it.first, theSiStripVector))
+    if (!obj.put(it.first, theSiStripVector))
       edm::LogError("SiStripThresholdBuilder")
           << "[SiStripThresholdBuilder::analyze] detid already exists" << std::endl;
   }
@@ -58,12 +84,16 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripThresholdRcd")) {
-      mydbservice->createNewIOV<SiStripThreshold>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripThresholdRcd");
+      mydbservice->createOneIOV<SiStripThreshold>(obj, mydbservice->beginOfTime(), "SiStripThresholdRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripThreshold>(obj, mydbservice->currentTime(), "SiStripThresholdRcd");
+      mydbservice->appendOneIOV<SiStripThreshold>(obj, mydbservice->currentTime(), "SiStripThresholdRcd");
     }
   } else {
     edm::LogError("SiStripThresholdBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripThresholdBuilder);

@@ -15,6 +15,8 @@
 #include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 #include <vector>
 
 class SectorProcessorShower {
@@ -32,9 +34,14 @@ private:
   bool is_in_sector_csc(int tp_endcap, int tp_sector) const;
 
   int verbose_, endcap_, sector_;
+  // nominal trigger for physics
   bool enableOneNominalShower_;
+  // backup trigger
+  bool enableOneTightShower_;
+  // trigger to extend the physics reach
   bool enableTwoLooseShowers_;
   unsigned nNominalShowers_;
+  unsigned nTightShowers_;
   unsigned nLooseShowers_;
 };
 

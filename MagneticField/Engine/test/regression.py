@@ -10,7 +10,7 @@ options.register('producerType',
                  'static_DDD', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4Hep', 'fromDB', 'fromDB_DD4Hep'")
+                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4hep', 'fromDB', 'fromDB_DD4hep'")
 
 options.register('era',
                  'RunII', #default value
@@ -22,7 +22,7 @@ options.register('current',
                  18000, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T; -1=loop in different IOV")
+                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T; -1=loop in different IOVs, to test switching currents in the same job")
 
 options.parseArguments()
 
@@ -37,12 +37,15 @@ process.maxEvents = cms.untracked.PSet(
 
 REFERENCEFILE = 'none'
 
-if options.current < 0 : # Test all currents, simulating different IOVs with different values runInfo
-                         # FIXME: currents are set all equal for the time being because we need to set up a way to specify the correct
-                         # reference file file to be picked for each at runtime.
-    if options.producerType == 'static_DDD' or options.producerType == 'static_DD4Hep' :
+if options.current < 0 : # Test switching of maps in the same job, simulating different IOVs with different currents in runInfo
+    # Note that this currently crashes with producerType='fromDB_DD4hep' when a different geometry has to be created in the switch, due a limitation of DD4hep.
+    
+    # FIXME: Only build the map and print the field at IP - no regression is actually run. To do that we would need to set up a mechanism to specify the
+    # reference file file to be picked for each current at runtime.
+    REFERENCEFILE = ''
+
+    if options.producerType == 'static_DDD' or options.producerType == 'static_DD4hep' :
         sys.exit('Invalid configuration: current=-1 mode is not supported with static prouducers')
-    process.maxEvents.input = 4
     process.source.numberEventsInLuminosityBlock =cms.untracked.uint32(1)
 
     if options.era=='RunI':
@@ -51,12 +54,19 @@ if options.current < 0 : # Test all currents, simulating different IOVs with dif
             cms.LuminosityBlockID(20,2),
             cms.LuminosityBlockID(30,3),
             cms.LuminosityBlockID(40,4),
+            cms.LuminosityBlockID(50,5),
             )
+
+        process.riSource = cms.ESSource("EmptyESSource", recordName = cms.string("RunInfoRcd"),
+                                        iovIsRunNotTime = cms.bool(True),
+                                        firstValid = cms.vuint32(10,20,30,40,50))
+
         process.add_( cms.ESProducer("RunInfoTestESProducer",
                                      runInfos = cms.VPSet(cms.PSet(run = cms.int32(10), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(20), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(30), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(40), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(20), avg_current = cms.double(16000.)),
+                                                          cms.PSet(run = cms.int32(30), avg_current = cms.double(14000.)),
+                                                          cms.PSet(run = cms.int32(40), avg_current = cms.double(10000.)),
+                                                          cms.PSet(run = cms.int32(50), avg_current = cms.double(0.)),
                                                           ) ) )
     else :
         process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(
@@ -64,20 +74,19 @@ if options.current < 0 : # Test all currents, simulating different IOVs with dif
             cms.LuminosityBlockID(300002,2),
             cms.LuminosityBlockID(300003,3),
             cms.LuminosityBlockID(300004,4),
+            cms.LuminosityBlockID(300005,5),
             )
         process.add_( cms.ESProducer("RunInfoTestESProducer",
                                      runInfos = cms.VPSet(cms.PSet(run = cms.int32(300001), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300002), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300003), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300004), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(300002), avg_current = cms.double(16000.)),
+                                                          cms.PSet(run = cms.int32(300003), avg_current = cms.double(14000.)),
+                                                          cms.PSet(run = cms.int32(300004), avg_current = cms.double(10000.)),
+                                                          cms.PSet(run = cms.int32(300005), avg_current = cms.double(0.)),
                                                           ) ) )
         
 
-    process.riSource = cms.ESSource("EmptyESSource", recordName = cms.string("RunInfoRcd"),
-                                iovIsRunNotTime = cms.bool(True),
-                                firstValid = cms.vuint32(10,20,30,40))
+    process.maxEvents.input = len(process.source.firstLuminosityBlockForEachRun)
 
-    REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin' #FIXME cf. comment above.
 
 if options.current > 18765 or (options.current <= 4779 and options.current>0) :
     sys.exit('ERROR: invalid current value: ' +  str(options.current))
@@ -113,7 +122,7 @@ if options.producerType == 'static_DDD':
         process.load("MagneticField.Engine.volumeBasedMagneticField_71212_cfi") #2.0T
 
 
-elif options.producerType == 'static_DD4Hep' :
+elif options.producerType == 'static_DD4hep' :
     process.load("MagneticField.Engine.volumeBasedMagneticField_dd4hep_160812_cfi") 
     if options.current > 17543 :
         if options.era == 'RunI' :
@@ -125,13 +134,13 @@ elif options.producerType == 'static_DD4Hep' :
         process.VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3t')
         process.ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_0T')
     elif options.current > 4779 :
-        sys.exit('ERROR: Unsupported current for static_DD4Hep: ' + str(options.current))
+        sys.exit('ERROR: Unsupported current for static_DD4hep: ' + str(options.current))
 
 
-elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4Hep':
+elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4hep':
     if options.producerType == 'fromDB':
         process.load("Configuration.StandardSequences.MagneticField_cff")
-    elif options.producerType == 'fromDB_DD4Hep':
+    elif options.producerType == 'fromDB_DD4hep':
         process.load("MagneticField.Engine.volumeBasedMagneticFieldFromDB_dd4hep_cfi")
 
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

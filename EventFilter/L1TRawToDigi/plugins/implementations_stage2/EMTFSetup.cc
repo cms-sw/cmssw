@@ -36,10 +36,12 @@ namespace l1t {
 
     void EMTFSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<RegionalMuonCandBxCollection>();
+      prod.produces<RegionalMuonShowerBxCollection>();
       prod.produces<EMTFDaqOutCollection>();
       prod.produces<EMTFHitCollection>();
       prod.produces<EMTFTrackCollection>();
       prod.produces<CSCCorrelatedLCTDigiCollection>();
+      prod.produces<CSCShowerDigiCollection>();
       prod.produces<CPPFDigiCollection>();
       prod.produces<GEMPadDigiClusterCollection>();
     }
@@ -69,8 +71,11 @@ namespace l1t {
       auto emtf_trailers_unp =
           UnpackerFactory::get()->make("stage2::emtf::TrailersBlockUnpacker");  // Unpack "Event Record Trailer"
 
-      // Currently only the CSC LCT unpacking needs the firmware version, can add others as needed - AWB 09.04.18
+      // All unpacker units apart from header and trailer now requires algo version - EY 14.09.22
       emtf_me_unp->setAlgoVersion(fw);
+      emtf_sp_unp->setAlgoVersion(fw);
+      emtf_rpc_unp->setAlgoVersion(fw);
+      emtf_gem_unp->setAlgoVersion(fw);
 
       // Index of res is block->header().getID(), matching block_patterns_ in src/Block.cc
       res[l1t::mtf7::EvHd] = emtf_headers_unp;

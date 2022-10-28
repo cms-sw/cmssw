@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,8 +32,9 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "PhysicsTools/HepMCCandAlgos/interface/PdgEntryReplacer.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/pdgEntryReplace.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace helper {
   struct SelectCode {
@@ -65,6 +67,7 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> gpToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
   bool firstEvent_;
   int keepOrDropAll_;
   std::vector<int> flags_;
@@ -131,6 +134,7 @@ void TrackingParticleSelectorByGen::parse(const std::string &selection,
 TrackingParticleSelectorByGen::TrackingParticleSelectorByGen(const edm::ParameterSet &iConfig)
     : tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))),
       gpToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
+      tableToken_(esConsumes()),
       firstEvent_(true),
       keepOrDropAll_(drop),
       selection_(iConfig.getParameter<vector<string>>("select")) {
@@ -233,7 +237,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
   using namespace edm;
 
   if (firstEvent_) {
-    PdgEntryReplacer rep(iSetup);
+    auto const &pdt = iSetup.getData(tableToken_);
     for (vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
       string cut;
       ::helper::SelectCode code;
@@ -252,7 +256,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
             keepOrDropAll_ = keep;
         };
       } else {
-        cut = rep.replace(cut);
+        cut = pdgEntryReplace(cut, pdt);
         select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
       }
     }

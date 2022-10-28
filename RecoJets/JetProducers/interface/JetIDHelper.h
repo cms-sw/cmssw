@@ -16,6 +16,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+class HcalTopology;
+class HcalRecNumberingRecord;
+
 namespace reco {
 
   namespace helper {
@@ -147,6 +150,8 @@ namespace reco {
       edm::EDGetTokenT<HFRecHitCollection> input_HFRecHits_token_;
       edm::EDGetTokenT<EBRecHitCollection> input_EBRecHits_token_;
       edm::EDGetTokenT<EERecHitCollection> input_EERecHits_token_;
+
+      edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcal_topo_token_;
     };
   }  // namespace helper
 }  // namespace reco

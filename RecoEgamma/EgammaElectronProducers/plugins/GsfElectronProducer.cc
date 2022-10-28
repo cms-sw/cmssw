@@ -22,6 +22,10 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
+
+#include <array>
 
 using namespace reco;
 
@@ -29,12 +33,51 @@ namespace {
 
   void setMVAOutputs(reco::GsfElectronCollection& electrons,
                      const GsfElectronAlgo::HeavyObjectCache* hoc,
-                     reco::VertexCollection const& vertices) {
+                     reco::VertexCollection const& vertices,
+                     bool dnnPFidEnabled,
+                     float extetaboundary,
+                     const std::vector<tensorflow::Session*>& tfSessions) {
+    std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
+    size_t iele = 0;
     for (auto& el : electrons) {
       GsfElectron::MvaOutput mvaOutput;
       mvaOutput.mva_e_pi = hoc->sElectronMVAEstimator->mva(el, vertices);
       mvaOutput.mva_Isolated = hoc->iElectronMVAEstimator->mva(el, vertices.size());
-      el.setMvaOutput(mvaOutput);
+      if (dnnPFidEnabled) {
+        mva_outputs[iele] = mvaOutput;
+      } else {
+        el.setMvaOutput(mvaOutput);
+      }
+      iele++;
+    }
+    if (dnnPFidEnabled) {
+      // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go
+      LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele";
+      const auto& dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tfSessions);
+      int jele = 0;
+      for (auto& el : electrons) {
+        const auto& [iModel, values] = dnn_ele_pfid[jele];
+        // get the previous values
+        auto& mvaOutput = mva_outputs[jele];
+
+        if (iModel <= 3) {  // models 0,1,2,3 have 5 outputs in this version
+          assert(values.size() == 5);
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgNonIsolated = values[2];
+          mvaOutput.dnn_e_bkgTau = values[3];
+          mvaOutput.dnn_e_bkgPhoton = values[4];
+        } else if (iModel == 4) {  //etaExtended model has 3 outputs
+          assert(values.size() == 3);
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = 0.0;
+          mvaOutput.dnn_e_bkgNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgTau = 0.0;
+          mvaOutput.dnn_e_bkgPhoton = values[2];
+        }
+        el.setMvaOutput(mvaOutput);
+        jele++;
+      }
     }
   }
 
@@ -84,7 +127,9 @@ public:
     return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
   }
 
-  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
+  void endStream() override;
+
+  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
   // ------------ method called to produce the data  ------------
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
@@ -116,6 +161,11 @@ private:
   const bool useGsfPfRecTracks_;
 
   const bool resetMvaValuesUsingPFCandidates_;
+
+  bool dnnPFidEnabled_;
+  float extetaboundary_;
+
+  std::vector<tensorflow::Session*> tfSessions_;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -249,6 +299,68 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
           "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
       });
 
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.add<bool>("enabled", false);
+    psd1.add<double>("extetaboundary", 2.65);
+    psd1.add<std::string>("inputTensorName", "FirstLayer_input");
+    psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
+
+    psd1.add<std::vector<std::string>>(
+        "modelsFiles",
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/modelDNN.pb"});
+    psd1.add<std::vector<std::string>>(
+        "scalersFiles",
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/scaler.txt"});
+    psd1.add<std::vector<unsigned int>>("outputDim",  //Number of output nodes for the above models
+                                        {5, 5, 5, 5, 3});
+
+    psd1.add<bool>("useEBModelInGap", true);
+    // preselection parameters
+    desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
+  }
+
+  ///For PF cluster isolations
+  ///ECAL
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("pfClusterProducer", edm::InputTag("particleFlowClusterECAL"));
+    psd0.add<double>("drMax", 0.3);
+    psd0.add<double>("drVetoBarrel", 0.0);
+    psd0.add<double>("drVetoEndcap", 0.0);
+    psd0.add<double>("etaStripBarrel", 0.0);
+    psd0.add<double>("etaStripEndcap", 0.0);
+    psd0.add<double>("energyBarrel", 0.0);
+    psd0.add<double>("energyEndcap", 0.0);
+    desc.add<edm::ParameterSetDescription>("pfECALClusIsolCfg", psd0);
+  }
+
+  ///HCAL
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("pfClusterProducerHCAL", edm::InputTag("particleFlowClusterHCAL"));
+    psd0.add<edm::InputTag>("pfClusterProducerHFEM", edm::InputTag(""));
+    psd0.add<edm::InputTag>("pfClusterProducerHFHAD", edm::InputTag(""));
+    psd0.add<bool>("useHF", false);
+    psd0.add<double>("drMax", 0.3);
+    psd0.add<double>("drVetoBarrel", 0.0);
+    psd0.add<double>("drVetoEndcap", 0.0);
+    psd0.add<double>("etaStripBarrel", 0.0);
+    psd0.add<double>("etaStripEndcap", 0.0);
+    psd0.add<double>("energyBarrel", 0.0);
+    psd0.add<double>("energyEndcap", 0.0);
+    psd0.add<bool>("useEt", true);
+    desc.add<edm::ParameterSetDescription>("pfHCALClusIsolCfg", psd0);
+  }
+
   descriptions.add("gsfElectronProducerDefault", desc);
 }
 
@@ -288,7 +400,7 @@ namespace {
   }
 };  // namespace
 
-GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache*)
+GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* gcache)
     : cutsCfg_{makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))},
       ecalSeedingParametersChecked_(false),
       electronPutToken_(produces<GsfElectronCollection>()),
@@ -311,6 +423,20 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   if (cfg.getParameter<bool>("fillConvVtxFitProb"))
     inputCfg_.conversions = consumes(cfg.getParameter<edm::InputTag>("conversionsTag"));
 
+  // inputs for PFCluster isolation
+  const edm::ParameterSet& pfECALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfECALClusIsolCfg");
+  const edm::ParameterSet& pfHCALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfHCALClusIsolCfg");
+  inputCfg_.pfClusterProducer =
+      consumes<reco::PFClusterCollection>(pfECALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducer"));
+  inputCfg_.pfClusterProducerHCAL = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
+  inputCfg_.pfClusterProducerHFEM = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
+  inputCfg_.pfClusterProducerHFHAD = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
+
+  // Config for PFID dnn
+  const auto& pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
+  dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  extetaboundary_ = pset_dnn.getParameter<double>("extetaboundary");
+
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection");
@@ -330,6 +456,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
   strategyCfg_.fillConvVtxFitProb = cfg.getParameter<bool>("fillConvVtxFitProb");
+  strategyCfg_.computePfClusterIso = dnnPFidEnabled_;
 
   // hcal helpers
   auto const& psetPreselection = cfg.getParameter<edm::ParameterSet>("preselection");
@@ -388,6 +515,25 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       .vetoClustered = cfg.getParameter<bool>("vetoClustered"),
       .useNumCrystals = cfg.getParameter<bool>("useNumCrystals")};
 
+  // isolation
+  const GsfElectronAlgo::PFClusterIsolationConfiguration pfisoCfg{
+      .ecaldrMax = pfECALClusIsolCfg.getParameter<double>("drMax"),
+      .ecaldrVetoBarrel = pfECALClusIsolCfg.getParameter<double>("drVetoBarrel"),
+      .ecaldrVetoEndcap = pfECALClusIsolCfg.getParameter<double>("drVetoEndcap"),
+      .ecaletaStripBarrel = pfECALClusIsolCfg.getParameter<double>("etaStripBarrel"),
+      .ecaletaStripEndcap = pfECALClusIsolCfg.getParameter<double>("etaStripEndcap"),
+      .ecalenergyBarrel = pfECALClusIsolCfg.getParameter<double>("energyBarrel"),
+      .ecalenergyEndcap = pfECALClusIsolCfg.getParameter<double>("energyEndcap"),
+      .useHF = pfHCALClusIsolCfg.getParameter<bool>("useHF"),
+      .hcaldrMax = pfHCALClusIsolCfg.getParameter<double>("drMax"),
+      .hcaldrVetoBarrel = pfHCALClusIsolCfg.getParameter<double>("drVetoBarrel"),
+      .hcaldrVetoEndcap = pfHCALClusIsolCfg.getParameter<double>("drVetoEndcap"),
+      .hcaletaStripBarrel = pfHCALClusIsolCfg.getParameter<double>("etaStripBarrel"),
+      .hcaletaStripEndcap = pfHCALClusIsolCfg.getParameter<double>("etaStripEndcap"),
+      .hcalenergyBarrel = pfHCALClusIsolCfg.getParameter<double>("energyBarrel"),
+      .hcalenergyEndcap = pfHCALClusIsolCfg.getParameter<double>("energyEndcap"),
+      .hcaluseEt = pfHCALClusIsolCfg.getParameter<bool>("useEt")};
+
   const RegressionHelper::Configuration regressionCfg{
       .ecalRegressionWeightLabels = cfg.getParameter<std::vector<std::string>>("ecalRefinedRegressionWeightLabels"),
       .ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB"),
@@ -406,14 +552,26 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       hcalCfg_,
       hcalCfgBc_,
       isoCfg,
+      pfisoCfg,
       recHitsCfg,
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"), cfg),
+      EcalClusterFunctionFactory::get()->create(
+          cfg.getParameter<std::string>("crackCorrectionFunction"), cfg, consumesCollector()),
       regressionCfg,
       cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP03Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg"),
       consumesCollector());
+
+  if (dnnPFidEnabled_) {
+    tfSessions_ = gcache->iElectronDNNEstimator->getSessions();
+  }
+}
+
+void GsfElectronProducer::endStream() {
+  for (auto session : tfSessions_) {
+    tensorflow::closeSession(session);
+  }
 }
 
 void GsfElectronProducer::checkEcalSeedingParameters(edm::ParameterSet const& pset) {
@@ -585,9 +743,11 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   auto electrons = algo_->completeElectrons(event, setup, globalCache());
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
-    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag));
-    for (auto& el : electrons)
-      el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set MVA inputs
+    for (auto& el : electrons) {
+      el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
+    }
+    setMVAOutputs(
+        electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, extetaboundary_, tfSessions_);
   }
 
   // all electrons

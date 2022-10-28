@@ -8,7 +8,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHBHERecHitProxyBuilder(const FWHBHERecHitProxyBuilder&) = delete;
   const FWHBHERecHitProxyBuilder& operator=(const FWHBHERecHitProxyBuilder&) = delete;
 };

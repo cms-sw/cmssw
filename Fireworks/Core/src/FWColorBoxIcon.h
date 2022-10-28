@@ -37,11 +37,11 @@ public:
   // ---------- member functions ---------------------------
   void setColor(GContext_t iColorContext) { m_colorContext = iColorContext; }
 
-private:
   FWColorBoxIcon(const FWColorBoxIcon&) = delete;  // stop default
 
   const FWColorBoxIcon& operator=(const FWColorBoxIcon&) = delete;  // stop default
 
+private:
   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
 
   // ---------- member data --------------------------------

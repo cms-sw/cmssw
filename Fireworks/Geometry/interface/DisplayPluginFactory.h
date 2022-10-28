@@ -22,12 +22,13 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Fireworks/Geometry/interface/DisplayPlugin.h"
 
 // forward declarations
 namespace fireworks {
   namespace geometry {
-    typedef edmplugin::PluginFactory<DisplayPlugin*(void)> DisplayPluginFactory;
+    typedef edmplugin::PluginFactory<DisplayPlugin*(edm::ConsumesCollector)> DisplayPluginFactory;
   }
 }  // namespace fireworks
 

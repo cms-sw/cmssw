@@ -41,6 +41,8 @@ class L1MuDTChambPhContainer;
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
+class L1MuDTTFParametersRcd;
+class L1MuDTTFMasksRcd;
 template <typename T>
 class CSCTriggerContainer;
 namespace csctf {
@@ -54,7 +56,7 @@ namespace csctf {
 class L1MuDTSectorReceiver {
 public:
   /// constructor
-  L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector&& iC);
+  L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector iC);
 
   /// destructor
   virtual ~L1MuDTSectorReceiver();
@@ -83,6 +85,8 @@ private:
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > m_CSCTrSToken;
 
+  edm::ESGetToken<L1MuDTTFParameters, L1MuDTTFParametersRcd> m_parsToken;
+  edm::ESGetToken<L1MuDTTFMasks, L1MuDTTFMasksRcd> m_msksToken;
   edm::ESHandle<L1MuDTTFParameters> pars;
   edm::ESHandle<L1MuDTTFMasks> msks;
 };

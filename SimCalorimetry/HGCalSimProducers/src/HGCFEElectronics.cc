@@ -1,3 +1,4 @@
+
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -22,8 +23,9 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
       toaLSB_ns_{},
       tdcResolutionInNs_{1e-9},  // set time resolution very small by default
       targetMIPvalue_ADC_{},
-      jitterNoise2_ns_{},
-      jitterConstant2_ns_{},
+      jitterNoise_ns_{},
+      jitterConstant_ns_{},
+      eventTimeOffset_ns_{{0.02, 0.02, 0.02}},
       noise_fC_{},
       toaMode_(WEIGHTEDBYE) {
   edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
@@ -51,13 +53,9 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
   }
 
   if (ps.exists("tdcNbits")) {
-    uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
-    tdcSaturation_fC_ = ps.getParameter<double>("tdcSaturation_fC");
-    tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits);
-    // lower tdcSaturation_fC_ by one part in a million
-    // to ensure largest charge converted in bits is 0xfff and not 0x000
-    tdcSaturation_fC_ *= (1. - 1e-6);
-    edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_
+    tdcNbits_ = ps.getParameter<uint32_t>("tdcNbits");
+    setTDCfsc(ps.getParameter<double>("tdcSaturation_fC"));
+    edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits_ << " bit TDC defined with LSB=" << tdcLSB_fC_
                               << " saturation to occur @ " << tdcSaturation_fC_
                               << " (NB lowered by 1 part in a million)" << std::endl;
   }
@@ -89,16 +87,16 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
   if (ps.exists("jitterNoise_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterNoise_ns");
-    if (temp.size() == jitterNoise2_ns_.size()) {
-      std::copy_n(temp.begin(), temp.size(), jitterNoise2_ns_.begin());
+    if (temp.size() == jitterNoise_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), jitterNoise_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise ";
     }
   }
   if (ps.exists("jitterConstant_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterConstant_ns");
-    if (temp.size() == jitterConstant2_ns_.size()) {
-      std::copy_n(temp.begin(), temp.size(), jitterConstant2_ns_.begin());
+    if (temp.size() == jitterConstant_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), jitterConstant_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterConstant ";
     }
@@ -214,6 +212,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              float maxADC,
                                              int thickness,
                                              float tdcOnsetAuto,
+                                             float noiseWidth,
                                              const hgc_digi::FEADCPulseShape& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -228,7 +227,19 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 #endif
 
   bool debug = debug_state;
+
   float timeToA = 0.f;
+
+  //configure the ADC <-> TDC transition depending on the value passed as argument
+  double tdcOnset(maxADC);
+  if (maxADC < 0) {
+    maxADC = adcSaturation_fC_;
+    tdcOnset = tdcOnset_fC_;
+  }
+
+  //configure the ADC LSB depending on the value passed as argument
+  if (lsbADC < 0)
+    lsbADC = adcLSB_fC_;
 
   //first look at time
   //for pileup look only at intime signals
@@ -239,11 +250,14 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing
   if (toaColl[fireBX] != 0.f) {
     timeToA = toaColl[fireBX];
-    float jitter = getTimeJitter(chargeColl[fireBX], thickness);
+    float sensor_noise = noiseWidth <= 0 ? noise_fC_[thickness - 1] : noiseWidth;
+    float noise = jitterNoise_ns_[thickness - 1] * sensor_noise;
+    float jitter = chargeColl[fireBX] == 0 ? 0 : (noise / chargeColl[fireBX]);
     if (jitter != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, jitter);
     else if (tdcResolutionInNs_ != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
+    timeToA += eventTimeOffset_ns_[thickness - 1];
     if (timeToA >= 0.f && timeToA <= 25.f)
       toaFlags[fireBX] = true;
   }
@@ -262,7 +276,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     }
     //if below TDC onset will be handled by SARS ADC later
     float charge = chargeColl[it];
-    if (charge < tdcOnsetAuto) {
+    if (charge < tdcOnset) {
       debug = false;
       continue;
     }
@@ -366,7 +380,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
     }
-    newCharge[it] = (totalCharge - tdcOnsetAuto);
+
+    newCharge[it] = (totalCharge - tdcOnset);
 
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -376,9 +391,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     //last fC (tdcOnset) are dissipated trough pulse
     if (it + busyBxs < (int)(newCharge.size())) {
       const float deltaT2nextBx((busyBxs * 25 - integTime));
-      const float tdcOnsetLeakage(tdcOnsetAuto * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
+      const float tdcOnsetLeakage(tdcOnset * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
       if (debug)
-        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnsetAuto << " fC, to be dissipated in "
+        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
                                   << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
                                   << it + busyBxs << " bx (first free bx)" << std::endl;
@@ -433,10 +448,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //set new ADCs and ToA
   if (debug)
     edm::LogVerbatim("HGCFE") << "\t final result : ";
-  if (lsbADC < 0)
-    lsbADC = adcLSB_fC_;
-  if (maxADC < 0)
-    maxADC = adcSaturation_fC_;
   for (int it = 0; it < (int)(newCharge.size()); it++) {
     if (debug)
       edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";
@@ -474,6 +485,4 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
 // cause the compiler to generate the appropriate code
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-template class HGCFEElectronics<HGCEEDataFrame>;
-template class HGCFEElectronics<HGCBHDataFrame>;
 template class HGCFEElectronics<HGCalDataFrame>;

@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
@@ -88,11 +89,11 @@ namespace edm {
       void preSourceProcessBlock();
       void postSourceProcessBlock(std::string const&);
 
-      void preOpenFile(std::string const&, bool);
-      void postOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
+      void postOpenFile(std::string const&);
 
-      void preCloseFile(std::string const& lfn, bool primary);
-      void postCloseFile(std::string const&, bool);
+      void preCloseFile(std::string const& lfn);
+      void postCloseFile(std::string const&);
 
       void preModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
       void postModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
@@ -171,6 +172,9 @@ namespace edm {
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
 
+      void preModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void postModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
+
       void preModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
       void postModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
       void preModuleStreamEndRun(StreamContext const&, ModuleCallingContext const&);
@@ -187,6 +191,9 @@ namespace edm {
       void postModuleAccessInputProcessBlock(GlobalContext const&, ModuleCallingContext const&);
       void preModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
       void postModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+
+      void preModuleGlobalPrefetching(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleGlobalPrefetching(GlobalContext const&, ModuleCallingContext const&);
 
       void preModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
@@ -357,6 +364,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreEventReadFromSource(this, &Tracer::preEventReadFromSource);
   iRegistry.watchPostEventReadFromSource(this, &Tracer::postEventReadFromSource);
 
+  iRegistry.watchPreModuleStreamPrefetching(this, &Tracer::preModuleStreamPrefetching);
+  iRegistry.watchPostModuleStreamPrefetching(this, &Tracer::postModuleStreamPrefetching);
+
   iRegistry.watchPreModuleStreamBeginRun(this, &Tracer::preModuleStreamBeginRun);
   iRegistry.watchPostModuleStreamBeginRun(this, &Tracer::postModuleStreamBeginRun);
   iRegistry.watchPreModuleStreamEndRun(this, &Tracer::preModuleStreamEndRun);
@@ -373,6 +383,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostModuleAccessInputProcessBlock(this, &Tracer::postModuleAccessInputProcessBlock);
   iRegistry.watchPreModuleEndProcessBlock(this, &Tracer::preModuleEndProcessBlock);
   iRegistry.watchPostModuleEndProcessBlock(this, &Tracer::postModuleEndProcessBlock);
+
+  iRegistry.watchPreModuleGlobalPrefetching(this, &Tracer::preModuleGlobalPrefetching);
+  iRegistry.watchPostModuleGlobalPrefetching(this, &Tracer::postModuleGlobalPrefetching);
 
   iRegistry.watchPreModuleGlobalBeginRun(this, &Tracer::preModuleGlobalBeginRun);
   iRegistry.watchPostModuleGlobalBeginRun(this, &Tracer::postModuleGlobalBeginRun);
@@ -438,6 +451,19 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         }
         out << " : time = " << iContext.timestamp().value();
       });
+
+  iRegistry.esSyncIOVQueuingSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " queuing: EventSetup synchronization " << iSync.eventID();
+  });
+  iRegistry.preESSyncIOVSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " pre: EventSetup synchronizing " << iSync.eventID();
+  });
+  iRegistry.postESSyncIOVSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " post: EventSetup synchronizing " << iSync.eventID();
+  });
 }
 
 void Tracer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -603,35 +629,27 @@ void Tracer::postSourceProcessBlock(std::string const& processName) {
                         << " finished: source process block " << processName;
 }
 
-void Tracer::preOpenFile(std::string const& lfn, bool b) {
+void Tracer::preOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::postOpenFile(std::string const& lfn, bool b) {
+void Tracer::postOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::preCloseFile(std::string const& lfn, bool b) {
+void Tracer::preCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
-void Tracer::postCloseFile(std::string const& lfn, bool b) {
+void Tracer::postCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
@@ -1208,6 +1226,38 @@ void Tracer::postEventReadFromSource(StreamContext const& sc, ModuleCallingConte
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
 }
 
+void Tracer::preModuleStreamPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before processing " << transitionName(sc.transition())
+      << " for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleStreamPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before processing " << transitionName(sc.transition())
+      << " for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
 void Tracer::preModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -1324,6 +1374,36 @@ void Tracer::postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingConte
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleGlobalPrefetching(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before processing " << transitionName(gc.transition()) << " for module: label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleGlobalPrefetching(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before processing " << transitionName(gc.transition()) << " for module: label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
     out << mcc;
   }
 }

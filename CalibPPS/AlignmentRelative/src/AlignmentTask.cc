@@ -530,9 +530,9 @@ void AlignmentTask::buildEqualMeanUMeanVRotZConstraints(vector<AlignmentConstrai
       ac.coef[qcit].Zero();
     }
 
-    for (const string &proj : {"U", "V"}) {
-      const auto &planes = (proj == "U") ? p.second.first : p.second.second;
-      const double c = ((proj == "U") ? -1. : +1.) / planes.size();
+    for (auto &&proj : {"U", "V"}) {
+      const auto &planes = (proj == string("U")) ? p.second.first : p.second.second;
+      const double c = ((proj == string("U")) ? -1. : +1.) / planes.size();
 
       for (const auto &plane : planes) {
         signed int qIdx = getQuantityIndex(qcRotZ, plane);

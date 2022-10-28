@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
 lowPtBarrelTripletStepClusters = trackClusterRemover.clone(
@@ -57,33 +60,33 @@ lowPtBarrelTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtBarrelTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtBarrelTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('lowPtBarrelTripletStepClusters'),
-    maxCand        = 3,
-    #lostHitPenalty = cms.double(10.0), 
+    trajectoryFilter = dict(refToPSet_ = 'lowPtBarrelTripletStepTrajectoryFilter'),
+    clustersToSkip = 'lowPtBarrelTripletStepClusters',
+    maxCand = 3,
+    #lostHitPenalty = 10.,
     estimator = 'lowPtBarrelTripletStepChi2Est',
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.63) 
-    # set the variable to a negative value to turn-off the looper reconstruction 
-    #maxPtForLooperReconstruction = cms.double(-1.) 
-    )
-
+    maxPtForLooperReconstruction = 0.63,
+    # set the variable to a negative value to turn-off the looper reconstruction
+    #maxPtForLooperReconstruction = -1.,
+)
+trackingNoLoopers.toModify(lowPtBarrelTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtBarrelTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtBarrelTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('lowPtBarrelTripletStepTrajectoryBuilder')),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'lowPtBarrelTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting          = True,
+    useHitsSplitting = True,
     TransientInitialStateEstimatorParameters = cms.PSet(
-        propagatorAlongTISE      = cms.string('PropagatorWithMaterialForLoopers'),
-        propagatorOppositeTISE   = cms.string('PropagatorWithMaterialForLoopersOpposite'),
-        numberMeasurementsForFit = cms.int32(4)
+        propagatorAlongTISE = 'PropagatorWithMaterialForLoopers',
+        propagatorOppositeTISE = 'PropagatorWithMaterialForLoopersOpposite',
+        numberMeasurementsForFit = 4,
     )
 )
 
@@ -114,8 +117,8 @@ lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSm
     MinNumberOfHits        = 3
 )
 
-import RecoTracker.TrackProducer.TrackProducer_cfi
-lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'lowPtBarrelTripletStepTrackCandidates',
     AlgorithmName = 'lowPtTripletStep',
     Fitter        = 'lowPtBarrelTripletStepKFFittingSmoother',

@@ -138,6 +138,7 @@ int main() {
   go<5>(true);
   go<6>(true);
 
-  // go<10>();
+  go<10>(false);
+  go<10>(true);
   return 0;
 }

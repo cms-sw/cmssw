@@ -7,7 +7,7 @@
 
 namespace edm {
   PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams)
-      : hltPathStatus_(numberOfStreams), token_{produces<HLTPathStatus>()} {}
+      : hltPathStatus_(numberOfStreams), token_{produces()} {}
 
   void PathStatusInserter::setPathStatus(StreamID const& streamID, HLTPathStatus const& hltPathStatus) {
     hltPathStatus_[streamID.value()] = hltPathStatus;

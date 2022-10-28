@@ -27,6 +27,11 @@ else:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")
 

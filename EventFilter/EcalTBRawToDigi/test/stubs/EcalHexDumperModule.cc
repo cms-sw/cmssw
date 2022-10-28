@@ -4,7 +4,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -23,7 +23,7 @@
 
 #include <iomanip>
 
-class EcalHexDumperModule : public edm::EDAnalyzer {
+class EcalHexDumperModule : public edm::one::EDAnalyzer<> {
 public:
   EcalHexDumperModule(const edm::ParameterSet& ps)
       : fedRawDataCollectionTag_(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {

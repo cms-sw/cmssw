@@ -33,6 +33,8 @@ namespace edm {
     typedef KeyRef key_type;
     /// insert val type
     typedef std::pair<ValRef, Q> data_type;
+    /// quality type
+    typedef Q quality_type;
     /// index type
     typedef index index_type;
     /// map type

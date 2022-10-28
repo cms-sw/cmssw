@@ -1,6 +1,5 @@
 #include "SimG4Core/HelpfulWatchers/interface/MonopoleSteppingAction.h"
 
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Physics/interface/Monopole.h"
@@ -8,9 +7,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
@@ -22,21 +18,23 @@
 
 MonopoleSteppingAction::MonopoleSteppingAction(edm::ParameterSet const &p) : actOnTrack(false), bZ(0) {
   mode = p.getUntrackedParameter<bool>("ChangeFromFirstStep", true);
-  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSeppingAction set mode for"
-                                   << " start at first step to " << mode;
+  edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSeppingAction set mode for"
+                                       << " start at first step to " << mode;
 }
 
 MonopoleSteppingAction::~MonopoleSteppingAction() {}
 
-void MonopoleSteppingAction::update(const BeginOfJob *job) {
-  const edm::EventSetup *iSetup = (*job)();
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup->get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+void MonopoleSteppingAction::registerConsumes(edm::ConsumesCollector cc) {
+  tok_bFieldH_ = cc.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSteppingAction::Initialize ESGetToken for MagneticField";
+}
+
+void MonopoleSteppingAction::beginRun(edm::EventSetup const &es) {
+  const MagneticField *bField = &es.getData(tok_bFieldH_);
   const GlobalPoint p(0, 0, 0);
   bZ = (bField->inTesla(p)).z();
-  edm::LogInfo("SimG4CoreWatcher") << "Magnetic Field (X): " << (bField->inTesla(p)).x()
-                                   << " Y: " << (bField->inTesla(p)).y() << " Z: " << bZ;
+  edm::LogVerbatim("SimG4CoreWatcher") << "Magnetic Field (X): " << (bField->inTesla(p)).x()
+                                       << " Y: " << (bField->inTesla(p)).y() << " Z: " << bZ;
 }
 
 void MonopoleSteppingAction::update(const BeginOfRun *) {
@@ -50,16 +48,16 @@ void MonopoleSteppingAction::update(const BeginOfRun *) {
       pdgCode.push_back(particle->GetPDGEncoding());
     }
   }
-  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSeppingAction Finds " << pdgCode.size() << " candidates";
+  edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSeppingAction Finds " << pdgCode.size() << " candidates";
   for (unsigned int ii = 0; ii < pdgCode.size(); ++ii) {
-    edm::LogInfo("SimG4CoreWatcher") << "PDG Code[" << ii << "] = " << pdgCode[ii];
+    edm::LogVerbatim("SimG4CoreWatcher") << "PDG Code[" << ii << "] = " << pdgCode[ii];
   }
   cMevToJ = CLHEP::e_SI / CLHEP::eV;
   cMeVToKgMByS = CLHEP::e_SI * CLHEP::meter / (CLHEP::eV * CLHEP::c_light * CLHEP::second);
   cInMByS = CLHEP::c_light * CLHEP::second / CLHEP::meter;
-  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSeppingAction Constants:"
-                                   << " MevToJoules  = " << cMevToJ << ", MevToKgm/s  = " << cMeVToKgMByS
-                                   << ", c in m/s    = " << cInMByS << ", mag. charge = " << magCharge;
+  edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSeppingAction Constants:"
+                                       << " MevToJoules  = " << cMevToJ << ", MevToKgm/s  = " << cMeVToKgMByS
+                                       << ", c in m/s    = " << cInMByS << ", mag. charge = " << magCharge;
 }
 
 void MonopoleSteppingAction::update(const BeginOfTrack *trk) {

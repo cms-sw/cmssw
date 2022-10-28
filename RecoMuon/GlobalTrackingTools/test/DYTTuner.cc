@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,30 +26,29 @@
 
 #define MAX_THR 1e7
 
-class DYTTuner : public edm::EDAnalyzer {
+class DYTTuner : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit DYTTuner(const edm::ParameterSet&);
-  ~DYTTuner();
+  ~DYTTuner() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   virtual double doIntegral(std::vector<double>&, DetId&);
   virtual void writePlots();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   double MinEnVal, MaxEnVal, IntegralCut, MaxEstVal;
   unsigned int MinNumValues, MaxValPlots, NBinsPlots;
   bool saveROOTfile;
-  DYTThrObject* thresholds;
   std::map<DetId, std::vector<double> > mapId;
   std::map<DetId, TH1F*> EstPlots;
   edm::EDGetTokenT<DYTestimators> dytInfoToken;
@@ -120,7 +119,7 @@ void DYTTuner::beginJob() {}
 void DYTTuner::endJob() {
   if (saveROOTfile)
     writePlots();
-  thresholds = new DYTThrObject();
+  DYTThrObject thresholds;
 
   // Full barrel/endcap computation
   std::map<DetId, std::vector<double> >::iterator it;
@@ -161,17 +160,17 @@ void DYTTuner::endJob() {
         int station = CSCDetId(id).station();
         obj.thr = endcapCut[station - 1];
       }
-      thresholds->thrsVec.push_back(obj);
+      thresholds.thrsVec.push_back(obj);
       continue;
     }
     obj.thr = doIntegral(estValCh, id);
-    thresholds->thrsVec.push_back(obj);
+    thresholds.thrsVec.push_back(obj);
   }
 
   // Writing to DB
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(thresholds, poolDbService->beginOfTime(), "DYTThrObjectRcd");
+    poolDbService->writeOneIOV(thresholds, poolDbService->beginOfTime(), "DYTThrObjectRcd");
   } else
     throw cms::Exception("NotAvailable") << "PoolDBOutputService is not available.";
 }

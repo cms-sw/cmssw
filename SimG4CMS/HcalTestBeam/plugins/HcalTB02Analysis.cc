@@ -36,9 +36,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "HcalTB02HcalNumberingScheme.h"
-#include "HcalTB02XtalNumberingScheme.h"
-#include "HcalTB02Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02Histo.h"
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
@@ -47,10 +47,12 @@
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Randomize.hh"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+
+//#define EDM_ML_DEBUG
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -59,14 +61,13 @@ namespace CLHEP {
 class HcalTB02Analysis : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
   HcalTB02Analysis(const edm::ParameterSet& p);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
   ~HcalTB02Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
-  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
-
   // observer methods
   void update(const BeginOfEvent* evt) override;
   void update(const EndOfEvent* evt) override;
@@ -80,9 +81,9 @@ private:
   std::unique_ptr<HcalTB02Histo> histo;
 
   // to read from parameter set
-  bool hcalOnly;
-  std::string fileNameTuple;
-  std::vector<std::string> names;
+  const edm::ParameterSet m_Anal;
+  const bool hcalOnly;
+  const std::vector<std::string> names;
 
   //To be saved
   std::map<int, float> energyInScints, energyInCrystals;
@@ -102,11 +103,10 @@ private:
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB02Analysis");
-  hcalOnly = m_Anal.getUntrackedParameter<bool>("HcalClusterOnly", true);
-  names = m_Anal.getParameter<std::vector<std::string> >("Names");
-
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("HcalTB02Analysis")),
+      hcalOnly(m_Anal.getUntrackedParameter<bool>("HcalClusterOnly", true)),
+      names(m_Anal.getParameter<std::vector<std::string> >("Names")) {
   produces<HcalTB02HistoClass>();
 
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
@@ -129,7 +129,9 @@ void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent* evt) {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+#endif
   clear();
 }
 
@@ -138,8 +140,9 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   CLHEP::RandGaussQ randGauss(*engine);
 
   // Look for the Hit Collection
-  LogDebug("HcalTBSim") << "HcalTB02Analysis::Fill event " << (*evt)()->GetEventID();
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis::Fill event " << (*evt)()->GetEventID();
+#endif
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
   int ihit = 0;
@@ -148,9 +151,10 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   std::string sd = names[0];
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
-  LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << HCHCid << " is obtained at "
-                        << theHCHC;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << HCHCid
+                                << " is obtained at " << theHCHC;
+#endif
   int nentries = 0;
   nentries = theHCHC->entries();
   if (nentries == 0)
@@ -165,16 +169,19 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
     sd = names[1];
     XTALSid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
     theXTHC = (CaloG4HitCollection*)allHC->GetHC(XTALSid);
-    LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << XTALSid
-                          << " is obtained at " << theXTHC;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << XTALSid
+                                  << " is obtained at " << theXTHC;
+#endif
     xentries = theXTHC->entries();
     if (xentries == 0)
       return;
   }
 
-  LogDebug("HcalTBSim") << "HcalTB02Analysis :: There are " << nentries << " HCal hits, and" << xentries
-                        << " xtal hits";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: There are " << nentries << " HCal hits, and" << xentries
+                                << " xtal hits";
+#endif
   float ETot = 0., xETot = 0.;
   int scintID = 0, xtalID = 0;
 
@@ -198,7 +205,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
       primaries[aHit->getTrackID()] += enEm + enhad;
       float time = aHit->getTimeSliceID();
       if (time > maxTime)
-        maxTime = (int)time;
+        maxTime = static_cast<int>(time);
       histo->fillAllTime(time);
     }
 
@@ -229,11 +236,13 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         float phi = org->getphiID((*is).first);
 
         SEnergy += ETot;
-        TowerEne[(int)phi][(int)eta] += ETot;
+        int iphi = static_cast<int>(phi);
+        int ieta = static_cast<int>(eta);
+        TowerEne[iphi][ieta] += ETot;
 
-        TowerEneCF[(int)phi][(int)eta] += ETot * (1. + 0.1 * randGauss.fire());
+        TowerEneCF[iphi][ieta] += ETot * (1. + 0.1 * randGauss.fire());
         double dR = 0.08727 * std::sqrt((eta - 8.) * (eta - 8.) + (phi - 3.) * (phi - 3.));
-        EnRing[(int)(dR / 0.01)] += ETot;
+        EnRing[static_cast<int>(dR / 0.01)] += ETot;
       }
 
       LayerEne[layer] += ETot;
@@ -274,7 +283,9 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
     int trackID = 0;
     G4PrimaryParticle* thePrim = nullptr;
     G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-    LogDebug("HcalTBSim") << "HcalTB02Analysis :: Event has " << nvertex << " vertex";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Event has " << nvertex << " vertex";
+#endif
     if (nvertex == 0)
       edm::LogWarning("HcalTBSim") << "HcalTB02Analysis:: End Of Event  "
                                    << "ERROR: no vertex";
@@ -285,8 +296,10 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         edm::LogWarning("HcalTBSim") << "HcalTB02Analysis:: End Of Event "
                                      << "ERROR: pointer to vertex = 0";
       } else {
+#ifdef EDM_ML_DEBUG
         int npart = avertex->GetNumberOfParticle();
-        LogDebug("HcalTBSim") << "HcalTB02Analysis::Vertex number :" << i << " with " << npart << " particles";
+        edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis::Vertex number :" << i << " with " << npart << " particles";
+#endif
         if (thePrim == nullptr)
           thePrim = avertex->GetPrimary(trackID);
       }
@@ -305,14 +318,15 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
       } else {
         float costheta = pz / pInit;
         float theta = acos(std::min(std::max(costheta, float(-1.)), float(1.)));
-        eta = -log(tan(theta / 2));
+        eta = -std::log(std::tan(theta / 2));
         if (px != 0)
-          phi = atan(py / px);
+          phi = std::atan(py / px);
       }
       particleType = thePrim->GetPDGcode();
     } else {
-      LogDebug("HcalTBSim") << "HcalTB02Analysis:: End Of Event ERROR: could"
-                            << " not find primary ";
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: End Of Event ERROR: could not find primary ";
+#endif
     }
 
     CaloG4Hit* firstHit = (*theHCHC)[0];
@@ -345,8 +359,8 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         int xtalID = (*is).first;
         xETot = (*is).second;
 
-        int irow = (int)(xtalID / 100.);
-        int jcol = (int)(xtalID - 100. * irow);
+        int irow = static_cast<int>(xtalID / 100.);
+        int jcol = static_cast<int>(xtalID - 100. * irow);
 
         xSEnergy += xETot;
         xCrysEne[irow][jcol] = xETot;
@@ -382,13 +396,13 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {

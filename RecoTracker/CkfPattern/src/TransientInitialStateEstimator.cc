@@ -1,7 +1,6 @@
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,23 +17,19 @@
 
 using namespace std;
 
-TransientInitialStateEstimator::TransientInitialStateEstimator(const edm::ParameterSet& conf)
-    : thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlongTISE")),
-      thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOppositeTISE")),
+TransientInitialStateEstimator::TransientInitialStateEstimator(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : thePropagatorAlongToken(
+          iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("propagatorAlongTISE")))),
+      thePropagatorOppositeToken(
+          iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("propagatorOppositeTISE")))),
       thePropagatorAlong(nullptr),
       thePropagatorOpposite(nullptr),
       theNumberMeasurementsForFit(conf.getParameter<int>("numberMeasurementsForFit")) {}
 
 void TransientInitialStateEstimator::setEventSetup(const edm::EventSetup& es, const TkClonerImpl& hc) {
   theHitCloner = hc;
-
-  edm::ESHandle<Propagator> halong;
-  edm::ESHandle<Propagator> hopposite;
-
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName, halong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, hopposite);
-  thePropagatorAlong = halong.product();
-  thePropagatorOpposite = hopposite.product();
+  thePropagatorAlong = &es.getData(thePropagatorAlongToken);
+  thePropagatorOpposite = &es.getData(thePropagatorOppositeToken);
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> TransientInitialStateEstimator::innerState(const Trajectory& traj,

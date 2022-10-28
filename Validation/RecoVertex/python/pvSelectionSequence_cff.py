@@ -12,11 +12,11 @@ goodVertices = cms.EDFilter("VertexSelector",
 
 noFakeVertices = goodVertices.clone(cut=cms.string("!isFake"))
 
-goodVerticesD0s5 = goodVertices.clone(src = cms.InputTag("offlinePrimaryVerticesD0s5"))
-goodVerticesD0s51mm = goodVertices.clone(src = cms.InputTag("offlinePrimaryVerticesD0s51mm"))
-goodVerticesDA100um = goodVertices.clone(src = cms.InputTag("offlinePrimaryVerticesDA100um"))
-goodVerticesDA100umV7 = goodVertices.clone(src = cms.InputTag("offlinePrimaryVerticesDA100umV7"))
-goodVerticesDA100umV8 = goodVertices.clone(src = cms.InputTag("offlinePrimaryVerticesDA100umV8"))
+goodVerticesD0s5 = goodVertices.clone(src = "offlinePrimaryVerticesD0s5")
+goodVerticesD0s51mm = goodVertices.clone(src = "offlinePrimaryVerticesD0s51mm")
+goodVerticesDA100um = goodVertices.clone(src = "offlinePrimaryVerticesDA100um")
+goodVerticesDA100umV7 = goodVertices.clone(src = "offlinePrimaryVerticesDA100umV7")
+goodVerticesDA100umV8 = goodVertices.clone(src = "offlinePrimaryVerticesDA100umV8")
 
 
 seqPVSelection = cms.Sequence(goodVertices + noFakeVertices + goodVerticesD0s5 + goodVerticesD0s51mm +

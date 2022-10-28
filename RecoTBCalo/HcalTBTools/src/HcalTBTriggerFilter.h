@@ -1,7 +1,7 @@
 #ifndef HCALTBTRIGGERFILTER_H
 #define HCALTBTRIGGERFILTER_H 1
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,11 +12,10 @@
     
    \author J. Mans - Minnesota
 */
-class HcalTBTriggerFilter : public edm::EDFilter {
+class HcalTBTriggerFilter : public edm::global::EDFilter<> {
 public:
   HcalTBTriggerFilter(const edm::ParameterSet& ps);
-  ~HcalTBTriggerFilter() override {}
-  bool filter(edm::Event& e, edm::EventSetup const& c) override;
+  bool filter(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
 private:
   bool allowPedestal_;

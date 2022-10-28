@@ -40,7 +40,7 @@ public:
 
   /** Destructor
    */
-  ~BPHChi2Select() override {}
+  ~BPHChi2Select() override = default;
 
   /** Operations
    */

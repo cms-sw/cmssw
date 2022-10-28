@@ -15,6 +15,7 @@ namespace edmtest {
     int pattern = ps.getUntrackedParameter<int>("pattern", 1);
     edm::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
     initializeMemoryPattern(pattern);
+    usesResource("MemoryTestClient_A");
   }
 
   void MemoryTestClient_A::analyze(edm::Event const& /*unused*/

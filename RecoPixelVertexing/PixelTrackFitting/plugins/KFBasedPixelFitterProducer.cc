@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -30,21 +29,25 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  std::string thePropagatorLabel;
-  std::string thePropagatorOppositeLabel;
-  std::string theTTRHBuilderName;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorOppositeToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const edm::EDPutTokenT<PixelFitter> thePutToken;
 };
 
 KFBasedPixelFitterProducer::KFBasedPixelFitterProducer(const edm::ParameterSet& iConfig)
-    : thePropagatorLabel(iConfig.getParameter<std::string>("propagator")),
-      thePropagatorOppositeLabel(iConfig.getParameter<std::string>("propagator")),
-      theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")) {
+    : theTTRHBuilderToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
+      thePropagatorToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))),
+      thePropagatorOppositeToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))),
+      theTrackerToken(esConsumes()),
+      theFieldToken(esConsumes()),
+      thePutToken(produces()) {
   if (iConfig.getParameter<bool>("useBeamSpotConstraint")) {
     theBeamSpotToken = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotConstraint"));
   }
-
-  produces<PixelFitter>();
 }
 
 void KFBasedPixelFitterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -60,21 +63,6 @@ void KFBasedPixelFitterProducer::fillDescriptions(edm::ConfigurationDescriptions
 }
 
 void KFBasedPixelFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhb;
-  iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhb);
-
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagator);
-
-  edm::ESHandle<Propagator> opropagator;
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  edm::ESHandle<MagneticField> field;
-  iSetup.get<IdealMagneticFieldRecord>().get(field);
-
   const reco::BeamSpot* beamspot = nullptr;
   if (!theBeamSpotToken.isUninitialized()) {
     edm::Handle<reco::BeamSpot> hbs;
@@ -82,10 +70,13 @@ void KFBasedPixelFitterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
     beamspot = hbs.product();
   }
 
-  auto impl = std::make_unique<KFBasedPixelFitter>(
-      propagator.product(), opropagator.product(), ttrhb.product(), tracker.product(), field.product(), beamspot);
-  auto prod = std::make_unique<PixelFitter>(std::move(impl));
-  iEvent.put(std::move(prod));
+  iEvent.emplace(thePutToken,
+                 std::make_unique<KFBasedPixelFitter>(&iSetup.getData(thePropagatorToken),
+                                                      &iSetup.getData(thePropagatorOppositeToken),
+                                                      &iSetup.getData(theTTRHBuilderToken),
+                                                      &iSetup.getData(theTrackerToken),
+                                                      &iSetup.getData(theFieldToken),
+                                                      beamspot));
 }
 
 DEFINE_FWK_MODULE(KFBasedPixelFitterProducer);

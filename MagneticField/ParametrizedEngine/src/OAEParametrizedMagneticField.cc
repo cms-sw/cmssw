@@ -12,12 +12,14 @@
 using namespace std;
 using namespace magfieldparam;
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : theParam(B) {}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : theParam(B) { setNominalValue(); }
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : theParam(T) {}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : theParam(T) { setNominalValue(); }
 
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters)
-    : theParam(parameters.getParameter<string>("BValue")) {}
+    : theParam(parameters.getParameter<string>("BValue")) {
+  setNominalValue();
+}
 
 OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {}
 

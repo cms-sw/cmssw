@@ -1,0 +1,153 @@
+#! /bin/bash
+
+# orted_with_cmsenv - Open RTE Daemon wrapper for CMSSW
+
+PROGRAM=$(basename $0)
+WORKDIR=$PWD
+MCA_PREFIX=cmsenv
+
+function usage() {
+  cat << @EOF
+$PROGRAM - Open RTE Daemon wrapper for CMSSW
+
+Usage:
+  $PROGRAM [-mca ${MCA_PREFIX}_release CMSSW_BASE] [-mca ${MCA_PREFIX}_verbose {true|false}] ...
+
+Load the CMS environment from the given release area, then launch orted with the same arguments.
+@EOF
+}
+
+function error() {
+  echo "$PROGRAM: error: $@"
+  echo
+  usage
+  exit 1
+}
+
+function warning() {
+  echo "$PROGRAM: warning: $@"
+}
+
+function validate_and_set_option() {
+  local VARIABLE="$1"
+  local VALUE="$2"
+
+  case $VARIABLE in
+    VERBOSE )
+      # boolean argument
+      case "$VALUE" in
+        true | yes | 1)
+          eval $VARIABLE=true
+          return 0
+          ;;
+        false | no | 0)
+          eval $VARIABLE=false
+          return 0
+          ;;
+        *)
+          return 1
+          ;;
+      esac
+      ;;
+
+    RELEASE )
+      # directory argument
+      if [ -d "$VALUE" ]; then
+        eval $VARIABLE=$(realpath "$VALUE")
+        return 0
+      else
+        return 1
+      fi
+      ;;
+
+    * )
+      # unknown variable, do not perform any validation
+      ;;
+  
+  esac
+}
+
+
+function parse_mca_options() {
+  local MCA_OPTION=""
+  local MCA_VARIABLE=""
+
+  for ARG in "$@"; do
+    # look for an "--mca ${MCA_PREFIX}_variable value" triplet
+    case "$ARG" in
+      -mca | --mca)
+        MCA_OPTION="$ARG"
+        MCA_VARIABLE=""
+        ;;
+      ${MCA_PREFIX}_release)
+        [ "$MCA_OPTION" ] && MCA_VARIABLE="RELEASE"
+        ;;
+      ${MCA_PREFIX}_verbose)
+        [ "$MCA_OPTION" ] && MCA_VARIABLE="VERBOSE"
+        ;;
+      ${MCA_PREFIX}_*)
+        warning "unrecognized option $MCA_OPTION $ARG"
+        # reset the parsing state
+        MCA_OPTION=""
+        MCA_VARIABLE=""
+        ;;
+      *)
+        [ "$MCA_OPTION" ] && [ "$MCA_VARIABLE" ] || continue
+        # validate and set the argument
+        if validate_and_set_option "$MCA_VARIABLE" "$ARG"; then
+          true
+        else
+          warning "invalid argument $MCA_OPTION $MCA_VARIABLE $ARG"
+        fi
+        # reset the parsing state
+        MCA_OPTION=""
+        MCA_VARIABLE=""
+        ;;
+    esac
+  done
+}
+
+# arguments and options
+RELEASE=
+VERBOSE=false
+
+# parse the command line options, look for "--mca ${MCA_PREFIX}_variable value" triplets
+parse_mca_options "$@"
+
+if $VERBOSE; then
+  echo "$PROGRAM initial environment:"
+  echo "--------------------------------------------------------------------------------"
+  env | sort
+  echo "--------------------------------------------------------------------------------"
+  echo
+fi
+
+if $VERBOSE; then
+  echo "$PROGRAM command line arguments:"
+  echo "--------------------------------------------------------------------------------"
+  echo "$0" "$@" | sed -e's/ \+-/ \\\n  -/g'
+  echo "--------------------------------------------------------------------------------"
+  echo
+fi
+
+# if CMSSW is not set from the MCA options, try to determine it from the location of this file
+if [ "$RELEASE" ]; then
+  [ -f "$RELEASE/config/scram_basedir" ] || error "invalid release area at $RELEASE"
+else
+  RELEASE="$(realpath $(dirname $(realpath "$0"))/../..)"
+  [ -f "$RELEASE/config/scram_basedir" ] || error "cannot automatically determine CMSSW_BASE, please set it with the \"-mca ${MCA_PREFIX}_release CMSSW_BASE\" option"
+fi
+
+export VO_CMS_SW_DIR=$(< $RELEASE/config/scram_basedir)
+[ -f "$VO_CMS_SW_DIR/cmsset_default.sh" ] || error "invalid CMS installation at $VO_CMS_SW_DIR"
+
+# load the CMS environment
+source "$VO_CMS_SW_DIR"/cmsset_default.sh
+
+# load the CMSSW release environment
+cd "$RELEASE"
+eval $(scram runtime -sh)
+
+# run the ORTED/MPI processes in the work directory
+cd "$WORKDIR"
+exec orted "$@"

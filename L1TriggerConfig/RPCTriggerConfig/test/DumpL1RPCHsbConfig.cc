@@ -17,7 +17,7 @@
 #include "CondFormats/DataRecord/interface/L1RPCHsbConfigRcd.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,17 +33,15 @@
 // class decleration
 //
 
-class DumpL1RPCHsbConfig : public edm::EDAnalyzer {
+class DumpL1RPCHsbConfig : public edm::global::EDAnalyzer<> {
 public:
   explicit DumpL1RPCHsbConfig(const edm::ParameterSet&);
-  ~DumpL1RPCHsbConfig();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<L1RPCHsbConfig, L1RPCHsbConfigRcd> getToken_;
 };
 
 //
@@ -58,14 +56,10 @@ private:
 // constructors and destructor
 //
 DumpL1RPCHsbConfig::DumpL1RPCHsbConfig(const edm::ParameterSet& iConfig)
+    : getToken_(esConsumes())
 
 {
   //now do what ever initialization is needed
-}
-
-DumpL1RPCHsbConfig::~DumpL1RPCHsbConfig() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -73,11 +67,10 @@ DumpL1RPCHsbConfig::~DumpL1RPCHsbConfig() {
 //
 
 // ------------ method called to for each event  ------------
-void DumpL1RPCHsbConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DumpL1RPCHsbConfig::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::ESHandle<L1RPCHsbConfig> hsbConfig;
-  iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
+  edm::ESHandle<L1RPCHsbConfig> hsbConfig = iSetup.getHandle(getToken_);
 
   LogTrace("DumpL1RPCHsbConfig") << std::endl;
   LogDebug("DumpL1RPCHsbConfig") << "\n\n Printing L1RPCHsbConfigRcd record\n" << std::endl;
@@ -95,12 +88,6 @@ void DumpL1RPCHsbConfig::analyze(const edm::Event& iEvent, const edm::EventSetup
     LogTrace("DumpL1RPCHsbConfig") << " Input " << i << " " << hsbConfig->getHsbMask(1, i) << " ";
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void DumpL1RPCHsbConfig::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void DumpL1RPCHsbConfig::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DumpL1RPCHsbConfig);

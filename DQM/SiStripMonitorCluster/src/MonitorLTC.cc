@@ -4,15 +4,14 @@
 // Class:      MonitorLTC
 //
 // class MonitorLTC MonitorLTC.cc DQM/SiStripMonitorCluster/src/MonitorLTC.cc
-#include <vector>
 
+#include <vector>
 #include <iostream>
 #include <numeric>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)  // :
 //  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))

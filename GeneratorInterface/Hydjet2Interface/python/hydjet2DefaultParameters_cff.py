@@ -2,9 +2,45 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 
+collisionParametersRHIC200GeV = cms.PSet(
+        fAw             = cms.double(197.0),    # beam/target atomic number
+        fSqrtS          = cms.double(200.0),    # 
+	fMuB 		= cms.double(0.0285), 	# Chemical baryon potential per unit charge, fMuB [GeV]
+	fMuS 		= cms.double(0.007), 	# Chemical strangeness potential per unit charge, fMuS [GeV]  
+	fMuI3 		= cms.double(-0.001), 	# Chemical isospin potential per unit charge, fMuI3 [GeV]   
+
+   	### Thermodinamic parameters at thermal freez-out ###
+	fThFO 		= cms.double(0.1), 	# Temperature at thermal freeze-out, fTthFO [GeV]
+	fMu_th_pip	= cms.double(0.06), 	# Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV] 
+
+        ### Maximal longitudinal flow rapidity at thermal freeze-out ###
+        fYlmax          = cms.double(3.3),      # Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+        fUmax           = cms.double(1.1),    	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
+        fPtmin          = cms.double(3.55),     # Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
+        fT0             = cms.double(0.3),      # Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
+
+        ### Volume parameters at thermal freeze-out ###
+        fTau            = cms.double(8.),     	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
+        fR              = cms.double(10.),    	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+        fSigmaTau       = cms.double(2.),      	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
+
+	fWeakDecay 	= cms.double(0.), 	# Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+)
+
 collisionParameters2760GeV = cms.PSet(
 	fAw 		= cms.double(208.0), 	# beam/target atomic number
 	fSqrtS 		= cms.double(2760.0), 	#
+	fMuB 		= cms.double(0.), 	# Chemical baryon potential per unit charge, fMuB [GeV]
+	fMuS 		= cms.double(0.), 	# Chemical strangeness potential per unit charge, fMuS [GeV]  
+	fMuI3 		= cms.double(0.), 	# Chemical isospin potential per unit charge, fMuI3 [GeV]   
+
+   	### Thermodinamic parameters at thermal freez-out ###
+	fThFO 		= cms.double(0.105), 	# Temperature at thermal freeze-out, fTthFO [GeV]
+	fMu_th_pip	= cms.double(0.), 	# Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV] 
+
+        ### Maximal longitudinal flow rapidity at thermal freeze-out ###
+        fYlmax          = cms.double(4.5),      # Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+
 	fUmax 		= cms.double(1.265), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
 	fPtmin 		= cms.double(8.2), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
 	fT0 		= cms.double(1.), 	# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
@@ -12,97 +48,126 @@ collisionParameters2760GeV = cms.PSet(
 	### Volume parameters at thermal freeze-out ###
 	fTau 		= cms.double(12.2), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
 	fR 		= cms.double(13.45), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+	fSigmaTau 	= cms.double(3.5), 	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
+
+	fWeakDecay 	= cms.double(0.00000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+
 )
 
 collisionParameters5020GeV = cms.PSet(
-	fAw 		= cms.double(208.0), ## beam/target atomic number
+	fAw 		= cms.double(208.0), 	# beam/target atomic number
 	fSqrtS 		= cms.double(5020.0),
-	fUmax 		= cms.double(1.35), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
-	fPtmin 		= cms.double(10.), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
-	fT0 		= cms.double(1.1), 		# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
-
-	### Volume parameters at thermal freeze-out ###
-	fTau 		= cms.double(13.2), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
-	fR 		= cms.double(13.9), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
-)
-
-qgpParameters = cms.PSet(
-	fTau0 		= cms.double(0.1), 	# Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
-	fNf 		= cms.int32(0), 	# Number of active quark flavours in QGP, fNf (0, 1, 2 or 3)
-)
-
-hydjet2Parameters = cms.PSet(
-	### Thermodinamic parameters at chemical freez-out ###
-	fTMuType 		= cms.double(0.), 	# Flag to use calculated T_ch, mu_B and mu_S as a function of fSqrtS, fTMuType (=0 user's ones, >0 calculated) 
-	fT 		= cms.double(0.165), 	# Temperature at chemical freeze-out, fT [GeV]
 	fMuB 		= cms.double(0.), 	# Chemical baryon potential per unit charge, fMuB [GeV]
 	fMuS 		= cms.double(0.), 	# Chemical strangeness potential per unit charge, fMuS [GeV]  
-	fMuC 		= cms.double(0.), 	# Chemical charm potential per unit charge, fMuC [GeV] (used if charm production is turned on)  
 	fMuI3 		= cms.double(0.), 	# Chemical isospin potential per unit charge, fMuI3 [GeV]   
 
    	### Thermodinamic parameters at thermal freez-out ###
 	fThFO 		= cms.double(0.105), 	# Temperature at thermal freeze-out, fTthFO [GeV]
-	fMu_th_pip		= cms.double(0.), 	# Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV] 
+	fMu_th_pip	= cms.double(0.), 	# Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV] 
+
+        ### Maximal longitudinal flow rapidity at thermal freeze-out ###
+        fYlmax          = cms.double(3.99),      # Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+
+
+	fUmax 		= cms.double(1.280), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
+	fPtmin 		= cms.double(9.06), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
+	fT0 		= cms.double(1.1), 	# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
 
 	### Volume parameters at thermal freeze-out ###
-	fSigmaTau 		= cms.double(3.5), 	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
+	fTau 		= cms.double(11.5), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
+	fR 		= cms.double(16.), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+	fSigmaTau 	= cms.double(2.), 	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
 
+	fWeakDecay 	= cms.double(0.00000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+)
+
+qgpParametersLHC = cms.PSet(
+	fTau0 		= cms.double(0.1), 	# Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
+	fNf 		= cms.int32(0), 	# Number of active quark flavours in QGP, fNf (0, 1, 2 or 3)
+)
+
+qgpParametersRHIC = cms.PSet(
+        fTau0           = cms.double(0.4),      # Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
+        fNf             = cms.int32(2),         # Number of active quark flavours in QGP, fNf (0, 1, 2 or 3)
+)
+
+
+hydjet2Parameters = cms.PSet(
+	### Thermodinamic parameters at chemical freez-out ###
+	fTMuType 	= cms.double(0.), 	# Flag to use calculated T_ch, mu_B and mu_S as a function of fSqrtS, fTMuType (=0 user's ones, >0 calculated) 
+	fT 		= cms.double(0.165), 	# Temperature at chemical freeze-out, fT [GeV]
+	fMuC 		= cms.double(0.), 	# Chemical charm potential per unit charge, fMuC [GeV] (used if charm production is turned on)  
 	### Strangeness suppression factor ###
 	fCorrS 		= cms.double(1.), 	# Strangeness supression factor gamma_s with fCorrS value (0<fCorrS <=1, if fCorrS <= 0 then it is calculated)
 
-	### Maximal longitudinal flow rapidity at thermal freeze-out ###
-	fYlmax 		= cms.double(4.5), 	# Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+
+        fRhou2		= cms.double(0.), 	# Parameter to specify/switch ON(>0)/OFF(0) elliptic modulations of collective velocity profile for the alternative treatment of anisotropic flow 
 	
+	fRhou3          = cms.double(0.),        # Parameter to specify/switch ON(>0)/OFF(0) triangular modulations of collective velocity profile for the alternative treatment of anisotropic flow
+
+	fRhou4          = cms.double(0.),        # Parameter to specify/switch ON(>0)/OFF(0) quadrangular modulations of collective velocity profile for the alternative treatment of anisotropic flow
+
 	### Anizotropy parameter at thermal freeze-out ###
-	fIfDeltaEpsilon 	= cms.double(1.), 	# Flag to specify fDelta and fEpsilon values, fIfDeltaEpsilon (=0 user's ones, >=1 calculated) 
+	fIfDeltaEpsilon = cms.double(1.), 	# Flag to specify fDelta and fEpsilon values, fIfDeltaEpsilon (=0 user's ones, >=1 calculated) 
 	fDelta 		= cms.double(0.1), 	# Momentum azimuthal anizotropy parameter at thermal freeze-out, fDelta
-	fEpsilon 		= cms.double(0.05), 	# Spatial azimuthal anisotropy parameter at thermal freeze-out, fEpsilon
+	fEpsilon 	= cms.double(0.05), 	# Spatial azimuthal anisotropy parameter at thermal freeze-out, fEpsilon
+
+	fKeps2		= cms.double(0.34),	# Parameter to specify/switch ON(>0)/OFF(0) elliptic flow fluctuations
+
+        fKeps3          = cms.double(0.52),     # Parameter to specify/switch ON(>0)/OFF(0) triangular flow fluctuations
 
   	### Decays ###
 	fDecay 		= cms.int32(1), 	# Flag to switch on/off hadron decays, fDecay (=0 decays off, >=1 decays on)
-	fWeakDecay 		= cms.double(0.000000000000001), 	# Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
 	
   	### Charm ###
-	fCharmProd 		= cms.int32(1), 	# Flag to include thermal charm production, fIcharm (=0 no charm production, >=1 charm production) 
+	fCharmProd 	= cms.int32(1), 	# Flag to include thermal charm production, fCharmProd (=0 no charm production, >=1 charm production) 
 	fCorrC 		= cms.double(-1.), 	# Charmness enhancement factor gamma_c with fCorrC value (fCorrC >0, if fCorrC<0 then it is calculated)
-	fEtaType 		= cms.double(1.), 	# Flag to choose longitudinal flow rapidity distribution, fEtaType (=0 uniform, >0 Gaussian with the dispersion Ylmax)
+	fEtaType 	= cms.double(1.), 	# Flag to choose longitudinal flow rapidity distribution, fEtaType (=0 uniform, >0 Gaussian with the dispersion Ylmax)
 	fIshad 		= cms.int32(1), 	# Flag to switch on/off nuclear shadowing, fIshad (0 shadowing off, 1 shadowing on)	
-	fPyhist 		= cms.int32(0), 	# Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
-	fIenglu 		= cms.int32(0), 	# Flag to fix type of partonic energy loss, fIenglu (0 radiative and collisional loss, 1 radiative loss only, 2 collisional loss only)
-	fIanglu 		= cms.int32(1), 	# Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
-	embeddingMode 	= cms.bool(False),
-	rotateEventPlane 	= cms.bool(True)
+	fPyhist 	= cms.int32(0), 	# Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
+	fIenglu 	= cms.int32(0), 	# Flag to fix type of partonic energy loss, fIenglu (0 radiative and collisional loss, 1 radiative loss only, 2 collisional loss only)
+	fIanglu 	= cms.int32(0), 	# Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
+	embeddingMode 	= cms.int32(0),
+	rotateEventPlane= cms.bool(True)
 )
 
 PythiaDefaultBlock = cms.PSet(
 	pythiaUESettingsBlock,
 	TDB = cms.vstring(
-		'PARJ(14)=0.' # ! replacing the same parametr from pythiaQuarkoniaSettings block to avoid producing h'_1 (pdg - 10333)
+		'PARJ(14)=0.' 	# ! replacing the same parametr from pythiaQuarkoniaSettings block to avoid producing h'_1 (pdg - 10333)
 	),
 	hydjet2PythiaDefault = cms.vstring(
 		'MSEL=1',	# ! type of hard QCD production process
 	   	'MSTU(21) = 1',	# ! controle parameter to avoid stopping run
 		'PARU(14)=1.', 	# ! tolerance parameter to adjust fragmentation'
+		'MSTP(81)=1',	# ! pp multiple scattering on (UE model)
 		'MSTJ(21) = 1',	# ! hadron decays on (if off - decays by FASTMC decayer) 
 		'MSTP(2) = 1',	# ! which order running alphaS 
-		'MSTJ(22)=2',	# ! particle decays if lifetime < parj(71)
-		'PARJ(71)=10.',	# ! ctau=10 mm 
-		'MSTP(52) = 1',	# ! NO LAPDF		
-		'mstp(122)=0'	# ! no printout of Pythia initialization information hereinafter 
+		'MSTP(33) = 0', # ! inclusion of k factor in cross section (on/off)
+
+		#Mod for proQ20
+                'parp(67)=1.',  # ! ISR Q2max factor (amount of initial-state radiation)                            
+                'parp(82)=2.',  # ! UE IR cutoff at reference ecm    
+                'mstj(11)=3',  	# ! HAD choice of fragmentation function(s)      
+
+		#'MSTJ(22)=2',	# ! particle decays if lifetime < parj(71)
+		#'PARJ(71)=10.',# ! ctau=10 mm 
+		#'MSTP(52) = 1',# ! NO LAPDF		
+		#'mstp(122)=0'	# ! no printout of Pythia initialization information hereinafter 
 	),
 	ProQ2Otune = cms.vstring(  
 		'mstp(51)=7',	# ! PDF set: structure function chosen - CTEQ5M pdf                                      
       		'mstp(3)=2',	# ! QCD switch for choice of LambdaQCD           
       		'parp(62)=2.9',	# ! ISR IR cutoff                                
       		'parp(64)=0.14',# ! ISR renormalization scale prefactor          
-      		'parp(67)=2.65',# ! ISR Q2max factor                             
+      		#'parp(67)=2.65',# ! ISR Q2max factor                             
       		'mstp(68)=3',	# ! ISR phase space choice & ME corrections      
       		'parp(71)=4.',	# ! FSR Q2max factor for non-s-channel procs     
       		'parj(81)=0.29',# ! FSR Lambda_QCD scale                         
       		'parj(82)=1.65',# ! FSR IR cutoff                                
       		'mstp(33)=0',	# ! "K" switch for K-factor on/off & type        
       		'mstp(81)=1',	# ! UE model                                     
-      		'parp(82)=1.9',	# ! UE IR cutoff at reference ecm                
+      		#'parp(82)=1.9',# ! UE IR cutoff at reference ecm                
       		'parp(89)=1800.',# ! UE IR cutoff reference ecm                   
       		'parp(90)=0.22',# ! UE IR cutoff ecm scaling power               
       		'mstp(82)=4',	# ! UE hadron transverse mass distribution       
@@ -113,7 +178,7 @@ PythiaDefaultBlock = cms.PSet(
       		'mstp(91)=1',	# ! BR primordial kT distribution                
       		'parp(91)=2.1',	# ! BR primordial kT width <|kT|>                
       		'parp(93)=5.',	# ! BR primordial kT UV cutoff               
-      		'mstj(11)=5',	# ! HAD choice of fragmentation function(s)      
+      		#'mstj(11)=5',	# ! HAD choice of fragmentation function(s)      
       		'parj(1)=0.073',# ! HAD diquark suppression                      
       		'parj(2)=0.2',	# ! HAD strangeness suppression                  
       		'parj(3)=0.94',	# ! HAD strange diquark suppression              

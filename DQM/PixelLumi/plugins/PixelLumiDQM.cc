@@ -550,7 +550,7 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm
 
 unsigned int PixelLumiDQM::calculateBunchMask(MonitorElement *e, std::vector<bool> &mask) {
   unsigned int nbins = e->getNbinsX();
-  std::vector<float> ar(nbins, 0.);
+  std::vector<float> ar(nbins + 1, 0.);
   for (unsigned int i = 1; i <= nbins; i++) {
     ar[i] = e->getBinContent(i);
   }

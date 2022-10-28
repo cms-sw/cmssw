@@ -1,3 +1,12 @@
+## COMMENTS FROM TIM COX 12.07.2022
+
+## This README seems to have lost many of the files it references.
+## I suspect it was the README to go with several files and code updates 
+## for CSCValidation macros perhaps from Nikolai Terentiev
+
+## TO DO: Decide what to do with it.
+## At least useful to document how old macros were run.
+-------------------------------------------------------------------------------------------
 
 1. Root scripts and headers for CVS, RecoLocalMuon/CSCValidation/,
    output root files and text files for storage (examples for run 62232)

@@ -30,12 +30,6 @@ public:
                            const std::vector<std::string>& spectators,
                            bool useAdaBoost = false);
 
-  void initializeGBRForest(const edm::EventSetup& iSetup,
-                           const std::string& label,
-                           const std::vector<std::string>& variables,
-                           const std::vector<std::string>& spectators,
-                           bool useAdaBoost = false);
-
   float evaluateTMVA(const std::map<std::string, float>& inputs, bool useSpectators) const;
   float evaluateGBRForest(const std::map<std::string, float>& inputs) const;
   float evaluate(const std::map<std::string, float>& inputs, bool useSpectators = false) const;

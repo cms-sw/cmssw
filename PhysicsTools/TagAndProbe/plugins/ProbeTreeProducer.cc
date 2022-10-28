@@ -14,7 +14,7 @@
 #include <memory>
 #include <cctype>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +24,7 @@
 #include "PhysicsTools/TagAndProbe/interface/BaseTreeFiller.h"
 #include <set>
 
-class ProbeTreeProducer : public edm::EDFilter {
+class ProbeTreeProducer : public edm::one::EDFilter<> {
 public:
   explicit ProbeTreeProducer(const edm::ParameterSet&);
   ~ProbeTreeProducer() override;

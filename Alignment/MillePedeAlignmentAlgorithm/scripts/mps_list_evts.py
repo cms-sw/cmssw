@@ -18,7 +18,6 @@ from __future__ import print_function
 
 import sys
 
-import six
 
 mps_db = "mps.db"               # the mps.db file, default value
 
@@ -66,7 +65,7 @@ def get_num_evts_per_merged_dataset(merged_datasets,num_evts_per_dataset):
     `merge_datasets' for an explanation of <merged_dataset>.
     """
     num_evts_per_merged_dataset = {}
-    for merged_dataset,datasets in six.iteritems(merged_datasets):
+    for merged_dataset,datasets in merged_datasets.items():
         num_evts = 0
         for dataset in datasets:
             num_evts = num_evts + num_evts_per_dataset[dataset]
@@ -106,7 +105,7 @@ def print_merging_scheme(merged_datasets):
     of what is meant by merged dataset.
     """
     print("Defining the following merged datasets:")
-    for merged_dataset,datasets in six.iteritems(merged_datasets):
+    for merged_dataset,datasets in merged_datasets.items():
         print("\n  `"+merged_dataset+"' from:")
         for dataset in datasets:
             print("    `"+dataset+"'")

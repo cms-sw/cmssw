@@ -48,7 +48,6 @@ HGCalTowerProducer::HGCalTowerProducer(const edm::ParameterSet& conf)
 }
 
 void HGCalTowerProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  towersProcess_->eventSetup(es);
   triggerGeometry_ = es.getHandle(triggerGeomToken_);
   towersProcess_->setGeometry(triggerGeometry_.product());
 }
@@ -65,7 +64,7 @@ void HGCalTowerProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(input_towers_map_, towersMapBxColl);
   e.getByToken(input_trigger_cells_, clustersBxColl);
 
-  towersProcess_->run(inputsColl, *towers_output, es);
+  towersProcess_->run(inputsColl, *towers_output);
 
   e.put(std::move(towers_output), towersProcess_->name());
 }

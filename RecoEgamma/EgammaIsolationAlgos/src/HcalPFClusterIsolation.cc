@@ -29,13 +29,14 @@ template <typename T1>
 HcalPFClusterIsolation<T1>::~HcalPFClusterIsolation() {}
 
 template <typename T1>
-double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef,
+double HcalPFClusterIsolation<T1>::getSum(const T1 cand,
                                           const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles) {
   double etSum = 0.;
+  double candAbsEta = std::abs(cand.eta());
 
   float etaStrip = 0;
   float dRVeto = 0;
-  if (fabs(candRef->eta()) < 1.479) {
+  if (candAbsEta < 1.479) {
     dRVeto = drVetoBarrel_;
     etaStrip = etaStripBarrel_;
   } else {
@@ -47,20 +48,20 @@ double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef,
     for (unsigned i = 0; i < clusterHandles[nHandle]->size(); i++) {
       const reco::PFClusterRef pfclu(clusterHandles[nHandle], i);
 
-      if (fabs(candRef->eta()) < 1.479) {
-        if (fabs(pfclu->pt()) < energyBarrel_)
+      if (candAbsEta < 1.479) {
+        if (std::abs(pfclu->pt()) < energyBarrel_)
           continue;
       } else {
-        if (fabs(pfclu->energy()) < energyEndcap_)
+        if (std::abs(pfclu->energy()) < energyEndcap_)
           continue;
       }
 
-      float dEta = fabs(candRef->eta() - pfclu->eta());
+      float dEta = std::abs(cand.eta() - pfclu->eta());
       if (dEta < etaStrip)
         continue;
 
-      float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-      if (dR > drMax_ || dR < dRVeto)
+      float dR2 = deltaR2(cand.eta(), cand.phi(), pfclu->eta(), pfclu->phi());
+      if (dR2 > (drMax_ * drMax_) || dR2 < (dRVeto * dRVeto))
         continue;
 
       if (useEt_)
@@ -71,6 +72,12 @@ double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef,
   }
 
   return etSum;
+}
+
+template <typename T1>
+double HcalPFClusterIsolation<T1>::getSum(T1Ref ref,
+                                          const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles) {
+  return getSum(*ref, clusterHandles);
 }
 
 template class HcalPFClusterIsolation<reco::RecoEcalCandidate>;

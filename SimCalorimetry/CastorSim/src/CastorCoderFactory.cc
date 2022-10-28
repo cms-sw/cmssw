@@ -1,6 +1,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
 #include "CalibFormats/CastorObjects/interface/CastorNominalCoder.h"
-#include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
+#include "SimCalorimetry/CastorSim/interface/CastorCoderFactory.h"
 #include <cassert>
 
 CastorCoderFactory::CastorCoderFactory(CoderType coderType) : theCoderType(coderType), theDbService(nullptr) {}

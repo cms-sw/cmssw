@@ -133,7 +133,6 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.debug_step)
-#process.schedule.extend(process.HLTSchedule)
 #process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 process.schedule.extend([process.endjob_step])
 

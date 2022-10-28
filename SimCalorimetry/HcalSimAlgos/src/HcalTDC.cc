@@ -11,6 +11,28 @@ HcalTDC::~HcalTDC() {}
 
 //template <class Digi>
 void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
+  std::vector<int> packedTDCs = leadingEdgeTDC(lf);
+
+  for (int ibin = 0; ibin < lf.size(); ++ibin) {
+    digi.setSample(ibin, digi[ibin].adc(), packedTDCs[ibin], digi[ibin].soi());
+
+  }  // loop over bunch crossing bins
+}
+
+void HcalTDC::timing(const CaloSamples& lf, QIE10DataFrame& digi) const {
+  std::vector<int> packedTDCs = leadingEdgeTDC(lf);
+
+  for (int ibin = 0; ibin < lf.size(); ++ibin) {
+    QIE10DataFrame::Sample sam = digi[ibin];
+    digi.setSample(ibin, sam.adc(), packedTDCs[ibin] /*LE TDC*/, 0. /*TE TDC*/, sam.capid(), sam.soi(), sam.ok());
+
+  }  // loop over bunch crossing bins
+}
+
+//leading edge TDC
+std::vector<int> HcalTDC::leadingEdgeTDC(const CaloSamples& lf) const {
+  std::vector<int> result;
+
   float const TDC_Threshold(getThreshold());
   bool risingReady(true);
   int tdcBins = theTDCParameters.nbins();
@@ -66,9 +88,12 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
 
     // change packing to allow for special codes
     int packedTDC = TDC_RisingEdge;
-    digi.setSample(ibin, digi[ibin].adc(), packedTDC, digi[ibin].soi());
+
+    result.push_back(packedTDC);
 
   }  // loop over bunch crossing bins
+
+  return result;
 }
 
 void HcalTDC::setDbService(const HcalDbService* service) { theDbService = service; }

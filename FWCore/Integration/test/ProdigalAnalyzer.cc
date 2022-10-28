@@ -9,7 +9,7 @@
 namespace edmtest {
   ProdigalAnalyzer::ProdigalAnalyzer(edm::ParameterSet const&) { consumes<Prodigal>(edm::InputTag{"maker"}); }
 
-  void ProdigalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void ProdigalAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     edm::Handle<Prodigal> h;
     assert(e.getByLabel("maker", h));
     assert(h.provenance()->productProvenance()->parentage().parents().empty());

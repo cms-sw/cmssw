@@ -37,6 +37,7 @@ def printGeomInfo(process):
     process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
     process.g4SimHits.Physics.DummyEMPhysics = True
     process.g4SimHits.Physics.DefaultCutValue = 10. 
+    process.g4SimHits.LHCTransport = False
 
     process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         DumpSummary    = cms.untracked.bool(True),
@@ -51,7 +52,8 @@ def printGeomInfo(process):
         DumpReplica    = cms.untracked.bool(False),
         DumpTouch      = cms.untracked.bool(False),
         DumpSense      = cms.untracked.bool(False),
-        DD4Hep         = cms.untracked.bool(False),
+        DumpParams     = cms.untracked.bool(False),
+        DD4hep         = cms.untracked.bool(False),
         Name           = cms.untracked.string('TotemT*'),
         Names          = cms.untracked.vstring(' '),
         type           = cms.string('PrintGeomInfoAction')

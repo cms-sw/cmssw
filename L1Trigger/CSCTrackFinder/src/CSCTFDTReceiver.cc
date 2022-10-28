@@ -1,5 +1,5 @@
-#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFDTReceiver.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
@@ -14,8 +14,6 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
   if (!dttrig)
     return dtstubs;
 
-  //Need a better way to get these values since this
-  // violates CMSSW coding policy
   const int dt_minBX = L1MuDTTFConfig::getBxMinGlobally();
   const int dt_maxBX = L1MuDTTFConfig::getBxMaxGlobally();
 

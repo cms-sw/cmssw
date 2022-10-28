@@ -11,6 +11,7 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
 
   uint16_t BXNCount() const override { return bits.bxnCount; }
   uint16_t ALCTMatchTime() const override { return bits.alctMatchTime; }
+  void setALCTMatchTime(uint16_t alctmatchtime) override { bits.alctMatchTime = alctmatchtime & 0xF; }
   uint16_t CLCTOnly() const override { return bits.clctOnly; }
   uint16_t ALCTOnly() const override { return bits.alctOnly; }
   uint16_t TMBMatch() const override { return bits.tmbMatch; }
@@ -25,11 +26,35 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   uint16_t syncErrorCLCT() const override { return (bits.clct0_sync_err | bits.clct1_sync_err); }
   uint16_t syncErrorMPC0() const override { return bits.MPC_Muon0_SyncErr_; }
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
+  uint16_t L1AMatchTime() const override { return bits.pop_l1a_match_win; }
+
+  /// == Run 3 CSC-GEM Trigger Format
+  uint16_t clct0_ComparatorCode() const override { return 0; }
+  uint16_t clct1_ComparatorCode() const override { return 0; }
+  uint16_t clct0_xky() const override { return 0; }
+  uint16_t clct1_xky() const override { return 0; }
+  uint16_t hmt_nhits() const override { return 0; }
+  uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t alctHMT() const override { return 0; }
+  uint16_t clctHMT() const override { return 0; }
+  uint16_t gem_enabled_fibers() const override { return 0; }
+  uint16_t gem_fifo_tbins() const override { return 0; }
+  uint16_t gem_fifo_pretrig() const override { return 0; }
+  uint16_t gem_zero_suppress() const override { return 0; }
+  uint16_t gem_sync_dataword() const override { return 0; }
+  uint16_t gem_timing_dataword() const override { return 0; }
+  uint16_t run3_CLCT_patternID() const override { return 0; }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
+  ///returns lct HMT Shower digi
+  CSCShowerDigi showerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
+  ///returns anode HMT Shower digi
+  CSCShowerDigi anodeShowerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
+  ///returns cathode HMT Shower digi
+  CSCShowerDigi cathodeShowerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -48,6 +73,8 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
   void addShower(const CSCShowerDigi& digi) override {}
+  void addAnodeShower(const CSCShowerDigi& digi) override {}
+  void addCathodeShower(const CSCShowerDigi& digi) override {}
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 

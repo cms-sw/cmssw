@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 ###################################
-from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
+import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 
 
 # NEW CLUSTERS (remove previously used clusters)
@@ -56,12 +56,12 @@ hiRegitLowPtTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.LowPtTri
 
 
 hiRegitLowPtTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitLowPtTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('hiRegitLowPtTripletStepClusters'),
+    trajectoryFilter = dict(refToPSet_ = 'hiRegitLowPtTripletStepTrajectoryFilter'),
+    clustersToSkip = 'hiRegitLowPtTripletStepClusters',
 )
 
 # track candidates
-hiRegitLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTrackCandidates.clone(
+hiRegitLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.LowPtTripletStep_cff._lowPtTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitLowPtTripletStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitLowPtTripletStepTrajectoryBuilder')),
     maxNSeeds = 100000

@@ -1,0 +1,55 @@
+#ifdef MPLEX_INTRINSICS
+
+   for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T))
+   {
+      IntrVec_t b_0 = LD(b, 0);
+      IntrVec_t a_0 = LD(a, 0);
+      IntrVec_t c_0 = MUL(b_0, a_0);
+
+      IntrVec_t b_1 = LD(b, 1);
+      IntrVec_t a_1 = LD(a, 1);
+      c_0 = FMA(b_1, a_1, c_0);
+
+
+      IntrVec_t b_3 = LD(b, 3);
+      IntrVec_t c_1 = MUL(b_3, a_0);
+
+      IntrVec_t b_4 = LD(b, 4);
+      c_1 = FMA(b_4, a_1, c_1);
+      ST(c, 0, c_0);
+
+      IntrVec_t b_5 = LD(b, 5);
+      IntrVec_t c_2 = b_5;
+
+      IntrVec_t b_6 = LD(b, 6);
+      IntrVec_t c_3 = MUL(b_6, a_0);
+      ST(c, 1, c_1);
+      IntrVec_t a_6 = LD(a, 6);
+      IntrVec_t c_5 = MUL(b_6, a_6);
+      ST(c, 2, c_2);
+
+      IntrVec_t b_7 = LD(b, 7);
+      c_3 = FMA(b_7, a_1, c_3);
+      IntrVec_t a_7 = LD(a, 7);
+      c_5 = FMA(b_7, a_7, c_5);
+
+      IntrVec_t b_8 = LD(b, 8);
+      IntrVec_t c_4 = b_8;
+      ST(c, 3, c_3);
+      ST(c, 4, c_4);
+      ST(c, 5, c_5);
+   }
+
+#else
+
+#pragma omp simd
+   for (int n = 0; n < N; ++n)
+   {
+      c[ 0*N+n] = b[ 0*N+n]*a[ 0*N+n] + b[ 1*N+n]*a[ 1*N+n];
+      c[ 1*N+n] = b[ 3*N+n]*a[ 0*N+n] + b[ 4*N+n]*a[ 1*N+n];
+      c[ 2*N+n] = b[ 5*N+n];
+      c[ 3*N+n] = b[ 6*N+n]*a[ 0*N+n] + b[ 7*N+n]*a[ 1*N+n];
+      c[ 4*N+n] = b[ 8*N+n];
+      c[ 5*N+n] = b[ 6*N+n]*a[ 6*N+n] + b[ 7*N+n]*a[ 7*N+n];
+   }
+#endif

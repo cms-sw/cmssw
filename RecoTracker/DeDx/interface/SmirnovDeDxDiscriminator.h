@@ -8,7 +8,7 @@
 class SmirnovDeDxDiscriminator : public BaseDeDxEstimator {
 public:
   SmirnovDeDxDiscriminator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iCollector)
-      : token_(DeDxTools::esConsumes(iConfig.getParameter<std::string>("Reccord"), iCollector)) {
+      : token_(deDxTools::esConsumes(iConfig.getParameter<std::string>("Record"), iCollector)) {
     meVperADCStrip =
         iConfig.getParameter<double>("MeVperADCStrip");  //currently needed until the map on the database are redone
     ProbabilityMode = iConfig.getParameter<std::string>("ProbabilityMode");
@@ -16,8 +16,8 @@ public:
   }
 
   void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override {
-    auto const& histD3D = DeDxTools::getHistogramD3D(iSetup, token_);
-    DeDxTools::buildDiscrimMap(histD3D, ProbabilityMode, Prob_ChargePath);
+    auto const& histD3D = deDxTools::getHistogramD3D(iSetup, token_);
+    deDxTools::buildDiscrimMap(histD3D, ProbabilityMode, Prob_ChargePath);
   }
 
   std::pair<float, float> dedx(const reco::DeDxHitCollection& Hits) override {
@@ -51,7 +51,7 @@ public:
 
 private:
   float meVperADCStrip;
-  DeDxTools::ESGetTokenH3DDVariant token_;
+  deDxTools::ESGetTokenH3DDVariant token_;
   std::string ProbabilityMode;
   TH3F* Prob_ChargePath;
 };

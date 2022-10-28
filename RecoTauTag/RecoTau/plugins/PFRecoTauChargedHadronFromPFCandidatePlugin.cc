@@ -183,7 +183,7 @@ namespace reco {
           algo = PFRecoTauChargedHadron::kChargedPFCandidate;
         else
           algo = PFRecoTauChargedHadron::kPFNeutralHadron;
-        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
+        auto chargedHadron = std::make_unique<PFRecoTauChargedHadron>(**cand, algo);
 
         const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&**cand);
         if (pfCand) {
@@ -281,7 +281,7 @@ namespace reco {
         output.push_back(std::move(chargedHadron));
       }
 
-      return output.release();
+      return output;
     }
 
   }  // namespace tau

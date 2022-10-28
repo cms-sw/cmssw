@@ -1,13 +1,19 @@
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -31,6 +37,9 @@
 
 #include <iostream>
 #include "TProfile.h"
+#include "TTree.h"
+
+//#define EDM_ML_DEBUG
 
 class HcalCorrPFCalculation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
@@ -41,12 +50,12 @@ public:
 private:
   double RecalibFactor(HcalDetId id);
 
-  bool Respcorr_;
-  bool PFcorr_;
-  bool Conecorr_;
-  double radius_;
+  const bool Respcorr_;
+  const bool PFcorr_;
+  const bool Conecorr_;
+  // double radius_;
 
-  double clusterConeSize_, associationConeSize_, ecalCone_, neutralIsolationCone_, trackIsolationCone_;
+  const double clusterConeSize_, associationConeSize_, ecalCone_, neutralIsolationCone_, trackIsolationCone_;
   float eECAL, eECAL09cm, eECAL40cm;
   // double energyECALmip;
 
@@ -95,43 +104,47 @@ private:
   Int_t nTracks;
   Float_t genEta, genPhi, trackEta[50], trackPhi[50], trackP[50], delRmc[50];
 
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
-  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_gen_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_gen_;
 
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
-  edm::ESGetToken<HcalPFCorrs, HcalPFCorrsRcd> tok_pfcorr_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  const edm::ESGetToken<HcalPFCorrs, HcalPFCorrsRcd> tok_pfcorr_;
 };
 
-HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
+HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig)
+    : Respcorr_(iConfig.getUntrackedParameter<bool>("RespcorrAdd", false)),
+      PFcorr_(iConfig.getUntrackedParameter<bool>("PFcorrAdd", false)),
+      Conecorr_(iConfig.getUntrackedParameter<bool>("ConeCorrAdd", true)),
+      clusterConeSize_(iConfig.getParameter<double>("clusterConeSize")),
+      associationConeSize_(iConfig.getParameter<double>("associationConeSize")),
+      ecalCone_(iConfig.getParameter<double>("ecalCone")),
+      neutralIsolationCone_(iConfig.getParameter<double>("neutralIsolationCone")),
+      trackIsolationCone_(iConfig.getParameter<double>("trackIsolationCone")),
+      tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag"))),
+      tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag"))),
+      tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag"))),
+      tok_EE_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEE"))),
+      tok_EB_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"))),
+      tok_tracks_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks"))),
+      tok_gen_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_pfcorr_(esConsumes<HcalPFCorrs, HcalPFCorrsRcd>()) {
   usesResource(TFileService::kSharedResource);
-  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag"));
-  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag"));
-  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag"));
 
   // should maybe add these options to configuration - cowden
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-  tok_tracks_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
-  tok_gen_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-
-  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-  tok_pfcorr_ = esConsumes<HcalPFCorrs, HcalPFCorrsRcd>();
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
-  Respcorr_ = iConfig.getUntrackedParameter<bool>("RespcorrAdd", false);
-  PFcorr_ = iConfig.getUntrackedParameter<bool>("PFcorrAdd", false);
-  Conecorr_ = iConfig.getUntrackedParameter<bool>("ConeCorrAdd", true);
   //radius_       = iConfig.getUntrackedParameter<double>("ConeRadiusCm", 40.);
   //energyECALmip = iConfig.getParameter<double>("energyECALmip");
 
@@ -139,12 +152,6 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
   trackAssociator_.useDefaultPropagator();
-
-  associationConeSize_ = iConfig.getParameter<double>("associationConeSize");
-  clusterConeSize_ = iConfig.getParameter<double>("clusterConeSize");
-  ecalCone_ = iConfig.getParameter<double>("ecalCone");
-  trackIsolationCone_ = iConfig.getParameter<double>("trackIsolationCone");
-  neutralIsolationCone_ = iConfig.getParameter<double>("neutralIsolationCone");
 
   // AxB_=iConfig.getParameter<std::string>("AxB");
 }
@@ -170,30 +177,22 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     pfRecalib = &c.getData(tok_pfcorr_);
 
     AddRecalib = kTRUE;
-    // edm::LogVerbatim("CalibConstants")<<"   OK ";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CalibConstants") << "   OK ";
+#endif
 
   } catch (const cms::Exception& e) {
     edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  ev.getByToken(tok_hbhe_, hbhe);
-  const HBHERecHitCollection Hithbhe = *(hbhe.product());
+  const HBHERecHitCollection& Hithbhe = ev.get(tok_hbhe_);
+  const HFRecHitCollection& Hithf = ev.get(tok_hf_);
+  //  const HORecHitCollection & Hitho = ev.get(tok_ho_);
 
-  edm::Handle<HFRecHitCollection> hfcoll;
-  ev.getByToken(tok_hf_, hfcoll);
-  const HFRecHitCollection Hithf = *(hfcoll.product());
-
-  edm::Handle<HORecHitCollection> hocoll;
-  ev.getByToken(tok_ho_, hocoll);
-  const HORecHitCollection Hitho = *(hocoll.product());
-
-  edm::Handle<EERecHitCollection> ecalEE;
-  ev.getByToken(tok_EE_, ecalEE);
+  const edm::Handle<EERecHitCollection>& ecalEE = ev.getHandle(tok_EE_);
   const EERecHitCollection HitecalEE = *(ecalEE.product());
 
-  edm::Handle<EBRecHitCollection> ecalEB;
-  ev.getByToken(tok_EB_, ecalEB);
+  const edm::Handle<EBRecHitCollection>& ecalEB = ev.getHandle(tok_EB_);
   const EBRecHitCollection HitecalEB = *(ecalEB.product());
 
   // temporary collection of EB+EE recHits
@@ -206,8 +205,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
   const EcalRecHitCollection Hitecal = *tmpEcalRecHitCollection;
 
-  edm::Handle<reco::TrackCollection> generalTracks;
-  ev.getByToken(tok_tracks_, generalTracks);
+  const edm::Handle<reco::TrackCollection>& generalTracks = ev.getHandle(tok_tracks_);
 
   geo = &c.getData(tok_geom_);
 
@@ -240,14 +238,14 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // MC information
 
-  edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("generatorSmeared",evtMC);
-  ev.getByToken(tok_gen_, evtMC);
+  const edm::Handle<edm::HepMCProduct>& evtMC = ev.getHandle(tok_gen_);
   if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;
+    edm::LogVerbatim("HcalCalib") << "no HepMCProduct found";
   } else {
     //MC=true;
-    //    std::cout << "*** source HepMCProduct found"<< std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalCalib") << "*** source HepMCProduct found";
+#endif
   }
 
   // MC particle with highest pt is taken as a direction reference
@@ -373,20 +371,27 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //zAtHcal = gPointHcal.z();
     /*       -----------------   ------------------------      */
 
-    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) { /*cout <<"gPointHcal is Zero!"<<endl;*/
+    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "gPointHcal is Zero!";
+#endif
       continue;
     }
 
     float etahcal = gPointHcal.eta();
-    // float phihcal=gPointHcal.phi();
     if (abs(etahcal) > 5.192)
       continue;
-    //if (abs(etahcal)>3.0 && abs(etahcal)<5.191)
-
-    //cout <<gPointHcal.x() <<"   "<<gPointHcal.y() <<"   "<<gPointHcal.z()<<"    "<<gPointHcal.eta()<<"  "<<gPointHcal.phi()<<"   "<<ietatrue<<"   "<<iphitrue <<endl;
-
-    //      if (ietatrue==100 || iphitrue==-10) {cout<<"ietatrue: "<<ietatrue<<"   iphitrue: "<<iphitrue<<"  etahcal: "<<etahcal<<"  phihcal: "<<phihcal<<endl;}
-
+#ifdef EDM_ML_DEBUG
+    if (std::abs(etahcal) > 3.0 && std::abs(etahcal) < 5.191) {
+      edm::LogVerbatim("HcalCalib") << gPointHcal.x() << "   " << gPointHcal.y() << "   " << gPointHcal.z() << "    "
+                                    << gPointHcal.eta() << "  " << gPointHcal.phi() << "   " << ietatrue << "   "
+                                    << iphitrue;
+      if (ietatrue == 100 || iphitrue == -10) {
+        edm::LogVerbatim("HcalCalib") << "ietatrue: " << ietatrue << "   iphitrue: " << iphitrue
+                                      << "  etahcal: " << etahcal << "  phihcal: " << gPointHcal.phi();
+      }
+    }
+#endif
     /*   -------------   Calculate Ecal Energy using TrackAssociator  ---------------------- */
 
     //float etaecal=info.trkGlobPosAtEcal.eta();
@@ -502,8 +507,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //    for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++)
     {
       recal = RecalibFactor(hhit->detid());
-      //cout<<"recal: "<<recal<<endl;
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "recal: " << recal;
+#endif
       GlobalPoint pos = gHcal->getPosition(hhit->detid());
 
       int iphihit = (hhit->id()).iphi();
@@ -544,9 +550,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
                                  !(abs(MaxHit.ietahitm) == 21 && abs((hhit->id()).ieta()) <= 20 && abs(DIPHI) > 1)))) {
           e3x3 += hhit->energy();
         }
-
-        // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalCalib") << "track: ieta " << ietahit << " iphi: " << iphihit << " depth: " << depthhit
+                                      << " energydepos: " << enehit;
+#endif
         for (HBHERecHitCollection::const_iterator hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
           recal = RecalibFactor(hhit2->detid());
           int iphihit2 = (hhit2->id()).iphi();
@@ -557,7 +564,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
           if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2 > 0.) {
             eHcalConeNoise += hhit2->energy() * recal;
             UsedCellsNoise++;
-            //cout<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2<<endl;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HcalCalib") << "Noise: ieta " << ietahit2 << " iphi: " << iphihit2
+                                          << " depth: " << depthhit2 << " energydepos: " << enehit2;
+#endif
           }
         }
       }
@@ -668,12 +678,13 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     diphi_M_P = diphi_M_P > 36 ? 72 - diphi_M_P : diphi_M_P;
     iDr = sqrt(diphi_M_P * diphi_M_P + dieta_M_P * dieta_M_P);
 
-    /*      if (iDr>15) 
-	{
-cout<<"diphi: "<<diphi_M_P<<"  dieta: "<<dieta_M_P<<"   iDr: "<<iDr<<" ietatrue:"<<ietatrue<<"  iphitrue:"<<iphitrue<<endl;
-cout<<"M ieta: "<<MaxHit.ietahitm<<"  M iphi: "<<MaxHit.iphihitm<<endl;
-	
-}*/
+#ifdef EDM_ML_DEBUG
+    if (iDr > 15) {
+      edm::LogVerbatim("HcalCalib") << "diphi: " << diphi_M_P << "  dieta: " << dieta_M_P << "   iDr: " << iDr
+                                    << " ietatrue:" << ietatrue << "  iphitrue:" << iphitrue;
+      edm::LogVerbatim("HcalCalib") << "M ieta: " << MaxHit.ietahitm << "  M iphi: " << MaxHit.iphihitm;
+    }
+#endif
 
     Bool_t passCuts = kFALSE;
     passCuts = kTRUE;

@@ -69,7 +69,8 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
     trajectoryBuilder =
         std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else if (typeOfBuilder == "DirectMuonTrajectoryBuilder")
-    trajectoryBuilder = std::make_unique<DirectMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get());
+    trajectoryBuilder =
+        std::make_unique<DirectMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else if (typeOfBuilder == "Exhaustive")
     trajectoryBuilder =
         std::make_unique<ExhaustiveMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);

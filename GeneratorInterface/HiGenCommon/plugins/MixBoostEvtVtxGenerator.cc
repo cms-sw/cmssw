@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -47,9 +47,13 @@ using namespace CLHEP;
 class RandGaussQ;
 class FourVector;
 
-class MixBoostEvtVtxGenerator : public edm::EDProducer {
+class MixBoostEvtVtxGenerator : public edm::one::EDProducer<> {
 public:
   MixBoostEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  MixBoostEvtVtxGenerator& operator=(const MixBoostEvtVtxGenerator& rhs) = delete;
   ~MixBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
@@ -83,11 +87,6 @@ public:
   double BetaFunction(double z, double z0);
 
 private:
-  /** Copy constructor */
-  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  MixBoostEvtVtxGenerator& operator=(const MixBoostEvtVtxGenerator& rhs) = delete;
-
   double alpha_, phi_;
   //TMatrixD boost_;
   double beta_;
@@ -101,10 +100,10 @@ private:
   TMatrixD* boost_;
   double fTimeOffset;
 
-  edm::EDGetTokenT<reco::VertexCollection> vtxLabel;
-  edm::EDGetTokenT<HepMCProduct> signalLabel;
-  edm::EDGetTokenT<CrossingFrame<HepMCProduct> > mixLabel;
-  bool useRecVertex;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxLabel;
+  const edm::EDGetTokenT<HepMCProduct> signalLabel;
+  const edm::EDGetTokenT<CrossingFrame<HepMCProduct> > mixLabel;
+  const bool useRecVertex;
   std::vector<double> vtxOffset;
 };
 
@@ -217,8 +216,7 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
 HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex(Event& evt) {
   const HepMC::GenEvent* inev = nullptr;
 
-  Handle<CrossingFrame<HepMCProduct> > cf;
-  evt.getByToken(mixLabel, cf);
+  const edm::Handle<CrossingFrame<HepMCProduct> >& cf = evt.getHandle(mixLabel);
   MixCollection<HepMCProduct> mix(cf.product());
 
   const HepMCProduct& bkg = mix.getObject(1);
@@ -257,8 +255,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex(Event& evt) {
 }
 
 HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex(Event& evt) {
-  Handle<reco::VertexCollection> input;
-  evt.getByToken(vtxLabel, input);
+  const edm::Handle<reco::VertexCollection>& input = evt.getHandle(vtxLabel);
 
   double aX, aY, aZ;
 
@@ -274,8 +271,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex(Event& evt) {
 }
 
 void MixBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
-  Handle<HepMCProduct> HepUnsmearedMCEvt;
-  evt.getByToken(signalLabel, HepUnsmearedMCEvt);
+  const edm::Handle<HepMCProduct>& HepUnsmearedMCEvt = evt.getHandle(signalLabel);
 
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());

@@ -1,10 +1,9 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -32,6 +31,9 @@
 #include "SimPPS/RPDigiProducer/plugins/RPDetDigitizer.h"
 #include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
 
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
 // system include files
 #include <memory>
 #include <vector>
@@ -50,10 +52,10 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public edm::EDProducer {
+class RPDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
-  ~RPDigiProducer() override;
+  ~RPDigiProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -85,6 +87,9 @@ private:
   bool simulateDeadChannels;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFrameTotemRP;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> alignmentToken;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomToken;
 };
 
 RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -102,12 +107,13 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
           "simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
+  if (simulateDeadChannels) {
+    tokenAnalysisMask = esConsumes();
+  }
+  alignmentToken = esConsumes();
+  geomToken = esConsumes();
 }
 
-RPDigiProducer::~RPDigiProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 //
 // member functions
 //
@@ -169,11 +175,17 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   DigiVector.reserve(400);
   DigiVector.clear();
 
+  CTPPSRPAlignmentCorrectionsData const* alignments = nullptr;
+  if (auto rec = iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) {
+    alignments = &iSetup.getData(alignmentToken);
+  }
+  auto const& geom = iSetup.getData(geomToken);
+
   for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, alignments, geom);
     }
 
     std::vector<int> input_links;
@@ -201,9 +213,8 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
-    edm::ESHandle<TotemAnalysisMask> analysisMask;
-    es.get<TotemReadoutRcd>().get(analysisMask);
-    deadChannelsManager = DeadChannelsManager(analysisMask);  //set analysisMask in deadChannelsManager
+    //set analysisMask in deadChannelsManager
+    deadChannelsManager = DeadChannelsManager(&es.getData(tokenAnalysisMask));
   }
 }
 

@@ -259,9 +259,7 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
   if (constraint == CONSTRAINT_PV_BEAMSPOT_SIZE || constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED ||
       constraint == CONSTRAINT_BEAMSPOT || constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT)
     token_BeamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpotTag"));
-  useExternalSV = false;
-  if (params.existsAs<bool>("useExternalSV"))
-    useExternalSV = params.getParameter<bool>("useExternalSV");
+  useExternalSV = params.getParameter<bool>("useExternalSV");
   if (useExternalSV) {
     token_extSVCollection = consumes<edm::View<VTX> >(params.getParameter<edm::InputTag>("extSVCollection"));
     extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
@@ -947,8 +945,7 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
                                               << std::endl;
     } else {
       unsigned int index = pos - trackRefs.begin();
-      trackData[index].second.svStatus =
-          (btag::TrackData::Status)((unsigned int)btag::TrackData::trackAssociatedToVertex + idx);
+      trackData[index].second.svStatus = (btag::TrackData::trackAssociatedToVertex + idx);
     }
   }
 }
@@ -962,8 +959,7 @@ void TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCan
 
     if (pos != trackRefs.end()) {
       unsigned int index = pos - trackRefs.begin();
-      trackData[index].second.svStatus =
-          (btag::TrackData::Status)((unsigned int)btag::TrackData::trackAssociatedToVertex + idx);
+      trackData[index].second.svStatus = (btag::TrackData::trackAssociatedToVertex + idx);
     }
   }
 }

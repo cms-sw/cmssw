@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/CUDAServices/interface/numberOfDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/ScopedSetDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/eventWorkHasCompleted.h"
@@ -19,10 +20,15 @@ namespace cms {
     class ESProduct {
     public:
       ESProduct() : gpuDataPerDevice_(numberOfDevices()) {
-        for (size_t i = 0; i < gpuDataPerDevice_.size(); ++i) {
-          gpuDataPerDevice_[i].m_event = getEventCache().get();
+        if (not gpuDataPerDevice_.empty()) {
+          cms::cuda::ScopedSetDevice scopedDevice;
+          for (size_t i = 0; i < gpuDataPerDevice_.size(); ++i) {
+            scopedDevice.set(i);
+            gpuDataPerDevice_[i].m_event = getEventCache().get();
+          }
         }
       }
+
       ~ESProduct() = default;
 
       // transferAsync should be a function of (T&, cudaStream_t)
@@ -30,12 +36,10 @@ namespace cms {
       // to the CUDA stream
       template <typename F>
       const T& dataForCurrentDeviceAsync(cudaStream_t cudaStream, F transferAsync) const {
-        auto device = currentDevice();
-
+        int device = currentDevice();
         auto& data = gpuDataPerDevice_[device];
 
-        // If GPU data has already been filled, we can return it
-        // immediately
+        // If the GPU data has already been filled, we can return it immediately
         if (not data.m_filled.load()) {
           // It wasn't, so need to fill it
           std::scoped_lock<std::mutex> lk{data.m_mutex};
@@ -75,6 +79,9 @@ namespace cms {
             transferAsync(data.m_data, cudaStream);
             assert(data.m_fillingStream == nullptr);
             data.m_fillingStream = cudaStream;
+            // Record in the cudaStream an event to mark the readiness of the
+            // EventSetup data on the GPU, so other streams can check for it
+            cudaCheck(cudaEventRecord(data.m_event.get(), cudaStream));
             // Now the filling has been enqueued to the cudaStream, so we
             // can return the GPU data immediately, since all subsequent
             // work must be either enqueued to the cudaStream, or the cudaStream
@@ -100,4 +107,4 @@ namespace cms {
   }  // namespace cuda
 }  // namespace cms
 
-#endif
+#endif  // HeterogeneousCore_CUDACore_ESProduct_h

@@ -16,19 +16,19 @@ SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg)
       theErrors(nullptr) {}
 
 void SurveyDBUploader::endJob() {
-  theValues = new SurveyValues;
-  theErrors = new SurveyErrors;
+  SurveyValues theValues;
+  SurveyErrors theErrors;
 
-  theValues->m_align.reserve(65536);
-  theErrors->m_surveyErrors.reserve(65536);
+  theValues.m_align.reserve(65536);
+  theErrors.m_surveyErrors.reserve(65536);
 
   getSurveyInfo(SurveyInputBase::detector());
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne<SurveyValues>(theValues, poolDbService->currentTime(), theValueRcd);
-    poolDbService->writeOne<SurveyErrors>(theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
+    poolDbService->writeOneIOV<SurveyValues>(theValues, poolDbService->currentTime(), theValueRcd);
+    poolDbService->writeOneIOV<SurveyErrors>(theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
   } else
     throw cms::Exception("ConfigError") << "PoolDBOutputService is not available";
 }

@@ -1,6 +1,42 @@
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClusterValidator.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
+#include <sstream>
+
+// user includes
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+class SiStripClusterValidator : public edm::one::EDAnalyzer<> {
+public:
+  SiStripClusterValidator(const edm::ParameterSet& config);
+  ~SiStripClusterValidator() override = default;
+  virtual void endJob() override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void validate(const edm::DetSetVector<SiStripCluster>&, const edm::DetSetVector<SiStripCluster>&);
+  void validate(const edmNew::DetSetVector<SiStripCluster>&, const edmNew::DetSetVector<SiStripCluster>&);
+
+private:
+  inline const std::string& header() { return header_; }
+
+  /// Input collections
+  const edm::InputTag collection1Tag_;
+  const edm::InputTag collection2Tag_;
+  const bool dsvnew_;
+  /// used to remember if there have been errors for message in endJob
+  bool errors_;
+
+  std::string header_;
+};
+
+std::ostream& operator<<(std::ostream&, const edmNew::DetSetVector<SiStripCluster>&);
+std::ostream& operator<<(std::ostream&, const edm::DetSetVector<SiStripCluster>&);
 
 SiStripClusterValidator::SiStripClusterValidator(const edm::ParameterSet& conf)
     : collection1Tag_(conf.getUntrackedParameter<edm::InputTag>("Collection1")),
@@ -26,10 +62,6 @@ SiStripClusterValidator::SiStripClusterValidator(const edm::ParameterSet& conf)
     consumes<edm::DetSetVector<SiStripCluster> >(collection2Tag_);
   }
 }
-
-SiStripClusterValidator::~SiStripClusterValidator() {}
-
-void SiStripClusterValidator::beginJob() {}
 
 void SiStripClusterValidator::endJob() {
   std::stringstream ss;
@@ -218,3 +250,7 @@ std::ostream& operator<<(std::ostream& ss, const edm::DetSetVector<SiStripCluste
   }
   return ss;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripClusterValidator);

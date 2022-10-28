@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -23,7 +23,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-class PatVertexAnalyzer : public edm::EDAnalyzer {
+class PatVertexAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor and destructor
   PatVertexAnalyzer(const edm::ParameterSet &params);
@@ -47,7 +47,9 @@ private:
 
 PatVertexAnalyzer::PatVertexAnalyzer(const edm::ParameterSet &params)
     : srcToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("src"))),
-      genParticlesToken_(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("mc"))) {}
+      genParticlesToken_(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("mc"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatVertexAnalyzer::~PatVertexAnalyzer() {}
 

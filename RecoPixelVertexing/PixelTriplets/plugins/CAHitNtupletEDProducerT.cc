@@ -15,7 +15,10 @@
 namespace {
   void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller, const OrderedHitSeeds& quadruplets) {
     for (const auto& quad : quadruplets) {
-      seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
+      if (quad.size() == 3)
+        seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2]);
+      if (quad.size() == 4)
+        seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
     }
   }
 }  // namespace
@@ -86,7 +89,7 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
   for (auto& ntuplet : ntuplets)
     ntuplet.reserve(localRA_.upper());
 
-  generator_.hitNtuplets(regionDoublets, ntuplets, iSetup, seedingLayerHits);
+  generator_.hitNtuplets(regionDoublets, ntuplets, seedingLayerHits);
   int index = 0;
   for (const auto& regionLayerPairs : regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();

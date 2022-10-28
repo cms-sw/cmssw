@@ -35,18 +35,18 @@ metPreValidSeqTask = cms.Task(ak4PFCHSL1FastjetCorrector,
 )
 metPreValidSeq = cms.Sequence(metPreValidSeqTask)
 
-valCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('newAK4PFCHSL1FastL2L3Corrector'),
-                                       jetCorrLabelRes = cms.InputTag('newAK4PFCHSL1FastL2L3ResidualCorrector')
+valCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = 'newAK4PFCHSL1FastL2L3Corrector',
+                                       jetCorrLabelRes = 'newAK4PFCHSL1FastL2L3ResidualCorrector'
                                       )
 
 PfMetT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
-        cms.InputTag('valCorrPfMetType1', 'type1')
+        'valCorrPfMetType1:type1'
         ))
 
 PfMetT0pcT1=pfMetT0pcT1.clone(
     srcCorrections = cms.VInputTag(
-        cms.InputTag('corrPfMetType0PfCand'),
-        cms.InputTag('valCorrPfMetType1', 'type1')
+        'corrPfMetType0PfCand',
+        'valCorrPfMetType1:type1'
         )
     )
 

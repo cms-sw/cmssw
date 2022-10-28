@@ -363,7 +363,8 @@ expertSettings.add_option("--era",
 
 expertSettings.add_option("--procModifiers",
                           help="Specify any process Modifiers to include (in Configuration/ProcessModiers) - comma separated list",
-                          default=None,
+                          default=[],
+                          action="append",
                           dest="procModifiers")
 
 expertSettings.add_option("--evt_type",
@@ -412,4 +413,9 @@ expertSettings.add_option("--nConcurrentIOVs",
                           help="How many concurrent IOVs should CMSSW use if nThreads > 1 (default is 1)",
                           default=defaultOptions.nConcurrentIOVs,
                           dest='nConcurrentIOVs'
+                          )
+expertSettings.add_option("--accelerators",
+                          help="Comma-separated list of accelerators to enable; if 'cpu' is not included, the job will fail if none of the accelerators is available (default is not set, enabling all available accelerators, including the cpu)",
+                          default=None,
+                          dest='accelerators'
                           )

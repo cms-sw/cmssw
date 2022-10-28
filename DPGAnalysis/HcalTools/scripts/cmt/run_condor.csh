@@ -10,9 +10,9 @@ echo "myStart: set dir pwd"
 set m=`pwd`
 
 cd ${m}
-setenv SCRAM_ARCH slc7_amd64_gcc820 
-scram p -s CMSSW CMSSW_11_1_0_pre3
-cd CMSSW_11_1_0_pre3/src 
+setenv SCRAM_ARCH slc7_amd64_gcc10
+cmsrel CMSSW_12_3_0_pre4
+cd CMSSW_12_3_0_pre4/src 
 
 mkdir DPGAnalysis
 cd DPGAnalysis
@@ -63,7 +63,7 @@ cmsRun PYTHON_${1}/Reco_${j}_${k}_cfg.py
 
 ### Copy output files to EOS
 ### xrdcp -f Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
-eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2019/Global_${j}_${k}.root
+eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022/Global_${j}_${k}.root
 #eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
 
 ################################################################

@@ -19,8 +19,54 @@ nanoDQMIO_perLSoutput = cms.PSet(
       MEsToSave = cms.untracked.vstring(*( #Using tuple to avoid python limit of 255 arguments
                                            #as suggested in:
                 #https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePoolInputSources#Example_3_More_than_255_input_fi
-              'Muons/MuonRecoAnalyzer/',               #Folder and its subfolders
-              'Muons/MuonIdDQM/GlobalMuons/hDT1Pullx'  #particular ME
+
+                #Examples:
+                #'Muons/MuonRecoAnalyzer/',               #Folder and its subfolders
+                #'Muons/MuonIdDQM/GlobalMuons/hDT1Pullx'  #particular ME
+            
+              #Version 0.1 for nanoDQMIO in CMSSW_12_1_0 ReReco of Pilot Test Runs taken in Autumn 2021
+ #DT
+ 'DT/02-Segments/03-MeanT0/T0MeanAllWheels',
+            
+ #ECAL            
+ 'EcalBarrel/EBOccupancyTask/EBOT digi occupancy',
+ 'EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -',
+ 'EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE +',
+
+ #Muon POG
+ 'Muons/MuonRecoAnalyzer/',               
+ 'Muons/MuonIdDQM/GlobalMuons/',
+            
+ #Tracker/Tracking
+ #PixelPhase1
+ 'PixelPhase1/Phase1_MechanicalView/',
+ 'PixelPhase1/Tracks/',
+
+ #SiStrip
+ 'SiStrip/MechanicalView/',
+
+ #Tracking histograms:
+ 'Tracking/PrimaryVertices/highPurityTracks/pt_0to1/offline/',
+ 'Tracking/TrackParameters/generalTracks/LSanalysis/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_1/LSanalysis/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_0to1/LSanalysis/',
+ 'Tracking/TrackParameters/highPurityTracks/dzPV0p1/LSanalysis/',
+ 'Tracking/TrackParameters/generalTracks/GeneralProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_1/GeneralProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_0to1/GeneralProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/dzPV0p1/GeneralProperties/',
+ 'Tracking/TrackParameters/generalTracks/HitProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_1/HitProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_0to1/HitProperties/',
+ 'Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitProperties/',
+ 'Tracking/TrackParameters/generalTracks/HitProperties/Pixel/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_1/HitProperties/Pixel/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_0to1/HitProperties/Pixel/',
+ 'Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitProperties/Pixel/',
+ 'Tracking/TrackParameters/generalTracks/HitProperties/Strip/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_1/HitProperties/Strip/',
+ 'Tracking/TrackParameters/highPurityTracks/pt_0to1/HitProperties/Strip/',
+ 'Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitProperties/Strip/'
               )
       )
 )

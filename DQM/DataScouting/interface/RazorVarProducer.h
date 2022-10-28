@@ -1,7 +1,7 @@
 #ifndef RazorVarProducer_h
 #define RazorVarProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,18 +12,17 @@
 #include "TLorentzVector.h"
 #include <vector>
 
-class RazorVarProducer : public edm::EDProducer {
+class RazorVarProducer : public edm::global::EDProducer<> {
 public:
   explicit RazorVarProducer(const edm::ParameterSet &);
-  ~RazorVarProducer() override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  double CalcMR(TLorentzVector ja, TLorentzVector jb);
+  double CalcMR(TLorentzVector ja, TLorentzVector jb) const;
   double CalcR(double MR,
                const TLorentzVector &ja,
                const TLorentzVector &jb,
                edm::Handle<reco::CaloMETCollection> met,
-               const std::vector<math::XYZTLorentzVector> &muons);
+               const std::vector<math::XYZTLorentzVector> &muons) const;
 
 private:
   edm::InputTag inputTag_;     // input tag identifying product

@@ -41,7 +41,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2006::CLCTDigis(uint32_t idlayer) {
 
   CSCCLCTDigi digi0(
       bits.clct0_valid, bits.clct0_quality, shape, type, bend, strip, cfeb, bits.clct0_bxn, 1, bits.bxnPreTrigger);
-  //digi0.setFullBX(bits.bxnPreTrigger);
   result.push_back(digi0);
 
   /// for the first bits.clct:
@@ -59,7 +58,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2006::CLCTDigis(uint32_t idlayer) {
   //offlineStripNumbering(strip, cfeb, shape, bend);
   CSCCLCTDigi digi1(
       bits.clct1_valid, bits.clct1_quality, shape, type, bend, strip, cfeb, bits.clct1_bxn, 2, bits.bxnPreTrigger);
-  //digi1.setFullBX(bits.bxnPreTrigger);
   result.push_back(digi1);
   return result;
 }
@@ -200,5 +198,3 @@ void CSCTMBHeader2006::print(std::ostream& os) const {
   os << "Firmware Rev code " << bits.firmRevCode << "\n";
   os << "..................CLCT....................." << std::endl;
 }
-
-//unsigned short * data()  = 0;

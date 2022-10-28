@@ -4,9 +4,7 @@
  *  \author: Julie Malcles - CEA/Saclay
  */
 
-// File PulseFitWithShape.cxx
-
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithShape.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithShape.h"
 
 #include <iostream>
 #include "TMath.h"
@@ -186,8 +184,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova) {
     double ysp = 0.;
 
     for (int is = 0; is < nsfit; is++) {
-      int iis = is;
-      iis = is + nsampleo;
+      const int iis = is + nsampleo;
 
       double t1 = (double)iis + xpar[2];
       double xbin = t1 * 25.;
@@ -261,8 +258,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova) {
     xpar[2] += (ysp / xpar[0] / sp2 - ssp / sp2);
 
     for (int is = 0; is < nsfit; is++) {
-      int iis = is;
-      iis = is + nsampleo;
+      const int iis = is + nsampleo;
 
       double t1 = (double)iis + xpar[2];
       double xbin = t1 * 25.;
@@ -284,8 +280,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova) {
 
     chi2 = 0.;
     for (int is = 0; is < nsfit; is++) {
-      int iis = is;
-      iis += nsampleo;
+      const int iis = is + nsampleo;
 
       if (useCova) {
         for (int js = 0; js < nsfit; js++) {

@@ -2,6 +2,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 #include <filesystem>
 
@@ -124,7 +125,7 @@ void TrackletLUT::initTPlut(bool fillInner,
           } else {
             rinner = settings_.rmean(layerdisk1);
           }
-          double rinv1 = rinv(0.0, -dphi[i2], rinner, router[i3]);
+          double rinv1 = (rinner < router[i3]) ? rinv(0.0, -dphi[i2], rinner, router[i3]) : 20.0;
           double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
           double pitchouter =
               (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
@@ -215,7 +216,7 @@ void TrackletLUT::initTPregionlut(unsigned int iSeed,
             int idphi1 = idphi;
             if (iSeed >= 4)
               idphi1 = (idphi << 3) + ir;
-            int ptinnerindexnew = (idphi1 << nbendbitsinner) + innerbend;
+            int ptinnerindexnew = l1t::bitShift(idphi1, nbendbitsinner) + innerbend;
             match = match || (inrange && tplutinner.lookup(ptinnerindexnew));
           }
           if (match) {
@@ -312,7 +313,7 @@ void TrackletLUT::initteptlut(bool fillInner,
               } else {
                 rinner = settings_.rmean(layerdisk1);
               }
-              double rinv1 = -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
+              double rinv1 = (rinner < router[i3]) ? -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]) : -20.0;
               double pitchinner =
                   (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
@@ -403,12 +404,12 @@ void TrackletLUT::initProjectionBend(double k_phider,
       int ir = irbin;
       if (ir > (1 << (nrbits - 1)))
         ir -= (1 << nrbits);
-      ir = ir << (settings_.nrbitsstub(N_LAYER) - nrbits);
+      ir = l1t::bitShift(ir, (settings_.nrbitsstub(N_LAYER) - nrbits));
       for (unsigned int iphiderbin = 0; iphiderbin < nphiderbins; iphiderbin++) {
         int iphider = iphiderbin;
         if (iphider > (1 << (nphiderbits - 1)))
           iphider -= (1 << nphiderbits);
-        iphider = iphider << (settings_.nbitsphiprojderL123() - nphiderbits);
+        iphider = l1t::bitShift(iphider, (settings_.nbitsphiprojderL123() - nphiderbits));
 
         double rproj = ir * settings_.krprojshiftdisk();
         double phider = iphider * k_phider;
@@ -422,11 +423,13 @@ void TrackletLUT::initProjectionBend(double k_phider,
         double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
         double bendproj = bendstrip(rproj, rinv, stripPitch);
 
-        int ibendproj = 2.0 * bendproj + 15.5;
+        static double maxbend = (1 << NRINVBITS) - 1;
+
+        int ibendproj = 2.0 * bendproj + 0.5 * maxbend;
         if (ibendproj < 0)
           ibendproj = 0;
-        if (ibendproj > 31)
-          ibendproj = 31;
+        if (ibendproj > maxbend)
+          ibendproj = maxbend;
 
         table_.push_back(ibendproj);
       }
@@ -629,7 +632,8 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
   } else {
     if (type == VMRTableType::me) {
       //This if a hack where the same memory is used in both ME and TE modules
-      if (layerdisk == 1 || layerdisk == 2 || layerdisk == 3 || layerdisk == 4) {
+      if (layerdisk == LayerDisk::L2 || layerdisk == LayerDisk::L3 || layerdisk == LayerDisk::L4 ||
+          layerdisk == LayerDisk::L6) {
         positive_ = false;
         name_ = "VMTableOuter" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
         writeTable();

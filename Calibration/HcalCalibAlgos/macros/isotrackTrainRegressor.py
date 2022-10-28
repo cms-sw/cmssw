@@ -10,17 +10,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.utils.np_utils import to_categorical
-from keras.utils import plot_model
-from keras import regularizers
+import tensorflow.keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras import regularizers
 from sklearn.metrics import roc_curve, auc
-from keras.layers import Activation
-from keras import backend as K
-from keras.models import save_model
+from tensorflow.keras.layers import Activation
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import save_model
 
 
 
@@ -143,7 +143,7 @@ def propweights(y_true):
 # In[6]:
 
 
-from keras import optimizers
+from tensorflow.keras import optimizers
 print ("creating model=========>")
 model = Sequential()
 model.add(Dense(128, input_shape=(X_train.shape[1],), activation='relu'))
@@ -153,7 +153,7 @@ model.add(Dense(500, activation='relu',kernel_regularizer=regularizers.l2(0.01))
 model.add(Dense(60, activation='relu',kernel_regularizer=regularizers.l2(0.01)))
 model.add(Dense(1))
 
-RMS = keras.optimizers.RMSprop(lr=0.001, rho=0.9)
+RMS = tensorflow.keras.optimizers.RMSprop(learning_rate=0.001, rho=0.9)
 # Compile model
 print ("compilation up next=======>")
 model.compile(loss='logcosh',optimizer='adam')

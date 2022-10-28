@@ -2,7 +2,6 @@
 #define DetectorDescription_DDCMS_DDDetector_h
 
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
-#include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
 #include <DD4hep/Detector.h>
 #include <DD4hep/SpecParRegistry.h>
 #include <string>
@@ -12,7 +11,7 @@ class TGeoManager;
 namespace cms {
   class DDDetector {
   public:
-    explicit DDDetector(const std::string&, const std::string&, bool bigXML = false, bool makePayload = false);
+    explicit DDDetector(const std::string&, const std::string&, bool bigXML = false);
     DDDetector() = delete;
 
     cms::DDVectorsMap const& vectors() const { return m_vectors; }
@@ -34,8 +33,6 @@ namespace cms {
     dd4hep::DetElement findElement(const std::string&) const;
 
     dd4hep::Detector const* description() const { return m_description; }
-
-    DDParsingContext* m_context;
 
   private:
     void process(const std::string&);

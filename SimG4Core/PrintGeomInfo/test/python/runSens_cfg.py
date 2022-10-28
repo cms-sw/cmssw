@@ -1,17 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runSens_cfg.py geometry=Run3
+#
+#   Options for geometry Run3, D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PrintGeom")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "Run3",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: Run3, D88, D92, D93")
 
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+#####p###############################################################
+# Use the options
+
+if (options.geometry == "Run3"):
+    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('PrintSensitive',Run3_DDD)
+else:
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PrintSensitive',Phase2C11M9)
+
+print("Geometry file: ", geomFile)
+
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-#process.load('Geometry.CMSCommonData.cmsIdealGeometryXML_cfi')
-#process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-#process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-#process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
 
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.files.SensDet = dict(extension="txt")
+process.MessageLogger.G4cout=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

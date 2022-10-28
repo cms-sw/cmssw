@@ -298,7 +298,6 @@ void RPCTechnicalTrigger::beginRun(edm::Run const& iRun, const edm::EventSetup& 
 
   if (m_useEventSetup >= 1) {
     edm::ESHandle<RBCBoardSpecs> pRBCSpecs = evtSetup.getHandle(m_pRBCSpecsToken);
-    evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
 
     edm::ESHandle<TTUBoardSpecs> pTTUSpecs = evtSetup.getHandle(m_pTTUSpecsToken);
 

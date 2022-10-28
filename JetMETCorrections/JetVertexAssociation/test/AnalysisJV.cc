@@ -72,6 +72,7 @@ void AnalysisJV::beginJob() {
 void AnalysisJV::endJob() {
   fOutputFile->Write();
   fOutputFile->Close();
+  delete fOutputFile;
 
   return;
 }

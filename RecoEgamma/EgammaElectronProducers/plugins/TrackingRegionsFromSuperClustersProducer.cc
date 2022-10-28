@@ -38,6 +38,10 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -103,7 +107,8 @@ private:
                                                        const double deltaZVertex,
                                                        const Charge charge,
                                                        const MeasurementTrackerEvent* measTrackerEvent,
-                                                       const MagneticField& magField) const;
+                                                       const MagneticField& magField,
+                                                       const MultipleScatteringParametrisationMaker* msmaker) const;
 
 private:
   void validateConfigSettings() const;
@@ -134,6 +139,7 @@ private:
   std::vector<edm::EDGetTokenT<std::vector<reco::SuperClusterRef>>> superClustersTokens_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerToken_;
 };
 
 namespace {
@@ -181,6 +187,9 @@ TrackingRegionsFromSuperClustersProducer::TrackingRegionsFromSuperClustersProduc
   }
   for (const auto& tag : superClustersTags) {
     superClustersTokens_.emplace_back(iC.consumes(tag));
+  }
+  if (precise_) {
+    msmakerToken_ = iC.esConsumes();
   }
 }
 
@@ -231,15 +240,19 @@ std::vector<std::unique_ptr<TrackingRegion>> TrackingRegionsFromSuperClustersPro
     measTrackerEvent = getHandle(iEvent, measTrackerEventToken_).product();
   }
   auto const& magField = iSetup.getData(magFieldToken_);
+  const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+  if (precise_) {
+    msmaker = &iSetup.getData(msmakerToken_);
+  }
 
   for (auto& superClustersToken : superClustersTokens_) {
     auto superClustersHandle = getHandle(iEvent, superClustersToken);
     for (auto& superClusterRef : *superClustersHandle) {
       //do both charge hypothesises
-      trackingRegions.emplace_back(
-          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::POS, measTrackerEvent, magField));
-      trackingRegions.emplace_back(
-          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::NEG, measTrackerEvent, magField));
+      trackingRegions.emplace_back(createTrackingRegion(
+          *superClusterRef, vtxPos, deltaZVertex, Charge::POS, measTrackerEvent, magField, msmaker));
+      trackingRegions.emplace_back(createTrackingRegion(
+          *superClusterRef, vtxPos, deltaZVertex, Charge::NEG, measTrackerEvent, magField, msmaker));
     }
   }
   return trackingRegions;
@@ -283,7 +296,8 @@ std::unique_ptr<TrackingRegion> TrackingRegionsFromSuperClustersProducer::create
     const double deltaZVertex,
     const Charge charge,
     const MeasurementTrackerEvent* measTrackerEvent,
-    const MagneticField& magField) const {
+    const MagneticField& magField,
+    const MultipleScatteringParametrisationMaker* msmaker) const {
   const GlobalPoint clusterPos(superCluster.position().x(), superCluster.position().y(), superCluster.position().z());
   const double energy = superCluster.energy();
 
@@ -295,8 +309,10 @@ std::unique_ptr<TrackingRegion> TrackingRegionsFromSuperClustersProducer::create
                                                            deltaZVertex,
                                                            deltaEtaRegion_,
                                                            deltaPhiRegion_,
-                                                           whereToUseMeasTracker_,
+                                                           magField,
+                                                           msmaker,
                                                            precise_,
+                                                           whereToUseMeasTracker_,
                                                            measTrackerEvent);
 }
 

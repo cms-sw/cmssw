@@ -69,8 +69,9 @@ def getZeroBias_SinglePixelTrackVPSet():
             )
     )
     ret.append(tracksCountZB)
-    tracksCountDenomZB = tracksCountZB.clone()
-    tracksCountDenomZB.triggerSelection = cms.string("HLT_ZeroBias_v*")
+    tracksCountDenomZB = tracksCountZB.clone(
+        triggerSelection = "HLT_ZeroBias_v*"
+    )
     tracksCountDenomZB.combinedObjectDrawables =  cms.VPSet(
         cms.PSet (name = cms.string("Eff_denominator"), expression = cms.string("0*at(0).pt()"),
                          bins = cms.int32(1), min = cms.double(-0.5), max = cms.double(0.5))
@@ -116,8 +117,9 @@ def getHighMultVPSet():
         )
         ret.append(tracksCount)				
 
-        tracksCountDenom = tracksCount.clone()
-        tracksCountDenom.triggerSelection = cms.string("TRUE")
+        tracksCountDenom = tracksCount.clone(
+            triggerSelection = "TRUE"
+        )
         tracksCountDenom.combinedObjectDrawables =  cms.VPSet(
             cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
                              bins = cms.int32(tracksBins), min = cms.double(tracksL), max = cms.double(tracksH))
@@ -145,9 +147,10 @@ def getHighMultVPSet():
         )
         ret.append(hltPixelTracks)
 
-        hltPixelTracksEta16to18 = hltPixelTracks.clone()
-        hltPixelTracksEta16to18.singleObjectsPreselection='abs(eta) > 1.6 && abs(eta) < 1.8'
-        hltPixelTracksEta16to18.dqmhistolabel  = cms.string("hltPixelTracksEta16to18")
+        hltPixelTracksEta16to18 = hltPixelTracks.clone(
+            singleObjectsPreselection='abs(eta) > 1.6 && abs(eta) < 1.8',
+            dqmhistolabel  = "hltPixelTracksEta16to18"
+        )
         for i in hltPixelTracksEta16to18.singleObjectDrawables:
             if i.name == "eta":
                 hltPixelTracksEta16to18.singleObjectDrawables.remove(i)
@@ -351,10 +354,11 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 )
             )
             ret.append(recoPFtopology)
-            recoPFtopologyDenom = recoPFtopology.clone()
-            #recoPFtopologyDenom.triggerSelection = cms.string("HLTriggerFirstPath*")
-            #recoPFtopologyDenom.triggerSelection = cms.string(partialPathName+"*")
-            recoPFtopologyDenom.triggerSelection = cms.string("TRUE")
+            recoPFtopologyDenom = recoPFtopology.clone(
+                #triggerSelection = "HLTriggerFirstPath*",
+                #triggerSelection = partialPathName+"*",
+                triggerSelection = "TRUE"
+            )
             recoPFtopologyDenom.combinedObjectDrawables =  cms.VPSet(
                 cms.PSet (name = cms.string("ptAve_denominator"), expression = cms.string("(at(0).pt+at(1).pt)/2"),
                              bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
@@ -450,8 +454,9 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
                     fromJets.combinedObjectDrawables.remove(p)
                     break
         else:
-            fromJetsDenom  = fromJets.clone()
-            fromJetsDenom.triggerSelection = cms.string("HLT_ZeroBias_v*")
+            fromJetsDenom  = fromJets.clone(
+                triggerSelection = "HLT_ZeroBias_v*"
+            )
             fromJetsDenom.singleObjectDrawables =  cms.VPSet()
             fromJetsDenom.combinedObjectDrawables =  cms.VPSet(
                 cms.PSet (name = cms.string("pt_denominator"), expression = cms.string("at(0).pt"),
@@ -546,8 +551,9 @@ def getDoublePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
                                                               min = cms.double(ptBinLow), 
                                                               max = cms.double(ptBinHigh)  ))
 
-            fromJetsDenom  = fromJets.clone()
-            fromJetsDenom.triggerSelection = cms.string("HLT_ZeroBias_v*")
+            fromJetsDenom  = fromJets.clone(
+                triggerSelection = "HLT_ZeroBias_v*"
+            )
             fromJetsDenom.singleObjectDrawables =  cms.VPSet()
             fromJetsDenom.combinedObjectDrawables =  cms.VPSet(
                 cms.PSet (name = cms.string("ptm_denominator"), expression = cms.string("min(at(0).pt, at(1).pt)"),

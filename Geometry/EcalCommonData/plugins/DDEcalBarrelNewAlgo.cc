@@ -1906,7 +1906,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           }
           for (unsigned int iPipe(0); iPipe != vecIlyPipePhi().size(); ++iPipe) {
             const unsigned int type(static_cast<unsigned int>(round(vecIlyPipeType()[iPipe])));
-            //		  std::cout<<" iPipe, type= " << iPipe << ", " << type << std::endl ;
+            //		  edm::LogVerbatim("EcalGeom") <<" iPipe, type= " << iPipe << ", " << type;
             const double zz(-ilyLength / 2 + vecIlyPipeZ()[iPipe] + (9 > type ? vecIlyPipeLength()[type] / 2. : 0));
 
             for (unsigned int ly(0); ly != 2; ++ly) {
@@ -2441,7 +2441,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const DDSolid wallSolid(mytrap(wallDDName.name(), trapWall));
       const DDLogicalPart wallLog(wallDDName, wallMat(), wallSolid);
 
-      /*	 std::cout << "Traps:\n a: " 
+      /*	 
+		 edm::LogVerbatim("EcalGeom") << "Traps:\n a: " 
 		<< trapCry.a() << ", " 
 		<< trapClr.a() << ", " 
 		<< trapWrap.a() << ", " 
@@ -2481,8 +2482,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 		<< trapCry.y15() << ", " 
 		<< trapClr.y15() << ", " 
 		<< trapWrap.y15() << ", " 
-		<< trapWall.y15()
-		<< std::endl ;
+		<< trapWall.y15();
 */
       // Now for placement of cry within clr
       const Vec3 cryToClr(0, 0, (rClr - fClr) / 2);

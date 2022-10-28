@@ -31,7 +31,7 @@ class TrackerGeometry;
  * several changes to the base classes used together with it.
  */
 
-class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer {
+class SiStripApvGainBuilderFromTag : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripApvGainBuilderFromTag(const edm::ParameterSet& iConfig);
 

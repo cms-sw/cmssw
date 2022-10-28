@@ -22,17 +22,17 @@
 #include <string>
 #include <utility>
 #include <memory>
-#include "tbb/global_control.h"
-#include "tbb/task_arena.h"
-#include "tbb/task_group.h"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 // user include files
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
@@ -325,9 +325,9 @@ This simulates a problem happening early in the job which causes processing not 
       void endJob();
 
       // ---------- member data --------------------------------
-      tbb::global_control globalControl_;
-      tbb::task_group taskGroup_;
-      tbb::task_arena arena_;
+      oneapi::tbb::global_control globalControl_;
+      oneapi::tbb::task_group taskGroup_;
+      oneapi::tbb::task_arena arena_;
       std::string labelOfTestModule_;
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
       std::shared_ptr<ProductRegistry> preg_;
@@ -351,6 +351,7 @@ This simulates a problem happening early in the job which causes processing not 
 
       std::shared_ptr<ModuleRegistry> moduleRegistry_;
       std::unique_ptr<Schedule> schedule_;
+      std::shared_ptr<RunPrincipal> runPrincipal_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
       std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;

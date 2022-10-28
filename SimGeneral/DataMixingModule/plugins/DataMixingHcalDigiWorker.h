@@ -21,6 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -114,6 +116,7 @@ namespace edm {
     bool DoZDC_;
 
     std::string label_;
+    edm::ESGetToken<HcalDbService, HcalDbRecord> dbToken_;
   };
 }  // namespace edm
 

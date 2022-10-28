@@ -1,4 +1,5 @@
 <use name="DataFormats/Scalers"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="FWCore/Framework"/>
 <library file="*.cc" name="DQMTrackerCommonPlugins">
   <flags EDM_PLUGIN="1"/>

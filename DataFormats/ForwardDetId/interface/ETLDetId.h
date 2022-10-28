@@ -15,26 +15,26 @@
 class ETLDetId : public MTDDetId {
 private:
   // for conversion from old to new module bit field
-  static const uint32_t kETLoldToNewShift = 2;
-  static const uint32_t kETLoldFieldMask = 0x7FFF;
-  static const uint32_t kETLformatV2 = 1;
+  static constexpr uint32_t kETLoldToNewShift = 2;
+  static constexpr uint32_t kETLoldFieldMask = 0x7FFF;
+  static constexpr uint32_t kETLformatV2 = 1;
 
 public:
-  static const uint32_t kETLmoduleOffset = 5;
-  static const uint32_t kETLmoduleMask = 0x7FF;
-  static const uint32_t kETLmodTypeOffset = 3;
-  static const uint32_t kETLmodTypeMask = 0x3;
+  static constexpr uint32_t kETLmoduleOffset = 5;
+  static constexpr uint32_t kETLmoduleMask = 0x7FF;
+  static constexpr uint32_t kETLmodTypeOffset = 3;
+  static constexpr uint32_t kETLmodTypeMask = 0x3;
 
   static constexpr int kETLv1maxRing = 11;
   static constexpr int kETLv1maxModule = 176;
   static constexpr int kETLv1nDisc = 1;
 
   /// constants for the TDR ETL model
-  static const uint32_t kETLnDiscOffset = 3;
-  static const uint32_t kETLnDiscMask = 0x1;
-  static const uint32_t kETLdiscSideOffset = 2;
-  static const uint32_t kETLdiscSideMask = 0x1;
-  static const uint32_t kETLsectorMask = 0x3;
+  static constexpr uint32_t kETLnDiscOffset = 3;
+  static constexpr uint32_t kETLnDiscMask = 0x1;
+  static constexpr uint32_t kETLdiscSideOffset = 2;
+  static constexpr uint32_t kETLdiscSideMask = 0x1;
+  static constexpr uint32_t kETLsectorMask = 0x3;
 
   static constexpr int kETLv4maxRing = 16;
   static constexpr int kETLv4maxSector = 4;
@@ -47,6 +47,8 @@ public:
   static constexpr int kETLv5nDisc = kETLv4nDisc;
 
   static constexpr uint32_t kSoff = 4;
+
+  enum class EtlLayout { tp = 1, v4 = 2, v5 = 3 };
 
   // ---------- Constructors, enumerated types ----------
 

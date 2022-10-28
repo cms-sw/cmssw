@@ -30,7 +30,10 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
   shifts = pset.getParameter<vector<double> >("shifts");
   //Read the chambers to be shifted
   vector<ParameterSet> parameters = pset.getParameter<vector<ParameterSet> >("chambers");
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
+
+  ttrigToken_ =
+      esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+  dtGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 
   int counter = 0;
   for (vector<ParameterSet>::iterator parameter = parameters.begin(); parameter != parameters.end(); ++parameter) {
@@ -55,17 +58,15 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
 ShiftTTrigDB::~ShiftTTrigDB() {}
 
 void ShiftTTrigDB::beginRun(const edm::Run&, const EventSetup& setup) {
-  ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
+  ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
   tTrigMap = &*tTrig;
   cout << "[ShiftTTrigDB]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 }
 
 void ShiftTTrigDB::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
   //Get the superlayers list
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
@@ -89,7 +90,7 @@ void ShiftTTrigDB::endJob() {
             //Compute new ttrig
             double newTTrigMean = ttrigMean + mapShiftsByChamber[(*ch)];
             //Store new ttrig in the new map
-            tTrigNewMap->set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+            tTrigNewMap.set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
             ttrigShifted = true;
             if (debug) {
               cout << "Shifting SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
@@ -100,7 +101,7 @@ void ShiftTTrigDB::endJob() {
     }  //End loop on chambers to be shifted
     if (!ttrigShifted) {
       //Store old ttrig in the new map
-      tTrigNewMap->set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+      tTrigNewMap.set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
       if (debug) {
         cout << "Copying  SL: " << (*sl)->id() << " ttrig " << ttrigMean << endl;
       }

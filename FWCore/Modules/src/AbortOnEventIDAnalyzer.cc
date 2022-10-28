@@ -18,7 +18,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -35,7 +35,7 @@
 // class decleration
 //
 
-class AbortOnEventIDAnalyzer : public edm::EDAnalyzer {
+class AbortOnEventIDAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit AbortOnEventIDAnalyzer(edm::ParameterSet const&);
   ~AbortOnEventIDAnalyzer() override;
@@ -43,7 +43,7 @@ public:
 
 private:
   void beginJob() override;
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
   void endJob() override;
 
   // ----------member data ---------------------------
@@ -88,8 +88,8 @@ namespace {
 }  // namespace
 
 // ------------ method called to for each event  ------------
-void AbortOnEventIDAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-  std::vector<edm::EventID>::iterator itFind = std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
+void AbortOnEventIDAnalyzer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+  auto itFind = std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
   if (itFind != ids_.end()) {
     if (throwException_) {
       throw cms::Exception("AbortEvent") << "Found event " << iEvent.id() << "\n";

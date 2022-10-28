@@ -6,16 +6,18 @@
  * Helper class to check if an ALCT or CLCT matches with a GEMInternalCluster
  *
  * \author Sven Dildick (Rice University)
+ * \updates by Giovanni Mocellin (UC Davis)
  *
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
 
 #include <string>
 #include <vector>
 
-class CSCLUTReader;
 class CSCALCTDigi;
 class CSCCLCTDigi;
 class GEMInternalCluster;
@@ -30,87 +32,61 @@ public:
                 const edm::ParameterSet& tmbParams,
                 const edm::ParameterSet& luts);
 
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
+
   // calculate the bending angle
-  unsigned calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
-
-  // match by BX
-
-  // coincidences
-  void matchingClustersBX(const CSCALCTDigi& alct,
-                          const GEMInternalClusters& clusters,
-                          GEMInternalClusters& selected) const;
-
-  // coincidences
-  void matchingClustersBX(const CSCCLCTDigi& clct,
-                          const GEMInternalClusters& clusters,
-                          GEMInternalClusters& selected) const;
-
-  // coincidences or single clusters
-  void matchingClustersBX(const CSCALCTDigi& alct,
-                          const CSCCLCTDigi& clct,
-                          const GEMInternalClusters& clusters,
-                          GEMInternalClusters& selected) const;
+  int calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
 
   // match by location
 
-  // coincidences
+  // ALCT-GEM
   void matchingClustersLoc(const CSCALCTDigi& alct,
                            const GEMInternalClusters& clusters,
-                           GEMInternalClusters& selected) const;
+                           GEMInternalClusters& output) const;
 
-  // coincidences
+  // CLCT-GEM
   void matchingClustersLoc(const CSCCLCTDigi& clct,
                            const GEMInternalClusters& clusters,
-                           GEMInternalClusters& selected) const;
+                           GEMInternalClusters& output,
+                           bool ignoreALCTGEMmatch) const;
 
-  // match by 1/2-strip
-  bool matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
+  // matching candidate distance in 1/8 strip, always the total without extrapolation correction, if ForceTotal is true
+  int matchedClusterDistES(const CSCCLCTDigi& clct,
+                           const GEMInternalCluster& cluster,
+                           const bool isLayer2,
+                           const bool ForceTotal) const;
 
-  // match by 1/8-strip
-  bool matchedClusterLocES(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
-
-  // coincidences or single clusters
+  // ALCT-CLCT-GEM
   void matchingClustersLoc(const CSCALCTDigi& alct,
                            const CSCCLCTDigi& clct,
                            const GEMInternalClusters& clusters,
-                           GEMInternalClusters& selected) const;
+                           GEMInternalClusters& output) const;
 
-  // match by BX and location
+  // best matching clusters by location
 
-  // coincidences
-  void matchingClustersBXLoc(const CSCALCTDigi& alct,
-                             const GEMInternalClusters& clusters,
-                             GEMInternalClusters& selected) const;
+  // ALCT-GEM
+  void bestClusterLoc(const CSCALCTDigi& alct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
 
-  // coincidences
-  void matchingClustersBXLoc(const CSCCLCTDigi& clct,
-                             const GEMInternalClusters& clusters,
-                             GEMInternalClusters& selected) const;
+  // CLCT-GEM
+  void bestClusterLoc(const CSCCLCTDigi& clct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
 
-  // coincidences or single clusters
-  void matchingClustersBXLoc(const CSCALCTDigi& alct,
-                             const CSCCLCTDigi& clct,
-                             const GEMInternalClusters& clusters,
-                             GEMInternalClusters& selected) const;
-
-  // best matching clusters
-  void bestClusterBXLoc(const CSCALCTDigi& alct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
-
-  // coincidences
-  void bestClusterBXLoc(const CSCCLCTDigi& clct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
-
-  // coincidences or single clusters
-  void bestClusterBXLoc(const CSCALCTDigi& alct,
-                        const CSCCLCTDigi& clct,
-                        const GEMInternalClusters& clusters,
-                        GEMInternalCluster& best) const;
+  // ALCT-CLCT-GEM
+  void bestClusterLoc(const CSCALCTDigi& alct,
+                      const CSCCLCTDigi& clct,
+                      const GEMInternalClusters& clusters,
+                      GEMInternalCluster& best) const;
 
 private:
+  // access to lookup tables via eventsetup
+  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+
   //mitigate slope by consistency of slope indicator, if necessary
   uint16_t mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) const;
 
   // calculate slope correction
-  int CSCGEMSlopeCorrector(const bool isL1orCopad, const int cscSlope) const;
+  int CSCGEMSlopeCorrector(const bool isME1a, const int cscSlope, bool isLayer2) const;
 
   unsigned endcap_;
   unsigned station_;
@@ -118,60 +94,20 @@ private:
   unsigned chamber_;
   bool isEven_;
 
-  unsigned maxDeltaBXALCTGEM_;
-  unsigned maxDeltaBXCLCTGEM_;
+  // enable GEM-CSC matching in ME1a and ME1b
+  bool enable_match_gem_me1a_;
+  bool enable_match_gem_me1b_;
 
-  bool matchWithHS_;
+  // match GEM-CSC by propagating CLCT to GEM via LUT
+  bool matchCLCTpropagation_;
 
+  // Matching interval in Half Strips (less bits to deal with in FW), but then used as Eighth Strips (es=hs*4)
+  unsigned maxDeltaWG_;
   unsigned maxDeltaHsEven_;
   unsigned maxDeltaHsOdd_;
-  unsigned maxDeltaHsEvenME1a_;
-  unsigned maxDeltaHsOddME1a_;
 
   bool assign_gem_csc_bending_;
   bool mitigateSlopeByCosi_;
-
-  // strings to paths of LUTs
-  std::vector<std::string> gemCscSlopeCorrectionFiles_;
-  std::vector<std::string> gemCscSlopeCosiFiles_;
-  std::vector<std::string> gemCscSlopeCosiCorrectionFiles_;
-  std::vector<std::string> esDiffToSlopeME1aFiles_;
-  std::vector<std::string> esDiffToSlopeME1bFiles_;
-  std::vector<std::string> esDiffToSlopeME21Files_;
-
-  // unique pointers to the luts
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1b_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1b_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1b_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1b_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1a_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1a_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1a_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1a_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME21_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME21_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME21_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME21_odd_;
 };
 
 #endif

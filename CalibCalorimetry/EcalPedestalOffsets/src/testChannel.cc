@@ -15,9 +15,10 @@
 
 //! ctor
 testChannel::testChannel(const edm::ParameterSet &paramSet)
-    : m_digiCollection(paramSet.getParameter<std::string>("digiCollection")),
-      m_digiProducer(paramSet.getParameter<std::string>("digiProducer")),
-      m_headerProducer(paramSet.getParameter<std::string>("headerProducer")),
+    : m_digiProducerToken(
+          consumes<EBDigiCollection>(edm::InputTag(paramSet.getParameter<std::string>("digiProducer")))),
+      m_headerProducerToken(
+          consumes<EcalRawDataCollection>(edm::InputTag(paramSet.getParameter<std::string>("headerProducer")))),
       m_xmlFile(paramSet.getParameter<std::string>("xmlFile")),
       m_DACmin(paramSet.getParameter<int>("DACmin")),
       m_DACmax(paramSet.getParameter<int>("DACmax")),
@@ -66,10 +67,9 @@ void testChannel::analyze(edm::Event const &event, edm::EventSetup const &eventS
 
   // get the headers
   // (one header for each supermodule)
-  edm::Handle<EcalRawDataCollection> DCCHeaders;
-  event.getByLabel(m_headerProducer, DCCHeaders);
+  const edm::Handle<EcalRawDataCollection> &DCCHeaders = event.getHandle(m_headerProducerToken);
   if (!DCCHeaders.isValid()) {
-    edm::LogError("testChannel") << "Error! can't get the product " << m_headerProducer.c_str();
+    edm::LogError("testChannel") << "Error! can't get the product for EcalRawDataCollection";
   }
 
   std::map<int, int> DACvalues;
@@ -85,10 +85,9 @@ void testChannel::analyze(edm::Event const &event, edm::EventSetup const &eventS
 
   // get the digis
   // (one digi for each crystal)
-  edm::Handle<EBDigiCollection> pDigis;
-  event.getByLabel(m_digiProducer, pDigis);
+  const edm::Handle<EBDigiCollection> &pDigis = event.getHandle(m_digiProducerToken);
   if (!pDigis.isValid()) {
-    edm::LogError("testChannel") << "Error! can't get the product " << m_digiCollection.c_str();
+    edm::LogError("testChannel") << "Error! can't get the product for EBDigiCollection";
   }
 
   // loop over the digis

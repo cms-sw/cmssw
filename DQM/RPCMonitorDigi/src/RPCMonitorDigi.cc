@@ -255,7 +255,6 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     std::string wheelOrDiskType;
     int ring = 0;
     int sector = detId.sector();
-    int layer = 0;
     int totalRolls = 3;
     int roll = detId.roll();
     if (region == 0) {
@@ -265,36 +264,32 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
       if (station == 1) {
         if (detId.layer() == 1) {
-          layer = 1;  //RB1in
-          totalRolls = 2;
+          totalRolls = 2;  //RB1in
         } else {
-          layer = 2;  //RB1out
-          totalRolls = 2;
+          totalRolls = 2;  //RB1out
         }
         if (roll == 3)
           roll = 2;  // roll=3 is Forward
       } else if (station == 2) {
         if (detId.layer() == 1) {
-          layer = 3;  //RB2in
+          //RB2in
           if (abs(wheelOrDiskNumber) == 2 && roll == 3) {
             roll = 2;  //W -2, +2 RB2in has only 2 rolls
             totalRolls = 2;
           }
         } else {
-          layer = 4;  //RB2out
+          //RB2out
           if (abs(wheelOrDiskNumber) != 2 && roll == 3) {
             roll = 2;  //W -1, 0, +1 RB2out has only 2 rolls
             totalRolls = 2;
           }
         }
       } else if (station == 3) {
-        layer = 5;  //RB3
-        totalRolls = 2;
+        totalRolls = 2;  //RB3
         if (roll == 3)
           roll = 2;
       } else {
-        layer = 6;  //RB4
-        totalRolls = 2;
+        totalRolls = 2;  //RB4
         if (roll == 3)
           roll = 2;
       }
@@ -345,10 +340,6 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
       if (meMap[tmpName])
         meMap[tmpName]->Fill(bx);
 
-      tmpName = "ClusterSize_" + nameRoll;
-      if (meMap[tmpName])
-        meMap[tmpName]->Fill(clusterSize);
-
       // ###################### Sector- Ring Level #################################
 
       tmpName = fmt::format("Occupancy_{}_{}_Sector_{}", wheelOrDiskType, wheelOrDiskNumber, sector);
@@ -356,6 +347,14 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
         for (int s = firstStrip; s <= lastStrip; s++) {  //Loop on digis
           meSectorRing[tmpName]->Fill(s, nr);
         }
+      }
+
+      tmpName = fmt::format("ClusterSize_{}_{}_Sector_{}", wheelOrDiskType, wheelOrDiskNumber, sector);
+      if (meSectorRing[tmpName]) {
+        if (clusterSize >= meSectorRing[tmpName]->getNbinsX())
+          meSectorRing[tmpName]->Fill(meSectorRing[tmpName]->getNbinsX(), nr);
+        else
+          meSectorRing[tmpName]->Fill(clusterSize, nr);
       }
 
       tmpName = fmt::format("Occupancy_{}_{}_Ring_{}", wheelOrDiskType, wheelOrDiskNumber, ring);
@@ -369,6 +368,25 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
         for (int s = firstStrip; s <= lastStrip; s++) {  //Loop on digis
           meSectorRing[tmpName]->Fill(s + 32 * (detId.roll() - 1), geoServ.segment());
         }
+      }
+
+      tmpName = fmt::format("ClusterSize_{}_{}_Ring_{}", wheelOrDiskType, wheelOrDiskNumber, ring);
+      if (geoServ.segment() > 0 && geoServ.segment() <= 9) {
+        tmpName += "_CH01-CH09";
+      } else if (geoServ.segment() >= 10 && geoServ.segment() <= 18) {
+        tmpName += "_CH10-CH18";
+      } else if (geoServ.segment() >= 19 && geoServ.segment() <= 27) {
+        tmpName += "_CH19-CH27";
+      } else if (geoServ.segment() >= 28 && geoServ.segment() <= 36) {
+        tmpName += "_CH28-CH36";
+      }
+
+      if (meSectorRing[tmpName]) {
+        if (clusterSize >= meSectorRing[tmpName]->getNbinsX())
+          meSectorRing[tmpName]->Fill(meSectorRing[tmpName]->getNbinsX(),
+                                      3 * (geoServ.segment() - 1) + (3 - detId.roll()) + 1);
+        else
+          meSectorRing[tmpName]->Fill(clusterSize, 3 * (geoServ.segment() - 1) + (3 - detId.roll()) + 1);
       }
 
       // ###################### Wheel/Disk Level #########################
@@ -399,28 +417,6 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
       tmpName = fmt::format("BxDistribution_{}_{}", wheelOrDiskType, wheelOrDiskNumber);
       if (meWheelDisk[tmpName])
         meWheelDisk[tmpName]->Fill(bx);
-
-      tmpName = fmt::format("ClusterSize_{}_{}_Layer{}", wheelOrDiskType, wheelOrDiskNumber, layer);
-      if (meWheelDisk[tmpName])
-        meWheelDisk[tmpName]->Fill(clusterSize);
-
-      tmpName = fmt::format("ClusterSize_{}_{}_Ring{}", wheelOrDiskType, wheelOrDiskNumber, ring);
-      if (meWheelDisk[tmpName])
-        meWheelDisk[tmpName]->Fill(clusterSize);
-
-      // ######################  Global  ##################################
-      tmpName = "ClusterSize_" + RPCMonitorDigi::regionNames_[region + 1];
-      if (meRegion[tmpName])
-        meRegion[tmpName]->Fill(clusterSize);
-
-      tmpName = "";
-      if (region == 0) {
-        tmpName = fmt::format("ClusterSize_Layer{}", layer);
-      } else {
-        tmpName = fmt::format("ClusterSize_Ring{}", ring);
-      }
-      if (meRegion[tmpName])
-        meRegion[tmpName]->Fill(clusterSize);
 
     }  //end loop on recHits
 

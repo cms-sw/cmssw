@@ -83,6 +83,8 @@ def runjob(args):
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     atexit.register(partial(helper.kill_subproc_noexcept, pipe))
     out = pipe.communicate()[0]
+    if isinstance(out, bytes):
+        out = out.decode("utf8", "replace")
     logging.info('\n%s\n' % out)
     logging.info('@@@CMSSW job return code = %d@@@' % pipe.returncode)
     if pipe.returncode != 0:

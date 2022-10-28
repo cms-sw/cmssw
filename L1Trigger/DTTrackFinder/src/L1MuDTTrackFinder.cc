@@ -32,8 +32,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackCand.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcMap.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEtaProcessor.h"
@@ -53,8 +53,11 @@ using namespace std;
 
 L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC) {
   // set configuration parameters
-  if (m_config == nullptr)
-    m_config = new L1MuDTTFConfig(ps);
+  if (not m_config) {
+    auto temp = std::make_shared<L1MuDTTFConfig>(ps);
+    std::shared_ptr<L1MuDTTFConfig> empty;
+    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
+  }
 
   if (m_config->Debug(1))
     cout << endl;
@@ -96,10 +99,6 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
   m_wsvec.clear();
 
   delete m_ms;
-
-  if (m_config)
-    delete m_config;
-  m_config = nullptr;
 }
 
 //--------------
@@ -322,4 +321,4 @@ int L1MuDTTrackFinder::numberOfTracks(int bx) {
 
 // static data members
 
-L1MuDTTFConfig* L1MuDTTrackFinder::m_config = nullptr;
+std::shared_ptr<L1MuDTTFConfig> L1MuDTTrackFinder::m_config;

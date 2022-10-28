@@ -1,43 +1,41 @@
+// system includes
 #include <iostream>
 #include <map>
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
-
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-
+// user file includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+// ROOT includes
 #include <TH2F.h>
 #include <TH1F.h>
 
@@ -75,7 +73,7 @@ struct RecHitHistos {
   TH1D* otherSimHits[3];
 };
 
-class Phase2TrackerRecHitsValidation : public edm::EDAnalyzer {
+class Phase2TrackerRecHitsValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef std::map<unsigned int, std::vector<PSimHit> > SimHitsMap;
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
@@ -83,7 +81,6 @@ public:
   explicit Phase2TrackerRecHitsValidation(const edm::ParameterSet&);
   ~Phase2TrackerRecHitsValidation();
   void beginJob() override;
-  void endJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -92,18 +89,20 @@ private:
                                           const DetId&,
                                           unsigned int);
 
-  edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> tokenRecHits_;
-  edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> tokenClusters_;
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > tokenLinks_;
-  edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsB_;
-  edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsE_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tokenSimTracks_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenGeom_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTopo_;
+  const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> tokenRecHits_;
+  const edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> tokenClusters_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > tokenLinks_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsB_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsE_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tokenSimTracks_;
 
-  bool catECasRings_;
-  double simtrackminpt_;
-  bool makeEtaPlots_;
-  double mineta_;
-  double maxeta_;
+  const bool catECasRings_;
+  const double simtrackminpt_;
+  const bool makeEtaPlots_;
+  const double mineta_;
+  const double maxeta_;
 
   TH2F* trackerLayout_;
   TH2F* trackerLayoutXY_;
@@ -114,7 +113,9 @@ private:
 };
 
 Phase2TrackerRecHitsValidation::Phase2TrackerRecHitsValidation(const edm::ParameterSet& conf)
-    : tokenRecHits_(consumes<Phase2TrackerRecHit1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
+    : esTokenGeom_(esConsumes()),
+      esTokenTopo_(esConsumes()),
+      tokenRecHits_(consumes<Phase2TrackerRecHit1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
       tokenClusters_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("clusters"))),
       tokenLinks_(consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"))),
       tokenSimHitsB_(consumes<edm::PSimHitContainer>(conf.getParameter<edm::InputTag>("simhitsbarrel"))),
@@ -124,9 +125,11 @@ Phase2TrackerRecHitsValidation::Phase2TrackerRecHitsValidation(const edm::Parame
       simtrackminpt_(conf.getParameter<double>("SimTrackMinPt")),
       makeEtaPlots_(conf.getParameter<bool>("MakeEtaPlots")),
       mineta_(conf.getParameter<double>("MinEta")),
-      maxeta_(conf.getParameter<double>("MaxEta")) {}
+      maxeta_(conf.getParameter<double>("MaxEta")) {
+  usesResource(TFileService::kSharedResource);
+}
 
-Phase2TrackerRecHitsValidation::~Phase2TrackerRecHitsValidation() {}
+Phase2TrackerRecHitsValidation::~Phase2TrackerRecHitsValidation() = default;
 
 void Phase2TrackerRecHitsValidation::beginJob() {
   edm::Service<TFileService> fs;
@@ -138,8 +141,6 @@ void Phase2TrackerRecHitsValidation::beginJob() {
   trackerLayoutXYBar_ = td.make<TH2F>("XVsYBar", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
   trackerLayoutXYEC_ = td.make<TH2F>("XVsYEC", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
 }
-
-void Phase2TrackerRecHitsValidation::endJob() {}
 
 void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   /*
@@ -168,13 +169,8 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
   event.getByToken(tokenSimTracks_, simTracksRaw);
 
   // Get the geometry
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry* tkGeom = &(*geomHandle);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerGeometry* tkGeom = &eventSetup.getData(esTokenGeom_);
+  const TrackerTopology* tTopo = &eventSetup.getData(esTokenTopo_);
 
   /*
      * Rearrange the simTracks

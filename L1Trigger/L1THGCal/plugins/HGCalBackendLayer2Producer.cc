@@ -64,7 +64,7 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
 
   e.getByToken(input_clusters_, trigCluster2DBxColl);
 
-  backendProcess_->run(trigCluster2DBxColl, be_output, es);
+  backendProcess_->run(trigCluster2DBxColl, be_output);
 
   e.put(std::make_unique<l1t::HGCalMulticlusterBxCollection>(std::move(be_output.first)), backendProcess_->name());
   e.put(std::make_unique<l1t::HGCalClusterBxCollection>(std::move(be_output.second)),

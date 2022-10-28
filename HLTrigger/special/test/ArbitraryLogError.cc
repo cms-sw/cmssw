@@ -18,10 +18,11 @@ Implementation:
 
 // system include files
 #include <stdint.h>
+#include <atomic>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,20 +31,20 @@ Implementation:
 // class decleration
 //
 
-class ArbitraryLogError : public edm::EDAnalyzer {
+class ArbitraryLogError : public edm::global::EDAnalyzer<> {
 public:
   explicit ArbitraryLogError(const edm::ParameterSet&);
   ~ArbitraryLogError() override;
 
 private:
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;
 
   const std::string m_category;
   const bool m_severity;
   const uint32_t m_rate;
-  uint32_t m_counter;
+  mutable std::atomic<uint32_t> m_counter;
 };
 
 // CTOR
@@ -57,7 +58,7 @@ ArbitraryLogError::ArbitraryLogError(const edm::ParameterSet& config)
 ArbitraryLogError::~ArbitraryLogError() = default;
 
 // ------------ method called to for each event  ------------
-void ArbitraryLogError::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ArbitraryLogError::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   if (not(++m_counter % m_rate)) {
     if (m_severity)
       (edm::LogError(m_category));

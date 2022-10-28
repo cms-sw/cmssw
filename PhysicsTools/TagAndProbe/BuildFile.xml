@@ -8,7 +8,6 @@
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/BeamSpot"/>
-<use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/VertexReco"/>

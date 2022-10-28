@@ -31,7 +31,33 @@ HGCalWaferType::HGCalWaferType(const std::vector<double>& rad100,
 #endif
 }
 
-HGCalWaferType::~HGCalWaferType() {}
+int HGCalWaferType::getCassette(int index, const HGCalParameters::waferInfo_map& wafers) {
+  auto itr = wafers.find(index);
+  return ((itr == wafers.end()) ? -1 : ((itr->second).cassette));
+}
+
+int HGCalWaferType::getOrient(int index, const HGCalParameters::waferInfo_map& wafers) {
+  auto itr = wafers.find(index);
+  return ((itr == wafers.end()) ? -1 : ((itr->second).orient));
+}
+
+int HGCalWaferType::getPartial(int index, const HGCalParameters::waferInfo_map& wafers) {
+  auto itr = wafers.find(index);
+  return ((itr == wafers.end()) ? -1 : ((itr->second).part));
+}
+
+int HGCalWaferType::getType(int index, const HGCalParameters::waferInfo_map& wafers) {
+  auto itr = wafers.find(index);
+  return ((itr == wafers.end()) ? -1 : ((itr->second).type));
+}
+
+int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& properties) {
+  auto itr = std::find(std::begin(indices), std::end(indices), index);
+  int type = (itr == std::end(indices))
+                 ? -1
+                 : HGCalProperty::waferThick(properties[static_cast<unsigned int>(itr - std::begin(indices))]);
+  return type;
+}
 
 int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   std::vector<double> xc(HGCalParameters::k_CornerSize, 0);
@@ -102,19 +128,6 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
                                 << coarse.size() << ":" << fracArea << ":" << type;
 #endif
   return type;
-}
-
-int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& properties) {
-  auto itr = std::find(std::begin(indices), std::end(indices), index);
-  int type = (itr == std::end(indices))
-                 ? -1
-                 : HGCalProperty::waferThick(properties[static_cast<unsigned int>(itr - std::begin(indices))]);
-  return type;
-}
-
-int HGCalWaferType::getType(int index, const HGCalParameters::waferInfo_map& wafers) {
-  auto itr = wafers.find(index);
-  return ((itr == wafers.end()) ? -1 : ((itr->second).type));
 }
 
 std::pair<double, double> HGCalWaferType::rLimits(double zpos) {

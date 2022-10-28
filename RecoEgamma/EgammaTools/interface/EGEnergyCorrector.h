@@ -10,21 +10,27 @@
 #ifndef EGAMMATOOLS_EGEnergyCorrector_H
 #define EGAMMATOOLS_EGEnergyCorrector_H
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include <array>
+#include <memory>
 
 class GBRForest;
 
 class EGEnergyCorrector {
 public:
-  ~EGEnergyCorrector();
+  struct Initializer {
+    std::shared_ptr<const GBRForest> readereb_;
+    std::shared_ptr<const GBRForest> readerebvariance_;
+    std::shared_ptr<const GBRForest> readeree_;
+    std::shared_ptr<const GBRForest> readereevariance_;
+  };
 
-  void Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB = false);
-  bool IsInitialized() const { return fIsInitialized; }
+  ~EGEnergyCorrector() = default;
+  EGEnergyCorrector() = default;
+  explicit EGEnergyCorrector(Initializer) noexcept;
 
   std::pair<double, double> CorrectedEnergyWithError(const reco::Photon &p,
                                                      const reco::VertexCollection &vtxcol,
@@ -39,13 +45,11 @@ public:
                                                        bool applyRescale = false);
 
 protected:
-  const GBRForest *fReadereb = nullptr;
-  const GBRForest *fReaderebvariance = nullptr;
-  const GBRForest *fReaderee = nullptr;
-  const GBRForest *fReadereevariance = nullptr;
+  std::shared_ptr<const GBRForest> fReadereb;
+  std::shared_ptr<const GBRForest> fReaderebvariance;
+  std::shared_ptr<const GBRForest> fReaderee;
+  std::shared_ptr<const GBRForest> fReadereevariance;
 
-  bool fIsInitialized = false;
-  bool fOwnsForests = false;
   std::array<float, 73> fVals;
 };
 

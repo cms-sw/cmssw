@@ -6,28 +6,28 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 #include <stdexcept>
 #include <string>
-#include <iostream>
 #include <fstream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
 #include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
 
 namespace edmtest {
-  class CSCChipSpeedCorrectionDBReadAnalyzer : public edm::EDAnalyzer {
+  class CSCChipSpeedCorrectionDBReadAnalyzer : public edm::one::EDAnalyzer<> {
   public:
-    explicit CSCChipSpeedCorrectionDBReadAnalyzer(edm::ParameterSet const& p) {}
-    explicit CSCChipSpeedCorrectionDBReadAnalyzer(int i) {}
-    virtual ~CSCChipSpeedCorrectionDBReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCChipSpeedCorrectionDBReadAnalyzer(edm::ParameterSet const& p) : token_{esConsumes()} {}
+    ~CSCChipSpeedCorrectionDBReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
+    edm::ESGetToken<CSCDBChipSpeedCorrection, CSCDBChipSpeedCorrectionRcd> token_;
   };
 
   void CSCChipSpeedCorrectionDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
@@ -38,12 +38,12 @@ namespace edmtest {
     std::ofstream DBChipSpeedCorrectionFile("dbChipSpeedCorrection.dat", std::ios::out);
     int counter = 0;
 
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCDBChipSpeedCorrection> pChipCorr;
-    context.get<CSCDBChipSpeedCorrectionRcd>().get(pChipCorr);
+    edm::LogSystem log("CSCDBChipSpeedCorrection");
 
-    const CSCDBChipSpeedCorrection* myChipCorr = pChipCorr.product();
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
+
+    const CSCDBChipSpeedCorrection* myChipCorr = &context.getData(token_);
     CSCDBChipSpeedCorrection::ChipSpeedContainer::const_iterator it;
 
     for (it = myChipCorr->chipSpeedCorr.begin(); it != myChipCorr->chipSpeedCorr.end(); ++it) {

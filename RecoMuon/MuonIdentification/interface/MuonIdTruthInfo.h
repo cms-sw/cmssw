@@ -22,14 +22,14 @@ class MuonIdTruthInfo {
 public:
   void registerConsumes(edm::ConsumesCollector& iC);
 
-  static void truthMatchMuon(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon);
+  static void truthMatchMuon(const edm::Event& iEvent, const GlobalTrackingGeometry& iGeometry, reco::Muon& aMuon);
 
 private:
   static void checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMatch,
                                       double& distance,
                                       const PSimHit& hit,
                                       const DetId& chamberId,
-                                      const edm::ESHandle<GlobalTrackingGeometry>& geometry);
+                                      const GlobalTrackingGeometry& geometry);
 
   static double matchChi2(const reco::Track& recoTrk, const SimTrack& simTrk);
 };

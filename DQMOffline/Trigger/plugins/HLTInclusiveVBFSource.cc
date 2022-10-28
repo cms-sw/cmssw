@@ -7,13 +7,10 @@
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFSource.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -28,8 +25,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 #include <cmath>
 #include "TH1F.h"
@@ -787,3 +782,6 @@ bool HLTInclusiveVBFSource::isTriggerObjectFound(std::string objectName) {
   }
   return output;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTInclusiveVBFSource);

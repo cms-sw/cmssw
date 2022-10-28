@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,31 +45,31 @@ using namespace fftjetcms;
 //
 // A generic switch statement based on jet type
 //
-#define jet_type_switch(method, arg1, arg2)                              \
-  do {                                                                   \
-    switch (jetType) {                                                   \
-      case CALOJET:                                                      \
-        method<reco::CaloJet>(arg1, arg2);                               \
-        break;                                                           \
-      case PFJET:                                                        \
-        method<reco::PFJet>(arg1, arg2);                                 \
-        break;                                                           \
-      case GENJET:                                                       \
-        method<reco::GenJet>(arg1, arg2);                                \
-        break;                                                           \
-      case TRACKJET:                                                     \
-        method<reco::TrackJet>(arg1, arg2);                              \
-        break;                                                           \
-      case BASICJET:                                                     \
-        method<reco::BasicJet>(arg1, arg2);                              \
-        break;                                                           \
-      case JPTJET:                                                       \
-        method<reco::JPTJet>(arg1, arg2);                                \
-        break;                                                           \
-      default:                                                           \
-        assert(!"ERROR in FFTJetCorrectionProducer : invalid jet type."\
+#define jet_type_switch(method, arg1, arg2)                                \
+  do {                                                                     \
+    switch (jetType) {                                                     \
+      case CALOJET:                                                        \
+        method<reco::CaloJet>(arg1, arg2, esLoaderCalo);                   \
+        break;                                                             \
+      case PFJET:                                                          \
+        method<reco::PFJet>(arg1, arg2, esLoaderPF);                       \
+        break;                                                             \
+      case GENJET:                                                         \
+        method<reco::GenJet>(arg1, arg2, esLoaderGen);                     \
+        break;                                                             \
+      case TRACKJET:                                                       \
+        method<reco::TrackJet>(arg1, arg2, esLoaderTrack);                 \
+        break;                                                             \
+      case BASICJET:                                                       \
+        method<reco::BasicJet>(arg1, arg2, esLoaderBasic);                 \
+        break;                                                             \
+      case JPTJET:                                                         \
+        method<reco::JPTJet>(arg1, arg2, esLoaderJPT);                     \
+        break;                                                             \
+      default:                                                             \
+        assert(!"ERROR in FFTJetCorrectionProducer : invalid jet type."  \
                " This is a bug. Please report."); \
-    }                                                                    \
+    }                                                                      \
   } while (0);
 
 namespace {
@@ -84,21 +84,23 @@ namespace {
 //
 // class declaration
 //
-class FFTJetCorrectionProducer : public edm::EDProducer {
+class FFTJetCorrectionProducer : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetCorrectionProducer(const edm::ParameterSet&);
   ~FFTJetCorrectionProducer() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   template <typename Jet>
-  void makeProduces(const std::string& alias, const std::string& tag);
+  void makeProduces(const std::string& alias,
+                    const std::string& tag,
+                    std::unique_ptr<typename FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<Jet>>::loader>& ptr);
 
   template <typename Jet>
-  void applyCorrections(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void applyCorrections(edm::Event& iEvent,
+                        const edm::EventSetup& iSetup,
+                        std::unique_ptr<typename FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<Jet>>::loader>& ptr);
 
   template <typename Jet>
   void performPileupSubtraction(Jet&);
@@ -133,11 +135,30 @@ private:
 
   // tokens for data access
   edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::Jet>>> input_jets_token_;
+
+  // Tools for accessing event setup
+  std::unique_ptr<FFTBasicJetCorrectorSequenceLoader> esLoaderBasic;
+  std::unique_ptr<FFTCaloJetCorrectorSequenceLoader> esLoaderCalo;
+  std::unique_ptr<FFTGenJetCorrectorSequenceLoader> esLoaderGen;
+  std::unique_ptr<FFTPFJetCorrectorSequenceLoader> esLoaderPF;
+  std::unique_ptr<FFTTrackJetCorrectorSequenceLoader> esLoaderTrack;
+  std::unique_ptr<FFTJPTJetCorrectorSequenceLoader> esLoaderJPT;
 };
 
-template <typename T>
-void FFTJetCorrectionProducer::makeProduces(const std::string& alias, const std::string& tag) {
-  produces<std::vector<reco::FFTAnyJet<T>>>(tag).setBranchAlias(alias);
+template <typename Jet>
+void FFTJetCorrectionProducer::makeProduces(
+    const std::string& alias,
+    const std::string& tag,
+    std::unique_ptr<typename FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<Jet>>::loader>& ptr) {
+  typedef reco::FFTAnyJet<Jet> MyJet;
+  typedef typename FFTJetCorrectorSequenceTypemap<MyJet>::loader Loader;
+
+  produces<std::vector<MyJet>>(tag).setBranchAlias(alias);
+
+  ptr = std::make_unique<Loader>();
+  const unsigned nRecords = records.size();
+  for (unsigned irec = 0; irec < nRecords; ++irec)
+    ptr->acquireToken(records[irec], consumesCollector());
 }
 
 template <typename Jet>
@@ -157,7 +178,10 @@ void FFTJetCorrectionProducer::performPileupSubtraction(Jet& jet) {
 }
 
 template <typename Jet>
-void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void FFTJetCorrectionProducer::applyCorrections(
+    edm::Event& iEvent,
+    const edm::EventSetup& iSetup,
+    std::unique_ptr<typename FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<Jet>>::loader>& loader) {
   using reco::FFTJet;
   typedef reco::FFTAnyJet<Jet> MyJet;
   typedef std::vector<MyJet> MyCollection;
@@ -169,7 +193,7 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent, const edm::E
   const unsigned nRecords = records.size();
   std::vector<edm::ESHandle<CorrectorSequence>> handles(nRecords);
   for (unsigned irec = 0; irec < nRecords; ++irec)
-    Loader::instance().load(iSetup, records[irec], handles[irec]);
+    handles[irec] = loader->load(records[irec], iSetup);
 
   // Figure out which correction levels we are applying
   // and create masks which will indicate this
@@ -343,12 +367,6 @@ FFTJetCorrectionProducer::~FFTJetCorrectionProducer() {}
 void FFTJetCorrectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   jet_type_switch(applyCorrections, iEvent, iSetup);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void FFTJetCorrectionProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void FFTJetCorrectionProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetCorrectionProducer);

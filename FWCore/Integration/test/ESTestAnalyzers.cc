@@ -1,4 +1,5 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -66,7 +67,7 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
-  class ESTestAnalyzerB : public edm::EDAnalyzer {
+  class ESTestAnalyzerB : public edm::one::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerB(edm::ParameterSet const&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -74,21 +75,21 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::vector<int> runsToGetDataFor_;
-    std::vector<int> expectedValues_;
+    const std::vector<int> runsToGetDataFor_;
+    const std::vector<int> expectedValues_;
+    const edm::ESGetToken<ESTestDataB, ESTestRecordB> dataBToken_;
 
     unsigned int expectedIndex_ = 0;
   };
 
   ESTestAnalyzerB::ESTestAnalyzerB(edm::ParameterSet const& pset)
       : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
-        expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")) {}
+        expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")),
+        dataBToken_(esConsumes()) {}
 
   void ESTestAnalyzerB::analyze(edm::Event const& ev, edm::EventSetup const& es) {
     if (std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run()) != runsToGetDataFor_.end()) {
-      ESTestRecordB const& rec = es.get<ESTestRecordB>();
-      edm::ESHandle<ESTestDataB> dataB;
-      rec.get(dataB);
+      edm::ESHandle<ESTestDataB> dataB = es.getHandle(dataBToken_);
       edm::LogAbsolute("ESTestAnalyzerB")
           << "ESTestAnalyzerB: process = " << moduleDescription().processName() << ": Data value = " << dataB->value();
 
@@ -112,32 +113,31 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
-  class ESTestAnalyzerK : public edm::EDAnalyzer {
+  class ESTestAnalyzerK : public edm::global::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerK(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
   private:
-    std::vector<int> runsToGetDataFor_;
+    const std::vector<int> runsToGetDataFor_;
+    const edm::ESGetToken<ESTestDataK, ESTestRecordK> dataKToken_;
   };
 
   ESTestAnalyzerK::ESTestAnalyzerK(edm::ParameterSet const& pset)
-      : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")) {}
+      : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")), dataKToken_(esConsumes()) {}
 
-  void ESTestAnalyzerK::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+  void ESTestAnalyzerK::analyze(edm::StreamID, edm::Event const& ev, edm::EventSetup const& es) const {
     if (std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run()) != runsToGetDataFor_.end()) {
-      ESTestRecordK const& rec = es.get<ESTestRecordK>();
-      edm::ESHandle<ESTestDataK> dataK;
-      rec.get(dataK);
+      ESTestDataK const& dataK = es.getData(dataKToken_);
       edm::LogAbsolute("ESTestAnalyzerK")
-          << "ESTestAnalyzerK: process = " << moduleDescription().processName() << ": Data value = " << dataK->value();
+          << "ESTestAnalyzerK: process = " << moduleDescription().processName() << ": Data value = " << dataK.value();
     }
   }
 
-  class ESTestAnalyzerAZ : public edm::EDAnalyzer {
+  class ESTestAnalyzerAZ : public edm::global::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerAZ(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -145,44 +145,44 @@ namespace edmtest {
     std::vector<int> const runsToGetDataFor_;
     std::vector<int> const expectedValuesA_;
     std::vector<int> const expectedValuesZ_;
+    edm::ESGetToken<ESTestDataA, ESTestRecordA> dataAToken_;
+    edm::ESGetToken<ESTestDataZ, ESTestRecordZ> dataZToken_;
   };
 
   ESTestAnalyzerAZ::ESTestAnalyzerAZ(edm::ParameterSet const& pset)
       : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
         expectedValuesA_(pset.getUntrackedParameter<std::vector<int>>("expectedValuesA")),
-        expectedValuesZ_(pset.getUntrackedParameter<std::vector<int>>("expectedValuesZ")) {
+        expectedValuesZ_(pset.getUntrackedParameter<std::vector<int>>("expectedValuesZ")),
+        dataAToken_(esConsumes(edm::ESInputTag("", "foo"))),
+        dataZToken_(esConsumes(edm::ESInputTag("", "foo"))) {
     assert(expectedValuesA_.empty() or expectedValuesA_.size() == runsToGetDataFor_.size());
     assert(expectedValuesZ_.empty() or expectedValuesZ_.size() == runsToGetDataFor_.size());
   }
 
-  void ESTestAnalyzerAZ::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+  void ESTestAnalyzerAZ::analyze(edm::StreamID, edm::Event const& ev, edm::EventSetup const& es) const {
     auto found = std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run());
 
     if (found != runsToGetDataFor_.end()) {
-      ESTestRecordA const& recA = es.get<ESTestRecordA>();
-      edm::ESHandle<ESTestDataA> dataA;
-      recA.get("foo", dataA);
+      ESTestDataA const& dataA = es.getData(dataAToken_);
 
-      ESTestRecordZ const& recZ = es.get<ESTestRecordZ>();
-      edm::ESHandle<ESTestDataZ> dataZ;
-      recZ.get("foo", dataZ);
+      ESTestDataZ const& dataZ = es.getData(dataZToken_);
 
       edm::LogAbsolute("ESTestAnalyzerAZ") << "ESTestAnalyzerAZ: process = " << moduleDescription().processName()
-                                           << ": Data values = " << dataA->value() << "  " << dataZ->value();
+                                           << ": Data values = " << dataA.value() << "  " << dataZ.value();
 
       if (not expectedValuesA_.empty()) {
-        if (expectedValuesA_[found - runsToGetDataFor_.begin()] != dataA->value()) {
+        if (expectedValuesA_[found - runsToGetDataFor_.begin()] != dataA.value()) {
           throw cms::Exception("TestError")
               << "Exptected value for A " << expectedValuesA_[found - runsToGetDataFor_.begin()] << " but saw "
-              << dataA->value();
+              << dataA.value();
         }
       }
 
       if (not expectedValuesZ_.empty()) {
-        if (expectedValuesZ_[found - runsToGetDataFor_.begin()] != dataZ->value()) {
+        if (expectedValuesZ_[found - runsToGetDataFor_.begin()] != dataZ.value()) {
           throw cms::Exception("TestError")
               << "Exptected value for Z " << expectedValuesZ_[found - runsToGetDataFor_.begin()] << " but saw "
-              << dataZ->value();
+              << dataZ.value();
         }
       }
     }
@@ -202,16 +202,17 @@ namespace edmtest {
 
   class ESTestAnalyzerJ : public edm::stream::EDAnalyzer<> {
   public:
-    explicit ESTestAnalyzerJ(edm::ParameterSet const&) {}
+    explicit ESTestAnalyzerJ(edm::ParameterSet const&) : dataJToken_(esConsumes()) {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    const edm::ESGetToken<ESTestDataJ, ESTestRecordJ> dataJToken_;
   };
 
   void ESTestAnalyzerJ::analyze(edm::Event const& ev, edm::EventSetup const& es) {
-    ESTestRecordJ const& recJ = es.get<ESTestRecordJ>();
-    edm::ESHandle<ESTestDataJ> dataJ;
-    recJ.get(dataJ);
+    ESTestDataJ const& dataJ = es.getData(dataJToken_);
     edm::LogAbsolute("ESTestAnalyzerJ") << "ESTestAnalyzerJ: process = " << moduleDescription().processName()
-                                        << ": Data values = " << dataJ->value();
+                                        << ": Data values = " << dataJ.value();
   }
 
   class ESTestAnalyzerL : public edm::stream::EDAnalyzer<> {

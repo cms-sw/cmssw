@@ -1,13 +1,12 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 from __future__ import print_function
 import sys, imp
 import os
-import commands
+import subprocess
 
 from optparse import OptionParser
 
 
-import six
 # --
 # -- Usage :
 # -- Rate within a given PD :
@@ -33,7 +32,7 @@ def PrimaryDatasets(Run):
 
     dbs_cmd = """ dbs search --query='find primds.name 
           	where run=%d and dataset like */RAW' """ % (Run)
-    rows = commands.getoutput(dbs_cmd)
+    rows = subprocess.getoutput(dbs_cmd)
     lines = rows.split("\n")
     j=0
     print("\nThe primary datasets for this run are: \n")
@@ -53,7 +52,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 		where run=%d and dataset like /%s/*/RAW 
 		and lumi >= %d and lumi <= %d
 		and file.status=VALID '""" % (Run, PrimaryDataset,lsMin, lsMax)
-    rows = commands.getoutput(dbs_cmd)
+    rows = subprocess.getoutput(dbs_cmd)
     lines = rows.split("\n")
     j=0
     LumiSections = []
@@ -96,7 +95,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 
     lsmin=9999999
     lsmax=-1
-    for (LS,file) in six.iteritems(LSinFile):
+    for (LS,file) in LSinFile.items():
         nls = NumberOfLSInFile[file]
         RatePerLS[LS] = RatePerLS[LS] / nls
         RatePerLS[LS] = RatePerLS[LS] / LS_Length
@@ -141,7 +140,7 @@ if __name__ == "__main__":
             RateInPD(Run,PrimaryDataset,lsMin, lsMax, True)
             RatesTmp = open("rates_tmp.txt","w")
             #RatesTmpSort = open("rates_tmp_sort.txt","w")
-            for (LS, rate) in six.iteritems(RatePerLS):
+            for (LS, rate) in RatePerLS.items():
                 RatesTmp.write(LS+"\t"+repr(rate)+"\n")
                 #if int(LS) >=  lsMin and int(LS) <= lsMax:
                 #nLS_within_range =nLS_within_range +1

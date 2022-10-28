@@ -50,7 +50,7 @@
 
 How to use ClusterSummary class:
 
-ClusterSummary provides summary inforation for a number of cluster dependent variables.
+ClusterSummary provides summary information for a number of cluster dependent variables.
 All the variables are stored within variables_
 The modules selected are stored within modules_
 The number of variables for each module is stored within iterator_

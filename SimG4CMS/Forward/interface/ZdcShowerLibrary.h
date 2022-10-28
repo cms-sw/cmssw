@@ -8,7 +8,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/ForwardGeometry/src/ZdcHardcodeGeometryData.h"
+#include "Geometry/ForwardGeometry/interface/ZdcHardcodeGeometryData.h"
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"

@@ -503,8 +503,7 @@ namespace edmtest {
     class TestBeginProcessBlockFilter : public edm::global::EDFilter<edm::BeginProcessBlockProducer> {
     public:
       explicit TestBeginProcessBlockFilter(edm::ParameterSet const& p)
-          : trans_(p.getParameter<int>("transitions")),
-            token_(produces<unsigned int, edm::Transition::BeginProcessBlock>("begin")) {
+          : trans_(p.getParameter<int>("transitions")), token_(produces<edm::Transition::BeginProcessBlock>("begin")) {
         produces<unsigned int>();
 
         auto tag = p.getParameter<edm::InputTag>("consumesBeginProcessBlock");

@@ -99,8 +99,8 @@ process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
-process.hcalParameters.fromDD4Hep = True
-process.caloSimulationParameters.fromDD4Hep = True
+process.hcalParameters.fromDD4hep = True
+process.caloSimulationParameters.fromDD4hep = True
 
 process.g4SimHits.StackingAction.KillGamma = False
 process.g4SimHits.CaloSD.BeamPosition = beamPosition
@@ -110,6 +110,7 @@ process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
 process.g4SimHits.ECalSD.BirkC2 = 0.0
 process.g4SimHits.ECalSD.SlopeLightYield = 0.05
+process.g4SimHits.ECalSD.Detectors = 1
 process.g4SimHits.HCalSD.UseBirkLaw = True
 process.g4SimHits.HCalSD.BirkC1 = 0.0052
 process.g4SimHits.HCalSD.BirkC2 = 0.142
@@ -121,11 +122,9 @@ process.g4SimHits.HCalSD.TestNumberingScheme = True
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalTBH4BeamDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
+process.g4SimHits.OnlySDs = ['HcalTB06BeamDetector',
                              'EcalSensitiveDetector',
+                             'CaloTrkProcessing',
                              'HcalSensitiveDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB04Analysis = cms.PSet(

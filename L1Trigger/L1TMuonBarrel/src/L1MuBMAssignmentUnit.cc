@@ -39,6 +39,7 @@
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 #include <iostream>
 #include <iomanip>
@@ -72,7 +73,7 @@ L1MuBMAssignmentUnit::~L1MuBMAssignmentUnit() {}
 //
 // run Assignment Unit
 //
-void L1MuBMAssignmentUnit::run(const edm::EventSetup& c) {
+void L1MuBMAssignmentUnit::run(const L1TMuonBarrelParams& bmtfParams) {
   // enable track candidate
   m_sp.track(m_id)->enable();
   m_sp.tracK(m_id)->enable();
@@ -99,10 +100,10 @@ void L1MuBMAssignmentUnit::run(const edm::EventSetup& c) {
   m_sp.tracK(m_id)->setBx(bx);
 
   // assign phi
-  PhiAU(c);
+  PhiAU(bmtfParams);
 
   // assign pt and charge
-  PtAU(c);
+  PtAU(bmtfParams);
 
   // assign quality
   QuaAU();
@@ -120,10 +121,7 @@ void L1MuBMAssignmentUnit::reset() {
 //
 // assign phi with 8 bit precision
 //
-void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
   thePhiLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< phi-assignment look-up tables
   //thePhiLUTs->print();
   // calculate phi at station 2 using 8 bits (precision = 0.625 degrees)
@@ -168,11 +166,11 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   int phi_8 = static_cast<int>(floor(phi_f * k));
 
   if (second == nullptr && first) {
-    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((first->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0, bend_angle);
     //phi_8 = phi_8 + getDeltaPhi(0, bend_angle, bmtfParams->phi_lut());
   } else if (second == nullptr && forth) {
-    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((forth->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1, bend_angle);
     //phi_8 = phi_8 + getDeltaPhi(1, bend_angle, bmtfParams->phi_lut());
   }
@@ -198,11 +196,8 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 //
 // assign pt with 5 bit precision
 //
-void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParams& bmtfParams1 = *bmtfParamsHandle.product();
-  const L1TMuonBarrelParamsAllPublic& bmtfParams = L1TMuonBarrelParamsAllPublic(bmtfParams1);
+void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams1) {
+  const L1TMuonBarrelParamsAllPublic bmtfParams(bmtfParams1);
   thePtaLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< pt-assignment look-up tables
   //thePtaLUTs->print();
   // get pt-assignment method as function of track class and TS phib values
@@ -663,7 +658,7 @@ int L1MuBMAssignmentUnit::phiDiff(int stat1, int stat2) const {
   //  assert( abs(sectordiff) <= 1 );
 
   int offset = (2144 >> sh_phi) * sectordiff;
-  int bendangle = (phi2 - phi1 + offset) << sh_phi;
+  int bendangle = l1t::bitShift((phi2 - phi1 + offset), sh_phi);
 
   return bendangle;
 }

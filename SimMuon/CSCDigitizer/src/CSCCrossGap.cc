@@ -14,8 +14,9 @@ CSCCrossGap::CSCCrossGap(double mass, float mom, LocalVector gap)
 double CSCCrossGap::logGamma(double mass, float mom) {
   theGamma = sqrt((mom / mass) * (mom / mass) + 1.);
   theBeta2 = 1. - 1. / (theGamma * theGamma);
-  double betgam = sqrt(theGamma * theGamma - 1.);
-  LogTrace("CSCCrossGap") << "gamma = " << theGamma << ", beta2 = " << theBeta2 << ", beta*gamma = " << betgam;
+  LogTrace("CSCCrossGap") << "gamma = " << theGamma << ", beta2 = " << theBeta2
+                          << ", beta*gamma = " << sqrt(theGamma * theGamma - 1.);
+  ;
 
   // The lowest value in table (=theGammaBins[0]) is ln(1.1)=0.0953102
   // (Compensate later if lower)

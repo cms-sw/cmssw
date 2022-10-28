@@ -16,6 +16,7 @@
 <library file="HcalLaserEventFiltProducer2012.cc, HcalLaserEventFilter2012.cc,HcalLaserHFFilter2012.cc,HcalLaserHBHEFilter2012.cc,HcalLaserHBHEHFFilter2012.cc" name="EventFilterHcalRawToDigiFiltersPlugins">
 </library>
 
+<iftool name="cuda-gcc-support">
 <library file="HcalRawToDigiGPU.cc,DecodeGPU.cu,HcalESProducerGPUDefs.cc,ElectronicsMappingGPU.cc,HcalCPUDigisProducer.cc,HcalDigisProducerGPU.cc" name="EventFilterHcalRawToDigiGPUPlugins">
   <use name="cuda" />
   <use name="CUDADataFormats/HcalDigi" />
@@ -23,3 +24,4 @@
   <use name="HeterogeneousCore/CUDAServices"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </library>
+</iftool>

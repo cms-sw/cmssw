@@ -17,8 +17,6 @@ Implementation:
 //
 
 // user include files
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 #include "SiPixelGainCalibrationAnalysis.h"
 #include <sstream>
 #include <vector>

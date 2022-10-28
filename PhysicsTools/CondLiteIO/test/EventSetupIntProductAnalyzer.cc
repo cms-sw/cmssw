@@ -22,7 +22,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -39,7 +39,7 @@
 
 namespace edmtest {
 
-  class EventSetupIntProductAnalyzer : public edm::EDAnalyzer {
+  class EventSetupIntProductAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit EventSetupIntProductAnalyzer(const edm::ParameterSet&);
     ~EventSetupIntProductAnalyzer();
@@ -50,6 +50,7 @@ namespace edmtest {
     // ----------member data ---------------------------
     std::vector<int> expectedValues_;
     unsigned int index_;
+    edm::ESGetToken<edmtest::IntProduct, IntProductRecord> token_;
   };
 
   //
@@ -65,7 +66,8 @@ namespace edmtest {
   //
   EventSetupIntProductAnalyzer::EventSetupIntProductAnalyzer(const edm::ParameterSet& iConfig)
       : expectedValues_(iConfig.getUntrackedParameter<std::vector<int> >("expectedValues", std::vector<int>())),
-        index_(0) {
+        index_(0),
+        token_(esConsumes()) {
     //now do what ever initialization is needed
   }
 
@@ -81,14 +83,13 @@ namespace edmtest {
   // ------------ method called to produce the data  ------------
   void EventSetupIntProductAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
     using namespace edm;
-    ESHandle<edmtest::IntProduct> pSetup;
-    iSetup.get<IntProductRecord>().get(pSetup);
+    auto const& setup = iSetup.getData(token_);
 
-    std::cout << "edmtest::IntProduct " << pSetup->value << std::endl;
+    std::cout << "edmtest::IntProduct " << setup.value << std::endl;
     if (!expectedValues_.empty()) {
-      if (expectedValues_.at(index_) != pSetup->value) {
+      if (expectedValues_.at(index_) != setup.value) {
         throw cms::Exception("TestFail") << "expected value " << expectedValues_[index_] << " but was got "
-                                         << pSetup->value;
+                                         << setup.value;
       }
       ++index_;
     }

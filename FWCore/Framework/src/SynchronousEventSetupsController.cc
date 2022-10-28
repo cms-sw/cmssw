@@ -13,6 +13,7 @@
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include <algorithm>
 #include <iostream>
@@ -22,14 +23,12 @@ namespace edm {
   namespace eventsetup {
 
     SynchronousEventSetupsController::SynchronousEventSetupsController()
-        : globalControl_(tbb::global_control::max_allowed_parallelism, 1) {}
+        : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1) {}
 
     SynchronousEventSetupsController::~SynchronousEventSetupsController() {
-      FinalWaitingTask finalTask;
+      FinalWaitingTask finalTask{taskGroup_};
       controller_.endIOVsAsync(edm::WaitingTaskHolder(taskGroup_, &finalTask));
-      do {
-        taskGroup_.wait();
-      } while (not finalTask.done());
+      finalTask.waitNoThrow();
     }
 
     std::shared_ptr<EventSetupProvider> SynchronousEventSetupsController::makeProvider(

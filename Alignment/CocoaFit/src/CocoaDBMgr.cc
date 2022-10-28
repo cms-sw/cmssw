@@ -55,7 +55,7 @@ bool CocoaDBMgr::DumpCocoaResults() {
   cond::Time_t appendTime = Fit::nEvent + 1;
   if (gomgr->GlobalOptions()["writeDBOptAlign"] > 0) {
     //----- Build OpticalAlignments
-    OpticalAlignments* optalign = BuildOpticalAlignments();
+    std::unique_ptr<OpticalAlignments> optalign = BuildOpticalAlignments();
 
     //--- Dump OpticalAlignments
     nrcd = optalign->opticalAlignments_.size();
@@ -67,21 +67,11 @@ bool CocoaDBMgr::DumpCocoaResults() {
       std::cout << " new OA to DB "
                 << "begin " << myDbService->beginOfTime() << " current " << myDbService->currentTime() << " end "
                 << myDbService->endOfTime() << std::endl;
-      myDbService->createNewIOV<OpticalAlignments>(
-          optalign,
-          myDbService->beginOfTime(),
-          myDbService->endOfTime(),
-          //						   myDbService->endOfTime(),
-          "OpticalAlignmentsRcd");
+      myDbService->createOneIOV<OpticalAlignments>(*optalign, myDbService->beginOfTime(), "OpticalAlignmentsRcd");
     } else {
       std::cout << " old OA to DB "
                 << " current " << myDbService->currentTime() << " end " << myDbService->endOfTime() << std::endl;
-      myDbService->appendSinceTime<OpticalAlignments>(
-          optalign,
-          //		      myDbService->endOfTime(),
-          appendTime,
-          //						       myDbService->currentTime(),
-          "OpticalAlignmentsRcd");
+      myDbService->appendOneIOV<OpticalAlignments>(*optalign, appendTime, "OpticalAlignmentsRcd");
     }
 
     /*    }catch(const cond::Exception& er) {
@@ -98,60 +88,53 @@ bool CocoaDBMgr::DumpCocoaResults() {
 
   if (gomgr->GlobalOptions()["writeDBAlign"] > 0) {
     // Build DT alignments and errors
-    std::pair<Alignments*, AlignmentErrorsExtended*> dtali = BuildAlignments(true);
-    Alignments* dt_Alignments = dtali.first;
-    AlignmentErrorsExtended* dt_AlignmentErrors = dtali.second;
+    const auto& dtali = BuildAlignments(true);
+    auto& dt_Alignments = dtali.first;
+    auto& dt_AlignmentErrors = dtali.second;
 
     // Dump DT alignments and errors
     nrcd = dt_Alignments->m_align.size();
     if (myDbService->isNewTagRequest("DTAlignmentRcd")) {
-      myDbService->createNewIOV<Alignments>(
-          &(*dt_Alignments), myDbService->beginOfTime(), myDbService->endOfTime(), "DTAlignmentRcd");
+      myDbService->createOneIOV<Alignments>(*dt_Alignments, myDbService->beginOfTime(), "DTAlignmentRcd");
     } else {
-      myDbService->appendSinceTime<Alignments>(&(*dt_Alignments),
-                                               appendTime,
-                                               //					       myDbService->currentTime(),
-                                               "DTAlignmentRcd");
+      myDbService->appendOneIOV<Alignments>(*dt_Alignments, appendTime, "DTAlignmentRcd");
     }
     if (ALIUtils::debug >= 2)
       std::cout << "DTAlignmentRcd WRITTEN TO DB : " << nrcd << std::endl;
 
     nrcd = dt_AlignmentErrors->m_alignError.size();
     if (myDbService->isNewTagRequest("DTAlignmentErrorExtendedRcd")) {
-      myDbService->createNewIOV<AlignmentErrorsExtended>(
-          &(*dt_AlignmentErrors), myDbService->beginOfTime(), myDbService->endOfTime(), "DTAlignmentErrorExtendedRcd");
+      myDbService->createOneIOV<AlignmentErrorsExtended>(
+          *dt_AlignmentErrors, myDbService->beginOfTime(), "DTAlignmentErrorExtendedRcd");
     } else {
-      myDbService->appendSinceTime<AlignmentErrorsExtended>(
-          &(*dt_AlignmentErrors), appendTime, "DTAlignmentErrorExtendedRcd");
+      myDbService->appendOneIOV<AlignmentErrorsExtended>(
+          *dt_AlignmentErrors, appendTime, "DTAlignmentErrorExtendedRcd");
     }
     if (ALIUtils::debug >= 2)
       std::cout << "DTAlignmentErrorExtendedRcd WRITTEN TO DB : " << nrcd << std::endl;
 
     // Build CSC alignments and errors
-    std::pair<Alignments*, AlignmentErrorsExtended*> cscali = BuildAlignments(false);
-    Alignments* csc_Alignments = cscali.first;
-    AlignmentErrorsExtended* csc_AlignmentErrors = cscali.second;
+    const auto& cscali = BuildAlignments(false);
+    auto& csc_Alignments = cscali.first;
+    auto& csc_AlignmentErrors = cscali.second;
 
     // Dump CSC alignments and errors
     nrcd = csc_Alignments->m_align.size();
     if (myDbService->isNewTagRequest("CSCAlignmentRcd")) {
-      myDbService->createNewIOV<Alignments>(
-          &(*csc_Alignments), myDbService->beginOfTime(), myDbService->endOfTime(), "CSCAlignmentRcd");
+      myDbService->createOneIOV<Alignments>(*csc_Alignments, myDbService->beginOfTime(), "CSCAlignmentRcd");
     } else {
-      myDbService->appendSinceTime<Alignments>(&(*csc_Alignments), appendTime, "CSCAlignmentRcd");
+      myDbService->appendOneIOV<Alignments>(*csc_Alignments, appendTime, "CSCAlignmentRcd");
     }
     if (ALIUtils::debug >= 2)
       std::cout << "CSCAlignmentRcd WRITTEN TO DB : " << nrcd << std::endl;
 
     nrcd = csc_AlignmentErrors->m_alignError.size();
     if (myDbService->isNewTagRequest("CSCAlignmentErrorExtendedRcd")) {
-      myDbService->createNewIOV<AlignmentErrorsExtended>(&(*csc_AlignmentErrors),
-                                                         myDbService->beginOfTime(),
-                                                         myDbService->endOfTime(),
-                                                         "CSCAlignmentErrorExtendedRcd");
+      myDbService->createOneIOV<AlignmentErrorsExtended>(
+          *csc_AlignmentErrors, myDbService->beginOfTime(), "CSCAlignmentErrorExtendedRcd");
     } else {
-      myDbService->appendSinceTime<AlignmentErrorsExtended>(
-          &(*csc_AlignmentErrors), appendTime, "CSCAlignmentErrorExtendedRcd");
+      myDbService->appendOneIOV<AlignmentErrorsExtended>(
+          *csc_AlignmentErrors, appendTime, "CSCAlignmentErrorExtendedRcd");
     }
     if (ALIUtils::debug >= 2)
       std::cout << "CSCAlignmentErrorExtendedRcd WRITTEN TO DB : " << nrcd << std::endl;
@@ -280,8 +263,8 @@ double CocoaDBMgr::GetEntryError(const Entry* entry1, const Entry* entry2) {
 }
 
 //-----------------------------------------------------------------------
-OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments() {
-  OpticalAlignments* optalign = new OpticalAlignments;
+std::unique_ptr<OpticalAlignments> CocoaDBMgr::BuildOpticalAlignments() {
+  std::unique_ptr<OpticalAlignments> optalign = std::make_unique<OpticalAlignments>();
 
   static std::vector<OpticalObject*> optolist = Model::OptOList();
   static std::vector<OpticalObject*>::const_iterator ite;
@@ -298,9 +281,9 @@ OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments() {
 }
 
 //-----------------------------------------------------------------------
-std::pair<Alignments*, AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(bool bDT) {
-  Alignments* alignments = new Alignments;
-  AlignmentErrorsExtended* alignmentErrors = new AlignmentErrorsExtended;
+std::pair<std::unique_ptr<Alignments>, std::unique_ptr<AlignmentErrorsExtended> > CocoaDBMgr::BuildAlignments(bool bDT) {
+  std::unique_ptr<Alignments> alignments = std::make_unique<Alignments>();
+  std::unique_ptr<AlignmentErrorsExtended> alignmentErrors = std::make_unique<AlignmentErrorsExtended>();
 
   //read
   static std::vector<OpticalObject*> optolist = Model::OptOList();
@@ -326,7 +309,8 @@ std::pair<Alignments*, AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(boo
   if (ALIUtils::debug >= 4)
     std::cout << "CocoaDBMgr::BuildAlignments end with n alignment " << alignments->m_align.size()
               << " n alignmentError " << alignmentErrors->m_alignError.size() << std::endl;
-  return std::pair<Alignments*, AlignmentErrorsExtended*>(alignments, alignmentErrors);
+
+  return std::make_pair(std::move(alignments), std::move(alignmentErrors));
 }
 
 //-----------------------------------------------------------------------

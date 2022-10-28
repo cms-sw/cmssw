@@ -1,13 +1,33 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
-#include "IOVPayloadEndOfJob.h"
+#include <string>
 #include <cstdlib>
 #include <iostream>
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+// class decleration
+class Pedestals;
+class IOVPayloadEndOfJob : public edm::one::EDAnalyzer<> {
+public:
+  explicit IOVPayloadEndOfJob(const edm::ParameterSet& iConfig);
+  virtual ~IOVPayloadEndOfJob();
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void endJob();
+
+private:
+  std::string m_record;
+};
 
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig)
     : m_record(iConfig.getParameter<std::string>("record")) {
@@ -37,7 +57,7 @@ void IOVPayloadEndOfJob::endJob() {
       //create
       cond::Time_t firstSinceTime = mydbservice->beginOfTime();
       std::cout << "firstSinceTime is begin of time " << firstSinceTime << std::endl;
-      mydbservice->writeOne(&myped, firstSinceTime, m_record);
+      mydbservice->createOneIOV(myped, firstSinceTime, m_record);
     } else {
       //append
       cond::Time_t current = mydbservice->currentTime();
@@ -51,10 +71,9 @@ void IOVPayloadEndOfJob::endJob() {
           myped.m_pedestals.push_back(item);
         }
         cond::Time_t thisPayload_valid_since = current;
-        std::cout << "appeding since time " << thisPayload_valid_since << std::endl;
-        mydbservice->writeOne(&myped, thisPayload_valid_since, m_record);
+        std::cout << "appending since time " << thisPayload_valid_since << std::endl;
+        mydbservice->appendOneIOV(myped, thisPayload_valid_since, m_record);
         std::cout << "done" << std::endl;
-        //std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       }
     }
   } catch (const cond::Exception& er) {
@@ -62,10 +81,6 @@ void IOVPayloadEndOfJob::endJob() {
     //std::cout<<er.what()<<std::endl;
   } catch (const cms::Exception& er) {
     throw cms::Exception("DataBaseUnitTestFailure", "failed IOVPayloadEndOfJob", er);
-  } /*catch(const std::exception& er){
-    std::cout<<"caught std::exception "<<er.what()<<std::endl;
-  }catch(...){
-    std::cout<<"Unknown error"<<std::endl;
-    }*/
+  }
 }
 DEFINE_FWK_MODULE(IOVPayloadEndOfJob);

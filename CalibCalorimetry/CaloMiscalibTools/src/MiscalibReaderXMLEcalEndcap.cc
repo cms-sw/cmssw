@@ -9,18 +9,10 @@ DetId MiscalibReaderFromXMLEcalEndcap::parseCellEntry(XERCES_CPP_NAMESPACE::DOMN
 }
 
 EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int ix, int iy, int iz) {
-  try {
-    if (EEDetId::validDetId(ix, iy, iz)) {
-      EEDetId cell(ix, iy, iz);
-      return cell;
-    } else {
-      return EEDetId(0);
-    }
-  }
-
-  catch (...)
-
-  {
+  if (EEDetId::validDetId(ix, iy, iz)) {
+    EEDetId cell(ix, iy, iz);
+    return cell;
+  } else {
     std::cout << "Null coordinates = " << ix << "," << iy << "," << iz << std::endl;
     return EEDetId(0);
   }

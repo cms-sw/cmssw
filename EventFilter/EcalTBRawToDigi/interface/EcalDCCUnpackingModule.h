@@ -9,7 +9,7 @@
  */
 
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
@@ -21,7 +21,7 @@ class CamacTBDataFormatter;
 class TableDataFormatter;
 class MatacqTBDataFormatter;
 
-class EcalDCCTBUnpackingModule : public edm::EDProducer {
+class EcalDCCTBUnpackingModule : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   EcalDCCTBUnpackingModule(const edm::ParameterSet& pset);
@@ -31,12 +31,6 @@ public:
 
   /// Produce digis out of raw data
   void produce(edm::Event& e, const edm::EventSetup& c) override;
-
-  // BeginJob
-  void beginJob() override;
-
-  // EndJob
-  void endJob(void) override;
 
 private:
   EcalTBDaqFormatter* formatter_;

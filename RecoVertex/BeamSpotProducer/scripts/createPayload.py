@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #  createPayload
@@ -39,7 +39,7 @@ from __future__ import print_function
 
 from builtins import range
 import sys,os
-import commands, re, time
+import subprocess, re, time
 import datetime
 from CommonMethods import *
 
@@ -69,7 +69,7 @@ def copyToWorkflowdir(path):
 
         aCommand  = lsCommand  + 'ls '+ path + " | grep .txt"
 
-        tmpstatus = commands.getstatusoutput( aCommand )
+        tmpstatus = subprocess.getstatusoutput( aCommand )
         tmplistoffiles = tmpstatus[1].split('\n')
         if len(tmplistoffiles) == 1:
             if tmplistoffiles[0] == '':
@@ -122,7 +122,7 @@ def copyToWorkflowdir(path):
             # copy to local disk
             aCommand = cpCommand + 'cp '+ path + ifile + " " + workflowdirArchive
             print(" >> " + aCommand)
-            tmpstatus = commands.getstatusoutput( aCommand )
+            tmpstatus = subprocess.getstatusoutput( aCommand )
     return listoffiles
 
 def mkWorkflowdir():
@@ -338,7 +338,7 @@ if __name__ == '__main__':
         if not writeSqliteFile(sqlite_file,tagname,timetype,beam_file,writedb_template,workflowdirTmp):
             print("An error occurred while writing the sqlite file: " + sqlite_file)
 
-        commands.getstatusoutput('rm -f ' + beam_file)
+        subprocess.getstatusoutput('rm -f ' + beam_file)
         ##### READ and check sqlite file
         readSqliteFile(sqlite_file,tagname,readdb_template,workflowdirTmp)
 
@@ -388,16 +388,16 @@ if __name__ == '__main__':
 
     dfile.close()
 
-    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    uuid = subprocess.getstatusoutput('uuidgen -t')[1]
     final_sqlite_file_name = tagname + '@' + uuid
 
     if not os.path.isdir(workflowdirArchive + 'payloads'):
         os.mkdir(workflowdirArchive + 'payloads')
-    commands.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
-    commands.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
+    subprocess.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
+    subprocess.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
 
-    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
-    commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
+    subprocess.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
+    subprocess.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
 
     print(workflowdirLastPayloads + final_sqlite_file_name + '.db')
     print(workflowdirLastPayloads + final_sqlite_file_name + '.txt')

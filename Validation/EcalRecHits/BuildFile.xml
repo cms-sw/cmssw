@@ -9,6 +9,5 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Framework"/>
 <use name="DQMServices/Core"/>
-<use name="boost"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

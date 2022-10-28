@@ -5,6 +5,7 @@
 <use name="DataFormats/L1TCorrelator"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/JetReco"/>
+<use name="DataFormats/L1TMuonPhase2"/>
 <use name="rootrflx"/>
 
 <export>

@@ -8,7 +8,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 # unpacking, conditions needed here
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("L1Trigger.Configuration.L1Config_cff")
 
 process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")

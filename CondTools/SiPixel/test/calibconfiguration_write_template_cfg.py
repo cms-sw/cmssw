@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PixelCalibTemplate")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 0
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X'
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDB.DBParameters.messageLevel = 0
 
 
 process.source = cms.Source("EmptyIOVSource",
@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelCalibConfigurationRcd'),
         tag = cms.string('PIXELTAG')

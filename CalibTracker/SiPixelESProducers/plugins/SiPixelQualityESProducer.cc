@@ -79,7 +79,7 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
   auto label =
       conf_.exists("siPixelQualityLabel") ? conf_.getParameter<std::string>("siPixelQualityLabel") : std::string{};
 
-  if (label == "forDigitizer") {
+  if (label == "forDigitizer" || label == "forRawToDigi") {
     labelTokens_ =
         Tokens(setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label)), label);
   }

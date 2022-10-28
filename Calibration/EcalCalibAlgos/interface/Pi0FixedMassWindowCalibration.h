@@ -11,48 +11,32 @@
 // Framework
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/ESProducerLooper.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TCanvas.h"
 
 class Pi0FixedMassWindowCalibration : public edm::ESProducerLooper {
 public:
@@ -87,9 +71,9 @@ private:
 
   int nevent;
 
-  unsigned int theMaxLoops;
-  std::string ecalHitsProducer_;
-  std::string barrelHits_;
+  const unsigned int theMaxLoops;
+  const std::string ecalHitsProducer_;
+  const std::string barrelHits_;
 
   IslandClusterAlgo::VerbosityLevel verbosity;
 
@@ -140,8 +124,9 @@ private:
   const EcalRecHitCollection* ecalRecHitBarrelCollection;
   const EcalRecHitCollection* recalibEcalRecHitCollection;
 
-  // root tree
-  TFile* theFile;
+  const edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
+  const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstantsToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   bool isfirstcall_;
 };

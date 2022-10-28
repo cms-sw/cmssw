@@ -8,6 +8,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/VecArray.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "AreaSeededTrackingRegionsBuilder.h"
@@ -87,6 +89,9 @@ private:
 
   std::vector<edm::EDGetTokenT<DetIdCollection> > inactivePixelDetectorTokens_;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection> > badPixelFEDChannelsTokens_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> pixelQualityToken_;
 
   // Output type aliases
   using DetGroupSpanContainerPair = std::pair<DetGroupSpanContainer, DetGroupSpanContainer>;

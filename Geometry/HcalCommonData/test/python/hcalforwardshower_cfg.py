@@ -2,26 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEOM")
 process.load("Geometry.HcalCommonData.hcalforwardshower_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HCalGeom=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

@@ -8,11 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQM/TrackingMonitor/interface/VertexMonitor.h"
-
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
-
 #include "TMath.h"
 
 VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
@@ -69,11 +66,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
   selpvToken_ = iC.consumes<reco::VertexCollection>(selectedPrimaryVertexInputTag_);
 }
 
-VertexMonitor::~VertexMonitor() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  //  if (lumiDetails_) delete lumiDetails_;
-}
+VertexMonitor::~VertexMonitor() = default;
 
 //
 // member functions

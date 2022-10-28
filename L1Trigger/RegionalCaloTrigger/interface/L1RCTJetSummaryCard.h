@@ -12,6 +12,9 @@ public:
   // for bookeeping purposes.
   L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables *rctLookupTables);
 
+  // Disabled constructors and operators
+  L1RCTJetSummaryCard() = delete;
+
   int crateNumber() { return crtNo; }
 
   // eGamma Objects
@@ -109,9 +112,5 @@ private:
 
   void asicSort(std::vector<unsigned short> &electrons);
   void asicCompare(std::vector<unsigned short> &array);
-
-  // Disabled constructors and operators
-
-  L1RCTJetSummaryCard() = delete;
 };
 #endif

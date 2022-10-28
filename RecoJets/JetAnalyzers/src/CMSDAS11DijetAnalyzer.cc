@@ -18,14 +18,14 @@
 #include <TH1D.h>
 
 CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params)
-    : edm::EDAnalyzer(),
-      jetSrc(params.getParameter<edm::InputTag>("jetSrc")),
+    : jetSrc(params.getParameter<edm::InputTag>("jetSrc")),
       vertexSrc(params.getParameter<edm::InputTag>("vertexSrc")),
       jetCorrections(params.getParameter<std::string>("jetCorrections")),
       innerDeltaEta(params.getParameter<double>("innerDeltaEta")),
       outerDeltaEta(params.getParameter<double>("outerDeltaEta")),
       JESbias(params.getParameter<double>("JESbias")) {
   // setup file service
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
 
   const int NBINS = 36;

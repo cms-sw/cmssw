@@ -46,8 +46,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> tmtdToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> sigmat0Token_;
   edm::EDGetTokenT<edm::ValueMap<float>> sigmatmtdToken_;
-  edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
-  edm::EDGetTokenT<edm::ValueMap<float>> pToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tofkToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tofpToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
   double vtxMaxSigmaT_;
   double maxDz_;
@@ -62,8 +62,8 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig)
       tmtdToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtdSrc"))),
       sigmat0Token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0Src"))),
       sigmatmtdToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmatmtdSrc"))),
-      pathLengthToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
-      pToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pSrc"))),
+      tofkToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tofkSrc"))),
+      tofpToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tofpSrc"))),
       vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
       vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
       maxDz_(iConfig.getParameter<double>("maxDz")),
@@ -91,10 +91,10 @@ void TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       ->setComment("Input ValueMap for track time uncertainty at beamline");
   desc.add<edm::InputTag>("sigmatmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"))
       ->setComment("Input ValueMap for track time uncertainty at MTD");
-  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"))
-      ->setComment("Input ValueMap for track path lengh from beamline to MTD");
-  desc.add<edm::InputTag>("pSrc", edm::InputTag("trackExtenderWithMTD:generalTrackp"))
-      ->setComment("Input ValueMap for track momentum magnitude (normally from refit with MTD hits)");
+  desc.add<edm::InputTag>("tofkSrc", edm::InputTag("trackExtenderWithMTD:generalTrackTofK"))
+      ->setComment("Input ValueMap for track tof as kaon");
+  desc.add<edm::InputTag>("tofpSrc", edm::InputTag("trackExtenderWithMTD:generalTrackTofP"))
+      ->setComment("Input ValueMap for track tof as proton");
   desc.add<edm::InputTag>("vtxsSrc", edm::InputTag("unsortedOfflinePrimaryVertices4DwithPID"))
       ->setComment("Input primary vertex collection");
   desc.add<double>("vtxMaxSigmaT", 0.025)
@@ -124,42 +124,23 @@ void TOFPIDProducer::fillValueMap(edm::Event& iEvent,
 }
 
 void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
-  constexpr double m_k = 0.493677;                                    //[GeV]
-  constexpr double m_p = 0.9382720813;                                //[GeV]
-  constexpr double c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;  //[cm/ns]
-  constexpr double c_inv = 1.0 / c_cm_ns;
-
   edm::Handle<reco::TrackCollection> tracksH;
   ev.getByToken(tracksToken_, tracksH);
   const auto& tracks = *tracksH;
 
-  edm::Handle<edm::ValueMap<float>> t0H;
-  ev.getByToken(t0Token_, t0H);
-  const auto& t0In = *t0H;
+  const auto& t0In = ev.get(t0Token_);
 
-  edm::Handle<edm::ValueMap<float>> tmtdH;
-  ev.getByToken(tmtdToken_, tmtdH);
-  const auto& tmtdIn = *tmtdH;
+  const auto& tmtdIn = ev.get(tmtdToken_);
 
-  edm::Handle<edm::ValueMap<float>> sigmat0H;
-  ev.getByToken(sigmat0Token_, sigmat0H);
-  const auto& sigmat0In = *sigmat0H;
+  const auto& sigmat0In = ev.get(sigmat0Token_);
 
-  edm::Handle<edm::ValueMap<float>> sigmatmtdH;
-  ev.getByToken(sigmatmtdToken_, sigmatmtdH);
-  const auto& sigmatmtdIn = *sigmatmtdH;
+  const auto& sigmatmtdIn = ev.get(sigmatmtdToken_);
 
-  edm::Handle<edm::ValueMap<float>> pathLengthH;
-  ev.getByToken(pathLengthToken_, pathLengthH);
-  const auto& pathLengthIn = *pathLengthH;
+  const auto& tofkIn = ev.get(tofkToken_);
 
-  edm::Handle<edm::ValueMap<float>> pH;
-  ev.getByToken(pToken_, pH);
-  const auto& pIn = *pH;
+  const auto& tofpIn = ev.get(tofpToken_);
 
-  edm::Handle<reco::VertexCollection> vtxsH;
-  ev.getByToken(vtxsToken_, vtxsH);
-  const auto& vtxs = *vtxsH;
+  const auto& vtxs = ev.get(vtxsToken_);
 
   //output value maps (PID probabilities and recalculated time at beamline)
   std::vector<float> t0OutRaw;
@@ -249,16 +230,8 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
         }
 
         double tmtd = tmtdIn[trackref];
-        double pathlength = pathLengthIn[trackref];
-        double magp = pIn[trackref];
-
-        double gammasq_k = 1. + magp * magp / m_k / m_k;
-        double beta_k = std::sqrt(1. - 1. / gammasq_k);
-        double t0_k = tmtd - pathlength / beta_k * c_inv;
-
-        double gammasq_p = 1. + magp * magp / m_p / m_p;
-        double beta_p = std::sqrt(1. - 1. / gammasq_p);
-        double t0_p = tmtd - pathlength / beta_p * c_inv;
+        double t0_k = tmtd - tofkIn[trackref];
+        double t0_p = tmtd - tofpIn[trackref];
 
         double chisqmin = chisqnom;
 

@@ -64,6 +64,8 @@ public:
   /** Constructor
    */
   DTReadOutMapping();
+  DTReadOutMapping(DTReadOutMapping const&) = delete;
+  DTReadOutMapping& operator=(DTReadOutMapping const&) = delete;
   DTReadOutMapping(const std::string& cell_map_version, const std::string& rob_map_version);
 
   /** Destructor
@@ -135,9 +137,6 @@ public:
   const DTReadOutMapping* fullMap() const;
 
 private:
-  DTReadOutMapping(DTReadOutMapping const&) = delete;
-  DTReadOutMapping& operator=(DTReadOutMapping const&) = delete;
-
   edm::AtomicPtrCache<DTReadOutMappingCache> const& atomicCache() const { return atomicCache_; }
   edm::AtomicPtrCache<DTReadOutMappingCache>& atomicCache() { return atomicCache_; }
 

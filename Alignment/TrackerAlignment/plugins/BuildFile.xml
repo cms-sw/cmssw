@@ -18,6 +18,7 @@
 </library>
 
 <library name="AlignmentTrackerAlignmentSkimPlugin" file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
+  <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/Alignment"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>

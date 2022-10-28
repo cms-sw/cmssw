@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <MaterialSection label="tidmaterial.xml">
+    <CompositeMaterial name="TID_Mech" density="0.25139*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.11047">
+        <rMaterial name="trackermaterial:T_Nomex" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.83359">
+        <rMaterial name="trackermaterial:T_CarbonFibreStr" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.02685">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.02909">
+        <rMaterial name="materials:Epoxy" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_CoolPipe" density="2.17440*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.44661">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.55339">
+        <rMaterial name="trackermaterial:T_C6F14_F2_-30C" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_CoolManifold" density="2.20750*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.48924">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.51076">
+        <rMaterial name="trackermaterial:T_C6F14_F2_-30C" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_WheelFixation" density="4.95593*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.42707">
+        <rMaterial name="trackermaterial:T_CarbonFibreStr" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.57293">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_ICB1" density="2.21343*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.51903">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.43924">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.02645">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00107">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00943">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.004780">
+        <rMaterial name="materials:Nickel" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_ICB2" density="2.18035*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.51923">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.44148">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.02476">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00108">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00893">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00451">
+        <rMaterial name="materials:Nickel" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_ICB3" density="2.83682*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.52130">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.45103">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.01888">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00075">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00542">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00262">
+        <rMaterial name="materials:Nickel" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_DOHM1" density="2.69687*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.62380">
+        <rMaterial name="trackermaterial:T_FR4" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.13611">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.08588">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.04334">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00118">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00461">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00242">
+        <rMaterial name="materials:Nickel" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.09165">
+        <rMaterial name="tibtidcommonmaterial:TIBTID_CCUM" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00259">
+        <rMaterial name="materials:Alumina" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00078">
+        <rMaterial name="materials:Carbon" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00192">
+        <rMaterial name="materials:SMD_metal" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00570">
+        <rMaterial name="materials:Silicon" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_DOHM2" density="2.43641*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.68379">
+        <rMaterial name="trackermaterial:T_FR4" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.14568">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.06101">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.03079">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00084">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00327">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00172">
+        <rMaterial name="materials:Nickel" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0651">
+        <rMaterial name="tibtidcommonmaterial:TIBTID_CCUM" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00184">
+        <rMaterial name="materials:Alumina" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00056">
+        <rMaterial name="materials:Carbon" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00136">
+        <rMaterial name="materials:SMD_metal" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00405">
+        <rMaterial name="materials:Silicon" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_CoolInsert" density="5.46429*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="T_TIDModKaptonBox" density="1.25249*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.44711">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00555">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00844">
+        <rMaterial name="materials:Ceramic" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.13306">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.33267">
+        <rMaterial name="trackermaterial:T_Silicone_Gel" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.03327">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0399">
+        <rMaterial name="materials:Iron" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_Spacer" density="2.98720*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.89555">
+        <rMaterial name="materials:Alumina" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.10445">
+        <rMaterial name="materials:Epoxy" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_SSAOHBox" density="0.74445*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.61394">
+        <rMaterial name="tibtidcommonmaterial:TIBTID_AOH" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.04738">
+        <rMaterial name="materials:Polyethylene" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.03257">
+        <rMaterial name="materials:T_Bronze" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.05626">
+        <rMaterial name="trackermaterial:T_FR4" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.05864">
+        <rMaterial name="tibtidcommonmaterial:TIBTID_HybridTails" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.01776">
+        <rMaterial name="materials:Iron" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.17345">
+        <rMaterial name="tidmaterial:TID_CoolPipe" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_DSAOHBox" density="0.74445*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="tidmaterial:TID_SSAOHBox" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_FiberLayer" density="1.13781*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.68491">
+        <rMaterial name="tibtidcommonmaterial:T_FiberPigtail" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.31509">
+        <rMaterial name="trackermaterial:T_Kapton" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TID_ModuleFix" density="1.65714*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="0.50611">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.49389">
+        <rMaterial name="materials:Epoxy" />
+      </MaterialFraction>
+    </CompositeMaterial>
+  </MaterialSection>
+</DDDefinition>

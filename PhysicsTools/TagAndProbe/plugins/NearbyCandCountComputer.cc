@@ -11,7 +11,7 @@
   \version  $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -26,7 +26,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class NearbyCandCountComputer : public edm::EDProducer {
+class NearbyCandCountComputer : public edm::stream::EDProducer<> {
 public:
   explicit NearbyCandCountComputer(const edm::ParameterSet& iConfig);
   ~NearbyCandCountComputer() override;

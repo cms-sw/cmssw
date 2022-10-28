@@ -3,7 +3,8 @@
         <version ClassVersion="3" checksum="3066258528"/>
     </class>
     <class name="std::vector<nanoaod::FlatTable::Column>" />
-    <class name="nanoaod::FlatTable" ClassVersion="4">
+    <class name="nanoaod::FlatTable" ClassVersion="5">
+        <version ClassVersion="5" checksum="4251670483"/>
         <version ClassVersion="4" checksum="656493391"/>
         <version ClassVersion="3" checksum="2443023556"/>
     </class>
@@ -22,6 +23,7 @@
     <class name="nanoaod::MergeableCounterTable::VIntColumn" ClassVersion="3">
         <version ClassVersion="3" checksum="2535066991"/>
     </class>
+    <class name="std::vector<int8_t>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::FloatColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::VFloatColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::IntColumn>" />

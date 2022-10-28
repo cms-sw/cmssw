@@ -67,7 +67,7 @@ RecoParticleFlowRECO = cms.PSet(
 RecoParticleFlowRECO.outputCommands.extend(RecoParticleFlowAOD.outputCommands)
 
 phase2_hgcal.toModify( RecoParticleFlowRECO,
-    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
+    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCal_*_*',
                                                             'keep recoPFBlocks_simPFProducer_*_*'])
 
 # Full Event content
@@ -81,8 +81,3 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT,
                                                             'keep recoPFRecHits_particleFlowRecHitHGC__*',
                                                             'keep *_simPFProducer_*_*'])
 
-from Configuration.ProcessModifiers.mlpf_cff import mlpf
-from RecoParticleFlow.PFProducer.mlpf_EventContent_cff import MLPF_RECO
-
-mlpf.toModify(RecoParticleFlowRECO,
-    outputCommands = RecoParticleFlowRECO.outputCommands + MLPF_RECO.outputCommands)

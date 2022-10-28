@@ -12,10 +12,8 @@
 namespace triggerExpression {
 
   void Data::setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC) {
-    if (branch.branchType() == edm::InEvent && branch.className() == "edm::HLTPathStatus" &&
-        branch.moduleLabel().rfind("HLT_", 0) == 0)
-      m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
-          edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
+    m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
+        edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
   }
 
   bool Data::setEvent(const edm::Event& event, const edm::EventSetup& setup) {
@@ -50,11 +48,16 @@ namespace triggerExpression {
     if (usePathStatus()) {
       m_pathStatus.clear();
       std::vector<std::string> triggerNames;
+      m_pathStatus.reserve(m_pathStatusTokens.size());
+      triggerNames.reserve(m_pathStatusTokens.size());
       for (auto const& p : m_pathStatusTokens) {
         auto const& handle = event.getHandle(p.second);
         if (handle.isValid()) {
           m_pathStatus.push_back(handle->accept());
           triggerNames.push_back(p.first);
+        } else {
+          edm::LogError("MissingHLTPathStatus")
+              << "invalid handle for requested edm::HLTPathStatus with label \"" << p.first << "\"";
         }
       }
       m_hltUpdated = m_triggerNames != triggerNames;

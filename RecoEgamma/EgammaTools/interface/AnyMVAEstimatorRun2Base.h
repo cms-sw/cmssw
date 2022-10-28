@@ -1,20 +1,26 @@
 #ifndef RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
 #define RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Note on Python/FWLite support: please forward declare as much as possible in
+// this header, because there are usecases of generating the dictionaries for
+// this class on the fly (see notes in ElectronMVAEstimatorRun2.h for more
+// details).
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <string>
+#include <vector>
 
-#include "DataFormats/Candidate/interface/Candidate.h"
+namespace edm {
+  class ParameterSet;
+}  // namespace edm
+
+namespace reco {
+  class Candidate;
+}  // namespace reco
 
 class AnyMVAEstimatorRun2Base {
 public:
   // Constructor, destructor
-  AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf)
-      : tag_(conf.getParameter<std::string>("mvaTag")),
-        nCategories_(conf.getParameter<int>("nCategories")),
-        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
+  AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf);
 
   AnyMVAEstimatorRun2Base(const ::std::string& mvaName, const ::std::string& mvaTag, int nCategories, bool debug)
       : name_(mvaName), tag_(mvaTag), nCategories_(nCategories), debug_(debug) {}
@@ -67,9 +73,5 @@ private:
 
   const bool debug_;
 };
-
-// define the factory for this base class
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<AnyMVAEstimatorRun2Base*(const edm::ParameterSet&)> AnyMVAEstimatorRun2Factory;
 
 #endif

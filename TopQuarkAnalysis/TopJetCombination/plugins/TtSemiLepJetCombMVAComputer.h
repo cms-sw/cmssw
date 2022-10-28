@@ -2,7 +2,7 @@
 #define TtSemiLepJetCombMVAComputer_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
@@ -18,22 +18,20 @@
 MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepJetCombMVA);  // defines TtSemiLepJetCombMVARcd
 #endif
 
-class TtSemiLepJetCombMVAComputer : public edm::EDProducer {
+class TtSemiLepJetCombMVAComputer : public edm::stream::EDProducer<> {
 public:
   explicit TtSemiLepJetCombMVAComputer(const edm::ParameterSet&);
-  ~TtSemiLepJetCombMVAComputer() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
-  void endJob() override;
 
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, TtSemiLepJetCombMVARcd> mvaToken_;
   edm::EDGetTokenT<edm::View<reco::RecoCandidate>> lepsToken_;
   edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
   edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
 
-  int maxNJets_;
-  int maxNComb_;
+  const int maxNJets_;
+  const int maxNComb_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 };

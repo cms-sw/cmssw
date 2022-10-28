@@ -21,14 +21,9 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -62,11 +57,20 @@ private:
   void definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
 
 public:
-  NuclearInteractionFinder() {}
+  struct Config {
+    double rescaleErrorFactor;
+    double ptMin;  //passed to SeedFromNuclearInteraction
+    unsigned int maxHits;
+    bool checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
+  };
 
-  NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
-
-  virtual ~NuclearInteractionFinder();
+  NuclearInteractionFinder(const Config& iConfig,
+                           const TrackerGeometry* theTrckerGeom,
+                           const Propagator* thePropagator,
+                           const MeasurementEstimator* theEstimator,
+                           const MeasurementTracker* theMeasurementTracker,
+                           const GeometricSearchTracker* theGeomSearchTracker,
+                           const NavigationSchool* theNavigationSchool);
 
   /// Run the Finder
   bool run(const Trajectory& traj, const MeasurementTrackerEvent& event);
@@ -87,18 +91,15 @@ private:
   const MeasurementTracker* theMeasurementTracker;
   const GeometricSearchTracker* theGeomSearchTracker;
   const NavigationSchool* theNavigationSchool;
-  edm::ESHandle<MagneticField> theMagField;
 
-  NuclearTester* nuclTester;
-  SeedFromNuclearInteraction* currentSeed;
+  std::unique_ptr<NuclearTester> nuclTester;
+  std::unique_ptr<SeedFromNuclearInteraction> currentSeed;
   std::vector<SeedFromNuclearInteraction> allSeeds;
-  TangentHelix* thePrimaryHelix;
+  std::unique_ptr<TangentHelix> thePrimaryHelix;
 
   // parameters
-  double ptMin;
   unsigned int maxHits;
   double rescaleErrorFactor;
   bool checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
-  std::string navigationSchoolName;
 };
 #endif

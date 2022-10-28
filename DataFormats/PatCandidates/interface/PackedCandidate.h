@@ -661,6 +661,16 @@ namespace pat {
       setTrackProperties(tk, tk.covariance(), quality, covarianceVersion);
     }
 
+    void setTrackPropertiesLite(unsigned int covSchema,
+                                unsigned int covarianceVersion,
+                                unsigned int nHits,
+                                unsigned int nPixelHits) {
+      covarianceVersion_ = covarianceVersion;
+      covarianceSchema_ = covSchema;
+      packedHits_ =
+          (nPixelHits & trackPixelHitsMask) | (((nHits - nPixelHits) & trackStripHitsMask) << trackStripHitsShift);
+    }
+
     int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
     int numberOfHits() const {
       return (packedHits_ >> trackStripHitsShift) + stripLayersWithMeasurement() + numberOfPixelHits();
@@ -742,6 +752,7 @@ namespace pat {
       maybeUnpackBoth();
       return dxy_;
     }
+
     /// dz with respect to the PV[ipv]
     virtual float dz(size_t ipv = 0) const {
       maybeUnpackBoth();
@@ -752,6 +763,7 @@ namespace pat {
       maybeUnpackBoth();
       return dz_;
     }
+
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const;
     /// dz  with respect to another point
@@ -775,6 +787,10 @@ namespace pat {
         unpackTrk();
       return *track_;
     }
+    /// Return reference to a pseudo track made with candidate kinematics,
+    /// parameterized error for eta,phi,pt and full IP covariance
+    /// and the coviriance matrix is forced to be positive definite according to BPH recommandations
+    virtual const reco::Track pseudoPosDefTrack() const;
 
     /// return a pointer to the track if present. otherwise, return a null pointer
     const reco::Track *bestTrack() const override {
@@ -786,7 +802,9 @@ namespace pat {
     }
     /// Return true if a bestTrack can be extracted from this Candidate
     bool hasTrackDetails() const { return (packedHits_ != 0 || packedLayers_ != 0); }
-
+    /// Return true if the original candidate had a track associated
+    /// even if the PackedCandidate has no track
+    bool fromTrackCandidate() const { return (packedDz_ != 0 || (packedDxy_ != 0 && packedDxy_ != 32768)); }
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask) >> trackHighPurityShift; }
     /// set to true if the track had the highPurity quality bit
@@ -1090,6 +1108,9 @@ namespace pat {
       return covarianceParameterization_;
     }
 
+    /// details (hit pattern) of the first hit on track
+    uint16_t firstHit_;
+
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;
     template <typename, typename, typename>
@@ -1124,8 +1145,6 @@ namespace pat {
     static constexpr int EXPO_TIMEERROR = 5;            // power of 2 used in encoding timeError
     static constexpr int EXPO_TIME_NOERROR = 6;         // power of 2 used in encoding time without timeError
     static constexpr int EXPO_TIME_WITHERROR = -6;      // power of 2 used in encoding time with timeError
-  public:
-    uint16_t firstHit_;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

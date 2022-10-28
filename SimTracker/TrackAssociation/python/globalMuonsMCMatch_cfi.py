@@ -4,7 +4,8 @@ globalMuonsMCMatch = cms.EDProducer("MCTrackMatcher",
     trackingParticles = cms.InputTag("mix","MergedTrackTruth"),
     tracks = cms.InputTag("globalMuons"),
     genParticles = cms.InputTag("genParticles"),
-    associator = cms.InputTag('trackAssociatorByHits')
+    associator = cms.string('trackAssociatorByHits'),
+    throwOnMissingTPCollection = cms.bool(True)
 )
 
 

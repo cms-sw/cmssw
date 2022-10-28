@@ -33,10 +33,11 @@ protected:
   TGSlider* m_slider;
   FWIntValueListener* m_sliderListener;
 
-private:
+public:
   FWTrackHitsDetailView(const FWTrackHitsDetailView&) = delete;                   // stop default
   const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&) = delete;  // stop default
 
+private:
   using FWDetailView<reco::Track>::build;
   void build(const FWModelId& id, const reco::Track*) override;
   using FWDetailView<reco::Track>::setTextInfo;

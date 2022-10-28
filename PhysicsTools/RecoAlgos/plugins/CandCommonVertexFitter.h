@@ -10,11 +10,11 @@ namespace reco {
   namespace modules {
     template <typename Fitter>
     struct CandVertexFitterEventSetupInit {
-      static void init(CandCommonVertexFitter<Fitter>& fitter, const edm::Event& evt, const edm::EventSetup& es) {
-        edm::ESHandle<MagneticField> h;
-        es.get<IdealMagneticFieldRecord>().get(h);
-        fitter.set(h.product());
+      explicit CandVertexFitterEventSetupInit(edm::ConsumesCollector iC) : magToken_(iC.esConsumes()) {}
+      void init(CandCommonVertexFitter<Fitter>& fitter, const edm::Event& evt, const edm::EventSetup& es) {
+        fitter.set(&es.getData(magToken_));
       }
+      edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
     };
 
     template <typename Fitter>

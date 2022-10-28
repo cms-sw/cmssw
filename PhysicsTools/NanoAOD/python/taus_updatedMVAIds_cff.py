@@ -44,9 +44,9 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT = patDiscriminationByIsolatio
    )
 )
 # MVAIso DBoldDM Seqeunce
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTSeq = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw
-    + patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT
 )
 ## DBnewDM
 # Raw
@@ -67,9 +67,9 @@ patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = patTauDiscriminationByIsola
    )
 )
 # MVAIso DBnewDM Seqeunce
-patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTSeq = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw
-    + patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT
+patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw,
+    patTauDiscriminationByIsolationMVArun2v1DBnewDMwLT
 )
 ## DBoldDMdR0p3
 # Raw
@@ -95,9 +95,9 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT = patTauDiscriminationBy
    )
 )
 # MVAIso DBoldDMdR0p3 Seqeunce
-patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTSeq = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw
-    + patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT
+patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTTask = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLT
 )
 ### MVAIso 2017v1 for Nano on top of MiniAODv1
 ## DBoldDM
@@ -128,9 +128,9 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1 = patTauDiscriminationB
    )
 )
 # MVAIso DBoldDM Seqeunce
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1
-    + patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1
 )
 ### MVAIso 2015 for Nano on top of MiniAODv2
 ## DBoldDM
@@ -160,9 +160,9 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015 = patTauDiscriminationByI
    )
 )
 # MVAIso DBoldDM Seqeunce
-patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015
-    + patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015
+patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015
 )
 
 
@@ -282,35 +282,35 @@ patTauDiscriminationByElectronRejectionMVA62015 = patTauDiscriminationByElectron
 for m in patTauDiscriminationByElectronRejectionMVA62015.mapping:
     m.cut = m.cut.value().replace(antiElectronDiscrMVA6_version, antiElectronDiscrMVA6v1_version + "_gbr")
 ### Put all anti-e tau-IDs into a sequence
-_patTauDiscriminationByElectronRejection2018Seq = cms.Sequence(
-    patTauDiscriminationByElectronRejectionMVA62018Raw
-    +patTauDiscriminationByElectronRejectionMVA62018
+_patTauDiscriminationByElectronRejection2018Task = cms.Task(
+    patTauDiscriminationByElectronRejectionMVA62018Raw,
+    patTauDiscriminationByElectronRejectionMVA62018
 )
-_patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
-    patTauDiscriminationByElectronRejectionMVA62015Raw
-    +patTauDiscriminationByElectronRejectionMVA62015
+_patTauDiscriminationByElectronRejection2015Task = cms.Task(
+    patTauDiscriminationByElectronRejectionMVA62015Raw,
+    patTauDiscriminationByElectronRejectionMVA62015
 )
-patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
+patTauDiscriminationByElectronRejectionTask = _patTauDiscriminationByElectronRejection2015Task.copy()
 for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
             run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
-                      _patTauDiscriminationByElectronRejection2018Seq)
+    era.toReplaceWith(patTauDiscriminationByElectronRejectionTask,
+                      _patTauDiscriminationByElectronRejection2018Task)
 
 
 ### put all new MVA tau-Id stuff to one Sequence
-_patTauMVAIDsSeq2017v2 = cms.Sequence(
-    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTSeq
-    +patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTSeq
-    +patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTSeq
-    +patTauDiscriminationByElectronRejectionSeq
+_patTauMVAIDsTask2017v2 = cms.Task(
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+    patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask,
+    patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTTask,
+    patTauDiscriminationByElectronRejectionTask
 )
-patTauMVAIDsSeq = _patTauMVAIDsSeq2017v2.copy()
-patTauMVAIDsSeq += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq
+patTauMVAIDsTask = _patTauMVAIDsTask2017v2.copy()
+patTauMVAIDsTask.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task)
 
-_patTauMVAIDsSeqWith2017v1 = _patTauMVAIDsSeq2017v2.copy()
-_patTauMVAIDsSeqWith2017v1 += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq
+_patTauMVAIDsTaskWith2017v1 = _patTauMVAIDsTask2017v2.copy()
+_patTauMVAIDsTaskWith2017v1.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task)
 for era in [run2_nanoAOD_94XMiniAODv1,]:
-    era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2017v1)
+    era.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWith2017v1)
 
 # embed new MVA tau-Ids into new tau collection
 def tauIDMVAinputs(module, wp):
@@ -421,8 +421,8 @@ patTauDiscriminationAgainstElectronDeadECALForNano = patTauDiscriminationAgainst
     PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants
 )
-_patTauMVAIDsSeqWithAntiEdeadECal = patTauMVAIDsSeq.copy()
-_patTauMVAIDsSeqWithAntiEdeadECal += patTauDiscriminationAgainstElectronDeadECALForNano
+_patTauMVAIDsTaskWithAntiEdeadECal = patTauMVAIDsTask.copy()
+_patTauMVAIDsTaskWithAntiEdeadECal.add(patTauDiscriminationAgainstElectronDeadECALForNano)
 _tauIDSourcesWithAntiEdeadECal = cms.PSet(
     slimmedTausUpdated.tauIDSources.clone(),
     againstElectronDeadECALForNano = cms.PSet(
@@ -433,11 +433,10 @@ _tauIDSourcesWithAntiEdeadECal = cms.PSet(
 for era in [run2_miniAOD_80XLegacy,run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,\
             run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,\
             run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWithAntiEdeadECal)
+    era.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWithAntiEdeadECal)
     era.toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWithAntiEdeadECal
     )
 
-
-patTauMVAIDsSeq += slimmedTausUpdated
+patTauMVAIDsTask.add(slimmedTausUpdated)
 

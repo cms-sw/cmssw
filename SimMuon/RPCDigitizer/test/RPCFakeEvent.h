@@ -7,16 +7,19 @@
  *  \author Marcello Maggi -- INFN Bari
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-class RPCFakeEvent : public edm::EDProducer {
+class RPCFakeEvent : public edm::one::EDProducer<> {
 public:
   RPCFakeEvent(const edm::ParameterSet& config);
   ~RPCFakeEvent() override {}
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  std::vector<std::string> filesed;
-  bool rpcdigiprint;
+  const std::vector<std::string> filesed;
+  const bool rpcdigiprint;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokGeom_;
 };
 #endif

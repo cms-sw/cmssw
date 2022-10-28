@@ -30,6 +30,7 @@ using json = nlohmann::json;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -258,7 +259,7 @@ FastTimerService::ResourcesPerProcess FastTimerService::ResourcesPerProcess::ope
 
 FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job,
                                                    std::vector<GroupOfModules> const& groups)
-    : total(), overhead(), event(), highlight(groups.size()), modules(job.size()), processes(), events(0) {
+    : total(), overhead(), eventsetup(), event(), highlight(groups.size()), modules(job.size()), processes(), events(0) {
   processes.reserve(job.processes().size());
   for (auto const& process : job.processes())
     processes.emplace_back(process);
@@ -267,6 +268,7 @@ FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job,
 void FastTimerService::ResourcesPerJob::reset() {
   total.reset();
   overhead.reset();
+  eventsetup.reset();
   event.reset();
   for (auto& module : highlight)
     module.reset();
@@ -280,6 +282,7 @@ void FastTimerService::ResourcesPerJob::reset() {
 FastTimerService::ResourcesPerJob& FastTimerService::ResourcesPerJob::operator+=(ResourcesPerJob const& other) {
   total += other.total;
   overhead += other.overhead;
+  eventsetup += other.eventsetup;
   event += other.event;
   assert(highlight.size() == other.highlight.size());
   for (unsigned int i : boost::irange(0ul, highlight.size()))
@@ -728,8 +731,10 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
     if (bymodule) {
       booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
       for (unsigned int id : process.modules_) {
-        auto const& module_name = job.module(id).moduleLabel();
-        modules_[id].book(booker, module_name, module_name, module_ranges, lumisections, byls);
+        std::string const& module_label = job.module(id).moduleLabel();
+        std::string safe_label = module_label;
+        fixForDQM(safe_label);
+        modules_[id].book(booker, safe_label, module_label, module_ranges, lumisections, byls);
       }
       booker.setCurrentFolder(basedir);
     }
@@ -878,8 +883,10 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
   registry.watchPostModuleEvent(this, &FastTimerService::postModuleEvent);
   registry.watchPreModuleEventDelayedGet(this, &FastTimerService::preModuleEventDelayedGet);
   registry.watchPostModuleEventDelayedGet(this, &FastTimerService::postModuleEventDelayedGet);
-  //registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
-  //registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
+  registry.watchPreEventReadFromSource(this, &FastTimerService::preEventReadFromSource);
+  registry.watchPostEventReadFromSource(this, &FastTimerService::postEventReadFromSource);
+  registry.watchPreESModule(this, &FastTimerService::preESModule);
+  registry.watchPostESModule(this, &FastTimerService::postESModule);
 }
 
 void FastTimerService::ignoredSignal(const std::string& signal) const {
@@ -937,6 +944,15 @@ void FastTimerService::postGlobalBeginRun(edm::GlobalContext const& gc) { ignore
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
+void FastTimerService::fixForDQM(std::string& label) {
+  // clean characters that are deemed unsafe for DQM
+  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+  static const auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+  for (auto& c : label)
+    if (safe_for_dqm.find(c) == std::string::npos)
+      c = '_';
+}
+
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
   concurrent_lumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   concurrent_runs_ = bounds.maxNumberOfConcurrentRuns();
@@ -947,12 +963,8 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
     dqm_path_ += fmt::sprintf(
         "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams_, concurrent_threads_);
 
-  // clean characters that are deemed unsafe for DQM
-  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
-  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
-  for (auto& c : dqm_path_)
-    if (safe_for_dqm.find(c) == std::string::npos)
-      c = '_';
+  // fix the DQM path to avoid invalid characters
+  fixForDQM(dqm_path_);
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
@@ -1323,6 +1335,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.overhead, data.events, "other");
+  printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
@@ -1343,6 +1356,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.overhead, data.events, "other");
+  printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
   out << '\n';
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size())) {
     printSummaryHeader(out, "Highlighted modules", true);
@@ -1390,7 +1404,8 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
                                 json{{"mem_free", "deallocated memory"}}});
 
   // write the resources used by the job
-  j["total"] = encodeToJSON("Job", callgraph_.processDescription(0).name_, data.events, data.total + data.overhead);
+  j["total"] = encodeToJSON(
+      "Job", callgraph_.processDescription(0).name_, data.events, data.total + data.overhead + data.eventsetup);
 
   // write the resources used by every module
   j["modules"] = json::array();
@@ -1402,6 +1417,7 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
 
   // add an entry for the "overhead"
   j["modules"].push_back(encodeToJSON("other", "other", data.events, data.overhead));
+  j["modules"].push_back(encodeToJSON("eventsetup", "eventsetup", data.events, data.eventsetup));
 
   std::ofstream out(filename);
   out << std::setw(2) << j << std::flush;
@@ -1587,11 +1603,21 @@ void FastTimerService::postModuleEventPrefetching(edm::StreamContext const& sc, 
 }
 
 void FastTimerService::preEventReadFromSource(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  ignoredSignal(__func__);
+  if (mcc.state() == edm::ModuleCallingContext::State::kPrefetching) {
+    auto& stream = streams_[sc.streamID()];
+    thread().measure_and_accumulate(stream.overhead);
+  }
 }
 
 void FastTimerService::postEventReadFromSource(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  ignoredSignal(__func__);
+  if (mcc.state() == edm::ModuleCallingContext::State::kPrefetching) {
+    edm::ModuleDescription const& md = callgraph_.source();
+    unsigned int id = md.id();
+    auto& stream = streams_[sc.streamID()];
+    auto& module = stream.modules[id];
+
+    thread().measure_and_accumulate(module.total);
+  }
 }
 
 void FastTimerService::preModuleGlobalBeginRun(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
@@ -1664,6 +1690,25 @@ void FastTimerService::preModuleStreamEndLumi(edm::StreamContext const& sc, edm:
 void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
   auto index = sc.luminosityBlockIndex();
   thread().measure_and_accumulate(lumi_transition_[index]);
+}
+
+void FastTimerService::preESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const& cc) {
+  auto top = cc.getTopModuleCallingContext();
+  if (top->type() == edm::ParentContext::Type::kPlaceInPath) {
+    //Paths are only used when processing an Event
+    unsigned int sid = top->parent().placeInPathContext()->pathContext()->streamContext()->streamID().value();
+    auto& stream = streams_[sid];
+    thread().measure_and_accumulate(stream.overhead);
+  }
+}
+void FastTimerService::postESModule(edm::eventsetup::EventSetupRecordKey const&,
+                                    edm::ESModuleCallingContext const& cc) {
+  auto top = cc.getTopModuleCallingContext();
+  if (top->type() == edm::ParentContext::Type::kPlaceInPath) {
+    unsigned int sid = top->parent().placeInPathContext()->pathContext()->streamContext()->streamID().value();
+    auto& stream = streams_[sid];
+    thread().measure_and_accumulate(stream.eventsetup);
+  }
 }
 
 FastTimerService::ThreadGuard::ThreadGuard() {

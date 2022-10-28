@@ -107,7 +107,7 @@ _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilderPreSplitting = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilterPreSplitting')),
+    trajectoryFilter = dict(refToPSet_ = 'initialStepTrajectoryFilterPreSplitting'),
     alwaysUseInvalidHits = True,
     maxCand   = 3,
     estimator = 'initialStepChi2Est',
@@ -117,11 +117,11 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidatesPreSplitting = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'initialStepSeedsPreSplitting',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryBuilderPreSplitting')),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'initialStepTrajectoryBuilderPreSplitting'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
+    useHitsSplitting = True,
 )
 initialStepTrackCandidatesPreSplitting.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
 
@@ -164,8 +164,8 @@ trackingMkFitInitialStepPreSplitting.toReplaceWith(initialStepTrackCandidatesPre
 ))
 
 # fitting
-import RecoTracker.TrackProducer.TrackProducer_cfi
-initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src              = 'initialStepTrackCandidatesPreSplitting',
     AlgorithmName    = 'initialStep',
     Fitter           = 'FlexibleKFFittingSmoother',
@@ -182,7 +182,12 @@ firstStepPrimaryVerticesPreSplitting = _offlinePrimaryVertices.clone(
 )
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-(pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesPreSplitting, TkFilterParameters = dict(trackQuality = 'any'))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(firstStepPrimaryVerticesPreSplitting, 
+    TkFilterParameters = dict(
+        trackQuality = 'any',
+        maxNumTracksThreshold = 2**31-1
+    ) 
+)
 
 #Jet Core emulation to identify jet-tracks
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk
@@ -235,7 +240,7 @@ trackingPhase1.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplitti
 
 from Configuration.ProcessModifiers.trackingMkFitCommon_cff import trackingMkFitCommon
 _InitialStepPreSplittingTask_trackingMkFitCommon = InitialStepPreSplittingTask.copy()
-_InitialStepPreSplittingTask_trackingMkFitCommon.add(mkFitSiStripHits)
+_InitialStepPreSplittingTask_trackingMkFitCommon.add(mkFitSiStripHits, mkFitGeometryESProducer)
 trackingMkFitCommon.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingMkFitCommon)
 _InitialStepPreSplittingTask_trackingMkFit = InitialStepPreSplittingTask.copy()
 _InitialStepPreSplittingTask_trackingMkFit.add(mkFitSiPixelHitsPreSplitting, mkFitEventOfHitsPreSplitting, initialStepTrackCandidatesMkFitSeedsPreSplitting, initialStepTrackCandidatesMkFitPreSplitting, initialStepTrackCandidatesMkFitConfigPreSplitting)

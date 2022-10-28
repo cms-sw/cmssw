@@ -1,3 +1,5 @@
+# The configuration for comparison of Pythia8 tau decays with Taula tau decays (Py8_Z2tautau_tauola_cfg.py)
+# hadronization, MPI settings, PDF settings to be eventually updated in both
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -22,56 +24,12 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(10000.),
         
     PythiaParameters = cms.PSet(
-        py8UESettings = cms.vstring( 'StringZ:usePetersonB = on',      # these 2 together ==
-	                             'StringZ:usePetersonC = on',      # mstj(11)=3
-				     'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles
-				     'ParticleDecays:tau0Max   = 10.', # parj(71)=10.- for which ctau < 10 mm
-				     # 'PartonLevel:ISR = on',         # on==D; mstp(61)=1 or 2 ??? Py6 D=2
-	                             # 'PartonLevel:FSR = on',         # on==D;  mstp(71)=1 
-				     'SigmaProcess:alphaSorder=1',     # D; mstp(2)=1 (D)
-				     'SigmaProcess:Kfactor=1.',        # D; mstp(33)=0 - no K-factor, i.e. K=1
-				     # This is the important master switch - I can turn it ON/OFF, 
-				     # and it'll greatly affect the event multiplicity, 
-				     # whithout messing up too much the principle physics
+        py8UESettings = cms.vstring( 'ParticleDecays:limitTau0 = on',  # - decay unstable particles
+				     'ParticleDecays:tau0Max   = 10.', # - for which ctau < 10 mm
 				     'HadronLevel:Hadronize = on',
-				     'PartonLevel:MI = on',            # D; mstp(81)=1
-				     ### Py6 mstp(82)=4 (MI model) does NOT have anything similar in Py8, 
-				     ### because it actually means a new model, and in Py8 old models went away 
-				     ### - only new remain
-				     'MultipleInteractions:pT0Ref=1.8387',    # parp(82)=1.8387 - pt cutoff for MI
-				     'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
-				     'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
-				     'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
-				     ### parp(85) & parp(86) are N/A in Py8
-				     'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
-				     'BeamRemnants:primordialKT=on',          # D; mstp(91)=1
-				     'BeamRemnants:primordialKThard=2.1',     # parp(91)=2.1
-				     'BeamRemnants:primordialKTremnant=15.',  # parp(93)=15.
-				     'SpaceShower:pTmin=1.25',                # parp(62)=1.25
-				     ### parp(64) is N/A in Py8
-				     'SpaceShower:pTmaxFudge=2.'              # should this be instead of parp(67)=2.5 ??? 
-				                                              # In Py6, D==parp(67)=4.
-				                                              # and in Py8 for this D=1, max=2
+				     'PartonLevel:MPI = on'
 	),
-        py8SpecialSettings   = cms.vstring( 'HadronLevel:Hadronize = off',     # mstp(111)=1
-				          #'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles
-				          #'ParticleDecays:tau0Max   = 10.', # parj(71)=10.- for which ctau < 10 mm
-					  'PartonLevel:ISR = off',
-					  'PartonLevel:FSR = off',
-					  'PartonLevel:MI = on'           # mstp(81)=0
-					  # for pp intractions, SpaceShower things are not important,
-					  # but TimeShower settings are relevat
-					  'TimeShower:QEDshowerByL = off',
-					  'TimeShower:QEDshowerByQ = off',
-					  'SpaceShower:QEDshowerByL = off',
-					  'SpaceShower:QEDshowerByQ = off',
-					  'PhaseSpace:pTHatMin = 5.',
-					  'PhaseSpace:pTHatMax = 150.'
-	),
-        py8ProcessSettings = cms.vstring( 'StringZ:usePetersonB = on', # these 2 together ==
-	                                  'StringZ:usePetersonC = on', # mstj(11)=3
-					  'WeakSingleBoson:ffbar2gmZ = on' # msel=11
-					  # what about choice of structure function ??? (mstp(51)=7)
+        py8ProcessSettings = cms.vstring( 'WeakSingleBoson:ffbar2gmZ = on'
 	),
 	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
 	                                  #'23:onIfAny = 13', # turn ON Z->mumu
@@ -83,7 +41,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 					  '15:onIfAny = 13'  # turn ON tau -> mu
 	),
         parameterSets = cms.vstring(   'py8UESettings',
-	                            #'py8SpecialSettings',
 	                            'py8ProcessSettings',
 				    'py8ZDecaySettings')
     )
@@ -138,4 +95,3 @@ process.outpath = cms.EndPath(process.GEN)
 
 process.schedule = cms.Schedule(process.p, process.outpath)
 #process.schedule = cms.Schedule(process.p, process.p1)
-

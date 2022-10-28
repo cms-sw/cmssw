@@ -51,6 +51,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet) {
   } else {
     fCnaParCout = (TEcnaParCout*)iCnaParCout;
   }
+  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
   //............................ fCnaParPaths
   fCnaParPaths = nullptr;
@@ -89,10 +90,10 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet) {
 }
 
 TEcnaWrite::TEcnaWrite(const TString& SubDet,
-                       const TEcnaParPaths* pCnaParPaths,
-                       const TEcnaParCout* pCnaParCout,
-                       const TEcnaParEcal* pEcal,
-                       const TEcnaNumbering* pEcalNumbering) {
+                       TEcnaParPaths* pCnaParPaths,
+                       TEcnaParCout* pCnaParCout,
+                       TEcnaParEcal* pEcal,
+                       TEcnaNumbering* pEcalNumbering) {
   // std::cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << std::endl;
 
   Init();
@@ -103,7 +104,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
     fCnaParPaths = new TEcnaParPaths(); /*fCnew++*/
     ;
   } else {
-    fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;
+    fCnaParPaths = pCnaParPaths;
   }
 
   //................. Get paths from ECNA directory
@@ -116,15 +117,16 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
     fCnaParCout = new TEcnaParCout(); /*fCnew++*/
     ;
   } else {
-    fCnaParCout = (TEcnaParCout*)pCnaParCout;
+    fCnaParCout = pCnaParCout;
   }
+  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
   fEcal = nullptr;
   if (pEcal == nullptr) {
     fEcal = new TEcnaParEcal(SubDet.Data()); /*fCnew++*/
     ;
   } else {
-    fEcal = (TEcnaParEcal*)pEcal;
+    fEcal = pEcal;
   }
 
   fEcalNumbering = nullptr;
@@ -132,7 +134,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
     fEcalNumbering = new TEcnaNumbering(SubDet.Data(), fEcal); /*fCnew++*/
     ;
   } else {
-    fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;
+    fEcalNumbering = pEcalNumbering;
   }
 
   SetEcalSubDetector(SubDet.Data(), fEcal, fEcalNumbering);
@@ -194,8 +196,6 @@ void TEcnaWrite::Init() {
 
   fjustap_2d_ss = nullptr;
   fjustap_1d_ss = nullptr;
-
-  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 }
 // end of Init()
 
@@ -277,9 +277,7 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet) {
   fNbSampByLine = fEcal->MaxSampADC();
 }  //---------- (end of SetEcalSubDetector) ------------------
 
-void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
-                                    const TEcnaParEcal* pEcal,
-                                    const TEcnaNumbering* pEcalNumbering) {
+void TEcnaWrite::SetEcalSubDetector(const TString& SubDet, TEcnaParEcal* pEcal, TEcnaNumbering* pEcalNumbering) {
   // Set Subdetector (EB or EE)
 
   fEcal = nullptr;
@@ -287,7 +285,7 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
     fEcal = new TEcnaParEcal(SubDet.Data());
     fCnew++;
   } else {
-    fEcal = (TEcnaParEcal*)pEcal;
+    fEcal = pEcal;
   }
 
   Int_t MaxCar = fgMaxCar;
@@ -299,7 +297,7 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
     fEcalNumbering = new TEcnaNumbering(SubDet.Data(), fEcal);
     fCnew++;
   } else {
-    fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;
+    fEcalNumbering = pEcalNumbering;
   }
 
   //........................................................................
@@ -384,10 +382,10 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
 //     Int_t    fStexNumber    = super_module
 //
 //-------------------------------------------------------------------------
-TString TEcnaWrite::GetAsciiFileName() { return fAsciiFileName; }
-TString TEcnaWrite::GetRootFileName() { return fRootFileName; }
-TString TEcnaWrite::GetRootFileNameShort() { return fRootFileNameShort; }
-TString TEcnaWrite::GetAnalysisName() { return fAnaType; }
+const TString& TEcnaWrite::GetAsciiFileName() const { return fAsciiFileName; }
+const TString& TEcnaWrite::GetRootFileName() const { return fRootFileName; }
+const TString& TEcnaWrite::GetRootFileNameShort() const { return fRootFileNameShort; }
+const TString& TEcnaWrite::GetAnalysisName() const { return fAnaType; }
 Int_t TEcnaWrite::GetNbOfSamples() { return fNbOfSamples; }
 Int_t TEcnaWrite::GetRunNumber() { return fRunNumber; }
 Int_t TEcnaWrite::GetFirstReqEvtNumber() { return fFirstReqEvtNumber; }
@@ -2054,9 +2052,11 @@ void TEcnaWrite::fT2dWriteAscii(const Int_t& i_code,
   if (i_pasx > isx_max) {
     i_pasx = isx_max;
   }
-  Int_t n_sctx;
+  Int_t n_sctx = 1;
   Int_t max_verix;
-  n_sctx = isx_max / i_pasx;
+  if (i_pasx > 0) {
+    n_sctx = isx_max / i_pasx;
+  }
   max_verix = n_sctx * i_pasx;
   if (max_verix < isx_max) {
     n_sctx++;
@@ -2070,9 +2070,11 @@ void TEcnaWrite::fT2dWriteAscii(const Int_t& i_code,
   if (i_pasy > isy_max) {
     i_pasy = isy_max;
   }
-  Int_t n_scty;
+  Int_t n_scty = 1;
   Int_t max_veriy;
-  n_scty = isy_max / i_pasy;
+  if (i_pasy > 0) {
+    n_scty = isy_max / i_pasy;
+  }
   max_veriy = n_scty * i_pasy;
   if (max_veriy < isy_max) {
     n_scty++;

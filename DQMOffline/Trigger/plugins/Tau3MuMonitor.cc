@@ -188,18 +188,7 @@ void Tau3MuMonitor::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr");
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 0);
+  GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("GenericTriggerEventPSet", genericTriggerEventPSet);
 
   descriptions.add("tau3muMonitoring", desc);

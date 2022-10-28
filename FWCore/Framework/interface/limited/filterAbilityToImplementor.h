@@ -97,6 +97,11 @@ namespace edm {
         using Type = edm::limited::impl::EndLuminosityBlockProducer<edm::limited::EDFilterBase>;
       };
 
+      template <>
+      struct AbilityToImplementor<edm::Transformer> {
+        using Type = edm::limited::impl::Transformer<edm::limited::EDFilterBase>;
+      };
+
       template <bool, bool, typename T>
       struct SpecializeAbilityToImplementor {
         using Type = typename AbilityToImplementor<T>::Type;

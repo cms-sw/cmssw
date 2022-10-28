@@ -6,7 +6,7 @@
  Description: RPC Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4hep migration)
 //          Created:  Fri, 20 Sep 2019 
 //          Modified: Fri, 29 May 2020, following what Sunanda Banerjee made in PR #29842 PR #29943 and Ianna Osborne in PR #29954    
 */

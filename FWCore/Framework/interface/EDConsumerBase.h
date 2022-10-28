@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -88,6 +89,7 @@ namespace edm {
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
+    //used for prefetching
     std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const {
       return itemsToGetFromBranch_[iType];
     }
@@ -220,12 +222,12 @@ namespace edm {
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] constexpr auto esConsumes() noexcept {
+    [[nodiscard]] constexpr auto esConsumes() {
       return EDConsumerBaseESAdaptor<Tr>(this);
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
+    [[nodiscard]] auto esConsumes(ESInputTag tag) {
       return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
     }
 
@@ -237,7 +239,11 @@ namespace edm {
                                iRecord.type());
     }
 
+    //used for FinalPath
+    void resetItemsToGetFrom(BranchType iType) { itemsToGetFromBranch_[iType].clear(); }
+
   private:
+    virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
     ESTokenIndex recordESConsumes(Transition,

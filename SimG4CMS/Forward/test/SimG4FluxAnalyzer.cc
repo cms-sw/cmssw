@@ -1,10 +1,10 @@
 // system include files
-#include <memory>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <map>
+#include <sstream>
 #include <string>
+#include <vector>
 
 // user include files
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CaloTest/interface/ParticleFlux.h"
@@ -60,17 +61,17 @@ SimG4FluxAnalyzer::SimG4FluxAnalyzer(const edm::ParameterSet& iConfig) {
   //now do whatever initialization is needed
   lvNames_ = iConfig.getParameter<std::vector<std::string>>("LVNames");
 #ifdef EDM_ML_DEBUG
-  std::cout << "SimG4FluxAnalyzer:: for " << lvNames_.size() << " names:";
+  std::ostringstream st1;
   for (const auto& name : lvNames_)
-    std::cout << " " << name;
-  std::cout << std::endl;
+    st1 << " " << name;
+  edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxAnalyzer:: for " << lvNames_.size() << " names:" << st1.str();
 #endif
 
   for (const auto& name : lvNames_) {
     std::string tagn = name + "ParticleFlux";
     tok_PF_.push_back(consumes<ParticleFlux>(edm::InputTag("g4SimHits", tagn)));
 #ifdef EDM_ML_DEBUG
-    std::cout << "Flux source " << edm::InputTag("g4SimHits", tagn) << std::endl;
+    edm::LogVerbatim("SimG4FluxProducer") << "Flux source " << edm::InputTag("g4SimHits", tagn);
 #endif
   }
 }
@@ -132,8 +133,8 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       int id = pflux->getId();
       std::vector<ParticleFlux::flux> flux = pflux->getFlux();
 #ifdef EDM_ML_DEBUG
-      std::cout << "SimG4FluxAnalyzer:: ParticleFlux for " << lvNames_[k] << " has " << pflux->getComponents()
-                << " entries" << std::endl;
+      edm::LogVerbatim("SimG4FluxProducer")
+          << "SimG4FluxAnalyzer:: ParticleFlux for " << lvNames_[k] << " has " << pflux->getComponents() << " entries";
       ++k;
       unsigned k1(0);
 #endif
@@ -153,16 +154,16 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
         momY_.push_back(element.momentum.Y());
         momZ_.push_back(element.momentum.Z());
 #ifdef EDM_ML_DEBUG
-        std::cout << "Flux[" << k1 << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
-                  << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum
-                  << std::endl;
+        edm::LogVerbatim("SimG4FluxProducer")
+            << "Flux[" << k1 << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
+            << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
         ++k1;
 #endif
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "All flux compnents have " << detName_.size() << " entries" << std::endl;
+  edm::LogVerbatim("SimG4FluxProducer") << "All flux compnents have " << detName_.size() << " entries";
 #endif
   if (!detName_.empty())
     tree_->Fill();

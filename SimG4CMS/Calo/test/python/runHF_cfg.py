@@ -7,7 +7,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsHFPMTFibreXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -65,14 +65,16 @@ process.TFileService = cms.Service("TFileService",
 
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime            = cms.double(500.0),
+    MaxTrackTimeForward     = cms.double(2000.0), # ns
     MaxTimeNames            = cms.vstring(),
     MaxTrackTimes           = cms.vdouble(),
+    MaxZCentralCMS          = cms.double(50.0), # m
     DeadRegions             = cms.vstring(),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15)
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.HFPMTHitAnalyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
@@ -83,7 +85,7 @@ process.g4SimHits.HCalSD.UseFibreBundleHits = True
 process.g4SimHits.HFShower.UseShowerLibrary = False
 process.g4SimHits.HFShower.UseHFGflash      = True
 process.g4SimHits.HFShower.TrackEM          = False
-process.g4SimHits.HFShower.OnlyLong         = True
+process.g4SimHits.HFShower.HFShowerBlock.OnlyLong = cms.bool(True)
 process.g4SimHits.HFShower.EminLibrary      = 0.0
 process.g4SimHits.HFShower.ApplyFiducialCut = True
 process.g4SimHits.StackingAction = cms.PSet(
@@ -122,6 +124,7 @@ process.g4SimHits.StackingAction = cms.PSet(
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,
+    MaxNumberOfSteps        = cms.int32(50000),
     EkinNames               = cms.vstring(),
     EkinThresholds          = cms.vdouble(),
     EkinParticles           = cms.vstring(),

@@ -1,18 +1,3 @@
-<library name="RecoParticleFlowPFBlockComparator" file="PFBlockComparator.cc">
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/EgammaReco"/>
-  <use name="DataFormats/GsfTrackReco"/>
-  <use name="DataFormats/ParticleFlowCandidate"/>
-  <use name="DataFormats/ParticleFlowReco"/>
-  <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="RecoParticleFlow/PFProducer"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
 <library name="RecoParticleFlowEgGEDPhotonAnalyzer" file="EgGEDPhotonAnalyzer.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EgammaReco"/>
@@ -55,18 +40,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="RecoParticleFlowPFEGammaCandidateChecker" file="PFEGammaCandidateChecker.cc">
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/EgammaReco"/>
-  <use name="DataFormats/GsfTrackReco"/>
-  <use name="DataFormats/ParticleFlowCandidate"/>
-  <use name="DataFormats/ParticleFlowReco"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
 <library name="RecoParticleFlowPFIsoReader" file="PFIsoReader.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EgammaReco"/>
@@ -76,21 +49,5 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library name="RecoParticleFlowComparePFCandidateEGTreeMaker" file="PFEGCandidateTreeMaker.cc">
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/EgammaReco"/>
-  <use name="DataFormats/GsfTrackReco"/>
-  <use name="DataFormats/ParticleFlowCandidate"/>
-  <use name="DataFormats/ParticleFlowReco"/>
-  <use name="root"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="RecoEcal/EgammaCoreTools"/>
-  <use name="RecoParticleFlow/PFClusterTools"/>
   <flags EDM_PLUGIN="1"/>
 </library>

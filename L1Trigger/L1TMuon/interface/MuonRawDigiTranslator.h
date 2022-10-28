@@ -2,6 +2,9 @@
 #define MuonRawDigiTranslator_h
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
+
+#include <array>
 
 namespace l1t {
   class MuonRawDigiTranslator {
@@ -15,16 +18,18 @@ namespace l1t {
                          int muInBx);
     static void fillMuon(Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, unsigned int fw, int muInBx);
     static void fillIntermediateMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, unsigned int fw);
-    static void generatePackedDataWords(const Muon& mu,
-                                        uint32_t& raw_data_spare,
-                                        uint32_t& raw_data_00_31,
-                                        uint32_t& raw_data_32_63,
-                                        int fedId,
-                                        int fwId,
-                                        int muInBx);
+    static bool showerFired(uint32_t shower_word, int fedId, unsigned int fwId);
+    static void generatePackedMuonDataWords(const Muon& mu,
+                                            uint32_t& raw_data_spare,
+                                            uint32_t& raw_data_00_31,
+                                            uint32_t& raw_data_32_63,
+                                            int fedId,
+                                            int fwId,
+                                            int muInBx);
     static void generate64bitDataWord(
         const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx);
-    static int calcHwEta(const uint32_t& raw, const unsigned absEtaShift, const unsigned etaSignShift);
+    static std::array<uint32_t, 4> getPackedShowerDataWords(const MuonShower& shower, int fedId, unsigned int fwId);
+    static int calcHwEta(const uint32_t& raw, unsigned absEtaShift, unsigned etaSignShift);
 
     static constexpr unsigned ptMask_ = 0x1FF;
     static constexpr unsigned ptShift_ = 10;
@@ -49,6 +54,7 @@ namespace l1t {
     static constexpr unsigned ptUnconstrainedMask_ = 0xFF;
     static constexpr unsigned ptUnconstrainedShift_ = 21;
     static constexpr unsigned ptUnconstrainedIntermedidateShift_ = 0;
+    static constexpr unsigned showerShift_ = 29;      // For Run-3
     static constexpr unsigned absEtaMu1Shift_ = 13;   // For Run-3
     static constexpr unsigned etaMu1SignShift_ = 21;  // For Run-3
     static constexpr unsigned absEtaMu2Shift_ = 22;   // For Run-3
@@ -65,14 +71,14 @@ namespace l1t {
                                        int muInBx,
                                        bool wasSpecialMWGR = false);
     static void fillIntermediateMuonQuantitiesRun3(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void generatePackedDataWordsRun3(const Muon& mu,
-                                            int abs_eta,
-                                            int abs_eta_at_vtx,
-                                            uint32_t& raw_data_spare,
-                                            uint32_t& raw_data_00_31,
-                                            uint32_t& raw_data_32_63,
-                                            int muInBx,
-                                            bool wasSpecialMWGR = false);
+    static void generatePackedMuonDataWordsRun3(const Muon& mu,
+                                                int abs_eta,
+                                                int abs_eta_at_vtx,
+                                                uint32_t& raw_data_spare,
+                                                uint32_t& raw_data_00_31,
+                                                uint32_t& raw_data_32_63,
+                                                int muInBx,
+                                                bool wasSpecialMWGR = false);
   };
 }  // namespace l1t
 

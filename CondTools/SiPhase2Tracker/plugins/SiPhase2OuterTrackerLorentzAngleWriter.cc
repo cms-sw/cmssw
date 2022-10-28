@@ -51,9 +51,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
@@ -131,27 +129,21 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
   edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
       << " There are " << detsLAtoDB.size() << " OT Lorentz Angle values assigned" << std::endl;
 
-  // SiStripLorentzAngle object
-
+  // SiPhase2OuterTrackerLorentzAngle object
   auto lorentzAngle = std::make_unique<SiPhase2OuterTrackerLorentzAngle>();
   lorentzAngle->putLorentzAngles(detsLAtoDB);
   edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "currentTime " << mydbservice->currentTime() << std::endl;
-  mydbservice->writeOne(lorentzAngle.get(), mydbservice->currentTime(), m_record);
+  mydbservice->writeOneIOV(*lorentzAngle, mydbservice->currentTime(), m_record);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPhase2OuterTrackerLorentzAngleWriter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPhase2OuterTrackerLorentzAngleWriter::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SiPhase2OuterTrackerLorentzAngleWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("record", "SiPhase2OuterTrackerLorentzAngleRcd");
-  desc.add<std::string>("tag", "SiPhase2OuterTrackerLorentzAngle");
-  desc.add<double>("value", 0.07);
-  descriptions.addDefault(desc);
+  desc.setComment("Module to write SiPhase2OuterTrackerLorentzAngle Payloads");
+  desc.add<std::string>("record", "SiPhase2OuterTrackerLorentzAngleRcd")->setComment("record to write");
+  desc.add<std::string>("tag", "SiPhase2OuterTrackerLorentzAngle")->setComment("tag to write");
+  desc.add<double>("value", 0.07)->setComment("value to be put in the payload");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

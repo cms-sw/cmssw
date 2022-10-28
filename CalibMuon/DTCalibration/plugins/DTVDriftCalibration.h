@@ -7,7 +7,7 @@
  *  \author M. Giunta
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -29,8 +29,10 @@ namespace edm {
 
 class TFile;
 class DTMeanTimerFitter;
+class DTGeometry;
+class MuonGeometryRecord;
 
-class DTVDriftCalibration : public edm::EDAnalyzer {
+class DTVDriftCalibration : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTVDriftCalibration(const edm::ParameterSet& pset);
@@ -87,6 +89,8 @@ private:
   // The label used to retrieve 4D segments from the event
   edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DToken;
 
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeomToken;
+
   // Debug flag
   bool debug;
 
@@ -129,5 +133,8 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
+
+  // which format to be created
+  bool writeLegacyVDriftDB;
 };
 #endif

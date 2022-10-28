@@ -70,16 +70,21 @@
 // class decleration
 //
 
-class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);
   ~PrimaryVertexValidation() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  // framework provided methods
   void beginJob() override;
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override{};
   void endJob() override;
+
+  // user defined methods
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   std::pair<long long, long long> getRunTime(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit& hit, const PVValHelper::detectorPhase& thePhase) const;
@@ -148,10 +153,11 @@ private:
   // tokens form the EventSetup
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoTokenBR_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomTokenBR_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoTokenBR_;
 
   const int compressionSettings_;  // determines the ROOT compression settings in TFileService
   bool storeNtuple_;
@@ -192,9 +198,9 @@ private:
   // force to use beamspot in the vertex fit
   bool forceBeamSpotContraint_;
 
-  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
-  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
-  edm::EDGetTokenT<reco::BeamSpot> theBeamspotToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamspotToken_;
 
   TTree* rootTree_;
 

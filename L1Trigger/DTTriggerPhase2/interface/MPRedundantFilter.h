@@ -40,7 +40,7 @@ private:
   bool isInBuffer(MuonPathPtr& mpath);
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
   unsigned int maxBufferSize_;
   std::deque<MuonPathPtr> buffer_;
 };

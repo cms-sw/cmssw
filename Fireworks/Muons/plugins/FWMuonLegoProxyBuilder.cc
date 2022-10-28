@@ -18,12 +18,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWMuonLegoProxyBuilder(const FWMuonLegoProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

@@ -21,7 +21,7 @@ public:
   typedef VertexCategories Categories;
 
   //! Constructor by ParameterSet
-  VertexClassifier(edm::ParameterSet const &pset, edm::ConsumesCollector &&);
+  VertexClassifier(edm::ParameterSet const &pset, edm::ConsumesCollector);
 
   virtual ~VertexClassifier() {}
 
@@ -53,6 +53,7 @@ private:
   edm::Handle<edm::HepMCProduct> mcInformation_;
 
   edm::ESHandle<ParticleDataTable> particleDataTable_;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> particleDataTableToken_;
 
   //! Get reconstruction information
   void reconstructionInformation(reco::TrackBaseRef const &);

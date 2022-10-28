@@ -7,6 +7,9 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "RecoMET/METPUSubtraction/interface/DeepMETHelp.h"
+
+using namespace deepmet_helper;
 
 struct DeepMETCache {
   std::atomic<tensorflow::GraphDef*> graph_def;
@@ -34,20 +37,7 @@ private:
   tensorflow::Tensor input_cat0_;
   tensorflow::Tensor input_cat1_;
   tensorflow::Tensor input_cat2_;
-
-  inline static const std::unordered_map<int, int32_t> charge_embedding_{{-1, 0}, {0, 1}, {1, 2}};
-  inline static const std::unordered_map<int, int32_t> pdg_id_embedding_{
-      {-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};
 };
-
-namespace {
-  float scale_and_rm_outlier(float val, float scale) {
-    float ret_val = val * scale;
-    if (ret_val > 1e6 || ret_val < -1e6)
-      return 0.;
-    return ret_val;
-  }
-}  // namespace
 
 DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCache* cache)
     : pf_token_(consumes<std::vector<pat::PackedCandidate> >(cfg.getParameter<edm::InputTag>("pf_src"))),
@@ -103,8 +93,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     *(++ptr) = pf.puppiWeight();
     *(++ptr) = scale_and_rm_outlier(pf.px(), scale);
     *(++ptr) = scale_and_rm_outlier(pf.py(), scale);
-    input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding_.at(pf.charge());
-    input_cat1_.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding_.at(pf.pdgId());
+    input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding.at(pf.charge());
+    input_cat1_.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding.at(pf.pdgId());
     input_cat2_.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
 
     ++i_pf;
@@ -125,6 +115,9 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
   px -= px_leptons;
   py -= py_leptons;
+
+  LogDebug("produce") << "<DeepMETProducer::produce>:" << std::endl
+                      << " MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
@@ -154,7 +147,7 @@ void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("ignore_leptons", false);
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
-  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_2018.pb");
+  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/models/deepmet/deepmet_v1_2018/model.graphdef");
   descriptions.add("deepMETProducer", desc);
 }
 

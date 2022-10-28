@@ -53,21 +53,3 @@
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<library name="MuonMillepedeAlgorithm" file="MuonMillepedeAlgorithm.cc,MuonMillepedeTrackRefitter.cc">
-  <use name="Geometry/CommonDetUnit" source_only="1"/>
-  <use name="MagneticField/Engine"/>
-  <use name="MagneticField/Records"/>
-  <use name="DataFormats/GeometrySurface"/>
-  <use name="DataFormats/MuonDetId"/>
-  <use name="DataFormats/TrackReco"/>
-  <use name="TrackingTools/PatternTools"/>
-  <use name="TrackingTools/TransientTrack"/>
-  <use name="RecoMuon/TransientTrackingRecHit"/>
-  <use name="Alignment/CommonAlignment"/>
-  <use name="Alignment/CommonAlignmentAlgorithm"/>
-  <use name="Alignment/MuonAlignment"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="clhep"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

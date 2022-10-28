@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<!--
+PPS Tracker module 2x2 for Run3
+
+Author: F.Ferro - INFN Genova
+
+-->
+
+<ConstantsSection label="PPS_Pixel_Module_2x2_Run3.xml" eval="true">
+
+<Constant name="ROChipL"            value="7.87*mm"/>    <!-- Readout chip length -->
+<Constant name="ROChipW"            value="10.557*mm"/>     <!-- Readout chip width -->
+<Constant name="ROChipT"            value="0.180*mm"/>    <!-- Readout chip thickness -->
+<Constant name="ROChipSpaceL"       value="0.23*mm"/>    <!-- Distance (along width) between adjacent chips -->
+<Constant name="ROChipSpaceW"       value="0.22*mm"/>    <!-- Distance (along length) between  adjacent chips -->
+
+<!-- https://istnazfisnucl-my.sharepoint.com/:b:/g/personal/fferro_infn_it/EZaGp04OlqRJm-IUy-UrkPcB6s8Q0eMGOGbIL6R-buTlsQ?e=b7t9oS -->
+<Constant name="AlSupportUshapeL" value="25.5*mm" />   <!-- height of the U shaped Aluminium support 1mm thick -->
+<Constant name="AlSupportUshapeW" value="50.0*mm" />   <!-- width of the U shaped Aluminium support 1mm thick -->
+<Constant name="AlSupportUshapeT" value="1.0*mm" />    <!-- thickness of the U shaped Aluminium support -->
+
+
+<Constant name="AlSupportThinWindowL" value="18.3*mm" />   <!-- height of the thin Aluminium support 0.5mm thick -->
+<Constant name="AlSupportThinWindowW" value="21.6*mm" />   <!-- width of the thin Aluminium support 0.5mm thick -->
+<Constant name="AlSupportThinWindowOffsetL" value="3.5*mm" />   <!-- overhang of the thin Aluminium support 0.5mm thick wrt to the U shape -->
+<Constant name="AlSupportThinWindowT" value="0.5*mm" />   <!-- width of the thin Aluminium support -->
+<Constant name="AlSupportUshapeTopCenterL" value="[AlSupportUshapeL]+[AlSupportThinWindowOffsetL]-[AlSupportThinWindowL]" />   <!-- height of the U shaped Aluminium support 1mm thick - Central Top part -->
+<Constant name="AlSupportUshapeSideW" value="[AlSupportUshapeW]/2.-[AlSupportThinWindowW]/2." />   <!-- Width of the U shaped Aluminium support 1mm thick - Left and Right wings -->
+
+<Constant name="FlexL" value="[AlSupportUshapeL]+[AlSupportThinWindowOffsetL]+0.17*mm" />  <!-- height of the Flex circuit (only the part in the envelop of the module) -->
+<Constant name="FlexW" value="16.65*mm" />    <!-- width of the Flex circuit - LIKE THE SENSOR? -->
+<Constant name="FlexT" value="0.445*mm" />   <!-- thickness of the Flex circuit -->
+
+<Constant name="WaferL" value="16.200*mm" />   <!-- height of the sensor -->
+<Constant name="WaferW" value="16.65*mm" />   <!-- width of the sensor -->
+<Constant name="WaferT" value="0.220*mm" />   <!-- thickness of the sensor -->
+
+<Constant name="EnvelopL" value="[FlexL]"/>
+<Constant name="EnvelopW" value="[AlSupportUshapeW]"/>    
+<Constant name="EnvelopT" value="[FlexT]+[WaferT]+[ROChipT]+2*[GlueT]"/>    
+<Constant name="EnvelopToBeSubtractedL" value="[AlSupportThinWindowOffsetL]"/>
+<Constant name="EnvelopToBeSubtractedW" value="[AlSupportUshapeW]/2. - [AlSupportThinWindowW]/2."/>    
+
+<Constant name="ThinWindowRailW" value="2.5*mm" />
+
+<Constant name="GlueT" value="0.050*mm" />   <!-- thickness of the glue -->
+<Constant name="GlueOnWaferL" value="16.200*mm" />   <!-- height of the glue on sensor -->
+<Constant name="GlueOnWaferW" value="16.65*mm" />   <!-- width of the glue on sensor -->
+<Constant name="GlueOnROCsL" value="2*[ROChipL]+[ROChipSpaceL]" />
+
+<!-- Al Support window WITH ONLY LATERAL RAILS -->
+<Constant name="GlueOnROCsL" value="2*[ROChipL]+[ROChipSpaceL]" />
+<Constant name="GlueOnROCsW" value="[ThinWindowRailW] - [AlSupportThinWindowW]/2. + [ROChipW] + [ROChipSpaceW]/2." />
+
+</ConstantsSection>
+
+
+
+<SolidSection label="PPS_Pixel_Module_2x2_Run3.xml">
+
+<Box name="EnvelopBeforeSubtraction"              dx="[EnvelopW]/2."   dy="[EnvelopL]/2."    dz="[EnvelopT]/2." /> 
+<Box name="EnvelopToBeSubtracted"              dx="[EnvelopToBeSubtractedW]/2."   dy="[EnvelopToBeSubtractedL]/2."    dz="[EnvelopT]/2." /> 
+
+<Box name="AlSupportUshapeTopCenter" dx="[AlSupportThinWindowW]/2." dy="[AlSupportUshapeTopCenterL]/2." dz="[AlSupportUshapeT]/2." />
+<Box name="AlSupportUshapeLeftSide" dx="[AlSupportUshapeSideW]/2." dy="[AlSupportUshapeL]/2." dz="[AlSupportUshapeT]/2." />
+<Box name="AlSupportUshapeRightSide" dx="[AlSupportUshapeSideW]/2." dy="[AlSupportUshapeL]/2." dz="[AlSupportUshapeT]/2." />
+<Box name="AlSupportThinWindow" dx="[AlSupportThinWindowW]/2." dy="[AlSupportThinWindowL]/2." dz="[AlSupportThinWindowT]/2." />
+<Box name="AlSupportThinWindowRail" dx="[ThinWindowRailW]/2." dy="[AlSupportThinWindowL]/2." dz="[AlSupportThinWindowT]/2." />
+
+
+<UnionSolid name="AlSupportUshapeCenterLeft">
+<rSolid name="AlSupportUshapeTopCenter"/>
+<rSolid name="AlSupportUshapeLeftSide"/>
+<Translation x="-[AlSupportThinWindowW]/2.-[AlSupportUshapeSideW]/2." y="[AlSupportUshapeTopCenterL]/2.-[AlSupportUshapeL]/2." z="0."/>
+</UnionSolid>
+<UnionSolid name="AlSupportUshape">
+<rSolid name="AlSupportUshapeCenterLeft"/>
+<rSolid name="AlSupportUshapeRightSide"/>
+<Translation x="[AlSupportThinWindowW]/2.+[AlSupportUshapeSideW]/2." y="[AlSupportUshapeTopCenterL]/2.-[AlSupportUshapeL]/2." z="0."/>
+</UnionSolid>
+
+<!-- Al Support window WITH ONLY LATERAL RAILS -->
+<UnionSolid name="AlSupportWithLeftRail">
+<rSolid name="AlSupportUshape"/>
+<rSolid name="AlSupportThinWindowRail"/> 
+<Translation x="-[AlSupportThinWindowW]/2.+[ThinWindowRailW]/2." y="-[AlSupportUshapeTopCenterL]/2.-[AlSupportThinWindowL]/2." z="-[AlSupportUshapeT]/2.+[AlSupportThinWindowT]/2."/>
+</UnionSolid>
+<UnionSolid name="AlSupport">
+<rSolid name="AlSupportWithLeftRail"/>
+<rSolid name="AlSupportThinWindowRail"/> 
+<Translation x="[AlSupportThinWindowW]/2.-[ThinWindowRailW]/2." y="-[AlSupportUshapeTopCenterL]/2.-[AlSupportThinWindowL]/2." z="-[AlSupportUshapeT]/2.+[AlSupportThinWindowT]/2."/>
+</UnionSolid>
+
+
+
+
+<Box name="RPixWafer2x2"              dx="[WaferW]/2."   dy="[WaferL]/2."    dz="[WaferT]/2." /> 
+<Box name="GlueOnWafer"              dx="[GlueOnWaferW]/2."   dy="[GlueOnWaferL]/2."    dz="[GlueT]/2." /> 
+<Box name="Flex"              dx="[FlexW]/2."   dy="[FlexL]/2."    dz="[FlexT]/2." /> 
+<Box name="GlueOnROCs"              dx="[GlueOnROCsW]/2."   dy="[GlueOnROCsL]/2."    dz="[GlueT]/2." /> 
+<Box name="ROChip"              dx="[ROChipW]/2."   dy="[ROChipL]/2."    dz="[ROChipT]/2." /> 
+
+<SubtractionSolid name="EnvelopTemp">
+  <rSolid name="EnvelopBeforeSubtraction" />
+  <rSolid name="EnvelopToBeSubtracted" />
+  <Translation x="-[AlSupportUshapeW]/2. + [EnvelopToBeSubtractedW]/2." y="-[EnvelopL]/2. + [AlSupportThinWindowOffsetL]/2." z="0.0*mm" />
+	     <!-- removing the bottom left corner of the box envelop -->
+</SubtractionSolid>
+<SubtractionSolid name="Envelop">
+  <rSolid name="EnvelopTemp" />
+  <rSolid name="EnvelopToBeSubtracted" />
+  <Translation x="[AlSupportUshapeW]/2. - [EnvelopToBeSubtractedW]/2." y="-[EnvelopL]/2. + [AlSupportThinWindowOffsetL]/2." z="0.0*mm" />
+	     <!-- removing the bottom right corner of the box envelop -->
+</SubtractionSolid>
+
+
+
+</SolidSection>
+
+
+<LogicalPartSection label="PPS_Pixel_Module_2x2_Run3.xml">
+
+ <LogicalPart name="Envelop" category="unspecified">
+  <rSolid name="Envelop"/>
+  <rMaterial name="materials:Vacuum" />
+ </LogicalPart>
+
+ <LogicalPart name="RPixWafer2x2" category="unspecified">
+  <rSolid name="RPixWafer2x2"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+
+
+<LogicalPart name="ROChip" category="unspecified">
+  <rSolid name="ROChip"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_ROChip"/>
+ </LogicalPart>
+
+<LogicalPart name="GlueOnROCs" category="unspecified">
+  <rSolid name="GlueOnROCs"/>
+  <rMaterial name="pixfwdMaterials:FPix_Thermflow"/>
+ </LogicalPart>
+
+<LogicalPart name="GlueOnWafer" category="unspecified">
+  <rSolid name="GlueOnWafer"/>
+  <rMaterial name="pixfwdMaterials:FPix_Thermflow"/>
+ </LogicalPart>
+
+<LogicalPart name="Flex" category="unspecified">
+  <rSolid name="Flex"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_HDI"/> 
+ </LogicalPart>
+
+<LogicalPart name="AlSupport" category="unspecified">
+  <rSolid name="AlSupport"/>
+  <rMaterial name="materials:Aluminium"/> 
+ </LogicalPart>
+
+</LogicalPartSection>
+
+
+<PosPartSection label="PPS_Pixel_Module_2x2_Run3.xml">
+
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:Flex"/>
+  <Translation x="0" y="0"  z="[EnvelopT]/2.-[FlexT]/2." />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:GlueOnWafer"/>
+  <Translation x="0" y="-[EnvelopL]/2.+[GlueOnWaferL]/2."  z="[EnvelopT]/2.-[FlexT]-[GlueT]/2." />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:RPixWafer2x2"/>
+  <Translation x="0" y="-[EnvelopL]/2.+[WaferL]/2."  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]/2." />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:ROChip"/>
+  <Translation x="-[ROChipW]/2.-[ROChipSpaceW]/2." y="-[EnvelopL]/2.+[ROChipL]/2.+0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]/2." />
+ </PosPart>
+<PosPart copyNumber="2">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:ROChip"/>
+  <Translation x="[ROChipW]/2.+[ROChipSpaceW]/2." y="-[EnvelopL]/2.+[ROChipL]/2.+0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]/2." />
+ </PosPart>
+<PosPart copyNumber="3">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:ROChip"/>
+  <Translation x="-[ROChipW]/2.-[ROChipSpaceW]/2." y="-[EnvelopL]/2.+3*[ROChipL]/2.+[ROChipSpaceL]+0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]/2." />
+ </PosPart>
+<PosPart copyNumber="4">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:ROChip"/>
+  <Translation x="+[ROChipW]/2.+[ROChipSpaceW]/2." y="-[EnvelopL]/2.+3*[ROChipL]/2.+[ROChipSpaceL]+0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]/2." />
+ </PosPart>
+
+<!-- Al Support window WITH ONLY LATERAL RAILS -->
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:GlueOnROCs"/>
+  <Translation x="-[ROChipW]-[ROChipSpaceW]/2.+[GlueOnROCsW]/2." y="-[EnvelopL]/2.+[GlueOnROCsL]/2. + 0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]-[GlueT]/2." />
+ </PosPart>
+<PosPart copyNumber="2">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:GlueOnROCs"/>
+  <Translation x="[ROChipW]+[ROChipSpaceW]/2.-[GlueOnROCsW]/2." y="-[EnvelopL]/2.+[GlueOnROCsL]/2. + 0.17*mm"  z="[EnvelopT]/2.-[FlexT]-[GlueT]-[WaferT]-[ROChipT]-[GlueT]/2." />
+ </PosPart>
+
+
+
+
+<PosPart copyNumber="1">
+  <rParent name="PPS_Pixel_Module_2x2_Run3:Envelop"/>
+  <rChild name="PPS_Pixel_Module_2x2_Run3:AlSupport"/>
+  <Translation x="0" y="[EnvelopL]/2.-[AlSupportUshapeTopCenterL]/2."  z="[EnvelopT]/2.-[FlexT]-[AlSupportUshapeT]/2." /> 
+ </PosPart>
+
+
+</PosPartSection>
+
+
+</DDDefinition>

@@ -11,9 +11,9 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
 labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
-labelTst.extend(["ticlSimTracksters"])
+labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
-lcInputMask.extend(["ticlSimTracksters"])
+lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -25,6 +25,8 @@ hgcalValidator = DQMEDAnalyzer(
     #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
     label_tst = cms.VInputTag(labelTst),
+    label_simTS = cms.InputTag("ticlSimTracksters"),
+    label_simTSFromCP = cms.InputTag("ticlSimTracksters", "fromCPs"),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
@@ -38,10 +40,17 @@ hgcalValidator = DQMEDAnalyzer(
     doCaloParticleSelection = cms.untracked.bool(True),
     #SimCluster related plots
     doSimClustersPlots = cms.untracked.bool(True),
+    label_SimClusters = cms.InputTag("SimClusters"),
+    label_SimClustersLevel = cms.InputTag("ClusterLevel"),
     #Layer Cluster related plots
     doLayerClustersPlots = cms.untracked.bool(True),
+    label_layerClusterPlots = cms.InputTag("hgcalLayerClusters"),
+    label_LCToCPLinking = cms.InputTag("LCToCP_association"),
     #Trackster related plots
     doTrackstersPlots = cms.untracked.bool(True),
+    label_TS = cms.string("Morphology"),
+    label_TSToCPLinking = cms.string("TSToCP_linking"),
+    label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
@@ -79,3 +88,6 @@ premix_stage2.toModify(hgcalValidator,
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(50))
+
+from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
+phase2_hgcalV16.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(47))

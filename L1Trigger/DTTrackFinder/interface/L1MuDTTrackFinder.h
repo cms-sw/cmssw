@@ -25,6 +25,7 @@
 //---------------
 
 #include <vector>
+#include <memory>
 
 //----------------------
 // Base Class Headers --
@@ -99,7 +100,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static L1MuDTTFConfig* config() { return m_config; }
+  static L1MuDTTFConfig* config() { return m_config.get(); }
 
   std::vector<L1MuDTTrackCand>& getcache0() { return _cache0; }
 
@@ -121,7 +122,7 @@ private:
   L1MuDTMuonSorter* m_ms;                    ///< DT Muon Sorter
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 
-  static L1MuDTTFConfig* m_config;  ///< Track Finder configuration
+  static std::shared_ptr<L1MuDTTFConfig> m_config;  ///< Track Finder configuration
 };
 
 #endif

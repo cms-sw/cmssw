@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
@@ -7,7 +7,6 @@ import os
 import pprint
 import pickle
 import shutil
-import six
 
 MAX_ARG_STRLEN = 131072
 
@@ -114,7 +113,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
     if len(chunks)==0:
         print('warning: no chunk found.')
         return
-    for comp, cchunks in six.iteritems(chunks):
+    for comp, cchunks in chunks.items():
         odir = odir_cmd+'/'+'/'.join( [idir, comp] )
         print(odir, cchunks)
         if removeDestDir:
@@ -127,7 +126,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
             shutil.rmtree(chunkDir)
         os.mkdir(chunkDir)
         print(chunks)
-        for comp, chunks in six.iteritems(chunks):
+        for comp, chunks in chunks.items():
             for chunk in chunks:
                 shutil.move(chunk, chunkDir)
         

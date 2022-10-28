@@ -21,15 +21,15 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
@@ -59,13 +59,14 @@
 // class declaration
 //
 
-class EcalDisplaysByEvent : public edm::EDAnalyzer {
+class EcalDisplaysByEvent : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EcalDisplaysByEvent(const edm::ParameterSet&);
   ~EcalDisplaysByEvent() override;
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
   std::string intToString(int num);
@@ -78,7 +79,7 @@ private:
   TH2F* init2DEcalHist(std::string histTypeName, int subDet);
   TH3F* init3DEcalHist(std::string histTypeName, int dubDet);
   TCanvas* init2DEcalCanvas(std::string canvasName);
-  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt, edm::ESHandle<CaloTopology> caloTopo);
+  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt);
   TGraph* selectDigi(DetId det, int ievt);
   int getEEIndex(EcalElectronicsId elecId);
   void makeHistos(edm::Handle<EBDigiCollection> ebDigis);
@@ -93,27 +94,36 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::InputTag EBRecHitCollection_;
-  edm::InputTag EERecHitCollection_;
-  edm::InputTag EBDigis_;
-  edm::InputTag EEDigis_;
-  edm::InputTag headerProducer_;
+  const edm::InputTag EBRecHitCollection_;
+  const edm::InputTag EERecHitCollection_;
+  const edm::InputTag EBDigis_;
+  const edm::InputTag EEDigis_;
+  const edm::InputTag headerProducer_;
 
   edm::Handle<EBDigiCollection> EBdigisHandle;
   edm::Handle<EEDigiCollection> EEdigisHandle;
 
+  const edm::EDGetTokenT<EcalRawDataCollection> rawDataToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<EBDigiCollection> ebDigiToken_;
+  const edm::EDGetTokenT<EEDigiCollection> eeDigiToken_;
+
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
+
   int runNum_;
-  int side_;
-  double threshold_;
-  double minTimingAmp_;
-  bool makeDigiGraphs_;
-  bool makeTimingHistos_;
-  bool makeEnergyHistos_;
-  bool makeOccupancyHistos_;
-  double histRangeMin_;
-  double histRangeMax_;
-  double minTimingEnergyEB_;
-  double minTimingEnergyEE_;
+  const int side_;
+  const double threshold_;
+  const double minTimingAmp_;
+  const bool makeDigiGraphs_;
+  const bool makeTimingHistos_;
+  const bool makeEnergyHistos_;
+  const bool makeOccupancyHistos_;
+  const double histRangeMin_;
+  const double histRangeMax_;
+  const double minTimingEnergyEB_;
+  const double minTimingEnergyEE_;
 
   std::set<EBDetId> listEBChannels;
   std::set<EEDetId> listEEChannels;
@@ -224,6 +234,7 @@ private:
   TTree* histoCanvasNames_;
   EcalFedMap* fedMap_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
+  const CaloTopology* caloTopo_;
 
   int naiveEvtNum_;
 };

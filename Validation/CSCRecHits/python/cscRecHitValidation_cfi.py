@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.MuonHits.muonSimHitMatcherPSet import *
 from Validation.CSCRecHits.cscRecHitPSet import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 cscRecHitValidation = DQMEDAnalyzer(
     'CSCRecHitValidation',
+    muonSimHitMatcherPSet,
     cscRecHitPSet,
     doSim = cms.bool(True),
     useGEMs = cms.bool(False),

@@ -42,6 +42,7 @@ namespace SiPixelPI {
   static const unsigned int phase0size = 1440;
   static const unsigned int phase1size = 1856;
   static const unsigned int phase2size = 3892;
+  static const unsigned int mismatched = 9999;
 
   //============================================================================
   // struct to store info useful to construct topology based on the detid list
@@ -789,7 +790,11 @@ namespace SiPixelPI {
     t2.SetTextSize(0.1);
     t2.SetTextAngle(45);
     t2.SetTextColor(kRed);
-    t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+    if (size != SiPixelPI::mismatched) {
+      t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+    } else {
+      t2.DrawLatexNDC(0.6, 0.50, "MISMATCHED PAYLOAD SIZE!");
+    }
   }
 
   /*--------------------------------------------------------------------*/

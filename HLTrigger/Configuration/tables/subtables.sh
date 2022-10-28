@@ -36,7 +36,7 @@ function getPathList() {
     echo "Error: $MASTER is not a valid HLT menu"
     exit 1
   fi
-  echo "$DATA" | sed -ne's/ *= *cms.\(End\)\?Path.*//p'
+  echo "$DATA" | sed -ne's/ *= *cms.\(Final\|End\)\?Path.*//p'
 }
 
 function checkJars() {
@@ -51,7 +51,7 @@ function checkJars() {
 function makeCreateConfig() {
   local baseDir="/afs/cern.ch/user/c/confdb/www/${Vx}/lib"
   local baseUrl="http://confdb.web.cern.ch/confdb/${Vx}/lib"
-  local JARS="ojdbc6.jar cmssw-evf-confdb-gui.jar"
+  local JARS="ojdbc8.jar cmssw-evf-confdb-gui.jar"
   workDir="$baseDir"
 
   # try to read the .jar files from AFS, or download them
@@ -101,6 +101,27 @@ function loadConfiguration() {
       DBHOST="cmsr1-v.cern.ch"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hlt_gdr_w"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
+      ;;
+     "v3/run3")
+      # v3 run3
+      DBHOST="cmsr1-s.cern.ch"
+      DBNAME="cms_hlt.cern.ch"
+      DBUSER="cms_hlt_v3_w"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
+      ;;
+      "v3-test/dev")
+      # v3-test dev
+      DBHOST="cmsr1-s.cern.ch"
+      DBNAME="cms_hlt.cern.ch"
+      DBUSER="cms_hlt_gdrdev_w"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
+      ;;
+      "v3/dev")
+      # v3 dev
+      DBHOST="cmsr1-s.cern.ch"
+      DBNAME="cms_hlt.cern.ch"
+      DBUSER="cms_hlt_gdrdev_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
     *)

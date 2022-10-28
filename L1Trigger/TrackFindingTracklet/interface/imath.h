@@ -127,6 +127,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 #ifdef IMATH_ROOT
 #include <TH2F.h>
@@ -225,7 +226,7 @@ namespace trklet {
                     const std::map<const VarBase *, std::set<std::string> > *const previous_cut_strings = nullptr) const;
     void add_cut(VarCut *cut, const bool call_set_cut_var = true);
     VarBase *cut_var();
-
+    // observed range of fval_ (only filled if debug_level > 0)
     double minval() const { return minval_; }
     double maxval() const { return maxval_; }
     void analyze();
@@ -250,9 +251,9 @@ namespace trklet {
     int step() const { return step_; }
     int latency() const { return latency_; }
     void add_latency(unsigned int l) { latency_ += l; }  //only call before using the variable in calculation!
-    bool calculate(int debug_level);
-    bool calculate() { return calculate(0); }
+    bool calculate(int debug_level = 0);
     virtual void local_calculate() {}
+    void calcDebug(int debug_level, long int ival_prev, bool &all_ok);
     virtual void print(std::ofstream &fs, Verilog, int l1 = 0, int l2 = 0, int l3 = 0) {
       fs << "// VarBase here. Soemthing is wrong!! " << l1 << ", " << l2 << ", " << l3 << "\n";
     }
@@ -1012,11 +1013,11 @@ namespace trklet {
     int addr_to_ival(int addr) {
       switch (m_) {
         case mode::pos:
-          return addr << shift_;
+          return l1t::bitShift(addr, shift_);
         case mode::neg:
-          return (addr - Nelements_) << shift_;
+          return l1t::bitShift((addr - Nelements_), shift_);
         case mode::both:
-          return (addr << ashift_) >> (ashift_ - shift_);
+          return l1t::bitShift(addr, ashift_) >> (ashift_ - shift_);
       }
       assert(0);
     }

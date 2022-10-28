@@ -9,7 +9,6 @@
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -57,7 +56,6 @@ private:
   // ----------member data ---------------------------
 
   std::string centralityVariable_;
-  std::string centralityLabel_;
   std::string centralityMC_;
 
   edm::InputTag centralityBinTag_;
@@ -78,6 +76,8 @@ private:
 
   edm::ESWatcher<HeavyIonRcd> hiWatcher;
   edm::ESWatcher<HeavyIonRPRcd> hirpWatcher;
+  edm::ESGetToken<CentralityTable, HeavyIonRcd> centralityESToken_;
+  edm::ESGetToken<RPFlatParams, HeavyIonRPRcd> flatparmsToken_;
 
   const int FlatOrder_;
   int NumFlatBins_;
@@ -115,7 +115,8 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   if (iConfig.exists("nonDefaultGlauberModel")) {
     centralityMC_ = iConfig.getParameter<std::string>("nonDefaultGlauberModel");
   }
-  centralityLabel_ = centralityVariable_ + centralityMC_;
+  centralityESToken_ = esConsumes(edm::ESInputTag("", centralityVariable_ + centralityMC_));
+  flatparmsToken_ = esConsumes();
 
   centralityBinToken_ = consumes<int>(centralityBinTag_);
 
@@ -158,9 +159,8 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     //
     //Get Size of Centrality Table
     //
-    edm::ESHandle<CentralityTable> centDB_;
-    iSetup.get<HeavyIonRcd>().get(centralityLabel_, centDB_);
-    nCentBins_ = centDB_->m_table.size();
+    auto const& centDB = iSetup.getData(centralityESToken_);
+    nCentBins_ = centDB.m_table.size();
     for (int i = 0; i < NumEPNames; i++) {
       if (caloCentRef_ > 0) {
         int minbin = (caloCentRef_ - caloCentRefWidth_ / 2.) * nCentBins_ / 100.;
@@ -178,9 +178,7 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //Get flattening parameter file.
   //
   if (hirpWatcher.check(iSetup)) {
-    edm::ESHandle<RPFlatParams> flatparmsDB_;
-    iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
-    LoadEPDB db(flatparmsDB_, flat);
+    LoadEPDB db(iSetup.getData(flatparmsToken_), flat);
   }  //rp record change
 
   //

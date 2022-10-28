@@ -60,8 +60,11 @@ using namespace std;
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC)
     : _cache0(144, -9, 8), _cache(36, -9, 8) {
   // set configuration parameters
-  if (m_config == nullptr)
-    m_config = new L1MuBMTFConfig(ps);
+  if (not m_config) {
+    auto temp = std::make_shared<L1MuBMTFConfig>(ps);
+    std::shared_ptr<L1MuBMTFConfig> empty;
+    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
+  }
 
   if (L1MuBMTFConfig::Debug(1))
     cout << endl;
@@ -76,6 +79,7 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
   m_ms = nullptr;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
+  m_mbParamsToken = iC.esConsumes();
 }
 
 //--------------
@@ -100,10 +104,6 @@ L1MuBMTrackFinder::~L1MuBMTrackFinder() {
   m_wsvec.clear();
 
   delete m_ms;
-
-  if (m_config)
-    delete m_config;
-  m_config = nullptr;
 }
 
 //--------------
@@ -158,7 +158,7 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 // run MTTF
 //
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
-  m_config->setDefaultsES(c);
+  m_config->setDefaultsES(c.getData(m_mbParamsToken));
   int bx_min = L1MuBMTFConfig::getBxMin();
   int bx_max = L1MuBMTFConfig::getBxMax();
 
@@ -527,4 +527,4 @@ int L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
 
 // static data members
 
-L1MuBMTFConfig* L1MuBMTrackFinder::m_config = nullptr;
+std::shared_ptr<L1MuBMTFConfig> L1MuBMTrackFinder::m_config;

@@ -14,6 +14,7 @@ namespace gs {
 
   class AbsReference {
   public:
+    AbsReference() = delete;
     inline virtual ~AbsReference() {}
 
     inline AbsArchive &archive() const { return archive_; }
@@ -63,8 +64,6 @@ namespace gs {
 
   private:
     friend class AbsArchive;
-
-    AbsReference() = delete;
 
     void initialize() const;
     void addItemId(unsigned long long id);

@@ -9,6 +9,7 @@
     <Numeric name="PartialTypes"     value="9"/>
     <Numeric name="OrientationTypes" value="6"/>
     <Numeric name="NPhiBinScint"     value="[hgcal:NPhiBinBH]"/>
+    <Numeric name="ForFireWorks"     value="0"/>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
     <Numeric name="SensitiveMode"    value="1"/>
@@ -119,12 +120,12 @@
       hgcalwafer:HGCalHEWafer0Coarse2bm4, hgcalwafer:HGCalHEWafer0Coarse2bm5</Vector>
     <Vector name="MaterialNames" type="string" nEntries="6">
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
-      materials:Copper, materials:Air, materials:Copper</Vector>
+      materials:StainlessSteel, materials:Air, materials:Copper</Vector>
     <Vector name="VolumeNames" type="string" nEntries="6">
-      HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHECopperCover, 
+      HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHESteelCover, 
       HGCalHESiliconLayer, HGCalHECoolingPlate</Vector>
     <Vector name="Thickness" type="numeric" nEntries="6">
-      41.5*mm, 60.7*mm,  3.7*mm,  2.6*mm, [hgcal:ModuleThicknessHE], 6.65*mm
+      41.5*mm, 60.7*mm,  4.0*mm,  2.5*mm, [hgcal:ModuleThicknessHE], 6.35*mm
     </Vector>
     <Vector name="Layers" type="numeric" nEntries="14"> 
       5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</Vector>
@@ -144,21 +145,22 @@
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2</Vector>
-    <Vector name="TopMaterialNames" type="string" nEntries="6">
-      materials:Air, materials:Cables, materials:Air,
-      materials:H_Scintillator, materials:Epoxy,
+    <Vector name="TopMaterialNames" type="string" nEntries="7">
+      materials:Air, hgcalMaterial:HGC_Cables, hgcalMaterial:HGC_G10-FR4,
+      materials:Polystyrene, materials:H_Scintillator, materials:Polystyrene,
       hgcalMaterial:HGC_G10-FR4</Vector>
-    <Vector name="TopVolumeNames" type="string" nEntries="6"> 
-      HGCalAirGap1, HGCalCableConnector, HGCalAirGap2, 
-      HGCalHEScintillatorSensitive, HGCalScintillatorEpoxy,
+    <Vector name="TopVolumeNames" type="string" nEntries="7"> 
+      HGCalHEScintillatorAirGap, HGCalCableConnector, 
+      HGCalHEScintillatorProtection, HGCalScintillatorFronyReflector,
+      HGCalHEScintillatorSensitive, HGCalScintillatorBackReflector,
       HGCalTileBoard</Vector>
-    <Vector name="TopLayerThickness" type="numeric" nEntries="6">
-      0.87*mm, 1.04*mm, 1.245*mm, [hgcal:ScintillatorThickness], 0.075*mm,
-      1.49*mm</Vector>   <!-- scintillator module -->
-    <Vector name="TopLayerType" type="numeric" nEntries="6"> 
-      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="TopLayerThickness" type="numeric" nEntries="7">
+      0.40*mm, 3.00*mm, 0.20*mm, 0.25*mm, [hgcal:ScintillatorThickness],
+      0.25*mm, 1.60*mm</Vector>   <!-- scintillator module -->
+    <Vector name="TopLayerType" type="numeric" nEntries="7"> 
+      0, 1, 2, 3, 4, 5, 6</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="14">
-       2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3
+       3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2
     </Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="2808">
        2097155, 2097156, 2097157, 2097158, 2097159, 2097160, 2097161,

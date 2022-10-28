@@ -23,6 +23,11 @@ process.tpAnalyzer = cms.EDAnalyzer("EcalTrigPrimAnalyzer",
     inputTP = cms.InputTag("simEcalTriggerPrimitiveDigis","","PROTPGD")
 )
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string('histos.root'),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
+
 process.p = cms.Path(process.tpAnalyzer)
 
 

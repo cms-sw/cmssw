@@ -1,6 +1,5 @@
 #!/bin/env python
 from __future__ import print_function
-import six
 
 def var( tree, varName, type=float ):
     tree.var(varName, type)
@@ -77,7 +76,7 @@ def fillTau(tree, pName, tau):
     fillParticle(tree, pName, tau)
     fill(tree, '{pName}_nsigcharged'.format(pName=pName), len(tau.signalCharged()))
     fill(tree, '{pName}_isolation'.format(pName=pName), tau.isolation())
-    for discName, value in six.iteritems(tau.discs):
+    for discName, value in tau.discs.items():
         fill(tree, '{pName}_{disc}'.format(pName=pName,
                                            disc=discName), value)
 

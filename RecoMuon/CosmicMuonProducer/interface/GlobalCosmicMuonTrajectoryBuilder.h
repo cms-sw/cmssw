@@ -22,6 +22,7 @@
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 namespace edm {
   class ParameterSet;
@@ -87,10 +88,10 @@ private:
   std::string thePropagatorName;
   edm::EDGetTokenT<reco::TrackCollection> theTkTrackToken;
 
-  std::string theTrackerRecHitBuilderName;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTrackerRecHitBuilderToken;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
 
-  std::string theMuonRecHitBuilderName;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuilderToken;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
   edm::Handle<reco::TrackCollection> theTrackerTracks;

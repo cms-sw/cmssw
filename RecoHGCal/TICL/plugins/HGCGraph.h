@@ -29,12 +29,20 @@ public:
                               float etaLimitIncreaseWindow,
                               int skip_layers,
                               int maxNumberOfLayers,
-                              float maxDeltaTime);
+                              float maxDeltaTime,
+                              int lastLayerEE,
+                              int lastLayerFH,
+                              const std::vector<double> &siblings_maxRSquared);
 
   bool areTimeCompatible(int innerIdx,
                          int outerIdx,
                          const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                          float maxDeltaTime);
+
+  bool areOverlappingOnSiblingLayers(int innerIdx,
+                                     int outerIdx,
+                                     const std::vector<reco::CaloCluster> &layerClusters,
+                                     float maxRSquared);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
   void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
@@ -51,7 +59,6 @@ public:
     isOuterClusterOfDoublets_.shrink_to_fit();
   }
   void setVerbosity(int level) { verbosity_ = level; }
-  enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
 private:
   std::vector<HGCDoublet> allDoublets_;

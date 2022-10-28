@@ -1,11 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process('PROD',Run2_2018)
+
 process.load("SimG4CMS.Calo.pythiapdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-#process.load("Configuration.Geometry.GeometryExtended2018Reco_cff")
-process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2018Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')

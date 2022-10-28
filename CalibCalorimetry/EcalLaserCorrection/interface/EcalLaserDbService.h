@@ -7,7 +7,7 @@
 #define EcalLaserDbService_h
 
 #include <memory>
-#include <tbb/concurrent_unordered_set.h>
+#include <oneapi/tbb/concurrent_unordered_set.h>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

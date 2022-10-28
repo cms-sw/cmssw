@@ -7,10 +7,6 @@ SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig)
   tkmap = new TrackerMap();
 }
 
-SiStripPlotGain::~SiStripPlotGain() {}
-
-//
-
 void SiStripPlotGain::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   if (gainWatcher_.check(es)) {
     edm::LogInfo("") << "[SiStripPlotGain::beginRun] cacheID " << es.get<SiStripApvGainRcd>().cacheIdentifier()

@@ -1,4 +1,23 @@
 autoSkim = {
+ 'BTagMu' : 'LogError+LogErrorMonitor',
+ 'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ 'EGamma':'ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
+ 'Tau' : 'EXODisappTrk+LogError+LogErrorMonitor',
+ 'Muon' : 'ZMu+EXODisappTrk+LogError+LogErrorMonitor',
+ 'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
+ 'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
+ 'HcalNZS' : 'LogError+LogErrorMonitor',
+ 'HLTPhysics' : 'LogError+LogErrorMonitor',
+ 'ZeroBias' : 'LogError+LogErrorMonitor',
+ 'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
+ 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+
+ # Used in unit test scenario ppEra_Run2_2018
+ 'SingleMuon': 'LogError+LogErrorMonitor',
+}
+
+autoSkimRunII = {
  'BTagCSV' : 'LogError+LogErrorMonitor',
  'BTagMu' : 'LogError+LogErrorMonitor',
  'HTMHT' : 'LogError+LogErrorMonitor',
@@ -24,7 +43,6 @@ autoSkim = {
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
  'ParkingBPH':'SkimBPark+LogError+LogErrorMonitor',
- 
 }
 #2018 EGamma is a merged datasets of SingleElectron, SinglePhoton, DoubleEG
 
@@ -52,9 +70,7 @@ autoSkimRunI = {
     'BTag': 'LogError+EXOHSCP',
     'MET': 'HighMET+LogError+EXOHSCP',
     'HighMET': 'HighMET+LogError',
-
     'HT': 'HighMET+LogError',
-
     'Tau': 'LogError',
     'MuTau': 'MuTau+LogError',
     'PhotonHad': 'LogError',
@@ -62,18 +78,14 @@ autoSkimRunI = {
     'MultiJet': 'LogError',
     'MuOnia': 'LogError',
     'ElectronHad': 'LogError',
-    'TauPlusX': 'LogError',
-    
-    }
-
+    'TauPlusX': 'LogError',    
+}
 
 autoSkimPDWG = {
-    
-    }
+}
 
 autoSkimDPG = {
-
-    }
+}
 
 def mergeMapping(map1,map2):
     merged={}

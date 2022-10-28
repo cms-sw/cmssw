@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalSimHitsValidation = DQMEDAnalyzer("EcalSimHitsValidation",
     ESHitsCollection = cms.string('EcalHitsES'),
     verbose = cms.untracked.bool(False),
-    moduleLabelMC = cms.string('generatorSmeared'),
+    moduleLabelMC = cms.InputTag('generatorSmeared'),
     EBHitsCollection = cms.string('EcalHitsEB'),
     EEHitsCollection = cms.string('EcalHitsEE'),
     moduleLabelG4 = cms.string('g4SimHits')

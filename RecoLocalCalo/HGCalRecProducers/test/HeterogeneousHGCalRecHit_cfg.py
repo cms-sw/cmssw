@@ -44,7 +44,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
+process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 process.load('RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi')
 process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
 

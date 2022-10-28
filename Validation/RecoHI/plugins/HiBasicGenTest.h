@@ -35,4 +35,5 @@ private:
   MonitorElement *rp;
 
   edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
 };

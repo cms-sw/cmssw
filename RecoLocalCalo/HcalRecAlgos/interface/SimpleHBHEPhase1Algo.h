@@ -45,6 +45,7 @@ public:
                        float timeShift,
                        bool correctForPhaseContainment,
                        bool applyLegacyHBMCorrection,
+                       bool applyFixPCC,
                        std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                        std::unique_ptr<HcalDeterministicFit> detFit,
                        std::unique_ptr<MahiFit> mahi,

@@ -14,8 +14,11 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <boost/bind/bind.hpp>
 #include <cassert>
 #include <list>
+
+using namespace boost::placeholders;
 
 // This is CSCStripElectronicsSim.cc
 
@@ -383,7 +386,7 @@ void CSCStripElectronicsSim::createDigi(int channel,
 
   result.push_back(newDigi);
   addLinks(channelIndex(channel));
-  LogTrace("CSCStripElectronicsSim") << newDigi;
+  LogTrace("CSCStripElectronicsSim") << "CSCStripElectronicsSim: CSCStripDigi " << newDigi;
 }
 
 void CSCStripElectronicsSim::doSaturation(CSCStripDigi &digi) {

@@ -1,5 +1,5 @@
 from __future__ import print_function
-#import os
+import os
 import shlex, shutil, getpass
 #import subprocess
 
@@ -20,8 +20,6 @@ print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -50,7 +48,8 @@ print('\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile
 
 
 #standard python libraries instead of spawn processes
-shutil.move("siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency_old.db")
+if(os.path.isfile('./'+file)):
+    shutil.move("siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency_old.db")
 #subprocess.call(["/bin/cp", "siPixelDynamicInefficiency.db", file])
 #subprocess.call(["/bin/mv", "siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency.db"])
 

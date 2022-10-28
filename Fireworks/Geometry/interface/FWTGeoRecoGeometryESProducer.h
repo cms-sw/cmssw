@@ -101,6 +101,7 @@ private:
 
   bool m_tracker;
   bool m_muon;
+  bool m_gem;
   bool m_calo;
 };
 

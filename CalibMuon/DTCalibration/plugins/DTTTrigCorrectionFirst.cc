@@ -25,29 +25,29 @@
 using namespace edm;
 using namespace std;
 
-DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset) {
+DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset)
+    : dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   ttrigMin = pset.getUntrackedParameter<double>("ttrigMin", 0);
   ttrigMax = pset.getUntrackedParameter<double>("ttrigMax", 5000);
   rmsLimit = pset.getUntrackedParameter<double>("rmsLimit", 5.);
-
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
 }
 
 DTTTrigCorrectionFirst::~DTTTrigCorrectionFirst() {}
 
 void DTTTrigCorrectionFirst::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
-  tTrigMap = &*tTrig;
+  tTrig = setup.getHandle(ttrigToken_);
+  tTrigMap = &setup.getData(ttrigToken_);
   cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 }
 
 void DTTTrigCorrectionFirst::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
   //Get the superlayers list
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
@@ -57,7 +57,6 @@ void DTTTrigCorrectionFirst::endJob() {
   double rms = 0.;
   double averageSigma = 0.;
   double average2Sigma = 0.;
-  double rmsSigma = 0.;
   double counter = 0.;
   double averagekfactor = 0;
   float kfactor = 0;
@@ -92,9 +91,7 @@ void DTTTrigCorrectionFirst::endJob() {
   }  //End of loop on superlayers
 
   rms = average2 / (counter - 1);
-  rmsSigma = average2Sigma / (counter - 1);
   rms = sqrt(rms);
-  rmsSigma = sqrt(rmsSigma);
   cout << "average averageSigma counter rms " << average << " " << averageSigma << " " << counter << " " << rms << endl;
 
   for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
@@ -225,7 +222,7 @@ void DTTTrigCorrectionFirst::endJob() {
     }
 
     //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
+    tTrigNewMap.set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
     if (debug) {
       cout << "New tTrig: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
       cout << "New tTrigSigma: " << (*sl)->id() << " from " << ttrigSigma << " to " << newTTrigSigma << endl;

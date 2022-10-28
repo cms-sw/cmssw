@@ -2,7 +2,7 @@
 #define FWCore_MessageService_test_UnitTestClient_SLumi_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,16 +13,14 @@ namespace edm {
 
 namespace edmtest {
 
-  class UTC_SL1 : public edm::EDAnalyzer {
+  class UTC_SL1 : public edm::one::EDAnalyzer<> {
   public:
     explicit UTC_SL1(edm::ParameterSet const &p) {
       identifier = p.getUntrackedParameter<int>("identifier", 99);
       edm::GroupLogStatistics("grouped_cat");
     }
 
-    virtual ~UTC_SL1() {}
-
-    virtual void analyze(edm::Event const &e, edm::EventSetup const &c);
+    void analyze(edm::Event const &e, edm::EventSetup const &c) override;
 
   private:
     int identifier;
@@ -30,28 +28,25 @@ namespace edmtest {
     static int n;
   };
 
-  class UTC_SL2 : public edm::EDAnalyzer {
+  class UTC_SL2 : public edm::one::EDAnalyzer<> {
   public:
     explicit UTC_SL2(edm::ParameterSet const &p) { identifier = p.getUntrackedParameter<int>("identifier", 98); }
 
-    virtual ~UTC_SL2() {}
-
-    virtual void analyze(edm::Event const &e, edm::EventSetup const &c);
+    void analyze(edm::Event const &e, edm::EventSetup const &c) override;
 
   private:
     int identifier;
     static int n;
   };
 
-  class UTC_SLUMMARY : public edm::EDAnalyzer {
+  class UTC_SLUMMARY : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     explicit UTC_SLUMMARY(edm::ParameterSet const &) {}
 
-    virtual ~UTC_SLUMMARY() {}
+    void analyze(edm::Event const &e, edm::EventSetup const &c) override;
 
-    virtual void analyze(edm::Event const &e, edm::EventSetup const &c);
-
-    virtual void endLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &c);
+    void beginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &c) override {}
+    void endLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &c) override;
 
   private:
   };

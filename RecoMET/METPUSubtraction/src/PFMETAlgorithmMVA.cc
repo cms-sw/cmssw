@@ -3,10 +3,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
 #include <TFile.h>
@@ -112,13 +108,7 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
   return mva;
 }
 
-const GBRForest* PFMETAlgorithmMVA::loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName) {
-  edm::ESHandle<GBRForest> mva;
-  es.get<GBRWrapperRcd>().get(mvaName, mva);
-  return mva.product();
-}
-
-PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
+PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
     : utils_(cfg),
       mvaReaderU_(nullptr),
       mvaReaderDPhi_(nullptr),
@@ -127,7 +117,19 @@ PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
       cfg_(cfg) {
   mvaType_ = kBaseline;
 
+  edm::ParameterSet cfgInputRecords = cfg_.getParameter<edm::ParameterSet>("inputRecords");
+  mvaNameU_ = cfgInputRecords.getParameter<std::string>("U");
+  mvaNameDPhi_ = cfgInputRecords.getParameter<std::string>("DPhi");
+  mvaNameCovU1_ = cfgInputRecords.getParameter<std::string>("CovU1");
+  mvaNameCovU2_ = cfgInputRecords.getParameter<std::string>("CovU2");
+
   loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
+  if (loadMVAfromDB_) {
+    mvaTokenU_ = iC.esConsumes(edm::ESInputTag("", mvaNameU_));
+    mvaTokenDPhi_ = iC.esConsumes(edm::ESInputTag("", mvaNameDPhi_));
+    mvaTokenCovU1_ = iC.esConsumes(edm::ESInputTag("", mvaNameCovU1_));
+    mvaTokenCovU2_ = iC.esConsumes(edm::ESInputTag("", mvaNameCovU2_));
+  }
 }
 
 PFMETAlgorithmMVA::~PFMETAlgorithmMVA() {
@@ -141,17 +143,11 @@ PFMETAlgorithmMVA::~PFMETAlgorithmMVA() {
 
 //-------------------------------------------------------------------------------
 void PFMETAlgorithmMVA::initialize(const edm::EventSetup& es) {
-  edm::ParameterSet cfgInputRecords = cfg_.getParameter<edm::ParameterSet>("inputRecords");
-  mvaNameU_ = cfgInputRecords.getParameter<std::string>("U");
-  mvaNameDPhi_ = cfgInputRecords.getParameter<std::string>("DPhi");
-  mvaNameCovU1_ = cfgInputRecords.getParameter<std::string>("CovU1");
-  mvaNameCovU2_ = cfgInputRecords.getParameter<std::string>("CovU2");
-
   if (loadMVAfromDB_) {
-    mvaReaderU_ = loadMVAfromDB(es, mvaNameU_);
-    mvaReaderDPhi_ = loadMVAfromDB(es, mvaNameDPhi_);
-    mvaReaderCovU1_ = loadMVAfromDB(es, mvaNameCovU1_);
-    mvaReaderCovU2_ = loadMVAfromDB(es, mvaNameCovU2_);
+    mvaReaderU_ = &es.getData(mvaTokenU_);
+    mvaReaderDPhi_ = &es.getData(mvaTokenDPhi_);
+    mvaReaderCovU1_ = &es.getData(mvaTokenCovU1_);
+    mvaReaderCovU2_ = &es.getData(mvaTokenCovU2_);
   } else {
     edm::ParameterSet cfgInputFileNames = cfg_.getParameter<edm::ParameterSet>("inputFileNames");
 

@@ -118,12 +118,12 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   mix_ = conf_.getParameter<std::string>("mixLabel");
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
   cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
-  muonGeom_token = esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag("", geometryType));
   magnField_token = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
-  // String to choice between ideal (the deafult) and (mis)aligned geometry for
-  // the digitization step
+  // String to choose between ideal (the default) and (mis)aligned geometry
+  // for the digitization step
   geometryType = conf_.getParameter<std::string>("GeometryType");
+  muonGeom_token = esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag("", geometryType));
 }
 
 // method called to produce the data

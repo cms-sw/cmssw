@@ -77,7 +77,6 @@ public:
   void deleteColumn();
   void modifyColumn();
 
-private:
   FWTableView(const FWTableView &) = delete;                   // stop default
   const FWTableView &operator=(const FWTableView &) = delete;  // stop default
 

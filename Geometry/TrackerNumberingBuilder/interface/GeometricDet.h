@@ -77,7 +77,9 @@ public:
     OTPhase2Wheel = 209,
     PixelPhase2FullDisk = 217,
     PixelPhase2ReducedDisk = 227,
-    PixelPhase2TDRDisk = 237
+    PixelPhase2TDRDisk = 237,
+    PixelPhase2DoubleDisk = 347,
+    PixelPhase2SubDisk = 357
   } GeometricEnumType;
 
   // Constructors from Filtered View (called while looping over DD).
@@ -128,6 +130,7 @@ public:
 
   // SENSOR INFO
   // Only return meaningful results for pixels.
+  bool isBricked() const { return isBricked_; }
   double pixROCRows() const { return pixROCRows_; }
   double pixROCCols() const { return pixROCCols_; }
   double pixROCx() const { return pixROCx_; }
@@ -163,6 +166,9 @@ public:
   // CUSTOM DESTRUCTOR
   ~GeometricDet();
 
+  // Utility function
+  static std::string printNavType(int const* n, size_t sz);
+
 private:
   std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
                                                    const dd4hep::Solid& mySolid) const;
@@ -183,6 +189,7 @@ private:
 
   double radLength_ = 0.;
   double xi_ = 0.;
+  bool isBricked_ = false;
   double pixROCRows_ = 0.;
   double pixROCCols_ = 0.;
   double pixROCx_ = 0.;
@@ -196,6 +203,13 @@ private:
 
   ConstGeometricDetContainer container_;
 };
+
+namespace geometric_det_ns {
+  inline std::ostream& operator<<(std::ostream& os, const GeometricDet::NavRange& n) {
+    os << GeometricDet::printNavType(n.first, n.second);
+    return os;
+  }
+}  // namespace geometric_det_ns
 
 #undef PoolAlloc
 #endif

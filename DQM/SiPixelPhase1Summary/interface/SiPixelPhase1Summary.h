@@ -21,20 +21,15 @@
 //#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SiPixelPhase1Summary : public DQMEDHarvester {
@@ -78,6 +73,7 @@ private:
 
   //Error thresholds for the dead ROC plots
   std::vector<double> deadRocThresholds_;
+  std::vector<double> deadRocWarnThresholds_;
 
   //book the summary plots
   void bookSummaries(DQMStore::IBooker& iBooker);

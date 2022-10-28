@@ -39,7 +39,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 

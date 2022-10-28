@@ -28,8 +28,6 @@ namespace edmtest {
 
   DTConfigWrite::DTConfigWrite(int i) {}
 
-  DTConfigWrite::~DTConfigWrite() {}
-
   void DTConfigWrite::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
@@ -43,7 +41,7 @@ namespace edmtest {
       return;
     }
 
-    DTCCBConfig* conf = new DTCCBConfig("test_config");
+    DTCCBConfig conf("test_config");
 
     int status = 0;
     std::ifstream ifile("testConfig.txt");
@@ -57,7 +55,7 @@ namespace edmtest {
     int nbr;
     int ibr;
     ifile >> run >> nty;
-    conf->setStamp(run);
+    conf.setStamp(run);
     std::vector<DTConfigKey> fullKey;
     while (nty--) {
       ifile >> kty >> key;
@@ -66,21 +64,21 @@ namespace edmtest {
       confList.confKey = key;
       fullKey.push_back(confList);
     }
-    conf->setFullKey(fullKey);
+    conf.setFullKey(fullKey);
     while (ifile >> whe >> sta >> sec >> nbr) {
       std::vector<int> cfg;
       while (nbr--) {
         ifile >> ibr;
         cfg.push_back(ibr);
       }
-      status = conf->setConfigKey(whe, sta, sec, cfg);
+      status = conf.setConfigKey(whe, sta, sec, cfg);
       std::cout << whe << " " << sta << " " << sec << "  -> ";
       std::cout << "insert status: " << status << std::endl;
     }
 
     std::cout << "end of time : " << dbservice->endOfTime() << std::endl;
     if (dbservice->isNewTagRequest("DTCCBConfigRcd")) {
-      dbservice->createNewIOV<DTCCBConfig>(conf, dbservice->beginOfTime(), dbservice->endOfTime(), "DTCCBConfigRcd");
+      dbservice->createOneIOV<DTCCBConfig>(conf, dbservice->beginOfTime(), "DTCCBConfigRcd");
       //                      0xffffffff,"DTCCBConfigRcd");
     } else {
       std::cout << "already present tag" << std::endl;

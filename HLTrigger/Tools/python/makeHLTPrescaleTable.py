@@ -1,8 +1,8 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3 
 from __future__ import print_function
 from __future__ import absolute_import
 from sys import stderr, exit
-import commands, os
+import subprocess, os
 
 from optparse import OptionParser
 parser = OptionParser(usage=
@@ -69,7 +69,7 @@ def getProcessObjectFromConfDB(hlt_key):
    # print >> stderr,"\t%s ..." % hlt_key
    cmd = "edmConfigFromDB --orcoff --configName " + hlt_key
    # print >> stderr, "cmd=",cmd
-   res = commands.getoutput(cmd)
+   res = subprocess.getoutput(cmd)
 
    # potentially dangerous: we're running python code here
    # which we get from an external process (confDB).

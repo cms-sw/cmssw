@@ -24,8 +24,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -49,81 +48,58 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BetaBoostEvtVtxGenerator : public edm::EDProducer {
+class BetaBoostEvtVtxGenerator : public edm::global::EDProducer<> {
 public:
   BetaBoostEvtVtxGenerator(const edm::ParameterSet& p);
-  ~BetaBoostEvtVtxGenerator() override;
-
-  /// return a new event vertex
-  //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*);
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual TMatrixD* GetInvLorentzBoost();
-
-  /// set resolution in Z in cm
-  void sigmaZ(double s = 1.0);
-
-  /// set mean in X in cm
-  void X0(double m = 0) { fX0 = m; }
-  /// set mean in Y in cm
-  void Y0(double m = 0) { fY0 = m; }
-  /// set mean in Z in cm
-  void Z0(double m = 0) { fZ0 = m; }
-
-  /// set half crossing angle
-  void Phi(double m = 0) { phi_ = m; }
-  /// angle between crossing plane and horizontal plane
-  void Alpha(double m = 0) { alpha_ = m; }
-  void Beta(double m = 0) { beta_ = m; }
-
-  /// set beta_star
-  void betastar(double m = 0) { fbetastar = m; }
-  /// emittance (no the normalized)
-  void emittance(double m = 0) { femittance = m; }
-
-  /// beta function
-  double BetaFunction(double z, double z0);
-
-private:
   /** Copy constructor */
   BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
   BetaBoostEvtVtxGenerator& operator=(const BetaBoostEvtVtxGenerator& rhs) = delete;
+  ~BetaBoostEvtVtxGenerator() override = default;
 
-  double alpha_, phi_;
-  //TMatrixD boost_;
-  double beta_;
-  double fX0, fY0, fZ0;
-  double fSigmaZ;
+  /// return a new event vertex
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  TMatrixD GetInvLorentzBoost() const;
+
+  /// beta function
+  double BetaFunction(double z, double z0) const;
+
+private:
+  const double alpha_;  // angle between crossing plane and horizontal plane
+  const double phi_;    // half crossing angle
+  const double beta_;
+  const double fX0;      // mean in X in cm
+  const double fY0;      // mean in Y in cm
+  const double fZ0;      // mean in Z in cm
+  const double fSigmaZ;  // resolution in Z in cm
   //double fdxdz, fdydz;
-  double fbetastar, femittance;
-  double falpha;
+  const double fbetastar;
+  const double femittance;  // emittance (no the normalized)a
 
-  HepMC::FourVector* fVertex;
-  TMatrixD* boost_;
-  double fTimeOffset;
+  const double fTimeOffset;
 
-  edm::EDGetTokenT<HepMCProduct> sourceLabel;
+  const TMatrixD boost_;
 
-  bool verbosity_;
+  const edm::EDGetTokenT<HepMCProduct> sourceLabel;
+
+  const bool verbosity_;
 };
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet& p)
-    : fVertex(nullptr),
-      boost_(nullptr),
-      fTimeOffset(0),
+    : alpha_(p.getParameter<double>("Alpha") * radian),
+      phi_(p.getParameter<double>("Phi") * radian),
+      beta_(p.getParameter<double>("Beta")),
+      fX0(p.getParameter<double>("X0") * cm),
+      fY0(p.getParameter<double>("Y0") * cm),
+      fZ0(p.getParameter<double>("Z0") * cm),
+      fSigmaZ(p.getParameter<double>("SigmaZ") * cm),
+      fbetastar(p.getParameter<double>("BetaStar") * cm),
+      femittance(p.getParameter<double>("Emittance") * cm),              // this is not the normalized emittance
+      fTimeOffset(p.getParameter<double>("TimeOffset") * ns * c_light),  // HepMC time units are mm
+      boost_(GetInvLorentzBoost()),
       sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
       verbosity_(p.getUntrackedParameter<bool>("verbosity", false)) {
-  fX0 = p.getParameter<double>("X0") * cm;
-  fY0 = p.getParameter<double>("Y0") * cm;
-  fZ0 = p.getParameter<double>("Z0") * cm;
-  fSigmaZ = p.getParameter<double>("SigmaZ") * cm;
-  alpha_ = p.getParameter<double>("Alpha") * radian;
-  phi_ = p.getParameter<double>("Phi") * radian;
-  fbetastar = p.getParameter<double>("BetaStar") * cm;
-  femittance = p.getParameter<double>("Emittance") * cm;              // this is not the normalized emittance
-  fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC time units are mm
-  beta_ = p.getParameter<double>("Beta");
   if (fSigmaZ <= 0) {
     throw cms::Exception("Configuration") << "Error in BetaBoostEvtVtxGenerator: "
                                           << "Illegal resolution in Z (SigmaZ is negative)";
@@ -132,14 +108,7 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet& p)
   produces<edm::HepMCProduct>();
 }
 
-BetaBoostEvtVtxGenerator::~BetaBoostEvtVtxGenerator() {
-  delete fVertex;
-  if (boost_ != nullptr)
-    delete boost_;
-}
-
-//Hep3Vector* BetaBoostEvtVtxGenerator::newVertex() {
-HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
   double X, Y, Z;
 
   double tmp_sigz = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
@@ -158,27 +127,14 @@ HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* e
   double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
   double T = tmp_sigt + fTimeOffset;
 
-  if (fVertex == nullptr)
-    fVertex = new HepMC::FourVector();
-  fVertex->set(X, Y, Z, T);
-
-  return fVertex;
+  return HepMC::FourVector(X, Y, Z, T);
 }
 
-double BetaBoostEvtVtxGenerator::BetaFunction(double z, double z0) {
+double BetaBoostEvtVtxGenerator::BetaFunction(double z, double z0) const {
   return sqrt(femittance * (fbetastar + (((z - z0) * (z - z0)) / fbetastar)));
 }
 
-void BetaBoostEvtVtxGenerator::sigmaZ(double s) {
-  if (s >= 0) {
-    fSigmaZ = s;
-  } else {
-    throw cms::Exception("LogicError") << "Error in BetaBoostEvtVtxGenerator::sigmaZ: "
-                                       << "Illegal resolution in Z (negative)";
-  }
-}
-
-TMatrixD* BetaBoostEvtVtxGenerator::GetInvLorentzBoost() {
+TMatrixD BetaBoostEvtVtxGenerator::GetInvLorentzBoost() const {
   //alpha_ = 0;
   //phi_ = 142.e-6;
   //	if (boost_ != 0 ) return boost_;
@@ -233,15 +189,14 @@ TMatrixD* BetaBoostEvtVtxGenerator::GetInvLorentzBoost() {
   tmpboostXYZ = tmpboostZ * tmpboost;
   tmpboostXYZ.Invert();
 
-  boost_ = new TMatrixD(tmpboostXYZ);
   if (verbosity_) {
-    boost_->Print();
+    tmpboostXYZ.Print();
   }
 
-  return boost_;
+  return tmpboostXYZ;
 }
 
-void BetaBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
+void BetaBoostEvtVtxGenerator::produce(edm::StreamID, Event& evt, const EventSetup&) const {
   edm::Service<RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -250,23 +205,20 @@ void BetaBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
   }
   CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
 
-  Handle<HepMCProduct> HepUnsmearedMCEvt;
-  evt.getByToken(sourceLabel, HepUnsmearedMCEvt);
+  const auto& HepUnsmearedMCEvt = evt.get(sourceLabel);
 
   // Copy the HepMC::GenEvent
-  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
-  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+  auto HepMCEvt = std::make_unique<edm::HepMCProduct>(new HepMC::GenEvent(*HepUnsmearedMCEvt.GetEvent()));
 
   // generate new vertex & apply the shift
   //
-  HepMCEvt->applyVtxGen(newVertex(engine));
+  auto vertex = newVertex(engine);
+  HepMCEvt->applyVtxGen(&vertex);
 
   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
-  HepMCEvt->boostToLab(GetInvLorentzBoost(), "vertex");
-  HepMCEvt->boostToLab(GetInvLorentzBoost(), "momentum");
+  HepMCEvt->boostToLab(&boost_, "vertex");
+  HepMCEvt->boostToLab(&boost_, "momentum");
   evt.put(std::move(HepMCEvt));
-
-  return;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

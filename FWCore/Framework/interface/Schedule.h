@@ -64,12 +64,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
-#include "FWCore/Framework/src/GlobalSchedule.h"
-#include "FWCore/Framework/src/StreamSchedule.h"
-#include "FWCore/Framework/src/SystemTimeKeeper.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
+#include "FWCore/Framework/interface/GlobalSchedule.h"
+#include "FWCore/Framework/interface/StreamSchedule.h"
+#include "FWCore/Framework/interface/SystemTimeKeeper.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,6 +82,7 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
+#include <array>
 #include <map>
 #include <memory>
 #include <set>
@@ -130,16 +131,23 @@ namespace edm {
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
              ProductRegistry& pregistry,
-             BranchIDListHelper& branchIDListHelper,
-             ProcessBlockHelperBase&,
-             ThinnedAssociationsHelper& thinnedAssociationsHelper,
-             SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
-             std::shared_ptr<ProcessConfiguration> processConfiguration,
-             bool hasSubprocesses,
+             std::shared_ptr<ProcessConfiguration const> processConfiguration,
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
+    void finishSetup(ParameterSet& proc_pset,
+                     service::TriggerNamesService const& tns,
+                     ProductRegistry& preg,
+                     BranchIDListHelper& branchIDListHelper,
+                     ProcessBlockHelperBase& processBlockHelper,
+                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                     SubProcessParentageHelper const* subProcessParentageHelper,
+                     std::shared_ptr<ActivityRegistry> areg,
+                     std::shared_ptr<ProcessConfiguration> processConfiguration,
+                     bool hasSubprocesses,
+                     PreallocationConfiguration const& prealloc,
+                     ProcessContext const* processContext);
 
     void processOneEventAsync(WaitingTaskHolder iTask,
                               unsigned int iStreamID,
@@ -253,14 +261,6 @@ namespace edm {
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
     int totalEventsFailed() const;
 
-    /// Turn end_paths "off" if "active" is false;
-    /// turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active);
-
-    /// Return true if end_paths are active, and false if they are
-    /// inactive.
-    bool endPathsEnabled() const;
-
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;
@@ -284,6 +284,11 @@ namespace edm {
 
     /// Deletes module with label iLabel
     void deleteModule(std::string const& iLabel, ActivityRegistry* areg);
+
+    void initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                               std::multimap<std::string, std::string> const& referencesToBranches,
+                               std::vector<std::string> const& modulesToSkip,
+                               edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
@@ -319,8 +324,6 @@ namespace edm {
     std::vector<std::string> const* pathNames_;
     std::vector<std::string> const* endPathNames_;
     bool wantSummary_;
-
-    volatile bool endpathsAreActive_;
   };
 
   template <typename T>

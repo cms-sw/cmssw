@@ -77,7 +77,9 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrDcs_ = config.getParameter<bool>("andOrDcs");
       dcsInputTag_ = config.getParameter<edm::InputTag>("dcsInputTag");
       dcsInputToken_ = iC.mayConsume<DcsStatusCollection>(dcsInputTag_);
-      dcsPartitions_ = config.getParameter<std::vector<int> >("dcsPartitions");
+      dcsRecordInputTag_ = config.getParameter<edm::InputTag>("dcsRecordInputTag");
+      dcsRecordToken_ = iC.mayConsume<DCSRecord>(dcsRecordInputTag_);
+      dcsPartitions_ = config.getParameter<std::vector<int>>("dcsPartitions");
       errorReplyDcs_ = config.getParameter<bool>("errorReplyDcs");
     } else {
       onDcs_ = false;
@@ -86,7 +88,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrGt_ = config.getParameter<bool>("andOrGt");
       gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");
       gtInputToken_ = iC.mayConsume<L1GlobalTriggerReadoutRecord>(gtInputTag_);
-      gtLogicalExpressions_ = config.getParameter<std::vector<std::string> >("gtStatusBits");
+      gtLogicalExpressions_ = config.getParameter<std::vector<std::string>>("gtStatusBits");
       errorReplyGt_ = config.getParameter<bool>("errorReplyGt");
       if (config.exists("gtEvmInputTag")) {
         gtEvmInputTag_ = config.getParameter<edm::InputTag>("gtEvmInputTag");
@@ -103,7 +105,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
         stage2_ = config.getParameter<bool>("stage2");
       else
         stage2_ = false;
-      l1LogicalExpressionsCache_ = config.getParameter<std::vector<std::string> >("l1Algorithms");
+      l1LogicalExpressionsCache_ = config.getParameter<std::vector<std::string>>("l1Algorithms");
       errorReplyL1_ = config.getParameter<bool>("errorReplyL1");
       if (config.exists("l1DBKey"))
         l1DBKey_ = config.getParameter<std::string>("l1DBKey");
@@ -116,7 +118,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrHlt_ = config.getParameter<bool>("andOrHlt");
       hltInputTag_ = config.getParameter<edm::InputTag>("hltInputTag");
       hltInputToken_ = iC.mayConsume<edm::TriggerResults>(hltInputTag_);
-      hltLogicalExpressionsCache_ = config.getParameter<std::vector<std::string> >("hltPaths");
+      hltLogicalExpressionsCache_ = config.getParameter<std::vector<std::string>>("hltPaths");
       errorReplyHlt_ = config.getParameter<bool>("errorReplyHlt");
       if (config.exists("hltDBKey"))
         hltDBKey_ = config.getParameter<std::string>("hltDBKey");
@@ -128,7 +130,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
     else {
       if (config.exists("dbLabel"))
         dbLabel_ = config.getParameter<std::string>("dbLabel");
-      watchDB_ = std::make_unique<edm::ESWatcher<AlCaRecoTriggerBitsRcd> >();
+      watchDB_ = std::make_unique<edm::ESWatcher<AlCaRecoTriggerBitsRcd>>();
     }
   }
 
@@ -203,7 +205,7 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
     if (stage2_) {
       l1uGt_->retrieveL1Setup(setup);
 
-      const std::vector<std::pair<std::string, double> > prescales = l1uGt_->prescales();
+      const std::vector<std::pair<std::string, double>> prescales = l1uGt_->prescales();
       for (const auto& ip : prescales)
         algoNames.push_back(ip.first);
     } else {
@@ -278,22 +280,45 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
   if (!onDcs_ || dcsPartitions_.empty())
     return (!andOr_);  // logically neutral, depending on base logical connective
 
+  bool useDCSRecord(false);
+
   // Accessing the DcsStatusCollection
   edm::Handle<DcsStatusCollection> dcsStatus;
   event.getByToken(dcsInputToken_, dcsStatus);
-  if (!dcsStatus.isValid()) {
+
+  edm::Handle<DCSRecord> dcsRecord;
+  event.getByToken(dcsRecordToken_, dcsRecord);
+
+  // none of the DCS products is valid
+  if (!dcsStatus.isValid() && !dcsRecord.isValid()) {
     if (verbose_ > 1)
       edm::LogWarning("GenericTriggerEventFlag")
-          << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
-          << "\" not in event ==> decision: " << errorReplyDcs_;
+          << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event \n"
+          << "DCSRecord product with InputTag \"" << dcsRecordInputTag_.encode() << "\" not in event \n"
+          << " ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
-  if ((*dcsStatus).empty()) {
-    if (verbose_ > 1)
-      edm::LogWarning("GenericTriggerEventFlag")
-          << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
-          << "\" empty ==> decision: " << errorReplyDcs_;
-    return errorReplyDcs_;
+  if (dcsStatus.isValid() && (*dcsStatus).empty()) {
+    if (event.eventAuxiliary().isRealData()) {
+      // this is the Data case for >= Run3, DCSStatus is available (unpacked), but empty
+      // becasue SCAL is not in data-taking. In this case we fall back to s/w FED 1022
+      if (dcsRecord.isValid()) {
+        useDCSRecord = true;
+      } else {
+        if (verbose_ > 1)
+          edm::LogWarning("GenericTriggerEventFlag")
+              << "DCSRecord product with InputTag \"" << dcsRecordInputTag_.encode()
+              << "\" empty ==> decision: " << errorReplyDcs_;
+        return errorReplyDcs_;
+      }
+    } else {
+      // this is the case in which the DCS status is empty, but it's not real data.
+      if (verbose_ > 1)
+        edm::LogWarning("GenericTriggerEventFlag")
+            << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
+            << "\" empty ==> decision: " << errorReplyDcs_;
+      return errorReplyDcs_;
+    }
   }
 
   // Determine decision of DCS partition combination and return
@@ -301,7 +326,7 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
     for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
          partitionNumber != dcsPartitions_.end();
          ++partitionNumber) {
-      if (acceptDcsPartition(dcsStatus, *partitionNumber))
+      if (acceptDcsPartition(dcsStatus, dcsRecord, useDCSRecord, *partitionNumber))
         return true;
     }
     return false;
@@ -309,40 +334,90 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
   for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
        partitionNumber != dcsPartitions_.end();
        ++partitionNumber) {
-    if (!acceptDcsPartition(dcsStatus, *partitionNumber))
+    if (!acceptDcsPartition(dcsStatus, dcsRecord, useDCSRecord, *partitionNumber))
       return false;
   }
   return true;
 }
 
 bool GenericTriggerEventFlag::acceptDcsPartition(const edm::Handle<DcsStatusCollection>& dcsStatus,
+                                                 const edm::Handle<DCSRecord>& dcsRecord,
+                                                 bool useDCSRecord,
                                                  int dcsPartition) const {
+  int theDCSRecordPartition;
   // Error checks
   switch (dcsPartition) {
     case DcsStatus::EBp:
+      theDCSRecordPartition = DCSRecord::EBp;
+      break;
     case DcsStatus::EBm:
+      theDCSRecordPartition = DCSRecord::EBm;
+      break;
     case DcsStatus::EEp:
+      theDCSRecordPartition = DCSRecord::EEp;
+      break;
     case DcsStatus::EEm:
+      theDCSRecordPartition = DCSRecord::EBm;
+      break;
     case DcsStatus::HBHEa:
+      theDCSRecordPartition = DCSRecord::HBHEa;
+      break;
     case DcsStatus::HBHEb:
+      theDCSRecordPartition = DCSRecord::HBHEb;
+      break;
     case DcsStatus::HBHEc:
+      theDCSRecordPartition = DCSRecord::HBHEc;
+      break;
     case DcsStatus::HF:
+      theDCSRecordPartition = DCSRecord::HF;
+      break;
     case DcsStatus::HO:
+      theDCSRecordPartition = DCSRecord::HO;
+      break;
     case DcsStatus::RPC:
+      theDCSRecordPartition = DCSRecord::RPC;
+      break;
     case DcsStatus::DT0:
+      theDCSRecordPartition = DCSRecord::DT0;
+      break;
     case DcsStatus::DTp:
+      theDCSRecordPartition = DCSRecord::DTp;
+      break;
     case DcsStatus::DTm:
+      theDCSRecordPartition = DCSRecord::DTm;
+      break;
     case DcsStatus::CSCp:
+      theDCSRecordPartition = DCSRecord::CSCp;
+      break;
     case DcsStatus::CSCm:
+      theDCSRecordPartition = DCSRecord::CSCm;
+      break;
     case DcsStatus::CASTOR:
+      theDCSRecordPartition = DCSRecord::CASTOR;
+      break;
     case DcsStatus::TIBTID:
+      theDCSRecordPartition = DCSRecord::TIBTID;
+      break;
     case DcsStatus::TOB:
+      theDCSRecordPartition = DCSRecord::TOB;
+      break;
     case DcsStatus::TECp:
+      theDCSRecordPartition = DCSRecord::TECp;
+      break;
     case DcsStatus::TECm:
+      theDCSRecordPartition = DCSRecord::TECm;
+      break;
     case DcsStatus::BPIX:
+      theDCSRecordPartition = DCSRecord::BPIX;
+      break;
     case DcsStatus::FPIX:
+      theDCSRecordPartition = DCSRecord::FPIX;
+      break;
     case DcsStatus::ESp:
+      theDCSRecordPartition = DCSRecord::ESp;
+      break;
     case DcsStatus::ESm:
+      theDCSRecordPartition = DCSRecord::ESm;
       break;
     default:
       if (verbose_ > 1)
@@ -352,7 +427,17 @@ bool GenericTriggerEventFlag::acceptDcsPartition(const edm::Handle<DcsStatusColl
   }
 
   // Determine decision
-  return dcsStatus->at(0).ready(dcsPartition);
+  if (!useDCSRecord) {
+    return dcsStatus->at(0).ready(dcsPartition);
+  } else {
+    if (verbose_ > 2) {
+      LogDebug("GenericTriggerEventFlag")
+          << "using dcs record, dcsPartition:" << dcsPartition << " " << theDCSRecordPartition << " "
+          << (*dcsRecord).partitionName(theDCSRecordPartition) << " "
+          << (*dcsRecord).highVoltageReady(theDCSRecordPartition) << std::endl;
+    }
+    return (*dcsRecord).highVoltageReady(theDCSRecordPartition);
+  }
 }
 
 /// Does this event fulfill the configured GT status logical expression combination?
@@ -717,7 +802,7 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
           << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
     return std::vector<std::string>(1, configError_);
   }
-  AlCaRecoTriggerBits const& alCaRecoTriggerBits = setup.get<AlCaRecoTriggerBitsRcd>().get(alCaRecoTriggerBitsToken_);
+  auto const& alCaRecoTriggerBits = setup.getData(alCaRecoTriggerBitsToken_);
   const std::map<std::string, std::string>& expressionMap = alCaRecoTriggerBits.m_alcarecoToTrig;
   std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {
@@ -769,4 +854,28 @@ bool GenericTriggerEventFlag::allHLTPathsAreValid() const {
   }
 
   return true;
+}
+
+void GenericTriggerEventFlag::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("ReadPrescalesFromFile", false);
+  desc.add<bool>("andOr", false);
+  desc.add<bool>("andOrDcs", false);
+  desc.add<bool>("andOrHlt", false);
+  desc.add<bool>("andOrL1", false);
+  desc.add<bool>("errorReplyDcs", false);
+  desc.add<bool>("errorReplyHlt", false);
+  desc.add<bool>("errorReplyL1", false);
+  desc.add<bool>("l1BeforeMask", false);
+  desc.add<bool>("stage2", false);
+  desc.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
+  desc.add<edm::InputTag>("dcsRecordInputTag", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<std::string>("dbLabel", "");
+  desc.add<std::string>("hltDBKey", "");
+  desc.add<std::vector<int>>("dcsPartitions", {});
+  desc.add<std::vector<std::string>>("hltPaths", {});
+  desc.add<std::vector<std::string>>("l1Algorithms", {});
+  desc.add<unsigned int>("verbosityLevel", 0);
 }

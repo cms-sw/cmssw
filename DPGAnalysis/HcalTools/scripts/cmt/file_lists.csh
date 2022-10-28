@@ -18,11 +18,15 @@ echo ${i}
 ##
 #dasgoclient --query="file dataset=/HcalNZS/Commissioning2017-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 
-#dasgoclient --query="file dataset=/Cosmics/Run2017C-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+#dasgoclient --query="file dataset=/Cosmics/Commissioning2021-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+#dasgoclient --query="file dataset= /MinimumBias/Commissioning2021-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+dasgoclient --query="file dataset= /HcalNZS/Commissioning2021-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
 #dasgoclient --query="file dataset=/ZeroBias/Run2018A-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 #dasgoclient --query="file dataset=/ZeroBias/Run2018B-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 #dasgoclient --query="file dataset=/ZeroBias/Run2018C-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
-dasgoclient --query="file dataset=/ZeroBias/Run2018D-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+#dasgoclient --query="file dataset=/ZeroBias/Run2018D-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
 # this dataset only! for ions:
 #dasgoclient --query="file dataset=/HIHcalNZS/HIRun2018A-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 # games with dedicated abort gap dataset  :

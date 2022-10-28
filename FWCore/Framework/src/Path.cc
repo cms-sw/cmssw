@@ -1,11 +1,11 @@
 
-#include "FWCore/Framework/src/Path.h"
+#include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -247,7 +247,7 @@ namespace edm {
                             ServiceToken const& iToken,
                             StreamID const& iID,
                             StreamContext const* iContext,
-                            tbb::task_group& iGroup) {
+                            oneapi::tbb::task_group& iGroup) {
     EventPrincipal const& iEP = iInfo.principal();
     ServiceRegistry::Operate guard(iToken);
 
@@ -262,6 +262,10 @@ namespace edm {
         std::rethrow_exception(*iException);
       } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
+      } catch (std::exception const& oldEx) {
+        pEx = std::make_unique<edm::Exception>(errors::StdException);
+      } catch (...) {
+        pEx = std::make_unique<edm::Exception>(errors::Unknown);
       }
       // Caught exception is propagated via WaitingTaskList
       CMS_SA_ALLOW try {
@@ -322,10 +326,11 @@ namespace edm {
                       EventTransitionInfo const& iInfo,
                       StreamID const& streamID) {
     updateCounters(state_);
-    recordStatus(failedModuleIndex_, state_);
+    auto failedModuleBitPosition = bitPosition(failedModuleIndex_);
+    recordStatus(failedModuleBitPosition, state_);
     // Caught exception is propagated via WaitingTaskList
     CMS_SA_ALLOW try {
-      HLTPathStatus status(state_, failedModuleIndex_);
+      HLTPathStatus status(state_, failedModuleBitPosition);
 
       if (pathStatusInserter_) {  // pathStatusInserter is null for EndPaths
         pathStatusInserter_->setPathStatus(streamID, status);
@@ -350,7 +355,7 @@ namespace edm {
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
                                 StreamContext const* iContext,
-                                tbb::task_group& iGroup) {
+                                oneapi::tbb::task_group& iGroup) {
     //Figure out which next modules can run concurrently
     const int firstModuleIndex = iNextModuleIndex;
     int lastModuleIndex = firstModuleIndex;

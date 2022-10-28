@@ -9,8 +9,8 @@
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -45,6 +45,7 @@ Pythia6Gun::Pythia6Gun(const ParameterSet& pset)
     throw edm::Exception(edm::errors::Configuration, "PythiaError") << " pythia did not accept MSTU(12)=12345";
   }
 
+  usesResource(edm::SharedResourceNames::kPythia6);
   produces<HepMCProduct>("unsmeared");
 }
 
@@ -83,6 +84,7 @@ void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup co
   call_pyinit("NONE", "", "", 0.0);
 }
 
+void Pythia6Gun::endLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {}
 void Pythia6Gun::endRun(Run const&, EventSetup const& es) {
   // here put in GenRunInfoProduct
 

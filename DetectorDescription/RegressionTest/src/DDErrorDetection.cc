@@ -18,10 +18,10 @@
 #include "DataFormats/Math/interface/GraphWalker.h"
 #include "DetectorDescription/RegressionTest/src/DDCheck.h"
 //**** to get rid of compile errors about ambiguous delete of Stores
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 using namespace std;
 

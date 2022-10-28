@@ -1,6 +1,6 @@
 from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
-import os, sys, json, six
+import os, sys, json
 
 # module/model correspondence
 models = {
@@ -29,6 +29,7 @@ options.register("models","gat_test", VarParsing.multiplicity.list, VarParsing.v
 options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string, "mode for client (choices: {})".format(', '.join(allowed_modes)))
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output")
 options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "briefer output for graph modules")
+options.register("fallbackName", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "name for fallback server")
 options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "unit test mode: reduce input sizes")
 options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "also test gRPC communication if shared memory enabled, or vice versa")
 options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable shared memory")
@@ -83,6 +84,8 @@ process.source = cms.Source("EmptySource")
 process.TritonService.verbose = options.verbose
 process.TritonService.fallback.verbose = options.verbose
 process.TritonService.fallback.useDocker = options.docker
+if len(options.fallbackName)>0:
+    process.TritonService.fallback.instanceBaseName = options.fallbackName
 if options.device != "auto":
     process.TritonService.fallback.useGPU = options.device=="gpu"
 if len(options.address)>0:
@@ -108,9 +111,10 @@ modules = {
 }
 
 keepMsgs = ['TritonClient','TritonService']
+
 for im,module in enumerate(options.modules):
     model = options.models[im]
-    Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
+    Module = [obj for name,obj in modules.items() if name in module][0]
     setattr(process, module,
         Module(module,
             Client = cms.PSet(
@@ -157,6 +161,7 @@ for im,module in enumerate(options.modules):
         )
         processModule2 = getattr(process, _module2)
         process.p += processModule2
+        keepMsgs.extend([_module2,_module2+':TritonClient'])
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500

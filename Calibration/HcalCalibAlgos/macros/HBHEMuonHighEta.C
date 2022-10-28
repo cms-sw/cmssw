@@ -9,7 +9,7 @@
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); (default: 0)
+//                           5 (Run 4; post LS3); (default: 3)
 //   debug      bool         Debug flag (default: false)
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 
 class HBHEMuonHighEta {
 public:
-  HBHEMuonHighEta(const char *infile, const char *outfile, const int mode = 0, const bool debug = false);
+  HBHEMuonHighEta(const char *infile, const char *outfile, const int mode = 3, const bool debug = false);
   virtual ~HBHEMuonHighEta();
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
@@ -50,8 +50,8 @@ private:
   TTree *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t fCurrent;  //!current Tree number in a TChain
 
-  static const int maxDepthHB_ = 7;
-  static const int maxDepthHE_ = 4;
+  static const int maxDepthHB_ = 4;
+  static const int maxDepthHE_ = 7;
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
   // Declaration of leaf types

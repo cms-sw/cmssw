@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -62,6 +63,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
   //   // debug
   //   std::map<std::string, TH1F*> histos_;
 };
@@ -75,7 +78,9 @@ TwoBodyDecayConstraintProducer::TwoBodyDecayConstraintProducer(const edm::Parame
       secondaryMass_(iConfig.getParameter<double>("secondaryMass")),
       sigmaPositionCutValue_(iConfig.getParameter<double>("sigmaPositionCut")),
       chi2CutValue_(iConfig.getParameter<double>("chi2Cut")),
-      errorRescaleValue_(iConfig.getParameter<double>("rescaleError")) {
+      errorRescaleValue_(iConfig.getParameter<double>("rescaleError")),
+      magFieldToken_(esConsumes()),
+      trackingGeometryToken_(esConsumes()) {
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
@@ -101,8 +106,9 @@ void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid,
   Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
 
-  ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  auto const* magField = &iSetup.getData(magFieldToken_);
+
+  auto trackingGeometry = iSetup.getHandle(trackingGeometryToken_);
 
   edm::RefProd<std::vector<TrackParamConstraint> > rPairs =
       iEvent.getRefBeforePut<std::vector<TrackParamConstraint> >();
@@ -116,10 +122,10 @@ void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid,
 
     /// Get transient tracks from track collection
     std::vector<reco::TransientTrack> ttracks(2);
-    ttracks[0] = reco::TransientTrack(reco::TrackRef(trackColl, 0), magField.product());
-    ttracks[0].setES(iSetup);
-    ttracks[1] = reco::TransientTrack(reco::TrackRef(trackColl, 1), magField.product());
-    ttracks[1].setES(iSetup);
+    ttracks[0] = reco::TransientTrack(reco::TrackRef(trackColl, 0), magField);
+    ttracks[0].setTrackingGeometry(trackingGeometry);
+    ttracks[1] = reco::TransientTrack(reco::TrackRef(trackColl, 1), magField);
+    ttracks[1].setTrackingGeometry(trackingGeometry);
 
     /// Fit the TBD
     TwoBodyDecay tbd = tbdFitter_.estimate(ttracks, vm);
@@ -135,7 +141,7 @@ void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid,
 
     /// Construct the TBD trajectory states
     TwoBodyDecayTrajectoryState::TsosContainer trackTsos(oldInnermostState1.second, oldInnermostState2.second);
-    TwoBodyDecayTrajectoryState tbdTrajState(trackTsos, tbd, secondaryMass_, magField.product(), true);
+    TwoBodyDecayTrajectoryState tbdTrajState(trackTsos, tbd, secondaryMass_, magField, true);
     if (!tbdTrajState.isValid())
       return;
 

@@ -19,7 +19,8 @@ public:
              const int outerClusterId,
              const int doubletId,
              const std::vector<reco::CaloCluster> *layerClusters,
-             const int seedIndex)
+             const int seedIndex,
+             bool areSiblingClusters = false)
       : layerClusters_(layerClusters),
         theDoubletId_(doubletId),
         innerClusterId_(innerClusterId),
@@ -33,7 +34,8 @@ public:
         innerZ_((*layerClusters)[innerClusterId].z()),
         outerZ_((*layerClusters)[outerClusterId].z()),
         seedIndex_(seedIndex),
-        alreadyVisited_(false) {}
+        alreadyVisited_(false),
+        areSiblingClusters_(areSiblingClusters) {}
 
   double innerX() const { return innerX_; }
 
@@ -49,13 +51,15 @@ public:
 
   double innerR() const { return innerR_; }
 
-  double outerR() const { return outerZ_; }
+  double outerR() const { return outerR_; }
 
   int seedIndex() const { return seedIndex_; }
 
   int innerClusterId() const { return innerClusterId_; }
 
   int outerClusterId() const { return outerClusterId_; }
+
+  bool areSiblingClusters() const { return areSiblingClusters_; }
 
   void tagAsOuterNeighbor(unsigned int otherDoublet) { outerNeighbors_.push_back(otherDoublet); }
 
@@ -108,6 +112,7 @@ private:
   const double outerZ_;
   int seedIndex_;
   bool alreadyVisited_;
+  bool areSiblingClusters_;
 };
 
 #endif /*HGCDoublet_H_ */

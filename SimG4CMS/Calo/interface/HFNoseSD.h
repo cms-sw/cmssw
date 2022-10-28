@@ -20,7 +20,7 @@ class G4Step;
 class HFNoseSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HFNoseSD(const std::string &,
-           const edm::EventSetup &,
+           const HGCalDDDConstants *,
            const SensitiveDetectorCatalog &,
            edm::ParameterSet const &,
            const SimTrackManager *);

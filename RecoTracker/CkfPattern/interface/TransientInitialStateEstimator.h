@@ -1,6 +1,7 @@
 #ifndef TransientInitialStateEstimator_H
 #define TransientInitialStateEstimator_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -24,14 +25,14 @@ class TransientInitialStateEstimator {
 public:
   typedef TrajectoryStateOnSurface TSOS;
 
-  TransientInitialStateEstimator(const edm::ParameterSet& conf);
+  TransientInitialStateEstimator(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   void setEventSetup(const edm::EventSetup& es, const TkClonerImpl& hc);
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*> innerState(const Trajectory& traj, bool doBackFit = true) const;
 
 private:
-  const std::string thePropagatorAlongName;
-  const std::string thePropagatorOppositeName;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorAlongToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorOppositeToken;
   const Propagator* thePropagatorAlong;
   const Propagator* thePropagatorOpposite;  // not used? can we remove it?
   TkClonerImpl theHitCloner;

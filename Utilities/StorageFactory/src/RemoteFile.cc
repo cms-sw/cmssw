@@ -14,6 +14,8 @@
 #define environ (*_NSGetEnviron())
 #endif
 
+using namespace edm::storage;
+
 static std::string join(char **cmd) {
   size_t size = 0;
   for (char **p = cmd; p && p[0]; ++p)

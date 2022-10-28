@@ -41,8 +41,8 @@ namespace jsoncollector {
     /**
    * Returns a LegendItem object ref at the specified index
    */
-    std::vector<std::string> const& getNames() { return varNames_; }
-    std::vector<std::string> const& getOperations() { return opNames_; }
+    std::vector<std::string> const& getNames() const { return varNames_; }
+    std::vector<std::string> const& getOperations() const { return opNames_; }
 
     /**
    * Loads a DataPointDefinition from a specified reference
@@ -55,9 +55,10 @@ namespace jsoncollector {
 
     void addLegendItem(std::string const& name, std::string const& type, std::string const& operation);
 
-    OperationType getOperationFor(unsigned int index);
+    OperationType getOperationFor(unsigned int index) const;
 
     std::string& getDefFilePath() { return defFilePath_; }
+    std::string const& getDefFilePath() const { return defFilePath_; }
     //void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
 
     //known JSON operation names

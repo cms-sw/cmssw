@@ -34,31 +34,34 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<string> names = args.vecStr("RingName");        // Names of layers
 
   string parentName = args.parentName();
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Parent " << parentName << " NameSpace " << ns.name();
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Disk Half width " << diskDz << "\tRMax " << rMax
-                      << "\tCable Thickness " << cableT << "\tRadii of disk position and cable materials:";
+  edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: Parent " << parentName << " NameSpace " << ns.name();
+  edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: Disk Half width " << diskDz << "\tRMax " << rMax
+                              << "\tCable Thickness " << cableT << "\tRadii of disk position and cable materials:";
   for (int i = 0; i < (int)(rodRin.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i << "]\tRin = " << rodRin[i] << "\tRout = " << rodRout[i] << "  " << cableM[i];
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Connector Width = " << connW << "\tThickness = " << connT
-                      << "\tMaterials: ";
+    edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tRin = " << rodRin[i] << "\tRout = " << rodRout[i] << "  "
+                                << cableM[i];
+  edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: Connector Width = " << connW << "\tThickness = " << connT
+                              << "\tMaterials: ";
   for (int i = 0; i < (int)(connM.size()); i++)
-    LogDebug("TOBGeom") << "\tconnM[" << i << "] = " << connM[i];
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Cool Manifold Torus Rin = " << coolRin << " Rout = " << coolRout1
-                      << "\t Phi start = " << coolStartPhi1 << " Phi Range = " << coolDeltaPhi1
-                      << "\t Material = " << coolM1 << "\t Radial positions:";
+    edm::LogVerbatim("TOBGeom") << "\tconnM[" << i << "] = " << connM[i];
+  edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: Cool Manifold Torus Rin = " << coolRin
+                              << " Rout = " << coolRout1 << "\t Phi start = " << coolStartPhi1
+                              << " Phi Range = " << coolDeltaPhi1 << "\t Material = " << coolM1
+                              << "\t Radial positions:";
   for (int i = 0; i < (int)(coolR1.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i << "]\tR = " << coolR1[i];
+    edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tR = " << coolR1[i];
   for (int i = 0; i < (int)(coolR2.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i << "]\tR = " << coolR2[i];
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Cooling Fluid Torus Rin = " << coolRin << " Rout = " << coolRout2
-                      << "\t Phi start = " << coolStartPhi2 << " Phi Range = " << coolDeltaPhi2
-                      << "\t Material = " << coolM2 << "\t Radial positions:";
+    edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tR = " << coolR2[i];
+  edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: Cooling Fluid Torus Rin = " << coolRin
+                              << " Rout = " << coolRout2 << "\t Phi start = " << coolStartPhi2
+                              << " Phi Range = " << coolDeltaPhi2 << "\t Material = " << coolM2
+                              << "\t Radial positions:";
   for (int i = 0; i < (int)(coolR1.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i << "]\tR = " << coolR1[i];
+    edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tR = " << coolR1[i];
   for (int i = 0; i < (int)(coolR2.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i << "]\tR = " << coolR2[i];
+    edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tR = " << coolR2[i];
   for (int i = 0; i < (int)(names.size()); i++)
-    LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: names[" << i << "] = " << names[i];
+    edm::LogVerbatim("TOBGeom") << "DDTOBRadCableAlgo debug: names[" << i << "] = " << names[i];
 
   Volume disk = ns.volume(parentName);
   // Loop over sub disks
@@ -70,63 +73,67 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // Cooling Manifolds
     name = "TOBCoolingManifold" + names[i] + "a";
     dz = coolRout1;
-    solid = ns.addSolid(name, Torus(coolR1[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
-    LogDebug("TOBGeom") << name << " Torus made of " << coolM1 << " from " << convertRadToDeg(coolStartPhi1) << " to "
-                        << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin << " Rout "
-                        << coolRout1 << " R torus " << coolR1[i];
-    Volume coolManifoldLogic_a = ns.addVolume(Volume(name, solid, ns.material(coolM1)));
+    solid = ns.addSolid(ns.prepend(name), Torus(coolR1[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Torus made of " << coolM1 << " from "
+                                << convertRadToDeg(coolStartPhi1) << " to "
+                                << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin
+                                << " Rout " << coolRout1 << " R torus " << coolR1[i];
+    Volume coolManifoldLogic_a = ns.addVolume(Volume(solid.name(), solid, ns.material(coolM1)));
     Position r1(0, 0, (dz - diskDz));
     disk.placeVolume(coolManifoldLogic_a, i + 1, r1);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << disk.name() << " at " << r1
-                        << " with no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << disk.name() << " at "
+                                << r1 << " with no rotation";
 
     // Cooling Fluid (in Cooling Manifold)
     name = "TOBCoolingManifoldFluid" + names[i] + "a";
-    solid = ns.addSolid(name, Torus(coolR1[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
-    LogDebug("TOBGeom") << name << " Torus made of " << coolM2 << " from " << convertRadToDeg(coolStartPhi2) << " to "
-                        << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
-                        << coolRout2 << " R torus " << coolR1[i];
-    Volume coolManifoldFluidLogic_a = ns.addVolume(Volume(name, solid, ns.material(coolM2)));
+    solid = ns.addSolid(ns.prepend(name), Torus(coolR1[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Torus made of " << coolM2 << " from "
+                                << convertRadToDeg(coolStartPhi2) << " to "
+                                << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin
+                                << " Rout " << coolRout2 << " R torus " << coolR1[i];
+    Volume coolManifoldFluidLogic_a = ns.addVolume(Volume(solid.name(), solid, ns.material(coolM2)));
     coolManifoldLogic_a.placeVolume(coolManifoldFluidLogic_a, i + 1);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << coolM2
-                        << " with no translation and no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << coolM2
+                                << " with no translation and no rotation";
 
     name = "TOBCoolingManifold" + names[i] + "r";
     dz = coolRout1;
-    solid = ns.addSolid(name, Torus(coolR2[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
-    LogDebug("TOBGeom") << name << " Torus made of " << coolM1 << " from " << convertRadToDeg(coolStartPhi1) << " to "
-                        << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin << " Rout "
-                        << coolRout1 << " R torus " << coolR2[i];
-    Volume coolManifoldLogic_r = ns.addVolume(Volume(name, solid, ns.material(coolM1)));
+    solid = ns.addSolid(ns.prepend(name), Torus(coolR2[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Torus made of " << coolM1 << " from "
+                                << convertRadToDeg(coolStartPhi1) << " to "
+                                << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin
+                                << " Rout " << coolRout1 << " R torus " << coolR2[i];
+    Volume coolManifoldLogic_r = ns.addVolume(Volume(solid.name(), solid, ns.material(coolM1)));
     r1 = Position(0, 0, (dz - diskDz));
     disk.placeVolume(coolManifoldLogic_r, i + 1, r1);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << disk.name() << " at " << r1
-                        << " with no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << disk.name() << " at "
+                                << r1 << " with no rotation";
 
     // Cooling Fluid (in Cooling Manifold)
     name = "TOBCoolingManifoldFluid" + names[i] + "r";
-    solid = ns.addSolid(name, Torus(coolR2[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
-    LogDebug("TOBGeom") << name << " Torus made of " << coolM2 << " from " << convertRadToDeg(coolStartPhi2) << " to "
-                        << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
-                        << coolRout2 << " R torus " << coolR2[i];
-    Volume coolManifoldFluidLogic_r = ns.addVolume(Volume(name, solid, ns.material(coolM2)));
+    solid = ns.addSolid(ns.prepend(name), Torus(coolR2[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Torus made of " << coolM2 << " from "
+                                << convertRadToDeg(coolStartPhi2) << " to "
+                                << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin
+                                << " Rout " << coolRout2 << " R torus " << coolR2[i];
+    Volume coolManifoldFluidLogic_r = ns.addVolume(Volume(solid.name(), solid, ns.material(coolM2)));
     coolManifoldLogic_r.placeVolume(coolManifoldFluidLogic_r, i + 1);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << coolM2
-                        << " with no translation and no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << coolM2
+                                << " with no translation and no rotation";
 
     // Connectors
     name = "TOBConn" + names[i];
     dz = 0.5 * connT;
     rin = 0.5 * (rodRin[i] + rodRout[i]) - 0.5 * connW;
     rout = 0.5 * (rodRin[i] + rodRout[i]) + 0.5 * connW;
-    solid = ns.addSolid(name, Tube(rin, rout, dz));
-    LogDebug("TOBGeom") << name << " Tubs made of " << connM[i] << " from 0 to " << convertRadToDeg(2_pi)
-                        << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz;
-    Volume connLogic = ns.addVolume(Volume(name, solid, ns.material(connM[i])));
+    solid = ns.addSolid(ns.prepend(name), Tube(rin, rout, dz));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Tubs made of " << connM[i] << " from 0 to "
+                                << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz;
+    Volume connLogic = ns.addVolume(Volume(solid.name(), solid, ns.material(connM[i])));
     Position r2(0, 0, (dz - diskDz));
     disk.placeVolume(connLogic, i + 1, r2);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << disk.name() << " at " << r2
-                        << " with no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << disk.name() << " at "
+                                << r2 << " with no rotation";
 
     // Now the radial cable
     name = "TOBRadServices" + names[i];
@@ -144,19 +151,19 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     pgonRmax.emplace_back(rout);
     pgonRmax.emplace_back(rout);
     pgonRmax.emplace_back(rout);
-    solid = ns.addSolid(name, Polycone(0, 2_pi, pgonRmin, pgonRmax, pgonZ));
-    LogDebug("TOBGeom") << name << " Polycone made of " << cableM[i] << " from 0 to " << convertRadToDeg(2_pi)
-                        << " and with " << pgonZ.size() << " sections";
+    solid = ns.addSolid(ns.prepend(name), Polycone(0, 2_pi, pgonRmin, pgonRmax, pgonZ));
+    edm::LogVerbatim("TOBGeom") << solid.name() << " Polycone made of " << cableM[i] << " from 0 to "
+                                << convertRadToDeg(2_pi) << " and with " << pgonZ.size() << " sections";
     for (int ii = 0; ii < (int)(pgonZ.size()); ii++)
-      LogDebug("TOBGeom") << "\t[" << ii << "]\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
-                          << "\tRmax = " << pgonRmax[ii];
-    Volume cableLogic = ns.addVolume(Volume(name, solid, ns.material(cableM[i])));
+      edm::LogVerbatim("TOBGeom") << "\t[" << ii << "]\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                  << "\tRmax = " << pgonRmax[ii];
+    Volume cableLogic = ns.addVolume(Volume(solid.name(), solid, ns.material(cableM[i])));
     Position r3(0, 0, (diskDz - (i + 0.5) * cableT));
     disk.placeVolume(cableLogic, i + 1, r3);  // i+1
-    LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << disk.name() << " at " << r3
-                        << " with no rotation";
+    edm::LogVerbatim("TOBGeom") << solid.name() << " number " << i + 1 << " positioned in " << disk.name() << " at "
+                                << r3 << " with no rotation";
   }
-  LogDebug("TOBGeom") << "<<== End of DDTOBRadCableAlgo construction ...";
+  edm::LogVerbatim("TOBGeom") << "<<== End of DDTOBRadCableAlgo construction ...";
   return 1;
 }
 

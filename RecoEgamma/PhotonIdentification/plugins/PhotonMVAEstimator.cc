@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
+#include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Factory.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "CommonTools/Egamma/interface/EffectiveAreas.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"

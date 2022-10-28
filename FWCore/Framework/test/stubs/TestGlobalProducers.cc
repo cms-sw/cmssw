@@ -793,7 +793,7 @@ namespace edmtest {
     public:
       explicit TestAccumulator(edm::ParameterSet const& p)
           : m_expectedCount(p.getParameter<unsigned int>("expectedCount")),
-            m_putToken(produces<unsigned int, edm::Transition::EndLuminosityBlock>()) {}
+            m_putToken(produces<edm::Transition::EndLuminosityBlock>()) {}
 
       void accumulate(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override { ++m_count; }
 
@@ -947,7 +947,6 @@ namespace edmtest {
       std::vector<int> expectedByRun_;
       int expectedSum_{0};
     };
-
   }  // namespace global
 }  // namespace edmtest
 

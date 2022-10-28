@@ -78,7 +78,7 @@ void DTCCablingMapTestProducer::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(pCablingMap_.release(), iovBeginTime_, recordName_);
+    poolDbService->writeOneIOV(*pCablingMap_, iovBeginTime_, recordName_);
   else
     throw std::runtime_error("PoolDBService required.");
 }

@@ -4,7 +4,6 @@
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,7 +17,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
 // Switch on to enable checks and printout for found tracks
-#undef PIXEL_DEBUG_PRODUCE
+// #define PIXEL_DEBUG_PRODUCE
 
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -61,10 +60,19 @@ void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
 }
 
 void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-#ifdef PIXEL_DEBUG_PRODUCE
+  // check that the fixed-size SoA does not overflow
   auto const& tsoa = *soa_;
   auto maxTracks = tsoa.stride();
-  std::cout << "size of SoA" << sizeof(tsoa) << " stride " << maxTracks << std::endl;
+  auto nTracks = tsoa.nTracks();
+  assert(nTracks < maxTracks);
+  if (nTracks == maxTracks - 1) {
+    edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
+                                   << " candidates";
+  }
+
+#ifdef PIXEL_DEBUG_PRODUCE
+  std::cout << "size of SoA " << sizeof(tsoa) << " stride " << maxTracks << std::endl;
+  std::cout << "found " << nTracks << " tracks in cpu SoA at " << &tsoa << std::endl;
 
   int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
@@ -74,11 +82,11 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
       break;  // this is a guard: maybe we need to move to nTracks...
     nt++;
   }
-  std::cout << "found " << nt << " tracks in cpu SoA at " << &tsoa << std::endl;
+  assert(nTracks == nt);
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
+  iEvent.emplace(tokenSOA_, std::move(soa_));
 
   assert(!soa_);
 }

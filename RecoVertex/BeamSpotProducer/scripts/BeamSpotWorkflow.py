@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #  BeamSpotWorkflow
@@ -35,7 +35,7 @@ from __future__ import print_function
 
 from builtins import range
 import sys,os
-import commands, re, time
+import subprocess, re, time
 import datetime
 import configparser as ConfigParser
 import xmlrpclib
@@ -58,7 +58,7 @@ except:
 def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
     #return 582088327592295
     listIOVCommand = "cmscond_list_iov -c " + destDB + " -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
-    dbError = commands.getstatusoutput( listIOVCommand )
+    dbError = subprocess.getstatusoutput( listIOVCommand )
     if dbError[0] != 0 :
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist") != -1:
             print("Creating a new tag because I got the following error contacting the DB")
@@ -70,7 +70,7 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
 
 
     aCommand = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
 
     #WARNING when we pass to lumi IOV this should be long long
     if output[1] == '':
@@ -85,14 +85,14 @@ def getListOfFilesToProcess(dataSet,lastRun=-1):
         queryCommand = queryCommand + " and run > " + str(lastRun)
     queryCommand = queryCommand + "\" | grep .root"    
 #    print " >> " + queryCommand
-    output = commands.getstatusoutput( queryCommand )
+    output = subprocess.getstatusoutput( queryCommand )
     return output[1].split('\n')
 
 ########################################################################
 def getNumberOfFilesToProcessForRun(dataSet,run):
     queryCommand = "dbs --search --query \"find file where dataset=" + dataSet + " and run = " + str(run) + "\" | grep .root"
     #print " >> " + queryCommand
-    output = commands.getstatusoutput( queryCommand )
+    output = subprocess.getstatusoutput( queryCommand )
     if output[0] != 0:
         return 0
     else:
@@ -110,7 +110,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
         print(" >> " + queryCommand)
         output = []
         for i in range(0,3):
-            output = commands.getstatusoutput( queryCommand )
+            output = subprocess.getstatusoutput( queryCommand )
             if output[0] == 0 and not (output[1].find("ERROR") != -1 or output[1].find("Error") != -1) :
                 break
         if output[0] != 0:
@@ -654,7 +654,7 @@ def main():
         if len(copiedFiles) == len(selectedFilesToProcess):
             break;
         else:
-            commands.getstatusoutput("rm -rf " + workingDir)
+            subprocess.getstatusoutput("rm -rf " + workingDir)
     if len(copiedFiles) != len(selectedFilesToProcess):
         error = "ERROR: I can't copy more than " + str(len(copiedFiles)) + " files out of " + str(len(selectedFilesToProcess)) + " from " + archiveDir + " to " + workingDir 
         sendEmail(mailList,error)
@@ -693,7 +693,7 @@ def main():
     iovTillLast   = '0';
 
     #Creating the final name for the combined sqlite file
-    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    uuid = subprocess.getstatusoutput('uuidgen -t')[1]
     final_sqlite_file_name = databaseTag + '@' + uuid
     sqlite_file     = workingDir + final_sqlite_file_name + ".db"
     metadata_file   = workingDir + final_sqlite_file_name + ".txt"
@@ -774,9 +774,9 @@ def main():
     archive_results_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + databaseTag + ".txt"
     if not os.path.isdir(archiveDir + 'payloads'):
         os.mkdir(archiveDir + 'payloads')
-    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.db')
-    commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
-    commands.getstatusoutput('cp ' + workingDir + payloadFileName + ' ' + archiveDir + 'payloads/' + archive_results_file_name)
+    subprocess.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.db')
+    subprocess.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
+    subprocess.getstatusoutput('cp ' + workingDir + payloadFileName + ' ' + archiveDir + 'payloads/' + archive_results_file_name)
 
     print(archiveDir + "payloads/" + archive_sqlite_file_name + '.db')
     print(archiveDir + "payloads/" + archive_sqlite_file_name + '.txt')

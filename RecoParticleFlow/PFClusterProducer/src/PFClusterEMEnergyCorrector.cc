@@ -278,9 +278,9 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
   edm::Handle<EESrFlagCollection> eeSrFlags;
   evt.getByToken(ebSrFlagToken_, ebSrFlags);
   evt.getByToken(eeSrFlagToken_, eeSrFlags);
-  if (!ebSrFlags.isValid() || !eeSrFlags.isValid())
-    throw cms::Exception("PFClusterEMEnergyCorrector")
-        << "This version of PFCluster corrections requires the SrFlagCollection information to proceed!\n";
+  if (not ebSrFlags.isValid() or not eeSrFlags.isValid())
+    edm::LogInfo("PFClusterEMEnergyCorrector") << "SrFlagCollection information is not available. The ECAL PFCluster "
+                                                  "corrections will assume \"full readout\" for all hits.";
 
   const unsigned int ncor = forestMeanTokens_25ns_.size();
   std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
@@ -330,24 +330,25 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     int ietamod20 = (std::abs(ietaix) < 26) ? ietaix - signeta : (ietaix - 26 * signeta) % 20;
     int iphimod20 = (iphiiy - 1) % 20;
 
-    int clusFlag = 0;
+    // Assume that hits for which no information is avaiable have a Full Readout (binary 0011)
+    int clusFlag = 3;
     if (iseb) {
-      auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EBDetId>(cluster.seed()));
-      EBSrFlagCollection::const_iterator srf = ebSrFlags->find(ecalUnit);
-      if (srf != ebSrFlags->end())
-        clusFlag = srf->value();
-      else
-        clusFlag = 3;
+      if (ebSrFlags.isValid()) {
+        auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EBDetId>(cluster.seed()));
+        EBSrFlagCollection::const_iterator srf = ebSrFlags->find(ecalUnit);
+        if (srf != ebSrFlags->end())
+          clusFlag = srf->value();
+      }
     } else {
-      auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EEDetId>(cluster.seed()));
-      EESrFlagCollection::const_iterator srf = eeSrFlags->find(ecalUnit);
-      if (srf != eeSrFlags->end())
-        clusFlag = srf->value();
-      else
-        clusFlag = 3;
+      if (eeSrFlags.isValid()) {
+        auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EEDetId>(cluster.seed()));
+        EESrFlagCollection::const_iterator srf = eeSrFlags->find(ecalUnit);
+        if (srf != eeSrFlags->end())
+          clusFlag = srf->value();
+      }
     }
 
-    //find index of corrections (0-3 for EB, 4-7 for EE, depending on cluster size and raw pt)
+    // Find index of corrections (0-3 for EB, 4-7 for EE, depending on cluster size and raw pt)
     int coridx = 0;
     int regind = 0;
     if (!iseb)

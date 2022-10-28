@@ -12,6 +12,7 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DBaseAlgo.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // C++ Headers
 
@@ -19,5 +20,6 @@
 
 // Class DTRecSegment4DAlgoFactory Interface
 
-typedef edmplugin::PluginFactory<DTRecSegment4DBaseAlgo *(const edm::ParameterSet &)> DTRecSegment4DAlgoFactory;
+typedef edmplugin::PluginFactory<DTRecSegment4DBaseAlgo *(const edm::ParameterSet &, edm::ConsumesCollector)>
+    DTRecSegment4DAlgoFactory;
 #endif

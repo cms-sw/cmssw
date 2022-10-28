@@ -35,10 +35,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&) = delete;
   const FWDTSegmentProxyBuilder& operator=(const FWDTSegmentProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<DTRecSegment4D>::buildViewType;
   void buildViewType(const DTRecSegment4D& iData,
                      unsigned int iIndex,

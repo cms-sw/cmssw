@@ -7,7 +7,28 @@
  *
  *  Based on documentation provided by the GEM firmware architects
  *
- *  \author Sven Dildick (TAMU)
+ *  \author Sven Dildick (TAMU), updated by Giovanni Mocellin (UCDavis)
+ *
+ *  *****************************************************
+ *  ** Notes on chambers and cluster packing algorithm **
+ *  *****************************************************
+ *
+ *  Based on: https://gitlab.cern.ch/emu/0xbefe/-/tree/devel/gem/hdl/cluster_finding/README.org
+ *  (Andrew Peck, 2020/06/26)
+ *
+ *  GE1/1 chamber has 8 iEta partitions and 1 OH
+ *  GE2/1 chamber has 16 iEta partitions and 4 OH (one per module)
+ *
+ *  Both GE1/1 and GE2/1 have 384 strips = 192 pads per iEta partition
+ *
+ *  GE1/1 OH has 4 clustering partitions, each covering 2 iEta partitions
+ *  GE2/1 OH has 4 clustering partitions, each covering 1 iEta partition
+ *
+ *  Each clustering partition finds up to 4 clusters per BX, which are
+ *  then sent to the sorter. The sorting of the clusters favors lower
+ *  eta partitions and lower pad numbers.
+ *
+ *  The first 8 clusters are selected and sent out through optical fibers.
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,13 +59,8 @@
 
 class GEMPadDigiClusterProducer : public edm::stream::EDProducer<> {
 public:
-  // all clusters per eta partition
   typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusters;
   typedef std::map<GEMDetId, GEMPadDigiClusters> GEMPadDigiClusterContainer;
-
-  // all clusters sorted by chamber, by opthohybrid and by eta partition
-  typedef std::map<GEMDetId, std::vector<std::vector<std::pair<GEMDetId, GEMPadDigiClusters> > > >
-      GEMPadDigiClusterSortedContainer;
 
   explicit GEMPadDigiClusterProducer(const edm::ParameterSet& ps);
 
@@ -57,48 +73,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  /**
-   *
-   *************************************
-   ** Light Cluster Packing Algorithm **
-   *************************************
-
-   Based on: https://github.com/cms-gem-daq-project/OptoHybridv3/raw/master/doc/OH_modules.docx
-   (Andrew Peck, Thomas Lenzi, Evaldas Juska)
-
-   In the current version of the algorithm, cluster finding is segmented
-   into two separate halves of the GE1/1 chambers. Thus, each one of the
-   trigger fibers can transmit clusters only from the half of the chamber
-   that it corresponds to. For GE2/1, there are four separate quarts of
-   the GE2/1 chamber.
-
-   This has the downside of being unable to transmit more than 4 clusters
-   when they occur within that side of the chamber, so there will be a
-   slightly higher rate of cluster overflow. For GE2/1 each OH can transmit
-   up to 5 clusters.
-
-   The benefit, however, is in terms of (1) latency and (2) resource usage.
-
-   The burden of finding clusters on  of the chamber is significantly less,
-   and allows the cluster packer to operate in a simple, pipelined architecture
-   which returns up to 4 (or 5) clusters per half-chamber per bunch crossing.
-
-   This faster architecture allows the mechanism to operate with only a
-   single copy of the cluster finding priority encoder and cluster truncator
-   (instead of two multiplexed copies), so the total resource usage of
-   these stages is approximately half.
-
-   Further, a second step of cluster merging that is required in the full
-   algorithm is avoided, which reduces latency by an additional bunch
-   crossing and significantly reduces resource usage as well.
-
-   The sorting of the clusters favors lower eta partitions and lower pad numbers
-  */
-
   void buildClusters(const GEMPadDigiCollection& pads, GEMPadDigiClusterContainer& out_clusters) const;
-  void sortClusters(const GEMPadDigiClusterContainer& in_clusters,
-                    GEMPadDigiClusterSortedContainer& out_clusters) const;
-  void selectClusters(const GEMPadDigiClusterSortedContainer& in, GEMPadDigiClusterCollection& out) const;
+  void selectClusters(const GEMPadDigiClusterContainer& in_clusters, GEMPadDigiClusterCollection& out) const;
   template <class T>
   void checkValid(const T& cluster, const GEMDetId& id) const;
 
@@ -107,10 +83,14 @@ private:
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag pads_;
 
-  unsigned int maxClustersOHGE11_;
-  unsigned int maxClustersOHGE21_;
+  unsigned int nPartitionsGE11_;
+  unsigned int nPartitionsGE21_;
+  unsigned int maxClustersPartitionGE11_;
+  unsigned int maxClustersPartitionGE21_;
   unsigned int nOHGE11_;
   unsigned int nOHGE21_;
+  unsigned int maxClustersOHGE11_;
+  unsigned int maxClustersOHGE21_;
   unsigned int maxClusterSize_;
   bool sendOverflowClusters_;
 
@@ -119,10 +99,14 @@ private:
 
 GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   pads_ = ps.getParameter<edm::InputTag>("InputCollection");
-  maxClustersOHGE11_ = ps.getParameter<unsigned int>("maxClustersOHGE11");
-  maxClustersOHGE21_ = ps.getParameter<unsigned int>("maxClustersOHGE21");
+  nPartitionsGE11_ = ps.getParameter<unsigned int>("nPartitionsGE11");
+  nPartitionsGE21_ = ps.getParameter<unsigned int>("nPartitionsGE21");
+  maxClustersPartitionGE11_ = ps.getParameter<unsigned int>("maxClustersPartitionGE11");
+  maxClustersPartitionGE21_ = ps.getParameter<unsigned int>("maxClustersPartitionGE21");
   nOHGE11_ = ps.getParameter<unsigned int>("nOHGE11");
   nOHGE21_ = ps.getParameter<unsigned int>("nOHGE21");
+  maxClustersOHGE11_ = ps.getParameter<unsigned int>("maxClustersOHGE11");
+  maxClustersOHGE21_ = ps.getParameter<unsigned int>("maxClustersOHGE21");
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
   sendOverflowClusters_ = ps.getParameter<bool>("sendOverflowClusters");
 
@@ -143,11 +127,15 @@ GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer() {}
 void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputCollection", edm::InputTag("simMuonGEMPadDigis"));
-  desc.add<unsigned int>("maxClustersOHGE11", 4);
-  desc.add<unsigned int>("maxClustersOHGE21", 5);
-  desc.add<unsigned int>("nOHGE11", 2);
-  desc.add<unsigned int>("nOHGE21", 4);
-  desc.add<unsigned int>("maxClusterSize", 8);
+  desc.add<unsigned int>("nPartitionsGE11", 4);           // Number of clusterizer partitions per OH
+  desc.add<unsigned int>("nPartitionsGE21", 4);           // Number of clusterizer partitions per OH
+  desc.add<unsigned int>("maxClustersPartitionGE11", 4);  // Maximum number of clusters per clusterizer partition
+  desc.add<unsigned int>("maxClustersPartitionGE21", 4);  // Maximum number of clusters per clusterizer partition
+  desc.add<unsigned int>("nOHGE11", 1);                   // Number of OH boards per chamber
+  desc.add<unsigned int>("nOHGE21", 4);                   // Number of OH boards per chamber
+  desc.add<unsigned int>("maxClustersOHGE11", 8);         // Maximum number of clusters per OH
+  desc.add<unsigned int>("maxClustersOHGE21", 8);         // Maximum number of clusters per OH
+  desc.add<unsigned int>("maxClusterSize", 8);            // Maximum cluster size (number of pads)
   desc.add<bool>("sendOverflowClusters", false);
 
   descriptions.add("simMuonGEMPadDigiClustersDef", desc);
@@ -169,12 +157,8 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
   GEMPadDigiClusterContainer proto_clusters;
   buildClusters(*(hpads.product()), proto_clusters);
 
-  // // sort clusters per chamber, per OH, per partition number and per pad number
-  GEMPadDigiClusterSortedContainer sorted_clusters;
-  sortClusters(proto_clusters, sorted_clusters);
-
-  // select the clusters from sorted clusters
-  selectClusters(sorted_clusters, *pClusters);
+  // sort and select clusters per chamber, per OH, per partition number and per pad number
+  selectClusters(proto_clusters, *pClusters);
 
   // store them in the event
   e.put(std::move(pClusters));
@@ -246,67 +230,38 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
   }  // end of partition loop
 }
 
-void GEMPadDigiClusterProducer::sortClusters(const GEMPadDigiClusterContainer& proto_clusters,
-                                             GEMPadDigiClusterSortedContainer& sorted_clusters) const {
-  // The sorting of the clusters favors lower eta partitions and lower pad numbers
-  // By default the eta partitions are sorted by Id
-
-  sorted_clusters.clear();
-
-  for (const auto& ch : geometry_->chambers()) {
-    // check the station number
-    const unsigned nOH = ch->id().isGE11() ? nOHGE11_ : nOHGE21_;
-    const unsigned nPartOH = ch->nEtaPartitions() / nOH;
-
-    std::vector<std::vector<std::pair<GEMDetId, GEMPadDigiClusters> > > temp_clustersCH;
-
-    for (unsigned int iOH = 0; iOH < nOH; iOH++) {
-      // all clusters for a set of eta partitions
-      std::vector<std::pair<GEMDetId, GEMPadDigiClusters> > temp_clustersOH;
-
-      // loop over the 4 or 2 eta partitions for this optohybrid
-      for (unsigned iPart = 1; iPart <= nPartOH; iPart++) {
-        // get the clusters for this eta partition
-        const GEMDetId& partId = ch->etaPartition(iPart + iOH * nPartOH)->id();
-        if (proto_clusters.find(partId) != proto_clusters.end()) {
-          temp_clustersOH.emplace_back(partId, proto_clusters.at(partId));
-        }
-      }  // end of eta partition loop
-
-      temp_clustersCH.emplace_back(temp_clustersOH);
-    }  // end of OH loop
-
-    sorted_clusters.emplace(ch->id(), temp_clustersCH);
-  }  // end of chamber loop
-}
-
-void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedContainer& sorted_clusters,
+void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterContainer& proto_clusters,
                                                GEMPadDigiClusterCollection& out_clusters) const {
-  // loop over chambers
   for (const auto& ch : geometry_->chambers()) {
+    const unsigned nOH = ch->id().isGE11() ? nOHGE11_ : nOHGE21_;
+    const unsigned nPartitions = ch->id().isGE11() ? nPartitionsGE11_ : nPartitionsGE21_;
+    const unsigned nEtaPerPartition = ch->nEtaPartitions() / (nPartitions * nOH);
+    const unsigned maxClustersPart = ch->id().isGE11() ? maxClustersPartitionGE11_ : maxClustersPartitionGE21_;
     const unsigned maxClustersOH = ch->id().isGE11() ? maxClustersOHGE11_ : maxClustersOHGE21_;
 
-    // loop over the optohybrids
-    for (const auto& optohybrid : sorted_clusters.at(ch->id())) {
-      // at most maxClustersOH per OH!
-      unsigned nClusters = 0;
-
-      // loop over the eta partitions for this OH
-      for (const auto& etapart : optohybrid) {
-        const auto& detid(etapart.first);
-        const auto& clusters(etapart.second);
-
-        // pick the clusters with lowest pad number
-        for (const auto& clus : clusters) {
-          if (nClusters < maxClustersOH) {
-            // check if the output cluster is valid
-            checkValid(clus, detid);
-
-            out_clusters.insertDigi(detid, clus);
-            nClusters++;
+    // loop over OH in this chamber
+    for (unsigned int iOH = 0; iOH < nOH; iOH++) {
+      unsigned int nClustersOH = 0;  // Up to 8 clusters per OH
+                                     // loop over clusterizer partitions
+      for (unsigned int iPart = 0; iPart < nPartitions; iPart++) {
+        unsigned int nClustersPart = 0;  // Up to 4 clusters per clustizer partition
+        // loop over the eta partitions for this clusterizer partition
+        for (unsigned iEta = 1; iEta <= nEtaPerPartition; iEta++) {
+          // get the clusters for this eta partition
+          const GEMDetId& iEtaId =
+              ch->etaPartition(iEta + iPart * nEtaPerPartition + iOH * nPartitions * nEtaPerPartition)->id();
+          if (proto_clusters.find(iEtaId) != proto_clusters.end()) {
+            for (const auto& cluster : proto_clusters.at(iEtaId)) {
+              if (nClustersPart < maxClustersPart and nClustersOH < maxClustersOH) {
+                checkValid(cluster, iEtaId);
+                out_clusters.insertDigi(iEtaId, cluster);
+                nClustersPart++;
+                nClustersOH++;
+              }
+            }  // end of loop on clusters in eta
           }
-        }  // end of cluster loop
-      }    // end of eta partition loop
+        }  // end of eta partition loop
+      }    // end of clusterizer partition loop
     }      // end of OH loop
   }        // end of chamber loop
 }

@@ -26,6 +26,9 @@ namespace cms {
     jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
     jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
     jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
+    jetSFTypeToken_ = esConsumes(edm::ESInputTag("", jetSFType_));
+    jetResPtTypeToken_ = esConsumes(edm::ESInputTag("", jetResPtType_));
+    jetResPhiTypeToken_ = esConsumes(edm::ESInputTag("", jetResPhiType_));
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
 
     edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
@@ -80,9 +83,9 @@ namespace cms {
     if (!weightsToken_.isUninitialized())
       event.getByToken(weightsToken_, weights);
 
-    JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
-    JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
-    JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFType_);
+    JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtTypeToken_);
+    JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiTypeToken_);
+    JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFTypeToken_);
 
     //
     // compute the significance

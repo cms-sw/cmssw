@@ -3,7 +3,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,7 +19,7 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
+class SiPixelFedCablingMapWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelFedCablingMapWriter(const edm::ParameterSet& cfg);
   ~SiPixelFedCablingMapWriter();
@@ -50,9 +50,7 @@ SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter(const edm::ParameterSet& 
   //::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str()));
 }
 
-SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter() {
-  //  delete cabling;
-}
+SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter() = default;
 
 void SiPixelFedCablingMapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   static int first(1);
@@ -70,7 +68,7 @@ void SiPixelFedCablingMapWriter::analyze(const edm::Event& iEvent, const edm::Ev
 void SiPixelFedCablingMapWriter::beginJob() {}
 
 void SiPixelFedCablingMapWriter::endJob() {
-  SiPixelFedCablingMap* result = new SiPixelFedCablingMap(cabling);
+  SiPixelFedCablingMap result(cabling);
   LogInfo("Now NEW writing to DB");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
@@ -84,10 +82,9 @@ void SiPixelFedCablingMapWriter::endJob() {
 
   try {
     if (mydbservice->isNewTagRequest(record_)) {
-      mydbservice->createNewIOV<SiPixelFedCablingMap>(
-          result, mydbservice->beginOfTime(), mydbservice->endOfTime(), record_);
+      mydbservice->createOneIOV<SiPixelFedCablingMap>(result, mydbservice->beginOfTime(), record_);
     } else {
-      mydbservice->appendSinceTime<SiPixelFedCablingMap>(result, mydbservice->currentTime(), record_);
+      mydbservice->appendOneIOV<SiPixelFedCablingMap>(result, mydbservice->currentTime(), record_);
     }
   } catch (std::exception& e) {
     LogError("std::exception:  ") << e.what();

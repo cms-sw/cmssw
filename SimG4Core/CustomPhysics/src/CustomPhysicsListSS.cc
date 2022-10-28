@@ -55,7 +55,7 @@ void CustomPhysicsListSS::ConstructProcess() {
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
+  for (auto particle : fParticleFactory.get()->getCustomParticles()) {
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if (cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();

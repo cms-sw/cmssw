@@ -1,11 +1,10 @@
-#ifndef _CALO_MISCALIB_MAP_ECAL
-#define _CALO_MISCALIB_MAP_ECAL
+#ifndef CalibCalorimetry_CaloMiscalibTools_CaloMiscalibMapEcal_h
+#define CalibCalorimetry_CaloMiscalibTools_CaloMiscalibMapEcal_h
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include <iostream>
@@ -22,23 +21,17 @@ public:
       if (iEta == 0)
         continue;
       for (int iPhi = EBDetId::MIN_IPHI; iPhi <= EBDetId::MAX_IPHI; ++iPhi) {
-        try {
-          EBDetId ebdetid(iEta, iPhi);
-          map_.setValue(ebdetid.rawId(), 1.0);
-        } catch (...) {
-        }
+        EBDetId ebdetid(iEta, iPhi);
+        map_.setValue(ebdetid.rawId(), 1.0);
       }
     }
 
     for (int iX = EEDetId::IX_MIN; iX <= EEDetId::IX_MAX; ++iX) {
       for (int iY = EEDetId::IY_MIN; iY <= EEDetId::IY_MAX; ++iY) {
-        try {
-          EEDetId eedetidpos(iX, iY, 1);
-          map_.setValue(eedetidpos.rawId(), 1.0);
-          EEDetId eedetidneg(iX, iY, -1);
-          map_.setValue(eedetidneg.rawId(), 1.0);
-        } catch (...) {
-        }
+        EEDetId eedetidpos(iX, iY, 1);
+        map_.setValue(eedetidpos.rawId(), 1.0);
+        EEDetId eedetidneg(iX, iY, -1);
+        map_.setValue(eedetidneg.rawId(), 1.0);
       }
     }
   }

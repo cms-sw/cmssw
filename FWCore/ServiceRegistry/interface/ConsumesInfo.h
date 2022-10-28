@@ -17,7 +17,7 @@
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include <string>
+#include <string_view>
 
 namespace edm {
   class ConsumesInfo {
@@ -32,9 +32,9 @@ namespace edm {
                  bool iSkipCurrentProcess_);
 
     TypeID const& type() const { return type_; }
-    std::string const& label() const { return label_; }
-    std::string const& instance() const { return instance_; }
-    std::string const& process() const { return process_; }
+    std::string_view label() const { return label_; }
+    std::string_view instance() const { return instance_; }
+    std::string_view process() const { return process_; }
     BranchType branchType() const { return branchType_; }
     KindOfType kindOfType() const { return kindOfType_; }
     bool alwaysGets() const { return alwaysGets_; }
@@ -52,9 +52,9 @@ namespace edm {
 
   private:
     TypeID type_;
-    std::string label_;
-    std::string instance_;
-    std::string process_;
+    std::string_view label_;
+    std::string_view instance_;
+    std::string_view process_;
     BranchType branchType_;
     KindOfType kindOfType_;
     bool alwaysGets_;

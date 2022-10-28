@@ -20,6 +20,9 @@ namespace edm {
   class ProductRegistry;
   struct DoNotRecordParents;
 
+  template <Transition B>
+  class ProductRegistryHelperAdaptor;
+
   class ProductRegistryHelper {
   public:
     virtual ~ProductRegistryHelper() noexcept(false);
@@ -33,19 +36,21 @@ namespace edm {
     };
 
     struct TypeLabelItem {
-      enum class AliasType { kBranchAlias, kSwitchAlias };
+      enum class AliasType : char { kBranchAlias, kSwitchAlias };
 
       TypeLabelItem(Transition const& transition, TypeID const& tid, std::string pin)
           : transition_(transition),
             typeID_(tid),
             productInstanceName_(std::move(pin)),
             branchAlias_(),
-            aliasType_(AliasType::kBranchAlias) {}
+            aliasType_(AliasType::kBranchAlias),
+            isTransform_(false) {}
       Transition transition_;
       TypeID typeID_;
       std::string productInstanceName_;
       std::string branchAlias_;
       AliasType aliasType_;
+      bool isTransform_;
     };
 
     struct BranchAliasSetter {
@@ -79,6 +84,12 @@ namespace edm {
       TypeLabelItem& value_;
       EDPutTokenT<T> token_;
 
+      template <typename U>
+      EDPutTokenT<T> produces() {
+        static_assert(std::is_same_v<T, U>);
+        return token_;
+      }
+
       operator EDPutTokenT<T>() { return token_; }
       operator EDPutToken() { return EDPutToken(token_.index()); }
     };
@@ -103,6 +114,15 @@ namespace edm {
            produces<ProductType>("optlabel");
         \endcode
         should be added to the producer ctor for every product */
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces(std::string instanceName) noexcept {
+      return ProductRegistryHelperAdaptor<Tr>(*this, std::move(instanceName));
+    }
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces() noexcept {
+      return ProductRegistryHelperAdaptor<Tr>(*this);
+    }
 
     template <class ProductType>
     BranchAliasSetterT<ProductType> produces() {
@@ -163,6 +183,14 @@ namespace edm {
       return BranchAliasSetter{typeLabelList_.back(), EDPutToken{index}};
     }
 
+    EDPutToken transforms(const TypeID& id, std::string instanceName) {
+      unsigned int index = typeLabelList_.size();
+      typeLabelList_.emplace_back(Transition::Event, id, std::move(instanceName));
+      typeLabelList_.back().isTransform_ = true;
+      recordProvenanceList_.push_back(true);
+      return EDPutToken{index};
+    }
+
     virtual bool hasAbilityToProduceInBeginProcessBlocks() const { return false; }
     virtual bool hasAbilityToProduceInEndProcessBlocks() const { return false; }
 
@@ -175,6 +203,26 @@ namespace edm {
   private:
     TypeLabelList typeLabelList_;
     std::vector<bool> recordProvenanceList_;
+  };
+
+  template <Transition B>
+  class ProductRegistryHelperAdaptor {
+  public:
+    template <typename TYPE>
+    EDPutTokenT<TYPE> produces() {
+      return m_helper.template produces<TYPE, B>(m_label);
+    }
+
+  private:
+    //only ProductRegistryHelper is allowed to make an instance of this class
+    friend class ProductRegistryHelper;
+
+    ProductRegistryHelperAdaptor(ProductRegistryHelper& iBase, std::string iLabel)
+        : m_helper(iBase), m_label(std::move(iLabel)) {}
+    explicit ProductRegistryHelperAdaptor(ProductRegistryHelper& iBase) : m_helper(iBase), m_label() {}
+
+    ProductRegistryHelper& m_helper;
+    std::string const m_label;
   };
 
 }  // namespace edm

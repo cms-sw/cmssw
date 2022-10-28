@@ -29,6 +29,8 @@ class DetIdAssociatorRecord;
 class DetIdAssociatorMaker {
 public:
   DetIdAssociatorMaker() = default;
+  DetIdAssociatorMaker(const DetIdAssociatorMaker&) = delete;
+  const DetIdAssociatorMaker& operator=(const DetIdAssociatorMaker&) = delete;
   virtual ~DetIdAssociatorMaker() = default;
 
   // ---------- const member functions ---------------------
@@ -39,10 +41,6 @@ public:
   // ---------- member functions ---------------------------
 
 private:
-  DetIdAssociatorMaker(const DetIdAssociatorMaker&) = delete;
-
-  const DetIdAssociatorMaker& operator=(const DetIdAssociatorMaker&) = delete;
-
   // ---------- member data --------------------------------
 };
 

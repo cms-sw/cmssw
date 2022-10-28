@@ -33,6 +33,8 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 // forward declarations
+class L1TriggerKey;
+class L1TriggerKeyRcd;
 
 class L1TriggerKeyOnlineProd : public edm::ESProducer {
 public:
@@ -46,6 +48,8 @@ public:
 private:
   // ----------member data ---------------------------
   std::vector<std::string> m_subsystemLabels;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
+  std::vector<edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>> l1TriggerKeyTokenVec_;
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -12,9 +11,10 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-class CSCNoiseMatrixTest : public edm::EDAnalyzer {
+class CSCNoiseMatrixTest : public edm::one::EDAnalyzer<> {
 public:
-  CSCNoiseMatrixTest(const edm::ParameterSet &pset) : theDbConditions(pset, consumesCollector()) {
+  CSCNoiseMatrixTest(const edm::ParameterSet &pset)
+      : theDbConditions(pset, consumesCollector()), tokGeo_{esConsumes(edm::ESInputTag("", "idealForDigi"))} {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration") << "CSCNoiseMatrixTest requires the RandomNumberGeneratorService\n"
@@ -38,9 +38,7 @@ public:
     std::vector<float> binValues(nScaBins, 0.);
 
     // find the geometry & conditions for this event
-    edm::ESHandle<CSCGeometry> hGeom;
-    eventSetup.get<MuonGeometryRecord>().get("idealForDigi", hGeom);
-    const CSCGeometry *pGeom = &*hGeom;
+    const CSCGeometry *pGeom = &eventSetup.getData(tokGeo_);
 
     // try making a noisifier and using it
     const CSCGeometry::LayerContainer &layers = pGeom->layers();
@@ -63,6 +61,7 @@ public:
 
 private:
   CSCDbStripConditions theDbConditions;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeo_;
 };
 
 DEFINE_FWK_MODULE(CSCNoiseMatrixTest);

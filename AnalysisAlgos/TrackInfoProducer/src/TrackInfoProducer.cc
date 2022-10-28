@@ -1,15 +1,54 @@
-#include "AnalysisAlgos/TrackInfoProducer/interface/TrackInfoProducer.h"
+//
+// Package:    RecoTracker/TrackInfoProducer
+// Class:      TrackInfoProducer
+//
+//
+// Description: Produce TrackInfo from Trajectory
+//
+//
+// Original Author:  Chiara Genta
+//         Created:
+//
+
 // system include files
 #include <memory>
+
 // user include files
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "AnalysisAlgos/TrackInfoProducer/interface/TrackInfoProducerAlgorithm.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+class TrackInfoProducer : public edm::stream::EDProducer<> {
+public:
+  explicit TrackInfoProducer(const edm::ParameterSet& iConfig);
+
+  ~TrackInfoProducer() override{};
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  TrackInfoProducerAlgorithm theAlgo_;
+  edm::EDGetTokenT<std::vector<Trajectory> > TrajectoryToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> assoMapToken_;
+  std::string forwardPredictedStateTag_, backwardPredictedStateTag_, updatedStateTag_, combinedStateTag_;
+};
+
 TrackInfoProducer::TrackInfoProducer(const edm::ParameterSet& iConfig)
-    : theAlgo_(iConfig),
+    : tkGeomToken_(esConsumes()),
+      theAlgo_(iConfig),
       TrajectoryToken_(consumes<std::vector<Trajectory> >(iConfig.getParameter<edm::InputTag>("cosmicTracks"))),
       trackCollectionToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("cosmicTracks"))),
       assoMapToken_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("cosmicTracks"))) {
@@ -21,16 +60,13 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   //
   // create empty output collections
   //
-
   std::unique_ptr<reco::TrackInfoCollection> outputColl(new reco::TrackInfoCollection);
+
+  const TrackerGeometry* tracker = &setup.getData(tkGeomToken_);
 
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   edm::Handle<reco::TrackCollection> trackCollection;
   edm::Handle<TrajTrackAssociationCollection> assoMap;
-
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  setup.get<TrackerDigiGeometryRecord>().get(tkgeom);
-  const TrackerGeometry* tracker = &(*tkgeom);
 
   theEvent.getByToken(TrajectoryToken_, TrajectoryCollection);
   theEvent.getByToken(trackCollectionToken_, trackCollection);
@@ -72,3 +108,5 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 
   theEvent.put(std::move(TIassociationColl));
 }
+
+DEFINE_FWK_MODULE(TrackInfoProducer);

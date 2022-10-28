@@ -6,14 +6,11 @@ simple analyzer to dump information about ECAL cond objects
 
 ----------------------------------------------------------------------*/
 
-#include <stdexcept>
-#include <string>
-#include <iostream>
-#include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <sstream>
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -60,239 +57,219 @@ simple analyzer to dump information about ECAL cond objects
 
 using namespace std;
 
-class EcalObjectAnalyzer : public edm::EDAnalyzer {
+class EcalObjectAnalyzer : public edm::global::EDAnalyzer<> {
 public:
-  explicit EcalObjectAnalyzer(edm::ParameterSet const& p) {}
-  explicit EcalObjectAnalyzer(int i) {}
-  virtual ~EcalObjectAnalyzer() {}
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  explicit EcalObjectAnalyzer(edm::ParameterSet const &p);
+  ~EcalObjectAnalyzer() override = default;
+
+  void analyze(edm::StreamID, edm::Event const &, edm::EventSetup const &) const override;
 
 private:
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalsToken_;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> adcToGeVConstantToken_;
+  const edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> weightXtalGroupsToken_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
+  const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainRatiosToken_;
+  const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstantsToken_;
+  const edm::ESGetToken<EcalIntercalibErrors, EcalIntercalibErrorsRcd> intercalibErrorsToken_;
+  const edm::ESGetToken<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd> timeCalibConstantsToken_;
+  const edm::ESGetToken<EcalTimeCalibErrors, EcalTimeCalibErrorsRcd> timeCalibErrorsToken_;
+  const edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tbWeightsToken_;
+  const edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosRcd> laserAPDPNRatiosToken_;
+  const edm::ESGetToken<EcalLaserAlphas, EcalLaserAlphasRcd> laserAlphasToken_;
+  const edm::ESGetToken<EcalLaserAPDPNRatiosRef, EcalLaserAPDPNRatiosRefRcd> laserAPDPNRatiosRefToken_;
+  const edm::ESGetToken<EcalMappingElectronics, EcalMappingElectronicsRcd> mappingElectronicsToken_;
 };
 
-void EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+EcalObjectAnalyzer::EcalObjectAnalyzer(edm::ParameterSet const &p)
+    : pedestalsToken_(esConsumes()),
+      adcToGeVConstantToken_(esConsumes()),
+      weightXtalGroupsToken_(esConsumes()),
+      channelStatusToken_(esConsumes()),
+      gainRatiosToken_(esConsumes()),
+      intercalibConstantsToken_(esConsumes()),
+      intercalibErrorsToken_(esConsumes()),
+      timeCalibConstantsToken_(esConsumes()),
+      timeCalibErrorsToken_(esConsumes()),
+      tbWeightsToken_(esConsumes()),
+      laserAPDPNRatiosToken_(esConsumes()),
+      laserAlphasToken_(esConsumes()),
+      laserAPDPNRatiosRefToken_(esConsumes()),
+      mappingElectronicsToken_(esConsumes()) {}
+
+void EcalObjectAnalyzer::analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &context) const {
   using namespace edm::eventsetup;
   // Context is not used.
-  std::cout << ">>> EcalObjectAnalyzer: processing run " << e.id().run() << " event: " << e.id().event() << std::endl;
-
-  edm::ESHandle<EcalPedestals> pPeds;
-  context.get<EcalPedestalsRcd>().get(pPeds);
+  edm::LogVerbatim("EcalObjectAnalyzer") << ">>> EcalObjectAnalyzer: processing run " << e.id().run()
+                                         << " event: " << e.id().event() << "\n";
 
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  context.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
-  std::cout << "Global ADC->GeV scale: EB " << agc->getEBValue() << " GeV/ADC count"
-            << " EE " << agc->getEEValue() << " GeV/ADC count" << std::endl;
+  const auto &agc = context.getData(adcToGeVConstantToken_);
+  edm::LogVerbatim("EcalObjectAnalyzer") << "Global ADC->GeV scale: EB " << agc.getEBValue() << " GeV/ADC count"
+                                         << " EE " << agc.getEEValue() << " GeV/ADC count\n";
 
-  const EcalPedestals* myped = pPeds.product();
+  const auto &myped = context.getData(pedestalsToken_);
   // Barrel loop
   int cnt = 0;
-  for (EcalPedestals::const_iterator it = myped->barrelItems().begin(); it != myped->barrelItems().end(); ++it) {
-    std::cout << "EcalPedestal: "
-              << " BARREL " << cnt << " "
-              << "  mean_x1:  " << (*it).mean_x1 << " rms_x1: " << (*it).rms_x1 << "  mean_x6:  " << (*it).mean_x6
-              << " rms_x6: " << (*it).rms_x6 << "  mean_x12: " << (*it).mean_x12 << " rms_x12: " << (*it).rms_x12
-              << std::endl;
+  for (const auto &item : myped.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalPedestal: "
+        << " BARREL " << cnt << " "
+        << "  mean_x1:  " << item.mean_x1 << " rms_x1: " << item.rms_x1 << "  mean_x6:  " << item.mean_x6
+        << " rms_x6: " << item.rms_x6 << "  mean_x12: " << item.mean_x12 << " rms_x12: " << item.rms_x12 << "\n";
     ++cnt;
   }
   // Endcap loop
-  for (EcalPedestals::const_iterator it = myped->endcapItems().begin(); it != myped->endcapItems().end(); ++it) {
-    std::cout << "EcalPedestal: "
-              << " ENDCAP "
-              << "  mean_x1:  " << (*it).mean_x1 << " rms_x1: " << (*it).rms_x1 << "  mean_x6:  " << (*it).mean_x6
-              << " rms_x6: " << (*it).rms_x6 << "  mean_x12: " << (*it).mean_x12 << " rms_x12: " << (*it).rms_x12
-              << std::endl;
+  for (const auto &item : myped.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalPedestal: "
+        << " ENDCAP "
+        << "  mean_x1:  " << item.mean_x1 << " rms_x1: " << item.rms_x1 << "  mean_x6:  " << item.mean_x6
+        << " rms_x6: " << item.rms_x6 << "  mean_x12: " << item.mean_x12 << " rms_x12: " << item.rms_x12 << "\n";
   }
 
   // fetch map of groups of xtals
-  edm::ESHandle<EcalWeightXtalGroups> pGrp;
-  context.get<EcalWeightXtalGroupsRcd>().get(pGrp);
-  const EcalWeightXtalGroups* grp = pGrp.product();
-  EcalXtalGroupsMap::const_iterator git;
+  const auto &grp = context.getData(weightXtalGroupsToken_);
   // Barrel loop
-  for (git = grp->barrelItems().begin(); git != grp->barrelItems().end(); ++git) {
-    std::cout << "XtalGroupId  gid: " << (*git).id() << std::endl;
+  for (const auto &item : grp.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "XtalGroupId  gid: " << item.id() << "\n";
   }
   // Endcap loop
-  for (git = grp->endcapItems().begin(); git != grp->endcapItems().end(); ++git) {
-    std::cout << "XtalGroupId  gid: " << (*git).id() << std::endl;
+  for (const auto &item : grp.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "XtalGroupId  gid: " << item.id() << "\n";
   }
 
   // Gain Ratios
-  edm::ESHandle<EcalChannelStatus> pStatus;
-  context.get<EcalChannelStatusRcd>().get(pStatus);
-  const EcalChannelStatusMap* ch = pStatus.product();
-  EcalChannelStatusMap::const_iterator chit;
+  const auto &ch = context.getData(channelStatusToken_);
   // Barrel loop
-  for (chit = ch->barrelItems().begin(); chit != ch->barrelItems().end(); ++chit) {
-    EcalChannelStatusCode chst;
-    chst = (*chit);
-    std::cout << "Ecal channel status  " << chst.getStatusCode() << std::endl;
+  for (const auto &chst : ch.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "Ecal channel status  " << chst.getStatusCode() << "\n";
   }
   // Endcap loop
-  for (chit = ch->endcapItems().begin(); chit != ch->endcapItems().end(); ++chit) {
-    EcalChannelStatusCode chst;
-    chst = (*chit);
-    std::cout << "Ecal channel status  " << chst.getStatusCode() << std::endl;
+  for (const auto &chst : ch.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "Ecal channel status  " << chst.getStatusCode() << "\n";
   }
 
-  edm::ESHandle<EcalGainRatios> pRatio;
-  context.get<EcalGainRatiosRcd>().get(pRatio);
-  const EcalGainRatios* gr = pRatio.product();
-  EcalGainRatioMap::const_iterator grit;
+  const auto &gr = context.getData(gainRatiosToken_);
   // Barrel loop
-  for (grit = gr->barrelItems().begin(); grit != gr->barrelItems().end(); ++grit) {
-    EcalMGPAGainRatio mgpa;
-    mgpa = (*grit);
-    std::cout << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
-              << std::endl;
+  for (const auto &mgpa : gr.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1() << "\n";
   }
   // Endcap loop
-  for (grit = gr->endcapItems().begin(); grit != gr->endcapItems().end(); ++grit) {
-    EcalMGPAGainRatio mgpa;
-    mgpa = (*grit);
-    std::cout << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
-              << std::endl;
+  for (const auto &mgpa : gr.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1() << "\n";
   }
 
   // Intercalib constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  context.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants* ical = pIcal.product();
-  EcalIntercalibConstantMap::const_iterator icalit;
+  const auto &ical = context.getData(intercalibConstantsToken_);
   // Barrel loop
-  for (icalit = ical->barrelItems().begin(); icalit != ical->barrelItems().end(); ++icalit) {
-    std::cout << "EcalIntercalibConstant:  icalconst: " << (*icalit) << std::endl;
+  for (const auto &item : ical.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalIntercalibConstant:  icalconst: " << item << "\n";
   }
   // Endcap loop
-  for (icalit = ical->endcapItems().begin(); icalit != ical->endcapItems().end(); ++icalit) {
-    std::cout << "EcalIntercalibConstant:  icalconst: " << (*icalit) << std::endl;
+  for (const auto &item : ical.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalIntercalibConstant:  icalconst: " << item << "\n";
   }
 
-  edm::ESHandle<EcalIntercalibErrors> pIcalError;
-  context.get<EcalIntercalibErrorsRcd>().get(pIcalError);
-  const EcalIntercalibErrors* icalerr = pIcalError.product();
-  EcalIntercalibErrorMap::const_iterator icalerrit;
+  const auto &icalerr = context.getData(intercalibErrorsToken_);
   // Barrel loop
-  for (icalerrit = icalerr->barrelItems().begin(); icalerrit != icalerr->barrelItems().end(); ++icalerrit) {
-    std::cout << "EcalIntercalibConstant:  error: " << (*icalerrit) << std::endl;
+  for (const auto &item : icalerr.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalIntercalibConstant:  error: " << item << "\n";
   }
   // Endcap loop
-  for (icalerrit = icalerr->endcapItems().begin(); icalerrit != icalerr->endcapItems().end(); ++icalerrit) {
-    std::cout << "EcalIntercalibConstant:  error: " << (*icalerrit) << std::endl;
+  for (const auto &item : icalerr.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalIntercalibConstant:  error: " << item << "\n";
   }
 
   // Time calibration constants
   {
-    edm::ESHandle<EcalTimeCalibConstants> pIcal;
-    context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
-    const EcalTimeCalibConstants* ical = pIcal.product();
-    EcalTimeCalibConstantMap::const_iterator icalit;
+    const auto &ical = context.getData(timeCalibConstantsToken_);
     // Barrel loop
-    for (icalit = ical->barrelItems().begin(); icalit != ical->barrelItems().end(); ++icalit) {
-      std::cout << "EcalTimeCalibConstant:  icalconst: " << (*icalit) << std::endl;
+    for (const auto &item : ical.barrelItems()) {
+      edm::LogVerbatim("EcalObjectAnalyzer") << "EcalTimeCalibConstant:  icalconst: " << item << "\n";
     }
     // Endcap loop
-    for (icalit = ical->endcapItems().begin(); icalit != ical->endcapItems().end(); ++icalit) {
-      std::cout << "EcalTimeCalibConstant:  icalconst: " << (*icalit) << std::endl;
+    for (const auto &item : ical.endcapItems()) {
+      edm::LogVerbatim("EcalObjectAnalyzer") << "EcalTimeCalibConstant:  icalconst: " << item << "\n";
     }
 
-    edm::ESHandle<EcalTimeCalibErrors> pIcalError;
-    context.get<EcalTimeCalibErrorsRcd>().get(pIcalError);
-    const EcalTimeCalibErrors* icalerr = pIcalError.product();
-    EcalTimeCalibErrorMap::const_iterator icalerrit;
+    const auto &icalerr = context.getData(timeCalibErrorsToken_);
     // Barrel loop
-    for (icalerrit = icalerr->barrelItems().begin(); icalerrit != icalerr->barrelItems().end(); ++icalerrit) {
-      std::cout << "EcalTimeCalibConstant:  error: " << (*icalerrit) << std::endl;
+    for (const auto &item : icalerr.barrelItems()) {
+      edm::LogVerbatim("EcalObjectAnalyzer") << "EcalTimeCalibConstant:  error: " << item << "\n";
     }
     // Endcap loop
-    for (icalerrit = icalerr->endcapItems().begin(); icalerrit != icalerr->endcapItems().end(); ++icalerrit) {
-      std::cout << "EcalTimeCalibConstant:  error: " << (*icalerrit) << std::endl;
+    for (const auto &item : icalerr.endcapItems()) {
+      edm::LogVerbatim("EcalObjectAnalyzer") << "EcalTimeCalibConstant:  error: " << item << "\n";
     }
   }
 
   // fetch TB weights
-  edm::ESHandle<EcalTBWeights> pWgts;
-  context.get<EcalTBWeightsRcd>().get(pWgts);
-  const EcalTBWeights* wgts = pWgts.product();
-  std::cout << "EcalTBWeightMap.size(): " << wgts->getMap().size() << std::endl;
+  const auto &wgts = context.getData(tbWeightsToken_);
+  edm::LogVerbatim("EcalObjectAnalyzer") << "EcalTBWeightMap.size(): " << wgts.getMap().size() << "\n";
 
   //   // look up the correct weights for this  xtal
   //   //EcalXtalGroupId gid( git->second );
   //   EcalTBWeights::EcalTDCId tdcid(1);
-  for (EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().begin(); wit != wgts->getMap().end();
-       ++wit) {
-    std::cout << "EcalWeights " << wit->first.first.id() << "," << wit->first.second << std::endl;
-    wit->second.print(std::cout);
-    std::cout << std::endl;
+  for (const auto &item : wgts.getMap()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalWeights " << item.first.first.id() << "," << item.first.second << "\n";
+    std::ostringstream oss;
+    item.second.print(oss);
+    edm::LogVerbatim("EcalObjectAnalyzer") << oss.str() << "\n";
   }
 
   // get from offline DB the last valid laser set
-  edm::ESHandle<EcalLaserAPDPNRatios> apdPnRatiosHandle;
-  context.get<EcalLaserAPDPNRatiosRcd>().get(apdPnRatiosHandle);
+  const auto &apdPnRatios = context.getData(laserAPDPNRatiosToken_);
 
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = apdPnRatiosHandle.product()->getLaserMap();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = apdPnRatiosHandle.product()->getTimeMap();
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserRatiosMap = apdPnRatios.getLaserMap();
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap &laserTimeMap = apdPnRatios.getTimeMap();
 
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator apdPnRatiosit;
   // Barrel loop
-  for (apdPnRatiosit = laserRatiosMap.barrelItems().begin(); apdPnRatiosit != laserRatiosMap.barrelItems().end();
-       ++apdPnRatiosit) {
-    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdPnRatioPair = (*apdPnRatiosit);
-    std::cout << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << std::endl;
+  for (const auto &apdPnRatioPair : laserRatiosMap.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << "\n";
   }
   // Endcap loop
-  for (apdPnRatiosit = laserRatiosMap.endcapItems().begin(); apdPnRatiosit != laserRatiosMap.endcapItems().end();
-       ++apdPnRatiosit) {
-    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdPnRatioPair = (*apdPnRatiosit);
-    std::cout << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << std::endl;
+  for (const auto &apdPnRatioPair : laserRatiosMap.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << "\n";
   }
   //TimeStampLoop
   for (unsigned int i = 0; i < laserTimeMap.size(); ++i) {
     EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp = laserTimeMap[i];
-    std::cout << "EcalAPDPnRatio: timestamp : " << i << " " << timestamp.t1.value() << " , " << timestamp.t2.value()
-              << endl;
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalAPDPnRatio: timestamp : " << i << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << endl;
   }
 
   // get from offline DB the last valid laser set
-  edm::ESHandle<EcalLaserAlphas> alphasHandle;
-  context.get<EcalLaserAlphasRcd>().get(alphasHandle);
-  const EcalLaserAlphaMap* alphaMap = alphasHandle.product();
-  EcalLaserAlphaMap::const_iterator alphait;
+  const auto &alphaMap = context.getData(laserAlphasToken_);
   // Barrel loop
-  for (alphait = alphaMap->barrelItems().begin(); alphait != alphaMap->barrelItems().end(); ++alphait) {
-    std::cout << "EcalLaserAlphas:  icalconst: " << (*alphait) << std::endl;
+  for (const auto &item : alphaMap.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalLaserAlphas:  icalconst: " << item << "\n";
   }
   // Endcap loop
-  for (alphait = alphaMap->endcapItems().begin(); alphait != alphaMap->endcapItems().end(); ++alphait) {
-    std::cout << "EcalLaserAlphas:  icalconst: " << (*alphait) << std::endl;
+  for (const auto &item : alphaMap.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalLaserAlphas:  icalconst: " << item << "\n";
   }
 
   // get from offline DB the last valid laser set
-  edm::ESHandle<EcalLaserAPDPNRatiosRef> apdPnRatioRefHandle;
-  context.get<EcalLaserAPDPNRatiosRefRcd>().get(apdPnRatioRefHandle);
-  const EcalLaserAPDPNRatiosRefMap* apdPnRatioRefMap = apdPnRatioRefHandle.product();
-  EcalLaserAPDPNRatiosRefMap::const_iterator apdPnRatioRefIt;
+  const auto &apdPnRatioRefMap = context.getData(laserAPDPNRatiosRefToken_);
   // Barrel loop
-  for (apdPnRatioRefIt = apdPnRatioRefMap->barrelItems().begin();
-       apdPnRatioRefIt != apdPnRatioRefMap->barrelItems().end();
-       ++apdPnRatioRefIt) {
-    std::cout << "EcalLaserAPDPNRatiosRef:  icalconst: " << (*apdPnRatioRefIt) << std::endl;
+  for (const auto &item : apdPnRatioRefMap.barrelItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalLaserAPDPNRatiosRef:  icalconst: " << item << "\n";
   }
   // Endcap loop
-  for (apdPnRatioRefIt = apdPnRatioRefMap->endcapItems().begin();
-       apdPnRatioRefIt != apdPnRatioRefMap->endcapItems().end();
-       ++apdPnRatioRefIt) {
-    std::cout << "EcalLaserAPDPNRatiosRef:  icalconst: " << (*apdPnRatioRefIt) << std::endl;
+  for (const auto &item : apdPnRatioRefMap.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer") << "EcalLaserAPDPNRatiosRef:  icalconst: " << item << "\n";
   }
 
-  edm::ESHandle<EcalMappingElectronics> ecalmapping;
-  context.get<EcalMappingElectronicsRcd>().get(ecalmapping);
-  const EcalMappingElectronics* Mapping = ecalmapping.product();
-  const std::vector<EcalMappingElement>& ee = Mapping->endcapItems();
-  for (size_t iMap = 0; iMap < ee.size(); iMap++) {
-    std::cout << "EcalMappingElectronics: " << ee[iMap].electronicsid << " " << ee[iMap].triggerid << std::endl;
+  const auto &mapping = context.getData(mappingElectronicsToken_);
+  for (const auto &item : mapping.endcapItems()) {
+    edm::LogVerbatim("EcalObjectAnalyzer")
+        << "EcalMappingElectronics: " << item.electronicsid << " " << item.triggerid << "\n";
   }
 
 }  //end of ::Analyze()

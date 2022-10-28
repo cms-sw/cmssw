@@ -23,6 +23,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include <iosfwd>
+#include <string_view>
 
 namespace edm {
 
@@ -80,5 +81,7 @@ namespace edm {
 
   void exceptionContext(std::ostream&, StreamContext const&);
   std::ostream& operator<<(std::ostream&, StreamContext const&);
+
+  std::string_view transitionName(StreamContext::Transition);
 }  // namespace edm
 #endif

@@ -37,13 +37,17 @@ AlignableMuon::AlignableMuon(const DTGeometry* dtGeometry,
                              const CSCGeometry* cscGeometry,
                              const GEMGeometry* gemGeometry)
     : AlignableComposite(0, align::AlignableMuon),  // cannot yet set id, use 0
-      alignableObjectId_(nullptr, dtGeometry, cscGeometry, gemGeometry) {
+      alignableObjectId_(nullptr, dtGeometry, cscGeometry, gemGeometry),
+      doGEM_(false) {
   // Build the muon barrel
   buildDTBarrel(dtGeometry);
 
   // Build the muon end caps
   buildCSCEndcap(cscGeometry);
-  buildGEMEndcap(gemGeometry);
+  if (gemGeometry) {
+    doGEM_ = true;
+    buildGEMEndcap(gemGeometry);
+  }
 
   // Set links to mothers recursively
   recursiveSetMothers(this);
@@ -70,8 +74,10 @@ void AlignableMuon::update(const DTGeometry* dtGeometry,
 
   // update the muon end caps
   buildCSCEndcap(cscGeometry, /* update = */ true);
-  buildGEMEndcap(gemGeometry, /* update = */ true);
-
+  if (gemGeometry) {
+    doGEM_ = true;
+    buildGEMEndcap(gemGeometry, /* update = */ true);
+  }
   edm::LogInfo("Alignment") << "@SUB=AlignableMuon::update"
                             << "Updating alignable muon objects DONE";
 }
@@ -283,14 +289,13 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
 void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
   LogDebug("Position") << "Constructing AlignableGEMEndcap";
   std::vector<AlignableGEMStation*> tmpGEMStationsInEndcap;
-  for (int iec = -1; iec < 2; iec = iec + 2) {
+  for (const auto& GEMRegion : pGEM->regions()) {
+    int iec = GEMRegion->region();
     std::vector<AlignableGEMRing*> tmpGEMRingsInStation;
-
-    for (int ist = 0; ist < 3; ist++) {
-      if (ist == 0)
-        continue;  //Run3 GEM dosen't have ME0
-      if (ist == 2)
-        continue;  //Run3 GEM dosen't have GE2/1
+    for (const auto& GEMStation : pGEM->stations()) {
+      if (GEMStation->region() != iec)
+        continue;
+      int ist = GEMStation->station();
       std::vector<AlignableGEMSuperChamber*> tmpGEMSuperChambersInRing;
       int iri = 1;
       int iChamber{0};

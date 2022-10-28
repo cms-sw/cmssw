@@ -48,9 +48,13 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
 };
 
-TestIdealGeometryESProducer::TestIdealGeometryESProducer(const edm::ParameterSet& iConfig) {}
+TestIdealGeometryESProducer::TestIdealGeometryESProducer(const edm::ParameterSet& iConfig)
+    : ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {}
 
 TestIdealGeometryESProducer::~TestIdealGeometryESProducer() {}
 
@@ -58,8 +62,7 @@ void TestIdealGeometryESProducer::analyze(const edm::Event& iEvent, const edm::E
   using namespace edm;
 
   std::cout << "Here I am " << std::endl;
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
+  edm::ESTransientHandle<DDCompactView> pDD = iSetup.getTransientHandle(ddToken_);
 
   GeometryInfoDump gidump;
   gidump.dumpInfo(true, true, true, *pDD);

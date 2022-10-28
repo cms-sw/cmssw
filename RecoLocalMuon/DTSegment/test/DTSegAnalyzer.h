@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
@@ -30,6 +30,8 @@ class DTLayerId;
 class DTSuperLayerId;
 class DTChamberId;
 class DTTTrigBaseSync;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 #include <iosfwd>
@@ -39,7 +41,7 @@ class DTTTrigBaseSync;
 
 /* Class DTSegAnalyzer Interface */
 
-class DTSegAnalyzer : public edm::EDAnalyzer {
+class DTSegAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /* Constructor */
   DTSegAnalyzer(const edm::ParameterSet& pset);
@@ -94,5 +96,6 @@ private:
   bool doSegs;
 
   std::unique_ptr<DTTTrigBaseSync> theSync;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeomToken;
 };
 #endif  // DTANALYZER_H

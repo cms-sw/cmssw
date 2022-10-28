@@ -4,5 +4,6 @@
 <bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
   <use name="cppunit"/>
   <use name="PhysicsTools/ONNXRuntime"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="FWCore/ParameterSet"/>
 </bin>

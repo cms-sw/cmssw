@@ -3,6 +3,8 @@
 
 ClassImp(TStorageFactorySystem);
 
+using namespace edm::storage;
+
 TStorageFactorySystem::TStorageFactorySystem(const char *, Bool_t)
     : TSystem("-StorageFactory", "Storage Factory System"), fDirp(nullptr) {
   SetName("StorageFactory");

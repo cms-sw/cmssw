@@ -15,14 +15,18 @@ process.eegeom = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
+
 # Conditions:
 #
 # a) Getting hardcoded conditions the same used for standard digitization:
 #process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 #process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = True
 # b) Getting conditions through frontier interface:
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "CRAFT09_R_V4::All"
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 # c) Getting conditions through oracle interface:
 #process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff")
 

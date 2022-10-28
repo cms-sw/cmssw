@@ -67,7 +67,7 @@ namespace l1t {
 
           RegionalMuonCand muCand;
           RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
-              muCand, raw_first, raw_secnd, processor, tftype::bmtf, isKalman);
+              muCand, raw_first, raw_secnd, processor, tftype::bmtf, isKalman, false);
 
           if (muCand.hwPt() == 0) {
             continue;

@@ -1,10 +1,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
@@ -31,6 +32,7 @@
 #include <DataFormats/ForwardDetId/interface/BTLDetId.h>
 #include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 
+#include <memory>
 #include <sstream>
 
 #include "CLHEP/Random/RandFlat.h"
@@ -38,20 +40,20 @@
 using namespace std;
 using namespace edm;
 
-class MTDRecoGeometryAnalyzer : public EDAnalyzer {
+class MTDRecoGeometryAnalyzer : public global::EDAnalyzer<> {
 public:
   MTDRecoGeometryAnalyzer(const ParameterSet& pset);
 
-  void analyze(const Event& ev, const EventSetup& es) override;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
-  void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
-  void testETLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
-  void testETLLayersNew(const MTDDetLayerGeometry*, const MagneticField* field);
+  void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field) const;
+  void testETLLayers(const MTDDetLayerGeometry*, const MagneticField* field) const;
+  void testETLLayersNew(const MTDDetLayerGeometry*, const MagneticField* field) const;
 
   string dumpLayer(const DetLayer* layer) const;
 
 private:
-  MeasurementEstimator* theEstimator;
+  std::unique_ptr<MeasurementEstimator> theEstimator;
 
   const edm::ESInputTag tag_;
   edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> geomToken_;
@@ -66,10 +68,10 @@ MTDRecoGeometryAnalyzer::MTDRecoGeometryAnalyzer(const ParameterSet& iConfig) : 
 
   float theMaxChi2 = 25.;
   float theNSigma = 3.;
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2, theNSigma);
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2, theNSigma);
 }
 
-void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
+void MTDRecoGeometryAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const& es) const {
   auto geo = es.getTransientHandle(geomToken_);
   auto mtdtopo = es.getTransientHandle(mtdtopoToken_);
   auto magfield = es.getTransientHandle(magfieldToken_);
@@ -113,7 +115,7 @@ void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
   }
 }
 
-void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
+void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
   for (const auto& ilay : layers) {
@@ -131,10 +133,12 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
       for (const auto& imod : irod->basicComponents()) {
         BTLDetId modId(imod->geographicalId().rawId());
         LogVerbatim("MTDLayerDump") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                    << modId.mtdSide() << " rod = " << modId.mtdRR() << " mod = " << std::setw(4)
-                                    << modId.module() << std::setw(14) << " R = " << std::setprecision(4)
-                                    << imod->position().perp() << std::setw(14) << " phi = " << imod->position().phi()
-                                    << std::setw(14) << " Z = " << imod->position().z();
+                                    << modId.mtdSide() << " rod = " << modId.mtdRR()
+                                    << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
+                                    << modId.runit() << "/" << std::setw(2) << modId.module() << std::setw(14)
+                                    << " R = " << std::setprecision(4) << imod->position().perp() << std::setw(14)
+                                    << " phi = " << imod->position().phi() << std::setw(14)
+                                    << " Z = " << imod->position().z();
       }
     }
 
@@ -185,7 +189,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
   }
 }
 
-void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
+void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
   for (const auto& ilay : layers) {
@@ -249,7 +253,7 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
   }
 }
 
-void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, const MagneticField* field) {
+void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, const MagneticField* field) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
   // dump of ETL layers structure

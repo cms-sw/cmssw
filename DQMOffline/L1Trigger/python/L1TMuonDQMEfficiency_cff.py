@@ -48,7 +48,7 @@ l1tMuonDQMEfficiency = DQMEDHarvester("DQMGenericClient",
 
 # emulator efficiency
 l1tMuonDQMEmuEfficiency = l1tMuonDQMEfficiency.clone(
-    subDirs = cms.untracked.vstring("L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco/")
+    subDirs = ["L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco/"]
 )
 
 # modifications for the pp reference run

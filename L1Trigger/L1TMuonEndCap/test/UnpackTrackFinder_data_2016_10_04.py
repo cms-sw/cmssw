@@ -3,7 +3,6 @@
 import FWCore.ParameterSet.Config as cms
 import os
 import sys
-import commands
 import subprocess
 
 process = cms.Process('L1TMuonEmulation')

@@ -37,92 +37,132 @@ SiStripMonitorDigi.TH1NumberOfDigis.moduleswitchon = False
 from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
 
 # SiStripMonitorCluster ####
-import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterReal.SelectAllDetectors = True
-SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
-SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
-SiStripMonitorClusterReal.TH2CStripVsCpixel.globalswitchon=True
-SiStripMonitorClusterReal.TH1MultiplicityRegions.globalswitchon=True
-SiStripMonitorClusterReal.TH1MainDiagonalPosition.globalswitchon=True
-SiStripMonitorClusterReal.TH1StripNoise2ApvCycle.globalswitchon=True
-SiStripMonitorClusterReal.TH1StripNoise3ApvCycle.globalswitchon=True
-SiStripMonitorClusterReal.ClusterHisto = True
+from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
+SiStripMonitorClusterReal = SiStripMonitorCluster.clone(
+    SelectAllDetectors = True,
+    TProfTotalNumberOfClusters = SiStripMonitorCluster.TProfTotalNumberOfClusters.clone(
+        subdetswitchon = True
+    ),
+    TProfClustersApvCycle = SiStripMonitorCluster.TProfClustersApvCycle.clone(
+        subdetswitchon = True
+    ),
+    TH2CStripVsCpixel = SiStripMonitorCluster.TH2CStripVsCpixel.clone(
+        globalswitchon = True
+    ),
+    TH1MultiplicityRegions = SiStripMonitorCluster.TH1MultiplicityRegions.clone(
+        globalswitchon = True
+    ),
+    TH1MainDiagonalPosition = SiStripMonitorCluster.TH1MainDiagonalPosition.clone(
+        globalswitchon = True
+    ),
+    TH1StripNoise2ApvCycle = SiStripMonitorCluster.TH1StripNoise2ApvCycle.clone(
+        globalswitchon = True
+    ),
+    TH1StripNoise3ApvCycle = SiStripMonitorCluster.TH1StripNoise3ApvCycle.clone(
+        globalswitchon = True
+    ),
+    ClusterHisto = True,
+    # removing some histograms
+    TH1NrOfClusterizedStrips = SiStripMonitorCluster.TH1NrOfClusterizedStrips.clone(
+        moduleswitchon = False
+    ),
+    TH1ClusterNoise = SiStripMonitorCluster.TH1ClusterNoise.clone(
+        moduleswitchon = False
+    ),
+    TH1ClusterStoN = SiStripMonitorCluster.TH1ClusterStoN.clone(
+        moduleswitchon = False
+    ),
+    TH1ClusterCharge = SiStripMonitorCluster.TH1ClusterCharge.clone(
+        moduleswitchon = False
+    ),
+    TH1ClusterWidth = SiStripMonitorCluster.TH1ClusterWidth.clone(
+        moduleswitchon = False
+    ),
+    TH1ModuleLocalOccupancy = SiStripMonitorCluster.TH1ModuleLocalOccupancy.clone(
+        moduleswitchon = False
+    ),
+    TH1nClusters = SiStripMonitorCluster.TH1nClusters.clone(
+        moduleswitchon = False
+    ),
+    TH1ClusterPos = SiStripMonitorCluster.TH1ClusterPos.clone(
+        moduleswitchon = False
+    )
+)
 
-# removing some histograms
-SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
-SiStripMonitorClusterReal.TH1nClusters.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterPos.moduleswitchon = False
-
-# SiStripMonitorTrack ####
 # Clone for Cosmic Track Finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrack_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
-SiStripMonitorTrack_cosmicTk.Mod_On        = False
+SiStripMonitorTrack_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'cosmictrackfinderP5',
+    Mod_On = False,
+)
 
 # Clone for CKF Tracks
-SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
-SiStripMonitorTrack_ckf.Mod_On             = False
+SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'ctfWithMaterialTracksP5',
+    Mod_On = False,
+)
 
 # Clone fir Road Search  Tracks
-#SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-#SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
-#SiStripMonitorTrack_rs.Mod_On              = True
+# SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+#     TrackProducer = 'rsWithMaterialTracksP5',
+#     Mod_On = True,
+# )
 
 # Clone for General Tracks (for Collision)
 SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
-   TrackProducer    = 'generalTracks',
-   Mod_On           = False
+    TrackProducer = 'generalTracks',
+    Mod_On = False
 )
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
-SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_hi.TrackProducer    = 'hiGeneralTracks'
-SiStripMonitorTrack_hi.Mod_On           = True
+SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'hiGeneralTracks',
+    Mod_On = True
+)
 
 # TrackerMonitorTrack ####
 # Clone for Cosmic Track Finder
-#import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-#MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-#MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
-#MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
-#MonitorTrackResiduals_cosmicTk.Mod_On              = False
+# import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+# MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+#     Tracks = 'cosmictrackfinderP5',
+#     trajectoryInput = 'cosmictrackfinderP5',
+#     Mod_On = False,
+#     VertexCut = False
+# )
 
 # Clone for CKF Tracks
-#import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-#MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-#MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
-#MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
-#MonitorTrackResiduals_ckf.Mod_On                   = False
+# import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+# MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+#     Tracks = 'ctfWithMaterialTracksP5',
+#     trajectoryInput = 'ctfWithMaterialTracksP5',
+#     Mod_On = False
+#     VertexCut = False
+# )
 
 # Clone for Road Search  Tracks
-#import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-#MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-#MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
-#MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
-#MonitorTrackResiduals_rs.Mod_On                    = False
+# import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+# MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+#     Tracks = 'rsWithMaterialTracksP5',
+#     trajectoryInput = 'rsWithMaterialTracksP5',
+#     Mod_On = False,
+#     VertexCut = False
+# )
 
 # Clone for General Track (for Collision data)
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
-   Tracks                 = 'generalTracks',
-   trajectoryInput        = 'generalTracks',
-   Mod_On                 = False
+    Tracks = 'generalTracks',
+    trajectoryInput = 'generalTracks',
+    Mod_On = False
 )
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
-#import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-#MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-#MonitorTrackResiduals_hi.Tracks                 = 'hiGeneralTracks'
-#MonitorTrackResiduals_hi.trajectoryInput        = 'hiGeneralTracks'
-#MonitorTrackResiduals_hi.Mod_On                 = False
+# import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+# MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+#     Tracks = 'hiGeneralTracks',
+#     trajectoryInput = 'hiGeneralTracks',
+#     Mod_On = False
+# )
 
 # Services needed for TkHistoMap
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *

@@ -67,6 +67,7 @@ namespace cond {
           level = coral::Error;
       }
       setMessageVerbosity(level);
+      setConnectionTimeout(connectionPset.getUntrackedParameter<int>("connectionTimeout", m_connectionTimeout));
       setLogging(connectionPset.getUntrackedParameter<bool>("logging", m_loggingEnabled));
     }
 
@@ -75,6 +76,7 @@ namespace cond {
     void ConnectionPool::configure(coral::IConnectionServiceConfiguration& coralConfig) {
       coralConfig.disablePoolAutomaticCleanUp();
       coralConfig.disableConnectionSharing();
+      coralConfig.setConnectionTimeOut(m_connectionTimeout);
       // message streaming
       coral::MessageStream::setMsgVerbosity(m_messageLevel);
       m_msgReporter->setOutputLevel(m_messageLevel);
@@ -184,6 +186,8 @@ namespace cond {
     }
 
     void ConnectionPool::setMessageVerbosity(coral::MsgLevel level) { m_messageLevel = level; }
+
+    void ConnectionPool::setConnectionTimeout(int seconds) { m_connectionTimeout = seconds; }
 
     void ConnectionPool::setLogDestination(Logger& logger) { m_msgReporter->subscribe(logger); }
 

@@ -51,6 +51,13 @@ namespace online {
     const float magnetCurrent;
   };
 
+  struct DCS_v2 {
+    const uint64_t timestamp;
+    const uint32_t highVoltageReady;
+    const uint32_t highVoltageValid;
+    const float magnetCurrent;
+  };
+
   struct Data_v1 {
     const uint8_t version;
     const Luminosity_v1 luminosity;
@@ -64,6 +71,14 @@ namespace online {
     const BeamSpot_v1 beamSpot;
     const CTPPS_v1 ctpps;
     const DCS_v1 dcs;
+  };
+
+  struct Data_v3 {
+    const uint8_t version;
+    const Luminosity_v1 luminosity;
+    const BeamSpot_v1 beamSpot;
+    const CTPPS_v1 ctpps;
+    const DCS_v2 dcs;
   };
 
 }  // namespace online

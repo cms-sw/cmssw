@@ -2,23 +2,19 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimTracker/TrackAssociation/interface/CosmicParametersDefinerForTP.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>
 #include <DataFormats/GeometrySurface/interface/Surface.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 
 class TrajectoryStateClosestToBeamLineBuilder;
+
+CosmicParametersDefinerForTP::CosmicParametersDefinerForTP(edm::ConsumesCollector iC)
+    : ParametersDefinerForTP(edm::InputTag("offlineBeamSpot"), iC), geometryToken_(iC.esConsumes()) {}
+CosmicParametersDefinerForTP::~CosmicParametersDefinerForTP() = default;
 
 TrackingParticle::Vector CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
                                                                 const edm::EventSetup &iSetup,
@@ -29,16 +25,9 @@ TrackingParticle::Vector CosmicParametersDefinerForTP::momentum(const edm::Event
   using namespace std;
   using namespace reco;
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  edm::ESHandle<GlobalTrackingGeometry> theGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
-
-  edm::ESHandle<MagneticField> theMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-
-  edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"), bs);
+  auto const &bs = iEvent.get(bsToken_);
+  auto const &geometry = iSetup.getData(geometryToken_);
+  auto const &mf = iSetup.getData(mfToken_);
 
   GlobalVector finalGV(0, 0, 0);
   GlobalPoint finalGP(0, 0, 0);
@@ -64,7 +53,7 @@ TrackingParticle::Vector CosmicParametersDefinerForTP::momentum(const edm::Event
                                 SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for (auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
-    const GeomDet *tmpDet = theGeometry->idToDet(DetId(it->detUnitId()));
+    const GeomDet *tmpDet = geometry.idToDet(DetId(it->detUnitId()));
     if (!tmpDet) {
       edm::LogVerbatim("CosmicParametersDefinerForTP")
           << "***WARNING in CosmicParametersDefinerForTP::momentum: no GeomDet "
@@ -98,10 +87,10 @@ TrackingParticle::Vector CosmicParametersDefinerForTP::momentum(const edm::Event
       << "\t \t FINAL State at InnerMost Hit:   pt = " << finalGV.perp() << ", pz = " << finalGV.z();
 
   if (found) {
-    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), &mf);
     TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-        tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
+        tscblBuilder(ftsAtProduction, bs);  // as in TrackProducerAlgorithm
 
     if (tsAtClosestApproach.isValid()) {
       GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
@@ -135,16 +124,9 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &i
   using namespace std;
   using namespace reco;
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  edm::ESHandle<GlobalTrackingGeometry> theGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
-
-  edm::ESHandle<MagneticField> theMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-
-  edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"), bs);
+  auto const &bs = iEvent.get(bsToken_);
+  auto const &geometry = iSetup.getData(geometryToken_);
+  auto const &mf = iSetup.getData(mfToken_);
 
   GlobalVector finalGV(0, 0, 0);
   GlobalPoint finalGP(0, 0, 0);
@@ -172,7 +154,7 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &i
                                 SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for (auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
-    const GeomDet *tmpDet = theGeometry->idToDet(DetId(it->detUnitId()));
+    const GeomDet *tmpDet = geometry.idToDet(DetId(it->detUnitId()));
     if (!tmpDet) {
       edm::LogVerbatim("CosmicParametersDefinerForTP")
           << "***WARNING in CosmicParametersDefinerForTP::vertex: no GeomDet "
@@ -202,10 +184,10 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &i
       << "\t \t FINAL State at InnerMost Hit:   radius = " << finalGP.perp() << ", z = " << finalGP.z();
 
   if (found) {
-    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), &mf);
     TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-        tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
+        tscblBuilder(ftsAtProduction, bs);  // as in TrackProducerAlgorithm
 
     if (tsAtClosestApproach.isValid()) {
       GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
@@ -213,7 +195,7 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &i
     } else {
       // to preserve old behaviour
       // would be better to flag this somehow to allow ignoring in downstream
-      vertex = TrackingParticle::Point(bs->x0(), bs->y0(), bs->z0());
+      vertex = TrackingParticle::Point(bs.x0(), bs.y0(), bs.z0());
       edm::LogVerbatim("CosmicParametersDefinerForTP") << "*** WARNING in CosmicParametersDefinerForTP::vertex: "
                                                           "tsAtClosestApproach is not valid."
                                                        << "\n";
@@ -234,5 +216,3 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &i
 
   return vertex;
 }
-
-TYPELOOKUP_DATA_REG(CosmicParametersDefinerForTP);

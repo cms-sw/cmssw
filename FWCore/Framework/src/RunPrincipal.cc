@@ -4,20 +4,17 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 
 namespace edm {
-  RunPrincipal::RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
-                             std::shared_ptr<ProductRegistry const> reg,
+  RunPrincipal::RunPrincipal(std::shared_ptr<ProductRegistry const> reg,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
                              unsigned int iRunIndex,
                              bool isForPrimaryProcess,
                              MergeableRunProductProcesses const* mergeableRunProductProcesses)
-      : Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess),
-        aux_(aux),
-        index_(iRunIndex) {
+      : Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess), index_(iRunIndex) {
     if (mergeableRunProductProcesses) {  // primary RunPrincipals of EventProcessor
       mergeableRunProductMetadataPtr_ = (std::make_unique<MergeableRunProductMetadata>(*mergeableRunProductProcesses));
     }
@@ -26,9 +23,9 @@ namespace edm {
   RunPrincipal::~RunPrincipal() {}
 
   void RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader) {
-    m_reducedHistoryID = processHistoryRegistry.reducedProcessHistoryID(aux_->processHistoryID());
-    auto history = processHistoryRegistry.getMapped(aux_->processHistoryID());
-    fillPrincipal(aux_->processHistoryID(), history, reader);
+    m_reducedHistoryID = processHistoryRegistry.reducedProcessHistoryID(aux_.processHistoryID());
+    auto history = processHistoryRegistry.getMapped(aux_.processHistoryID());
+    fillPrincipal(aux_.processHistoryID(), history, reader);
 
     for (auto& prod : *this) {
       prod->setMergeableRunProductMetadata(mergeableRunProductMetadataPtr_.get());

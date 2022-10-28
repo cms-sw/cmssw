@@ -7,7 +7,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 
-class EcalDCCHeaderDisplay : public edm::EDAnalyzer {
+class EcalDCCHeaderDisplay : public edm::one::EDAnalyzer<> {
 public:
   EcalDCCHeaderDisplay(const edm::ParameterSet& ps);
 
@@ -23,5 +23,5 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::InputTag EcalDCCHeaderCollection_;
+  const edm::EDGetTokenT<EcalRawDataCollection> EcalDCCHeaderCollection_;
 };

@@ -13,7 +13,7 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,7 +27,7 @@ class Propagator;
 
 /* Class MuonPtFilter Interface */
 
-class MuonPtFilter : public edm::EDFilter {
+class MuonPtFilter : public edm::stream::EDFilter<> {
 public:
   /// Constructor
   MuonPtFilter(const edm::ParameterSet &);

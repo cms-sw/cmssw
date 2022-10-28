@@ -110,58 +110,11 @@ containerID(patTaus.tauIDSources, "hpsPFTauBasicDiscriminators", "IDWPdefinition
     ["byTightCombinedIsolationDeltaBetaCorr3Hits", "ByTightCombinedIsolationDBSumPtCorr3Hits"],
     ["byPhotonPtSumOutsideSignalCone", "ByPhotonPtSumOutsideSignalCone"]
     ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT", "rawValues", [
-    ["byIsolationMVArun2v1DBoldDMwLTraw", "discriminator"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT", "workingPoints", [
-    ["byVVLooseIsolationMVArun2v1DBoldDMwLT", "_VVLoose"],
-    ["byVLooseIsolationMVArun2v1DBoldDMwLT", "_VLoose"],
-    ["byLooseIsolationMVArun2v1DBoldDMwLT", "_Loose"],
-    ["byMediumIsolationMVArun2v1DBoldDMwLT", "_Medium"],
-    ["byTightIsolationMVArun2v1DBoldDMwLT", "_Tight"],
-    ["byVTightIsolationMVArun2v1DBoldDMwLT", "_VTight"],
-    ["byVVTightIsolationMVArun2v1DBoldDMwLT", "_VVTight"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT", "rawValues", [
-    ["byIsolationMVArun2v1DBnewDMwLTraw", "discriminator"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT", "workingPoints", [
-    ["byVVLooseIsolationMVArun2v1DBnewDMwLT", "_VVLoose"],
-    ["byVLooseIsolationMVArun2v1DBnewDMwLT", "_VLoose"],
-    ["byLooseIsolationMVArun2v1DBnewDMwLT", "_Loose"],
-    ["byMediumIsolationMVArun2v1DBnewDMwLT", "_Medium"],
-    ["byTightIsolationMVArun2v1DBnewDMwLT", "_Tight"],
-    ["byVTightIsolationMVArun2v1DBnewDMwLT", "_VTight"],
-    ["byVVTightIsolationMVArun2v1DBnewDMwLT", "_VVTight"]
-    ])
 containerID(patTaus.tauIDSources, "hpsPFTauBasicDiscriminatorsdR03", "IDdefinitions", [
     ["chargedIsoPtSumdR03", "ChargedIsoPtSumdR03"],
     ["neutralIsoPtSumdR03", "NeutralIsoPtSumdR03"],
     ["neutralIsoPtSumWeightdR03", "NeutralIsoPtSumWeightdR03"],
     ["footprintCorrectiondR03", "TauFootprintCorrectiondR03"],
     ["photonPtSumOutsideSignalConedR03", "PhotonPtSumOutsideSignalConedR03"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT", "rawValues", [
-    ["byIsolationMVArun2v1DBdR03oldDMwLTraw", "discriminator"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT", "workingPoints", [
-    ["byVVLooseIsolationMVArun2v1DBdR03oldDMwLT", "_VVLoose"],
-    ["byVLooseIsolationMVArun2v1DBdR03oldDMwLT", "_VLoose"],
-    ["byLooseIsolationMVArun2v1DBdR03oldDMwLT", "_Loose"],
-    ["byMediumIsolationMVArun2v1DBdR03oldDMwLT", "_Medium"],
-    ["byTightIsolationMVArun2v1DBdR03oldDMwLT", "_Tight"],
-    ["byVTightIsolationMVArun2v1DBdR03oldDMwLT", "_VTight"],
-    ["byVVTightIsolationMVArun2v1DBdR03oldDMwLT", "_VVTight"]
-    ])    
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByMVA6ElectronRejection", "rawValues", [
-    ["againstElectronMVA6Raw", "discriminator"],
-    ["againstElectronMVA6category", "category"]
-    ])
-containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByMVA6ElectronRejection", "workingPoints", [
-    ["againstElectronVLooseMVA6", "_VLoose"],
-    ["againstElectronLooseMVA6", "_Loose"],
-    ["againstElectronMediumMVA6", "_Medium"],
-    ["againstElectronTightMVA6", "_Tight"],
-    ["againstElectronVTightMVA6", "_VTight"]
     ])
 singleID(patTaus.tauIDSources, "hpsPFTauDiscriminationByDeadECALElectronRejection", "againstElectronDeadECAL")

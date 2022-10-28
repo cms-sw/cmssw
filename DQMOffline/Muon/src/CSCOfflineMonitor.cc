@@ -56,8 +56,13 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   // wire digis
   ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
 
+  // For low multiplicities (e.g. low or no pileup)
   hWirenGroupsTotal =
-      ibooker.book1D("hWirenGroupsTotal", "Fired Wires per Event; # Wiregroups Fired", 500, -0.5, 499.5);
+      ibooker.book1D("hWirenGroupsTotal", "Fired Wires per Event; # Wiregroups Fired", 250, 0., 250.);  // 1 bin is 1
+  // For high multiplcities (e.g. with pileup)
+  hWirenGroupsTotalHi =
+      ibooker.book1D("hWirenGroupsTotalHi", "Fired Wires per Event; # Wiregroups Fired", 250, 0., 1000.);  // i bin is 4
+
   hWireTBin.push_back(ibooker.book1D("hWireTBin_m42", "Wire TBin Fired (ME -4/2); Time Bin (25ns)", 17, -0.5, 16.5));
   hWireTBin.push_back(ibooker.book1D("hWireTBin_m41", "Wire TBin Fired (ME -4/1); Time Bin (25ns)", 17, -0.5, 16.5));
   hWireTBin.push_back(ibooker.book1D("hWireTBin_m32", "Wire TBin Fired (ME -3/2); Time Bin (25ns)", 17, -0.5, 16.5));
@@ -120,8 +125,14 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
       ibooker.book1D("hWireNumber_p42", "Wiregroup Number Fired (ME +4/2); Wiregroup #", 113, -0.5, 112.5));
 
   // strip digis
-  hStripNFired =
-      ibooker.book1D("hStripNFired", "Fired Strips per Event; # Strips Fired (above 13 ADC)", 1000, -0.5, 999.5);
+
+  // For low multiplicities (e.g. low or no pileup)
+  hStripNFired = ibooker.book1D(
+      "hStripNFired", "Fired Strips per Event; # Strips Fired (above 13 ADC)", 400, 0., 400.);  // 1 bin is 1
+  // For high multiplcities (e.g. with pileup)
+  hStripNFiredHi = ibooker.book1D(
+      "hStripNFiredHi", "Fired Strips per Event; # Strips Fired (above 13 ADC)", 500, 0., 2000.);  // 1 bin is 4
+
   hStripNumber.push_back(
       ibooker.book1D("hStripNumber_m42", "Strip Number Fired (ME -4/2); Strip # Fired (above 13 ADC)", 81, -0.5, 80.5));
   hStripNumber.push_back(
@@ -210,7 +221,11 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   // rechits
   ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
 
-  hRHnrechits = ibooker.book1D("hRHnrechits", "recHits per Event (all chambers); # of RecHits", 500, -0.50, 499.5);
+  // For low multiplicities (e.g. low or no pileup)
+  hRHnrechits = ibooker.book1D("hRHnrechits", "RecHits per Event; # of RecHits", 100, 0., 100.);  // 1 bin is 1
+  // For high multiplcities (e.g. with pileup)
+  hRHnrechitsHi = ibooker.book1D("hRHnrechitsHi", "RecHits per Event; # of RecHits", 250, 0., 1000.);  // 1 bin is 4
+
   hRHGlobal.push_back(ibooker.book2D(
       "hRHGlobalp1", "recHit global X,Y station +1; Global X (cm); Global Y (cm)", 100, -800., 800., 100, -800., 800.));
   hRHGlobal.push_back(ibooker.book2D(
@@ -395,7 +410,8 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   // segments
   ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Segments");
 
-  hSnSegments = ibooker.book1D("hSnSegments", "Number of Segments per Event; # of Segments", 26, -0.5, 25.5);
+  hSnSegments = ibooker.book1D("hSnSegments", "Segments per Event; # of Segments", 100, 0., 100.);  // 1 bin is 1
+
   hSnhitsAll = ibooker.book1D("hSnhits", "N hits on Segments; # of hits", 8, -0.5, 7.5);
   hSnhits.push_back(ibooker.book1D("hSnhitsm42", "# of hits on Segments (ME -4/2); # of hits", 8, -0.5, 7.5));
   hSnhits.push_back(ibooker.book1D("hSnhitsm41", "# of hits on Segments (ME -4/1); # of hits", 8, -0.5, 7.5));
@@ -1028,10 +1044,8 @@ void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
     }
   }  // end wire loop
 
-  // this way you can zero suppress but still store info on # events with no digis
-  // Tim: I'm unhappy with that since it breaks hist statistics
-  //  if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
   hWirenGroupsTotal->Fill(nWireGroupsTotal);
+  hWirenGroupsTotalHi->Fill(nWireGroupsTotal);
 }
 
 // ==============================================
@@ -1066,11 +1080,9 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
     }
   }  // end strip loop
 
-  // this way you can zero suppress but still store info on # events with no digis
-  // Tim: I guess the above comment means 'zero suppress' because the hist range is from -0.5.
-  // But doing this means the hist statistics are broken. If the zero bin is high, just apply log scale?
-  //  if (nStripsFired == 0) nStripsFired = -1;
   hStripNFired->Fill(nStripsFired);
+  hStripNFiredHi->Fill(nStripsFired);
+
   // fill n per event
 }
 
@@ -1191,6 +1203,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
 
   //  if (nRecHits == 0) nRecHits = -1; // I see no point in doing this
   hRHnrechits->Fill(nRecHits);
+  hRHnrechitsHi->Fill(nRecHits);
 }
 
 // ==============================================
@@ -1313,7 +1326,6 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 
   }  // end segment loop
 
-  //  if (nSegments == 0) nSegments = -1; // I see no point in doing this
   hSnSegments->Fill(nSegments);
 }
 
@@ -1607,11 +1619,16 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
               NumberOfLayers++;
             }
           }
-          int bin = 0;
-          if (iS == 0)
-            bin = iR + 1 + (iE * 10);
-          else
-            bin = (iS + 1) * 2 + (iR + 1) + (iE * 10);
+
+          // set bin = 1-10 for ME-42, ME-41,...ME-11B, ME-11A,
+          //           11-20 for ME+11A, ME+11B, ... ME+41, ME+42
+          int bin = CSCDetId::iChamberType(iS + 1, iR + 1);  // 1-10 for ME11A...ME42
+          if (iE > 0) {                                      // in this loop iE=1 is -z endcap
+            bin = 11 - bin;
+          } else {  // in this loop iE=0 is +z endcap
+            bin += 10;
+          }
+
           if (NumberOfLayers > 1) {
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if (AllSegments[iE][iS][iR][iC]) {
@@ -1647,21 +1664,6 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
     theSeg.push_back(&theSegments[2]);
   if (1 == seg_ME3[1])
     theSeg.push_back(&theSegments[3]);
-
-  // Needed for plots
-  // at the end the chamber types will be numbered as 1 to 20
-  // (ME-4./2, ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1, ME+4/2)
-  std::map<std::string, float> chamberTypes;
-  chamberTypes["ME1/a"] = 0.5;
-  chamberTypes["ME1/b"] = 1.5;
-  chamberTypes["ME1/2"] = 2.5;
-  chamberTypes["ME1/3"] = 3.5;
-  chamberTypes["ME2/1"] = 4.5;
-  chamberTypes["ME2/2"] = 5.5;
-  chamberTypes["ME3/1"] = 6.5;
-  chamberTypes["ME3/2"] = 7.5;
-  chamberTypes["ME4/1"] = 8.5;
-  chamberTypes["ME4/2"] = 9.5;
 
   if (!theSeg.empty()) {
     std::map<int, GlobalPoint> extrapolatedPoint;
@@ -1728,18 +1730,15 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
               ++nRHLayers;
             }
           }
-          //std::cout<<" nRHLayers = "<<nRHLayers<<std::endl;
-          float verticalScale = chamberTypes[cscchamber->specs()->chamberTypeName()];
-          if (cscchamberCenter.z() < 0) {
-            verticalScale = -verticalScale;
-          }
-          verticalScale += 10.5;
+
+          // set verticalScale to 1-10 for ME-42...ME-11A,
+          //                     11-20 for ME+11A...ME+42
+          float verticalScale =
+              9. + cscchamber->id().endcap() + (cscchamber->specs()->chamberType()) * (cscchamber->id().zendcap());
+
           hSensitiveAreaEvt->Fill(float(cscchamber->id().chamber()), verticalScale);
           if (nRHLayers > 1) {  // this chamber contains a reliable signal
-            //chamberTypes[cscchamber->specs()->chamberTypeName()];
-            // "intrinsic" efficiencies
-            //std::cout<<" verticalScale = "<<verticalScale<<" chType = "<<cscchamber->specs()->chamberTypeName()<<std::endl;
-            // this is the denominator forr all efficiencies
+            // this is the denominator for all efficiencies
             hEffDenominator->Fill(float(cscchamber->id().chamber()), verticalScale);
             // Segment efficiency
             if (AllSegments[cscchamber->id().endcap() - 1][cscchamber->id().station() - 1][cscchamber->id().ring() - 1]
@@ -1749,7 +1748,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 
             for (int iL = 0; iL < 6; ++iL) {
               float weight = 1. / 6.;
-              // one shold account for the weight in the efficiency...
+              // should account for the weight in the efficiency...
               // Rechit efficiency
               if (AllRecHits[cscchamber->id().endcap() - 1][cscchamber->id().station() - 1][cscchamber->id().ring() - 1]
                             [cscchamber->id().chamber() - 1][iL]) {

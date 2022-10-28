@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DQM", Run3)
 process.options = cms.untracked.PSet(
   SkipEvent = cms.untracked.vstring('ProductNotFound') 
 )

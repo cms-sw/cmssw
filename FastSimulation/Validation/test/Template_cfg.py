@@ -53,8 +53,6 @@ process.load("FastSimulation.Configuration.HLT_cff")
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
 # Schedule the HLT paths
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 process.reconstruction = cms.Path(process.reconstructionWithFamos)

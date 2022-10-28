@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -52,15 +52,14 @@
 // class declaration
 //
 
-class EcalMIPRecHitFilter : public edm::EDFilter {
+class EcalMIPRecHitFilter : public edm::global::EDFilter<> {
 public:
   explicit EcalMIPRecHitFilter(const edm::ParameterSet&);
-  ~EcalMIPRecHitFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool filter(edm::Event&, edm::EventSetup const&) override;
+  bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyRecordToken_;
@@ -94,17 +93,12 @@ EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
   // now do what ever initialization is needed
 }
 
-EcalMIPRecHitFilter::~EcalMIPRecHitFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool EcalMIPRecHitFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+bool EcalMIPRecHitFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   using namespace edm;
 
   // getting very basic uncalRH

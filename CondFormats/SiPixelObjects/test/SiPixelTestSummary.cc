@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,17 +20,18 @@ using std::string;
 using namespace std;
 
 // ----------------------------------------------------------------------
-class SiPixelTestSummary : public edm::EDAnalyzer {
+class SiPixelTestSummary : public edm::one::EDAnalyzer<> {
 public:
-  explicit SiPixelTestSummary(const edm::ParameterSet&) {}
+  explicit SiPixelTestSummary(const edm::ParameterSet&) : geomToken_(esConsumes()) {}
   ~SiPixelTestSummary();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 
 // ----------------------------------------------------------------------
-SiPixelTestSummary::~SiPixelTestSummary() {}
+SiPixelTestSummary::~SiPixelTestSummary() = default;
 
 // ----------------------------------------------------------------------
 void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -38,8 +39,7 @@ void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   SiPixelDetSummary a(1);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(geomToken_);
 
   cout << "**********************************************************************" << endl;
   cout << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;

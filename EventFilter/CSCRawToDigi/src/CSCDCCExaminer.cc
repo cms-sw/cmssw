@@ -234,6 +234,7 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask)
   nWG_round_up = 0;
 
   TMB_WordsRPC = 0;
+  TMB_WordsGEM = 0;
   TMB_Firmware_Revision = 0;
   DDU_Firmware_Revision = 0;
   zeroCounts();
@@ -270,10 +271,12 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
   /// Check for presence of data blocks inside TMB data
   bool fTMB_MiniScope_Start = false;
   bool fTMB_RPC_Start = false;
+  bool fTMB_GEM_Start = false;
   bool fTMB_BlockedCFEBs_Start = false;
 
   bool fTMB_MiniScope = false;
   bool fTMB_RPC = false;
+  bool fTMB_GEM = false;
   bool fTMB_BlockedCFEBs = false;
 
   while (length > 0) {
@@ -306,7 +309,9 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
     /// this counter is reset if ALCT Header is found right after DMB Header
     if (fALCT_Header) {
       /// decode the actual counting if zero suppression enabled
-      if (ALCT_ZSE) {
+      /// Note: For Run3 the ALCT boards firmware has HMT bits added to ALCTs words, which interferes with ZSE anode rawhits flags
+      ///       making ALCT words calculation incorrect. Added condition to do not check ZSE flags for ALCT words before rawhits
+      if (ALCT_ZSE && (ALCT_WordsSinceLastHeaderZeroSuppressed >= ALCT_WordsBeforeRaw)) {
         for (int g = 0; g < 4; g++) {
           if (buf0[g] == 0x1000) {
             ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + nWG_round_up;
@@ -602,10 +607,12 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 
       fTMB_MiniScope_Start = false;
       fTMB_RPC_Start = false;
+      fTMB_GEM_Start = false;
       fTMB_BlockedCFEBs_Start = false;
 
       fTMB_MiniScope = false;
       fTMB_RPC = false;
+      fTMB_GEM = false;
       fTMB_BlockedCFEBs = false;
 
       zeroCounts();
@@ -722,17 +729,13 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       ///   Check if ALCT zero suppression enable:
       ALCT_ZSE = (buf1[1] & 0x1000) >> 12;
 
-      if (ALCT_ZSE) {
-        for (int g = 0; g < 4; g++) {
-          if (buf1[g] == 0x1000)
-            ALCT_WordsSinceLastHeader -= (nWG_round_up - 1);
-        }
-      }
 #ifdef LOCAL_UNPACK
-//        COUT << " Number of Wire Groups: " << nWG_round_up << std::endl;
-///       COUT << " ALCT_ZSE: " << ALCT_ZSE << std::endl;
-//        COUT << " raw_tbins: " << std::dec << raw_tbins << std::endl;
-//        COUT << " LCT Tbins: " << lct_tbins << std::endl;
+/*
+      COUT << " Number of Wire Groups: " << nWG_round_up << std::endl;
+      COUT << " ALCT_ZSE: " << ALCT_ZSE << std::endl;
+      COUT << " raw_tbins: " << std::dec << raw_tbins << std::endl;
+      COUT << " LCT Tbins: " << lct_tbins << std::endl;
+*/
 #endif
 
       //  Data block sizes:
@@ -752,6 +755,7 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 #endif
 
       ALCT_WordsExpected += config_size + colreg_size + hot_ch_size + alct_0_1_size + raw_hit_dump_size;
+      ALCT_WordsBeforeRaw = 8 + config_size + colreg_size + hot_ch_size + alct_0_1_size;
 
 #ifdef LOCAL_UNPACK
       COUT << " <A";
@@ -907,11 +911,12 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 
 #ifdef LOCAL_UNPACK
       /// Print Out ALCT word counting
-      /*
-                COUT << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
-                COUT << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
-                COUT << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed << std::endl;
-          */
+/*
+      COUT << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
+      COUT << " ALCT Words Before RawHits : " << ALCT_WordsBeforeRaw << std::endl;
+      COUT << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
+      COUT << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed << std::endl;
+*/
 #endif
       /// Check calculated CRC sum against reported
       if (checkCrcALCT) {
@@ -959,11 +964,42 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
     if (fTMB_Header && ((buf0[2] & 0xFFFF) == 0x6E0B)) {
       if (fTMB_Format2007) {
         /* Checks for TMB2007 firmware revisions ranges to detect data format
+               ---------------- 
+               * rev. code <0x4000 - TMB/OTMB firmware with changed firmware revision format
+               *     4 bits [12:9] = Data Format Version for the unpacker (can include TMB vs. OTMB etc here)
+               *     4 bits [8:5]  = Major Version (major features which breaks compatibility, requires changes to other board firmware) 
+               *     5 bits [4:0]  = Minor version  (minor features, internal fixes, bug fixes, etc). 
+               * ---------------- 
                * rev.0x50c3 - first revision with changed format 
                * rev.0x42D5 - oldest known from 06/21/2007
                * There is 4-bits year value rollover in revision number (0 in 2016)
                */
         if ((TMB_Firmware_Revision >= 0x50c3) || (TMB_Firmware_Revision < 0x42D5)) {
+          bool isGEMfirmware = false;
+          if ((TMB_Firmware_Revision < 0x4000) &&
+              (TMB_Firmware_Revision > 0x0)) { /* New TMB firmware revision format */
+            /* Data Format Version codes 
+             * 0=TMB
+             * 1=OTMB standard 
+             * 2=OTMB+CCLUT+HMT Run3 data format
+             * 3=OTMB+CCLUT+HMT+GEM Run3 data format
+             */
+            if (((TMB_Firmware_Revision >> 9) & 0x3) == 0x3)
+              isGEMfirmware = true;
+          }
+
+          if (isGEMfirmware) {
+            uint16_t Enabled_GEMs = 0;
+            /* GEM output format, based on the number of enabled fibers, not yet implemented in the firmware */
+            /*
+            for (int i = 0; i < 4; i++)
+              Enabled_GEMs += (buf_1[0] >> i) & 0x1;
+             */
+            Enabled_GEMs = 4;  // Currently always assume that all 4 fibers are enabled
+            // Number of enabled GEM Fibers * nTimebins
+            TMB_WordsGEM = Enabled_GEMs * ((buf_1[0] >> 5) & 0x1F) * 4;
+            TMB_WordsGEM += 2;  // add header/trailer for block of GEM raw hits
+          }
           // On/off * nRPCs * nTimebins * 2 words/RPC/bin
           TMB_WordsRPC = ((buf_1[0] & 0x0010) >> 4) * ((buf_1[0] & 0x000c) >> 2) * ((buf_1[0] >> 5) & 0x1F) * 2;
         } else  // original TMB2007 data format (may not work since TMB_Tbins != RPC_Tbins)
@@ -982,6 +1018,11 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       fTMB_RPC_Start = true;
     }
 
+    // Check for GEM data
+    if (fTMB_Header && (scanbuf(buf0, 4, 0x6C04) >= 0)) {
+      fTMB_GEM_Start = true;
+    }
+
     // Check for Mini-Scope data
     if (fTMB_Header && (scanbuf(buf0, 4, 0x6B07) >= 0)) {
       fTMB_MiniScope_Start = true;
@@ -997,6 +1038,11 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       fTMB_RPC = true;
     }
 
+    // Check for end of GEM data
+    if (fTMB_Header && fTMB_GEM_Start && (scanbuf(buf0, 4, 0x6D04) >= 0)) {
+      fTMB_GEM = true;
+    }
+
     // Check for end of Mini-Scope data
     if (fTMB_Header && fTMB_MiniScope_Start && (scanbuf(buf0, 4, 0x6E07) >= 0)) {
       fTMB_MiniScope = true;
@@ -1006,12 +1052,6 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
     if (fTMB_Header && fTMB_BlockedCFEBs_Start && (scanbuf(buf0, 4, 0x6ECB) >= 0)) {
       fTMB_BlockedCFEBs = true;
     }
-
-    /*
-         if ( fTMB_Header && (scanbuf(buf0,4, 0x6E04)>=0) ) {
-               TMB_WordsExpected += TMB_WordsRPC;
-           }
-      */
 
     // == TMB Trailer found
     if (
@@ -1085,6 +1125,10 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       if (fTMB_RPC)
         TMB_WordsExpected += TMB_WordsRPC;
 
+      // Correct expected wordcount by GEM data size
+      if (fTMB_GEM)
+        TMB_WordsExpected += TMB_WordsGEM;
+
       // Correct expected wordcount by MiniScope data size (22 words + 2 signature words)
       if (fTMB_MiniScope)
         TMB_WordsExpected += 24;
@@ -1115,7 +1159,7 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 
     // == CFEB Sample Trailer found
 
-    if (((buf0[1] & 0xF000) == 0x7000) && ((buf0[2] & 0xF000) == 0x7000) &&
+    if (!fTMB_Header && ((buf0[1] & 0xF000) == 0x7000) && ((buf0[2] & 0xF000) == 0x7000) &&
         ((buf0[1] != 0x7FFF) || (buf0[2] != 0x7FFF)) &&
         (((buf0[3] & 0xFFFF) == 0x7FFF) ||                                 // old format
          ((buf0[3] & buf0[0]) == 0x0000 && (buf0[3] + buf0[0]) == 0x7FFF)  // 2007 format
@@ -1167,7 +1211,7 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
     }
 
     // == CFEB B-word found
-    if ((buf0[0] & 0xF000) == 0xB000 && (buf0[1] & 0xF000) == 0xB000 && (buf0[2] & 0xF000) == 0xB000 &&
+    if (!fTMB_Header && (buf0[0] & 0xF000) == 0xB000 && (buf0[1] & 0xF000) == 0xB000 && (buf0[2] & 0xF000) == 0xB000 &&
         (buf0[3] & 0xF000) == 0xB000) {
       bCHAMB_STATUS[currentChamber] |= 0x400000;
 
@@ -1585,6 +1629,7 @@ void CSCDCCExaminer::zeroCounts() {
   ALCT_WordsSinceLastHeaderZeroSuppressed = 0;
   ALCT_WordCount = 0;
   ALCT_WordsExpected = 0;
+  ALCT_WordsBeforeRaw = 0;
   ALCT_ZSE = 0;
   TMB_WordsSinceLastHeader = 0;
   TMB_WordCount = 0;
@@ -1639,6 +1684,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordCount = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
   }  // ALCT Word Count Error
 
   if (!fALCT_Header &&
@@ -1653,6 +1699,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordCount = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
   }  // ALCT Word Count Error With zero suppression
 
   if (!fTMB_Header && (TMB_WordsSinceLastHeader != TMB_WordCount || TMB_WordsSinceLastHeader != TMB_WordsExpected)) {
@@ -1682,6 +1729,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordsSinceLastHeaderZeroSuppressed = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
     fALCT_Header = false;
   }
 

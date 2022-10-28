@@ -8,7 +8,6 @@ MuonCkfTrajectoryBuilder = cms.PSet(
     intermediateCleaning = cms.bool(False),
     #would skip the first layer to search for measurement if bare TrajectorySeed
     useSeedLayer = cms.bool(False),
-    MeasurementTrackerName = cms.string(''),
     estimator = cms.string('Chi2'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #propagator used only if useSeedLayer=true

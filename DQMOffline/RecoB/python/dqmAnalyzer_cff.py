@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.Combined.pfDeepCSVDiscriminatorsJetTags_cfi import pfDeepCSVDiscriminatorsJetTags
-
-
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
 bTagAnalysis.ptRanges = cms.vdouble(0.0)
 bTagAnalysis.doJetID = True
 bTagAnalysis.doJEC = True
 #Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
-bTagPlotsDATA = cms.Sequence(pfDeepCSVDiscriminatorsJetTags * bTagAnalysis)
+bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -24,9 +21,9 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
 from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
 myak4JetFlavourInfos = ak4JetFlavourInfos.clone(
-    jets = cms.InputTag("ak4PFJetsCHS"),
-    partons = cms.InputTag("selectedHadronsAndPartons","algorithmicPartons"),
-    hadronFlavourHasPriority = cms.bool(True)
+    jets = "ak4PFJetsCHS",
+    partons = "selectedHadronsAndPartons:algorithmicPartons",
+    hadronFlavourHasPriority = True
     )
 
 #Get gen jet collection for real jets
@@ -38,10 +35,10 @@ ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
 #do reco gen - reco matching
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
 newpatJetGenJetMatch = patJetGenJetMatch.clone(
-    src = cms.InputTag("ak4PFJetsCHS"),
-    matched = cms.InputTag("ak4GenJetsForPUid"),
-    maxDeltaR = cms.double(0.25),
-    resolveAmbiguities = cms.bool(True)
+    src = "ak4PFJetsCHS",
+    matched = "ak4GenJetsForPUid",
+    maxDeltaR = 0.25,
+    resolveAmbiguities = True
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
@@ -56,7 +53,7 @@ bTagValidation.doJetID = True
 bTagValidation.doJEC = True
 bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
-prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos*pfDeepCSVDiscriminatorsJetTags)
+prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos)
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 ## customizations for the pp_on_AA eras

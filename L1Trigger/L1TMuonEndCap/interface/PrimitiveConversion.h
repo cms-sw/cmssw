@@ -24,7 +24,8 @@ public:
                  bool useNewZones,
                  bool fixME11Edges,
                  bool bugME11Dupes,
-                 bool useRun3CCLUT);
+                 bool useRun3CCLUT_OTMB,
+                 bool useRun3CCLUT_TMB);
 
   void process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map, EMTFHitCollection& conv_hits) const;
 
@@ -105,7 +106,8 @@ private:
   bool duplicateTheta_, fixZonePhi_, useNewZones_, fixME11Edges_;
   bool bugME11Dupes_;
   // Run 3 CCLUT algorithm
-  bool useRun3CCLUT_;
+  bool useRun3CCLUT_OTMB_;
+  bool useRun3CCLUT_TMB_;
 };
 
 #endif

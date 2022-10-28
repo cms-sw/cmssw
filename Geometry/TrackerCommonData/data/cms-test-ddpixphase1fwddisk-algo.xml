@@ -18,7 +18,7 @@
   <IncludeSection>
     <Include ref="Geometry/TrackerCommonData/data/testDDPixPhase1FwdDiskAlgo.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/PixelForward/pixfwdDisks.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v3/materials.xml"/>
   </IncludeSection>
 
 </DDDefinition>

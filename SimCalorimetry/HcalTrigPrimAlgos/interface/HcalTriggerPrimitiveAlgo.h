@@ -80,7 +80,7 @@ public:
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
   void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
-  void setWeightQIE11(int aieta, double weight);
+  void setWeightQIE11(int aieta, int weight);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
@@ -101,6 +101,7 @@ private:
   void addSignal(const IntegerCaloSamples& samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
   void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
+  void addUpgradeTDCFG(const HcalTrigTowerDetId& id, const QIE11DataFrame& frame);
 
   bool passTDC(const QIE10DataFrame& digi, int ts) const;
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
@@ -135,7 +136,7 @@ private:
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
-  std::array<std::array<double, 2>, 29> weightsQIE11_;
+  std::array<std::array<int, 2>, 29> weightsQIE11_;
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -213,6 +214,10 @@ private:
   typedef std::map<HcalTrigTowerDetId, FGUpgradeContainer> FGUpgradeMap;
   FGUpgradeMap fgUpgradeMap_;
 
+  typedef std::vector<HcalFinegrainBit::TowerTDC> FGUpgradeTDCContainer;
+  typedef std::map<HcalTrigTowerDetId, FGUpgradeTDCContainer> FGUpgradeTDCMap;
+  FGUpgradeTDCMap fgUpgradeTDCMap_;
+
   bool upgrade_hb_ = false;
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
@@ -264,6 +269,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   HF_Veto.clear();
   fgMap_.clear();
   fgUpgradeMap_.clear();
+  fgUpgradeTDCMap_.clear();
   theHFDetailMap.clear();
   theHFUpgradeDetailMap.clear();
 
@@ -319,6 +325,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   HF_Veto.clear();
   fgMap_.clear();
   fgUpgradeMap_.clear();
+  fgUpgradeTDCMap_.clear();
   theHFDetailMap.clear();
   theHFUpgradeDetailMap.clear();
 

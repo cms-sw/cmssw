@@ -20,7 +20,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
                                           double deltaRchargedMother,
                                           const fastsim::ParticleFilter& particleFilter,
                                           std::vector<SimTrack>& simTracks,
-                                          std::vector<SimVertex>& simVertices)
+                                          std::vector<SimVertex>& simVertices,
+                                          bool useFastSimsDecayer)
     : genEvent_(&genEvent),
       genParticleIterator_(genEvent_->particles_begin()),
       genParticleEnd_(genEvent_->particles_end()),
@@ -30,7 +31,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
       deltaRchargedMother_(deltaRchargedMother),
       particleFilter_(&particleFilter),
       simTracks_(&simTracks),
-      simVertices_(&simVertices)
+      simVertices_(&simVertices),
+      useFastSimsDecayer_(useFastSimsDecayer)
       // prepare unit convsersions
       //  --------------------------------------------
       // |          |      hepmc               |  cms |
@@ -216,17 +218,25 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     }
     // particles which do not descend from exotics must be produced within the beampipe
     int exoticRelativeId = 0;
-    if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
-    {
+    const bool producedWithinBeamPipe =
+        productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
+    if (!producedWithinBeamPipe && useFastSimsDecayer_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
       if (!isExotic(exoticRelativeId)) {
         continue;
       }
     }
 
-    // particle must not decay before it reaches the beam pipe
-    if (endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_) {
+    // FastSim will not make hits out of particles that decay before reaching the beam pipe
+    const bool decayedWithinBeamPipe =
+        endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
+    if (decayedWithinBeamPipe) {
       continue;
+    }
+
+    // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed
+    if (producedWithinBeamPipe && !decayedWithinBeamPipe && useFastSimsDecayer_) {
+      exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
     }
 
     // make the particle

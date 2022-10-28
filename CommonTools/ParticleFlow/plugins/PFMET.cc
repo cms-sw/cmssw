@@ -1,16 +1,39 @@
-#include "CommonTools/ParticleFlow/plugins/PFMET.h"
+/**\class PFMET
+\brief Computes the MET from a collection of PFCandidates. HF missing!
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+\todo Add HF energy to the MET calculation (access HF towers)
 
+\author Colin Bernet
+\date   february 2008
+*/
+
+#include "CommonTools/ParticleFlow/interface/PFMETAlgo.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
+#include <memory>
+#include <string>
+
+class PFMET : public edm::global::EDProducer<> {
+public:
+  explicit PFMET(const edm::ParameterSet&);
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  /// Input PFCandidates
+  edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidates_;
+  edm::EDPutTokenT<reco::METCollection> putToken_;
+
+  pf2pat::PFMETAlgo pfMETAlgo_;
+};
 
 using namespace std;
 using namespace edm;
@@ -18,30 +41,23 @@ using namespace reco;
 using namespace math;
 
 PFMET::PFMET(const edm::ParameterSet& iConfig) : pfMETAlgo_(iConfig) {
-  inputTagPFCandidates_ = iConfig.getParameter<InputTag>("PFCandidates");
-  tokenPFCandidates_ = consumes<PFCandidateCollection>(inputTagPFCandidates_);
+  auto inputTagPFCandidates = iConfig.getParameter<InputTag>("PFCandidates");
+  tokenPFCandidates_ = consumes<PFCandidateCollection>(inputTagPFCandidates);
 
-  produces<METCollection>();
+  putToken_ = produces<METCollection>();
 
-  LogDebug("PFMET") << " input collection : " << inputTagPFCandidates_;
+  LogDebug("PFMET") << " input collection : " << inputTagPFCandidates;
 }
 
-PFMET::~PFMET() {}
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFMET);
 
-void PFMET::beginJob() {}
-
-void PFMET::produce(Event& iEvent, const EventSetup& iSetup) {
+void PFMET::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const {
   LogDebug("PFMET") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 
   // get PFCandidates
-
-  Handle<PFCandidateCollection> pfCandidates;
-  iEvent.getByToken(tokenPFCandidates_, pfCandidates);
-
-  unique_ptr<METCollection> pOutput(new METCollection());
-
-  pOutput->push_back(pfMETAlgo_.produce(*pfCandidates));
-  iEvent.put(std::move(pOutput));
+  METCollection output{1, pfMETAlgo_.produce(iEvent.get(tokenPFCandidates_))};
+  iEvent.emplace(putToken_, std::move(output));
 
   LogDebug("PFMET") << "STOP event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 }

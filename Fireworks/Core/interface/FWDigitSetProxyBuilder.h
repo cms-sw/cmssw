@@ -41,6 +41,10 @@ public:
 
   // ---------- member functions ---------------------------
 
+  FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&) = delete;  // stop default
+
+  const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&) = delete;  // stop default
+
 protected:
   // AMT: temproary structure since TEveBoxSet::BFreeBox_t is protected
   // this workaround should be  removed in next root patch
@@ -56,10 +60,6 @@ protected:
   TEveBoxSet* getBoxSet() const { return m_boxSet; }
 
 private:
-  FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&) = delete;  // stop default
-
-  const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&) = delete;  // stop default
-
   // ---------- member data --------------------------------
 
   void modelChanges(const FWModelIds&, Product*) override;

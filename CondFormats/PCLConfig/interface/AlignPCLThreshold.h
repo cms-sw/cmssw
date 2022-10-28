@@ -2,6 +2,7 @@
 #define CondFormats_PCLConfig_AlignPCLThreshold_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <array>
 
 class AlignPCLThreshold {
 public:

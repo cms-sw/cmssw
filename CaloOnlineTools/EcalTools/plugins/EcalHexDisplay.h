@@ -4,7 +4,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -22,7 +22,7 @@
 
 #include <iomanip>
 
-class EcalHexDisplay : public edm::EDAnalyzer {
+class EcalHexDisplay : public edm::one::EDAnalyzer<> {
 public:
   EcalHexDisplay(const edm::ParameterSet& ps);
 
@@ -39,5 +39,5 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::InputTag fedRawDataCollectionTag_;
+  const edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
 };

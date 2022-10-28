@@ -52,6 +52,10 @@ def localLibName( payloadType ):
         ptype = payloadType.replace('::','_')
     return "%s_%spayload2xml" %(sanitize(ptype),prefix)
 
+def boost_version_for_this_release():
+    import pluginUtilities_payload2xml as mod2XML
+    return mod2XML.boost_version_label()
+
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):

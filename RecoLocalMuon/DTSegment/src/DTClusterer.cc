@@ -47,6 +47,7 @@ DTClusterer::DTClusterer(const edm::ParameterSet& pset) {
   // min number of hits to build a cluster
   theMinLayers = pset.getParameter<unsigned int>("minLayers");
 
+  dtGeomToken_ = esConsumes();
   if (debug)
     cout << "[DTClusterer] Constructor called" << endl;
 
@@ -57,12 +58,11 @@ DTClusterer::DTClusterer(const edm::ParameterSet& pset) {
 DTClusterer::~DTClusterer() {}
 
 /* Operations */
-void DTClusterer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void DTClusterer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   if (debug)
     cout << "[DTClusterer] produce called" << endl;
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = setup.getHandle(dtGeomToken_);
 
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> allHits;
@@ -103,7 +103,7 @@ void DTClusterer::produce(edm::Event& event, const edm::EventSetup& setup) {
   event.put(std::move(clusters));
 }
 
-vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector<DTRecHit1DPair>& pairs) {
+vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector<DTRecHit1DPair>& pairs) const {
   // create a vector of hits with wire position in SL frame
   vector<pair<float, DTRecHit1DPair> > hits = initHits(sl, pairs);
 
@@ -157,7 +157,8 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
   return result;
 }
 
-vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* sl, vector<DTRecHit1DPair>& pairs) {
+vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* sl,
+                                                           vector<DTRecHit1DPair>& pairs) const {
   vector<pair<float, DTRecHit1DPair> > result;
   for (vector<DTRecHit1DPair>::const_iterator pair = pairs.begin(); pair != pairs.end(); ++pair) {
     // get wire
@@ -176,7 +177,7 @@ vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* s
   return result;
 }
 
-unsigned int DTClusterer::differentLayers(vector<DTRecHit1DPair>& hits) {
+unsigned int DTClusterer::differentLayers(vector<DTRecHit1DPair>& hits) const {
   // Count the number of different layers
   int layers = 0;
   unsigned int result = 0;

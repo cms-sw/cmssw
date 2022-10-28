@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 from Validation.MuonIsolation.PostProcessor_cff import *
+from Validation.MuonCSCDigis.PostProcessor_cff import *
 from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalHits.SimHitsPostProcessor_cff import *
 from Validation.HcalDigis.HcalDigisPostProcessor_cff import *
@@ -43,6 +44,7 @@ postValidation = cms.Sequence(
     + METPostProcessor
     + L1GenPostProcessor
     + bdHadronTrackPostProcessor
+    + MuonCSCDigisPostProcessors
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -66,7 +68,6 @@ from Validation.MuonGEMHits.PostProcessor_cff import *
 from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
 from Validation.MuonME0Validation.PostProcessor_cff import *
-from Validation.MuonCSCDigis.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 from Validation.MtdValidation.MtdPostProcessor_cff import *
 

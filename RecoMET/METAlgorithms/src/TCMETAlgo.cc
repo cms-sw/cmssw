@@ -35,8 +35,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -87,6 +85,8 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
       iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
   tcmetDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData>>(
       iConfig.getParameter<edm::InputTag>("tcmetDepValueMap"));
+
+  magneticFieldToken_ = iConsumesCollector.esConsumes();
 
   nLayers_ = iConfig.getParameter<int>("nLayers");
   nLayersTight_ = iConfig.getParameter<int>("nLayersTight");
@@ -180,7 +180,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   event.getByToken(beamSpotToken_, beamSpotHandle_);
   event.getByToken(muonDepValueMapToken_, muonDepValueMapHandle_);
   event.getByToken(tcmetDepValueMapToken_, tcmetDepValueMapHandle_);
-  setup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle_);
+  magneticFieldHandle_ = setup.getHandle(magneticFieldToken_);
 
   correct_MET_for_Muons();
   correct_MET_for_Tracks();

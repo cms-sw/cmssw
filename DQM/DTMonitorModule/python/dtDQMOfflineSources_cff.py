@@ -40,6 +40,8 @@ from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
+from DQMOffline.MuonDPG.dtTnPEfficiencyTask_cfi import *
+
 dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
                          dtDataIntegrityTaskOffline +
                          dtRunConditionVar + 
@@ -48,6 +50,7 @@ dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
                          dtEfficiencyMonitor +
                          dtTriggerEfficiencyMonitor +
                          dtOccupancyMonitor +
+                         dtTnPEfficiencyMonitor +
                          dqmInfoDT)
 
 import EventFilter.DTRawToDigi.dturosunpacker_cfi

@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Utilities/interface/Signal.h"
@@ -115,7 +115,7 @@ namespace edmplugin {
                                               bool& ioThrowIfFailElseSucceedStatus);
     // ---------- member data --------------------------------
     SearchPath searchPath_;
-    tbb::concurrent_unordered_map<std::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher>
+    oneapi::tbb::concurrent_unordered_map<std::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher>
         loadables_;
 
     CategoryToInfos categoryToInfos_;

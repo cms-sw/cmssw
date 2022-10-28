@@ -20,6 +20,7 @@
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
 #include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/AssociationMap.h"

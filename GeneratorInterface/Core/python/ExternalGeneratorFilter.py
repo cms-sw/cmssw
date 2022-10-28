@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 class ExternalGeneratorFilter(cms.EDFilter):
-    def __init__(self, prod, _external_process_waitTime_ = cms.untracked.uint32(60), _external_process_verbose_ = cms.untracked.bool(False),
+    def __init__(self, prod, _external_process_waitTime_ = cms.untracked.uint32(300), _external_process_verbose_ = cms.untracked.bool(False),
                  _external_process_components_ = cms.vstring()):
         self.__dict__['_external_process_verbose_']=_external_process_verbose_
         self.__dict__['_external_process_waitTime_']=_external_process_waitTime_
@@ -30,7 +30,7 @@ class ExternalGeneratorFilter(cms.EDFilter):
         newpset.addString(True, "@module_type", self.type_())
         newpset.addString(True, "@module_edm_type", cms.EDFilter.__name__)
         newpset.addString(True, "@external_type", self._prod.type_())
-        newpset.addString(False,"@python_config", self._prod.dumpPython())
+        newpset.addString(False,"@python_config", self._prod.dumpPython().replace(R"\n", R"\\n"))
         newpset.addBool(False,"_external_process_verbose_", self._external_process_verbose_.value())
         newpset.addUInt32(False,"_external_process_waitTime_", self._external_process_waitTime_.value())
         newpset.addVString(True, "_external_process_components_", self._external_process_components_.value())

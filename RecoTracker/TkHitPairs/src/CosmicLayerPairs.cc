@@ -11,7 +11,6 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() {
   std::vector<SeedLayerPairs::LayerPair> result;
 
@@ -236,29 +235,19 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() {
 }
 CosmicLayerPairs::~CosmicLayerPairs() {}
 
-void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
-                            const SiStripRecHit2DCollection &collrphi,
+void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collrphi,
                             const SiStripMatchedRecHit2DCollection &collmatched,
-                            //std::string geometry,
-                            const edm::EventSetup &iSetup) {
+                            const GeometricSearchTracker &track,
+                            const TrackerTopology &ttopo) {
   ////std::cout << "initializing geometry " << geometry << std::endl;
-  //_geometry=geometry;
-  //if(isFirstCall){
-  //std::cout << "in isFirtsCall" << std::endl;
-  edm::ESHandle<GeometricSearchTracker> track;
-  iSetup.get<TrackerRecoGeometryRecord>().get(track);
   //std::cout << "about to take barrel" << std::endl;
-  bl = track->barrelLayers();
+  bl = track.barrelLayers();
   //std::cout << "barrel taken" << std::endl;
-  fpos = track->posTecLayers();
+  fpos = track.posTecLayers();
   //std::cout << "pos forw taken" << std::endl;
-  fneg = track->negTecLayers();
+  fneg = track.negTecLayers();
   //std::cout << "neg forw taken" << std::endl;
   //isFirstCall=false;
-
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology &ttopo = *httopo;
 
   if (_geometry ==
       "MTCC") {  //we have to distinguish the MTCC and CRACK case because they have special geometries with different neumbering of layers

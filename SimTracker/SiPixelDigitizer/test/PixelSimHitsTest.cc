@@ -25,7 +25,7 @@ New det-id.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -70,7 +70,7 @@ using namespace edm;
 
 //#define CHECK_GEOM
 
-class PixelSimHitsTest : public edm::EDAnalyzer {
+class PixelSimHitsTest : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PixelSimHitsTest(const edm::ParameterSet &);
   ~PixelSimHitsTest() override;
@@ -117,6 +117,8 @@ private:
 };
 //
 PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   std::string src_, list_;
   src_ = iConfig.getParameter<std::string>("src");
   list_ = iConfig.getParameter<std::string>("list");

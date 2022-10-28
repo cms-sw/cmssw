@@ -72,13 +72,6 @@ def OptionsFromItems(items):
 
     #now adjust the given parameters before passing it to the ConfigBuilder
 
-    # concurrency options
-    nStreams = options.nStreams if options.nStreams != '0' else options.nThreads
-    if options.nConcurrentLumis == '0':
-        options.nConcurrentLumis = '1' if nStreams == '1' else '2'
-    if options.nConcurrentIOVs == '0':
-        options.nConcurrentIOVs = options.nConcurrentLumis
-
     #trail a "/" to dirin and dirout
     if options.dirin!='' and (not options.dirin.endswith('/')):    options.dirin+='/'
     if options.dirout!='' and (not options.dirout.endswith('/')):  options.dirout+='/'
@@ -229,10 +222,15 @@ def OptionsFromItems(items):
             options.isMC=True
         if 'SIM' in options.datatier:
             options.isMC=True
+        if 'VALIDATION' in options.trimmedStep:
+            options.isMC=True
+        if options.era and 'Phase2' in options.era:
+            options.isMC=True
         if options.isMC:
             print('We have determined that this is simulation (if not, rerun cmsDriver.py with --data)')
         else:
             print('We have determined that this is real data (if not, rerun cmsDriver.py with --mc)')
+            options.isData=True
 
     if options.profile:
         if options.profile and options.prefix:

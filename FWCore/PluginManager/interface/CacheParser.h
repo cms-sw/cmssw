@@ -43,6 +43,9 @@ namespace edmplugin {
     typedef std::vector<NameAndType> NameAndTypes;
     typedef std::map<std::filesystem::path, NameAndTypes> LoadableToPlugins;
 
+    CacheParser(const CacheParser&) = delete;                   // stop default
+    const CacheParser& operator=(const CacheParser&) = delete;  // stop default
+
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------
@@ -61,9 +64,6 @@ namespace edmplugin {
   private:
     //for testing
     friend class ::TestCacheParser;
-    CacheParser(const CacheParser&) = delete;  // stop default
-
-    const CacheParser& operator=(const CacheParser&) = delete;  // stop default
 
     static bool readline(std::istream& iIn,
                          const std::filesystem::path& iDirectory,

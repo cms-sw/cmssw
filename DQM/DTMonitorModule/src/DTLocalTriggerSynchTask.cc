@@ -9,6 +9,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // Geometry
@@ -40,11 +41,12 @@ using namespace std;
 DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps)
     : nevents(0),
       tTrigSync{DTTTrigSyncFactory::get()->create(ps.getParameter<std::string>("tTrigMode"),
-                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"))},
+                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"),
+                                                  consumesCollector())},
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: Constructor" << endl;
-  tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("TMInputTag"));
-  seg_Token_ = consumes<DTRecSegment4DCollection>(ps.getParameter<edm::InputTag>("SEGInputTag"));
+  tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getUntrackedParameter<edm::InputTag>("TMInputTag"));
+  seg_Token_ = consumes<DTRecSegment4DCollection>(ps.getUntrackedParameter<edm::InputTag>("SEGInputTag"));
 
   bxTime = ps.getParameter<double>("bxTimeInterval");  // CB move this to static const or DB
   rangeInBX = ps.getParameter<bool>("rangeWithinBX");

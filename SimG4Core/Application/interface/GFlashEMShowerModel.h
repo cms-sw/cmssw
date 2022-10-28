@@ -46,7 +46,7 @@ private:
 
   GflashEMShowerProfile* theProfile;
 
-  const G4Region* theRegion;
+  G4Region* theRegion;
 
   G4Step* theGflashStep;
   G4Navigator* theGflashNavigator;

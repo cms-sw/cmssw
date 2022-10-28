@@ -20,6 +20,7 @@ public:
                                   const double initialScale = 1.0,
                                   const double initialSigma = 0.0)
       : vec_(v), scale_(initialScale), variance_(initialSigma * initialSigma) {}
+  FFTJetCorrectorTransient() = delete;
 
   inline const LorentzVector& vec() const { return vec_; }
   inline double scale() const { return scale_; }
@@ -39,8 +40,6 @@ public:
   }
 
 private:
-  FFTJetCorrectorTransient() = delete;
-
   LorentzVector vec_;
   double scale_;
   double variance_;

@@ -27,12 +27,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWSimTrackProxyBuilder(const FWSimTrackProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWSimTrackProxyBuilder& operator=(const FWSimTrackProxyBuilder&) = delete;
 
+private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 

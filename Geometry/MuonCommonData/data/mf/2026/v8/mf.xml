@@ -14,8 +14,8 @@
  <SolidSection label="mf.xml">
   <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg">
    <ZSection z="[z1GE0]"           rMin="[cms:CalorBeamR2]" rMax="[rMaxGE0]"/>
-   <ZSection z="[z2GE0]"           rMin="[cms:CalorBeamR2]" rMax="[rMaxGE0]"/>
-   <ZSection z="[z2GE0]"           rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[rMaxGE0]"/>
+   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
    <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:MuonBeamR0]" rMax="[cms:CalorMuonR]"/>
    <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:MERmin0]" rMax="[cms:MBarRmin]"/>
    <ZSection z="[cms:MEndcapZ0]"   rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>

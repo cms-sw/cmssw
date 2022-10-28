@@ -1,6 +1,7 @@
 <use name="CalibTracker/SiPhase2TrackerESProducers" source_only="1"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
+<use name="CondFormats/SiStripObjects"/>  <!-- needed for the SiStripBadStrip -->
 <use name="DataFormats/SiStripDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>

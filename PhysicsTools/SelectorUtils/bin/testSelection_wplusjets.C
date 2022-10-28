@@ -13,8 +13,6 @@
 #include <iostream>
 #include <cmath>  //necessary for absolute function fabs()
 
-#include <boost/lexical_cast.hpp>
-
 //Root includes
 #include "TROOT.h"
 #include "TFile.h"

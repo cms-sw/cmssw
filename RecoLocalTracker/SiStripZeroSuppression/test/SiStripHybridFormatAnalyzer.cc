@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -63,9 +62,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override;
 
@@ -137,7 +134,7 @@ SiStripHybridFormatAnalyzer::SiStripHybridFormatAnalyzer(const edm::ParameterSet
   h1Pedestals_->SetLineStyle(2);
 }
 
-SiStripHybridFormatAnalyzer::~SiStripHybridFormatAnalyzer() {}
+SiStripHybridFormatAnalyzer::~SiStripHybridFormatAnalyzer() = default;
 
 void SiStripHybridFormatAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -239,12 +236,6 @@ void SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventS
 void SiStripHybridFormatAnalyzer::beginRun(edm::Run const& iEvent, edm::EventSetup const&) { actualModule_ = 0; }
 
 void SiStripHybridFormatAnalyzer::endRun(edm::Run const& iEvent, edm::EventSetup const&) {}
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiStripHybridFormatAnalyzer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiStripHybridFormatAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripHybridFormatAnalyzer);

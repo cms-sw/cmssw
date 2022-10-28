@@ -29,8 +29,8 @@ namespace hcaldqm {
     filter::HashFilter _filter_VME, _filter_uTCA;
 
     //	Containers to store info for the whole run
-    Container2D _cEvnMsm_ElectronicsVME, _cEvnMsm_ElectronicsuTCA;
-    Container2D _cBcnMsm_ElectronicsVME, _cBcnMsm_ElectronicsuTCA;
+    Container2D _cEvnMsm_ElectronicsuTCA;
+    Container2D _cBcnMsm_ElectronicsuTCA;
     Container2D _cBadQuality_depth;
 
     bool _booked;

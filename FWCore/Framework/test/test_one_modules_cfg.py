@@ -9,15 +9,13 @@ nEvt = nRuns*nEvtRun
 process = cms.Process("TESTONEMODULES")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(nStreams),
-    numberOfThreads = cms.untracked.uint32(nStreams)
+process.options = dict(
+    numberOfStreams = nStreams,
+    numberOfThreads = nStreams,
+    numberOfConcurrentLuminosityBlocks = 1
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(nEvt)
-)
-
+process.maxEvents.input = nEvt
 
 process.source = cms.Source("EmptySource",
     timeBetweenEvents = cms.untracked.uint64(10),

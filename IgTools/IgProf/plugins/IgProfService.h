@@ -30,22 +30,29 @@ namespace edm {
       void preEvent(StreamContext const &sc);
       void postEvent(StreamContext const &sc);
 
+      void preModuleEvent(StreamContext const &sc, ModuleCallingContext const &mcc);
+      void postModuleEvent(StreamContext const &sc, ModuleCallingContext const &mcc);
+
       void postEndLumi(GlobalContext const &gc);
 
+      void preEndRun(GlobalContext const &gc);
       void postEndRun(GlobalContext const &gc);
 
+      void preEndProcessBlock(GlobalContext const &gc);
+      void postEndProcessBlock(GlobalContext const &gc);
+
+      void preEndJob();
       void postEndJob();
 
-      void postOpenFile(std::string const &, bool);
+      void postOpenFile(std::string const &);
 
-      void postCloseFile(std::string const &, bool);
-
-      inline bool isProcessWideService(IgProfService const *) { return true; }
+      void postCloseFile(std::string const &);
 
     private:
-      void makeDump(const std::string &format);
+      void makeDump(const std::string &format, std::string_view moduleLabel = "");
       static std::string replace(const std::string &s, const char *pat, int val);
       static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val);
+      static std::string replace(const std::string &s, const char *pat, std::string_view val);
 
       void (*dump_)(const char *);
 
@@ -56,8 +63,17 @@ namespace edm {
       std::string atPreEvent_;
       std::string atPostEvent_;
 
+      std::vector<std::string> modules_;
+      std::vector<std::string> moduleTypes_;
+      std::string atPreModuleEvent_;
+      std::string atPostModuleEvent_;
+
       std::string atPostEndLumi_;
+      std::string atPreEndRun_;
       std::string atPostEndRun_;
+      std::string atPreEndProcessBlock_;
+      std::string atPostEndProcessBlock_;
+      std::string atPreEndJob_;
       std::string atPostEndJob_;
 
       std::string atPostOpenFile_;
@@ -72,6 +88,7 @@ namespace edm {
       int nfileopened_;  // counter of files opened thus far
       int nfileclosed_;  // counter of files closed thus far
     };
+    inline bool isProcessWideService(IgProfService const *) { return true; }
   }  // namespace service
 }  // namespace edm
 

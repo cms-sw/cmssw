@@ -18,9 +18,9 @@ import FWCore.ParameterSet.Config as cms
 #
 
 import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1T.subSystemFolder = 'L1T'
-
+dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
+    subSystemFolder = 'L1T'
+)
 # DQM online L1 Trigger modules, with offline configuration
 from DQMOffline.L1Trigger.L1TMonitorOffline_cff import *
 from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
@@ -29,18 +29,18 @@ from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
 # DQM offline L1 Trigger versus Reco modules
 
 import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1TriggerReco = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1TriggerReco.subSystemFolder = 'L1T/L1TriggerVsReco'
-
+dqmEnvL1TriggerReco = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
+    subSystemFolder = 'L1T/L1TriggerVsReco'
+)
 #
 # DQM L1 Trigger Emulator in offline environment
 # Run also the L1HwVal producers (L1 Trigger emulators)
 #
 
 import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1TEMU = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
-
+dqmEnvL1TEMU = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
+    subSystemFolder = 'L1TEMU'
+)
 # DQM Offline Step 1 cfi/cff imports
 from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
@@ -276,6 +276,8 @@ l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 ##############################################################################
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 #from L1Trigger.L1TGlobal.hackConditions_cff import *
 #from L1Trigger.L1TMuon.hackConditions_cff import *
@@ -285,13 +287,19 @@ from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 # L1T emulator sequences
 from L1Trigger.Configuration.SimL1Emulator_cff import *
 from L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi import *
-stage2L1Trigger.toModify(simCscTriggerPrimitiveDigis, CSCComparatorDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi"))
-stage2L1Trigger.toModify(simCscTriggerPrimitiveDigis, CSCWireDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"))
+simMuonGEMPadDigis.InputCollection = "muonGEMDigis"
+stage2L1Trigger.toModify(simCscTriggerPrimitiveDigis, CSCComparatorDigiProducer = "muonCSCDigis:MuonCSCComparatorDigi")
+stage2L1Trigger.toModify(simCscTriggerPrimitiveDigis, CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi")
+# Contact GEM-CSC trigger coordinators Jason Gilmore and Giovanni Mocellin to set the 'runME11ILT' flag to True
+(stage2L1Trigger & run3_GEM).toModify(simCscTriggerPrimitiveDigis, GEMPadDigiClusterProducer = "muonCSCDigis:MuonGEMPadDigiCluster", commonParam = dict(runME11ILT = False))
 stage2L1Trigger.toModify(simDtTriggerPrimitiveDigis, digiTag = cms.InputTag("muonDTDigis"))
 simTwinMuxDigis.RPC_Source = cms.InputTag("muonRPCDigis")
 simOmtfDigis.srcRPC = cms.InputTag("muonRPCDigis")
-simEmtfDigis.CSCInput = cms.InputTag("emtfStage2Digis")
-simEmtfDigis.RPCInput = cms.InputTag("muonRPCDigis")
+simEmtfDigis.CSCInput = "emtfStage2Digis"
+simEmtfDigis.RPCInput = "muonRPCDigis"
+simEmtfDigis.GEMInput = "emtfStage2Digis"
+(stage2L1Trigger & run3_common).toModify(simEmtfShowers, CSCShowerInput = "muonCSCDigis:MuonCSCShowerDigi")
+
 # use unpacker calo TPs
 simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
 simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
@@ -431,3 +439,40 @@ stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOfflineClient, Stage2l1tEgDqmOffline
 stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOfflineClient, Stage2l1tMuonDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmics, Stage2l1TriggerDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmicsClient, Stage2l1TriggerDqmOfflineClient)
+
+##############################################################################
+#phase2
+##############################################################################
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+
+#
+# define sequences
+#
+from DQMOffline.L1Trigger.L1TPhase2Offline_cfi import *
+
+##############################################################################
+# sequence to run for all datasets
+Phase2l1TriggerOffline = cms.Sequence(
+                                dqmEnvL1T
+                                )
+
+##############################################################################
+# DQM sequences for step 1
+
+# DQM Offline sequence
+Phase2l1TriggerDqmOffline = cms.Sequence(
+                                l1tPhase2OfflineDQM
+                                )
+
+##############################################################################
+# DQM sequences for step 2
+
+# DQM Offline sequence
+Phase2l1TriggerDqmOfflineClient = cms.Sequence(
+                                DQMHarvestL1TPhase2
+                                )
+#replacements for phase2
+phase2_trigger.toReplaceWith(l1TriggerOffline, Phase2l1TriggerOffline)
+phase2_trigger.toReplaceWith(l1TriggerDqmOffline, Phase2l1TriggerDqmOffline)
+phase2_trigger.toReplaceWith(l1TriggerDqmOfflineClient, Phase2l1TriggerDqmOfflineClient)

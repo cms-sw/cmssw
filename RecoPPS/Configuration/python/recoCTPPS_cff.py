@@ -15,10 +15,39 @@ from CalibPPS.ESProducers.ppsTopology_cff import *
 recoCTPPSTask = cms.Task(
     totemRPLocalReconstructionTask ,
     ctppsDiamondLocalReconstructionTask ,
-    totemTimingLocalReconstructionTask ,
+    diamondSampicLocalReconstructionTask ,
     ctppsPixelLocalReconstructionTask ,
     ctppsLocalTrackLiteProducer ,
     ctppsProtons
 )
 
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+ctpps_2018.toReplaceWith(
+    recoCTPPSTask,
+    cms.Task(
+        totemRPLocalReconstructionTask ,
+        ctppsDiamondLocalReconstructionTask ,
+        totemTimingLocalReconstructionTask ,
+        ctppsPixelLocalReconstructionTask ,
+        ctppsLocalTrackLiteProducer ,
+        ctppsProtons
+    )
+)
+
 recoCTPPS = cms.Sequence(recoCTPPSTask)
+
+# reconstruction for direct simulation (RecHit-level info)
+
+totemRPFromRHLocalReconstructionTask = totemRPLocalReconstructionTask.copyAndExclude([totemRPClusterProducer, totemRPRecHitProducer])
+ctppsDiamondFromRHLocalReconstructionTask = ctppsDiamondLocalReconstructionTask.copyAndExclude([ctppsDiamondRecHits])
+ctppsPixelFromRHLocalReconstructionTask = ctppsPixelLocalReconstructionTask.copyAndExclude([ctppsPixelClusters, ctppsPixelRecHits])
+
+recoDirectSimPPSTask = cms.Task(
+    totemRPFromRHLocalReconstructionTask,
+    ctppsDiamondFromRHLocalReconstructionTask,
+    ctppsPixelFromRHLocalReconstructionTask,
+    ctppsLocalTrackLiteProducer,
+    ctppsProtons
+)
+
+recoDirectSimPPS = cms.Sequence(recoDirectSimPPSTask)

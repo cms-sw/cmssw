@@ -12,7 +12,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <map>
@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-class testChannel : public edm::EDAnalyzer {
+class testChannel : public edm::one::EDAnalyzer<> {
 public:
   //! Constructor
   testChannel(const edm::ParameterSet &ps);
@@ -58,18 +58,17 @@ public:
 private:
   int getHeaderSMId(const int headerId);
 
-  std::string m_digiCollection;  //! secondary name given to collection of digis
-  std::string m_digiProducer;    //! name of module/plugin/producer making digis
-  std::string m_headerProducer;  //! name of module/plugin/producer making headers
+  const edm::EDGetTokenT<EBDigiCollection> m_digiProducerToken;         //! Token to access digis
+  const edm::EDGetTokenT<EcalRawDataCollection> m_headerProducerToken;  //! Token to access headers
 
-  std::string m_xmlFile;  //! name of the xml file to be saved
+  const std::string m_xmlFile;  //! name of the xml file to be saved
 
-  int m_DACmin;
-  int m_DACmax;
-  double m_RMSmax;
-  int m_bestPed;
+  const int m_DACmin;
+  const int m_DACmax;
+  const double m_RMSmax;
+  const int m_bestPed;
 
-  int m_xtal;
+  const int m_xtal;
 
   TH2F m_pedVSDAC;
   TH2F m_singlePedVSDAC_1;

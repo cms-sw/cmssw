@@ -8,8 +8,6 @@ Note: some things done in methods written in classes rely on the querying module
       so these will not work in a normal context outside the framework.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 import json
 import datetime
 
@@ -24,7 +22,7 @@ except ImportError:
     exit()
     
 from . import data_sources, data_formats
-import urllib, urllib2, base64
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, base64
 from copy import deepcopy
 
 # get utility functions
@@ -50,8 +48,8 @@ def session_independent_object(object, schema=None):
     return new_object
 
 def session_independent(objects):
-    if isinstance(objects, list):
-        return map(session_independent_object, objects)
+    if type(objects) == list:
+        return list(map(session_independent_object, objects))
     else:
         # assume objects is a single object (not a list)
         return session_independent_object(objects)
@@ -153,9 +151,9 @@ class RegExp(object):
 
 def apply_filter(orm_query, orm_class, attribute, value):
     filter_attribute = getattr(orm_class, attribute)
-    if isinstance(value, list):
+    if type(value) == list:
         orm_query = orm_query.filter(filter_attribute.in_(value))
-    elif isinstance(value, data_sources.json_list):
+    elif type(value) == data_sources.json_list:
         orm_query = orm_query.filter(filter_attribute.in_(value.data()))
     elif type(value) in [Range, Radius]:
 
@@ -163,7 +161,7 @@ def apply_filter(orm_query, orm_class, attribute, value):
         plus = value.get_end()
         orm_query = orm_query.filter(and_(filter_attribute >= minus, filter_attribute <= plus))
 
-    elif isinstance(value, RegExp):
+    elif type(value) == RegExp:
 
         # Relies on being a SingletonThreadPool
 
@@ -181,7 +179,7 @@ def apply_filter(orm_query, orm_class, attribute, value):
     return orm_query
 
 def apply_filters(orm_query, orm_class, **filters):
-    for (key, value) in filters.items():
+    for (key, value) in list(filters.items()):
         if not(key in ["amount"]):
             orm_query = apply_filter(orm_query, orm_class, key, value)
     return orm_query
@@ -189,8 +187,11 @@ def apply_filters(orm_query, orm_class, **filters):
 def generate(map_blobs=False, class_name=None):
 
     Base = declarative_base()
+    schema = {"schema" : "CMS_CONDITIONS"}
+    fk_schema_prefix = ("%s." % schema["schema"]) if schema else ""
 
     class GlobalTag(Base):
+        __table_args__ = schema
         __tablename__ = 'GLOBAL_TAG'
 
         headers = ["name", "validity", "description", "release", "insertion_time", "snapshot_time", "scenario", "workflow", "type"]
@@ -246,7 +247,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(GlobalTag)
             query = apply_filters(query, self.__class__, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(GlobalTag.name).limit(amount).all()
             gts = data_sources.json_data_node.make(query_result)
             return gts
@@ -258,10 +259,10 @@ def generate(map_blobs=False, class_name=None):
             kwargs["global_tag_name"] = self.name
             all_tags = self.session.query(GlobalTagMap.global_tag_name, GlobalTagMap.record, GlobalTagMap.label, GlobalTagMap.tag_name)
             all_tags = apply_filters(all_tags, GlobalTagMap, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             all_tags = all_tags.order_by(GlobalTagMap.tag_name).limit(amount).all()
             column_names = ["global_tag_name", "record", "label", "tag_name"]
-            all_tags = map(lambda row : dict(zip(column_names, map(to_timestamp, row))), all_tags)
+            all_tags = [dict(list(zip(column_names, list(map(to_timestamp, row))))) for row in all_tags]
             all_tags = data_formats._dicts_to_orm_objects(GlobalTagMap, all_tags)
             return data_sources.json_data_node.make(all_tags)
 
@@ -281,7 +282,7 @@ def generate(map_blobs=False, class_name=None):
             tag_names = self.tags().get_members("tag_name").data()
             iovs_all_tags = self.session.query(IOV).filter(IOV.tag_name.in_(tag_names))
             iovs_all_tags = apply_filters(iovs_all_tags, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             iovs_all_tags = iovs_all_tags.limit(amount).subquery()
 
             # now, join Global Tag Map table onto IOVs
@@ -293,7 +294,7 @@ def generate(map_blobs=False, class_name=None):
             iovs_gt_tags = iovs_gt_tags.order_by(iovs_all_tags.c.since).all()
 
             column_names = ["tag_name", "since", "payload_hash", "insertion_time"]
-            all_iovs = map(lambda row : dict(zip(column_names, row)), iovs_gt_tags)
+            all_iovs = [dict(list(zip(column_names, row))) for row in iovs_gt_tags]
             all_iovs = data_formats._dicts_to_orm_objects(IOV, all_iovs)
 
             return data_sources.json_data_node.make(all_iovs)
@@ -335,14 +336,15 @@ def generate(map_blobs=False, class_name=None):
             return data_sources.json_data_node.make(table)
 
     class GlobalTagMap(Base):
+        __table_args__ = schema
         __tablename__ = 'GLOBAL_TAG_MAP'
 
         headers = ["global_tag_name", "record", "label", "tag_name"]
 
-        global_tag_name = Column(String(100), ForeignKey('GLOBAL_TAG.name'), primary_key=True, nullable=False)
-        record = Column(String(100), ForeignKey('RECORDS.record'), primary_key=True, nullable=False)
+        global_tag_name = Column(String(100), ForeignKey(fk_schema_prefix + 'GLOBAL_TAG.name'), primary_key=True, nullable=False)
+        record = Column(String(100), ForeignKey(fk_schema_prefix + 'RECORDS.record'), primary_key=True, nullable=False)
         label = Column(String(100), primary_key=True, nullable=False)
-        tag_name = Column(String(100), ForeignKey('TAG.name'), nullable=False)
+        tag_name = Column(String(100), ForeignKey(fk_schema_prefix + 'TAG.name'), nullable=False)
 
         def __init__(self, dictionary={}, convert_timestamps=True):
             # assign each entry in a kwargs
@@ -372,11 +374,12 @@ def generate(map_blobs=False, class_name=None):
 
 
     class GlobalTagMapRequest(Base):
+        __table_args__ = schema
         __tablename__ = 'GLOBAL_TAG_MAP_REQUEST'
 
         queue = Column(String(100), primary_key=True, nullable=False)
-        tag = Column(String(100), ForeignKey('TAG.name'), primary_key=True, nullable=False)
-        record = Column(String(100), ForeignKey('RECORDS.record'), primary_key=True, nullable=False)
+        tag = Column(String(100), ForeignKey(fk_schema_prefix + 'TAG.name'), primary_key=True, nullable=False)
+        record = Column(String(100), ForeignKey(fk_schema_prefix + 'RECORDS.record'), primary_key=True, nullable=False)
         label = Column(String(100), primary_key=True, nullable=False)
         status = Column(String(1), nullable=False)
         description = Column(String(4000), nullable=False)
@@ -420,13 +423,14 @@ def generate(map_blobs=False, class_name=None):
             return [self.queue, self.tag, self.record, self.label, status_full_name(self.status), to_timestamp(self.time_submitted), to_timestamp(self.last_edited)]
 
     class IOV(Base):
+        __table_args__ = schema
         __tablename__ = 'IOV'
 
         headers = ["tag_name", "since", "payload_hash", "insertion_time"]
 
-        tag_name = Column(String(4000), ForeignKey('TAG.name'), primary_key=True, nullable=False)
+        tag_name = Column(String(4000), ForeignKey(fk_schema_prefix + 'TAG.name'), primary_key=True, nullable=False)
         since = Column(Integer, primary_key=True, nullable=False)
-        payload_hash = Column(String(40), ForeignKey('PAYLOAD.hash'), nullable=False)
+        payload_hash = Column(String(40), ForeignKey(fk_schema_prefix + 'PAYLOAD.hash'), nullable=False)
         insertion_time = Column(DateTime, primary_key=True, nullable=False)
 
         def __init__(self, dictionary={}, convert_timestamps=True):
@@ -463,12 +467,13 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(IOV)
             query = apply_filters(query, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(IOV.tag_name).order_by(IOV.since).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
 
     class Payload(Base):
+        __table_args__ = schema
         __tablename__ = 'PAYLOAD'
 
         headers = ["hash", "object_type", "version", "insertion_time"]
@@ -536,8 +541,8 @@ def generate(map_blobs=False, class_name=None):
                 query = self.session.query(IOV.tag_name)
                 query = apply_filters(query, IOV, **kwargs)
                 query_result = query.all()
-                tag_names = map(lambda entry : entry[0], query_result)
-                amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+                tag_names = [entry[0] for entry in query_result]
+                amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
                 tags = self.session.query(Tag).filter(Tag.name.in_(tag_names)).order_by(Tag.name).limit(amount).all()
                 return data_sources.json_data_node.make(tags)
 
@@ -547,12 +552,13 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Payload)
             query = apply_filters(query, Payload, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Payload.hash).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
 
     class Record(Base):
+        __table_args__ = schema
         __tablename__ = 'RECORDS'
 
         headers = ["record", "object", "type"]
@@ -583,16 +589,17 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Record)
             query = apply_filters(query, Record, kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Record.record).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
 
     class Tag(Base):
+        __table_args__ = schema
         __tablename__ = 'TAG'
 
         headers = ["name", "time_type", "object_type", "synchronization", "end_of_validity",\
-                    "description", "last_validated_time", "insertion_time", "modification_time"]
+                    "description", "last_validated_time", "insertion_time", "modification_time", "protection_code"]
 
         name = Column(String(4000), primary_key=True, nullable=False)
         time_type = Column(String(4000), nullable=False)
@@ -603,6 +610,7 @@ def generate(map_blobs=False, class_name=None):
         last_validated_time = Column(BigInteger, nullable=False)
         insertion_time = Column(DateTime, nullable=False)
         modification_time = Column(DateTime, nullable=False)
+        protection_code = Column(Integer, nullable=False)
 
         record = None
         label = None
@@ -656,8 +664,8 @@ def generate(map_blobs=False, class_name=None):
                 query = apply_filters(query, GlobalTagMap, **kwargs)
                 query_result = query.all()
                 if len(query_result) != 0:
-                    global_tag_names = map(lambda entry : entry[0], query_result)
-                    amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+                    global_tag_names = [entry[0] for entry in query_result]
+                    amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
                     global_tags = self.session.query(GlobalTag).filter(GlobalTag.name.in_(global_tag_names)).order_by(GlobalTag.name).limit(amount).all()
                 else:
                     global_tags = None
@@ -669,7 +677,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Tag)
             query = apply_filters(query, Tag, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Tag.name).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
@@ -680,7 +688,7 @@ def generate(map_blobs=False, class_name=None):
             # filter_params contains a list of columns to filter the iovs by
             iovs_query = self.session.query(IOV).filter(IOV.tag_name == self.name)
             iovs_query = apply_filters(iovs_query, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             iovs = iovs_query.order_by(IOV.since).limit(amount).all()
             return data_sources.json_data_node.make(iovs)
 
@@ -738,8 +746,8 @@ def generate(map_blobs=False, class_name=None):
                 raise TypeError("Tag given must be a CondDBFW Tag object.")
 
             # get lists of iovs
-            iovs1 = dict(map(lambda iov : (iov.since, iov.payload_hash), self.iovs().data()))
-            iovs2 = dict(map(lambda iov : (iov.since, iov.payload_hash), tag.iovs().data()))
+            iovs1 = dict([(iov.since, iov.payload_hash) for iov in self.iovs().data()])
+            iovs2 = dict([(iov.since, iov.payload_hash) for iov in tag.iovs().data()])
 
             iovs = [(x, iovs1.get(x), iovs2.get(x)) for x in sorted(set(iovs1) | set(iovs2))]
             iovs.append(("Infinity", 1, 2))
@@ -851,7 +859,7 @@ def generate(map_blobs=False, class_name=None):
                     else:
                         # otherwise, iterate down from n to find the last sqlite iov,
                         # and assign that hash
-                        for i in reversed(range(0,n)):
+                        for i in reversed(list(range(0,n))):
                             if new_iovs_list[i].source == "sqlite":
                                 print("change %s to %s at since %d" % (iov.payload_hash, new_iovs_list[i].payload_hash, iov.since))
                                 iov.payload_hash = new_iovs_list[i].payload_hash
@@ -867,7 +875,7 @@ def generate(map_blobs=False, class_name=None):
 
             new_iov_list_copied = sorted(new_iov_list_copied, key=lambda iov : iov.since)
 
-            now = datetime.datetime.now()
+            now = datetime.datetime.utcnow()
 
             new_iovs = []
             for iov in new_iov_list_copied:
@@ -881,8 +889,47 @@ def generate(map_blobs=False, class_name=None):
             return new_tag
             #sqlite.write_and_commit(new_iovs)
 
+    
+    class TagAuthorization(Base):
+        __table_args__ = schema
+        __tablename__ = 'TAG_AUTHORIZATION'
+
+        headers = ["tag_name", "access_type", "credential", "credential_type"]
+
+        tag_name = Column(String(100), ForeignKey(fk_schema_prefix + 'TAG.name'), primary_key=True, nullable=False)
+        access_type = Column(Integer, nullable=False)
+        credential = Column(String(100), primary_key=True, nullable=False)
+        credential_type = Column(Integer, nullable=False)
+
+        def as_dicts(self):
+            """
+            Returns dictionary form of this Tag Authorization.
+            """
+            return {
+                "tag_name" : self.tag_name,
+                "access_type" : self.access_type,
+                "credential" : self.credential,
+                "credential_type" : self.credential_type
+            }
+
+        def __repr__(self):
+            return '<TagAuthorization %s %s %s %s>' % (self.tag_name, self.access_type, self.credential, self.credential_type)
+
+        def to_array(self):
+            return [self.tag_name, self.access_type, self.credential, self.credential_type]
+
+        def all(self, **kwargs):
+            """
+            Returns `amount` Records ordered by Record record.
+            """
+            query = self.session.query(TagAuthorization)
+            query = apply_filters(query, TagAuthorization, kwargs)
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
+            query_result = query.order_by(TagAuthorization.tag).limit(amount).all()
+            return data_sources.json_data_node.make(query_result)
+
     classes = {"globaltag" : GlobalTag, "iov" : IOV, "globaltagmap" : GlobalTagMap,\
-                "payload" : Payload, "tag" : Tag, "Base" : Base}
+                "payload" : Payload, "tag" : Tag, "TagAuthorization": TagAuthorization, "Base" : Base}
 
     if class_name == None:
         return classes

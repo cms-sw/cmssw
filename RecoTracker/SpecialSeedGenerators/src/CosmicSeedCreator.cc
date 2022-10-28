@@ -1,11 +1,12 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedCreator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace {
   template <class T>
@@ -14,11 +15,14 @@ namespace {
   }
 }  // namespace
 
+CosmicSeedCreator::CosmicSeedCreator(const edm::ParameterSet& extra, edm::ConsumesCollector&& iC)
+    : magneticFieldESToken_(iC.esConsumes()), maxseeds_(extra.getParameter<int>("maxseeds")) {}
+
 void CosmicSeedCreator::init(const TrackingRegion& iregion, const edm::EventSetup& es, const SeedComparitor* ifilter) {
   region = &iregion;
   filter = ifilter;
   // mag field
-  es.get<IdealMagneticFieldRecord>().get(bfield);
+  bfield = &es.getData(magneticFieldESToken_);
 }
 
 void CosmicSeedCreator::makeSeed(TrajectorySeedCollection& seedCollection, const SeedingHitSet& ordered) {
@@ -110,7 +114,7 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection& seedCollection, const
     //fixme, what hit do you want to use ?
 
     FreeTrajectoryState freeState(
-        GlobalTrajectoryParameters(usedHit->globalPosition(), initialMomentum, charge, &*bfield),
+        GlobalTrajectoryParameters(usedHit->globalPosition(), initialMomentum, charge, bfield),
         CurvilinearTrajectoryError(ROOT::Math::SMatrixIdentity()));
 
     LogDebug("CosmicSeedCreator") << "Position freeState: " << usedHit->globalPosition() << "\nCharge: " << charge

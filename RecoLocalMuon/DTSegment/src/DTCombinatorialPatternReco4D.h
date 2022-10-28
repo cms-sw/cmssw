@@ -21,6 +21,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 class DTSegmentUpdator;
+class MuonGeometryRecord;
 //class DTSegmentCleaner;
 
 // C++ Headers
@@ -29,6 +30,8 @@ class DTSegmentUpdator;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // ======================================================================
 class DTSegmentCand;
@@ -40,7 +43,7 @@ class DTHitPairForFit;
 class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialPatternReco4D(const edm::ParameterSet& pset);
+  DTCombinatorialPatternReco4D(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialPatternReco4D() override;
@@ -69,6 +72,7 @@ private:
   // DTSegmentCleaner* theCleaner; // the cleaner
 
   edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 
   // The reconstruction 2D algorithm
   // For the 2D reco I use thei reconstructor!

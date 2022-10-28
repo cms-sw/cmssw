@@ -1,0 +1,11 @@
+<use name="boost"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<!-- this dependency is needed only for the CUDA backend -->
+<use name="HeterogeneousCore/CUDAServices" for="alpaka/cuda"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>

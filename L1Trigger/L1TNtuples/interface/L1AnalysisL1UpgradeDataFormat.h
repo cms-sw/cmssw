@@ -92,6 +92,7 @@ namespace L1Analysis {
       jetIEt.clear();
       jetIEta.clear();
       jetIPhi.clear();
+      jetHwQual.clear();
       jetBx.clear();
       jetTowerIPhi.clear();
       jetTowerIEta.clear();
@@ -124,6 +125,12 @@ namespace L1Analysis {
       muonDxy.clear();
       muonTfMuonIdx.clear();
       muonBx.clear();
+
+      nMuonShowers = 0;
+      muonShowerBx.clear();
+      muonShowerOneNominal.clear();
+      muonShowerOneTight.clear();
+      muonShowerTwoLoose.clear();
 
       nSums = 0;
       sumType.clear();
@@ -178,6 +185,7 @@ namespace L1Analysis {
     std::vector<short int> jetIEt;
     std::vector<short int> jetIEta;
     std::vector<short int> jetIPhi;
+    std::vector<short int> jetHwQual;
     std::vector<short int> jetBx;
     std::vector<short int> jetTowerIPhi;
     std::vector<short int> jetTowerIEta;
@@ -210,6 +218,12 @@ namespace L1Analysis {
     std::vector<unsigned short int> muonDxy;
     std::vector<unsigned short int> muonTfMuonIdx;
     std::vector<short int> muonBx;
+
+    unsigned short int nMuonShowers;
+    std::vector<short int> muonShowerBx;
+    std::vector<short int> muonShowerOneNominal;
+    std::vector<short int> muonShowerOneTight;
+    std::vector<short int> muonShowerTwoLoose;
 
     unsigned short int nSums;
     std::vector<short int> sumType;

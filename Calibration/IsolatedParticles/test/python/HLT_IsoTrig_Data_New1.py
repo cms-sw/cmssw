@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step3 --conditions auto:run2_mc_GRun -n 10 --eventcontent FEVTDEBUGHLT,DQM -s RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM --datatier GEN-SIM-RECO,DQM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --geometry Extended2015 --magField 38T_PostLS1 --conditions auto:run2_mc_GRun --no_exec --filein file:step2.root --fileout file:step3.root
+# with command line options: step3 --conditions auto:run2_mc_GRun -n 10 --eventcontent FEVTDEBUGHLT,DQM -s RAW2DIGI,L1Reco,RECO,VALIDATION,DQM --datatier GEN-SIM-RECO,DQM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --geometry Extended2015 --magField 38T_PostLS1 --conditions auto:run2_mc_GRun --no_exec --filein file:step2.root --fileout file:step3.root
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLTNew1')
@@ -22,7 +22,6 @@ process.load('HLTrigger.Configuration.HLT_GRun_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -161,7 +160,6 @@ process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence +
                                       process.HLTEndSequence 
                                       )
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
 
 
 ## remove any instance of the FastTimerService
@@ -212,7 +210,6 @@ process.FastTimerOutput = cms.EndPath( process.dqmOutput )
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.eventinterpretaion_step = cms.Path(process.EIsequence)
 process.prevalidation_step = cms.Path(process.prevalidation)
 process.dqmoffline_step = cms.Path(process.DQMOffline)
 process.validation_step = cms.EndPath(process.validation)
@@ -223,8 +220,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 # Schedule definition
 #process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.endjob_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
 #process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
-process.schedule = cms.Schedule(process.HLTSchedule)
-#process.schedule.extend(process.HLTSchedule)
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step])
 process.schedule.extend([process.analyze])
 #process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
@@ -239,7 +235,6 @@ process.schedule.extend([process.FastTimerOutput])
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import *
-process = customise_HLT(process)
 process = customisePostLS1(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff

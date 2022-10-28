@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -41,7 +41,7 @@
 
 #include <thread>
 #ifdef VI_TBB
-#include "tbb/parallel_for.h"
+#include "oneapi/tbb/parallel_for.h"
 #endif
 
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
@@ -63,51 +63,55 @@ namespace cms {
         useSplitting(conf.getParameter<bool>("useHitsSplitting")),
         doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
         cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
-        reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") &&
-                            conf.getParameter<bool>("reverseTrajectories")),
+        reverseTrajectories(conf.getParameter<bool>("reverseTrajectories")),
         theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
         theTrajectoryBuilder(
             createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
-        theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
+        theTrajectoryCleanerToken(
+            iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TrajectoryCleaner")))),
         theTrajectoryCleaner(nullptr),
         theInitialState(std::make_unique<TransientInitialStateEstimator>(
-            conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
-        theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField")
-                                                           : ""),
-        theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
+            conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"), iC)),
+        theNavigationSchoolToken(
+            iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("NavigationSchool")))),
         theNavigationSchool(nullptr),
+        thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "AnyDirectionAnalyticalPropagator"))),
+#ifdef VI_REPRODUCIBLE
         maxSeedsBeforeCleaning_(0),
-        theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
-        skipClusters_(false),
-        phase2skipClusters_(false) {
-    theSeedLabel = iC.consumes<edm::View<TrajectorySeed>>(conf.getParameter<edm::InputTag>("src"));
-#ifndef VI_REPRODUCIBLE
-    if (conf.exists("maxSeedsBeforeCleaning"))
-      maxSeedsBeforeCleaning_ = conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
+#else
+        maxSeedsBeforeCleaning_(conf.getParameter<unsigned int>("maxSeedsBeforeCleaning")),
 #endif
-    if (conf.existsAs<edm::InputTag>("clustersToSkip")) {
-      skipClusters_ = true;
-      maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
-      maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
+        theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
+        clustersToSkipTag_(conf.getParameter<edm::InputTag>("clustersToSkip")),
+        skipClusters_(!clustersToSkipTag_.label().empty()),
+        phase2ClustersToSkipTag_(conf.getParameter<edm::InputTag>("phase2clustersToSkip")),
+        skipPhase2Clusters_(!phase2ClustersToSkipTag_.label().empty()) {
+    theSeedLabel = iC.consumes<edm::View<TrajectorySeed>>(conf.getParameter<edm::InputTag>("src"));
+
+    if (skipClusters_) {
+      maskPixels_ = iC.consumes<PixelClusterMask>(clustersToSkipTag_);
+      maskStrips_ = iC.consumes<StripClusterMask>(clustersToSkipTag_);
     }
     //FIXME:: just temporary solution for phase2!
-    if (conf.existsAs<edm::InputTag>("phase2clustersToSkip")) {
-      phase2skipClusters_ = true;
-      maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
-      maskPhase2OTs_ = iC.consumes<Phase2OTClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
+    if (skipPhase2Clusters_) {
+      maskPixels_ = iC.consumes<PixelClusterMask>(phase2ClustersToSkipTag_);
+      maskPhase2OTs_ = iC.consumes<Phase2OTClusterMask>(phase2ClustersToSkipTag_);
     }
 #ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "CachingSeedCleanerBySharedInput") {
-      int numHitsForSeedCleaner =
-          conf.existsAs<int>("numHitsForSeedCleaner") ? conf.getParameter<int>("numHitsForSeedCleaner") : 4;
-      int onlyPixelHits = conf.existsAs<bool>("onlyPixelHitsForSeedCleaner")
-                              ? conf.getParameter<bool>("onlyPixelHitsForSeedCleaner")
-                              : false;
+      int numHitsForSeedCleaner = conf.getParameter<int>("numHitsForSeedCleaner");
+      bool onlyPixelHits = conf.getParameter<bool>("onlyPixelHitsForSeedCleaner");
       theSeedCleaner = std::make_unique<CachingSeedCleanerBySharedInput>(numHitsForSeedCleaner, onlyPixelHits);
     } else if (cleaner != "none") {
       throw cms::Exception("RedundantSeedCleaner not found, please use CachingSeedCleanerBySharedInput ro none",
                            cleaner);
+    }
+#endif
+
+#ifdef EDM_ML_DEBUG
+    if (theTrackCandidateOutput) {
+      theTrackerToken = iC.esConsumes();
     }
 #endif
 
@@ -126,18 +130,9 @@ namespace cms {
 
   void CkfTrackCandidateMakerBase::setEventSetup(const edm::EventSetup& es) {
     //services
-    es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-    es.get<IdealMagneticFieldRecord>().get(theMagFieldName, theMagField);
-    //    edm::ESInputTag mfESInputTag(mfName);
-    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
+    theTrajectoryCleaner = &es.getData(theTrajectoryCleanerToken);
 
-    edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
-    es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
-    theTrajectoryCleaner = trajectoryCleanerH.product();
-
-    edm::ESHandle<NavigationSchool> navigationSchoolH;
-    es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
-    theNavigationSchool = navigationSchoolH.product();
+    theNavigationSchool = &es.getData(theNavigationSchoolToken);
     theTrajectoryBuilder->setNavigationSchool(theNavigationSchool);
   }
 
@@ -150,8 +145,7 @@ namespace cms {
     // NavigationSetter setter( *theNavigationSchool);
 
     // propagator
-    edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator", thePropagator);
+    auto const& propagator = es.getData(thePropagatorToken);
 
     // method for Debugging
     printHitsDebugger(e);
@@ -169,7 +163,7 @@ namespace cms {
       dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *stripMask, *pixelMask);
       //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks " << std::endl;
       theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
-    } else if (phase2skipClusters_) {
+    } else if (skipPhase2Clusters_) {
       //FIXME:just temporary solution for phase2!
       edm::Handle<PixelClusterMask> pixelMask;
       e.getByToken(maskPixels_, pixelMask);
@@ -253,8 +247,8 @@ namespace cms {
         auto const & hit = static_cast<BaseTrackerRecHit const&>(*h);
         val[i] = hit.firstClusterRef().key();
         if (++h != seeds[i].recHits().second) {
-          auto	const &	hit = static_cast<BaseTrackerRecHit const&>(*h);
-    	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32;
+          auto const & hit = static_cast<BaseTrackerRecHit const&>(*h);
+          val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32;
         }
       }
       */
@@ -505,7 +499,7 @@ namespace cms {
           if (useSplitting && (initState.second != recHits.front().det()) && recHits.front().det()) {
             LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
             TrajectoryStateOnSurface&& propagated =
-                thePropagator->propagate(initState.first, recHits.front().det()->surface());
+                propagator.propagate(initState.first, recHits.front().det()->surface());
             if (!propagated.isValid())
               continue;
             state = trajectoryStateTransform::persistentState(propagated, recHits.front().rawId());
@@ -517,11 +511,10 @@ namespace cms {
         }
       }  //output trackcandidates
 
-      edm::ESHandle<TrackerGeometry> tracker;
-      es.get<TrackerDigiGeometryRecord>().get(tracker);
-      LogTrace("CkfPattern|TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info =========="
-                                                    << "number of Seed: " << collseed->size() << '\n'
-                                                    << PrintoutHelper::regressionTest(*tracker, unsmoothedResult);
+      LogTrace("CkfPattern|TrackingRegressionTest")
+          << "========== CkfTrackCandidateMaker Info =========="
+          << "number of Seed: " << collseed->size() << '\n'
+          << PrintoutHelper::regressionTest(es.getData(theTrackerToken), unsmoothedResult);
 
       assert(viTotHits >= 0);  // just to use it...
       // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
@@ -545,4 +538,33 @@ namespace cms {
     e.put(std::move(outputSeedStopInfos));
   }
 
+  void CkfTrackCandidateMakerBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<bool>("cleanTrajectoryAfterInOut", true);
+    desc.add<bool>("doSeedingRegionRebuilding", true);
+    desc.add<bool>("onlyPixelHitsForSeedCleaner", false);
+    desc.add<bool>("reverseTrajectories", false);
+    desc.add<bool>("useHitsSplitting", true);
+    desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
+    desc.add<edm::InputTag>("src", edm::InputTag("globalMixedSeeds"));
+
+    desc.add<edm::InputTag>("clustersToSkip", edm::InputTag(""));
+    desc.add<edm::InputTag>("phase2clustersToSkip", edm::InputTag(""));
+
+    edm::ParameterSetDescription psdTB;
+    psdTB.addNode(edm::PluginDescription<BaseCkfTrajectoryBuilderFactory>("ComponentType", true));
+    desc.add<edm::ParameterSetDescription>("TrajectoryBuilderPSet", psdTB);
+
+    edm::ParameterSetDescription psd1;
+    psd1.add<std::string>("propagatorAlongTISE", "PropagatorWithMaterial");
+    psd1.add<std::string>("propagatorOppositeTISE", "PropagatorWithMaterialOpposite");
+    psd1.add<int>("numberMeasurementsForFit", 4);
+    desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters", psd1);
+
+    desc.add<int>("numHitsForSeedCleaner", 4);
+    desc.add<std::string>("NavigationSchool", "SimpleNavigationSchool");
+    desc.add<std::string>("RedundantSeedCleaner", "CachingSeedCleanerBySharedInput");
+    desc.add<std::string>("TrajectoryCleaner", "TrajectoryCleanerBySharedHits");
+    desc.add<unsigned int>("maxNSeeds", 500000);
+    desc.add<unsigned int>("maxSeedsBeforeCleaning", 0);
+  }
 }  // namespace cms

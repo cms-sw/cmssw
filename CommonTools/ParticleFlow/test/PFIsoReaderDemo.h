@@ -1,6 +1,6 @@
 #ifndef PFISOREADERDEMO_H
 #define PFISOREADERDEMO_H
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -13,12 +13,13 @@
 
 #include "TH2F.h"
 
-class PFIsoReaderDemo : public edm::EDAnalyzer {
+class PFIsoReaderDemo : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   explicit PFIsoReaderDemo(const edm::ParameterSet&);
-  ~PFIsoReaderDemo();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  ~PFIsoReaderDemo() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   typedef std::vector<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsoDepositVals;

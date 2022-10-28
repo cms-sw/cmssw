@@ -21,7 +21,8 @@
 
 #include <string>
 
-HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
+HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps)
+    : geoToken_(esConsumes()), topologyToken_(esConsumes()) {
   // The verbosity level
   std::string debugString = ps.getParameter<std::string>("VerbosityLevel");
   if (debugString == "DEBUG")
@@ -80,14 +81,10 @@ void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& 
   using namespace edm;
 
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
+  const CaloGeometry& geometry = es.getData(geoToken_);
   const CaloSubdetectorGeometry* geometry_p;
 
-  edm::ESHandle<CaloTopology> pTopology;
-  es.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloTopology& topology = *theCaloTopo_;
+  const CaloTopology& topology = es.getData(topologyToken_);
 
   std::string rHInputCollection = rHInputProducerTag_.instance();
   if (rHInputCollection == "EcalRecHitsEB") {

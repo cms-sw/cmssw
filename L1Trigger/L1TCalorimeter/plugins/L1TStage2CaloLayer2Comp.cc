@@ -14,12 +14,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
@@ -46,16 +43,13 @@ namespace l1t {
   bool operator>(const l1t::Tau &a, l1t::Tau &b) { return a.hwPt() > b.hwPt(); }
 }  // namespace l1t
 
-#include "TH1F.h"
-#include "TH2F.h"
-
 /**
  * Short class description.
  *
  * Longer class description...
  * ... desc continued.
  */
-class L1TStage2CaloLayer2Comp : public edm::EDProducer {
+class L1TStage2CaloLayer2Comp : public edm::stream::EDProducer<> {
 public:
   /**
    * Class constructor
@@ -648,11 +642,9 @@ bool L1TStage2CaloLayer2Comp::compareSums(const edm::Handle<l1t::EtSumBxCollecti
     return false;
   }
 
-  l1t::EtSum dataSum;
-  l1t::EtSum emulSum;
   for (unsigned int i = 0; i < emulCol->size(currBx); i++) {
-    emulSum = emulCol->at(currBx, i);
-    dataSum = dataCol->at(currBx, l1t::CaloTools::emul_to_data_sum_index_map[i]);
+    l1t::EtSum const &emulSum = emulCol->at(currBx, i);
+    l1t::EtSum const &dataSum = dataCol->at(currBx, l1t::CaloTools::emul_to_data_sum_index_map[i]);
 
     if (emulSum.getType() != dataSum.getType()) {
       edm::LogProblem("l1tcalol2ebec") << "EtSum type problem (data emul): " << dataSum.getType() << " "

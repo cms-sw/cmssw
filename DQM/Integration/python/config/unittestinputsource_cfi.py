@@ -32,25 +32,25 @@ options.register('runUniqueKey',
     "Unique run key from RCMS for Frontier")
 
 options.register('runNumber',
-                 334393,
+                 355380,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number. This run number has to be present in the dataset configured with the dataset option.")
 
 options.register('dataset',
-                 '/ExpressCosmics/Commissioning2019-Express-v1/FEVT',
+                 '/ExpressPhysics/Run2022B-Express-v1/FEVT',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Dataset name like '/ExpressCosmics/Commissioning2019-Express-v1/FEVT'")
+                 "Dataset name like '/ExpressCosmics/Commissioning2021-Express-v1/FEVT'")
 
 options.register('maxLumi',
-                 2,
+                 20,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Only lumisections up to maxLumi are processed.")
 
 options.register('minLumi',
-                 1,
+                 19,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Only lumisections starting from minLumi are processed.")
@@ -67,11 +67,11 @@ options.register('eventsPerLumi',
                  VarParsing.VarParsing.varType.int,
                  "This number of last events in each lumisection will be processed.")
 
-options.register('transDelay',
-                 0, #default value, int limit -3
+options.register('BeamSplashRun',
+                 False, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "delay in seconds for the commit of the db transaction")
+                 VarParsing.VarParsing.varType.bool,
+                 "Set client source settings for beam SPLASH run")
 
 # This is used only by the online clients themselves. 
 # We need to register it here because otherwise an error occurs saying that there is an unidentified option.
@@ -102,7 +102,7 @@ for ls in range(options.minLumi, options.maxLumi+1):
     secFiles.extend(sec)
 
     # Get last eventsPerLumi of events in this file
-    command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=xrootd --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
+    command = "edmFileUtil --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
     print(command)
     events = subprocess.check_output(command, shell=True)
     events = events.split(b'\n')

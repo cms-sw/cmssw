@@ -48,7 +48,7 @@ namespace {
   };
 }  // namespace
 
-void RPCHitCleaner::run(const edm::EventSetup& c) {
+void RPCHitCleaner::run() {
   std::map<detId_Ext, int> hits;
   vector<int> vcluster_size;
   std::map<RPCDetId, int> bx_hits;

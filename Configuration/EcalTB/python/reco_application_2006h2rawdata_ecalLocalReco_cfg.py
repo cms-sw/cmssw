@@ -44,8 +44,9 @@ process.tbunpacker = cms.EDProducer("HcalTBObjectUnpacker",
     ConfigurationFile = cms.untracked.string('configQADCTDC.txt')
 )
 
-process.ecalTBunpack = cms.EDProducer("EcalRawToDigi",
-    FEDs = cms.untracked.vint32(9),
+process.load("EventFilter.EcalRawToDigi.ecalRawToDigi_cfi")
+process.ecalTBunpack = process.ecalRawToDigi.clone(
+    FEDs = 9,
     DCCMapFile = cms.untracked.string('EventFilter/EcalRawToDigi/data/DCCMap_h2.txt'),
     EcalFirstFED = cms.untracked.int32(8)
 )

@@ -2,7 +2,7 @@
 #define CalibTracker_SiStripESProducer_SiStripFedCablingManipulator_h
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -15,12 +15,12 @@
 
 #include <string>
 
-class SiStripFedCablingManipulator : public edm::EDAnalyzer {
+class SiStripFedCablingManipulator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit SiStripFedCablingManipulator(const edm::ParameterSet& iConfig);
   ~SiStripFedCablingManipulator() override;
   void analyze(const edm::Event& e, const edm::EventSetup& es) override{};
-
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override{};
   void endRun(const edm::Run& run, const edm::EventSetup& es) override;
 
 private:

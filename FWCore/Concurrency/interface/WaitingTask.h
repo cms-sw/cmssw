@@ -40,50 +40,41 @@ namespace edm {
     friend class WaitingTaskWithArenaHolder;
 
     ///Constructor
-    WaitingTask() : m_ptr{nullptr} {}
-    ~WaitingTask() override { delete m_ptr.load(); };
+    WaitingTask() : m_ptr{} {}
+    ~WaitingTask() override{};
 
     // ---------- const member functions ---------------------------
 
     ///Returns exception thrown by dependent task
-    /** If the value is non-null then the dependent task failed.
+    /** If the value evalutes to true then the dependent task failed.
     */
-    std::exception_ptr const* exceptionPtr() const { return m_ptr.load(); }
+    std::exception_ptr exceptionPtr() const {
+      if (m_ptrSet == static_cast<unsigned char>(State::kSet)) {
+        return m_ptr;
+      }
+      return std::exception_ptr{};
+    }
+
+  protected:
+    std::exception_ptr const& uncheckedExceptionPtr() const { return m_ptr; }
 
   private:
+    enum class State : unsigned char { kUnset = 0, kSetting = 1, kSet = 2 };
     ///Called if waited for task failed
     /**Allows transfer of the exception caused by the dependent task to be
      * moved to another thread.
      * This method should only be called by WaitingTaskList
      */
     void dependentTaskFailed(std::exception_ptr iPtr) {
-      if (iPtr and not m_ptr) {
-        auto temp = std::make_unique<std::exception_ptr>(iPtr);
-        std::exception_ptr* expected = nullptr;
-        if (m_ptr.compare_exchange_strong(expected, temp.get())) {
-          temp.release();
-        }
+      unsigned char isSet = static_cast<unsigned char>(State::kUnset);
+      if (iPtr and m_ptrSet.compare_exchange_strong(isSet, static_cast<unsigned char>(State::kSetting))) {
+        m_ptr = iPtr;
+        m_ptrSet = static_cast<unsigned char>(State::kSet);
       }
     }
 
-    std::atomic<std::exception_ptr*> m_ptr;
-  };
-
-  /** Use this class on the stack to signal the final task to be run.
-   Call done() to check to see if the task was run and check value of
-   exceptionPtr() to see if an exception was thrown by any task in the group.
-   */
-  class FinalWaitingTask : public WaitingTask {
-  public:
-    FinalWaitingTask() : m_done{false} {}
-
-    void execute() final { m_done = true; }
-
-    bool done() const { return m_done.load(); }
-
-  private:
-    void recycle() final {}
-    std::atomic<bool> m_done;
+    std::exception_ptr m_ptr;
+    std::atomic<unsigned char> m_ptrSet = static_cast<unsigned char>(State::kUnset);
   };
 
   template <typename F>
@@ -91,7 +82,7 @@ namespace edm {
   public:
     explicit FunctorWaitingTask(F f) : func_(std::move(f)) {}
 
-    void execute() final { func_(exceptionPtr()); };
+    void execute() final { func_(uncheckedExceptionPtr() ? &uncheckedExceptionPtr() : nullptr); };
 
   private:
     F func_;

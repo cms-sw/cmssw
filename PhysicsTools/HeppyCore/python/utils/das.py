@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #pylint: disable-msg=C0301,C0103
 
 """

@@ -24,7 +24,7 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,36 +40,30 @@ class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 class L1GtTriggerMenu;
 
+class L1GtStableParametersRcd;
+class L1GtPrescaleFactorsAlgoTrigRcd;
+class L1GtPrescaleFactorsTechTrigRcd;
+class L1GtTriggerMaskAlgoTrigRcd;
+class L1GtTriggerMaskTechTrigRcd;
+class L1GtTriggerMaskVetoAlgoTrigRcd;
+class L1GtTriggerMaskVetoTechTrigRcd;
+class L1GtTriggerMenuRcd;
+
 // class declaration
-class L1GtTriggerMenuTester : public edm::EDAnalyzer {
+class L1GtTriggerMenuTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   // constructor
   explicit L1GtTriggerMenuTester(const edm::ParameterSet&);
 
-  // destructor
-  ~L1GtTriggerMenuTester() override;
-
 private:
-  /// begin job
-  void beginJob() override;
-
   /// begin run
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  /// begin luminosity block
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
   /// analyze
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  /// end luminosity block
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-
   /// end run
   void endRun(const edm::Run&, const edm::EventSetup&) override;
-
-  /// end job
-  void endJob() override;
 
 private:
   /// retrieve all the relevant L1 trigger event setup records
@@ -119,6 +113,15 @@ private:
 
 private:
   /// event setup cached stuff
+
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_l1GtStableParToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_l1GtPfTechToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_l1GtTmAlgoToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_l1GtTmTechToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> m_l1GtTmVetoAlgoToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> m_l1GtTmVetoTechToken;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_l1GtMenuToken;
 
   /// stable parameters
   const L1GtStableParameters* m_l1GtStablePar;

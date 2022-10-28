@@ -1,8 +1,8 @@
 #ifndef GroupedCkfTrajectoryBuilder_H
 #define GroupedCkfTrajectoryBuilder_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
@@ -26,6 +26,8 @@ public:
 
   /// destructor
   ~GroupedCkfTrajectoryBuilder() override {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;

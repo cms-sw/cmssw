@@ -34,6 +34,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMVABasedHaloTagger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
@@ -58,8 +59,7 @@ private:
                             ElectronHcalHelper const& hcalHelperBc,
                             reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
-                            int& iSC,
-                            const EcalSeverityLevelAlgo* sevLv);
+                            int& iSC);
 
   // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
@@ -68,6 +68,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
   edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
 
   //AA
   //Flags and severities to be excluded from calculations
@@ -82,6 +84,7 @@ private:
   double minR9Barrel_;
   double minR9Endcap_;
   bool runMIPTagger_;
+  bool runMVABasedHaloTagger_;
 
   bool validConversions_;
 
@@ -94,6 +97,8 @@ private:
 
   //MIP
   PhotonMIPHaloTagger photonMIPHaloTagger_;
+  //MVA based Halo tagger for the EE photons
+  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -110,7 +115,8 @@ private:
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PhotonProducer);
 
-PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCorrector_(config, consumesCollector()) {
+PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
+    : caloGeomToken_(esConsumes()), topologyToken_(esConsumes()), photonEnergyCorrector_(config, consumesCollector()) {
   // use configuration file to setup input/output collection names
 
   photonCoreProducer_ = consumes<reco::PhotonCoreCollection>(config.getParameter<edm::InputTag>("photonCoreProducer"));
@@ -125,6 +131,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   usePrimaryVertex_ = config.getParameter<bool>("usePrimaryVertex");
   runMIPTagger_ = config.getParameter<bool>("runMIPTagger");
+  runMVABasedHaloTagger_ = config.getParameter<bool>("runMVABasedHaloTagger");
 
   candidateP4type_ = config.getParameter<std::string>("candidateP4type");
 
@@ -271,15 +278,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   if (validEcalRecHits)
     endcapRecHits = *(endcapHitHandle.product());
 
-  //AA
-  //Get the severity level object
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-  theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
-  //
-
-  edm::ESHandle<CaloTopology> pTopology;
-  theEventSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology* topology = pTopology.product();
+  const CaloTopology* topology = &theEventSetup.getData(topologyToken_);
 
   // prepare access to hcal data
   hcalHelperCone_->beginEvent(theEvent, theEventSetup);
@@ -313,8 +312,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
                          *hcalHelperBc_,
                          vertexCollection,
                          outputPhotonCollection,
-                         iSC,
-                         sevLv.product());
+                         iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -339,15 +337,11 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
                                           ElectronHcalHelper const& hcalHelperBc,
                                           reco::VertexCollection& vertexCollection,
                                           reco::PhotonCollection& outputPhotonCollection,
-                                          int& iSC,
-                                          const EcalSeverityLevelAlgo* sevLv) {
+                                          int& iSC) {
   // get the geometry from the event setup:
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  es.get<CaloGeometryRecord>().get(caloGeomHandle);
-
-  const CaloGeometry* geometry = caloGeomHandle.product();
+  const CaloGeometry* geometry = &es.getData(caloGeomToken_);
   const CaloSubdetectorGeometry* subDetGeometry = nullptr;
-  const CaloSubdetectorGeometry* geometryES = caloGeomHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  const CaloSubdetectorGeometry* geometryES = geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const EcalRecHitCollection* hits = nullptr;
   std::vector<double> preselCutValues;
   float minR9 = 0;
@@ -362,7 +356,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     iSC++;
 
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
-    subDetGeometry = caloGeomHandle->getSubdetectorGeometry(DetId::Ecal, subdet);
+    subDetGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, subdet);
 
     if (subdet == EcalBarrel) {
       preselCutValues = preselCutValuesBarrel_;

@@ -2,6 +2,18 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
 
+process.options.wantSummary = True
+
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100 # only report every 100th event start
+process.MessageLogger.cerr.enableStatistics = False # enable "MessageLogger Summary" message
+process.MessageLogger.cerr.threshold = 'INFO' # change to 'WARNING' not to show INFO-level messages
+## enable reporting of INFO-level messages (default is limit=0, i.e. no messages reported)
+#process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+#    reportEvery = cms.untracked.int32(1), # every event!
+#    limit = cms.untracked.int32(-1)       # no limit!
+#)
+
 # define the Prescaler service, and set the scale factors
 process.PrescaleService = cms.Service('PrescaleService',
     prescaleTable = cms.VPSet(
@@ -22,17 +34,9 @@ process.PrescaleService = cms.Service('PrescaleService',
     lvl1DefaultLabel = cms.string('any')
 )    
 
-# load conditions from the global tag
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-
-# define an empty source, and ask for 100 events
+# define an empty source, and ask for 1000 events
 process.source = cms.Source('EmptySource')
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
-)
+process.maxEvents.input = 1000
 
 # define 3 prescalers, one per path
 process.scale_1 = cms.EDFilter('HLTPrescaler')
@@ -44,8 +48,8 @@ process.success = cms.EDFilter('HLTBool', result = cms.bool(True))
 process.Path_1  = cms.Path(process.scale_1)
 process.Path_2  = cms.Path(process.scale_2)
 process.Path_3  = cms.Path(process.scale_3)
-process.True    = cms.Path(process.success)
-process.False   = cms.Path(process.fail)
+process.AlwaysTrue    = cms.Path(process.success)
+process.AlwaysFalse   = cms.Path(process.fail)
 process.L1_Path = cms.Path(process.success)
 
 # define and EndPath to analyze all other path results

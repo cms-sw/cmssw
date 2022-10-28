@@ -4,16 +4,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-/*
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-*/
 // HepMC headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -40,7 +31,11 @@ class TRandom3;
 class Hector {
 public:
   //  Hector(const edm::ParameterSet & ps);
-  Hector(const edm::ParameterSet &ps, bool verbosity, bool FP420Transport, bool ZDCTransport);
+  Hector(const edm::ParameterSet &ps,
+         const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> &,
+         bool verbosity,
+         bool FP420Transport,
+         bool ZDCTransport);
   //  Hector();
   virtual ~Hector();
 
@@ -77,6 +72,7 @@ public:
       //  edm::ParameterSet m_pBeamLine;
       */
 private:
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
   // Defaults
   double lengthfp420;
   double lengthzdc;

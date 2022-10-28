@@ -30,11 +30,11 @@ public:
   TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
   void doUpdate();
 
-private:
   FWStringParameterSetter(const FWStringParameterSetter&) = delete;  // stop default
 
   const FWStringParameterSetter& operator=(const FWStringParameterSetter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   FWStringParameter* m_param;
   TGTextEntry* m_widget;

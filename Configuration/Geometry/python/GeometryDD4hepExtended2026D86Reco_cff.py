@@ -8,6 +8,7 @@ from Configuration.Geometry.GeometryDD4hepExtended2026D86_cff import *
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
@@ -41,7 +42,7 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
+from Geometry.GEMGeometryBuilder.gemGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 

@@ -14,8 +14,15 @@ phase1Pixel.toModify(siPixelDigis.cpu,
     UsePhase1 = True
 )
 
+from Configuration.ProcessModifiers.siPixelQualityRawToDigi_cff import siPixelQualityRawToDigi
+siPixelQualityRawToDigi.toModify(siPixelDigis.cpu,
+    UseQualityInfo = True,
+    SiPixelQualityLabel = 'forRawToDigi',
+)
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
-gpu.toModify(siPixelDigis,
+(gpu & ~phase2_tracker).toModify(siPixelDigis,
     cuda = cms.EDAlias(
         siPixelDigiErrors = cms.VPSet(
             cms.PSet(type = cms.string("DetIdedmEDCollection")),

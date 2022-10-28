@@ -1,0 +1,54 @@
+
+# TrapezoidalPlaneBounds parameters
+
+These parameters are half-lengths, as in CMSIM/GEANT3
+https://github.com/trackreco/cmssw/blob/master/Fireworks/Core/src/FWGeometry.cc#L241
+https://github.com/root-project/root/blob/master/geom/geom/src/TGeoArb8.cxx#L1331
+
+i.shape[0] = 1;
+i.shape[1] = par[0];  // hBottomEdge - dx1
+i.shape[2] = par[1];  // hTopEdge    - dx2
+i.shape[3] = par[2];  // thickness   - dz
+i.shape[4] = par[3];  // apothem     - dy1
+
+geoShape = new TGeoTrap(info.shape[3],  //dz
+                        0,              //theta
+                        0,              //phi
+                        info.shape[4],  //dy1
+                        info.shape[1],  //dx1
+                        info.shape[2],  //dx2
+                        0,              //alpha1
+                        info.shape[4],  //dy2
+                        info.shape[1],  //dx3
+                        info.shape[2],  //dx4
+                        0);             //alpha2
+
+TGeoTrap::TGeoTrap(Double_t dz, Double_t theta, Double_t phi, Double_t h1,
+        Double_t bl1, Double_t tl1, Double_t alpha1, Double_t h2, Double_t bl2,
+        Double_t tl2, Double_t alpha2)
+    : TGeoArb8("", 0, 0)
+{
+    fDz = dz;           par[2]
+    fTheta = theta;     = 0
+    fPhi = phi;         = 0
+    fH1 = h1;           par[3]
+    fH2 = h2;           par[3]
+    fBl1 = bl1;         par[0]
+    fBl2 = bl2;         par[0]
+    fTl1 = tl1;         par[1]
+    fTl2 = tl2;         par[1]
+    fAlpha1 = alpha1;   = 0
+    fAlpha2 = alpha2;   = 0
+    Double_t tx = TMath::Tan(theta*TMath::DegToRad())*TMath::Cos(phi*TMath::DegToRad()); = 0
+    Double_t ty = TMath::Tan(theta*TMath::DegToRad())*TMath::Sin(phi*TMath::DegToRad()); = 0
+    Double_t ta1 = TMath::Tan(alpha1*TMath::DegToRad());  = 0
+    Double_t ta2 = TMath::Tan(alpha2*TMath::DegToRad());  = 0
+    fXY[0][0] = -bl1;    fXY[0][1] = -h1;  -dz
+    fXY[1][0] = -tl1;    fXY[1][1] =  h1;  -dz
+    fXY[2][0] =  tl1;    fXY[2][1] =  h1;  -dz
+    fXY[3][0] =  bl1;    fXY[3][1] = -h1;  -dz
+    fXY[4][0] = -bl2;    fXY[4][1] = -h2;   dz
+    fXY[5][0] = -tl2;    fXY[5][1] =  h2;   dz
+    fXY[6][0] =  tl2;    fXY[6][1] =  h2;   dz
+    fXY[7][0] =  bl2;    fXY[7][1] = -h2;   dz
+}

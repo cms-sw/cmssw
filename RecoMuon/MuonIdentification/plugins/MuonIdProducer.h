@@ -36,6 +36,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -52,6 +53,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+#include "DataFormats/MuonReco/interface/MuonGEMHitMatch.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
@@ -231,6 +233,7 @@ private:
   edm::Handle<reco::TrackToTrackMap> tpfmsCollectionHandle_;
   edm::Handle<reco::TrackToTrackMap> pickyCollectionHandle_;
   edm::Handle<reco::TrackToTrackMap> dytCollectionHandle_;
+  edm::Handle<reco::VertexCollection> pvHandle_;
 
   edm::EDGetTokenT<reco::TrackCollection> innerTrackCollectionToken_;
   edm::EDGetTokenT<reco::TrackCollection> outerTrackCollectionToken_;
@@ -239,15 +242,19 @@ private:
   edm::EDGetTokenT<reco::TrackToTrackMap> tpfmsCollectionToken_;
   edm::EDGetTokenT<reco::TrackToTrackMap> pickyCollectionToken_;
   edm::EDGetTokenT<reco::TrackToTrackMap> dytCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> pvToken_;
 
   edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
+  edm::EDGetTokenT<GEMRecHitCollection> gemHitToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
+  edm::Handle<GEMRecHitCollection> gemHitHandle_;
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
 
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomTokenRun_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
 
   MuonCaloCompatibility muonCaloCompatibility_;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;
@@ -263,6 +270,8 @@ private:
   bool fillGlobalTrackRefits_;
   edm::InputTag globalTrackQualityInputTag_;
 
+  edm::InputTag pvInputTag_;
+  bool selectHighPurity_;
   bool fillTrackerKink_;
   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
 

@@ -3,16 +3,10 @@ import FWCore.ParameterSet.Config as cms
 def printGeomSummary(process):
 
     process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-
-    process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-    process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-    process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-    process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
     process.load("IOMC.RandomEngine.IOMC_cff")
     process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
     process.load('GeneratorInterface.Core.generatorSmeared_cfi')
     process.load('FWCore.MessageService.MessageLogger_cfi')
-
     process.load("SimG4Core.Application.g4SimHits_cfi")
 
     process.source = cms.Source("EmptySource")
@@ -42,6 +36,7 @@ def printGeomSummary(process):
     process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
     process.g4SimHits.Physics.DummyEMPhysics = True
     process.g4SimHits.Physics.DefaultCutValue = 10. 
+    process.g4SimHits.LHCTransport = False
     process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	NodeNames      = cms.untracked.vstring(),
 	type           = cms.string('PrintGeomSummary')

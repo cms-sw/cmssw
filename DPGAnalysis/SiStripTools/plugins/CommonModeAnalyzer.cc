@@ -27,7 +27,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -62,7 +62,7 @@
 // class decleration
 //
 
-class CommonModeAnalyzer : public edm::EDAnalyzer {
+class CommonModeAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   explicit CommonModeAnalyzer(const edm::ParameterSet&);
   ~CommonModeAnalyzer() override;
@@ -137,6 +137,7 @@ CommonModeAnalyzer::CommonModeAnalyzer(const edm::ParameterSet& iConfig)
       m_detCablingWatcher(this, &CommonModeAnalyzer::updateDetCabling),
       m_detCablingToken(esConsumes()) {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> tfserv;
 

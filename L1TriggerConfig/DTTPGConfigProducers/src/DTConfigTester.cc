@@ -23,10 +23,7 @@ DTConfigTester::DTConfigTester(const edm::ParameterSet &ps) {
   my_traco = ps.getUntrackedParameter<int>("traco");
   my_bti = ps.getUntrackedParameter<int>("bti");
   my_sl = ps.getUntrackedParameter<int>("sl");
-}
-
-DTConfigTester::~DTConfigTester() {
-  // cout << "DTConfigTester::~DTConfigTester()" << endl;
+  my_configToken = esConsumes();
 }
 
 void DTConfigTester::analyze(const edm::Event &e, const edm::EventSetup &es) {
@@ -36,8 +33,7 @@ void DTConfigTester::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   using namespace edm;
 
-  ESHandle<DTConfigManager> dtConfig;
-  es.get<DTConfigManagerRcd>().get(dtConfig);
+  ESHandle<DTConfigManager> dtConfig = es.getHandle(my_configToken);
 
   cout << "\tPrint configuration :" << endl;
 

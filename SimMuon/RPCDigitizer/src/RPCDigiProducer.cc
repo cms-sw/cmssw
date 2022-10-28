@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
@@ -90,11 +89,10 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
       << "[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
   // LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
 
-  edm::Handle<CrossingFrame<PSimHit>> cf;
   // Obsolate code, based on getByLabel
   //  e.getByLabel(mix_, collection_for_XF, cf);
   //New code, based on tokens
-  e.getByToken(crossingFrameToken, cf);
+  const edm::Handle<CrossingFrame<PSimHit>>& cf = e.getHandle(crossingFrameToken);
 
   std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 

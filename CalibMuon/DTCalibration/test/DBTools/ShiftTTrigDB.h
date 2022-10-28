@@ -9,8 +9,11 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <map>
 #include <string>
@@ -19,7 +22,7 @@
 class DTTtrig;
 class DTGeometry;
 
-class ShiftTTrigDB : public edm::EDAnalyzer {
+class ShiftTTrigDB : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   ShiftTTrigDB(const edm::ParameterSet& pset);
@@ -40,11 +43,12 @@ private:
   const DTTtrig* tTrigMap;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::string dbLabel;
-
   std::vector<std::vector<int> > chambers;
   std::vector<double> shifts;
   std::map<std::vector<int>, double> mapShiftsByChamber;
   bool debug;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

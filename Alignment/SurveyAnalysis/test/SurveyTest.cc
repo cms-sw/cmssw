@@ -1,12 +1,42 @@
+/** \class SurveyTest
+ *
+ *  Analyser module for testing.
+ *
+ *  $Date: 2007/10/10 20:54:07 $
+ *  $Revision: 1.6 $
+ *  \author Chung Khim Lae
+ */
+
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentPoints.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "Alignment/SurveyAnalysis/test/SurveyTest.h"
+class SurveyTest : public edm::one::EDAnalyzer<> {
+public:
+  SurveyTest(const edm::ParameterSet&);
+
+  virtual void beginJob();
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+
+private:
+  void getTerminals(align::Alignables& terminals, Alignable* ali);
+
+  bool theBiasFlag;  // true for biased residuals
+
+  unsigned int theIterations;  // number of iterations
+
+  std::string theAlgorithm;   // points or sensor residual
+  std::string theOutputFile;  // name of output file
+
+  std::vector<align::StructureType> theHierarchy;
+};
 
 SurveyTest::SurveyTest(const edm::ParameterSet& cfg)
     : theBiasFlag(cfg.getUntrackedParameter<bool>("bias", false)),
@@ -56,3 +86,6 @@ void SurveyTest::getTerminals(align::Alignables& terminals, Alignable* ali) {
   else
     terminals.push_back(ali);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SurveyTest);

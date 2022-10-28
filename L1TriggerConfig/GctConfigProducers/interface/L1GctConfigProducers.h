@@ -39,6 +39,7 @@ class L1GctChannelMask;
 
 class L1GctJetFinderParamsRcd;
 class L1GctChannelMaskRcd;
+class L1CaloGeometryRecord;
 
 //
 // class declaration
@@ -73,6 +74,8 @@ private:
 
   std::vector<std::vector<double> > m_jetCalibFunc;
   std::vector<std::vector<double> > m_tauCalibFunc;
+
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> m_caloGeomToken;
 
   unsigned m_metEtaMask;
   unsigned m_tetEtaMask;

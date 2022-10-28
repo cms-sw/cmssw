@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/RPCGeometryBuilder/interface/RPCGeometryParsFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -27,40 +27,41 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 RPCRecoIdealDBLoader::RPCRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
+  RecoIdealGeometry rig;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("RPCRecoIdealDBLoader") << "PoolDBOutputService unavailable";
     return;
   }
 
-  edm::ESHandle<MuonGeometryConstants> pMNDC;
+  auto pMNDC = es.getHandle(muonGeomConstantsToken_);
   RPCGeometryParsFromDD rpcpd;
 
-  if (fromDD4Hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+  if (fromDD4hep_) {
+    auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
-    rpcpd.build(&cpv, *pMNDC, *rig);
+    rpcpd.build(&cpv, *pMNDC, rig);
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+    auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
-    rpcpd.build(&cpv, *pMNDC, *rig);
+    rpcpd.build(&cpv, *pMNDC, rig);
   }
   if (mydbservice->isNewTagRequest("RPCRecoGeometryRcd")) {
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "RPCRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "RPCRecoGeometryRcd");
   } else {
     edm::LogError("RPCRecoIdealDBLoader") << "RPCRecoGeometryRcd Tag is already present.";
   }

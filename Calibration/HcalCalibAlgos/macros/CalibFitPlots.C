@@ -700,6 +700,10 @@ void FitHistExtended(const char* infile,
     numb = 22;
     for (int k = 0; k <= numb; ++k)
       xbins[k] = xbin[k];
+  } else if (type == 1) {
+    numb = 1;
+    xbins[0] = -25;
+    xbins[1] = 25;
   } else {
     int neta = numb / 2;
     for (int k = 0; k < neta; ++k) {
@@ -760,6 +764,9 @@ void FitHistExtended(const char* infile,
           value = 1.0;
         } else {
           TH1D* hist = (TH1D*)hist1->Clone();
+          if (debug)
+            std::cout << "Histogram " << name << ":" << (hist->GetName()) << " with " << (hist->GetEntries())
+                      << " entries" << std::endl;
           if (hist->GetEntries() > 0) {
             value = hist->GetMean();
             error = hist->GetRMS();
@@ -779,7 +786,7 @@ void FitHistExtended(const char* infile,
               TH1D* hist2 = (TH1D*)hist1->Clone(name);
               fitOneGauss(hist2, true, debug);
               hists.push_back(hist2);
-              results meaner = fitTwoGauss(hist, debug);
+              results meaner = fitOneGauss(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
@@ -872,7 +879,8 @@ void FitHistExtended(const char* infile,
               fitLanGau(hist3, debug);
               hists.push_back(hist3);
             }
-            results meaner0 = fitTwoGauss(hist, debug);
+            //            results meaner0 = fitTwoGauss(hist, debug);
+            results meaner0 = fitOneGauss(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;
             double rms;
@@ -2197,7 +2205,7 @@ void PlotHistCorrFactors(char* infile1,
     }
   }
 
-  if (nfile > 1) {
+  if (nfile > 0) {
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetCanvasColor(kWhite);
     gStyle->SetPadColor(kWhite);
@@ -2210,7 +2218,7 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[6] = {1, 6, 4, 7, 2, 9};
+    int colors[6] = {1, 6, 4, 2, 7, 9};
     int mtype[6] = {20, 24, 22, 23, 21, 33};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
@@ -2219,6 +2227,7 @@ void PlotHistCorrFactors(char* infile1,
     char name[100];
     double dy(0);
     int fits(0);
+    int nline(0);
     if (ratio) {
       for (int ih = 1; ih < nfile; ++ih) {
         for (int j = 0; j < maxdepth; ++j) {
@@ -2260,6 +2269,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(ih);
           depths.push_back(j + 1);
         }
+        if (ih == 1)
+          nline += hists.size();
+        else
+          ++nline;
       }
     } else {
       for (int k1 = 0; k1 < nfile; ++k1) {
@@ -2303,6 +2316,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
+        if (k1 == 0)
+          nline += hists.size();
+        else
+          ++nline;
       }
     }
     if (ratio)
@@ -2314,7 +2331,7 @@ void PlotHistCorrFactors(char* infile1,
     pad->SetTopMargin(0.10);
     double yh = 0.90;
     double yl = yh - 0.035 * hists.size() - dy - 0.01;
-    TLegend* legend = new TLegend(0.55, yl, 0.90, yl + 0.035 * hists.size());
+    TLegend* legend = new TLegend(0.55, yl, 0.90, yl + 0.035 * nline);
     legend->SetFillColor(kWhite);
     for (unsigned int k = 0; k < hists.size(); ++k) {
       if (k == 0)
@@ -2339,7 +2356,8 @@ void PlotHistCorrFactors(char* infile1,
       } else {
         sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
       }
-      legend->AddEntry(hists[k], name, "lp");
+      if ((depths[k] == 1) || (k1 == 0))
+        legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
     TPaveText* txt0 = new TPaveText(0.12, 0.84, 0.49, 0.89, "blNDC");

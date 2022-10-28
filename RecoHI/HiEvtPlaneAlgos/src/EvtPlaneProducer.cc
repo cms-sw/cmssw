@@ -30,7 +30,6 @@ Implementation:
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -179,7 +178,6 @@ private:
   EPCuts cuts_;
 
   std::string centralityVariable_;
-  std::string centralityLabel_;
   std::string centralityMC_;
 
   edm::InputTag centralityBinTag_;
@@ -211,6 +209,9 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> chi2MapToken_;
   edm::InputTag chi2MapLostTag_;
   edm::EDGetTokenT<edm::ValueMap<float>> chi2MapLostToken_;
+
+  edm::ESGetToken<CentralityTable, HeavyIonRcd> centralityToken_;
+  edm::ESGetToken<RPFlatParams, HeavyIonRPRcd> flatparmsToken_;
 
   bool loadDB_;
   double minet_;
@@ -383,7 +384,10 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet &iConfig)
   if (iConfig.exists("nonDefaultGlauberModel")) {
     centralityMC_ = iConfig.getParameter<std::string>("nonDefaultGlauberModel");
   }
-  centralityLabel_ = centralityVariable_ + centralityMC_;
+  centralityToken_ = esConsumes(edm::ESInputTag("", centralityVariable_ + centralityMC_));
+  if (loadDB_) {
+    flatparmsToken_ = esConsumes();
+  }
 
   centralityBinToken_ = consumes<int>(centralityBinTag_);
 
@@ -438,9 +442,8 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     //
     //Get Size of Centrality Table
     //
-    edm::ESHandle<CentralityTable> centDB_;
-    iSetup.get<HeavyIonRcd>().get(centralityLabel_, centDB_);
-    nCentBins_ = centDB_->m_table.size();
+    auto const &centDB = iSetup.getData(centralityToken_);
+    nCentBins_ = centDB.m_table.size();
     for (int i = 0; i < NumEPNames; i++) {
       if (caloCentRef_ > 0) {
         int minbin = (caloCentRef_ - caloCentRefWidth_ / 2.) * nCentBins_ / 100.;
@@ -458,9 +461,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   //Get flattening parameter file.
   //
   if (loadDB_ && hirpWatcher_.check(iSetup)) {
-    edm::ESHandle<RPFlatParams> flatparmsDB_;
-    iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
-    LoadEPDB db(flatparmsDB_, flat);
+    LoadEPDB db(iSetup.getData(flatparmsToken_), flat);
     if (!db.IsSuccess()) {
       loadDB_ = kFALSE;
     }

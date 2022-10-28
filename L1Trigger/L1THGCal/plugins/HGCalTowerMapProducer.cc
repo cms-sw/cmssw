@@ -59,7 +59,7 @@ void HGCalTowerMapProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   e.getByToken(input_sums_, trigSumBxColl);
 
-  towersMapProcess_->run(trigSumBxColl, *towersMap_output, es);
+  towersMapProcess_->run(trigSumBxColl, *towersMap_output);
 
   e.put(std::move(towersMap_output), towersMapProcess_->name());
 }

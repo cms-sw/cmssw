@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <boost/lexical_cast.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/archive_exception.hpp>
 
@@ -75,7 +74,7 @@ namespace eos {
     template <typename T>
     portable_archive_exception(const T& abnormal)
         : boost::archive::archive_exception(other_exception), msg("serialization of illegal floating point value: ") {
-      msg += boost::lexical_cast<std::string>(abnormal);
+      msg += std::to_string(abnormal);
     }
 
     //! override the base class function with our message

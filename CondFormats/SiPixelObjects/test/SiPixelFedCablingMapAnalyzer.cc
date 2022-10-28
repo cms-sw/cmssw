@@ -1,6 +1,6 @@
 //#include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,27 +17,27 @@ using namespace edm;
 using namespace sipixelobjects;
 
 // class declaration
-class SiPixelFedCablingMapAnalyzer : public edm::EDAnalyzer {
+class SiPixelFedCablingMapAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit SiPixelFedCablingMapAnalyzer(const edm::ParameterSet&) {}
+  explicit SiPixelFedCablingMapAnalyzer(const edm::ParameterSet&) : fedCablingToken_(esConsumes()) {}
   ~SiPixelFedCablingMapAnalyzer();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> fedCablingToken_;
 };
 
-SiPixelFedCablingMapAnalyzer::~SiPixelFedCablingMapAnalyzer() {}
+SiPixelFedCablingMapAnalyzer::~SiPixelFedCablingMapAnalyzer() = default;
 
 void SiPixelFedCablingMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "====== SiPixelFedCablingMapAnalyzer" << std::endl;
+  LogPrint("SiPixelFedCablingMapAnalyzer") << "====== SiPixelFedCablingMapAnalyzer" << std::endl;
 
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(map);
+  const SiPixelFedCablingMap* map = &iSetup.getData(fedCablingToken_);
 
   LogInfo(" got map, version: ") << map->version();
   auto tree = map->cablingTree();
-  LogInfo("PRINT MAP:") << tree->print(100);
-  LogInfo("PRINT MAP, end:");
+  LogInfo("SiPixelFedCablingMapAnalyzer") << "PRINT MAP:" << tree->print(100);
+  LogInfo("SiPixelFedCablingMapAnalyzer") << "PRINT MAP, end:";
 }
 
 //define this as a plug-in

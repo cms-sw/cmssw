@@ -21,7 +21,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -48,7 +48,7 @@ using namespace std;
 //
 // class decleration
 
-class PFMETBenchmarkAnalyzer : public edm::EDAnalyzer {
+class PFMETBenchmarkAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -65,16 +65,17 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection> sInputRecoLabel_tok_;
   edm::EDGetTokenT<reco::CaloMETCollection> sInputCaloLabel_tok_;
   edm::EDGetTokenT<reco::METCollection> sInputTCLabel_tok_;
+
+  // neuhaus - comment
+  PFMETBenchmark PFMETBenchmark_;
+  string OutputFileName;
+  bool pfmBenchmarkDebug;
+  bool xplotAgainstReco;
+  string xbenchmarkLabel_;
+  dqm::legacy::DQMStore *xdbe_;
 };
 /// PFJet Benchmark
 
-// neuhaus - comment
-PFMETBenchmark PFMETBenchmark_;
-string OutputFileName;
-bool pfmBenchmarkDebug;
-bool xplotAgainstReco;
-string xbenchmarkLabel_;
-dqm::legacy::DQMStore *xdbe_;
 //
 // constants, enums and typedefs
 //

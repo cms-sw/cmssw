@@ -12,7 +12,7 @@
 
 // system include files
 #include <cstring>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Utilities/interface/typelookup.h"
@@ -54,7 +54,8 @@ namespace {
 
   //NOTE: the use of const char* does not lead to a memory leak because the data
   // for the strings are assigned at compile time via a macro call
-  using TypeNameToValueMap = tbb::concurrent_unordered_map<const char*, const std::type_info*, StringHash, StringEqual>;
+  using TypeNameToValueMap =
+      oneapi::tbb::concurrent_unordered_map<const char*, const std::type_info*, StringHash, StringEqual>;
 
   TypeNameToValueMap& typeNameToValueMap() {
     static TypeNameToValueMap s_map;

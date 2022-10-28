@@ -51,9 +51,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  unsigned int theFormatVersion;  // Select which version of data format to use Pre-LS1: 2005, Post-LS1: 2013
-  bool usePreTriggers;            // Select if to use Pre-Triigers CLCT digis
-  bool packEverything_;           // bypass all cuts and (pre)trigger requirements
+  bool usePreTriggers_;  // Select if to use Pre-Triggers CLCT digis
   bool useGEMs_;
   bool useCSCShowers_;
 
@@ -67,25 +65,28 @@ private:
   edm::EDGetTokenT<CSCCLCTPreTriggerCollection> pr_token;
   edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> prdigi_token;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
-  edm::EDGetTokenT<CSCShowerDigiCollection> shower_token;
   edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cham_token;
+
+  /// Run3 CSC Shower objects collections
+  edm::EDGetTokenT<CSCShowerDigiCollection> shower_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> anode_shower_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> cathode_shower_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> alct_anode_shower_token;
+  /// Run3 GEM GE11 trigger objects collection
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_token;
 
   edm::EDPutTokenT<FEDRawDataCollection> put_token_;
 };
 
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(std::make_unique<CSCDigiToRaw>(pset)) {
-  theFormatVersion = pset.getParameter<unsigned int>("useFormatVersion");  // pre-LS1 - '2005'. post-LS1 - '2013'
-  usePreTriggers = pset.getParameter<bool>("usePreTriggers");              // disable checking CLCT PreTriggers digis
-  packEverything_ = pset.getParameter<bool>("packEverything");  // don't check for consistency with trig primitives
-                                                                // overrides usePreTriggers
+  usePreTriggers_ = pset.getParameter<bool>("usePreTriggers");  // disable checking CLCT PreTriggers digis
 
   useGEMs_ = pset.getParameter<bool>("useGEMs");
   useCSCShowers_ = pset.getParameter<bool>("useCSCShowers");
   wd_token = consumes<CSCWireDigiCollection>(pset.getParameter<edm::InputTag>("wireDigiTag"));
   sd_token = consumes<CSCStripDigiCollection>(pset.getParameter<edm::InputTag>("stripDigiTag"));
   cd_token = consumes<CSCComparatorDigiCollection>(pset.getParameter<edm::InputTag>("comparatorDigiTag"));
-  if (usePreTriggers) {
+  if (usePreTriggers_) {
     pr_token = consumes<CSCCLCTPreTriggerCollection>(pset.getParameter<edm::InputTag>("preTriggerTag"));
     prdigi_token = consumes<CSCCLCTPreTriggerDigiCollection>(pset.getParameter<edm::InputTag>("preTriggerDigiTag"));
   }
@@ -98,6 +99,10 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
   }
   if (useCSCShowers_) {
     shower_token = consumes<CSCShowerDigiCollection>(pset.getParameter<edm::InputTag>("showerDigiTag"));
+    anode_shower_token = consumes<CSCShowerDigiCollection>(pset.getParameter<edm::InputTag>("anodeShowerDigiTag"));
+    cathode_shower_token = consumes<CSCShowerDigiCollection>(pset.getParameter<edm::InputTag>("cathodeShowerDigiTag"));
+    alct_anode_shower_token =
+        consumes<CSCShowerDigiCollection>(pset.getParameter<edm::InputTag>("anodeALCTShowerDigiTag"));
   }
   put_token_ = produces<FEDRawDataCollection>("CSCRawData");
 }
@@ -105,13 +110,17 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
 void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<unsigned int>("useFormatVersion", 2005)
-      ->setComment("Set to 2005 for pre-LS1 CSC data format, 2013 - new post-LS1 CSC data format");
+  desc.add<unsigned int>("formatVersion", 2005)
+      ->setComment(
+          "Set to 2005 for pre-LS1 CSC data format, 2013 -  post-LS1 Run2 CSC data format, 2020 - Run3 CSC data "
+          "format");
   desc.add<bool>("usePreTriggers", true)->setComment("Set to false if CSCCLCTPreTrigger digis are not available");
   desc.add<bool>("packEverything", false)
       ->setComment("Set to true to disable trigger-related constraints on readout data");
-  desc.add<bool>("useGEMs", false)->setComment("Pack GEM trigger data");
-  desc.add<bool>("useCSCShowers", false)->setComment("Pack CSC shower trigger data");
+  desc.add<bool>("packByCFEB", false)->setComment("Pack strip digis using CFEB info");
+  /// Run3 GEM and CSCShower objects packing
+  desc.add<bool>("useGEMs", false)->setComment("Pack Run3 GEM trigger data");
+  desc.add<bool>("useCSCShowers", false)->setComment("Pack Run3 CSC shower trigger data");
 
   desc.add<edm::InputTag>("wireDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"));
   desc.add<edm::InputTag>("stripDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCStripDigi"));
@@ -121,8 +130,16 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("preTriggerTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("preTriggerDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("correlatedLCTDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED"));
-  desc.add<edm::InputTag>("padDigiClusterTag", edm::InputTag("simMuonGEMPadDigiClusters"));
-  desc.add<edm::InputTag>("showerDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("padDigiClusterTag",
+                          edm::InputTag("simMuonGEMPadDigiClusters"));  /// "MuonGEMPadDigiCluster" in data
+  desc.add<edm::InputTag>("showerDigiTag",
+                          edm::InputTag("simCscTriggerPrimitiveDigis"));  /// "MuonCSCShowerDigi" in data
+  desc.add<edm::InputTag>("anodeShowerDigiTag",
+                          edm::InputTag("simCscTriggerPrimitiveDigis"));  /// "MuonCSCShowerDigiAnode" in data
+  desc.add<edm::InputTag>("cathodeShowerDigiTag",
+                          edm::InputTag("simCscTriggerPrimitiveDigis"));  /// "MuonCSCShowerDigiCathode" in
+  desc.add<edm::InputTag>("anodeALCTShowerDigiTag",
+                          edm::InputTag("simCscTriggerPrimitiveDigis"));  /// "MuonCSCShowerDigiAnodeALCT" in data
 
   desc.add<int32_t>("alctWindowMin", -3)->setComment("If min parameter = -999 always accept");
   desc.add<int32_t>("alctWindowMax", 3);
@@ -160,23 +177,29 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   // packing with pre-triggers
   CSCCLCTPreTriggerCollection const* preTriggersPtr = nullptr;
   CSCCLCTPreTriggerDigiCollection const* preTriggerDigisPtr = nullptr;
-  if (usePreTriggers) {
+  if (usePreTriggers_) {
     preTriggersPtr = &e.get(pr_token);
     preTriggerDigisPtr = &e.get(prdigi_token);
   }
 
   // collections that are packed optionally
 
-  // packing of GEM hits
+  // packing of Run3 GEM GE11 hits
   const GEMPadDigiClusterCollection* padDigiClustersPtr = nullptr;
   if (useGEMs_) {
     padDigiClustersPtr = &e.get(gem_token);
   }
 
-  // packing of CSC shower digis
+  // packing of Run3 CSC shower digis
   const CSCShowerDigiCollection* cscShowerDigisPtr = nullptr;
+  const CSCShowerDigiCollection* cscAnodeShowerDigisPtr = nullptr;
+  const CSCShowerDigiCollection* cscCathodeShowerDigisPtr = nullptr;
+  const CSCShowerDigiCollection* cscALCTAnodeShowerDigisPtr = nullptr;
   if (useCSCShowers_) {
     cscShowerDigisPtr = &e.get(shower_token);
+    cscAnodeShowerDigisPtr = &e.get(anode_shower_token);
+    cscCathodeShowerDigisPtr = &e.get(cathode_shower_token);
+    cscALCTAnodeShowerDigisPtr = &e.get(alct_anode_shower_token);
   }
 
   // Create the packed data
@@ -189,12 +212,13 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
                             preTriggerDigisPtr,
                             *correlatedLCTDigis,
                             cscShowerDigisPtr,
+                            cscAnodeShowerDigisPtr,
+                            cscCathodeShowerDigisPtr,
+                            cscALCTAnodeShowerDigisPtr,
                             padDigiClustersPtr,
                             fed_buffers,
                             theMapping,
-                            e.id(),
-                            theFormatVersion,
-                            packEverything_);
+                            e.id());
 
   // put the raw data to the event
   e.emplace(put_token_, std::move(fed_buffers));

@@ -8,8 +8,8 @@
 #include <mutex>
 #include <thread>
 
-#include "tbb/concurrent_queue.h"
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_queue.h"
+#include "oneapi/tbb/concurrent_vector.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -60,7 +60,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
-  edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
+  edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool& tcdsInRange);
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -262,6 +262,7 @@ struct InputFile {
   bool advance(unsigned char*& dataPosition, const size_t size);
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
+  void unsetDeleteFile() { deleteFile_ = false; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h

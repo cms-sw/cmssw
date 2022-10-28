@@ -50,7 +50,7 @@ namespace edm {
     EDPutTokenT<std::vector<ErrorSummaryEntry>> token_;
   };
 
-  LogErrorHarvester::LogErrorHarvester(ParameterSet const& iPSet) : token_{produces<std::vector<ErrorSummaryEntry>>()} {
+  LogErrorHarvester::LogErrorHarvester(ParameterSet const& iPSet) : token_{produces()} {
     const edm::TypeID endPathStatusType{typeid(edm::EndPathStatus)};
     const edm::TypeID pathStatusType{typeid(edm::PathStatus)};
     const edm::TypeID triggerResultsType{typeid(edm::TriggerResults)};

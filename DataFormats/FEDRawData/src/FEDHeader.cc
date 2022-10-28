@@ -34,8 +34,8 @@ void FEDHeader::set(unsigned char* header,
   h->eventid = (FED_SLINK_START_MARKER << FED_HCTRLID_SHIFT) | ((triggerType << FED_EVTY_SHIFT) & FED_EVTY_MASK) |
                ((lvl1ID << FED_LVL1_SHIFT) & FED_LVL1_MASK);
 
-  h->sourceid = ((bxID << FED_BXID_SHIFT) & FED_BXID_MASK) | ((sourceID << FED_SOID_SHIFT) & FED_SOID_MASK) |
-                ((version << FED_VERSION_SHIFT) & FED_VERSION_MASK);
+  h->sourceid = (((bxID & FED_BXID_WIDTH) << FED_BXID_SHIFT) & FED_BXID_MASK) |
+                ((sourceID << FED_SOID_SHIFT) & FED_SOID_MASK) | ((version << FED_VERSION_SHIFT) & FED_VERSION_MASK);
 
   if (moreHeaders)
     h->sourceid |= (FED_MORE_HEADERS_WIDTH << FED_MORE_HEADERS_SHIFT);

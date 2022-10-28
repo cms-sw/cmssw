@@ -6,7 +6,7 @@ from __future__ import absolute_import
 # (~class list) html files to understand the tags/attributes that we use in
 # this script.
 
-from .BeautifulSoup import *
+from bs4 import BeautifulSoup
 import sys, os, copy
 
 htmlFullPath     = None

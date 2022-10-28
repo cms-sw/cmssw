@@ -91,6 +91,15 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}COPY1------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}COPY1_cfg.py || die "cmsRun ${test}COPY1_cfg.py" $?
 
+  echo ${test}MERGE6------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE6_cfg.py || die "cmsRun ${test}MERGE6_cfg.py" $?
+
+  echo ${test}NoRunLumiSort------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}NoRunLumiSort_cfg.py || die "cmsRun ${test}NoRunLumiSort_cfg.py" $?
+
+  echo ${test}TEST6------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST6_cfg.py || die "cmsRun ${test}TEST6_cfg.py" $?
+
   echo ${test}PickEvents------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PickEvents_cfg.py || die "cmsRun ${test}PickEvents_cfg.py" $?
 

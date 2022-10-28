@@ -65,7 +65,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 ##
 ## separately partition by partition
 ##
-byParition = cms.VPSet(
+byPartition = cms.VPSet(
     cms.PSet(partition = cms.string("TIB"),
              doScale   = cms.bool(True),
              doSmear   = cms.bool(True),
@@ -150,21 +150,20 @@ process.scaleAndSmearSiStripGains.gainType = 1        # 0 for G1, 1 for G2
 process.scaleAndSmearSiStripGains.params   = subsets  # as a cms.VPset
 
 ##
-## Database output service
-##
-process.load("CondCore.CondDB.CondDB_cfi")
-
-##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedGains_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDB,
-                                          timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
-                                                                     tag = cms.string('modifiedGains')
-                                                                     )
-                                                            )
-                                          )
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(3),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:modifiedSiStripGains_%s_IOV_%s.db' % ( process.GlobalTag.globaltag._value, str(options.runNumber))),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripApvGainRcd'),
+        tag = cms.string('modifiedGains')
+    ))
+)
 
 process.p = cms.Path(process.scaleAndSmearSiStripGains)

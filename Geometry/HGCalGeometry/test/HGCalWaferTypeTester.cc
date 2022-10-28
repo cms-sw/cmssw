@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -51,18 +51,16 @@ public:
   void endJob() override {}
 
 private:
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
-  std::string nameSense_, nameDetector_;
+  const std::string nameSense_, nameDetector_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
-HGCalWaferTypeTester::HGCalWaferTypeTester(const edm::ParameterSet& iC) {
-  nameSense_ = iC.getParameter<std::string>("NameSense");
-  nameDetector_ = iC.getParameter<std::string>("NameDevice");
-
-  geomToken_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_});
-
-  std::cout << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag true"
-            << std::endl;
+HGCalWaferTypeTester::HGCalWaferTypeTester(const edm::ParameterSet& iC)
+    : nameSense_(iC.getParameter<std::string>("NameSense")),
+      nameDetector_(iC.getParameter<std::string>("NameDevice")),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
+  edm::LogVerbatim("HGCalGeomX") << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_
+                                 << " for  RecoFlag true";
 }
 
 void HGCalWaferTypeTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -78,11 +76,11 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
   const HGCalGeometry* geom = &geomR;
   const HGCalDDDConstants& hgdc = geom->topology().dddConstants();
   HGCalGeometryMode::GeometryMode mode = hgdc.geomMode();
-  std::cout << nameDetector_ << "\n Mode = " << mode << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << "\n Mode = " << mode;
   if (hgdc.waferHexagon8()) {
     double r = hgdc.waferParameters(true).first;
     double R = hgdc.waferParameters(true).second;
-    std::cout << "Wafer Parameters " << r << ":" << R << std::endl << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Wafer Parameters " << r << ":" << R << std::endl;
     // Determine if the 24 points on the perphery of the wafer is within range
     // These are the 6 corners; the middle of the edges and the positions
     // which determines the positions of choptwoMinus and semiMinus
@@ -102,6 +100,27 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
                             0xFFF001, 0xFF001F, 0xF001FF, 0x001FFF, 0x01FFF0, 0x1FFF00, 0xFFC007, 0xFC007F, 0xC007FF,
                             0x007FFC, 0x07FFC0, 0x7FFC00, 0xFF8003, 0xF8003F, 0x8003FF, 0x003FF8, 0x03FF80, 0x3FF800,
                             0xFF0001, 0xF0001F, 0x0001FF, 0x001FF0, 0x01FF00, 0x1FF000, 0xFFFFFF};
+    const std::vector<int> partTypeNew = {HGCalTypes::WaferLDBottom,
+                                          HGCalTypes::WaferLDLeft,
+                                          HGCalTypes::WaferLDRight,
+                                          HGCalTypes::WaferLDFive,
+                                          HGCalTypes::WaferLDThree,
+                                          HGCalTypes::WaferHDTop,
+                                          HGCalTypes::WaferHDBottom,
+                                          HGCalTypes::WaferHDLeft,
+                                          HGCalTypes::WaferHDRight,
+                                          HGCalTypes::WaferHDFive};
+    const std::vector<int> partTypeOld = {HGCalTypes::WaferHalf,
+                                          HGCalTypes::WaferHalf,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferFive,
+                                          HGCalTypes::WaferThree,
+                                          HGCalTypes::WaferHalf2,
+                                          HGCalTypes::WaferChopTwoM,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferFive2};
     const std::vector<DetId>& ids = geom->getValidGeomDetIds();
     int all(0), total(0), good(0), bad(0);
     for (auto id : ids) {
@@ -110,10 +129,18 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
       if (hid.zside() > 0)
         ++all;
       // Not a full wafer
-      if (type.first > 0 && type.first < 10 && hid.zside() > 0) {
+      int part = type.first;
+      if (part > 10) {
+        auto itr = std::find(partTypeNew.begin(), partTypeNew.end(), part);
+        if (itr != partTypeNew.end()) {
+          unsigned int indx = static_cast<unsigned int>(itr - partTypeNew.begin());
+          part = partTypeOld[indx];
+        }
+      }
+      if (part > 0 && part < 10 && hid.zside() > 0) {
         ++total;
         int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV());
-        int indx = (type.first - 1) * 6 + type.second;
+        int indx = (part - 1) * 6 + type.second;
         GlobalPoint xyz = geom->getWaferPosition(id);
         auto range = hgdc.rangeRLayer(hid.layer(), true);
         unsigned int ipat(0), ii(1);
@@ -130,8 +157,8 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
           match = true;
           for (unsigned int i = 0; i < nc; ++i) {
             if ((((pat[indx] / ii) & 1) != 0) && (((ipat / ii) & 1) == 0)) {
-              std::cout << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1) << " Found "
-                        << ((ipat / ii) & 1) << std::endl;
+              edm::LogVerbatim("HGCalGeomX") << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1)
+                                             << " Found " << ((ipat / ii) & 1);
               match = false;
               break;
             }
@@ -154,31 +181,30 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
             }
           }
         }
-        std::cout << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", " << hid.waferV() << "] "
-                  << " with type: rotation " << type.first << ":" << type.second << " Pattern " << std::hex << pat[indx]
-                  << ":" << ipat << std::dec;
+        std::string cherr = (!match) ? " ***** ERROR *****" : "";
+        edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", "
+                                       << hid.waferV() << "]  with type: rotation " << type.first << "(" << part
+                                       << "):" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat
+                                       << std::dec << cherr;
         if (!match) {
           ++bad;
-          std::cout << " ***** ERROR *****" << std::endl;
           // Need debug information here
           hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
           HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
           for (unsigned int i = 0; i < 24; ++i) {
             double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
-            std::cout << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":"
-                      << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second
-                      << std::endl;
+            edm::LogVerbatim("HGCalGeomX")
+                << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":"
+                << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second;
           }
         } else {
           ++good;
-          std::cout << std::endl;
         }
         ++total;
       }
     }
-    std::cout << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total << " partial wafers of which "
-              << good << " are good and " << bad << " are bad" << std::endl
-              << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total
+                                   << " partial wafers of which " << good << " are good and " << bad << " are bad\n";
   }
 }
 

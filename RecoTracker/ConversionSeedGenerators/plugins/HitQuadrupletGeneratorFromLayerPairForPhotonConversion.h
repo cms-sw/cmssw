@@ -23,11 +23,7 @@ public:
 
   ~HitQuadrupletGeneratorFromLayerPairForPhotonConversion() {}
 
-  void hitPairs(const TrackingRegion &reg,
-                OrderedHitPairs &prs,
-                const Layers &layers,
-                const edm::Event &ev,
-                const edm::EventSetup &es);
+  void hitPairs(const TrackingRegion &reg, OrderedHitPairs &prs, const Layers &layers);
 
   bool failCheckRZCompatibility(const RecHitsSortedInPhi::Hit &hit,
                                 const DetLayer &layer,

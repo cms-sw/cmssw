@@ -1,21 +1,21 @@
 ## Process  100  events in CSC rechit builder - Tim Cox - 06.10.2014
 ## This version runs in 720pre6, 7, 73X IBs  on a real data RelVal RAW sample.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-# This is OK for 72x real data
-process.GlobalTag.globaltag = "GR_R_71_V1::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS --- 
 

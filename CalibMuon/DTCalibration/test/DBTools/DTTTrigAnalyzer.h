@@ -8,9 +8,10 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 #include <fstream>
@@ -21,7 +22,7 @@ class DTTtrig;
 class TFile;
 class TH1D;
 
-class DTTTrigAnalyzer : public edm::EDAnalyzer {
+class DTTTrigAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigAnalyzer(const edm::ParameterSet& pset);
@@ -47,8 +48,6 @@ private:
   //The t0 map
   const DTTtrig* tTrigMap;
 
-  std::string dbLabel;
-
   //The k factor
   //double kfactor;
 
@@ -62,5 +61,7 @@ private:
   std::map<std::vector<int>, TH1D*> theTMeanDistribMap;
   std::map<std::vector<int>, TH1D*> theSigmaDistribMap;
   std::map<std::vector<int>, TH1D*> theKFactorDistribMap;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
 };
 #endif

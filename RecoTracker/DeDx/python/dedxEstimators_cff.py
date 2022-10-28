@@ -22,8 +22,10 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     lowPtTracksEstimatorParameters = cms.PSet( # generalized truncated average
         fraction = cms.double(-0.15), # negative = throw away the 15% with lowest charge
         exponent = cms.double(-2.0),
+        truncate = cms.bool(True),
     ),
     lowPtTracksDeDxThreshold = cms.double(3.5), # threshold on tracks
+    usePixelForPrescales = cms.bool(True)
 )
 
 import RecoTracker.DeDx.DeDxEstimatorProducer_cfi as _mod
@@ -33,7 +35,7 @@ dedxHarmonic2 = _mod.DeDxEstimatorProducer.clone(
     fraction       = 0.4,        #Used only if estimator='truncated'
     exponent       = -2.0,       #Used only if estimator='generic'
 
-    Reccord            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+    Record            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
     ProbabilityMode    = "Accumulation",          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
 )
 
@@ -78,3 +80,10 @@ doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHa
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
 
 fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))
+
+# use only the strips for Run-3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(dedxHitInfo,
+    lowPtTracksEstimatorParameters = dict(fraction = 0., exponent = -2.0,truncate = False),
+    usePixelForPrescales = False
+)

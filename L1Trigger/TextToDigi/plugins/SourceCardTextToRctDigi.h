@@ -25,7 +25,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -36,12 +36,12 @@
 // RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+#include "L1Trigger/TextToDigi/interface/SourceCardRouting.h"
 
 #include <fstream>
 #include <iostream>
 
-class SourceCardTextToRctDigi : public edm::EDProducer {
+class SourceCardTextToRctDigi : public edm::one::EDProducer<> {
 public:
   explicit SourceCardTextToRctDigi(const edm::ParameterSet &);
   ~SourceCardTextToRctDigi() override;

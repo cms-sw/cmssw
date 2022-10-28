@@ -16,20 +16,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 namespace reco {
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrackingParticleCollection, edm::View<TrajectorySeed>, double>>
-      SimToRecoCollectionSeed;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<edm::View<TrajectorySeed>, TrackingParticleCollection, double>>
-      RecoToSimCollectionSeed;
-
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrackingParticleCollection, TrackCandidateCollection, double>>
-      SimToRecoCollectionTCandidate;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrajectorySeedCollection, TrackCandidateCollection, double>>
-      RecoToSimCollectionTCandidate;
-
   class TrackToTrackingParticleAssociatorBaseImpl {
   public:
     /// Constructor
@@ -63,10 +49,10 @@ namespace reco {
 
     // TrackCandidate
     virtual reco::RecoToSimCollectionTCandidate associateRecoToSim(
-        const edm::Handle<TrackCandidateCollection> &, const edm::Handle<TrackingParticleCollection> &) const;
+        const edm::Handle<TrackCandidateCollection> &, const edm::RefVector<TrackingParticleCollection> &) const;
 
     virtual reco::SimToRecoCollectionTCandidate associateSimToReco(
-        const edm::Handle<TrackCandidateCollection> &, const edm::Handle<TrackingParticleCollection> &) const;
+        const edm::Handle<TrackCandidateCollection> &, const edm::RefVector<TrackingParticleCollection> &) const;
   };
 }  // namespace reco
 

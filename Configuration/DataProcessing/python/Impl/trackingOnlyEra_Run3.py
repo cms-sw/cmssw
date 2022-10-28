@@ -22,7 +22,6 @@ class trackingOnlyEra_Run3(trackingOnly):
         # some dedicated customization are required, though: customisePostEra_Run3_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
-        self.addEI=False
         self.eras=Run3
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_express_trackingOnly' ]

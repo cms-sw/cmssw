@@ -46,7 +46,7 @@ combinatorialcosmicseedingpairsTECposP5 = _mod.seedingLayersEDProducer.clone(
                  'TEC6_pos+TEC7_pos', 
                  'TEC7_pos+TEC8_pos', 
                  'TEC8_pos+TEC9_pos'],
-    TEC = cms.PSet(
+    TEC = dict(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
@@ -65,7 +65,7 @@ combinatorialcosmicseedingpairsTECnegP5 = _mod.seedingLayersEDProducer.clone(
                  'TEC6_neg+TEC7_neg', 
                  'TEC7_neg+TEC8_neg', 
                  'TEC8_neg+TEC9_neg'],
-    TEC = cms.PSet(
+    TEC = dict(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),

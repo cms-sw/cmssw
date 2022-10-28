@@ -9,7 +9,7 @@
 #include <regex>
 #include <iostream>
 #include <cassert>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 //NOTE:  This should probably be rewritten so that we break the class name into a tree where the template arguments are the node.  On the way down the tree
 // we look for '<' or ',' and on the way up (caused by finding a '>') we can apply the transformation to the output string based on the class name for the
@@ -92,6 +92,23 @@ namespace edm {
     static std::regex const reToRefsAssoc(
         "edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
 
+    // type aliases for Alpaka internals
+    static std::regex const reAlpakaDevCpu("alpaka::DevCpu");                                     // alpakaDevCpu
+    static std::regex const reAlpakaDevCudaRt("alpaka::DevUniformCudaHipRt<alpaka::ApiCudaRt>");  // alpakaDevCudaRt
+    static std::regex const reAlpakaDevHipRt("alpaka::DevUniformCudaHipRt<alpaka::ApiHipRt>");    // alpakaDevHipRt
+    static std::regex const reAlpakaQueueCpuBlocking(
+        "alpaka::QueueGenericThreadsBlocking<alpaka::DevCpu>");  // alpakaQueueCpuBlocking
+    static std::regex const reAlpakaQueueCpuNonBlocking(
+        "alpaka::QueueGenericThreadsNonBlocking<alpaka::DevCpu>");  // alpakaQueueCpuNonBlocking
+    static std::regex const reAlpakaQueueCudaRtBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiCudaRt,true>");  // alpakaQueueCudaRtBlocking
+    static std::regex const reAlpakaQueueCudaRtNonBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiCudaRt,false>");  // alpakaQueueCudaRtNonBlocking
+    static std::regex const reAlpakaQueueHipRtBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiHipRt,true>");  // alpakaQueueHipRtBlocking
+    static std::regex const reAlpakaQueueHipRtNonBlocking(
+        "alpaka::uniform_cuda_hip::detail::QueueUniformCudaHipRt<alpaka::ApiHipRt,false>");  // alpakaQueueHipRtNonBlocking
+
     std::string standardRenames(std::string const& iIn) {
       using std::regex;
       using std::regex_replace;
@@ -121,7 +138,22 @@ namespace edm {
       name = regex_replace(name, reToRefs1, "Refs<$1<$2>>");
       name = regex_replace(name, reToRefs2, "Refs<$1,$2>");
       name = regex_replace(name, reToRefsAssoc, "Refs<Association$1>");
-      //std::cout <<"standardRenames '"<<name<<"'"<<std::endl;
+
+      // Alpaka types
+      name = regex_replace(name, reAlpakaQueueCpuBlocking, "alpakaQueueCpuBlocking");
+      name = regex_replace(name, reAlpakaQueueCpuNonBlocking, "alpakaQueueCpuNonBlocking");
+      name = regex_replace(name, reAlpakaQueueCudaRtBlocking, "alpakaQueueCudaRtBlocking");
+      name = regex_replace(name, reAlpakaQueueCudaRtNonBlocking, "alpakaQueueCudaRtNonBlocking");
+      name = regex_replace(name, reAlpakaQueueHipRtBlocking, "alpakaQueueHipRtBlocking");
+      name = regex_replace(name, reAlpakaQueueHipRtNonBlocking, "alpakaQueueHipRtNonBlocking");
+      // devices should be last, as they can appear as template arguments in other types
+      name = regex_replace(name, reAlpakaDevCpu, "alpakaDevCpu");
+      name = regex_replace(name, reAlpakaDevCudaRt, "alpakaDevCudaRt");
+      name = regex_replace(name, reAlpakaDevHipRt, "alpakaDevHipRt");
+
+      if constexpr (debug) {
+        std::cout << prefix << "standardRenames iIn " << iIn << " result " << name << std::endl;
+      }
       return name;
     }
 
@@ -280,7 +312,7 @@ namespace edm {
         std::cout << "\nfriendlyName for " << iFullName << std::endl;
         prefix = " ";
       }
-      typedef tbb::concurrent_unordered_map<std::string, std::string> Map;
+      typedef oneapi::tbb::concurrent_unordered_map<std::string, std::string> Map;
       static Map s_fillToFriendlyName;
       auto itFound = s_fillToFriendlyName.find(iFullName);
       if (s_fillToFriendlyName.end() == itFound) {

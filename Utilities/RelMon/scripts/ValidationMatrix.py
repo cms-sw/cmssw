@@ -14,7 +14,7 @@ from builtins import range
 from optparse import OptionParser
 
 import os
-import cPickle
+import pickle
 import glob
 from re import search
 from subprocess import call,PIPE
@@ -253,8 +253,8 @@ def get_filenames_from_pool(all_samples):
 
 def get_clean_fileanames(ref_samples,test_samples):
   # Process the samples starting from the names
-  ref_filenames=map(lambda s:s.strip(),ref_samples.split(","))
-  test_filenames=map(lambda s:s.strip(),test_samples.split(","))
+  ref_filenames=list(map(lambda s:s.strip(),ref_samples.split(",")))
+  test_filenames=list(map(lambda s:s.strip(),test_samples.split(",")))
 
   if len(ref_filenames)!=len(test_filenames):
     print("The numebr of reference and test files does not seem to be the same. Please check.")
@@ -325,8 +325,8 @@ def do_comparisons_threaded(options):
     ref_filenames,test_filenames=get_clean_fileanames(options.ref_samples,options.test_samples)
  
   # make the paths absolute
-  ref_filenames=map(os.path.abspath,ref_filenames)
-  test_filenames=map(os.path.abspath,test_filenames)
+  ref_filenames=list(map(os.path.abspath,ref_filenames))
+  test_filenames=list(map(os.path.abspath,test_filenames))
   
   samples,cmssw_version1,cmssw_version2=guess_params(ref_filenames,test_filenames)
   

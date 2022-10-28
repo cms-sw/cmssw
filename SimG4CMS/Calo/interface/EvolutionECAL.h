@@ -22,8 +22,8 @@
 
 class EvolutionECAL {
 public:
-  EvolutionECAL();
-  virtual ~EvolutionECAL();
+  EvolutionECAL(){};
+  ~EvolutionECAL() = default;
 
   double LightCollectionEfficiency(double z, double mu);
   double DamageProfileEta(double eta);

@@ -111,10 +111,13 @@ class LumiList(object):
             newLumis = []
             for lumi in sorted(self.compactList[run]):
                 # If the next lumi starts inside or just after the last just change the endpoint of the first
-                if newLumis and newLumis[-1][0] <= lumi[0] <= newLumis[-1][1] + 1:
-                    newLumis[-1][1] = max(newLumis[-1][1], lumi[1])
-                else:
+                if isinstance(lumi, int):
                     newLumis.append(lumi)
+                else:
+                    if newLumis and newLumis[-1][0] <= lumi[0] <= newLumis[-1][1] + 1:
+                        newLumis[-1][1] = max(newLumis[-1][1], lumi[1])
+                    else:
+                        newLumis.append(lumi)
             self.compactList[run] = newLumis
 
     def __sub__(self, other): # Things from self not in other
@@ -272,6 +275,9 @@ class LumiList(object):
         for run in runs:
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
+                if isinstance(lumiPair, int):
+                    parts.append(str("%s:%s" % (run, lumiPair)))
+                    continue
                 if lumiPair[0] == lumiPair[1]:
                     parts.append(str("%s:%s" % (run, lumiPair[0])))
                 else:

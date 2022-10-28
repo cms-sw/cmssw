@@ -44,6 +44,8 @@ class BareRootProductGetter : public edm::EDProductGetter {
 public:
   BareRootProductGetter();
   ~BareRootProductGetter() override;
+  BareRootProductGetter(BareRootProductGetter const&) = delete;                   // stop default
+  BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete;  // stop default
 
   // ---------- const member functions ---------------------
   edm::WrapperBase const* getIt(edm::ProductID const&) const override;
@@ -102,10 +104,6 @@ private:
     Long_t eventEntry_;  //the event Entry used with the last GetEntry call
     edm::propagate_const<TClass*> class_;
   };
-
-  BareRootProductGetter(BareRootProductGetter const&) = delete;  // stop default
-
-  BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete;  // stop default
 
   Buffer* createNewBuffer(edm::BranchID const&) const;
   edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;

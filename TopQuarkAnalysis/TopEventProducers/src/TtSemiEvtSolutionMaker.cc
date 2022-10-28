@@ -1,9 +1,8 @@
-//
-//
-
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -14,8 +13,54 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 #include <memory>
+#include <string>
+#include <vector>
+
+class TtSemiEvtSolutionMaker : public edm::stream::EDProducer<> {
+public:
+  explicit TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig);
+  ~TtSemiEvtSolutionMaker() override;
+
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  // convert unsigned to Param
+  TtSemiLepKinFitter::Param param(unsigned);
+  // convert unsigned to Param
+  TtSemiLepKinFitter::Constraint constraint(unsigned);
+  // convert unsigned to Param
+  std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
+
+private:
+  // configurables
+  edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetSrcToken_;
+  std::string leptonFlavour_;
+  int jetCorrScheme_;
+  unsigned int nrCombJets_;
+  std::string lrSignalSelFile_, lrJetCombFile_;
+  bool addLRSignalSel_, addLRJetComb_, doKinFit_, matchToGenEvt_;
+  int matchingAlgo_;
+  bool useMaxDist_, useDeltaR_;
+  double maxDist_;
+  int maxNrIter_;
+  double maxDeltaS_, maxF_;
+  int jetParam_, lepParam_, metParam_;
+  std::vector<int> lrSignalSelObs_, lrJetCombObs_;
+  std::vector<unsigned> constraints_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+  // tools
+  TtSemiLepKinFitter* myKinFitter;
+  TtSemiSimpleBestJetComb* mySimpleBestJetComb;
+  TtSemiLRJetCombObservables* myLRJetCombObservables;
+  TtSemiLRJetCombCalc* myLRJetCombCalc;
+  TtSemiLRSignalSelObservables* myLRSignalSelObservables;
+  TtSemiLRSignalSelCalc* myLRSignalSelCalc;
+};
 
 /// constructor
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig) {
@@ -336,3 +381,6 @@ std::vector<TtSemiLepKinFitter::Constraint> TtSemiEvtSolutionMaker::constraints(
   }
   return result;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiEvtSolutionMaker);

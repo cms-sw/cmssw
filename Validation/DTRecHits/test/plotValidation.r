@@ -22,7 +22,7 @@ void plotValidation(){
 void plotValidation(TString filename, int wheel, int station) {
 
   if (! TString(gSystem->GetLibraries()).Contains("Histograms_h")) {
-    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/test/Histograms.h+");
+    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/interface/Histograms.h+");
     gROOT->LoadMacro("macros.C");
   }
 

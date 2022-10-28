@@ -1,28 +1,26 @@
-#include "RPCFakeEvent.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "RPCFakeEvent.h"
 #include <iostream>
 
-RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config) {
+RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config)
+    : filesed(config.getParameter<std::vector<std::string> >("FakeEvents")),
+      rpcdigiprint(config.getParameter<bool>("printOut")),
+      tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {
   std::cout << "Initialize the Event Dump" << std::endl;
   produces<RPCDigiCollection>();
 
-  filesed = config.getParameter<std::vector<std::string> >("FakeEvents");
-  rpcdigiprint = config.getParameter<bool>("printOut");
   std::cout << "Number of Input files =" << filesed.size() << std::endl;
   if (rpcdigiprint) {
     std::cout << "Event Dump Digi Creation" << std::endl;
     std::cout << "Number of Input files =" << filesed.size() << std::endl;
-    for (std::vector<std::string>::iterator i = filesed.begin(); i < filesed.end(); i++) {
+    for (auto i = filesed.begin(); i < filesed.end(); i++) {
       std::cout << "input file " << *i << std::endl;
     }
   }
@@ -30,9 +28,8 @@ RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config) {
 
 void RPCFakeEvent::produce(edm::Event& e, const edm::EventSetup& c) {
   std::cout << "Getting the rpc geometry" << std::endl;
-  edm::ESHandle<RPCGeometry> rpcGeom;
   std::cout << "Getting the Muon geometry" << std::endl;
-  c.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = c.getHandle(tokGeom_);
 
   if (rpcdigiprint) {
     std::cout << " Evento Done : "

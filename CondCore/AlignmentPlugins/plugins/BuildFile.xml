@@ -20,6 +20,7 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/Alignment"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="Alignment/CommonAlignment"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>

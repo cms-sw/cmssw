@@ -4,7 +4,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@ namespace edm {
   class HepMCProduct;
 }
 
-class EgammaObjects : public edm::EDAnalyzer {
+class EgammaObjects : public edm::one::EDAnalyzer<> {
 public:
   explicit EgammaObjects(const edm::ParameterSet&);
   ~EgammaObjects() override;

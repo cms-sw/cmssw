@@ -15,7 +15,9 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
@@ -108,6 +110,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_firstlayer_matchedtoRecHit;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer_matchedtoRecHit;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum_matchedtoRecHit;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_fractions, h_caloparticle_fractions_weight;
 
   //For SimClusters
   std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perlayer;
@@ -138,32 +141,59 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_sharedenergy_simcluster2layercl_vs_eta_perlayer;
   std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_sharedenergy_simcluster2layercl_vs_phi_perlayer;
 
-  //For Tracksters
-  std::vector<dqm::reco::MonitorElement*> h_score_trackster2caloparticle;
-  std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2trackster;
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2caloparticle;
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster;
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta;
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi;
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta;
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle_vs_eta;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle_vs_phi;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_eta;
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_phi;
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta;
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi;
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta;
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi;
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta;
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi;
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta;
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi;
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta;
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi;
+  // For Tracksters
+  // Linking and Pattern Recognition
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2caloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle2[2];
+  std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2trackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_scorePur_caloparticle2trackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_scoreDupl_caloparticle2trackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2caloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle2[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster2[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle2[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc2[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[2];
+  // Generic histograms
   std::vector<dqm::reco::MonitorElement*> h_tracksternum;
   std::vector<dqm::reco::MonitorElement*> h_conttracksternum;
   std::vector<dqm::reco::MonitorElement*> h_nonconttracksternum;
@@ -229,6 +259,8 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
+  enum validationType { Linking = 0, PatternRecognition, PatternRecognition_CP };
+  void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -242,7 +274,7 @@ public:
                                       const hgcal::RecoToSimCollection& recSimColl,
                                       const hgcal::SimToRecoCollection& simRecColl) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
-                                    int count,
+                                    const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                     const reco::CaloClusterCollection& clusters,
                                     edm::Handle<std::vector<SimCluster>> simClusterHandle,
@@ -253,10 +285,16 @@ public:
                                     unsigned int layers,
                                     const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
-  void tracksters_to_CaloParticles(const Histograms& histograms,
-                                   int count,
+  void tracksters_to_SimTracksters(const Histograms& histograms,
+                                   const int count,
                                    const ticl::TracksterCollection& Tracksters,
                                    const reco::CaloClusterCollection& layerClusters,
+                                   const ticl::TracksterCollection& simTS,
+                                   const validationType valType,
+                                   const ticl::TracksterCollection& simTS_fromCP,
+                                   std::map<uint, std::vector<uint>> const& simTrackstersMap,
+                                   std::vector<SimCluster> const& sC,
+                                   const edm::ProductID& cPHandle_id,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
@@ -270,7 +308,7 @@ public:
                                 unsigned int layers,
                                 std::unordered_map<DetId, const HGCRecHit*> const&) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
-                                   int count,
+                                   const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                    const reco::CaloClusterCollection& clusters,
                                    const Density& densities,
@@ -289,7 +327,7 @@ public:
                               unsigned int layers,
                               std::vector<int> thicknesses) const;
   void fill_simClusterAssociation_histos(const Histograms& histograms,
-                                         int count,
+                                         const int count,
                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                          const reco::CaloClusterCollection& clusters,
                                          edm::Handle<std::vector<SimCluster>> simClusterHandle,
@@ -300,11 +338,16 @@ public:
                                          unsigned int layers,
                                          const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
-  void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
+  void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
-                             int count,
+                             const int count,
                              const ticl::TracksterCollection& Tracksters,
                              const reco::CaloClusterCollection& layerClusters,
+                             const ticl::TracksterCollection& simTS,
+                             const ticl::TracksterCollection& simTS_fromCP,
+                             std::map<uint, std::vector<uint>> const& simTrackstersMap,
+                             std::vector<SimCluster> const& sC,
+                             const edm::ProductID& cPHandle_id,
                              std::vector<CaloParticle> const& cP,
                              std::vector<size_t> const& cPIndices,
                              std::vector<size_t> const& cPSelectedIndices,
@@ -334,7 +377,7 @@ public:
     unsigned int caloParticleId;
     float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
-    std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
+    std::unordered_map<unsigned int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
 private:

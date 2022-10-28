@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 namespace edm {
   class Run;
@@ -31,6 +33,7 @@ private:
 
   std::string srcPixelsString_;  //pixel rec hits
   edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
 
   double minZ_;
   double maxZ_;

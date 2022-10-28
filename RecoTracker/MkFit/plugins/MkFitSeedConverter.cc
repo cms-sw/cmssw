@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
@@ -30,8 +31,8 @@
 #include "Math/SMatrix.h"
 
 // mkFit includes
-#include "LayerNumberConverter.h"
-#include "Track.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
 
 class MkFitSeedConverter : public edm::global::EDProducer<> {
 public:
@@ -59,6 +60,7 @@ private:
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const edm::EDPutTokenT<MkFitSeedWrapper> putToken_;
+  const unsigned int maxNSeeds_;
 };
 
 MkFitSeedConverter::MkFitSeedConverter(edm::ParameterSet const& iConfig)
@@ -68,13 +70,15 @@ MkFitSeedConverter::MkFitSeedConverter(edm::ParameterSet const& iConfig)
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      putToken_{produces<MkFitSeedWrapper>()} {}
+      putToken_{produces<MkFitSeedWrapper>()},
+      maxNSeeds_{iConfig.getParameter<unsigned int>("maxNSeeds")} {}
 
 void MkFitSeedConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
+  desc.add("maxNSeeds", 500000U);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -94,6 +98,11 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
                                                  const MagneticField& mf,
                                                  const MkFitGeometry& mkFitGeom) const {
   mkfit::TrackVec ret;
+  if (seeds.size() > maxNSeeds_) {
+    edm::LogError("TooManySeeds") << "Exceeded maximum number of seeds! maxNSeeds=" << maxNSeeds_
+                                  << " nSeed=" << seeds.size();
+    return ret;
+  }
   ret.reserve(seeds.size());
 
   auto isPlusSide = [&ttopo](const DetId& detid) {
@@ -129,13 +138,28 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
       if (not trackerHitRTTI::isFromDet(recHit)) {
         throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
       }
-      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(recHit).firstClusterRef();
-      const auto detId = recHit.geographicalId();
-      const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
-          detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
-      LogTrace("MkFitSeedConverter") << " addin hit detid " << detId.rawId() << " index " << clusterRef.index()
-                                     << " ilay " << ilay;
-      ret.back().addHitIdx(clusterRef.index(), ilay, 0);  // per-hit chi2 is not known
+      auto& baseTrkRecHit = static_cast<const BaseTrackerRecHit&>(recHit);
+      if (!baseTrkRecHit.isMatched()) {
+        const auto& clusterRef = baseTrkRecHit.firstClusterRef();
+        const auto detId = recHit.geographicalId();
+        const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
+            detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
+        LogTrace("MkFitSeedConverter") << " adding hit detid " << detId.rawId() << " index " << clusterRef.index()
+                                       << " ilay " << ilay;
+        ret.back().addHitIdx(clusterRef.index(), ilay, 0);  // per-hit chi2 is not known
+      } else {
+        auto& matched2D = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
+        const OmniClusterRef* const clRefs[2] = {&matched2D.monoClusterRef(), &matched2D.stereoClusterRef()};
+        const DetId detIds[2] = {matched2D.monoId(), matched2D.stereoId()};
+        for (int ii = 0; ii < 2; ++ii) {
+          const auto& detId = detIds[ii];
+          const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
+              detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
+          LogTrace("MkFitSeedConverter") << " adding matched hit detid " << detId.rawId() << " index "
+                                         << clRefs[ii]->index() << " ilay " << ilay;
+          ret.back().addHitIdx(clRefs[ii]->index(), ilay, 0);  // per-hit chi2 is not known
+        }
+      }
     }
     ++seed_index;
   }

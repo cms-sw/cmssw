@@ -1,21 +1,11 @@
 #ifndef Calibration_HcalCalibALgos_CommonUsefulStuff_h
 #define Calibration_HcalCalibALgos_CommonUsefulStuff_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -24,16 +14,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "TROOT.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TString.h"
 
 /* getDist functions by Jim:
 /uscms/home/jhirsch/IsoTracks_314/CMSSW_3_1_4/src/JetMETCorrections/IsolatedParticles/interface/FindCaloHit.icc

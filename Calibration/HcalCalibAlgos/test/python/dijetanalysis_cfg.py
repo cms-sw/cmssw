@@ -58,6 +58,10 @@ process.DiJetAnalysis = cms.EDAnalyzer("DiJetAnalyzer",
     jetsInput = cms.InputTag("iterativeCone5CaloJets")
 )
 
+process.TFileService = cms.Service("TFileService",
+   fileName = cms.string('hi.root')
+)
+
 #process.DiJetsRecoPool = cms.OutputModule("PoolOutputModule",
 #    outputCommands = cms.untracked.vstring('drop *', 
 #        'keep *_DiJetsReco_*_*'),

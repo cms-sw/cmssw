@@ -1,16 +1,46 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalCorner_cfg.py geometry=D88
+#
+#   Options for type D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D92",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+
+process = cms.Process("HGCalCornerTest",Phase2C11I13M9)
+
+####################################################################
+# Use the options
+if (options.geometry == "D88"):
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+elif (options.geometry == "D93"):
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+else:
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -49,6 +79,6 @@ process.prodHEB = process.prodEE.clone(
     detector   = "HGCalHEScintillatorSensitive",
 )
 
-#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
 #process.p1 = cms.Path(process.prodHEB)
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
+#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)

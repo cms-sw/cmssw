@@ -51,6 +51,7 @@ hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint3
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND 
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltDiDispStaMuonMonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

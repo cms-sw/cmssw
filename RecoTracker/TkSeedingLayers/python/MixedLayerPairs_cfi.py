@@ -27,7 +27,7 @@ MixedLayerPairs = seedingLayersEDProducer.clone(
                  'FPix2_neg+TEC2_neg', 
                  'TEC1_neg+TEC2_neg', 
                  'TEC2_neg+TEC3_neg'],
-    TEC = cms.PSet(
+    TEC = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -35,11 +35,11 @@ MixedLayerPairs = seedingLayersEDProducer.clone(
         maxRing = cms.int32(1),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    BPix = cms.PSet(
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     )

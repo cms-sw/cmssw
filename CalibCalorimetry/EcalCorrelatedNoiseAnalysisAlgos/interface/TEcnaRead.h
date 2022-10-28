@@ -531,7 +531,7 @@ public:
   TMatrixD ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t &);  // 1 of (Stin,Stin)
 
   //------------------------------------------------------------------------------------------------
-  TString GetAnalysisName();
+  const TString &GetAnalysisName() const;
   Int_t GetNbOfSamples();
   Int_t GetRunNumber();
   Int_t GetFirstReqEvtNumber();
@@ -541,10 +541,10 @@ public:
 
   time_t GetStartTime();
   time_t GetStopTime();
-  TString GetStartDate();
-  TString GetStopDate();
-  TString GetRootFileName();
-  TString GetRootFileNameShort();
+  const TString &GetStartDate() const;
+  const TString &GetStopDate() const;
+  const TString &GetRootFileName() const;
+  const TString &GetRootFileNameShort() const;
 
   TString GetRunType();
 

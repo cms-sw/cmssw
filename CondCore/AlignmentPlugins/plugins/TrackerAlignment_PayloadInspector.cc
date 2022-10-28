@@ -35,6 +35,7 @@
 
 // include ROOT
 #include "TH2F.h"
+#include "TGaxis.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TLine.h"
@@ -60,8 +61,207 @@ namespace {
   const std::map<AlignmentPI::coordinate, float> hardcodeGPR = {
       {AlignmentPI::t_x, -9.00e-02}, {AlignmentPI::t_y, -1.10e-01}, {AlignmentPI::t_z, -1.70e-01}};
 
+  //*******************************************/
+  // Size of the movement over all partitions,
+  // one at a time
+  //******************************************//
+
+  template <int ntags, IOVMultiplicity nIOVs>
+  class TrackerAlignmentCompareAll : public PlotImage<Alignments, nIOVs, ntags> {
+  public:
+    TrackerAlignmentCompareAll()
+        : PlotImage<Alignments, nIOVs, ntags>("comparison of all coordinates between two geometries") {}
+
+    bool fill() override {
+      TGaxis::SetExponentOffset(-0.12, 0.01, "y");  // Y offset
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::vector<AlignTransform> ref_ali = first_payload->m_align;
+      std::vector<AlignTransform> target_ali = last_payload->m_align;
+
+      TCanvas canvas("Alignment Comparison", "Alignment Comparison", 2000, 1200);
+      canvas.Divide(3, 2);
+
+      if (ref_ali.size() != target_ali.size()) {
+        edm::LogError("TrackerAlignment_PayloadInspector")
+            << "the size of the reference alignment (" << ref_ali.size()
+            << ") is different from the one of the target (" << target_ali.size()
+            << ")! You are probably trying to compare different underlying geometries. Exiting";
+        return false;
+      }
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      for (const auto &ali : ref_ali) {
+        auto mydetid = ali.rawId();
+        if (DetId(mydetid).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerAlignment_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() << " (" << DetId(mydetid).det()
+              << ") is different from " << DetId::Tracker << " (is DoubleSide: " << tTopo.tidIsDoubleSide(mydetid)
+              << "); subdetId " << DetId(mydetid).subdetId() << " - terminating ";
+          return false;
+        }
+      }
+
+      const std::vector<AlignmentPI::coordinate> coords = {AlignmentPI::t_x,
+                                                           AlignmentPI::t_y,
+                                                           AlignmentPI::t_z,
+                                                           AlignmentPI::rot_alpha,
+                                                           AlignmentPI::rot_beta,
+                                                           AlignmentPI::rot_gamma};
+
+      std::unordered_map<AlignmentPI::coordinate, std::unique_ptr<TH1F> > diffs;
+
+      // generate the map of histograms
+      for (const auto &coord : coords) {
+        auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
+        std::string unit =
+            (coord == AlignmentPI::t_x || coord == AlignmentPI::t_y || coord == AlignmentPI::t_z) ? "[#mum]" : "[mrad]";
+
+        diffs[coord] = std::make_unique<TH1F>(Form("comparison_%s", s_coord.c_str()),
+                                              Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
+                                              ref_ali.size(),
+                                              -0.5,
+                                              ref_ali.size() - 0.5);
+      }
+
+      // fill all the histograms together
+      std::vector<int> boundaries;
+      AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs);
+
+      unsigned int subpad{1};
+      TLegend legend = TLegend(0.17, 0.84, 0.95, 0.94);
+      legend.SetTextSize(0.023);
+      for (const auto &coord : coords) {
+        canvas.cd(subpad);
+        canvas.cd(subpad)->SetTopMargin(0.06);
+        canvas.cd(subpad)->SetLeftMargin(0.17);
+        canvas.cd(subpad)->SetRightMargin(0.05);
+        canvas.cd(subpad)->SetBottomMargin(0.15);
+        AlignmentPI::makeNicePlotStyle(diffs[coord].get(), kBlack);
+        auto max = diffs[coord]->GetMaximum();
+        auto min = diffs[coord]->GetMinimum();
+        auto range = std::abs(max) > std::abs(min) ? std::abs(max) : std::abs(min);
+        if (range == 0.f)
+          range = 0.1;
+        //auto newMax = (max > 0.) ? max*1.2 : max*0.8;
+
+        diffs[coord]->GetYaxis()->SetRangeUser(-range * 1.5, range * 1.5);
+        diffs[coord]->GetYaxis()->SetTitleOffset(1.5);
+        diffs[coord]->SetMarkerStyle(20);
+        diffs[coord]->SetMarkerSize(0.5);
+        diffs[coord]->Draw("P");
+
+        if (subpad == 1) { /* fill the legend only at the first pass */
+          if (this->m_plotAnnotations.ntags == 2) {
+            legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+            legend.AddEntry(
+                diffs[coord].get(),
+                ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}")
+                    .c_str(),
+                "PL");
+          } else {
+            legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+            legend.AddEntry(diffs[coord].get(),
+                            ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                            "PL");
+          }
+        }
+        subpad++;
+      }
+
+      canvas.Update();
+      canvas.cd();
+      canvas.Modified();
+
+      TLine l[6][boundaries.size()];
+      TLatex tSubdet[6];
+      for (unsigned int i = 0; i < 6; i++) {
+        tSubdet[i].SetTextColor(kRed);
+        tSubdet[i].SetNDC();
+        tSubdet[i].SetTextAlign(21);
+        tSubdet[i].SetTextSize(0.03);
+        tSubdet[i].SetTextAngle(90);
+      }
+
+      subpad = 0;
+      for (const auto &coord : coords) {
+        auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
+        canvas.cd(subpad + 1);
+
+        unsigned int i = 0;
+        for (const auto &line : boundaries) {
+          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line),
+                               canvas.cd(subpad + 1)->GetUymin(),
+                               diffs[coord]->GetBinLowEdge(line),
+                               canvas.cd(subpad + 1)->GetUymax() * 0.84);
+          l[subpad][i].SetLineWidth(1);
+          l[subpad][i].SetLineStyle(9);
+          l[subpad][i].SetLineColor(2);
+          l[subpad][i].Draw("same");
+          i++;
+        }
+
+        const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
+        for (unsigned int j = 1; j <= 7; j++) {
+          auto thePart = static_cast<AlignmentPI::partitions>(j);
+          tSubdet[subpad].DrawLatex(
+              theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+        }
+
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextSize(0.042);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(canvas.cd(subpad + 1)->GetLeftMargin(),
+                         1 - canvas.cd(subpad + 1)->GetTopMargin() + 0.01,
+                         ("Tracker Alignment Compare : #color[4]{" + s_coord + "}").c_str());
+        legend.Draw("same");
+        subpad++;
+      }  // loop on the coordinates
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      //canvas.SaveAs("out.root");
+
+      return true;
+    }
+  };
+
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV> TrackerAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV> TrackerAlignmentComparatorTwoTags;
+
   //*******************************************//
-  // Size of the movement over all partitions
+  // Size of the movement over all partitions,
+  // one coordinate (x,y,z,...) at a time
   //******************************************//
 
   template <AlignmentPI::coordinate coord, int ntags, IOVMultiplicity nIOVs>
@@ -72,6 +272,8 @@ namespace {
                                               " coordinate between two geometries") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.12, 0.01, "y");  // Y offset
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
@@ -127,7 +329,6 @@ namespace {
         }
       }
 
-      int counter = 0;
       auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
       std::string unit =
           (coord == AlignmentPI::t_x || coord == AlignmentPI::t_y || coord == AlignmentPI::t_z) ? "[#mum]" : "[mrad]";
@@ -140,76 +341,13 @@ namespace {
                                  -0.5,
                                  ref_ali.size() - 0.5);
 
+      // fill the histograms
       std::vector<int> boundaries;
-      AlignmentPI::partitions currentPart = AlignmentPI::BPix;
-      for (unsigned int i = 0; i < ref_ali.size(); i++) {
-        if (ref_ali[i].rawId() == target_ali[i].rawId()) {
-          counter++;
-          int subid = DetId(ref_ali[i].rawId()).subdetId();
-
-          auto thePart = static_cast<AlignmentPI::partitions>(subid);
-          if (thePart != currentPart) {
-            currentPart = thePart;
-            boundaries.push_back(counter);
-          }
-
-          CLHEP::HepRotation target_rot(target_ali[i].rotation());
-          CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
-
-          align::RotationType target_rotation(target_rot.xx(),
-                                              target_rot.xy(),
-                                              target_rot.xz(),
-                                              target_rot.yx(),
-                                              target_rot.yy(),
-                                              target_rot.yz(),
-                                              target_rot.zx(),
-                                              target_rot.zy(),
-                                              target_rot.zz());
-
-          align::RotationType ref_rotation(ref_rot.xx(),
-                                           ref_rot.xy(),
-                                           ref_rot.xz(),
-                                           ref_rot.yx(),
-                                           ref_rot.yy(),
-                                           ref_rot.yz(),
-                                           ref_rot.zx(),
-                                           ref_rot.zy(),
-                                           ref_rot.zz());
-
-          align::EulerAngles target_eulerAngles = align::toAngles(target_rotation);
-          align::EulerAngles ref_eulerAngles = align::toAngles(ref_rotation);
-
-          switch (coord) {
-            case AlignmentPI::t_x:
-              compare->SetBinContent(
-                  i + 1, (target_ali[i].translation().x() - ref_ali[i].translation().x()) * AlignmentPI::cmToUm);
-              break;
-            case AlignmentPI::t_y:
-              compare->SetBinContent(
-                  i + 1, (target_ali[i].translation().y() - ref_ali[i].translation().y()) * AlignmentPI::cmToUm);
-              break;
-            case AlignmentPI::t_z:
-              compare->SetBinContent(
-                  i + 1, (target_ali[i].translation().z() - ref_ali[i].translation().z()) * AlignmentPI::cmToUm);
-              break;
-            case AlignmentPI::rot_alpha:
-              compare->SetBinContent(i + 1, (target_eulerAngles[0] - ref_eulerAngles[0]) * 1000.);
-              break;
-            case AlignmentPI::rot_beta:
-              compare->SetBinContent(i + 1, (target_eulerAngles[1] - ref_eulerAngles[1]) * 1000.);
-              break;
-            case AlignmentPI::rot_gamma:
-              compare->SetBinContent(i + 1, (target_eulerAngles[2] - ref_eulerAngles[2]) * 1000.);
-              break;
-            default:
-              edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
-              break;
-          }  // switch on the coordinate
-        }    // check on the same detID
-      }      // loop on the components
+      AlignmentPI::fillComparisonHistogram(coord, boundaries, ref_ali, target_ali, compare);
 
       canvas.cd();
 
+      canvas.SetTopMargin(0.06);
       canvas.SetLeftMargin(0.17);
       canvas.SetRightMargin(0.05);
       canvas.SetBottomMargin(0.15);
@@ -217,8 +355,12 @@ namespace {
       auto max = compare->GetMaximum();
       auto min = compare->GetMinimum();
       auto range = std::abs(max) > std::abs(min) ? std::abs(max) : std::abs(min);
+      if (range == 0.f)
+        range = 0.1;
       //auto newMax = (max > 0.) ? max*1.2 : max*0.8;
-      compare->GetYaxis()->SetRangeUser(-range * 1.3, range * 1.2);
+
+      compare->GetYaxis()->SetRangeUser(-range * 1.5, range * 1.5);
+      compare->GetYaxis()->SetTitleOffset(1.5);
       compare->SetMarkerStyle(20);
       compare->SetMarkerSize(0.5);
       compare->Draw("P");
@@ -254,22 +396,29 @@ namespace {
         tSubdet.DrawLatex(theX_, 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
       }
 
-      TLegend legend = TLegend(0.58, 0.82, 0.95, 0.9);
-      legend.SetTextSize(0.03);
-      legend.SetHeader("Alignment comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(
-          compare.get(),
-          ("IOV:" + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
-          "PL");
+      TLegend legend = TLegend(0.17, 0.86, 0.95, 0.94);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(
+            compare.get(),
+            ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}").c_str(),
+            "PL");
+      } else {
+        legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(compare.get(),
+                        ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                        "PL");
+      }
+      legend.SetTextSize(0.020);
       legend.Draw("same");
 
-      TLatex t1;
-      t1.SetNDC();
-      t1.SetTextAlign(21);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.2, 0.93, Form("%s", s_coord.c_str()));
-      t1.SetTextColor(kBlue);
-      t1.DrawLatex(0.6, 0.93, Form("IOV %s - %s ", lastIOVsince.c_str(), firstIOVsince.c_str()));
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.042);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("Tracker Alignment Compare :#color[4]{" + s_coord + "}").c_str());
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -304,27 +453,34 @@ namespace {
   // Summary canvas per subdetector
   //******************************************//
 
-  template <AlignmentPI::partitions q>
-  class TrackerAlignmentSummary : public PlotImage<Alignments, SINGLE_IOV> {
+  template <int ntags, IOVMultiplicity nIOVs, AlignmentPI::partitions q>
+  class TrackerAlignmentSummaryBase : public PlotImage<Alignments, nIOVs, ntags> {
   public:
-    TrackerAlignmentSummary()
-        : PlotImage<Alignments, SINGLE_IOV>("Comparison of all coordinates between two geometries for " +
-                                            getStringFromPart(q)) {}
+    TrackerAlignmentSummaryBase()
+        : PlotImage<Alignments, nIOVs, ntags>("Comparison of all coordinates between two geometries for " +
+                                              getStringFromPart(q)) {}
 
     bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto sorted_iovs = tag.iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -381,71 +537,9 @@ namespace {
                                               500.);
       }
 
-      int loopedComponents(0);
-      for (unsigned int i = 0; i < ref_ali.size(); i++) {
-        if (ref_ali[i].rawId() == target_ali[i].rawId()) {
-          loopedComponents++;
-          int subid = DetId(ref_ali[i].rawId()).subdetId();
-          auto thePart = static_cast<AlignmentPI::partitions>(subid);
-          if (thePart != q)
-            continue;
-
-          CLHEP::HepRotation target_rot(target_ali[i].rotation());
-          CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
-
-          align::RotationType target_rotation(target_rot.xx(),
-                                              target_rot.xy(),
-                                              target_rot.xz(),
-                                              target_rot.yx(),
-                                              target_rot.yy(),
-                                              target_rot.yz(),
-                                              target_rot.zx(),
-                                              target_rot.zy(),
-                                              target_rot.zz());
-
-          align::RotationType ref_rotation(ref_rot.xx(),
-                                           ref_rot.xy(),
-                                           ref_rot.xz(),
-                                           ref_rot.yx(),
-                                           ref_rot.yy(),
-                                           ref_rot.yz(),
-                                           ref_rot.zx(),
-                                           ref_rot.zy(),
-                                           ref_rot.zz());
-
-          align::EulerAngles target_eulerAngles = align::toAngles(target_rotation);
-          align::EulerAngles ref_eulerAngles = align::toAngles(ref_rotation);
-
-          for (const auto &coord : coords) {
-            switch (coord) {
-              case AlignmentPI::t_x:
-                diffs[coord]->Fill((target_ali[i].translation().x() - ref_ali[i].translation().x()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::t_y:
-                diffs[coord]->Fill((target_ali[i].translation().y() - ref_ali[i].translation().y()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::t_z:
-                diffs[coord]->Fill((target_ali[i].translation().z() - ref_ali[i].translation().z()) *
-                                   AlignmentPI::cmToUm);
-                break;
-              case AlignmentPI::rot_alpha:
-                diffs[coord]->Fill((target_eulerAngles[0] - ref_eulerAngles[0]) * 1000.);
-                break;
-              case AlignmentPI::rot_beta:
-                diffs[coord]->Fill((target_eulerAngles[1] - ref_eulerAngles[1]) * 1000.);
-                break;
-              case AlignmentPI::rot_gamma:
-                diffs[coord]->Fill((target_eulerAngles[2] - ref_eulerAngles[2]) * 1000.);
-                break;
-              default:
-                edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
-                break;
-            }  // switch on the coordinate
-          }
-        }  // check on the same detID
-      }    // loop on the components
+      // fill the comparison histograms
+      std::vector<int> boundaries{};
+      AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs, true, q);
 
       int c_index = 1;
 
@@ -481,20 +575,28 @@ namespace {
         c_index++;
       }
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  typedef TrackerAlignmentSummary<AlignmentPI::BPix> TrackerAlignmentSummaryBPix;
-  typedef TrackerAlignmentSummary<AlignmentPI::FPix> TrackerAlignmentSummaryFPix;
-  typedef TrackerAlignmentSummary<AlignmentPI::TIB> TrackerAlignmentSummaryTIB;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::BPix> TrackerAlignmentSummaryBPix;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::FPix> TrackerAlignmentSummaryFPix;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TIB> TrackerAlignmentSummaryTIB;
 
-  typedef TrackerAlignmentSummary<AlignmentPI::TID> TrackerAlignmentSummaryTID;
-  typedef TrackerAlignmentSummary<AlignmentPI::TOB> TrackerAlignmentSummaryTOB;
-  typedef TrackerAlignmentSummary<AlignmentPI::TEC> TrackerAlignmentSummaryTEC;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TID> TrackerAlignmentSummaryTID;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TOB> TrackerAlignmentSummaryTOB;
+  typedef TrackerAlignmentSummaryBase<1, MULTI_IOV, AlignmentPI::TEC> TrackerAlignmentSummaryTEC;
+
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::BPix> TrackerAlignmentSummaryBPixTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::FPix> TrackerAlignmentSummaryFPixTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TIB> TrackerAlignmentSummaryTIBTwoTags;
+
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TID> TrackerAlignmentSummaryTIDTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TOB> TrackerAlignmentSummaryTOBTwoTags;
+  typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TEC> TrackerAlignmentSummaryTECTwoTags;
 
   //*******************************************//
   // History of the position of the BPix Barycenter
@@ -995,10 +1097,10 @@ namespace {
         final->SetMarkerSize(2.5);
         t1.SetTextColor(kRed);
         initial->Draw();
-        t1.DrawLatex(x0i, y0i - 0.5, Form("(%.2f,%.2f)", x0i, y0i));
+        t1.DrawLatex(x0i, y0i + (y0i > y0f ? 0.3 : -0.5), Form("(%.2f,%.2f)", x0i, y0i));
         final->Draw("same");
         t1.SetTextColor(kBlue);
-        t1.DrawLatex(x0f, y0f + 0.3, Form("(%.2f,%.2f)", x0f, y0f));
+        t1.DrawLatex(x0f, y0f + (y0i > y0f ? -0.5 : 0.3), Form("(%.2f,%.2f)", x0f, y0f));
       }
 
       // fourth pad is a special case for the z coordinate
@@ -1032,10 +1134,10 @@ namespace {
         final->SetMarkerSize(2.5);
         initial->Draw();
         t1.SetTextColor(kRed);
-        t1.DrawLatex(c - 1, z0i - 1.5, Form("(%.2f)", z0i));
+        t1.DrawLatex(c - 1, z0i + (z0i > z0f ? 1. : -1.5), Form("(%.2f)", z0i));
         final->Draw("same");
         t1.SetTextColor(kBlue);
-        t1.DrawLatex(c - 1, z0f + 1., Form("(%.2f)", z0f));
+        t1.DrawLatex(c - 1, z0f + (z0i > z0f ? -1.5 : 1), Form("(%.2f)", z0f));
       }
 
       std::string fileName(this->m_imageFileName);
@@ -1055,6 +1157,8 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareX);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareY);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareZ);
@@ -1073,6 +1177,12 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTID);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTOB);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTEC);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryBPixTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryFPixTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIBTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIDTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTOBTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTECTwoTags);
   PAYLOAD_INSPECTOR_CLASS(X_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Y_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Z_BPixBarycenterHistory);

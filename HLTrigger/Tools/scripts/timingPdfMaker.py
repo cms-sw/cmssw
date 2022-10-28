@@ -22,7 +22,6 @@ import os, glob
 import os.path
 import operator
 import subprocess 
-import six
 import sys, getopt
 sys.argv.append('-b')
 from ROOT import *
@@ -88,9 +87,9 @@ def maininfo(infile, outfile):
             if not pathname in names4:
                 names4[pathname] = k.ReadObj().GetMean()
 
-    names2 = dict(sorted(six.iteritems(names1), key=operator.itemgetter(1),reverse=True)[:10])
+    names2 = dict(sorted(names1.items(), key=operator.itemgetter(1),reverse=True)[:10])
     names3 = sorted(names2, key=names2.get, reverse=True)
-    names5 = dict(sorted(six.iteritems(names4), key=operator.itemgetter(1),reverse=True)[:10])
+    names5 = dict(sorted(names4.items(), key=operator.itemgetter(1),reverse=True)[:10])
     names6 = sorted(names5, key=names5.get, reverse=True)
 
     texfile = open(outfile+'-main.tex', 'w')

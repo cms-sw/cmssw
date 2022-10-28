@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -29,7 +30,7 @@ HcalCellParameterDump::HcalCellParameterDump(const edm::ParameterSet& iConfig) {
   subdet_ = std::min(detMax_, std::max(iConfig.getParameter<int>("SubDetector"), 1));
   subdet_ = std::min(detMax_, std::max(subdet_, 1));
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  std::cout << "Dumps all cells for SubDetId: " << subdet_ << std::endl;
+  edm::LogVerbatim("HCalGeom") << "Dumps all cells for SubDetId: " << subdet_;
 }
 
 void HcalCellParameterDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -45,18 +46,19 @@ void HcalCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::Eve
   std::string subdets[detMax_] = {"HB", "HE", "HO", "HF"};
   HcalSubdetector subdetd[detMax_] = {HcalBarrel, HcalEndcap, HcalOuter, HcalForward};
 
-  std::cout << "\n\nStudy Detector = Hcal SubDetector = " << subdets[subdet_ - 1]
-            << "\n======================================\n\n";
+  edm::LogVerbatim("HCalGeom") << "\n\nStudy Detector = Hcal SubDetector = " << subdets[subdet_ - 1]
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subdetd[subdet_ - 1]);
   int nall(0);
   for (auto id : ids) {
     ++nall;
     std::shared_ptr<const CaloCellGeometry> geom = hcalGeom->getGeometry(id);
-    std::cout << "[" << nall << "] " << HcalDetId(id) << " Reference " << std::setprecision(4) << geom->getPosition()
-              << " Back " << geom->getBackPoint() << " [r,eta,phi] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
-              << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")\n";
+    edm::LogVerbatim("HCalGeom") << "[" << nall << "] " << HcalDetId(id) << " Reference " << std::setprecision(4)
+                                 << geom->getPosition() << " Back " << geom->getBackPoint() << " [r,eta,phi] ("
+                                 << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", "
+                                 << geom->phiPos() << ":" << geom->phiSpan() << ")";
   }
-  std::cout << "\n\nDumps" << nall << " cells of the detector\n" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "\n\nDumps " << nall << " cells of the detector\n";
 }
 
 DEFINE_FWK_MODULE(HcalCellParameterDump);

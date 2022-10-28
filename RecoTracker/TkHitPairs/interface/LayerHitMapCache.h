@@ -77,15 +77,13 @@ public:
     return ptr;
   }
 
-  const RecHitsSortedInPhi& operator()(const SeedingLayerSetsHits::SeedingLayer& layer,
-                                       const TrackingRegion& region,
-                                       const edm::EventSetup& iSetup) {
+  const RecHitsSortedInPhi& operator()(const SeedingLayerSetsHits::SeedingLayer& layer, const TrackingRegion& region) {
     int key = layer.index();
     assert(key >= 0);
     const RecHitsSortedInPhi* lhm = theCache.get(key);
     if (lhm == nullptr) {
-      auto tmp = add(
-          layer, std::make_unique<RecHitsSortedInPhi>(region.hits(iSetup, layer), region.origin(), layer.detLayer()));
+      auto tmp =
+          add(layer, std::make_unique<RecHitsSortedInPhi>(region.hits(layer), region.origin(), layer.detLayer()));
       tmp->theOrigin = region.origin();
       lhm = tmp;
       LogDebug("LayerHitMapCache") << " I got" << lhm->all().second - lhm->all().first

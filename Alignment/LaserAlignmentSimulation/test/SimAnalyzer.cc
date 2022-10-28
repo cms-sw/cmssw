@@ -1,13 +1,14 @@
-/** \file SimAnalyzer.cc
+/** \class SimAnalyzer
  *  Get some statistics and plots about the simulation of the Laser Alignment
  * System
  *
- *  $Date: 2009/12/14 22:21:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/05 15:30:17 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
-#include "Alignment/LaserAlignmentSimulation/test/SimAnalyzer.h"
+// user includes
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,10 +22,85 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+// ROOT
+#include "TH1.h"
+#include "TH2.h"
 #include "TFile.h"
 
+// system includes
+#include <iostream>
+
+class SimAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  /// constructor
+  explicit SimAnalyzer(edm::ParameterSet const &theConf);
+  /// destructor
+  ~SimAnalyzer();
+
+  /// this method will do the user analysis
+  virtual void analyze(edm::Event const &theEvent, edm::EventSetup const &theSetup);
+  /// begin job
+  virtual void beginJob();
+
+private:
+  /// return angle in radian betwee 0 and 2*pi
+  double angle(double theAngle);
+  /// write the ROOT file with histograms
+  void closeRootFile();
+  /// initialize the histograms
+  void initHistograms();
+  /// find the dets which are hit by a laser beam and fill the SimHit info into
+  /// histograms
+  void trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup);
+
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  int theEvents;
+  int theDebugLevel;
+  double theSearchPhiTIB;
+  double theSearchPhiTOB;
+  double theSearchPhiTEC;
+  double theSearchZTIB;
+  double theSearchZTOB;
+
+  // Tree stuff
+  TFile *theFile;
+  int theCompression;
+  std::string theFileName;
+
+  // the histograms for Barrel Hits
+  TH1D *theBarrelSimHitsX;
+  TH1D *theBarrelSimHitsY;
+  TH1D *theBarrelSimHitsZ;
+  TH2D *theBarrelSimHitsYvsX;
+  TH2D *theBarrelSimHitsXvsZ;
+  TH2D *theBarrelSimHitsYvsZ;
+  TH2D *theBarrelSimHitsRvsZ;
+  TH2D *theBarrelSimHitsPhivsX;
+  TH2D *theBarrelSimHitsPhivsY;
+  TH2D *theBarrelSimHitsPhivsZ;
+
+  // the histograms for Endcap Hits
+  TH1D *theEndcapSimHitsX;
+  TH1D *theEndcapSimHitsY;
+  TH1D *theEndcapSimHitsZ;
+  TH2D *theEndcapSimHitsYvsX;
+  TH2D *theEndcapSimHitsXvsZ;
+  TH2D *theEndcapSimHitsYvsZ;
+  TH2D *theEndcapSimHitsRvsZ;
+  TH2D *theEndcapSimHitsPhivsX;
+  TH2D *theEndcapSimHitsPhivsY;
+  TH2D *theEndcapSimHitsPhivsZ;
+
+  // the histograms for all SimHits
+  TH2D *theSimHitsRvsZ;
+  TH2D *theSimHitsPhivsZ;
+};
+
 SimAnalyzer::SimAnalyzer(edm::ParameterSet const &theConf)
-    : theEvents(0),
+    : tkGeomToken_(esConsumes()),
+      theEvents(0),
       theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel", 0)),
       theSearchPhiTIB(theConf.getUntrackedParameter<double>("SearchWindowPhiTIB", 0.05)),
       theSearchPhiTOB(theConf.getUntrackedParameter<double>("SearchWindowPhiTOB", 0.05)),
@@ -244,27 +320,25 @@ void SimAnalyzer::initHistograms() {
 }
 
 void SimAnalyzer::trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup) {
-  LogDebug("SimAnalyzer") << "<SimAnalyzer::trackerStatistics(edm::Event "
+  LogDebug("SimAnalyzer") << "<SimAnalyzer:t:rackerStatistics(edm::Event "
                              "const& theEvent): filling the histograms ... ";
 
   int theBarrelHits = 0;
   int theEndcapHits = 0;
 
   // access the tracker
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  const TrackerGeometry &theTracker(*theTrackerGeometry);
+  const TrackerGeometry *theTracker = &theSetup.getData(tkGeomToken_);
 
   // the DetUnits
-  TrackingGeometry::DetContainer theDetUnits = theTracker.dets();
+  TrackingGeometry::DetContainer theDetUnits = theTracker->dets();
 
   // get the SimHitContainers
   std::vector<edm::Handle<edm::PSimHitContainer>> theSimHitContainers;
   theEvent.getManyByType(theSimHitContainers);
 
-  LogDebug("SimAnalyzer") << " Geometry node for TrackingGeometry is  " << &(*theTrackerGeometry) << "\n I have "
-                          << theTrackerGeometry->dets().size() << " detectors "
-                          << "\n I have " << theTrackerGeometry->detTypes().size() << " types "
+  LogDebug("SimAnalyzer") << " Geometry node for TrackingGeometry is  " << theTracker << "\n I have "
+                          << theTracker->dets().size() << " detectors "
+                          << "\n I have " << theTracker->detTypes().size() << " types "
                           << "\n theDetUnits has " << theDetUnits.size() << " dets ";
 
   // theSimHits contains all the sim hits in this event
@@ -279,7 +353,7 @@ void SimAnalyzer::trackerStatistics(edm::Event const &theEvent, edm::EventSetup 
     DetId theDetUnitId((*iHit).detUnitId());
 
     // get the DetUnit via the DetUnitId and cast it to a StripGeomDetUnit
-    const GeomDet *theDet = theTracker.idToDet(theDetUnitId);
+    const GeomDet *theDet = theTracker->idToDet(theDetUnitId);
 
     // the detector part
     std::string thePart = "";
@@ -377,3 +451,6 @@ void SimAnalyzer::trackerStatistics(edm::Event const &theEvent, edm::EventSetup 
   edm::LogInfo("SimAnalyzer") << "     number of SimHits = " << theBarrelHits << "/" << theEndcapHits
                               << " (Barrel/Endcap) ";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SimAnalyzer);

@@ -1068,7 +1068,9 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
             }
           }  // loop over tracks in primary vertex
              // if associated to good non-GSF matched track remove this cluster
-          if (PFTrackAlgoTools::isGoodForEGMPrimary(trackref->algo()) && nexhits == 0 && fromprimaryvertex) {
+          if ((PFTrackAlgoTools::isGoodForEGMPrimary(trackref->algo()) ||
+               PFTrackAlgoTools::isGoodForEGMPrimary(trackref->originalAlgo())) &&
+              nexhits == 0 && fromprimaryvertex) {
             closestECAL.setFlag(false);
           }
         }

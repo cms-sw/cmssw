@@ -14,14 +14,14 @@
 #include <memory>
 #include <string>
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-class RawToText : public edm::EDAnalyzer {
+class RawToText : public edm::one::EDAnalyzer<> {
 public:
   explicit RawToText(const edm::ParameterSet &);
   ~RawToText() override;

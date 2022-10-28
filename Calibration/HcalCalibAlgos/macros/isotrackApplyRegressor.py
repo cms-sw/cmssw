@@ -1,37 +1,36 @@
 ######################################################################################
 # Evaluates regressor from loaded model
 # Usage:
-# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model1.h5 -B endcap -O corrfac1.txt
-# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model2.h5 -B barrel -O corrfac2.txt
+# source /cvmfs/sft.cern.ch/lcg/views/LCG_97apython3/x86_64-centos7-gcc8-opt/setup.csh
+# python3 isotrackApplyRegressor.py -PU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -M ./models/model1.h5 -B endcap -O corrfac1.txt
+# python3 isotrackApplyRegressor.py -PU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -M ./models/model2.h5 -B barrel -O corrfac2.txt
 ######################################################################################
 # coding: utf-8
 
 # In[1]:
 
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.utils.np_utils import to_categorical
-from keras.utils import plot_model
-from keras import regularizers
+import tensorflow.keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras import regularizers
 from sklearn.metrics import roc_curve, auc
-from keras.layers import Activation
-from keras import backend as K
-from keras.models import load_model
+from tensorflow.keras.layers import Activation
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import load_model
 import uproot
 
 
 # In[2]:
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-PU", "--filePU",help="input PU file",default="root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root")
-#parser.add_argument("-PU", "--filePU",help="input PU file",default="/eos/uscms/store/user/sghosh/ISOTRACK/DIPI_2021_noPU.root")
+parser.add_argument("-PU", "--filePU",help="input PU file",default="root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root")
 parser.add_argument("-B", "--ifbarrel",help="barrel / endcap",default='barrel')
 parser.add_argument("-M", "--modelname",help="model file name",default="./models/model.h5")
 parser.add_argument("-O", "--opfilename",help="output text file name",default="corrfac_regression.txt")

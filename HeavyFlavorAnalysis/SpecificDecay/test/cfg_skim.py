@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("bphAnalysis")
@@ -27,9 +28,11 @@ process.CandidateSelectedTracks = cms.EDProducer( "ConcreteChargedCandidateProdu
 )
 patAlgosToolsTask.add(process.CandidateSelectedTracks)
 
+
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 process.patSelectedTracks = patGenericParticles.clone(src=cms.InputTag("CandidateSelectedTracks"))
 patAlgosToolsTask.add(process.patSelectedTracks)
+
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -61,3 +64,4 @@ process.p = cms.Path(
     process.testBPHSpecificDecay,
     patAlgosToolsTask
 )
+

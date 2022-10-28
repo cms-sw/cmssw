@@ -68,6 +68,8 @@ public:
   /** Constructor
    */
   DTDeadFlag();
+  DTDeadFlag(DTDeadFlag const&) = delete;
+  DTDeadFlag& operator=(DTDeadFlag const&) = delete;
   DTDeadFlag(const std::string& version);
 
   /** Destructor
@@ -171,9 +173,6 @@ public:
   void initialize();
 
 private:
-  DTDeadFlag(DTDeadFlag const&) = delete;
-  DTDeadFlag& operator=(DTDeadFlag const&) = delete;
-
   std::string dataVersion;
 
   std::vector<std::pair<DTDeadFlagId, DTDeadFlagData> > dataList;

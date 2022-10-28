@@ -10,9 +10,7 @@
 #include "CalibCalorimetry/EcalLaserSorting/src/Majority.h"
 
 #include <iostream>
-//#include <fstream>
 #include <iomanip>
-//#include <limits>
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -308,7 +306,7 @@ void LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es) {
   if (disableOutput_) {
     /* NO OP*/
   } else {
-    auto& out = getStream(triggeredFedId, lumiBlock_);
+    const auto& out = getStream(triggeredFedId, lumiBlock_);
 
     if (out != nullptr) {
       assignedLB = out->startingLumiBlock();
@@ -471,9 +469,9 @@ void LaserSorter::closeOldStreams(edm::LuminosityBlockNumber_t lumiBlock) {
   }
 }
 
-std::unique_ptr<LaserSorter::OutStreamRecord>& LaserSorter::getStream(int fedId,
-                                                                      edm::LuminosityBlockNumber_t lumiBlock) {
-  static std::unique_ptr<LaserSorter::OutStreamRecord> streamNotFound(nullptr);
+const std::unique_ptr<LaserSorter::OutStreamRecord>& LaserSorter::getStream(int fedId,
+                                                                            edm::LuminosityBlockNumber_t lumiBlock) {
+  const static std::unique_ptr<LaserSorter::OutStreamRecord> streamNotFound(nullptr);
 
   if ((fedId != -1) && (fedId < ecalDccFedIdMin_ || fedId > ecalDccFedIdMax_))
     fedId = -1;
@@ -580,7 +578,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out, const FEDRawData& data) {
     if (out.fail())
       cout << "[LaserSorter " << now() << "] "
            << "Problem with stream!\n";
-    out.write((char*)data.data(), nBytes);
+    out.write((const char*)data.data(), nBytes);
     rc = true;
   } else {
     throw cms::Exception("Bug") << "Bug found in " << __FILE__ << ":" << __LINE__ << ".\n";
@@ -1156,6 +1154,6 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock) {
   }
 }
 
-void LaserSorter::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-  //  cout << "Run starts at :" << run.runAuxiliary().beginTime().value() << "\n";
-}
+void LaserSorter::beginRun(edm::Run const& run, edm::EventSetup const& es) {}
+
+void LaserSorter::endRun(edm::Run const& run, edm::EventSetup const& es) {}

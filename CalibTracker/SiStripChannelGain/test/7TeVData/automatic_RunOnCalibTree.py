@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import os,sys
 import getopt
-import commands
+import subprocess
 import time
 import ROOT
 import urllib
@@ -82,7 +82,7 @@ os.chdir("..");
 
 #identify last run of the previous calibration
 if(firstRun<=0):
-   out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
+   out = subprocess.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
    firstRun = int(out[1].split('_')[3])+1
    print("firstRun set to " +str(firstRun))
    print()
@@ -104,7 +104,7 @@ lastGoodRun = -1
 if(usePCL==True):
    print("Get the list of PCL output files from DAS")
    print(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)
-   dasOutput = commands.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)[1]
+   dasOutput = subprocess.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)[1]
    datasets = [ line for line in dasOutput.splitlines()
                 if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
    print(datasets)
@@ -117,7 +117,7 @@ if(usePCL==True):
 
    runs = []
    for dataset in datasets:
-       runs += [ (dataset, line) for line in commands.getstatusoutput(initEnv+
+       runs += [ (dataset, line) for line in subprocess.getstatusoutput(initEnv+
                                          "das_client.py  --limit=9999 --query='run dataset=%s'"%dataset)[1].splitlines()
                       if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
    if len( runs )==0 or 'Error' in " ".join(datasets):
@@ -136,7 +136,7 @@ if(usePCL==True):
       sys.stdout.write( 'Gathering infos for RUN %i:  ' % run )
 
       #check the events available for this run
-      NEventsDasOut = [ line for line in commands.getstatusoutput(initEnv+
+      NEventsDasOut = [ line for line in subprocess.getstatusoutput(initEnv+
        "das_client.py  --limit=9999 --query='summary dataset=%s run=%i | grep summary.nevents'"%(dataset,run))[1].splitlines()
                         if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ][-1]
       if(not NEventsDasOut.isdigit() ):
@@ -152,7 +152,7 @@ if(usePCL==True):
          continue
 
       FileList+="#run=" + str(run) + " -->  NEvents="+str(NEvents/1000).rjust(8)+"K\n"
-      resultsFiles = [ line for line in commands.getstatusoutput(initEnv+
+      resultsFiles = [ line for line in subprocess.getstatusoutput(initEnv+
                        "das_client.py  --limit=9999 --query='file dataset=%s run=%i'"%(dataset,run))[1].splitlines()
                        if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
       if len(resultsFiles)==0 or 'Error' in " ".join(resultsFiles):
@@ -168,7 +168,7 @@ if(usePCL==True):
 
 else:
    print("Get the list of calibTree from castor (eos ls " + CALIBTREEPATH + ")")
-   calibTreeInfo = commands.getstatusoutput("eos ls -l "+CALIBTREEPATH)[1].split('\n');
+   calibTreeInfo = subprocess.getstatusoutput("eos ls -l "+CALIBTREEPATH)[1].split('\n');
    print(calibTreeInfo)
    # collect the list of runs and file size
    # calibTreeInfo.split()[8] - file name

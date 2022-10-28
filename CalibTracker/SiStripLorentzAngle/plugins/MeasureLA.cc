@@ -3,7 +3,6 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#include <boost/lexical_cast.hpp>
 #include <TChain.h>
 #include <TFile.h>
 #include <regex>
@@ -184,7 +183,7 @@ namespace sistrip {
     std::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
     const bool isTIB = "TIB" == std::regex_replace(layer, format, "\\1");
     const bool stereo = "s" == std::regex_replace(layer, format, "\\3");
-    const unsigned layerNum = boost::lexical_cast<unsigned>(std::regex_replace(layer, format, "\\2"));
+    const unsigned layerNum = std::stoul(std::regex_replace(layer, format, "\\2"));
     return std::make_pair(LA_Filler_Fitter::layer_index(isTIB, stereo, layerNum), method);
   }
 

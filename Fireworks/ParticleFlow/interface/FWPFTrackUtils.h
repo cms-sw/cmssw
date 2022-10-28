@@ -76,10 +76,10 @@ public:
   TEveTrack *setupTrack(const reco::Track &);
   TEvePointSet *getCollisionMarkers(const TEveTrack *);
 
-private:
   FWPFTrackUtils(const FWPFTrackUtils &) = delete;                   // Stop default copy constructor
   const FWPFTrackUtils &operator=(const FWPFTrackUtils &) = delete;  // Stop default assignment operator
 
+private:
   TEveTrack *getTrack(const reco::Track &);
 
   FWPFTrackSingleton *m_singleton;

@@ -1,10 +1,8 @@
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
-#include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadout.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -29,13 +27,8 @@ using namespace std;
 const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet& params,
-                                                               const EcalSRSettings* settings)
-    : ttThresOnCompressedEt_(false), ievt_(0) {
-  firstFIRSample = settings->ecalDccZs1stSample_[0];
-  weights = settings->dccNormalizedWeights_[0];
-  symetricZS = settings->symetricZS_[0];
-  actions_ = settings->actions_;
-
+                                                               edm::ConsumesCollector iC)
+    : ttThresOnCompressedEt_(false), ievt_(0), geoToken_(iC.esConsumes()) {
   int defTtf = params.getParameter<int>("defaultTtf");
   if (defTtf < 0 || defTtf > 7) {
     throw cms::Exception("InvalidParameter") << "Value of EcalSelectiveReadoutProducer module parameter defaultTtf, "
@@ -43,6 +36,29 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   } else {
     defaultTtf_ = (EcalSelectiveReadout::ttFlag_t)defTtf;
   }
+
+  trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
+  trigPrimBypassWithPeakFinder_ = params.getParameter<bool>("trigPrimBypassWithPeakFinder");
+  trigPrimBypassLTH_ = params.getParameter<double>("trigPrimBypassLTH");
+  trigPrimBypassHTH_ = params.getParameter<double>("trigPrimBypassHTH");
+  if (trigPrimBypass_) {
+    edm::LogWarning("Digitization") << "Beware a simplified trigger primitive "
+                                       "computation is used for the ECAL selective readout";
+    if (trigPrimBypassMode_ != 0 && trigPrimBypassMode_ != 1) {
+      throw cms::Exception("InvalidParameter")
+          << "Invalid value for EcalSelectiveReadoutProducer parameter 'trigPrimBypassMode_'."
+             " Valid values are 0 and 1.\n";
+    }
+    ttThresOnCompressedEt_ = (trigPrimBypassMode_ == 1);
+  }
+}
+
+void EcalSelectiveReadoutSuppressor::setSettings(const EcalSRSettings* settings) {
+  firstFIRSample = settings->ecalDccZs1stSample_[0];
+  weights = settings->dccNormalizedWeights_[0];
+  symetricZS = settings->symetricZS_[0];
+  actions_ = settings->actions_;
 
   //online configuration has only 4 actions flags, the 4 'forced' flags being the same with the force
   //bit set to 1. Extends the actions vector for case of online-type configuration:
@@ -76,21 +92,6 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
                      settings->srpLowInterestChannelZS_[ee],
                      settings->srpHighInterestChannelZS_[eb],
                      settings->srpHighInterestChannelZS_[ee]);
-  trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
-  trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
-  trigPrimBypassWithPeakFinder_ = params.getParameter<bool>("trigPrimBypassWithPeakFinder");
-  trigPrimBypassLTH_ = params.getParameter<double>("trigPrimBypassLTH");
-  trigPrimBypassHTH_ = params.getParameter<double>("trigPrimBypassHTH");
-  if (trigPrimBypass_) {
-    edm::LogWarning("Digitization") << "Beware a simplified trigger primitive "
-                                       "computation is used for the ECAL selective readout";
-    if (trigPrimBypassMode_ != 0 && trigPrimBypassMode_ != 1) {
-      throw cms::Exception("InvalidParameter")
-          << "Invalid value for EcalSelectiveReadoutProducer parameter 'trigPrimBypassMode_'."
-             " Valid values are 0 and 1.\n";
-    }
-    ttThresOnCompressedEt_ = (trigPrimBypassMode_ == 1);
-  }
 }
 
 void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap* map) {
@@ -443,10 +444,9 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
   const CaloSubdetectorGeometry* eeGeometry = nullptr;
   const CaloSubdetectorGeometry* ebGeometry = nullptr;
   //  if(eeGeometry==0 || ebGeometry==0){
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
-  eeGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  ebGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  auto const& geo = es.getData(geoToken_);
+  eeGeometry = geo.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  ebGeometry = geo.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   //  }
 
   //init trigPrim array:

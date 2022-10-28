@@ -31,6 +31,8 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
+#include "FWCore/Framework/interface/TransformerBase.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -287,6 +289,78 @@ namespace edm {
         virtual ~ExternalWork() noexcept(false){};
 
         virtual void acquire(Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder) = 0;
+      };
+
+      class Transformer : private TransformerBase, public EDProducerBase {
+      public:
+        Transformer() = default;
+        Transformer(Transformer const&) = delete;
+        Transformer& operator=(Transformer const&) = delete;
+        ~Transformer() noexcept(false) override{};
+
+        template <typename G, typename F>
+        void registerTransform(ProducerBase::BranchAliasSetterT<G> iSetter,
+                               F&& iF,
+                               std::string productInstance = std::string()) {
+          registerTransform(edm::EDPutTokenT<G>(iSetter), std::forward<F>(iF), std::move(productInstance));
+        }
+
+        template <typename G, typename F>
+        void registerTransform(edm::EDPutTokenT<G> iToken, F iF, std::string productInstance = std::string()) {
+          using ReturnTypeT = decltype(iF(std::declval<G>()));
+          TypeID returnType(typeid(ReturnTypeT));
+          TransformerBase::registerTransformImp(
+              *this,
+              EDPutToken(iToken),
+              returnType,
+              std::move(productInstance),
+              [f = std::move(iF)](std::any const& iGotProduct) {
+                auto pGotProduct = std::any_cast<edm::WrapperBase const*>(iGotProduct);
+                return std::make_unique<edm::Wrapper<ReturnTypeT>>(
+                    WrapperBase::Emplace{}, f(*static_cast<edm::Wrapper<G> const*>(pGotProduct)->product()));
+              });
+        }
+
+        template <typename G, typename P, typename F>
+        void registerTransformAsync(edm::EDPutTokenT<G> iToken,
+                                    P iPre,
+                                    F iF,
+                                    std::string productInstance = std::string()) {
+          using CacheTypeT = decltype(iPre(std::declval<G>(), WaitingTaskWithArenaHolder()));
+          using ReturnTypeT = decltype(iF(std::declval<CacheTypeT>()));
+          TypeID returnType(typeid(ReturnTypeT));
+          TransformerBase::registerTransformAsyncImp(
+              *this,
+              EDPutToken(iToken),
+              returnType,
+              std::move(productInstance),
+              [p = std::move(iPre)](edm::WrapperBase const& iGotProduct, WaitingTaskWithArenaHolder iHolder) {
+                return std::any(p(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product(), std::move(iHolder)));
+              },
+              [f = std::move(iF)](std::any const& iCache) {
+                auto cache = std::any_cast<CacheTypeT>(iCache);
+                return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{}, f(cache));
+              });
+        }
+
+      private:
+        size_t transformIndex_(edm::BranchDescription const& iBranch) const final {
+          return TransformerBase::findMatchingIndex(*this, iBranch);
+        }
+        ProductResolverIndex transformPrefetch_(std::size_t iIndex) const final {
+          return TransformerBase::prefetchImp(iIndex);
+        }
+        void transformAsync_(WaitingTaskHolder iTask,
+                             std::size_t iIndex,
+                             edm::EventForTransformer& iEvent,
+                             ServiceWeakToken const& iToken) const final {
+          return TransformerBase::transformImpAsync(std::move(iTask), iIndex, *this, iEvent);
+        }
+        void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) override {
+          if (iBranchType == InEvent) {
+            TransformerBase::extendUpdateLookup(*this, this->moduleDescription(), iHelper);
+          }
+        }
       };
 
       class Accumulator : public EDProducerBase {

@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-#include <algorithm>
 #include <vector>
 
 using namespace std;

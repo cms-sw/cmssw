@@ -71,8 +71,7 @@ namespace cms {
     fFile->Close();
   }
 
-  // ------------ method called once each job just before starting event loop  ------------
-  void SiPixelFakeGainReader::beginJob() {}
+  void SiPixelFakeGainReader::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
   // ------------ method called once each job just before starting event loop  ------------
   void SiPixelFakeGainReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {

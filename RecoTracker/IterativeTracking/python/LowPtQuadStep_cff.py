@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = _cfg.clusterRemoverForIter('LowPtQuadStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -135,15 +138,16 @@ trackingPhase2PU140.toModify(lowPtQuadStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter       = dict(refToPSet_ = 'lowPtQuadStepTrajectoryFilter'),
     maxCand                = 4,
     estimator              = 'lowPtQuadStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxDPhiForLooperReconstruction = 2.0,
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = 0.7,
 )
+trackingNoLoopers.toModify(lowPtQuadStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingPhase2PU140.toModify(lowPtQuadStepTrajectoryBuilder,
     minNrOfHitsForRebuild      = 1,
     keepOriginalIfRebuildFails = True,
@@ -163,17 +167,17 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtQuadStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet       = dict(refToPSet_ = 'lowPtQuadStepTrajectoryBuilder'),
     TrajectoryCleaner           = 'lowPtQuadStepTrajectoryCleanerBySharedHits',
-    clustersToSkip              = cms.InputTag('lowPtQuadStepClusters'),
+    clustersToSkip              = 'lowPtQuadStepClusters',
     doSeedingRegionRebuilding   = True,
-    useHitsSplitting            = True
+    useHitsSplitting            = True,
 )
 trackingPhase2PU140.toModify(lowPtQuadStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('lowPtQuadStepClusters')
+    clustersToSkip       = '',
+    phase2clustersToSkip = 'lowPtQuadStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitLowPtQuadStep_cff import trackingMkFitLowPtQuadStep
@@ -198,6 +202,7 @@ trackingMkFitLowPtQuadStep.toReplaceWith(lowPtQuadStepTrackCandidates, mkFitOutp
     mkFitSeeds = 'lowPtQuadStepTrackCandidatesMkFitSeeds',
     tracks = 'lowPtQuadStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtQuadStepTrackCandidatesMkFitConfig, minPt=0.49)
 
 #For FastSim phase1 tracking
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -209,14 +214,16 @@ _fastSim_lowPtQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidatePr
 fastSim.toReplaceWith(lowPtQuadStepTrackCandidates,_fastSim_lowPtQuadStepTrackCandidates)
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     src           = 'lowPtQuadStepTrackCandidates',
     AlgorithmName = 'lowPtQuadStep',
     Fitter        = 'FlexibleKFFittingSmoother',
 )
 fastSim.toModify(lowPtQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(lowPtQuadStepTracks, TrajectoryInEvent = True)
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
@@ -226,19 +233,22 @@ lowPtQuadStep = TrackMVAClassifierPrompt.clone(
      qualityCuts = [-0.7,-0.35,-0.15]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(lowPtQuadStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(lowPtQuadStep, trackTfClassifier.clone(
     src = 'lowPtQuadStepTracks',
-    qualityCuts = qualityCutDictionary["LowPtQuadStep"]
+    qualityCuts = qualityCutDictionary.LowPtQuadStep.value()
 ))
-
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
 pp_on_AA.toModify(lowPtQuadStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1'),
         qualityCuts = [-0.9, -0.4, 0.3],
 )
 fastSim.toModify(lowPtQuadStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+((~trackingMkFitLowPtQuadStep) & trackdnn).toModify(lowPtQuadStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
+                                                    qualityCuts = [-0.33,  0.13,  0.35])
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

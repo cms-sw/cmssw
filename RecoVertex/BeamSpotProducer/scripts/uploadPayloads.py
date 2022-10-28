@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import sys,os,commands
+import sys,os,subprocess
 from CommonMethods import *
 
 class FileObj:
@@ -14,7 +14,7 @@ class FileObj:
 def main():
     payloadDir = "./Payloads_Repro2010Nov09/"
     aCommand  = "ls " + payloadDir + " | grep BeamSpotObjects_2009_LumiBased_ | grep txt"           
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     listOfFiles = output[1].split('\n')                                                                              
 #    print listOfFiles
     dropbox = "/DropBox"

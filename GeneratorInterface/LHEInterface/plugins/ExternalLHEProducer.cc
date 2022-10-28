@@ -17,8 +17,8 @@ Implementation:
 //
 
 // system include files
-#include "tbb/task_arena.h"
-#include "tbb/task_group.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>

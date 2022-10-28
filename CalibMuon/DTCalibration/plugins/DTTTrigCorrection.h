@@ -9,8 +9,12 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 
@@ -20,7 +24,7 @@ namespace dtCalibration {
   class DTTTrigBaseCorrection;
 }
 
-class DTTTrigCorrection : public edm::EDAnalyzer {
+class DTTTrigCorrection : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTTTrigCorrection(const edm::ParameterSet& pset);
@@ -33,14 +37,16 @@ public:
   void beginJob() override {}
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
   void endJob() override;
 
 protected:
 private:
-  std::string dbLabel_;
-
   const DTTtrig* tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 
   std::unique_ptr<dtCalibration::DTTTrigBaseCorrection> correctionAlgo_;
 };

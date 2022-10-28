@@ -17,7 +17,7 @@
 #include "TGResourcePool.h"
 
 // user include files
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 

@@ -1,7 +1,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -85,7 +84,7 @@ namespace l1tVertexFinder {
       } else {
         genPt_PU_ += tp->pt();
       }
-      if (settings.debug() > 0) {
+      if (settings.debug() > 2) {
         edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
       }
 
@@ -113,7 +112,7 @@ namespace l1tVertexFinder {
         recoVertices_.push_back(vertex);
     }
 
-    if (settings.debug() > 0)
+    if (settings.debug() > 2)
       edm::LogInfo("InputData") << "InputData::" << vertices_.size() << " pileup vertices in the event, "
                                 << recoVertices_.size() << " reconstructable";
 

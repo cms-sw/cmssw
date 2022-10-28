@@ -23,29 +23,31 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+//#define EDM_ML_DEBUG
 //
 // class declaration
 //
 
-namespace AlCaIsoTracksProdFilter {
+namespace alCaIsoTracksProducerFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaIsoTracksProdFilter
+}  // namespace alCaIsoTracksProducerFilter
 
-class AlCaIsoTracksProducerFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracksProdFilter::Counters> > {
+class AlCaIsoTracksProducerFilter
+    : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksProducerFilter::Counters> > {
 public:
-  explicit AlCaIsoTracksProducerFilter(edm::ParameterSet const&, const AlCaIsoTracksProdFilter::Counters* count);
+  explicit AlCaIsoTracksProducerFilter(edm::ParameterSet const&, const alCaIsoTracksProducerFilter::Counters* count);
   ~AlCaIsoTracksProducerFilter() override;
 
-  static std::unique_ptr<AlCaIsoTracksProdFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsoTracksProdFilter::Counters>();
+  static std::unique_ptr<alCaIsoTracksProducerFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsoTracksProducerFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsoTracksProdFilter::Counters* counters);
+  static void globalEndJob(const alCaIsoTracksProducerFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -54,24 +56,22 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigNames_;
   unsigned int nRun_, nAll_, nGood_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  std::string processName_;
-  edm::InputTag triggerResultsLabel_;
+  const std::vector<std::string> trigNames_;
+  const std::string processName_;
+  const edm::InputTag triggerResultsLabel_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
 };
 
 AlCaIsoTracksProducerFilter::AlCaIsoTracksProducerFilter(const edm::ParameterSet& iConfig,
-                                                         const AlCaIsoTracksProdFilter::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0) {
-  //now do what ever initialization is needed
-  trigNames_ = iConfig.getParameter<std::vector<std::string> >("triggers");
-  processName_ = iConfig.getParameter<std::string>("processName");
-  triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(triggerResultsLabel_);
-
+                                                         const alCaIsoTracksProducerFilter::Counters* count)
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+      processName_(iConfig.getParameter<std::string>("processName")),
+      triggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
+      tok_trigRes_(consumes<edm::TriggerResults>(triggerResultsLabel_)) {
   edm::LogVerbatim("HcalIsoTrack") << "Use process name " << processName_ << " Labels " << triggerResultsLabel_
                                    << " selecting " << trigNames_.size() << " triggers\n";
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -91,8 +91,7 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
   if (trigNames_.empty()) {
     triggerSatisfied = true;
   } else {
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       std::vector<std::string> modules;
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
@@ -101,8 +100,10 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
         int hlt = triggerResults->accept(iHLT);
         for (unsigned int i = 0; i < trigNames_.size(); ++i) {
           if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+#ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HcalIsoTrack")
-                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied << std::endl;
+                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied;
+#endif
             if (hlt > 0) {
               triggerSatisfied = true;
               break;
@@ -114,6 +115,9 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksProducerFilter:: triggerSatisfied: " << triggerSatisfied;
+#endif
   if (triggerSatisfied)
     ++nGood_;
   return triggerSatisfied;
@@ -124,7 +128,7 @@ void AlCaIsoTracksProducerFilter::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaIsoTracksProducerFilter::globalEndJob(const AlCaIsoTracksProdFilter::Counters* count) {
+void AlCaIsoTracksProducerFilter::globalEndJob(const alCaIsoTracksProducerFilter::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events " << std::endl;
 }
 

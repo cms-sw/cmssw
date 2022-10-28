@@ -55,7 +55,7 @@ process.hcalIsoTrackStudy.minLayerCrossed =  0
 process.hcalIsoTrackStudy.triggers = []
 process.hcalIsoTrackStudy.dataType = 1 #0 for jetHT else 1
 process.hcalIsoTrackStudy.maximumEcalEnergy = 100 # set MIP cut  
-#process.hcalIsoTrackStudy.useRaw = 2
+#process.hcalIsoTrackStudy.useRaw = 1
 
 process.p = cms.Path(process.hcalIsoTrackStudy)
 

@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,7 +40,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
 
-class TestPerformanceFW_ES : public edm::EDAnalyzer {
+class TestPerformanceFW_ES : public edm::one::EDAnalyzer<> {
 public:
   explicit TestPerformanceFW_ES(const edm::ParameterSet&);
   ~TestPerformanceFW_ES();
@@ -49,6 +49,7 @@ private:
   std::string name;
   std::vector<std::string> measureName;
   std::vector<std::string> measureType;
+  std::vector<edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> measureToken;
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
@@ -59,8 +60,13 @@ private:
 TestPerformanceFW_ES::TestPerformanceFW_ES(const edm::ParameterSet& iConfig)
 
 {
-  measureName = iConfig.getParameter<std::vector<std::string> >("measureName");
-  measureType = iConfig.getParameter<std::vector<std::string> >("measureType");
+  measureName = iConfig.getParameter<std::vector<std::string>>("measureName");
+  measureType = iConfig.getParameter<std::vector<std::string>>("measureType");
+  measureToken.reserve(measureName.size());
+
+  for (auto const& n : measureName) {
+    measureToken.push_back(esConsumes<BtagPerformance, BTagPerformanceRecord>(edm::ESInputTag("", n)));
+  }
 }
 
 TestPerformanceFW_ES::~TestPerformanceFW_ES() {
@@ -97,7 +103,6 @@ void TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSet
   measureMap["MUFAKE"] = PerformanceResult::MUFAKE;
   measureMap["MUEFAKE"] = PerformanceResult::MUEFAKE;
 
-  edm::ESHandle<BtagPerformance> perfH;
   if (measureName.size() != measureType.size()) {
     std::cout << "measureName, measureType size mismatch!" << std::endl;
     exit(-1);
@@ -107,8 +112,7 @@ void TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "Testing: " << measureName[iMeasure] << " of type " << measureType[iMeasure] << std::endl;
 
     //Setup our measurement
-    iSetup.get<BTagPerformanceRecord>().get(measureName[iMeasure], perfH);
-    const BtagPerformance& perf = *(perfH.product());
+    const BtagPerformance& perf = iSetup.getData(measureToken[iMeasure]);
 
     //Working point
     std::cout << "Working point: " << perf.workingPoint().cut() << std::endl;

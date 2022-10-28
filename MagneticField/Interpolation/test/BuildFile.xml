@@ -19,4 +19,9 @@
   <use name="MagneticField/Interpolation"/>
 </bin>
 
+<bin file="BinaryTablesGeneration/mergeFieldTable.cc" name="mergeFieldTable">
+  <flags NO_TESTRUN="1"/>
+  <use name="MagneticField/Interpolation"/>
+</bin>
+
 <flags CXXFLAGS="-Wno-format -Wno-format-contains-nul"/>

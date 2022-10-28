@@ -40,7 +40,7 @@ public:
 
   /** Destructor
    */
-  ~BPHKinFitChi2Select() override {}
+  ~BPHKinFitChi2Select() override = default;
 
   /** Operations
    */

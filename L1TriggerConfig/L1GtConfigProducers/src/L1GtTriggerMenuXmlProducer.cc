@@ -41,7 +41,7 @@
 // constructor(s)
 L1GtTriggerMenuXmlProducer::L1GtTriggerMenuXmlProducer(const edm::ParameterSet& parSet) {
   // tell the framework what data is being produced
-  setWhatProduced(this, &L1GtTriggerMenuXmlProducer::produceGtTriggerMenu);
+  m_getToken = setWhatProduced(this, &L1GtTriggerMenuXmlProducer::produceGtTriggerMenu).consumes();
 
   // now do what ever other initialization is needed
 
@@ -81,10 +81,7 @@ L1GtTriggerMenuXmlProducer::~L1GtTriggerMenuXmlProducer() {
 std::unique_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMenu(
     const L1GtTriggerMenuRcd& l1MenuRecord) {
   // get the parameters needed from other records
-  const L1GtStableParametersRcd& stableParametersRcd = l1MenuRecord.getRecord<L1GtStableParametersRcd>();
-
-  edm::ESHandle<L1GtStableParameters> stableParameters;
-  stableParametersRcd.get(stableParameters);
+  edm::ESHandle<L1GtStableParameters> stableParameters = l1MenuRecord.getHandle(m_getToken);
 
   unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
   unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();

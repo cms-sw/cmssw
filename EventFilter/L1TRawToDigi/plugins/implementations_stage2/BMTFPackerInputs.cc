@@ -287,7 +287,6 @@ namespace l1t {
         blocks.push_back(Block(block_id, payload));
 
         if (link % 2 != 0) {
-          moreBXphi = false;
           moreBXeta = false;
         }
 

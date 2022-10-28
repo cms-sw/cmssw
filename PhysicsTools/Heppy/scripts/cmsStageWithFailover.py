@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #this script runs cmsStage multiple times in the case where it failes for some reason
 

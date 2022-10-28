@@ -28,6 +28,6 @@ private:
   void setTextInfo(const FWModelId &id, const T *) override;
 };
 
-#include "Fireworks/Calo/src/FWECALDetailViewBase.icc"
+#include "Fireworks/Calo/interface/FWECALDetailViewBase.icc"
 
 #endif

@@ -1,8 +1,6 @@
-
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -33,7 +31,7 @@
 #include <vector>
 #include <unordered_map>
 
-//class compliments EgammaHLTExtraProducer and adds all the phase-II specific E/g HLT debug information to the event
+//class complements EgammaHLTExtraProducer and adds all the phase-II specific E/g HLT debug information to the event
 //this allows phase-II to be factorised from the standard class rather than having to extend EgammaHLTExtraProducer to deal with it
 //although to be fair, given all the phase-II code is now in the release, the need for this factorisation is not as great
 //and ultimately it could be merged into EgammaHLTExtraProducer
@@ -82,7 +80,6 @@ namespace {
 class EgammaHLTPhase2ExtraProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTPhase2ExtraProducer(const edm::ParameterSet& pset);
-  ~EgammaHLTPhase2ExtraProducer() override {}
 
   void produce(edm::StreamID streamID, edm::Event& event, const edm::EventSetup& eventSetup) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -155,6 +152,8 @@ private:
 
   const Tokens tokens_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeomToken_;
+
   float minPtToSaveHits_;
   bool saveHitsPlusPi_;
   bool saveHitsPlusHalfPi_;
@@ -173,6 +172,7 @@ EgammaHLTPhase2ExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset, edm:
 
 EgammaHLTPhase2ExtraProducer::EgammaHLTPhase2ExtraProducer(const edm::ParameterSet& pset)
     : tokens_(pset, consumesCollector()),
+      caloGeomToken_{esConsumes()},
       minPtToSaveHits_(pset.getParameter<double>("minPtToSaveHits")),
       saveHitsPlusPi_(pset.getParameter<bool>("saveHitsPlusPi")),
       saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")),
@@ -193,7 +193,7 @@ EgammaHLTPhase2ExtraProducer::EgammaHLTPhase2ExtraProducer(const edm::ParameterS
 void EgammaHLTPhase2ExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("egTrigObjs", edm::InputTag("hltEgammaHLTExtra"));
-  desc.add<edm::InputTag>("l1Trks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("l1Trks", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<edm::InputTag>("trkParts", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("l1TrkToTrkPartMap", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
   desc.add<edm::InputTag>("hgcalLayerClusters", edm::InputTag("hgcalLayerClusters"));
@@ -226,13 +226,14 @@ void EgammaHLTPhase2ExtraProducer::produce(edm::StreamID streamID,
   auto l1trks = event.getHandle(tokens_.l1Trks);
   auto l1TrkToTrkPartMap = event.getHandle(tokens_.l1TrkToTrkPartMap);
 
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  auto const caloGeomHandle = eventSetup.getHandle(caloGeomToken_);
+
   for (const auto& tokenLabel : tokens_.hgcal) {
     auto handle = event.getHandle(tokenLabel.first);
     auto recHits = filterRecHits(*egTrigObjs, handle, *caloGeomHandle);
     event.put(std::move(recHits), tokenLabel.second);
   }
+
   auto storeCountRecHits = [&event](const auto& tokenLabels, const auto& thresholds, const std::string& prefixLabel) {
     for (const auto& tokenLabel : tokenLabels) {
       auto handle = event.getHandle(tokenLabel.first);

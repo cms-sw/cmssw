@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -1789,7 +1788,9 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromCalibTree::getNewObject() {
       theSiStripVector = new std::vector<float>;
       PreviousDetId = APV->DetId;
     }
-    theSiStripVector->push_back(APV->Gain);
+    if (theSiStripVector != nullptr) {
+      theSiStripVector->push_back(APV->Gain);
+    }
   }
   if (theSiStripVector != nullptr) {
     SiStripApvGain::Range range(theSiStripVector->begin(), theSiStripVector->end());

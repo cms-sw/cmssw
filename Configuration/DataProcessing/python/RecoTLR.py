@@ -5,6 +5,11 @@ import FWCore.ParameterSet.Config as cms
 # common utilities
 ##############################################################################
 def _swapOfflineBSwithOnline(process):
+    import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+    process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
+    )
+
     from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     return process
@@ -89,6 +94,16 @@ def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
     return process
+
+def customisePostEra_Run3_pp_on_PbPb_express_trackingOnly(process):
+    #start with repeat of 2018
+    customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb(process):
+    customisePostEra_Run3(process)
+    return process
+
 
 ##############################################################################
 def customisePPData(process):

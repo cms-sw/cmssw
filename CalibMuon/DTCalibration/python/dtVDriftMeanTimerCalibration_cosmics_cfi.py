@@ -39,5 +39,8 @@ dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
         calibConstFileName = cms.untracked.string('vDriftAndReso.txt')
     ),
     # Name of the txt file which will contain the calibrated v_drift
-    vDriftFileName = cms.untracked.string('vDriftFromMtime.txt')
+    vDriftFileName = cms.untracked.string('vDriftFromMtime.txt'),
+
+    # Use legacy DB format
+    writeLegacyVDriftDB =cms.bool(True),
 )

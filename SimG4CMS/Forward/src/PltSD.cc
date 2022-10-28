@@ -1,4 +1,5 @@
 #include "SimG4CMS/Forward/interface/PltSD.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,9 +47,9 @@ uint32_t PltSD::setDetUnitId(const G4Step* aStep) {
   //Get name and copy numbers
   if (level > 1) {
     //some debugging with the names
-    G4String sensorName = touch->GetVolume(2)->GetName();
-    G4String telName = touch->GetVolume(3)->GetName();
-    G4String volumeName = touch->GetVolume(4)->GetName();
+    std::string sensorName = ForwardName::getName(touch->GetVolume(2)->GetName());
+    std::string telName = ForwardName::getName(touch->GetVolume(3)->GetName());
+    std::string volumeName = ForwardName::getName(touch->GetVolume(4)->GetName());
     if (sensorName != "PLTSensorPlane")
       edm::LogVerbatim("PltSD") << " PltSD::setDetUnitId -w- Sensor name not PLTSensorPlane ";
     if (telName != "Telescope")

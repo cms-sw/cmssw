@@ -77,7 +77,7 @@ int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf
       break;
     }
 
-    IOOffset extra_bytes_signed = (idx == 0) ? 0 : ((pos[idx] - iopb.offset()) - iopb.size());
+    edm::storage::IOOffset extra_bytes_signed = (idx == 0) ? 0 : ((pos[idx] - iopb.offset()) - iopb.size());
     assert(extra_bytes_signed >= 0);
     IOSize extra_bytes = static_cast<IOSize>(extra_bytes_signed);
 

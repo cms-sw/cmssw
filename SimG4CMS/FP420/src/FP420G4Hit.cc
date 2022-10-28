@@ -4,6 +4,7 @@
 // Description: Transient Hit class for the FP420
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 FP420G4Hit::FP420G4Hit() : entry(0) {
@@ -98,7 +99,7 @@ void FP420G4Hit::addEnergyDeposit(const FP420G4Hit& aHit) {
   hadr += aHit.getHadr();
 }
 
-void FP420G4Hit::Print() { std::cout << (*this); }
+void FP420G4Hit::Print() { edm::LogVerbatim("FP420") << (*this); }
 
 G4ThreeVector FP420G4Hit::getEntry() const { return entry; }
 void FP420G4Hit::setEntry(const G4ThreeVector& xyz) { entry = xyz; }

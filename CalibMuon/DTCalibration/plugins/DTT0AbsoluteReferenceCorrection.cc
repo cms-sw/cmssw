@@ -24,8 +24,10 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0AbsoluteReferenceCorrection::DTT0AbsoluteReferenceCorrection(const ParameterSet& pset)
-      : calibChamber_(pset.getParameter<string>("calibChamber")), reference_(pset.getParameter<double>("reference")) {
+  DTT0AbsoluteReferenceCorrection::DTT0AbsoluteReferenceCorrection(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : calibChamber_(pset.getParameter<string>("calibChamber")),
+        reference_(pset.getParameter<double>("reference")),
+        t0Token_(cc.esConsumes<edm::Transition::BeginRun>()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;
@@ -43,7 +45,7 @@ namespace dtCalibration {
   void DTT0AbsoluteReferenceCorrection::setES(const EventSetup& setup) {
     // Get t0 record from DB
     ESHandle<DTT0> t0H;
-    setup.get<DTT0Rcd>().get(t0H);
+    t0H = setup.getHandle(t0Token_);
     t0Map_ = &*t0H;
     LogVerbatim("Calibration") << "[DTT0AbsoluteReferenceCorrection] T0 version: " << t0H->version();
   }

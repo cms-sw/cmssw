@@ -88,7 +88,7 @@ if (live):
 elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -127,6 +127,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -252,3 +255,4 @@ process = customise(process)
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+print("Final Source settings:", process.source)

@@ -22,7 +22,7 @@ private:
 public:
   HGCalClusteringImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   /* dR-algorithms */
   bool isPertinent(const l1t::HGCalTriggerCell& tc, const l1t::HGCalCluster& clu, double distXY) const;

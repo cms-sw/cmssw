@@ -9,7 +9,6 @@ import array
 import difflib
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -447,12 +446,12 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
     if nvals < 2:
         # Take median and +- 1 values
         if len(yvals) % 2 == 0:
-            half = len(yvals)/2
+            half = len(yvals)//2
             return ( yvals[half-1], yvals[half] )
         else:
-            middle = len(yvals)/2
+            middle = len(yvals)//2
             return ( yvals[middle-1], yvals[middle+1] )
-    ind_min = (len(yvals)-nvals)/2
+    ind_min = (len(yvals)-nvals)//2
     ind_max = len(yvals)-1 - ind_min
 
     return (yvals[ind_min], yvals[ind_max])
@@ -999,7 +998,7 @@ class AggregateBins:
         values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
-        for i, (key, labels) in enumerate(six.iteritems(self._mapping)):
+        for i, (key, labels) in enumerate(self._mapping.items()):
             sumTime = 0.
             sumErrorSq = 0.
             nsum = 0
@@ -1074,7 +1073,7 @@ class AggregateBins:
         return result
 
 class AggregateHistos:
-    """Class to create a histogram by aggregaging integrals of another histoggrams."""
+    """Class to create a histogram by aggregating integrals of another histogram."""
     def __init__(self, name, mapping, normalizeTo=None):
         """Constructor.
 
@@ -1096,7 +1095,7 @@ class AggregateHistos:
     def create(self, tdirectory):
         """Create and return the histogram from a TDirectory"""
         result = []
-        for key, histoName in six.iteritems(self._mapping):
+        for key, histoName in self._mapping.items():
             th1 = _getObject(tdirectory, histoName)
             if th1 is None:
                 continue
@@ -1830,7 +1829,7 @@ class Plot:
         self._histograms = []
 
     def setProperties(self, **kwargs):
-        for name, value in six.iteritems(kwargs):
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -1936,7 +1935,7 @@ class Plot:
         if self._fallback is not None:
             self._histograms = list(map(_modifyHisto, self._histograms, profileX))
         else:
-            self._histograms =list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
+            self._histograms = list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
@@ -2291,7 +2290,7 @@ class PlotGroup(object):
         self._ratioFactor = 1.25
 
     def setProperties(self, **kwargs):
-        for name, value in six.iteritems(kwargs):
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2383,32 +2382,33 @@ class PlotGroup(object):
             if not plot.isEmpty():
                 plot.draw(pad, ratio, self._ratioFactor, nrows)
 
-        # Setup legend
-        canvas.cd()
-        if len(self._plots) <= 4:
-            lx1 = 0.2
-            lx2 = 0.9
-            ly1 = 0.48
-            ly2 = 0.53
-        else:
-            lx1 = 0.1
-            lx2 = 0.9
-            ly1 = 0.64
-            ly2 = 0.67
-        if self._legendDx is not None:
-            lx1 += self._legendDx
-            lx2 += self._legendDx
-        if self._legendDy is not None:
-            ly1 += self._legendDy
-            ly2 += self._legendDy
-        if self._legendDw is not None:
-            lx2 += self._legendDw
-        if self._legendDh is not None:
-            ly1 -= self._legendDh
-        plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
-        denomUnc = sum([p.drawRatioUncertainty() for p in self._plots]) > 0
-        legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
-                                    denomUncertainty=(ratio and denomUnc))
+        if plot._legend:
+          # Setup legend
+          canvas.cd()
+          if len(self._plots) <= 4:
+              lx1 = 0.2
+              lx2 = 0.9
+              ly1 = 0.48
+              ly2 = 0.53
+          else:
+              lx1 = 0.1
+              lx2 = 0.9
+              ly1 = 0.64
+              ly2 = 0.67
+          if self._legendDx is not None:
+              lx1 += self._legendDx
+              lx2 += self._legendDx
+          if self._legendDy is not None:
+              ly1 += self._legendDy
+              ly2 += self._legendDy
+          if self._legendDw is not None:
+              lx2 += self._legendDw
+          if self._legendDh is not None:
+              ly1 -= self._legendDh
+          plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
+          denomUnc = sum([p.drawRatioUncertainty() for p in self._plots]) > 0
+          legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
+                                      denomUncertainty=(ratio and denomUnc))
 
         return self._save(canvas, saveFormat, prefix=prefix, directory=directory)
 
@@ -2498,7 +2498,7 @@ class PlotGroup(object):
         # Save the canvas to file and clear
         name = self._name
         if not os.path.exists(directory+'/'+name):
-            os.makedirs(directory+'/'+name)
+            os.makedirs(directory+'/'+name, exist_ok=True)
         if prefix is not None:
             name = prefix+name
         if postfix is not None:

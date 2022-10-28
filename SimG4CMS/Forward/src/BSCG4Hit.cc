@@ -3,6 +3,7 @@
 // Date: 02.2006
 // Description: Transient Hit class for the Bsc
 ///////////////////////////////////////////////////////////////////////////////
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include <iostream>
 
@@ -107,7 +108,7 @@ void BscG4Hit::addEnergyDeposit(const BscG4Hit& aHit) {
   theEnergyLoss = elem + hadr;
 }
 
-void BscG4Hit::Print() { std::cout << (*this); }
+void BscG4Hit::Print() { edm::LogVerbatim("ForwardSim") << (*this); }
 
 void BscG4Hit::addEnergyDeposit(float em, float hd) {
   elem += em;

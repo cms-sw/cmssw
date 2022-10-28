@@ -23,7 +23,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -60,7 +60,7 @@
 
 using namespace l1t;
 
-class L1TStage2Layer1Producer : public edm::EDProducer {
+class L1TStage2Layer1Producer : public edm::stream::EDProducer<> {
 public:
   explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
   ~L1TStage2Layer1Producer() override;
@@ -68,9 +68,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -313,12 +311,6 @@ void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   iEvent.put(std::move(towersColl));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void L1TStage2Layer1Producer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void L1TStage2Layer1Producer::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 void L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {

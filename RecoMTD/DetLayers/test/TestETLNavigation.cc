@@ -1,10 +1,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
@@ -19,11 +20,11 @@
 using namespace std;
 using namespace edm;
 
-class TestETLNavigation : public EDAnalyzer {
+class TestETLNavigation : public global::EDAnalyzer<> {
 public:
   TestETLNavigation(const ParameterSet& pset);
 
-  void analyze(const Event& ev, const EventSetup& es) override;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
 private:
   const edm::ESInputTag tag_;
@@ -34,7 +35,7 @@ TestETLNavigation::TestETLNavigation(const ParameterSet& iConfig) : tag_(edm::ES
   geomToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>(tag_);
 }
 
-void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
+void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const& es) const {
   auto geo = es.getTransientHandle(geomToken_);
 
   const vector<const DetLayer*>& layers = geo->allETLLayers();

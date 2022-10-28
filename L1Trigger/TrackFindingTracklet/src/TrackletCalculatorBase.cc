@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 using namespace trklet;
@@ -629,7 +630,7 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
         continue;
 
       if (irprojdisk[i] < settings_.rmindisk() / ITC->rD_0_final.K() ||
-          irprojdisk[i] > settings_.rmaxdisk() / ITC->rD_0_final.K())
+          irprojdisk[i] >= settings_.rmaxdisk() / ITC->rD_0_final.K())
         continue;
 
       projs[i + N_LAYER].init(settings_,
@@ -1022,7 +1023,7 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
       continue;
 
     //check that r projection in range
-    if (irprojdisk[i] <= 0 || irprojdisk[i] > settings_.rmaxdisk() / ITC->rD_0_final.K())
+    if (irprojdisk[i] <= 0 || irprojdisk[i] >= settings_.rmaxdisk() / ITC->rD_0_final.K())
       continue;
 
     projs[settings_.projdisks(iSeed_, i) + N_LAYER - 1].init(settings_,
@@ -1271,7 +1272,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
   int iz1 = outerFPGAStub->z().value();
 
   //To get global precission
-  ir1 <<= (8 - settings_.nrbitsstub(ll - 1));
+  ir1 = l1t::bitShift(ir1, (8 - settings_.nrbitsstub(ll - 1)));
   iphi1 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
   iphi2 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
 
@@ -1383,7 +1384,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
       continue;
 
     //check that r projection in range
-    if (irprojdisk[i] <= 0 || irprojdisk[i] > settings_.rmaxdisk() / ITC->rD_0_final.K())
+    if (irprojdisk[i] <= 0 || irprojdisk[i] >= settings_.rmaxdisk() / ITC->rD_0_final.K())
       continue;
 
     projs[N_LAYER + i + 1].init(settings_,

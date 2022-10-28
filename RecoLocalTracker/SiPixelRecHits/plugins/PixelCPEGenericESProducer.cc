@@ -36,12 +36,13 @@ private:
   edm::ParameterSet pset_;
   bool useLAWidthFromDB_;
   bool UseErrorsFromTemplates_;
+  std::string CPEgenericMode_;  // user's choice of CPE generic
 };
 
 using namespace edm;
 
 PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
+  CPEgenericMode_ = p.getParameter<std::string>("ComponentName");
   // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
   useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
   // Use Alignment LA-offset
@@ -55,7 +56,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
   UseErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
 
   pset_ = p;
-  auto c = setWhatProduced(this, myname);
+  auto c = setWhatProduced(this, CPEgenericMode_);
   magfieldToken_ = c.consumes(magname);
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
@@ -84,6 +85,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEGenericESProducer::produ
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
+
   return std::make_unique<PixelCPEGeneric>(pset_,
                                            &iRecord.get(magfieldToken_),
                                            iRecord.get(pDDToken_),

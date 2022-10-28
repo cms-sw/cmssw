@@ -44,6 +44,26 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
   )
 
+# process.TFileService = cms.Service("TFileService",
+#     fileName = cms.string('histoTFileService.root'),
+#     closeFileFast = cms.untracked.bool(False)
+# )
+#process.TFileService = cms.Service('TFileService',
+#   fileName=cms.string("testhisto.root"),
+# closeFileFast = cms.untracked.bool(True)
+#)
+#process.TFileService = cms.Service("TFileService",
+#      fileName = cms.string("analysis_minbias_Full.root"),
+#      closeFileFast = cms.untracked.bool(True)
+#  )
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string(histodir+'/LED_'+runnumber+'.root')
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
+
+# process.TFileService = cms.Service("TFileService", fileName = cms.string("plotting%03d.root" % jobnumber))
+
 #process.source = cms.Source("PoolSource",
 process.source = cms.Source("HcalTBSource",
                             skipBadFiles=cms.untracked.bool(True),
@@ -295,6 +315,16 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #usecontinuousnumbering = cms.untracked.bool(False),
                                   usecontinuousnumbering = cms.untracked.bool(True),
                                   #
+                                  #
+                                  #
+                                  #
+                                  # if 0 - do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
+                                  #
+                                  #
+                                  #
+                                  #
+                                  #
                                   hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),
                                   hbheDigiCollectionTag = cms.InputTag('hcalDigis'),
                                   hoDigiCollectionTag = cms.InputTag('hcalDigis'),
@@ -338,34 +368,35 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   splashesUpperLimit = cms.int32(10000),
                                   #
                                   #
-                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  flagIterativeMethodCalibrationGroup = cms.int32(0),
+                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0) This flag name is only present in early version of main cc-code & visualiz.script
+                                  #flagIterativeMethodCalibrationGroup = cms.int32(0),
                                   #
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupDigi = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupDigi = cms.int32(0),
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupReco = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupReco = cms.int32(0),
                                   #
-                                  #hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
-                                  #hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
-                                  #hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
-                                  # hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
+                                  hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
+                                  hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
+                                  hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
+                                  hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
                                   #
                                   #HistOutFile = cms.untracked.string('LED_331370.root'),
-                                  HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),
                                   #
                                   )		
-
+##################################################################################################
 process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
     file = cms.untracked.string('')
 )
+##################################################################################################
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('QIEShape',
         'QIEData',
@@ -378,7 +409,7 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'ZSThresholds',
         'RespCorrs')
 )
-
+##################################################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 # 2018:
@@ -386,22 +417,27 @@ process.GlobalTag.globaltag = '104X_dataRun2_v1'
 ######process.GlobalTag.globaltag = '105X_postLS2_design_v4'
 # 2019:
 #process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
-
+##################################################################################################
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.hcalDigis.FilterDataQuality = cms.bool(False)
 process.hcalDigis.InputLabel = cms.InputTag("source")
-process.hcalDigis= cms.EDProducer("HcalRawToDigi",
-#    FilterDataQuality = cms.bool(True),
-    FilterDataQuality = cms.bool(False),
-    HcalFirstFED = cms.untracked.int32(700),
-    InputLabel = cms.InputTag("source"),
+############################################################################
+#process.hcalDigis= cms.EDProducer("HcalRawToDigi",
+#    FilterDataQuality = cms.bool(False),
+#    HcalFirstFED = cms.untracked.int32(700),
+#    InputLabel = cms.InputTag("source"),
+#)
+process.load('EventFilter.HcalRawToDigi.hcalRawToDigi_cfi')
+process.hcalDigis= process.hcalRawToDigi.clone(
+    FilterDataQuality = False,
+    InputLabel = "source",
     #InputLabel = cms.InputTag("rawDataCollector"),
 )
-
+##################################################################################################
 #process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestalLocal_cff")
 process.p = cms.Path(process.hcalDigis*process.Analyzer)
 #process.p = cms.Path(process.hcalDigis*process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
-
+##################################################################################################
 process.MessageLogger = cms.Service("MessageLogger",
      categories   = cms.untracked.vstring(''),
      destinations = cms.untracked.vstring('cout'),
@@ -411,6 +447,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 	 WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0))
      )
  )
+##################################################################################################
+
 
 
 

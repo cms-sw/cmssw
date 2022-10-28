@@ -21,6 +21,10 @@ public:
     }
   }
 
+  // No copy constructor and equality operator are needed
+  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
+  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
+
   virtual ~UCTCTP7RawData() { ; }
 
   // Access functions for convenience
@@ -196,7 +200,15 @@ public:
       if (((cEta - 1) % 2) == 1) {
         tower += 4;
       }
-      data |= (fb & 0x1) << tower;
+      if (cType == HBHE) {
+        int depth = fb & 0b1;
+        int prompt = (fb & 0b10) >> 1;
+        int delay1 = (fb & 0b100) >> 2;
+        int delay2 = (fb & 0b1000) >> 3;
+        if (cEta < 16)
+          data |= (depth | ((!prompt) & (delay1 | delay2))) << tower;  // bit[0] | (!bit[1] & (bit[2] | bit[3]))
+      } else
+        data |= (fb & 0x1) << tower;
     }
   }
 
@@ -333,11 +345,6 @@ public:
   }
 
 private:
-  // No copy constructor and equality operator are needed
-
-  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
-  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
-
   // Pointer to contiguous array of 192 values
   // We assume instantiator of this class will gurantee that fact
   const uint32_t* myDataPtr;

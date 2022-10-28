@@ -3,6 +3,7 @@
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 namespace spr {
@@ -54,7 +55,8 @@ namespace spr {
     }
     nRecHits = uniqueIdset.size();
     if (debug) {
-      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits << " in subdet " << detOnly << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_hcal: Energy " << energySum << " from " << nRecHits << " in subdet "
+                                   << detOnly;
     }
     return energySum;
   }
@@ -119,9 +121,9 @@ namespace spr {
 
     nRecHits = uniqueIdset.size();
     if (debug) {
-      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":" << coneRecHitDetIds.size()
-                << " in subdet " << detOnly << std::endl;
-      std::cout << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist " << distFromHotCell << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":"
+                                   << coneRecHitDetIds.size() << " in subdet " << detOnly;
+      edm::LogVerbatim("IsoTrack") << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist " << distFromHotCell;
     }
     return energySum;
   }
@@ -158,10 +160,10 @@ namespace spr {
 
     nRecHits = uniqueIdset.size();
     if (debug) {
-      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":" << coneRecHitDetIds.size()
-                << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":"
+                                   << coneRecHitDetIds.size();
       for (unsigned int k = 0; k < eHit.size(); ++k)
-        std::cout << "Hit[" << k << "] " << HcalDetId(coneRecHitDetIds[k]) << " energy " << eHit[k] << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Hit[" << k << "] " << HcalDetId(coneRecHitDetIds[k]) << " energy " << eHit[k];
     }
     return energySum;
   }
@@ -233,9 +235,9 @@ namespace spr {
 
     nRecHits = uniqueIdset.size();
     if (debug) {
-      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":" << coneRecHitDetIds.size()
-                << " in subdet " << detOnly << std::endl;
-      std::cout << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist " << distFromHotCell << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_hcal: Energy " << energySum << " from " << nRecHits << ":"
+                                   << coneRecHitDetIds.size() << " in subdet " << detOnly;
+      edm::LogVerbatim("IsoTrack") << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist " << distFromHotCell;
     }
     return energySum;
   }
@@ -275,7 +277,7 @@ namespace spr {
     }
 
     if (debug) {
-      std::cout << "eCone_ecal: Energy " << energySum << " from " << hit.size() << " hits" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_ecal: Energy " << energySum << " from " << hit.size() << " hits";
     }
     return energySum;
   }
@@ -320,7 +322,7 @@ namespace spr {
     }
 
     if (debug) {
-      std::cout << "eCone_ecal: Energy " << energySum << " from " << hit.size() << " hits" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eCone_ecal: Energy " << energySum << " from " << hit.size() << " hits";
     }
     return energySum;
   }

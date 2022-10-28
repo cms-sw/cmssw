@@ -28,8 +28,8 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 

@@ -1,13 +1,41 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCalBHValid_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D92",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
+
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileName = "hgcBHValid" + options.geometry + ".root"
+
+print("Geometry file:  ", geomFile)
+print("Output file:    ", fileName)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -58,7 +86,7 @@ if hasattr(process,'MessageLogger'):
 process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcBHValidD83.root'),
+                                   fileName = cms.string(fileName),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

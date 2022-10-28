@@ -9,9 +9,10 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 #include <string>
 #include <map>
@@ -27,8 +28,10 @@ class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
 class DTTtrig;
+class DTStatusFlag;
+class DTStatusFlagRcd;
 
-class DTTTrigCalibration : public edm::EDAnalyzer {
+class DTTTrigCalibration : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigCalibration(const edm::ParameterSet& pset);
@@ -60,8 +63,8 @@ private:
   // Debug flag
   bool debug;
 
-  // The label used to retrieve digis from the event
-  std::string digiLabel;
+  // The token used to retrieve digis from the event
+  edm::EDGetTokenT<DTDigiCollection> digiToken;
 
   // The TDC time-window
   int maxTDCCounts;
@@ -88,5 +91,6 @@ private:
   std::unique_ptr<DTTimeBoxFitter> theFitter;
   // The module for t0 subtraction
   std::unique_ptr<DTTTrigBaseSync> theSync;  //FIXME: should be const
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> theStatusMapToken;
 };
 #endif

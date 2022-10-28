@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 
 //
 // constants, enums and typedefs

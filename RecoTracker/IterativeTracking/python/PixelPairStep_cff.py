@@ -7,6 +7,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter('PixelPairStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -17,15 +20,15 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 # SEEDING LAYERS
 pixelPairStepSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-        'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-        'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
-    BPix = cms.PSet(
+                 'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
+                 'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                 'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
@@ -68,12 +71,13 @@ trackingPhase2PU140.toModify(pixelPairStepSeedLayers,
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
-    ptMin        = 0.6,
-    originRadius = 0.015,
-    fixedError   = 0.03,
-    useMultipleScattering = True,
-))
+pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(
+    RegionPSet = dict(
+        ptMin        = 0.6,
+        originRadius = 0.015,
+        fixedError   = 0.03,
+        useMultipleScattering = True)
+)
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(useMultipleScattering=False))
 _region_Phase1 = dict(
@@ -214,7 +218,7 @@ _pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajector
 pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     seedPairPenalty = 0,
     maxCCCLostHits  = 0,
-    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
+    minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(pixelPairStepTrajectoryFilterBase, maxCCCLostHits = 2)
@@ -257,7 +261,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName    = 'pixelPairStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 9.0,
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
     pTChargeCutThreshold = 15.
 )
 _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
@@ -266,18 +270,19 @@ _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
 trackingLowPU.toModify(pixelPairStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
-highBetaStar_2018.toModify(pixelPairStepChi2Est,MaxChi2 = 30)
+highBetaStar_2018.toModify(pixelPairStepChi2Est, MaxChi2 = 30)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'pixelPairStepTrajectoryFilter'),
     maxCand                = 3,
     estimator              = 'pixelPairStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
+trackingNoLoopers.toModify(pixelPairStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(pixelPairStepTrajectoryBuilder, maxCand = 2)
 _seedExtension = dict(
     inOutTrajectoryFilter = dict(refToPSet_ = 'pixelPairStepTrajectoryFilterInOut'),
@@ -291,15 +296,16 @@ trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_pixelPairStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
-    clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
+    clustersToSkip = 'pixelPairStepClusters',
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'pixelPairStepTrajectoryBuilder'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
 )
+pixelPairStepTrackCandidates = _pixelPairStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import trackingMkFitPixelPairStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as _mkFitSeedConverter_cfi
@@ -325,9 +331,9 @@ trackingMkFitPixelPairStep.toReplaceWith(pixelPairStepTrackCandidates, _mkFitOut
 ))
 
 trackingPhase2PU140.toModify(pixelPairStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('pixelPairStepClusters'),
-    TrajectoryCleaner    = 'pixelPairStepTrajectoryCleanerBySharedHits'
+    clustersToSkip = '',
+    phase2clustersToSkip = 'pixelPairStepClusters',
+    TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits'
 )
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(pixelPairStepTrackCandidates,
@@ -347,13 +353,16 @@ pixelPairStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clon
 trackingPhase2PU140.toModify(pixelPairStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
     AlgorithmName = 'pixelPairStep',
     src           = 'pixelPairStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother'
 )
 fastSim.toModify(pixelPairStepTracks, TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(pixelPairStepTracks, TrajectoryInEvent = True)
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
@@ -364,11 +373,12 @@ pixelPairStep =  TrackMVAClassifierPrompt.clone(
 )
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(pixelPairStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=qualityCutDictionary['PixelPairStep']
+    qualityCuts=qualityCutDictionary.PixelPairStep.value()
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])

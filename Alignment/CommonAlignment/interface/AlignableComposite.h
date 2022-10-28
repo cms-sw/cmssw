@@ -97,6 +97,10 @@ public:
   /// Return surface deformations
   int surfaceDeformationIdPairs(std::vector<std::pair<int, SurfaceDeformation*> >&) const override;
 
+  // avoid implicit cast of not explicitely defined version to the defined ones
+  template <class T>
+  void update(T) = delete;
+
 protected:
   /// Constructor from GeomDet, only for use in AlignableDet
   explicit AlignableComposite(const GeomDet* geomDet);
@@ -104,10 +108,6 @@ protected:
   /// Updater from GeomDet, only for use in AlignableDet
   /// The given GeomDetUnit id has to match the current id.
   void update(const GeomDet* geomDet);
-
-  // avoid implicit cast of not explicitely defined version to the defined ones
-  template <class T>
-  void update(T) = delete;
 
   void setSurface(const AlignableSurface& s) { theSurface = s; }
 

@@ -6,7 +6,6 @@ public:
   FWTrackECALDetailView() {}
   ~FWTrackECALDetailView() override {}
 
-private:
   FWTrackECALDetailView(const FWTrackECALDetailView&) = delete;                   // stop default
   const FWTrackECALDetailView& operator=(const FWTrackECALDetailView&) = delete;  // stop default
 };

@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <dcap.h>
 
+using namespace edm::storage;
+
 DCacheFile::DCacheFile(void) : m_fd(EDM_IOFD_INVALID), m_close(false) {}
 
 DCacheFile::DCacheFile(IOFD fd) : m_fd(fd), m_close(true) {}

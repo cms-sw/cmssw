@@ -10,12 +10,14 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
 
 class EcalClusterEnergyCorrectionObjectSpecific : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterEnergyCorrectionObjectSpecific(const edm::ParameterSet &){};
+  EcalClusterEnergyCorrectionObjectSpecific(const edm::ParameterSet &, edm::ConsumesCollector iC)
+      : paramsToken_(iC.esConsumes()) {}
 
   // get/set explicit methods for parameters
   const EcalClusterEnergyCorrectionObjectSpecificParameters *getParameters() const { return params_; }
@@ -35,14 +37,13 @@ private:
   float fEt(float et, int algorithm) const;
   float fEnergy(float e, int algorithm) const;
 
-  edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> esParams_;
-  const EcalClusterEnergyCorrectionObjectSpecificParameters *params_;
+  const edm::ESGetToken<EcalClusterEnergyCorrectionObjectSpecificParameters,
+                        EcalClusterEnergyCorrectionObjectSpecificParametersRcd>
+      paramsToken_;
+  const EcalClusterEnergyCorrectionObjectSpecificParameters *params_ = nullptr;
 };
 
-void EcalClusterEnergyCorrectionObjectSpecific::init(const edm::EventSetup &es) {
-  es.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(esParams_);
-  params_ = esParams_.product();
-}
+void EcalClusterEnergyCorrectionObjectSpecific::init(const edm::EventSetup &es) { params_ = &es.getData(paramsToken_); }
 
 void EcalClusterEnergyCorrectionObjectSpecific::checkInit() const {
   if (!params_) {

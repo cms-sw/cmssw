@@ -4,7 +4,10 @@
 
 import logging
 import os
-import cPickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -24,7 +27,7 @@ def plot(config):
 
     # retrieve the weights of the different datasets
     with open(os.path.join(config.jobDataPath, ".weights.pkl"), "rb") as f:
-        weight_conf = cPickle.load(f)
+        weight_conf = pickle.load(f)
 
     # loop over all millepedemonitor_X.root files
     for filename in os.listdir("{0}".format(config.jobDataPath)):

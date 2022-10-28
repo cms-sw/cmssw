@@ -32,6 +32,9 @@
 #include <memory>
 #include <vector>
 
+class CaloGeometryRecord;
+class HcalRecNumberingRecord;
+
 class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<> {
 protected:
   //
@@ -140,6 +143,10 @@ protected:
   // to an output of CandidatePtr's.
   virtual std::vector<reco::CandidatePtr> getConstituents(const std::vector<fastjet::PseudoJet>& fjConstituents);
 
+  //These are only valid if we are dealing with CaloJets
+  CaloGeometry const& getGeometry(edm::EventSetup const&) const;
+  HcalTopology const& getTopology(edm::EventSetup const&) const;
+
   //
   // member data
   //
@@ -210,6 +217,10 @@ protected:
   edm::ValueMap<float> weights_;  // weights per particle (e.g. from PUPPI)
 
 private:
+  //These are only initialized if we are dealing with CaloJets
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topology_token_;
+
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access

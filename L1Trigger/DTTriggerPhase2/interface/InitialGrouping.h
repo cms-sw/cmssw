@@ -86,7 +86,7 @@ private:
   bool isEqualComb2Previous(DTPrimitives& ptr);
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
 
   DTPrimitives muxInChannels_[cmsdt::NUM_CELLS_PER_BLOCK];
   DTPrimitives channelIn_[cmsdt::NUM_LAYERS][cmsdt::NUM_CH_PER_LAYER];

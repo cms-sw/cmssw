@@ -85,18 +85,13 @@ protected:
   hcaldqm::ContainerProf2D _cTimingMean_depth;
   hcaldqm::ContainerProf2D _cTimingRMS_depth;
 
-  hcaldqm::ContainerProf2D _cSignalMean_FEDVME;
   hcaldqm::ContainerProf2D _cSignalMean_FEDuTCA;
-  hcaldqm::ContainerProf2D _cTimingMean_FEDVME;
   hcaldqm::ContainerProf2D _cTimingMean_FEDuTCA;
-  hcaldqm::ContainerProf2D _cSignalRMS_FEDVME;
   hcaldqm::ContainerProf2D _cSignalRMS_FEDuTCA;
-  hcaldqm::ContainerProf2D _cTimingRMS_FEDVME;
   hcaldqm::ContainerProf2D _cTimingRMS_FEDuTCA;
 
   //	Bad Quality and Missing Channels
   hcaldqm::Container2D _cMissing_depth;
-  hcaldqm::Container2D _cMissing_FEDVME;
   hcaldqm::Container2D _cMissing_FEDuTCA;
 
   // For hcalcalib online LED

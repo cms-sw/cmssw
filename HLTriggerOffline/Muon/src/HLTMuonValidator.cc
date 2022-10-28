@@ -55,10 +55,12 @@ private:
   // Member Variables
   std::vector<HLTMuonPlotter> analyzers_;
   HLTConfigProvider hltConfig_;
-  std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-             edm::EDGetTokenT<reco::GenParticleCollection>,
-             edm::EDGetTokenT<reco::MuonCollection>>
-      myTokens_;
+
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> const triggerEventToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> const genParticlesToken_;
+  edm::EDGetTokenT<reco::MuonCollection> const recoMuonsToken_;
+
+  HLTMuonPlotter::L1MuonMatcherAlgoForDQM const l1tMuonMatcherAlgo_;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -77,9 +79,11 @@ typedef vector<string> vstring;
 HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
     : pset_(pset),
       hltProcessName_(pset.getParameter<string>("hltProcessName")),
-      hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")) {
-  myTokens_ = HLTMuonPlotter::getTokens(pset_, consumesCollector());
-}
+      hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")),
+      triggerEventToken_(consumes(edm::InputTag("hltTriggerSummaryRAW"))),
+      genParticlesToken_(consumes(pset.getParameter<string>("genParticleLabel"))),
+      recoMuonsToken_(consumes(pset.getParameter<string>("recMuonLabel"))),
+      l1tMuonMatcherAlgo_(pset, consumesCollector()) {}
 
 vector<string> HLTMuonValidator::moduleLabels(string path) {
   vector<string> modules = hltConfig_.moduleLabels(path);
@@ -159,7 +163,8 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
     vector<string> steps = stepLabels(labels);
 
     if (!labels.empty() && !steps.empty()) {
-      HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
+      HLTMuonPlotter analyzer(
+          pset_, shortpath, labels, steps, triggerEventToken_, genParticlesToken_, recoMuonsToken_, l1tMuonMatcherAlgo_);
       analyzers_.push_back(analyzer);
     }
   }

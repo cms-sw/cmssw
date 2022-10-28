@@ -17,7 +17,6 @@ import itertools
 import pprint
 import re
 
-import six
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
     as configTemplates
 from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions \
@@ -438,7 +437,7 @@ class ValidationJobMultiIOV(ValidationBase):
 
         with open("{}/validation.dagman".format(outdir), "w") as dagman:
             parents = {}
-            for (valType, valName, iov), alignments in six.iteritems(ValidationJob.condorConf):
+            for (valType, valName, iov), alignments in ValidationJob.condorConf.items():
 
                 parents[(valType, valName, iov)] = []
                 for jobInfo in alignments:
@@ -456,7 +455,7 @@ class ValidationJobMultiIOV(ValidationBase):
                 else:
                     raise AllInOneError("Merge script '[%s]' not found!"%path)
 
-            for (valType, valName, iov), alignments in six.iteritems(ValidationJob.condorConf):
+            for (valType, valName, iov), alignments in ValidationJob.condorConf.items():
                 if len(parents[(valType, valName, iov)]) != 0:
                     dagman.write('PARENT {} '.format(" ".join([parent for parent in parents[(valType, valName, iov)]])) + 'CHILD Merge_{}_{}_{}'.format(valType, valName, iov) + "\n")
 
@@ -536,7 +535,7 @@ def createMergeScript( path, validations, options ):
     #pprint.pprint(comparisonLists)
     anythingToMerge = []
 
-    for (validationtype, validationName, referenceName), validations in six.iteritems(comparisonLists):
+    for (validationtype, validationName, referenceName), validations in comparisonLists.items():
         #pprint.pprint("validations")
         #pprint.pprint(validations)
         globalDictionaries.plottingOptions = {}
@@ -647,7 +646,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     (options, args) = optParser.parse_args(argv)
 
     if not options.dryRun:
-        schedinfo = subprocess.check_output(["myschedd","show"])
+        schedinfo = subprocess.check_output(["myschedd","show"]).decode()
         if not 'tzero' in schedinfo:
             print("\nAll-In-One Tool: you need to call `module load lxbatch/tzero` before trying to submit jobs. Please do so and try again")
             exit(1)

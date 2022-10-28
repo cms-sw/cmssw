@@ -23,11 +23,14 @@ TauValidation::TauValidation(const edm::ParameterSet &iPSet)
       zsmin(-0.5),
       zsmax(0.5) {
   genparticleCollectionToken_ = consumes<reco::GenParticleCollection>(genparticleCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 TauValidation::~TauValidation() {}
 
-void TauValidation::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) { c.getData(fPDGTable); }
+void TauValidation::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) {
+  fPDGTable = c.getHandle(fPDGTableToken);
+}
 
 void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) {
   ///Setting the DQM top directories

@@ -22,9 +22,24 @@ namespace PFJetMETcorrInputProducer_namespace {
     RawJetExtractorT() {}
     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const {
       if (jet.jecSetsAvailable())
-        return jet.correctedP4("Uncorrected");
+        return jet.correctedP4(0);
       else
         return jet.p4();
+    }
+  };
+
+  // template specialization for pat::Jets
+  // retrieve combined factor of additional scales applied to the jets
+  // otherwise just return 1
+  template <>
+  class AdditionalScalesT<pat::Jet> {
+  public:
+    AdditionalScalesT() {}
+    float operator()(const pat::Jet& jet) const {
+      if (jet.jecSetsAvailable()) {
+        return jet.jecFactor("Uncorrected") / jet.jecFactor(0);
+      } else
+        return 1.0;
     }
   };
 }  // namespace PFJetMETcorrInputProducer_namespace

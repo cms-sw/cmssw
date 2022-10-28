@@ -69,7 +69,8 @@ namespace edm {
     void fillEventPrincipal(EventAuxiliary const& aux,
                             ProcessHistory const* processHistory,
                             EventSelectionIDVector eventSelectionIDs,
-                            BranchListIndexes branchListIndexes);
+                            BranchListIndexes branchListIndexes,
+                            DelayedReader* reader = nullptr);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
                             ProcessHistory const* processHistory,

@@ -2,7 +2,7 @@
 #include "DQM/HcalCommon/interface/DQModule.h"
 
 namespace hcaldqm {
-  DQModule::DQModule(edm::ParameterSet const &ps) : _evsTotal(0), _evsPerLS(0) {
+  DQModule::DQModule(edm::ParameterSet const& ps) : _evsTotal(0), _evsPerLS(0) {
     _name = ps.getUntrackedParameter<std::string>("name", "Unknown_Module");
     _debug = ps.getUntrackedParameter<int>("debug", 0);
     _logger.set(_name, _debug);
@@ -25,5 +25,12 @@ namespace hcaldqm {
       _ptype = fLocal;
 
     _logger.debug("Calling Constructor");
+  }
+
+  void DQModule::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.addUntracked<std::string>("subsystem", "Hcal");
+    desc.addUntracked("mtype", true);
+    desc.addUntracked<int>("ptype", 0);
+    desc.addUntracked<int>("maxLS", 4000);
   }
 }  // namespace hcaldqm

@@ -3,13 +3,14 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "RecoTracker/TkTrackingRegions/plugins/PointSeededTrackingRegionsProducer.h"
 #include "RecoTracker/TkTrackingRegions/plugins/CandidateSeededTrackingRegionsProducer.h"
 #include "RecoTracker/TkTrackingRegions/plugins/CandidatePointSeededTrackingRegionsProducer.h"
+#include "RecoTracker/TkTrackingRegions/plugins/L1MuonSeededTrackingRegionsProducer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "GlobalTrackingRegionWithVerticesProducer.h"
 #include "GlobalTrackingRegionProducer.h"
-#include "GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "AreaSeededTrackingRegionsProducer.h"
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, GlobalTrackingRegionProducer, "GlobalRegionProducer");
@@ -28,6 +29,9 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory,
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory,
                   CandidatePointSeededTrackingRegionsProducer,
                   "CandidatePointSeededTrackingRegionsProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory,
+                  L1MuonSeededTrackingRegionsProducer,
+                  "L1MuonSeededTrackingRegionsProducer");
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
 using GlobalTrackingRegionEDProducer = TrackingRegionEDProducerT<GlobalTrackingRegionProducer>;
@@ -48,6 +52,9 @@ DEFINE_FWK_MODULE(CandidateSeededTrackingRegionsEDProducer);
 using CandidatePointSeededTrackingRegionsEDProducer =
     TrackingRegionEDProducerT<CandidatePointSeededTrackingRegionsProducer>;
 DEFINE_FWK_MODULE(CandidatePointSeededTrackingRegionsEDProducer);
+
+using L1MuonSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<L1MuonSeededTrackingRegionsProducer>;
+DEFINE_FWK_MODULE(L1MuonSeededTrackingRegionsEDProducer);
 
 using AreaSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<AreaSeededTrackingRegionsProducer>;
 DEFINE_FWK_MODULE(AreaSeededTrackingRegionsEDProducer);

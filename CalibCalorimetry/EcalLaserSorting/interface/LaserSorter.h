@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -41,7 +41,7 @@
  * the each output file.Once a file is completed (see above), it is renamed
  * without the enclosing .part suffix.
  */
-class LaserSorter : public edm::EDAnalyzer {
+class LaserSorter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   //inner classes
 private:
   struct IndexRecord {
@@ -124,6 +124,7 @@ public:
   void endJob() override;
   void beginJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   int dcc2Lme(int dccNum, int dccSide);
@@ -161,7 +162,7 @@ private:
    * @param lumiBlock luminositu block of the event
    * @return pointer of the output stream record or null if not found.
    */
-  std::unique_ptr<OutStreamRecord>& getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
+  const std::unique_ptr<OutStreamRecord>& getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
 
   /** Writes a monitoring events to an output stream.
    * @param out stream to write the event out

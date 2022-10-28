@@ -13,7 +13,7 @@
 #include <atomic>
 #include <thread>
 #include <iostream>
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
 
 class SerialTaskQueueChain_test : public CppUnit::TestFixture {
@@ -40,7 +40,7 @@ void SerialTaskQueueChain_test::testPush() {
                                                                std::make_shared<edm::SerialTaskQueue>()};
   edm::SerialTaskQueueChain chain(queues);
   {
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     std::atomic<int> waiting{3};
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 0);
@@ -75,7 +75,7 @@ void SerialTaskQueueChain_test::testPushOne() {
   std::vector<std::shared_ptr<edm::SerialTaskQueue>> queues = {std::make_shared<edm::SerialTaskQueue>()};
   edm::SerialTaskQueueChain chain(queues);
   {
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     std::atomic<int> waiting{3};
 
     chain.push(group, [&count, &waiting] {
@@ -122,7 +122,7 @@ void SerialTaskQueueChain_test::stressTest() {
   unsigned int index = 100;
   const unsigned int nTasks = 1000;
   while (0 != --index) {
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     std::atomic<int> waiting{2};
     std::atomic<unsigned int> count{0};
 

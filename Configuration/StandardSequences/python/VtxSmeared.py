@@ -37,6 +37,7 @@ VtxSmeared = {
     'RealisticPbPBoost5TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP5TeVBoost_cff',
     'RealisticPPbBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPPb8TeVBoost_cff',
     'RealisticPbPBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP8TeVBoost_cff',
+    'HGCALCloseBy'  :                'IOMC.EventVertexGenerators.VtxSmearedHGCALCloseBy_cfi',
     'HLLHC'  :                       'IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi',
     'HLLHC14TeV'  :                  'IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi',
     'HLLHC_CK'  :                    'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing_cfi',
@@ -64,6 +65,9 @@ VtxSmeared = {
     'Run3RoundOptics25ns13TeVHighSigmaZ' : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVHighSigmaZ_cfi',
     'Run3FlatOpticsGaussSigmaZ4p2cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ4p2cm_cfi',
     'Run3FlatOpticsGaussSigmaZ5p3cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ5p3cm_cfi',
+    'Realistic25ns900GeV2021Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns900GeV2021Collision_cfi',
+    'Realistic25ns13p6TeVEarly2022Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEarly2022Collision_cfi',
+    'Nominal2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedNominal2022PbPbCollision_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
 VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'

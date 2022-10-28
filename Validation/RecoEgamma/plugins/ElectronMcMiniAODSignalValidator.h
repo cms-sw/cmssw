@@ -3,9 +3,6 @@
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 
-// system include files
-//#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 
@@ -33,7 +30,7 @@ private:
 
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumChargedHadronPtTmp_;
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumNeutralHadronEtTmp_;
-  edm::EDGetTokenT<edm::ValueMap<float> > pfSumPhotonEtTmp_; /**/
+  edm::EDGetTokenT<edm::ValueMap<float> > pfSumPhotonEtTmp_;
   float pt_;
 
   double maxPt_;
@@ -85,6 +82,9 @@ private:
   double poptrue_max;
   bool set_EfficiencyFlag;
   bool set_StatOverflowFlag;
+  int ele_nbin;
+  double ele_min;
+  double ele_max;
 
   // histos
 

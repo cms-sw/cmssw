@@ -20,6 +20,9 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
+#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
+
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -53,6 +56,7 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
   const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrToken_;
 

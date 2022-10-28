@@ -1,8 +1,7 @@
 #ifndef CSCFileReader_h
 #define CSCFileReader_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "IORawData/DTCommissioning/plugins/RawFile.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -16,7 +15,7 @@
 #include "FileReaderDDU.h"
 #include "FileReaderDCC.h"
 
-class CSCFileReader : public edm::EDProducer {
+class CSCFileReader : public edm::stream::EDProducer<> {
 private:
   std::vector<std::string> fileNames[40];
   std::vector<std::string>::const_iterator currentFile[40];

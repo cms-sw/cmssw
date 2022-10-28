@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,7 +12,7 @@
 #include "TError.h"
 #include "TSystem.h"
 
-class DumpFWTGeoRecoGeometry : public edm::EDAnalyzer {
+class DumpFWTGeoRecoGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit DumpFWTGeoRecoGeometry(const edm::ParameterSet& config);
   ~DumpFWTGeoRecoGeometry(void) override {}
@@ -24,19 +24,18 @@ private:
 
   std::string m_tag;
   std::string m_outputFileName;
+  const edm::ESGetToken<FWTGeoRecoGeometry, FWTGeoRecoGeometryRecord> m_geomToken;
 };
 
 DumpFWTGeoRecoGeometry::DumpFWTGeoRecoGeometry(const edm::ParameterSet& config)
     : m_tag(config.getUntrackedParameter<std::string>("tagInfo", "unknown")),
-      m_outputFileName(config.getUntrackedParameter<std::string>("outputFileName", "cmsTGeoReco.root"))
-
-{}
+      m_outputFileName(config.getUntrackedParameter<std::string>("outputFileName", "cmsTGeoReco.root")),
+      m_geomToken(esConsumes()) {}
 
 void DumpFWTGeoRecoGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   using namespace edm;
 
-  ESTransientHandle<FWTGeoRecoGeometry> geoh;
-  eventSetup.get<FWTGeoRecoGeometryRecord>().get(geoh);
+  ESTransientHandle<FWTGeoRecoGeometry> geoh = eventSetup.getTransientHandle(m_geomToken);
   TGeoManager* geom = geoh.product()->manager();  //const_cast<TGeoManager*>( geoh.product()->manager());
 
   TFile file(m_outputFileName.c_str(), "RECREATE");

@@ -40,7 +40,6 @@ public:
 
   // ---------- member functions ---------------------------
 
-private:
   FWModelExpressionSelector(const FWModelExpressionSelector&) = delete;  // stop default
 
   const FWModelExpressionSelector& operator=(const FWModelExpressionSelector&) = delete;  // stop default

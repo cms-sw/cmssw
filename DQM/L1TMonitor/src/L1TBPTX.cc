@@ -415,44 +415,29 @@ void L1TBPTX::analyze(const Event& iEvent, const EventSetup& eventSetup) {
           triggerName = "tech_" + std::to_string(bit);
         }
 
-        int evBxStart = -2;
-        int evBxEnd = 2;
-
-        if (offset < 0) {
-          evBxStart += -1 * offset;
-        }
-        if (offset > 0) {
-          evBxEnd += -1 * offset;
-        }
-
         for (unsigned a = 0; a < gtFdlVectorData.size(); a++) {
           int testBx = gtFdlVectorData[a].localBxNr() - offset;
           bool lhcBxFilled = m_beamConfig.beam1[testBx] && m_beamConfig.beam2[testBx];
           bool algoFired = false;
 
           if (isAlgo) {
-            if (gtFdlVectorData[a].gtDecisionWord()[bit]) {
+            if (gtFdlVectorData[a].gtDecisionWord()[bit])
               algoFired = true;
-            }
 
           } else {
-            if (gtFdlVectorData[a].gtTechnicalTriggerWord()[bit]) {
+            if (gtFdlVectorData[a].gtTechnicalTriggerWord()[bit])
               algoFired = true;
-            }
           }
 
           if (lhcBxFilled) {
             m_effDenominator[triggerName]++;
+            if (algoFired)
+              m_effNumerator[triggerName]++;
           }
-          if (lhcBxFilled && algoFired) {
-            m_effNumerator[triggerName]++;
-          }
-
           if (algoFired) {
-            m_missFireNumerator[triggerName]++;
-          }
-          if (algoFired && !lhcBxFilled) {
-            m_missFireNumerator[triggerName]++;
+            m_missFireDenominator[triggerName]++;
+            if (!lhcBxFilled)
+              m_missFireNumerator[triggerName]++;
           }
         }
       }

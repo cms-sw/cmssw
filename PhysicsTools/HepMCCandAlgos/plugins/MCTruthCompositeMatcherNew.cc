@@ -4,12 +4,14 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/CandUtils/interface/CandMatcherNew.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
@@ -18,30 +20,38 @@
 namespace reco {
   namespace modulesNew {
 
-    class MCTruthCompositeMatcher : public edm::EDProducer {
+    class MCTruthCompositeMatcher : public edm::global::EDProducer<> {
     public:
       explicit MCTruthCompositeMatcher(const edm::ParameterSet &);
-      ~MCTruthCompositeMatcher() override;
+
+      static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     private:
       edm::EDGetTokenT<CandidateView> srcToken_;
-      std::vector<edm::EDGetTokenT<reco::GenParticleMatch> > matchMapTokens_;
+      std::vector<edm::EDGetTokenT<reco::GenParticleMatch>> matchMapTokens_;
       std::vector<int> pdgId_;
-      void produce(edm::Event &, const edm::EventSetup &) override;
+      void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
     };
 
     MCTruthCompositeMatcher::MCTruthCompositeMatcher(const edm::ParameterSet &cfg)
         : srcToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("src"))),
           matchMapTokens_(edm::vector_transform(
-              cfg.template getParameter<std::vector<edm::InputTag> >("matchMaps"),
+              cfg.template getParameter<std::vector<edm::InputTag>>("matchMaps"),
               [this](edm::InputTag const &tag) { return consumes<reco::GenParticleMatch>(tag); })),
-          pdgId_(cfg.getParameter<std::vector<int> >("matchPDGId")) {
+          pdgId_(cfg.getParameter<std::vector<int>>("matchPDGId")) {
       produces<reco::GenParticleMatch>();
     }
 
-    MCTruthCompositeMatcher::~MCTruthCompositeMatcher() {}
+    void MCTruthCompositeMatcher::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<edm::InputTag>("src");
+      desc.add<std::vector<edm::InputTag>>("matchMaps");
+      desc.add<std::vector<int>>("matchPDGId");
 
-    void MCTruthCompositeMatcher::produce(edm::Event &evt, const edm::EventSetup &) {
+      descriptions.addDefault(desc);
+    }
+
+    void MCTruthCompositeMatcher::produce(edm::StreamID, edm::Event &evt, const edm::EventSetup &) const {
       using namespace edm;
       using namespace std;
       Handle<CandidateView> cands;

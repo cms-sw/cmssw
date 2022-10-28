@@ -7,7 +7,7 @@
 //
 /**\class FunctorTask FunctorTask.h FWCore/Concurrency/interface/FunctorTask.h
 
- Description: Builds a tbb::task from a lambda.
+ Description: Builds a oneapi::tbb::task from a lambda.
 
  Usage:
  

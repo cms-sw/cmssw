@@ -1,30 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-from RecoPPS.ProtonReconstruction.ppsFilteredProtonProducer_cfi import *
+from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 singleRPProtons = True
 
-filteredProtons = ppsFilteredProtonProducer.clone(
-    protons_single_rp = cms.PSet(
-        include = cms.bool(singleRPProtons)
-    )
-)
-
 protonTable = cms.EDProducer("ProtonProducer",
-                             tagRecoProtonsMulti  = cms.InputTag("filteredProtons", "multiRP"),
+                             tagRecoProtonsSingle = cms.InputTag("ctppsProtons", "singleRP"),
+                             tagRecoProtonsMulti  = cms.InputTag("ctppsProtons", "multiRP"),
                              tagTrackLite         = cms.InputTag("ctppsLocalTrackLiteProducer"),
                              storeSingleRPProtons = cms.bool(singleRPProtons)
 )
-protonTable.tagRecoProtonsSingle = cms.InputTag("filteredProtons" if singleRPProtons else "ctppsProtons","singleRP")
-
 
 multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
-    src = cms.InputTag("filteredProtons","multiRP"),
+    src = cms.InputTag("ctppsProtons","multiRP"),
     cut = cms.string(""),
     name = cms.string("Proton_multiRP"),
     doc  = cms.string("bon"),
@@ -45,7 +34,7 @@ multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
 )
 
 singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
-    src = cms.InputTag("filteredProtons","singleRP"),
+    src = cms.InputTag("ctppsProtons","singleRP"),
     cut = cms.string(""),
     name = cms.string("Proton_singleRP"),
     doc  = cms.string("bon"),
@@ -57,17 +46,21 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
         thetaY = Var("thetaY",float,doc="th y",precision=10),
     ),
     externalVariables = cms.PSet(
-        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8), 
+        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8),
     ),
 )
 
-protonTables = cms.Sequence(    
-    filteredProtons
-    +protonTable
-    +multiRPTable
+protonTablesTask = cms.Task(protonTable,multiRPTable)
+if singleRPProtons: protonTablesTask.add(singleRPTable)
+
+# GEN-level signal/PU protons collection
+genProtonTable = _genproton.clone(
+    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)') # xi in [0.015, 0.2]
 )
 
-if singleRPProtons: protonTables.insert(protonTables.index(multiRPTable),singleRPTable)
+genProtonTablesTask = cms.Task(genProtonTable)
 
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1:
-    modifier.toReplaceWith(protonTables, cms.Sequence())
+    modifier.toReplaceWith(protonTablesTask, cms.Task())
+    # input GEN-level PU protons collection only introduced for UL and 12_X_Y
+    modifier.toReplaceWith(genProtonTablesTask, cms.Task())

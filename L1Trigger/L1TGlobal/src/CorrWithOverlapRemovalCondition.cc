@@ -793,362 +793,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
     LogDebug("L1TGlobal") << "lutObj0 = " << lutObj0 << std::endl;
 
-    unsigned int overlapRemovalMatchLeg1 = 0x0;
-
-    // ///////////////////////////////////////////////////////////////////////////////////////////
-    // loop over overlap-removal leg combination which produced individually "true" as Type1s
-    // ///////////////////////////////////////////////////////////////////////////////////////////
-    for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin();
-         it2Comb != cond2Comb.end() && overlapRemovalMatchLeg1 != 0x1;
-         it2Comb++) {
-      // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
-      // ... but add protection to not crash
-      int obj2Index = -1;
-
-      if (!(*it2Comb).empty()) {
-        obj2Index = (*it2Comb)[0];
-      } else {
-        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it2Comb).size() " << ((*it2Comb).size()) << std::endl;
-        return false;
-      }
-
-      // Collect the information on the overlap-removal leg
-      switch (cond2Categ) {
-        case CondMuon: {
-          lutObj2 = "MU";
-          candMuVec = m_uGtB->getCandL1Mu();
-          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhi();  //(*candMuVec)[obj2Index]->phiIndex();
-          etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEta();
-          int etaBin2 = etaIndex2;
-          if (etaBin2 < 0)
-            etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2;  //twos complement
-          //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
-
-          // Determine Floating Pt numbers for floating point caluclation
-          std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex2);
-          phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-          binEdges = m_gtScales->getMUScales().etaBins.at(etaBin2);
-          eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-
-          LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;
-        } break;
-
-        // Calorimeter Objects (EG, Jet, Tau)
-        case CondCalo: {
-          switch (cndObjTypeVec[2]) {
-            case gtEG: {
-              lutObj2 = "EG";
-              candCaloVec = m_uGtB->getCandL1EG();
-              phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-              etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-              if (etaBin2 < 0)
-                etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
-              //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
-
-              // Determine Floating Pt numbers for floating point caluclation
-              std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex2);
-              phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-              binEdges = m_gtScales->getEGScales().etaBins.at(etaBin2);
-              eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-
-            } break;
-            case gtJet: {
-              lutObj2 = "JET";
-              candCaloVec = m_uGtB->getCandL1Jet();
-              phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-              etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-              etaBin2 = etaIndex2;
-              if (etaBin2 < 0)
-                etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
-
-              // Determine Floating Pt numbers for floating point caluclation
-              std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex2);
-              phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-              binEdges = m_gtScales->getJETScales().etaBins.at(etaBin2);
-              eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-
-            } break;
-            case gtTau: {
-              candCaloVec = m_uGtB->getCandL1Tau();
-              phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-              etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-              if (etaBin2 < 0)
-                etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
-
-              // Determine Floating Pt numbers for floating point caluclation
-              std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex2);
-              phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-              binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin2);
-              eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-              lutObj2 = "TAU";
-            } break;
-            default: {
-            } break;
-          }  //end switch on calo type.
-
-          //If needed convert calo scales to muon scales for comparison
-          if (convertCaloScales) {
-            std::string lutName = lutObj2;
-            lutName += "-MU";
-            long long tst = m_gtScales->getLUT_CalMuEta(lutName, etaBin2);
-            LogDebug("L1TGlobal") << lutName << "  EtaCal = " << etaIndex2 << " etaBin2 = " << etaBin2
-                                  << " EtaMu = " << tst << std::endl;
-            etaIndex2 = tst;
-
-            tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
-            LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
-            phiIndex2 = tst;
-          }
-
-        }  // end case CondCalo
-        break;
-
-        // Energy Sums
-        case CondEnergySum: {
-          etSumCond = true;
-          //Stupid mapping between enum types for energy sums.
-          l1t::EtSum::EtSumType type;
-          switch (cndObjTypeVec[2]) {
-            case gtETM:
-              type = l1t::EtSum::EtSumType::kMissingEt;
-              lutObj2 = "ETM";
-              break;
-            case gtETT:
-              type = l1t::EtSum::EtSumType::kTotalEt;
-              lutObj2 = "ETT";
-              break;
-            case gtETTem:
-              type = l1t::EtSum::EtSumType::kTotalEtEm;
-              lutObj2 =
-                  "ETTem";  //should this be just ETT (share LUTs?) Can't be used for CorrCond anyway since now directional information
-              break;
-            case gtHTM:
-              type = l1t::EtSum::EtSumType::kMissingHt;
-              lutObj2 = "HTM";
-              break;
-            case gtHTT:
-              type = l1t::EtSum::EtSumType::kTotalHt;
-              lutObj2 = "HTT";
-              break;
-            case gtETMHF:
-              type = l1t::EtSum::EtSumType::kMissingEtHF;
-              lutObj2 = "ETMHF";
-              break;
-            case gtMinBiasHFP0:
-            case gtMinBiasHFM0:
-            case gtMinBiasHFP1:
-            case gtMinBiasHFM1:
-              type = l1t::EtSum::EtSumType::kMinBiasHFP0;
-              lutObj2 =
-                  "MinBias";  //??Fix?? Not a valid LUT type Can't be used for CorrCond anyway since now directional information
-              break;
-            default:
-              edm::LogError("L1TGlobal") << "\n  Error: "
-                                         << "Unmatched object type from template to EtSumType, cndObjTypeVec[2] = "
-                                         << cndObjTypeVec[2] << std::endl;
-              type = l1t::EtSum::EtSumType::kTotalEt;
-              break;
-          }
-
-          candEtSumVec = m_uGtB->getCandL1EtSum();
-
-          for (int iEtSum = 0; iEtSum < (int)candEtSumVec->size(cond2bx); iEtSum++) {
-            if ((candEtSumVec->at(cond2bx, iEtSum))->getType() == type) {
-              phiIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwPhi();
-              etaIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwEta();
-
-              //  Get the floating point numbers
-              if (cndObjTypeVec[2] == gtETM) {
-                std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                eta2Phy = 0.;  //No Eta for Energy Sums
-
-              } else if (cndObjTypeVec[2] == gtHTM) {
-                std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                eta2Phy = 0.;  //No Eta for Energy Sums
-
-              } else if (cndObjTypeVec[2] == gtETMHF) {
-                std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                eta2Phy = 0.;  //No Eta for Energy Sums
-              }
-
-              //If needed convert calo scales to muon scales for comparison (only phi for energy sums)
-              if (convertCaloScales) {
-                std::string lutName = lutObj2;
-                lutName += "-MU";
-                long long tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
-                LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
-                phiIndex2 = tst;
-              }
-
-            }  //check it is the EtSum we want
-          }    // loop over Etsums
-
-        } break;
-
-        default: {
-          // should not arrive here, there are no correlation conditions defined for this object
-          LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 3" << std::endl;
-          return false;
-        } break;
-      }  //end switch on overlap-removal leg type
-
-      LogDebug("L1TGlobal") << "lutObj2 = " << lutObj2 << std::endl;
-
-      // /////////////////////////////////////////////////////////////////////////////////////////
-      //
-      // here check if there is a match of 1st leg with overlap removal object, and store result
-      //
-      // /////////////////////////////////////////////////////////////////////////////////////////
-      // These all require some delta eta and phi calculations.  Do them first...for now real calculation but need to
-      // revise this to line up with firmware calculations.
-      double deltaPhiPhy = fabs(phi2Phy - phi0Phy);
-      if (deltaPhiPhy > M_PI)
-        deltaPhiPhy = 2. * M_PI - deltaPhiPhy;
-      double deltaEtaPhy = fabs(eta2Phy - eta0Phy);
-
-      // Deter the integer based delta eta and delta phi
-      int deltaPhiFW = abs(phiORIndex0 - phiIndex2);
-      if (deltaPhiFW >= phiBound)
-        deltaPhiFW = 2 * phiBound - deltaPhiFW;
-      std::string lutName = lutObj0;
-      lutName += "-";
-      lutName += lutObj2;
-      long long deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName, deltaPhiFW);
-      unsigned int precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);
-
-      int deltaEtaFW = abs(etaORIndex0 - etaIndex2);
-      long long deltaEtaLUT = 0;
-      unsigned int precDeltaEtaLUT = 0;
-      if (!etSumCond) {
-        deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName, deltaEtaFW);
-        precDeltaEtaLUT = m_gtScales->getPrec_DeltaEta(lutName);
-      }
-
-      LogDebug("L1TGlobal") << "Obj0 phiFW = " << phiORIndex0 << " Obj2 phiFW = " << phiIndex2 << "\n"
-                            << "    DeltaPhiFW = " << deltaPhiFW << "\n"
-                            << "    LUT Name = " << lutName << " Prec = " << precDeltaPhiLUT
-                            << "  DeltaPhiLUT = " << deltaPhiLUT << "\n"
-                            << "Obj0 etaFW = " << etaIndex0 << " Obj2 etaFW = " << etaIndex2 << "\n"
-                            << "    DeltaEtaFW = " << deltaEtaFW << "\n"
-                            << "    LUT Name = " << lutName << " Prec = " << precDeltaEtaLUT
-                            << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
-
-      // If there is a OverlapRemovalDeltaEta cut, check it.
-      if (corrPar.corrCutType & 0x10) {
-        unsigned int preShift = precDeltaEtaLUT - corrPar.precOverlapRemovalEtaCut;
-        LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta Eta Cut (" << lutObj0 << "," << lutObj2
-                              << ") [" << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                              << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))
-                              << "] with precision = " << corrPar.precOverlapRemovalEtaCut << "\n"
-                              << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
-                              << "    Precision Shift = " << preShift << "\n"
-                              << "    deltaEta (shift)= "
-                              << (deltaEtaLUT / pow(10, preShift + corrPar.precOverlapRemovalEtaCut)) << "\n"
-                              << "    deltaEtaPhy = " << deltaEtaPhy << std::endl;
-
-        //if(preShift>0) deltaEtaLUT /= pow(10,preShift);
-        if (deltaEtaLUT >= (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) &&
-            deltaEtaLUT <= (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))) {
-          overlapRemovalMatchLeg1 |= 0x1;
-          LogDebug("L1TGlobal") << "    Satified Leg1 Overlap Removal Delta Eta Cut ["
-                                << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-          // next leg3 object
-          continue;
-
-        } else {
-          LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta Eta Cut ["
-                                << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-        }
-      }
-
-      //if there is a OverlapRemovalDeltaPhi cut, check it.
-      if (corrPar.corrCutType & 0x20) {
-        unsigned int preShift = precDeltaPhiLUT - corrPar.precOverlapRemovalPhiCut;
-        LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta Phi Cut (" << lutObj0 << "," << lutObj2
-                              << ") [" << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                              << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))
-                              << "] with precision = " << corrPar.precOverlapRemovalPhiCut << "\n"
-                              << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
-                              << "    Precision Shift = " << preShift << "\n"
-                              << "    deltaPhi (shift)= "
-                              << (deltaPhiLUT / pow(10, preShift + corrPar.precOverlapRemovalPhiCut)) << "\n"
-                              << "    deltaPhiPhy = " << deltaPhiPhy << std::endl;
-
-        //if(preShift>0) deltaPhiLUT /= pow(10,preShift);
-        if (deltaPhiLUT >= (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) &&
-            deltaPhiLUT <= (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))) {
-          overlapRemovalMatchLeg1 |= 0x1;
-          LogDebug("L1TGlobal") << "    Satisfied Leg1 Overlap Removal Delta Phi Cut ["
-                                << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-          // next leg3 object
-          continue;
-
-        } else {
-          LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta Phi Cut ["
-                                << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-        }
-      }
-
-      //if there is a OverlapRemovalDeltaR cut, check it.
-      if (corrPar.corrCutType & 0x40) {
-        //Assumes Delta Eta and Delta Phi LUTs have the same precision
-        unsigned int preShift = 2 * precDeltaPhiLUT - corrPar.precOverlapRemovalDRCut;
-        double deltaRSqPhy = deltaPhiPhy * deltaPhiPhy + deltaEtaPhy * deltaEtaPhy;
-        long long deltaRSq = deltaEtaLUT * deltaEtaLUT + deltaPhiLUT * deltaPhiLUT;
-
-        LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta R Cut (" << lutObj0 << "," << lutObj2 << ") ["
-                              << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                              << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))
-                              << "] with precision = " << corrPar.precOverlapRemovalDRCut << "\n"
-                              << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
-                              << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
-                              << "    deltaRSqLUT = " << deltaRSq << "\n"
-                              << "    Precision Shift = " << preShift << "\n"
-                              << "    deltaRSqLUT (shift)= " << (deltaRSq / pow(10, preShift + corrPar.precDRCut))
-                              << "\n"
-                              << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;
-
-        //if(preShift>0) deltaRSq /= pow(10,preShift);
-        if (deltaRSq >= (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) &&
-            deltaRSq <= (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))) {
-          overlapRemovalMatchLeg1 |= 0x1;
-          LogDebug("L1TGlobal") << "    Satified Leg1 Overlap Removal Delta R Cut ["
-                                << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-          // next leg3 object
-          continue;
-
-        } else {
-          LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta R Cut ["
-                                << (int)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
-                                << std::endl;
-        }
-      }
-
-    }  // end loop over combinations in overlap-removal leg.
-
-    // skip object leg1 if matched with overlap removal object
-    // ///////////////////////////////////////////////////////
-    if (overlapRemovalMatchLeg1 == 0x1) {
-      LogDebug("L1TGlobal") << "   Remove Object of Leg1: Satisfied Overlap Removal Cuts " << std::endl;
-      continue;
-    } else {
-      LogDebug("L1TGlobal") << "   Keep Object of Leg1: Failed Overlap Removal Cuts " << std::endl;
-    }
-
     // ///////////////////////////////////////////////////////////////////////////////////////////
     // Now loop over the second leg to get its information
     // ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1439,364 +1083,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
         } break;
       }  //end switch on second leg
 
-      unsigned int overlapRemovalMatchLeg2 = 0x0;
-
-      // ///////////////////////////////////////////////////////////////////////////////////////////
-      // loop over overlap-removal leg combination which produced individually "true" as Type1s
-      // ///////////////////////////////////////////////////////////////////////////////////////////
-      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin();
-           it2Comb != cond2Comb.end() && overlapRemovalMatchLeg2 != 0x1;
-           it2Comb++) {
-        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
-        // ... but add protection to not crash
-        int obj2Index = -1;
-
-        if (!(*it2Comb).empty()) {
-          obj2Index = (*it2Comb)[0];
-        } else {
-          LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it2Comb).size() " << ((*it2Comb).size()) << std::endl;
-          return false;
-        }
-
-        // Collect the information on the overlap-removal leg
-        switch (cond2Categ) {
-          case CondMuon: {
-            lutObj2 = "MU";
-            candMuVec = m_uGtB->getCandL1Mu();
-            phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhi();  //(*candMuVec)[obj2Index]->phiIndex();
-            etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEta();
-            int etaBin2 = etaIndex2;
-            if (etaBin2 < 0)
-              etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2;  //twos complement
-            //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
-
-            // Determine Floating Pt numbers for floating point caluclation
-            std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex2);
-            phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-            binEdges = m_gtScales->getMUScales().etaBins.at(etaBin2);
-            eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-
-            LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;
-          } break;
-
-          // Calorimeter Objects (EG, Jet, Tau)
-          case CondCalo: {
-            switch (cndObjTypeVec[2]) {
-              case gtEG: {
-                lutObj2 = "EG";
-                candCaloVec = m_uGtB->getCandL1EG();
-                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-                if (etaBin2 < 0)
-                  etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
-                //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
-
-                // Determine Floating Pt numbers for floating point caluclation
-                std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                binEdges = m_gtScales->getEGScales().etaBins.at(etaBin2);
-                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-              } break;
-
-              case gtJet: {
-                lutObj2 = "JET";
-                candCaloVec = m_uGtB->getCandL1Jet();
-                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-                etaBin2 = etaIndex2;
-                if (etaBin2 < 0)
-                  etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
-                // Determine Floating Pt numbers for floating point caluclation
-                std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                binEdges = m_gtScales->getJETScales().etaBins.at(etaBin2);
-                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-              } break;
-              case gtTau: {
-                candCaloVec = m_uGtB->getCandL1Tau();
-                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
-                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
-                if (etaBin2 < 0)
-                  etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
-
-                // Determine Floating Pt numbers for floating point caluclation
-                std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex2);
-                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin2);
-                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
-                lutObj2 = "TAU";
-              } break;
-              default: {
-              } break;
-            }  //end switch on calo type.
-
-            //If needed convert calo scales to muon scales for comparison
-            if (convertCaloScales) {
-              std::string lutName = lutObj2;
-              lutName += "-MU";
-              long long tst = m_gtScales->getLUT_CalMuEta(lutName, etaBin2);
-              LogDebug("L1TGlobal") << lutName << "  EtaCal = " << etaIndex2 << " etaBin2 = " << etaBin2
-                                    << " EtaMu = " << tst << std::endl;
-              etaIndex2 = tst;
-
-              tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
-              LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
-              phiIndex2 = tst;
-            }
-
-          } break;
-
-          // Energy Sums
-          case CondEnergySum: {
-            etSumCond = true;
-            //Stupid mapping between enum types for energy sums.
-            l1t::EtSum::EtSumType type;
-            switch (cndObjTypeVec[2]) {
-              case gtETM:
-                type = l1t::EtSum::EtSumType::kMissingEt;
-                lutObj2 = "ETM";
-                break;
-              case gtETT:
-                type = l1t::EtSum::EtSumType::kTotalEt;
-                lutObj2 = "ETT";
-                break;
-              case gtETTem:
-                type = l1t::EtSum::EtSumType::kTotalEtEm;
-                lutObj2 =
-                    "ETTem";  //should this be just ETT (share LUTs?) Can't be used for CorrCond anyway since now directional information
-                break;
-              case gtHTM:
-                type = l1t::EtSum::EtSumType::kMissingHt;
-                lutObj2 = "HTM";
-                break;
-              case gtHTT:
-                type = l1t::EtSum::EtSumType::kTotalHt;
-                lutObj2 = "HTT";
-                break;
-              case gtETMHF:
-                type = l1t::EtSum::EtSumType::kMissingEtHF;
-                lutObj2 = "ETMHF";
-                break;
-              case gtMinBiasHFP0:
-              case gtMinBiasHFM0:
-              case gtMinBiasHFP1:
-              case gtMinBiasHFM1:
-                type = l1t::EtSum::EtSumType::kMinBiasHFP0;
-                lutObj2 =
-                    "MinBias";  //??Fix?? Not a valid LUT type Can't be used for CorrCond anyway since now directional information
-                break;
-              default:
-                edm::LogError("L1TGlobal")
-                    << "\n  Error: "
-                    << "Unmatched object type from template to EtSumType, cndObjTypeVec[2] = " << cndObjTypeVec[2]
-                    << std::endl;
-                type = l1t::EtSum::EtSumType::kTotalEt;
-                break;
-            }
-
-            candEtSumVec = m_uGtB->getCandL1EtSum();
-
-            for (int iEtSum = 0; iEtSum < (int)candEtSumVec->size(cond2bx); iEtSum++) {
-              if ((candEtSumVec->at(cond2bx, iEtSum))->getType() == type) {
-                phiIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwPhi();
-                etaIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwEta();
-
-                //  Get the floating point numbers
-                if (cndObjTypeVec[2] == gtETM) {
-                  std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex2);
-                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                  eta2Phy = 0.;  //No Eta for Energy Sums
-
-                } else if (cndObjTypeVec[2] == gtHTM) {
-                  std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex2);
-                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                  eta2Phy = 0.;  //No Eta for Energy Sums
-
-                } else if (cndObjTypeVec[2] == gtETMHF) {
-                  std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex2);
-                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
-                  eta2Phy = 0.;  //No Eta for Energy Sums
-                }
-
-                //If needed convert calo scales to muon scales for comparison (only phi for energy sums)
-                if (convertCaloScales) {
-                  std::string lutName = lutObj2;
-                  lutName += "-MU";
-                  long long tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
-                  LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
-                  phiIndex2 = tst;
-                }
-
-              }  //check it is the EtSum we want
-            }    // loop over Etsums
-
-          }  // end case CondEnerySum
-          break;
-          default: {
-            // should not arrive here, there are no correlation conditions defined for this object
-            LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 3" << std::endl;
-            return false;
-          } break;
-        }  //end switch on overlap-removal leg type
-
-        // /////////////////////////////////////////////////////////////////////////////////////////
-        //
-        // here check if there is a match of 2st leg with overlap removal object ...if yes, continue
-        //
-        // /////////////////////////////////////////////////////////////////////////////////////////
-        // These all require some delta eta and phi calculations.  Do them first...for now real calculation but need to
-        // revise this to line up with firmware calculations.
-        double deltaPhiPhy = fabs(phi2Phy - phi1Phy);
-        if (deltaPhiPhy > M_PI)
-          deltaPhiPhy = 2. * M_PI - deltaPhiPhy;
-        double deltaEtaPhy = fabs(eta2Phy - eta1Phy);
-
-        // Deter the integer based delta eta and delta phi
-        int deltaPhiFW = abs(phiORIndex1 - phiIndex2);
-        if (deltaPhiFW >= phiBound)
-          deltaPhiFW = 2 * phiBound - deltaPhiFW;
-        std::string lutName = lutObj1;
-        lutName += "-";
-        lutName += lutObj2;
-        long long deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName, deltaPhiFW);
-        unsigned int precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);
-
-        int deltaEtaFW = abs(etaORIndex1 - etaIndex2);
-        long long deltaEtaLUT = 0;
-        unsigned int precDeltaEtaLUT = 0;
-        if (!etSumCond) {
-          deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName, deltaEtaFW);
-          precDeltaEtaLUT = m_gtScales->getPrec_DeltaEta(lutName);
-        }
-
-        LogDebug("L1TGlobal") << "Obj1 phiFW = " << phiORIndex1 << " Obj2 phiFW = " << phiIndex2 << "\n"
-                              << "    DeltaPhiFW = " << deltaPhiFW << "\n"
-                              << "    LUT Name = " << lutName << " Prec = " << precDeltaPhiLUT
-                              << "  DeltaPhiLUT = " << deltaPhiLUT << "\n"
-                              << "Obj1 etaFW = " << etaIndex1 << " Obj1 etaFW = " << etaIndex1 << "\n"
-                              << "    DeltaEtaFW = " << deltaEtaFW << "\n"
-                              << "    LUT Name = " << lutName << " Prec = " << precDeltaEtaLUT
-                              << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
-
-        // If there is a OverlapRemovalDeltaEta cut, check it.
-        // /////////////////////////////////////////////////
-        if (corrPar.corrCutType & 0x10) {
-          unsigned int preShift = precDeltaEtaLUT - corrPar.precOverlapRemovalEtaCut;
-          LogDebug("L1TGlobal") << "    Testing Leg2 Overlap Removal Delta Eta Cut (" << lutObj1 << "," << lutObj2
-                                << ") [" << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))
-                                << "] with precision = " << corrPar.precOverlapRemovalEtaCut << "\n"
-                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
-                                << "    Precision Shift = " << preShift << "\n"
-                                << "    deltaEta (shift)= "
-                                << (deltaEtaLUT / pow(10, preShift + corrPar.precOverlapRemovalEtaCut)) << "\n"
-                                << "    deltaEtaPhy = " << deltaEtaPhy << std::endl;
-
-          //if(preShift>0) deltaEtaLUT /= pow(10,preShift);
-          if (deltaEtaLUT >= (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) &&
-              deltaEtaLUT <= (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))) {
-            overlapRemovalMatchLeg2 |= 0x1;
-            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta Eta Cut ["
-                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-            // next leg3 object
-            continue;
-
-          } else {
-            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta Eta Cut ["
-                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-          }
-        }
-        // If there is a OverlapRemovalDeltaPhi cut, check it.
-        // /////////////////////////////////////////////////
-        if (corrPar.corrCutType & 0x20) {
-          unsigned int preShift = precDeltaPhiLUT - corrPar.precOverlapRemovalPhiCut;
-          LogDebug("L1TGlobal") << "    Testing Delta Phi Cut (" << lutObj1 << "," << lutObj2 << ") ["
-                                << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))
-                                << "] with precision = " << corrPar.precOverlapRemovalPhiCut << "\n"
-                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
-                                << "    Precision Shift = " << preShift << "\n"
-                                << "    deltaPhi (shift)= "
-                                << (deltaPhiLUT / pow(10, preShift + corrPar.precOverlapRemovalPhiCut)) << "\n"
-                                << "    deltaPhiPhy = " << deltaPhiPhy << std::endl;
-
-          //if(preShift>0) deltaPhiLUT /= pow(10,preShift);
-          if (deltaPhiLUT >= (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) &&
-              deltaPhiLUT <= (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))) {
-            overlapRemovalMatchLeg2 |= 0x1;
-            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta Phi Cut ["
-                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-            // next leg3 object
-            continue;
-
-          } else {
-            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta Phi Cut ["
-                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-          }
-        }
-
-        //if there is a OverlapRemovalDeltaR cut, check it.
-        // /////////////////////////////////////////////////
-        if (corrPar.corrCutType & 0x40) {
-          //Assumes Delta Eta and Delta Phi LUTs have the same precision
-          unsigned int preShift = 2 * precDeltaPhiLUT - corrPar.precOverlapRemovalDRCut;
-          double deltaRSqPhy = deltaPhiPhy * deltaPhiPhy + deltaEtaPhy * deltaEtaPhy;
-          long long deltaRSq = deltaEtaLUT * deltaEtaLUT + deltaPhiLUT * deltaPhiLUT;
-
-          LogDebug("L1TGlobal") << "    Testing Leg2 Overlap Removal Delta R Cut (" << lutObj1 << "," << lutObj2
-                                << ") [" << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))
-                                << "] with precision = " << corrPar.precOverlapRemovalDRCut << "\n"
-                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
-                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
-                                << "    deltaRSqLUT = " << deltaRSq << "\n"
-                                << "    Precision Shift = " << preShift << "\n"
-                                << "    deltaRSqLUT (shift)= " << (deltaRSq / pow(10, preShift + corrPar.precDRCut))
-                                << "\n"
-                                << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;
-
-          //if(preShift>0) deltaRSq /= pow(10,preShift);
-          if (deltaRSq >= (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) &&
-              deltaRSq <= (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))) {
-            overlapRemovalMatchLeg2 |= 0x1;
-            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta R Cut ["
-                                  << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-            // next leg3 object
-            continue;
-
-          } else {
-            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta R Cut ["
-                                  << (int)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
-                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
-                                  << std::endl;
-          }
-        }
-
-      }  // end loop over combinations in overlap-removal leg.
-
-      // skip object leg2 if matched with overlap removal object
-      // ///////////////////////////////////////////////////////
-      if (overlapRemovalMatchLeg2 == 0x1) {
-        LogDebug("L1TGlobal") << "   Remove Object of Leg2: Satisfied Overlap Removal Cuts" << std::endl;
-        continue;
-      } else {
-        LogDebug("L1TGlobal") << "   Keep Object of Leg2: Failed Overlap Removal Cuts " << std::endl;
-      }
-
-      // ///////////////////////////////////////////////////////
-      // At this point, both correlation legs are cleared of overlaps
-      // ///////////////////////////////////////////////////////
-
       if (m_verbosity) {
         LogDebug("L1TGlobal") << "    Correlation pair [" << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
                               << l1TGtObjectEnumToString(cndObjTypeVec[1]) << "] with collection indices [" << obj0Index
@@ -1811,12 +1097,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
       // Now perform the desired correlation on these two objects. Assume true until we find a contradition
       bool reqResult = true;
-
-      // clear the indices in the combination
-      objectsInComb.clear();
-
-      objectsInComb.push_back(obj0Index);
-      objectsInComb.push_back(obj1Index);
 
       // if we get here all checks were successful for this combination
       // set the general result for evaluateCondition to "true"
@@ -2036,7 +1316,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             //    << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
             //    << "    deltaRSqLUT = " << deltaRSq <<  "\n"
             //    << "    Precision Shift = " << preShift << "\n"
-            //    << "    deltaRSqLUT (shift)= " << (deltaRSq/pow(10,preShift+corrPar.precDRCut))	<< "\n"
+            //    << "    deltaRSqLUT (shift)= " << (deltaRSq/pow(10,preShift+corrPar.precDRCut)) << "\n"
             //    << "    deltaRSqPhy = " << deltaRSqPhy
             << std::endl;
 
@@ -2141,10 +1421,496 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
           chrgCorrel = false;
       }
 
-      if (reqResult & chrgCorrel) {
+      if (!reqResult || !chrgCorrel)
+        continue;
+
+      // ///////////////////////////////////////////////////////////////////////////////////////////
+      // loop over overlap-removal leg combination which produced individually "true" as Type1s
+      // ///////////////////////////////////////////////////////////////////////////////////////////
+      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end();
+           it2Comb++) {
+        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
+        // ... but add protection to not crash
+        int obj2Index = -1;
+
+        if (!(*it2Comb).empty()) {
+          obj2Index = (*it2Comb)[0];
+        } else {
+          LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it2Comb).size() " << ((*it2Comb).size()) << std::endl;
+          return false;
+        }
+
+        // Collect the information on the overlap-removal leg
+        switch (cond2Categ) {
+          case CondMuon: {
+            lutObj2 = "MU";
+            candMuVec = m_uGtB->getCandL1Mu();
+            phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhi();  //(*candMuVec)[obj2Index]->phiIndex();
+            etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEta();
+            int etaBin2 = etaIndex2;
+            if (etaBin2 < 0)
+              etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2;  //twos complement
+            //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
+
+            // Determine Floating Pt numbers for floating point caluclation
+            std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex2);
+            phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+            binEdges = m_gtScales->getMUScales().etaBins.at(etaBin2);
+            eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+
+            LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;
+          } break;
+
+          // Calorimeter Objects (EG, Jet, Tau)
+          case CondCalo: {
+            switch (cndObjTypeVec[2]) {
+              case gtEG: {
+                lutObj2 = "EG";
+                candCaloVec = m_uGtB->getCandL1EG();
+                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
+                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+                if (etaBin2 < 0)
+                  etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
+                //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
+
+                // Determine Floating Pt numbers for floating point caluclation
+                std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex2);
+                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                binEdges = m_gtScales->getEGScales().etaBins.at(etaBin2);
+                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+              } break;
+
+              case gtJet: {
+                lutObj2 = "JET";
+                candCaloVec = m_uGtB->getCandL1Jet();
+                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
+                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+                etaBin2 = etaIndex2;
+                if (etaBin2 < 0)
+                  etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
+                // Determine Floating Pt numbers for floating point caluclation
+                std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex2);
+                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                binEdges = m_gtScales->getJETScales().etaBins.at(etaBin2);
+                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+              } break;
+              case gtTau: {
+                candCaloVec = m_uGtB->getCandL1Tau();
+                phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
+                etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+                if (etaBin2 < 0)
+                  etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
+
+                // Determine Floating Pt numbers for floating point caluclation
+                std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex2);
+                phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin2);
+                eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+                lutObj2 = "TAU";
+              } break;
+              default: {
+              } break;
+            }  //end switch on calo type.
+
+            //If needed convert calo scales to muon scales for comparison
+            if (convertCaloScales) {
+              std::string lutName = lutObj2;
+              lutName += "-MU";
+              long long tst = m_gtScales->getLUT_CalMuEta(lutName, etaBin2);
+              LogDebug("L1TGlobal") << lutName << "  EtaCal = " << etaIndex2 << " etaBin2 = " << etaBin2
+                                    << " EtaMu = " << tst << std::endl;
+              etaIndex2 = tst;
+
+              tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
+              LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
+              phiIndex2 = tst;
+            }
+
+          } break;
+
+          // Energy Sums
+          case CondEnergySum: {
+            etSumCond = true;
+            //Stupid mapping between enum types for energy sums.
+            l1t::EtSum::EtSumType type;
+            switch (cndObjTypeVec[2]) {
+              case gtETM:
+                type = l1t::EtSum::EtSumType::kMissingEt;
+                lutObj2 = "ETM";
+                break;
+              case gtETT:
+                type = l1t::EtSum::EtSumType::kTotalEt;
+                lutObj2 = "ETT";
+                break;
+              case gtETTem:
+                type = l1t::EtSum::EtSumType::kTotalEtEm;
+                lutObj2 =
+                    "ETTem";  //should this be just ETT (share LUTs?) Can't be used for CorrCond anyway since now directional information
+                break;
+              case gtHTM:
+                type = l1t::EtSum::EtSumType::kMissingHt;
+                lutObj2 = "HTM";
+                break;
+              case gtHTT:
+                type = l1t::EtSum::EtSumType::kTotalHt;
+                lutObj2 = "HTT";
+                break;
+              case gtETMHF:
+                type = l1t::EtSum::EtSumType::kMissingEtHF;
+                lutObj2 = "ETMHF";
+                break;
+              case gtMinBiasHFP0:
+              case gtMinBiasHFM0:
+              case gtMinBiasHFP1:
+              case gtMinBiasHFM1:
+                type = l1t::EtSum::EtSumType::kMinBiasHFP0;
+                lutObj2 =
+                    "MinBias";  //??Fix?? Not a valid LUT type Can't be used for CorrCond anyway since now directional information
+                break;
+              default:
+                edm::LogError("L1TGlobal")
+                    << "\n  Error: "
+                    << "Unmatched object type from template to EtSumType, cndObjTypeVec[2] = " << cndObjTypeVec[2]
+                    << std::endl;
+                type = l1t::EtSum::EtSumType::kTotalEt;
+                break;
+            }
+
+            candEtSumVec = m_uGtB->getCandL1EtSum();
+
+            for (int iEtSum = 0; iEtSum < (int)candEtSumVec->size(cond2bx); iEtSum++) {
+              if ((candEtSumVec->at(cond2bx, iEtSum))->getType() == type) {
+                phiIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwPhi();
+                etaIndex2 = (candEtSumVec->at(cond2bx, iEtSum))->hwEta();
+
+                //  Get the floating point numbers
+                if (cndObjTypeVec[2] == gtETM) {
+                  std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex2);
+                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                  eta2Phy = 0.;  //No Eta for Energy Sums
+
+                } else if (cndObjTypeVec[2] == gtHTM) {
+                  std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex2);
+                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                  eta2Phy = 0.;  //No Eta for Energy Sums
+
+                } else if (cndObjTypeVec[2] == gtETMHF) {
+                  std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex2);
+                  phi2Phy = 0.5 * (binEdges.second + binEdges.first);
+                  eta2Phy = 0.;  //No Eta for Energy Sums
+                }
+
+                //If needed convert calo scales to muon scales for comparison (only phi for energy sums)
+                if (convertCaloScales) {
+                  std::string lutName = lutObj2;
+                  lutName += "-MU";
+                  long long tst = m_gtScales->getLUT_CalMuPhi(lutName, phiIndex2);
+                  LogDebug("L1TGlobal") << lutName << "  PhiCal = " << phiIndex2 << " PhiMu = " << tst << std::endl;
+                  phiIndex2 = tst;
+                }
+
+              }  //check it is the EtSum we want
+            }    // loop over Etsums
+
+          }  // end case CondEnerySum
+          break;
+          default: {
+            // should not arrive here, there are no correlation conditions defined for this object
+            LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 3" << std::endl;
+            return false;
+          } break;
+        }  //end switch on overlap-removal leg type
+
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // here check if there is a match of 1st leg with overlap removal object, and store result
+        //
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        // These all require some delta eta and phi calculations.  Do them first...for now real calculation but need to
+        // revise this to line up with firmware calculations.
+        deltaPhiPhy = fabs(phi2Phy - phi0Phy);
+        if (deltaPhiPhy > M_PI)
+          deltaPhiPhy = 2. * M_PI - deltaPhiPhy;
+        deltaEtaPhy = fabs(eta2Phy - eta0Phy);
+
+        // Deter the integer based delta eta and delta phi
+        deltaPhiFW = abs(phiORIndex0 - phiIndex2);
+        if (deltaPhiFW >= phiBound)
+          deltaPhiFW = 2 * phiBound - deltaPhiFW;
+        lutName = lutObj0;
+        lutName += "-";
+        lutName += lutObj2;
+        deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName, deltaPhiFW);
+        precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);
+
+        deltaEtaFW = abs(etaORIndex0 - etaIndex2);
+        deltaEtaLUT = 0;
+        precDeltaEtaLUT = 0;
+        if (!etSumCond) {
+          deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName, deltaEtaFW);
+          precDeltaEtaLUT = m_gtScales->getPrec_DeltaEta(lutName);
+        }
+
+        LogDebug("L1TGlobal") << "Obj0 phiFW = " << phiORIndex0 << " Obj2 phiFW = " << phiIndex2 << "\n"
+                              << "    DeltaPhiFW = " << deltaPhiFW << "\n"
+                              << "    LUT Name = " << lutName << " Prec = " << precDeltaPhiLUT
+                              << "  DeltaPhiLUT = " << deltaPhiLUT << "\n"
+                              << "Obj0 etaFW = " << etaIndex0 << " Obj2 etaFW = " << etaIndex2 << "\n"
+                              << "    DeltaEtaFW = " << deltaEtaFW << "\n"
+                              << "    LUT Name = " << lutName << " Prec = " << precDeltaEtaLUT
+                              << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
+
+        // If there is a OverlapRemovalDeltaEta cut, check it.
+        if (corrPar.corrCutType & 0x10) {
+          unsigned int preShift = precDeltaEtaLUT - corrPar.precOverlapRemovalEtaCut;
+          LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta Eta Cut (" << lutObj0 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalEtaCut << "\n"
+                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaEta (shift)= "
+                                << (deltaEtaLUT / pow(10, preShift + corrPar.precOverlapRemovalEtaCut)) << "\n"
+                                << "    deltaEtaPhy = " << deltaEtaPhy << std::endl;
+
+          //if(preShift>0) deltaEtaLUT /= pow(10,preShift);
+          if (deltaEtaLUT >= (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) &&
+              deltaEtaLUT <= (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satified Leg1 Overlap Removal Delta Eta Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta Eta Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+
+        //if there is a OverlapRemovalDeltaPhi cut, check it.
+        if (corrPar.corrCutType & 0x20) {
+          unsigned int preShift = precDeltaPhiLUT - corrPar.precOverlapRemovalPhiCut;
+          LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta Phi Cut (" << lutObj0 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalPhiCut << "\n"
+                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaPhi (shift)= "
+                                << (deltaPhiLUT / pow(10, preShift + corrPar.precOverlapRemovalPhiCut)) << "\n"
+                                << "    deltaPhiPhy = " << deltaPhiPhy << std::endl;
+
+          //if(preShift>0) deltaPhiLUT /= pow(10,preShift);
+          if (deltaPhiLUT >= (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) &&
+              deltaPhiLUT <= (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satisfied Leg1 Overlap Removal Delta Phi Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta Phi Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+
+        //if there is a OverlapRemovalDeltaR cut, check it.
+        if (corrPar.corrCutType & 0x40) {
+          //Assumes Delta Eta and Delta Phi LUTs have the same precision
+          unsigned int preShift = 2 * precDeltaPhiLUT - corrPar.precOverlapRemovalDRCut;
+          double deltaRSqPhy = deltaPhiPhy * deltaPhiPhy + deltaEtaPhy * deltaEtaPhy;
+          long long deltaRSq = deltaEtaLUT * deltaEtaLUT + deltaPhiLUT * deltaPhiLUT;
+
+          LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta R Cut (" << lutObj0 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalDRCut << "\n"
+                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
+                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+                                << "    deltaRSqLUT = " << deltaRSq << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaRSqLUT (shift)= " << (deltaRSq / pow(10, preShift + corrPar.precDRCut))
+                                << "\n"
+                                << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;
+
+          //if(preShift>0) deltaRSq /= pow(10,preShift);
+          if (deltaRSq >= (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) &&
+              deltaRSq <= (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satified Leg1 Overlap Removal Delta R Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg1 Overlap Removal Delta R Cut ["
+                                  << (int)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // here check if there is a match of 2st leg with overlap removal object ...if yes, continue
+        //
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        // These all require some delta eta and phi calculations.  Do them first...for now real calculation but need to
+        // revise this to line up with firmware calculations.
+        deltaPhiPhy = fabs(phi2Phy - phi1Phy);
+        if (deltaPhiPhy > M_PI)
+          deltaPhiPhy = 2. * M_PI - deltaPhiPhy;
+        deltaEtaPhy = fabs(eta2Phy - eta1Phy);
+
+        // Deter the integer based delta eta and delta phi
+        deltaPhiFW = abs(phiORIndex1 - phiIndex2);
+        if (deltaPhiFW >= phiBound)
+          deltaPhiFW = 2 * phiBound - deltaPhiFW;
+        lutName = lutObj1;
+        lutName += "-";
+        lutName += lutObj2;
+        deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName, deltaPhiFW);
+        precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);
+
+        deltaEtaFW = abs(etaORIndex1 - etaIndex2);
+        deltaEtaLUT = 0;
+        precDeltaEtaLUT = 0;
+        if (!etSumCond) {
+          deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName, deltaEtaFW);
+          precDeltaEtaLUT = m_gtScales->getPrec_DeltaEta(lutName);
+        }
+
+        LogDebug("L1TGlobal") << "Obj1 phiFW = " << phiORIndex1 << " Obj2 phiFW = " << phiIndex2 << "\n"
+                              << "    DeltaPhiFW = " << deltaPhiFW << "\n"
+                              << "    LUT Name = " << lutName << " Prec = " << precDeltaPhiLUT
+                              << "  DeltaPhiLUT = " << deltaPhiLUT << "\n"
+                              << "Obj1 etaFW = " << etaIndex1 << " Obj1 etaFW = " << etaIndex1 << "\n"
+                              << "    DeltaEtaFW = " << deltaEtaFW << "\n"
+                              << "    LUT Name = " << lutName << " Prec = " << precDeltaEtaLUT
+                              << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
+
+        // If there is a OverlapRemovalDeltaEta cut, check it.
+        // /////////////////////////////////////////////////
+        if (corrPar.corrCutType & 0x10) {
+          unsigned int preShift = precDeltaEtaLUT - corrPar.precOverlapRemovalEtaCut;
+          LogDebug("L1TGlobal") << "    Testing Leg2 Overlap Removal Delta Eta Cut (" << lutObj1 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalEtaCut << "\n"
+                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaEta (shift)= "
+                                << (deltaEtaLUT / pow(10, preShift + corrPar.precOverlapRemovalEtaCut)) << "\n"
+                                << "    deltaEtaPhy = " << deltaEtaPhy << std::endl;
+
+          //if(preShift>0) deltaEtaLUT /= pow(10,preShift);
+          if (deltaEtaLUT >= (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) &&
+              deltaEtaLUT <= (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta Eta Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta Eta Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalEtaCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalEtaCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+        // If there is a OverlapRemovalDeltaPhi cut, check it.
+        // /////////////////////////////////////////////////
+        if (corrPar.corrCutType & 0x20) {
+          unsigned int preShift = precDeltaPhiLUT - corrPar.precOverlapRemovalPhiCut;
+          LogDebug("L1TGlobal") << "    Testing Delta Phi Cut (" << lutObj1 << "," << lutObj2 << ") ["
+                                << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalPhiCut << "\n"
+                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaPhi (shift)= "
+                                << (deltaPhiLUT / pow(10, preShift + corrPar.precOverlapRemovalPhiCut)) << "\n"
+                                << "    deltaPhiPhy = " << deltaPhiPhy << std::endl;
+
+          //if(preShift>0) deltaPhiLUT /= pow(10,preShift);
+          if (deltaPhiLUT >= (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) &&
+              deltaPhiLUT <= (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta Phi Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta Phi Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalPhiCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalPhiCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+
+        //if there is a OverlapRemovalDeltaR cut, check it.
+        // /////////////////////////////////////////////////
+        if (corrPar.corrCutType & 0x40) {
+          //Assumes Delta Eta and Delta Phi LUTs have the same precision
+          unsigned int preShift = 2 * precDeltaPhiLUT - corrPar.precOverlapRemovalDRCut;
+          double deltaRSqPhy = deltaPhiPhy * deltaPhiPhy + deltaEtaPhy * deltaEtaPhy;
+          long long deltaRSq = deltaEtaLUT * deltaEtaLUT + deltaPhiLUT * deltaPhiLUT;
+
+          LogDebug("L1TGlobal") << "    Testing Leg2 Overlap Removal Delta R Cut (" << lutObj1 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))
+                                << "] with precision = " << corrPar.precOverlapRemovalDRCut << "\n"
+                                << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
+                                << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+                                << "    deltaRSqLUT = " << deltaRSq << "\n"
+                                << "    Precision Shift = " << preShift << "\n"
+                                << "    deltaRSqLUT (shift)= " << (deltaRSq / pow(10, preShift + corrPar.precDRCut))
+                                << "\n"
+                                << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;
+
+          //if(preShift>0) deltaRSq /= pow(10,preShift);
+          if (deltaRSq >= (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) &&
+              deltaRSq <= (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Satisfied Leg2 Overlap Removal Delta R Cut ["
+                                  << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+            // next leg3 object
+            continue;
+
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Leg2 Overlap Removal Delta R Cut ["
+                                  << (int)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift)) << "]"
+                                  << std::endl;
+          }
+        }
+
         condResult = true;
+
+        // clear the indices in the combination
+        objectsInComb.clear();
+
+        objectsInComb.push_back(obj0Index);
+        objectsInComb.push_back(obj1Index);
+        objectsInComb.push_back(obj2Index);
+
         (combinationsInCond()).push_back(objectsInComb);
-      }
+
+      }  // end loop over combinations in overlap-removal leg.
 
     }  //end loop over second leg
 

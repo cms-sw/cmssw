@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
@@ -19,23 +19,21 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTHcalLaserFilter : public edm::EDFilter {
+class HLTHcalLaserFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalLaserFilter(const edm::ParameterSet&);
-  ~HLTHcalLaserFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  edm::EDGetTokenT<HcalCalibDigiCollection> m_theCalibToken;
+  const edm::EDGetTokenT<HcalCalibDigiCollection> m_theCalibToken;
   // parameters
-  edm::InputTag hcalDigiCollection_;
-  std::vector<int> timeSlices_;
-  std::vector<double> thresholdsfC_;
-  std::vector<int> CalibCountFilterValues_;
-  std::vector<double> CalibChargeFilterValues_;
-  double maxTotalCalibCharge_;
-  int maxAllowedHFcalib_;
+  const std::vector<int> timeSlices_;
+  const std::vector<double> thresholdsfC_;
+  const std::vector<int> CalibCountFilterValues_;
+  const std::vector<double> CalibChargeFilterValues_;
+  const double maxTotalCalibCharge_;
+  const int maxAllowedHFcalib_;
 };
 
 #endif  //HLTHcalLaserFilter_h

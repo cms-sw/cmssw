@@ -8,7 +8,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -45,7 +44,6 @@ protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:
-  std::string HepMCLabel;
   std::string g4InfoLabel;
   std::string EEHitsCollection;
   std::string ESHitsCollection;

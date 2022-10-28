@@ -1,8 +1,6 @@
 /****************************************************************************
  *
- *  CondFormats/PPSObjects/interface/PPSAlignmentConfig.h
- *
- *  Description : Class with alignment parameters
+ *  This class is obsolete! Use PPSAlignmentConfiguration instead.
  *
  *  Authors:
  *  - Jan Kašpar
@@ -87,6 +85,8 @@ struct Binning {
 
   unsigned int n_bins_y_;
   double y_min_, y_max_;
+
+  COND_SERIALIZABLE;
 };
 std::ostream &operator<<(std::ostream &os, Binning &b);
 

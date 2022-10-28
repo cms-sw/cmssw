@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -8,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -42,7 +43,7 @@ CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet&)
 void CaloTowerTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
-  descriptions.addDefault(desc);
+  descriptions.add("caloTowerTopologyTester", desc);
 }
 
 void CaloTowerTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
@@ -58,23 +59,27 @@ void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
         std::vector<DetId> idW = topology.west(id);
         std::vector<DetId> idN = topology.north(id);
         std::vector<DetId> idS = topology.south(id);
-        std::cout << "Neighbours for : Tower " << id << std::endl;
-        std::cout << "          " << idE.size() << " sets along East:";
+        edm::LogVerbatim("CaloTower") << "Neighbours for : Tower " << id << std::endl;
+        std::ostringstream st1;
+        st1 << "          " << idE.size() << " sets along East:";
         for (auto& i : idE)
-          std::cout << " " << static_cast<CaloTowerDetId>(i());
-        std::cout << std::endl;
-        std::cout << "          " << idW.size() << " sets along West:";
+          st1 << " " << static_cast<CaloTowerDetId>(i());
+        edm::LogVerbatim("CaloTower") << st1.str();
+        std::ostringstream st2;
+        st2 << "          " << idW.size() << " sets along West:";
         for (auto& i : idW)
-          std::cout << " " << static_cast<CaloTowerDetId>(i());
-        std::cout << std::endl;
-        std::cout << "          " << idN.size() << " sets along North:";
+          st2 << " " << static_cast<CaloTowerDetId>(i());
+        edm::LogVerbatim("CaloTower") << st2.str();
+        std::ostringstream st3;
+        st3 << "          " << idN.size() << " sets along North:";
         for (auto& i : idN)
-          std::cout << " " << static_cast<CaloTowerDetId>(i());
-        std::cout << std::endl;
-        std::cout << "          " << idS.size() << " sets along South:";
+          st3 << " " << static_cast<CaloTowerDetId>(i());
+        edm::LogVerbatim("CaloTower") << st3.str();
+        std::ostringstream st4;
+        st4 << "          " << idS.size() << " sets along South:";
         for (auto& i : idS)
-          std::cout << " " << static_cast<CaloTowerDetId>(i());
-        std::cout << std::endl;
+          st4 << " " << static_cast<CaloTowerDetId>(i());
+        edm::LogVerbatim("CaloTower") << st4.str();
       }
     }
   }

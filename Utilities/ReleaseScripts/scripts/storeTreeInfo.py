@@ -45,7 +45,7 @@ class TreeAnalyzer(object):
         try:
             import pickle
             pklFileName = self.outFileName.replace('.json','.pkl')
-            pickle.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], open(pklFileName, 'w') )
+            pickle.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], open(pklFileName, 'wb') )
             print('treeInfo info  written to ', pklFileName)
         except Exception as e:
             print("error writing pkl file:", str(e))

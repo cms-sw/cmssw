@@ -17,16 +17,14 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTDeadUpdate.h"
-#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
-#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 namespace edmtest {
 
-  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(0) {}
+  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(0), es_token(esConsumes()) {}
 
   DTDeadUpdate::DTDeadUpdate(int i) : dSum(0) {}
 
-  DTDeadUpdate::~DTDeadUpdate() {}
+  DTDeadUpdate::~DTDeadUpdate() { delete dSum; }
 
   void DTDeadUpdate::analyze(const edm::Event& e, const edm::EventSetup& context) {
     if (dSum == 0)
@@ -35,12 +33,11 @@ namespace edmtest {
     // Context is not used.
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<DTDeadFlag> dList;
-    context.get<DTDeadFlagRcd>().get(dList);
-    std::cout << dList->version() << std::endl;
-    std::cout << std::distance(dList->begin(), dList->end()) << " data in the container" << std::endl;
-    DTDeadFlag::const_iterator iter = dList->begin();
-    DTDeadFlag::const_iterator iend = dList->end();
+    const auto& dList = context.getData(es_token);
+    std::cout << dList.version() << std::endl;
+    std::cout << std::distance(dList.begin(), dList.end()) << " data in the container" << std::endl;
+    DTDeadFlag::const_iterator iter = dList.begin();
+    DTDeadFlag::const_iterator iend = dList.end();
     while (iter != iend) {
       const std::pair<DTDeadFlagId, DTDeadFlagData>& data = *iter++;
       const DTDeadFlagId& id = data.first;
@@ -72,12 +69,12 @@ namespace edmtest {
     fill_discCat("discCat_list.txt", dSum);
 
     if (dbservice->isNewTagRequest("DTDeadFlagRcd")) {
-      dbservice->createNewIOV<DTDeadFlag>(dSum, dbservice->beginOfTime(), dbservice->endOfTime(), "DTDeadFlagRcd");
+      dbservice->createOneIOV<DTDeadFlag>(*dSum, dbservice->beginOfTime(), "DTDeadFlagRcd");
     } else {
       std::cout << "already present tag" << std::endl;
       int currentRun = 10;
       //      dbservice->appendTillTime<DTDeadFlag>(
-      dbservice->appendSinceTime<DTDeadFlag>(dSum, currentRun, "DTDeadFlagRcd");
+      dbservice->appendOneIOV<DTDeadFlag>(*dSum, currentRun, "DTDeadFlagRcd");
       //      dbservice->appendSinceTime<DTDeadFlag>(
       //                 dlist,dbservice->currentTime(),"DTDeadFlagRcd");
     }

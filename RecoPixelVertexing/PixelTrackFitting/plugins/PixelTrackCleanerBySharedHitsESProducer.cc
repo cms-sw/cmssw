@@ -2,8 +2,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerBySharedHits.h"
 
 class PixelTrackCleanerBySharedHitsESProducer : public edm::ESProducer {

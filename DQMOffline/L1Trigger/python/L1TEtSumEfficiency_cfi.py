@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
-import six
 
 variables = {
     'met': L1TStep1.metEfficiencyThresholds,
@@ -32,8 +31,7 @@ l1tEtSumEfficiency = DQMEDHarvester(
 )
 
 l1tEtSumEmuEfficiency = l1tEtSumEfficiency.clone(
-    subDirs=cms.untracked.vstring(
-        'L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
+    subDirs = ['L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco']
 )
 
 # modifications for the pp reference run

@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,6 +35,14 @@ namespace cms {
     }
 
     ~CkfTrajectoryMaker() override { ; }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("Make CKF trajectories");
+      desc.add<bool>("trackCandidateAlso", false);
+      CkfTrackCandidateMakerBase::fillPSetDescription(desc);
+      descriptions.addWithDefaultLabel(desc);
+    }
 
     void beginRun(edm::Run const& run, edm::EventSetup const& es) override { beginRunBase(run, es); }
 

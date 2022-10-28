@@ -8,4 +8,5 @@
   <use name="CondFormats/GBRForest"/>
   <use name="DataFormats/EgammaCandidates"/>
   <use name="RecoEgamma/EgammaTools"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
 </library>

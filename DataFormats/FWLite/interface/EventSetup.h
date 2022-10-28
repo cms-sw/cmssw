@@ -68,6 +68,11 @@ namespace fwlite {
   class EventSetup {
   public:
     EventSetup(TFile*);
+
+    EventSetup(const EventSetup&) = delete;  // stop default
+
+    const EventSetup& operator=(const EventSetup&) = delete;  // stop default
+
     virtual ~EventSetup();
 
     // ---------- const member functions ---------------------
@@ -97,10 +102,6 @@ namespace fwlite {
     //void autoSyncTo(const edm::EventBase&);
 
   private:
-    EventSetup(const EventSetup&) = delete;  // stop default
-
-    const EventSetup& operator=(const EventSetup&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     edm::EventID m_syncedEvent;
     edm::Timestamp m_syncedTimestamp;

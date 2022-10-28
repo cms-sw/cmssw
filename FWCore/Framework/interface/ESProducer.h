@@ -76,6 +76,7 @@ Example: two algorithms each creating only one objects
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
+#include "FWCore/Framework/interface/es_impl/ReturnArgumentTypes.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -90,7 +91,6 @@ Example: two algorithms each creating only one objects
 // forward declarations
 namespace edm {
   namespace eventsetup {
-
     class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
@@ -193,16 +193,45 @@ namespace edm {
         method in order to do the registration with the EventSetup
     */
     template <typename T, typename TReturn, typename TRecord, typename TArg>
-    ESConsumesCollectorT<TRecord> setWhatProduced(T* iThis,
-                                                  TReturn (T ::*iMethod)(const TRecord&),
-                                                  const TArg& iDec,
-                                                  const es::Label& iLabel = {}) {
+    auto setWhatProduced(T* iThis,
+                         TReturn (T ::*iMethod)(const TRecord&),
+                         const TArg& iDec,
+                         const es::Label& iLabel = {}) {
+      return setWhatProduced<TReturn, TRecord>(
+          [iThis, iMethod](TRecord const& iRecord) { return (iThis->*iMethod)(iRecord); },
+          createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec),
+          iLabel);
+    }
+
+    /**
+     * This overload allows lambdas (functors) to be used as the
+     * production function. As of now it is not intended for wide use
+     * (we are thinking for a better API for users)
+     *
+     * The decorator functionality is not implemented yet. In
+     * principle the lambda provides the ability for pre(Record
+     * const&) and post(Record const&) functions (in addition to much
+     * more). The main use case of dependsOn() also in practice became
+     * unused with the concurrent IOVs, so it is not clear if the
+     * decorator functionality would really be needed. In principle it
+     * should be straightforward to add.
+     */
+    template <typename TFunc>
+    auto setWhatProduced(TFunc&& func, const es::Label& iLabel = {}) {
+      using Types = eventsetup::impl::ReturnArgumentTypes<TFunc>;
+      using TReturn = typename Types::return_type;
+      using TRecord = typename Types::argument_type;
+      using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
+      return setWhatProduced<TReturn, TRecord>(std::forward<TFunc>(func), DecoratorType(), iLabel);
+    }
+
+    template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
+    ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
       const auto id = consumesInfos_.size();
-      using DecoratorType = typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t;
-      using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
+      using DecoratorType = std::decay_t<TDecorator>;
+      using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
-      auto temp = std::make_shared<CallbackType>(
-          iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
+      auto temp = std::make_shared<CallbackType>(this, std::forward<TFunc>(func), id, std::forward<TDecorator>(iDec));
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),

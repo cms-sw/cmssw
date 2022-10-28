@@ -1,25 +1,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "Calibration/Tools/interface/CalibrationCluster.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/EcalCalibAlgos/interface/ElectronCalibrationUniv.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TF1.h"
 #include "TRandom.h"
 
@@ -28,40 +17,37 @@
 #include <stdexcept>
 #include <vector>
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-ElectronCalibrationUniv::ElectronCalibrationUniv(const edm::ParameterSet& iConfig) {
-  rootfile_ = iConfig.getParameter<std::string>("rootfile");
-  EBrecHitLabel_ = iConfig.getParameter<edm::InputTag>("ebRecHitsLabel");
-  EErecHitLabel_ = iConfig.getParameter<edm::InputTag>("eeRecHitsLabel");
-  electronLabel_ = iConfig.getParameter<edm::InputTag>("electronLabel");
-  trackLabel_ = iConfig.getParameter<edm::InputTag>("trackLabel");
-  calibAlgo_ = iConfig.getParameter<std::string>("CALIBRATION_ALGO");
-  keventweight_ = iConfig.getParameter<int>("keventweight");
-  ClusterSize_ = iConfig.getParameter<int>("Clustersize");
-  ElePt_ = iConfig.getParameter<double>("ElePt");
-  maxeta_ = iConfig.getParameter<int>("maxeta");
-  mineta_ = iConfig.getParameter<int>("mineta");
-  maxphi_ = iConfig.getParameter<int>("maxphi");
-  minphi_ = iConfig.getParameter<int>("minphi");
-  cut1_ = iConfig.getParameter<double>("cut1");
-  cut2_ = iConfig.getParameter<double>("cut2");
-  cut3_ = iConfig.getParameter<double>("cut3");
-  elecclass_ = iConfig.getParameter<int>("elecclass");
-  numevent_ = iConfig.getParameter<int>("numevent");
-  miscalibfile_ = iConfig.getParameter<std::string>("miscalibfile");
-  miscalibfileEndCap_ = iConfig.getParameter<std::string>("miscalibfileEndCap");
-
-  cutEPCalo1_ = iConfig.getParameter<double>("cutEPCaloMin");
-  cutEPCalo2_ = iConfig.getParameter<double>("cutEPCaloMax");
-  cutEPin1_ = iConfig.getParameter<double>("cutEPinMin");
-  cutEPin2_ = iConfig.getParameter<double>("cutEPinMax");
-  cutCalo1_ = iConfig.getParameter<double>("cutCaloMin");
-  cutCalo2_ = iConfig.getParameter<double>("cutCaloMax");
-
-  cutESeed_ = iConfig.getParameter<double>("cutESeed");
-}
+ElectronCalibrationUniv::ElectronCalibrationUniv(const edm::ParameterSet& iConfig)
+    : ebRecHitLabel_(iConfig.getParameter<edm::InputTag>("ebRecHitsLabel")),
+      eeRecHitLabel_(iConfig.getParameter<edm::InputTag>("eeRecHitsLabel")),
+      electronLabel_(iConfig.getParameter<edm::InputTag>("electronLabel")),
+      rootfile_(iConfig.getParameter<std::string>("rootfile")),
+      calibAlgo_(iConfig.getParameter<std::string>("CALIBRATION_ALGO")),
+      miscalibfile_(iConfig.getParameter<std::string>("miscalibfile")),
+      miscalibfileEndCap_(iConfig.getParameter<std::string>("miscalibfileEndCap")),
+      keventweight_(iConfig.getParameter<int>("keventweight")),
+      elePt_(iConfig.getParameter<double>("ElePt")),
+      maxeta_(iConfig.getParameter<int>("maxeta")),
+      mineta_(iConfig.getParameter<int>("mineta")),
+      maxphi_(iConfig.getParameter<int>("maxphi")),
+      minphi_(iConfig.getParameter<int>("minphi")),
+      cut1_(iConfig.getParameter<double>("cut1")),
+      cut2_(iConfig.getParameter<double>("cut2")),
+      cut3_(iConfig.getParameter<double>("cut3")),
+      numevent_(iConfig.getParameter<int>("numevent")),
+      cutEPCalo1_(iConfig.getParameter<double>("cutEPCaloMin")),
+      cutEPCalo2_(iConfig.getParameter<double>("cutEPCaloMax")),
+      cutEPin1_(iConfig.getParameter<double>("cutEPinMin")),
+      cutEPin2_(iConfig.getParameter<double>("cutEPinMax")),
+      cutCalo1_(iConfig.getParameter<double>("cutCaloMin")),
+      cutCalo2_(iConfig.getParameter<double>("cutCaloMax")),
+      cutESeed_(iConfig.getParameter<double>("cutESeed")),
+      clusterSize_(iConfig.getParameter<int>("Clustersize")),
+      elecclass_(iConfig.getParameter<int>("elecclass")),
+      ebRecHitToken_(consumes<EBRecHitCollection>(ebRecHitLabel_)),
+      eeRecHitToken_(consumes<EERecHitCollection>(eeRecHitLabel_)),
+      gsfElectronToken_(consumes<reco::GsfElectronCollection>(electronLabel_)),
+      topologyToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
 ElectronCalibrationUniv::~ElectronCalibrationUniv() {}
 
@@ -223,7 +209,7 @@ void ElectronCalibrationUniv::beginJob() {
   GeneralMapEndCapPlusBeforePt =
       new TH2F("GeneralMapEndCapPlusBeforePt", "Map without any cuts", 100, 0, 100, 100, 0, 100);
 
-  calibClusterSize = ClusterSize_;
+  calibClusterSize = clusterSize_;
   etaMin = int(mineta_);
   etaMax = int(maxeta_);
   phiMin = int(minphi_);
@@ -250,8 +236,12 @@ void ElectronCalibrationUniv::beginRun(edm::Run const&, edm::EventSetup const& i
   //========================================================================
 
   //To Deal with Geometry:
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  theCaloTopology_ = &iSetup.getData(topologyToken_);
 }
+
+//========================================================================
+void ElectronCalibrationUniv::endRun(edm::Run const&, edm::EventSetup const& iSetup) {}
+//========================================================================
 
 //========================================================================
 
@@ -622,7 +612,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
 
   // Get EBRecHits
   edm::Handle<EBRecHitCollection> EBphits;
-  iEvent.getByLabel(EBrecHitLabel_, EBphits);
+  iEvent.getByToken(ebRecHitToken_, EBphits);
   if (!EBphits.isValid()) {
     std::cerr << "Error! can't get the product EBRecHitCollection: " << std::endl;
   }
@@ -631,7 +621,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
   // Get EERecHits
   edm::Handle<EERecHitCollection> EEphits;
 
-  iEvent.getByLabel(EErecHitLabel_, EEphits);
+  iEvent.getByToken(eeRecHitToken_, EEphits);
   if (!EEphits.isValid()) {
     std::cerr << "Error! can't get the product EERecHitCollection: " << std::endl;
   }
@@ -639,7 +629,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
 
   // Get pixelElectrons
   edm::Handle<reco::GsfElectronCollection> pElectrons;
-  iEvent.getByLabel(electronLabel_, pElectrons);
+  iEvent.getByToken(gsfElectronToken_, pElectrons);
   if (!pElectrons.isValid()) {
     std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
   }
@@ -737,9 +727,9 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
   float energy3x3 = 0.;
   float energy5x5 = 0.;
   //Should be moved to cfg file!
-  int ClusterSize = ClusterSize_;
+  int ClusterSize = clusterSize_;
 
-  const CaloSubdetectorTopology* topology = theCaloTopology->getSubdetectorTopology(DetId::Ecal, maxHitId.subdetId());
+  const CaloSubdetectorTopology* topology = theCaloTopology_->getSubdetectorTopology(DetId::Ecal, maxHitId.subdetId());
   std::vector<DetId> NxNaroundMax = topology->getWindow(maxHitId, ClusterSize, ClusterSize);
   //ToCompute 3x3
   std::vector<DetId> S9aroundMax = topology->getWindow(maxHitId, 3, 3);
@@ -822,7 +812,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   EventsAfterCuts->Fill(11);
-  if (highestElePt < ElePt_)
+  if (highestElePt < elePt_)
     return;
 
   if (maxHitId.subdetId() == EcalBarrel) {

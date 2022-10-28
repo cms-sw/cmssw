@@ -1,6 +1,5 @@
 <use name="root"/>
 <use name="geant4core"/>
-<use name="boost"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimG4Core/Watcher"/>
 <use name="SimG4CMS/Calo"/>

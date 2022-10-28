@@ -17,12 +17,15 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -38,16 +41,17 @@ class BPHKx0ToKPiBuilder : public BPHDecayToTkpTknSymChargeBuilder {
 public:
   /** Constructor
    */
-  BPHKx0ToKPiBuilder(const edm::EventSetup& es,
+  BPHKx0ToKPiBuilder(const BPHEventSetupWrapper& es,
                      const BPHRecoBuilder::BPHGenericCollection* posCollection,
                      const BPHRecoBuilder::BPHGenericCollection* negCollection)
-      : BPHDecayToTkpTknSymChargeBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToTkpTknSymChargeBuilder(es,
                                          "Kaon",
-                                         BPHParticleMasses::pionMass,
-                                         BPHParticleMasses::pionMass,
-                                         "Pion",
                                          BPHParticleMasses::kaonMass,
                                          BPHParticleMasses::kaonMSigma,
+                                         "Pion",
+                                         BPHParticleMasses::pionMass,
+                                         BPHParticleMasses::pionMSigma,
                                          posCollection,
                                          negCollection,
                                          BPHParticleMasses::kx0Mass) {
@@ -65,7 +69,7 @@ public:
 
   /** Destructor
    */
-  ~BPHKx0ToKPiBuilder() override {}
+  ~BPHKx0ToKPiBuilder() override = default;
 
   /** Operations
    */

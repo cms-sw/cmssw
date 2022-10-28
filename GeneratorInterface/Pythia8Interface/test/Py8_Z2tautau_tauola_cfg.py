@@ -12,7 +12,6 @@ process.source = cms.Source("EmptySource",
      firstEvent = cms.untracked.uint32(1),
      firstRun = cms.untracked.uint32(1),
      numberEventsInRun = cms.untracked.uint32(100)
-
 )
 
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
@@ -22,6 +21,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
+    pythiaHepMCVerbosityParticles = cms.untracked.bool(True),
     comEnergy = cms.double(8000.),
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(
@@ -32,10 +32,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     ),								 
         
     PythiaParameters = cms.PSet(
-        py8ProcessSettings = cms.vstring( 'StringZ:usePetersonB = on', # these 2 together ==
-	                                  'StringZ:usePetersonC = on', # mstj(11)=3
-					  'WeakSingleBoson:ffbar2gmZ = on' # msel=11
-					  # what about choice of structure function ??? (mstp(51)=7)
+        py8ProcessSettings = cms.vstring( 'WeakSingleBoson:ffbar2gmZ = on'
 	),
 	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
 					  '23:onIfAny = 15'  # turn ON Z->tautau
@@ -71,6 +68,12 @@ process.maxEvents = cms.untracked.PSet(
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('Py8_Z2tautau_tauola.root')
+)
+
+process.genParticles = cms.EDProducer("GenParticleProducer",
+    saveBarCodes = cms.untracked.bool(True),
+    src = cms.InputTag("generator:unsmeared"),
+    abortOnUnknownPDGCode = cms.untracked.bool(False)
 )
 
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",

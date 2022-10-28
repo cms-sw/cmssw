@@ -48,7 +48,7 @@ using namespace edm;
 //===================
 //  CONSTRUCTOR
 //===================
-CSCSkim::CSCSkim(const edm::ParameterSet& pset) {
+CSCSkim::CSCSkim(const edm::ParameterSet& pset) : m_CSCGeomToken(esConsumes()) {
   // tokens from tags
 
   // Really should define the wire and digi tags in config, but for now, to avoid having to modify
@@ -222,8 +222,7 @@ bool CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   LogDebug("[CSCSkim] EventInfo") << "Run: " << iRun << "\tEvent: " << iEvent << "\tn Analyzed: " << nEventsAnalyzed;
 
   // Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(m_CSCGeomToken);
 
   // Get the DIGI collections
   edm::Handle<CSCWireDigiCollection> wires;

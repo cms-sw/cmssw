@@ -32,7 +32,6 @@ sort -u < function-dumper.txt.unsorted > function-calls-db.txt
 class-composition.py >classes.txt.inherits.unsorted
 sort -u classes.txt.inherits.unsorted | grep -e"^class" | grep -v \'\' >classes.txt.inherits
 sort -u classes.txt.inherits.unsorted | grep -v -e"^class" >classes.txt.inherits.extra
-sort -u getparam-dumper.txt.unsorted | awk '{print $0"\n"}' >getparam-dumper.txt
 cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
 rm *.txt.*unsorted
 classnames-extract.py

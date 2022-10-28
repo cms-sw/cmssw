@@ -9,15 +9,10 @@
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
-#include "HLTriggerOffline/Muon/interface/L1MuonMatcherAlgo.h"
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -35,6 +30,8 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <algorithm>
@@ -47,20 +44,20 @@
 
 #include "TPRegexp.h"
 
-const unsigned int kNull = (unsigned int)-1;
-
 class HLTMuonPlotter {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef L1MuonMatcherAlgoT<edm::Transition::BeginRun> L1MuonMatcherAlgoForDQM;
 
   HLTMuonPlotter(const edm::ParameterSet &,
                  std::string,
                  const std::vector<std::string> &,
                  const std::vector<std::string> &,
-                 const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                                  edm::EDGetTokenT<reco::GenParticleCollection>,
-                                  edm::EDGetTokenT<reco::MuonCollection>> &);
+                 const edm::EDGetTokenT<trigger::TriggerEventWithRefs> &,
+                 const edm::EDGetTokenT<reco::GenParticleCollection> &,
+                 const edm::EDGetTokenT<reco::MuonCollection> &,
+                 const L1MuonMatcherAlgoForDQM &);
 
   ~HLTMuonPlotter() {
     delete genMuonSelector_;
@@ -70,11 +67,6 @@ public:
   void beginJob();
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
-
-  static std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                    edm::EDGetTokenT<reco::GenParticleCollection>,
-                    edm::EDGetTokenT<reco::MuonCollection>>
-  getTokens(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
 private:
   struct MatchStruct {
@@ -130,7 +122,7 @@ private:
   StringCutObjectSelector<reco::GenParticle> *genMuonSelector_;
   StringCutObjectSelector<reco::Muon> *recMuonSelector_;
 
-  L1MuonMatcherAlgo l1Matcher_;
+  L1MuonMatcherAlgoForDQM l1Matcher_;
 
   std::map<std::string, MonitorElement *> elements_;
 };

@@ -67,14 +67,17 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
 
 process.LorentzAngleReader = cms.EDAnalyzer("SiPixelLorentzAngleReader",
-    printDebug = cms.untracked.bool(False),
-    useSimRcd = cms.bool(False)
+    printDebug = cms.untracked.uint32(10),
+    useSimRcd = cms.bool(False),
+    recoLabel = cms.string(""),
+    simLabel = cms.string("")
 )
 
 process.LorentzAngleSimReader = cms.EDAnalyzer("SiPixelLorentzAngleReader",
-    printDebug = cms.untracked.bool(False),
-    useSimRcd = cms.bool(True)
-                                             
+    printDebug = cms.untracked.uint32(10),
+    useSimRcd = cms.bool(True),
+    recoLabel = cms.string(""),
+    simLabel = cms.string("")
 )
 
 

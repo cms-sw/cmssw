@@ -12,8 +12,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
@@ -32,6 +36,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <utility>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -47,7 +52,10 @@ private:
 
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
+
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
+  edm::ESGetToken<PPSAssociationCuts, PPSAssociationCutsRcd> ppsAssociationCutsToken_;
 
   bool pixelDiscardBXShiftedTracks_;
 
@@ -89,12 +97,23 @@ private:
       std::unique_ptr<TProfile> p_eff2_vs_x_N;
       std::unique_ptr<TProfile> p_eff2_vs_xi_N;
 
+      std::unique_ptr<TProfile> p_fr_match_unique, p_fr_match_non_unique;
+      std::unique_ptr<TProfile> p_fr_signature_0, p_fr_signature_1, p_fr_signature_2, p_fr_signature_12;
+
       EffPlots()
           : p_eff1_vs_x_N(new TProfile("", ";x_{N}   (mm);efficiency", 50, 0., 25.)),
             p_eff1_vs_xi_N(new TProfile("", ";#xi_{si,N};efficiency", 50, 0., 0.25)),
 
             p_eff2_vs_x_N(new TProfile("", ";x_{N}   (mm);efficiency", 50, 0., 25.)),
-            p_eff2_vs_xi_N(new TProfile("", ";#xi_{si,N};efficiency", 50, 0., 0.25)) {}
+            p_eff2_vs_xi_N(new TProfile("", ";#xi_{si,N};efficiency", 50, 0., 0.25)),
+
+            p_fr_match_unique(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)),
+            p_fr_match_non_unique(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)),
+
+            p_fr_signature_0(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)),
+            p_fr_signature_1(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)),
+            p_fr_signature_2(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)),
+            p_fr_signature_12(new TProfile("", ";x_{N}   (mm);fraction", 50, 0., 25.)) {}
 
       void write() const {
         p_eff1_vs_x_N->Write("p_eff1_vs_x_N");
@@ -102,6 +121,14 @@ private:
 
         p_eff2_vs_x_N->Write("p_eff2_vs_x_N");
         p_eff2_vs_xi_N->Write("p_eff2_vs_xi_N");
+
+        p_fr_match_unique->Write("p_fr_match_unique");
+        p_fr_match_non_unique->Write("p_fr_match_non_unique");
+
+        p_fr_signature_0->Write("p_fr_signature_0");
+        p_fr_signature_1->Write("p_fr_signature_1");
+        p_fr_signature_2->Write("p_fr_signature_2");
+        p_fr_signature_12->Write("p_fr_signature_12");
       }
     };
 
@@ -216,7 +243,10 @@ CTPPSProtonReconstructionEfficiencyEstimatorData::CTPPSProtonReconstructionEffic
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
 
+      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
       opticsESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
+      ppsAssociationCutsToken_(
+          esConsumes(ESInputTag("", iConfig.getParameter<std::string>("ppsAssociationCutsLabel")))),
 
       pixelDiscardBXShiftedTracks_(iConfig.getParameter<bool>("pixelDiscardBXShiftedTracks")),
 
@@ -253,6 +283,10 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::fillDescriptions(edm::Con
   desc.add<edm::InputTag>("tagTracks", edm::InputTag())->setComment("input tag for local lite tracks");
   desc.add<edm::InputTag>("tagRecoProtonsMultiRP", edm::InputTag())->setComment("input tag for multi-RP reco protons");
 
+  desc.add<string>("lhcInfoLabel", "")->setComment("label of LHCInfo data");
+  desc.add<string>("opticsLabel", "")->setComment("label of optics data");
+  desc.add<string>("ppsAssociationCutsLabel", "")->setComment("label of PPSAssociationCuts data");
+
   desc.add<bool>("pixelDiscardBXShiftedTracks", false)
       ->setComment("whether to discard pixel tracks built from BX-shifted planes");
 
@@ -260,8 +294,6 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::fillDescriptions(edm::Con
   desc.add<double>("localAngleXMax", +0.03)->setComment("maximal accepted value of local horizontal angle (rad)");
   desc.add<double>("localAngleYMin", -0.04)->setComment("minimal accepted value of local vertical angle (rad)");
   desc.add<double>("localAngleYMax", +0.04)->setComment("maximal accepted value of local vertical angle (rad)");
-
-  desc.add<std::string>("opticsLabel", "")->setComment("label of the optics records");
 
   desc.add<unsigned int>("n_prep_events", 1000)
       ->setComment("number of preparatory events (to determine de x and de y window)");
@@ -289,7 +321,9 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
   std::ostringstream os;
 
   // get conditions
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
   const auto &opticalFunctions = iSetup.getData(opticsESToken_);
+  const auto &ppsAssociationCuts = iSetup.getData(ppsAssociationCutsToken_);
 
   // check optics change
   if (opticsWatcher_.check(iSetup)) {
@@ -306,6 +340,9 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
 
   // pre-selection of tracks
   std::vector<unsigned int> sel_track_idc;
+
+  std::map<unsigned int, std::vector<unsigned int>> trackingSelection;
+
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
     const auto &tr = hTracks->at(idx);
 
@@ -320,6 +357,14 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
     }
 
     sel_track_idc.push_back(idx);
+
+    const CTPPSDetId rpId(tr.rpId());
+
+    const bool trackerRP =
+        (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
+
+    if (trackerRP)
+      trackingSelection[rpId.arm()].push_back(idx);
   }
 
   // debug print
@@ -438,18 +483,38 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
     }
   }
 
+  // logic below:
+  //    1) evaluate "proton candiates" or "expected protons" = local tracks in the near RP which have a compatible
+  //       partner in the far RP; the compatibility is evaluated at multiple n_sigma choices
+  //    2) check how often each "proton candidate" can be matched to a reconstructed proton
+  //    3) re-evaluate association cuts --> check details for each "proton candidate"
+
   // data structures for efficiency analysis
+
   struct ArmEventData {
+    // n_sigma --> list of "proton candidates" (local track indices in the near RP)
     std::map<unsigned int, std::set<unsigned int>> matched_track_idc;
 
+    // list of valid reco-proton indices (in the chosen arm)
     std::set<unsigned int> reco_proton_idc;
 
+    // n_sigma --> list of "proton candicates" which have/don't have matching reco proton
     std::map<unsigned int, std::set<unsigned int>> matched_track_with_prot_idc, matched_track_without_prot_idc;
+
+    // for re-evaluation of association cuts
+    struct EvaluatedPair {
+      unsigned idx_N, idx_F;
+      bool x_cut, y_cut;
+      bool match = false;
+      bool unique = false;
+    };
+
+    vector<EvaluatedPair> evaluatedPairs;
   };
 
   std::map<unsigned int, ArmEventData> armEventData;
 
-  // determine the number of expected protons
+  // determine the number of proton candiates or expected protons
   for (const auto idx_i : sel_track_idc) {
     const auto &tr_i = hTracks->at(idx_i);
     CTPPSDetId rpId_i(tr_i.rpId());
@@ -563,6 +628,56 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
     }
   }
 
+  // redo association cuts
+  for (auto &ap : armEventData) {
+    const auto &arm = ap.first;
+
+    auto &ad = data_[arm];
+
+    auto &aed = ap.second;
+
+    auto &ass_cut = ppsAssociationCuts.getAssociationCuts(arm);
+
+    const auto &indices = trackingSelection[arm];
+
+    map<unsigned int, unsigned> matching_multiplicity;
+
+    for (const auto &i : indices) {
+      for (const auto &j : indices) {
+        const auto &tr_i = hTracks->at(i);
+        const auto &tr_j = hTracks->at(j);
+
+        const CTPPSDetId id_i(tr_i.rpId());
+        const CTPPSDetId id_j(tr_j.rpId());
+
+        const unsigned rpDecId_i = id_i.arm() * 100 + id_i.station() * 10 + id_i.rp();
+        const unsigned rpDecId_j = id_j.arm() * 100 + id_j.station() * 10 + id_j.rp();
+
+        if (rpDecId_i != ad.rpId_N || rpDecId_j != ad.rpId_F)
+          continue;
+
+        ArmEventData::EvaluatedPair evp;
+        evp.idx_N = i;
+        evp.idx_F = j;
+
+        evp.x_cut = ass_cut.isSatisfied(ass_cut.qX, tr_i.x(), tr_i.y(), lhcInfo.crossingAngle(), tr_i.x() - tr_j.x());
+        evp.y_cut = ass_cut.isSatisfied(ass_cut.qY, tr_i.x(), tr_i.y(), lhcInfo.crossingAngle(), tr_i.y() - tr_j.y());
+
+        evp.match = evp.x_cut && evp.y_cut;
+
+        aed.evaluatedPairs.push_back(evp);
+
+        if (evp.match) {
+          matching_multiplicity[i]++;
+          matching_multiplicity[j]++;
+        }
+      }
+    }
+
+    for (auto &evp : aed.evaluatedPairs)
+      evp.unique = (matching_multiplicity[evp.idx_N] == 1) && (matching_multiplicity[evp.idx_F] == 1);
+  }
+
   // debug print
   if (verbosity_ > 1) {
     for (auto &ap : armEventData) {
@@ -596,12 +711,19 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
           os << idx << ", ";
         os << std::endl;
       }
+
+      os << "    evaluated pairs: ";
+      for (const auto &p : ap.second.evaluatedPairs)
+        os << "(" << p.idx_N << "-" << p.idx_F << ",M" << p.match << ",U" << p.unique << ")"
+           << ", ";
+      os << std::endl;
     }
   }
 
   // update efficiency plots
   for (auto &ap : armEventData) {
-    auto &ad = data_[ap.first];
+    const auto &arm = ap.first;
+    auto &ad = data_[arm];
 
     // stop if sigmas not yet determined
     if (ad.de_x_sigma <= 0. && ad.de_y_sigma <= 0.)
@@ -651,6 +773,47 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
 
         ad.effPlots[n_exp_prot][nsi].p_eff2_vs_x_N->Fill(x_N, 0.);
         ad.effPlots[n_exp_prot][nsi].p_eff2_vs_xi_N->Fill(xi_N, 0.);
+      }
+
+      // update association cut plots
+      for (const auto &cand : ap.second.matched_track_idc[nsi])  // loop over candidates
+      {
+        const double x_N = hTracks->at(cand).x();
+
+        auto &plots = ad.effPlots[n_exp_prot][nsi];
+
+        bool hasMatchingAndUniquePair = false;
+        bool hasMatchingAndNonUniquePair = false;
+        for (const auto &pair : ap.second.evaluatedPairs)  // loop over pairs
+        {
+          // stop if cand not compatible with pair
+          if (cand != pair.idx_N)
+            continue;
+
+          if (pair.match && pair.unique)
+            hasMatchingAndUniquePair = true;
+
+          if (pair.match && !pair.unique)
+            hasMatchingAndNonUniquePair = true;
+
+          unsigned int signature = 999999;
+          if (!pair.x_cut && !pair.y_cut)
+            signature = 0;
+          if (pair.x_cut && !pair.y_cut)
+            signature = 1;
+          if (!pair.x_cut && pair.y_cut)
+            signature = 2;
+          if (pair.x_cut && pair.y_cut)
+            signature = 12;
+
+          plots.p_fr_signature_0->Fill(x_N, (signature == 0) ? 1 : 0);
+          plots.p_fr_signature_1->Fill(x_N, (signature == 1) ? 1 : 0);
+          plots.p_fr_signature_2->Fill(x_N, (signature == 2) ? 1 : 0);
+          plots.p_fr_signature_12->Fill(x_N, (signature == 12) ? 1 : 0);
+        }
+
+        plots.p_fr_match_unique->Fill(x_N, (hasMatchingAndUniquePair) ? 1 : 0);
+        plots.p_fr_match_non_unique->Fill(x_N, (hasMatchingAndNonUniquePair) ? 1 : 0);
       }
     }
   }

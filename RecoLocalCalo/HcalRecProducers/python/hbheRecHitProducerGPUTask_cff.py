@@ -15,6 +15,7 @@ from RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalWidthsGPUESPro
 hcalConvertedEffectivePedestalWidthsGPUESProducer.label0 = "withTopoEff"
 hcalConvertedEffectivePedestalWidthsGPUESProducer.label1 = "withTopoEff"
 
+from RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi import hcalChannelQualityGPUESProducer
 from RecoLocalCalo.HcalRecProducers.hcalQIECodersGPUESProducer_cfi import hcalQIECodersGPUESProducer
 from RecoLocalCalo.HcalRecProducers.hcalRecoParamsWithPulseShapesGPUESProducer_cfi import hcalRecoParamsWithPulseShapesGPUESProducer
 from RecoLocalCalo.HcalRecProducers.hcalRespCorrsGPUESProducer_cfi import hcalRespCorrsGPUESProducer
@@ -50,6 +51,7 @@ hbheRecHitProducerGPUTask = cms.Task(
     hcalConvertedEffectivePedestalsGPUESProducer,
     hcalConvertedPedestalWidthsGPUESProducer,
     hcalConvertedEffectivePedestalWidthsGPUESProducer,
+    hcalChannelQualityGPUESProducer,
     hcalQIECodersGPUESProducer,
     hcalRecoParamsWithPulseShapesGPUESProducer,
     hcalRespCorrsGPUESProducer,

@@ -18,13 +18,13 @@ public:
   MTDBaseNumber(const MTDBaseNumber& aBaseNumber);
   ~MTDBaseNumber() {}
 
-  void setSize(const int& size);
-  void addLevel(const std::string& name, const int& copyNumber);
+  void setSize(const int size);
+  void addLevel(const std::string_view name, const int copyNumber);
 
   int getLevels() const;
   int getCopyNumber(int level) const;
-  int getCopyNumber(const std::string& levelName) const;
-  std::string const& getLevelName(int level) const;
+  int getCopyNumber(const std::string_view levelName) const;
+  std::string_view const& getLevelName(int level) const;
   int getCapacity();
 
   void reset();
@@ -32,7 +32,7 @@ public:
 protected:
   static constexpr int MAXLEVEL = 20;
 
-  std::vector<std::string> _sortedName;
+  std::vector<std::string_view> _sortedName;
   std::vector<int> _sortedCopyNumber;
   int _theLevels;
 };

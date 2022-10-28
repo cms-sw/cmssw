@@ -1,7 +1,6 @@
 <use name="root"/>
 <use name="dd4hep"/>
 <use name="geant4core"/>
-<use name="boost"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

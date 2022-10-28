@@ -191,10 +191,10 @@ def discover():
             two_tags = plot_method.isTwoTags()
             output(' - is Two Tags: ', two_tags)
             plot_dict = { 'plot': plot, 'plugin_name': plugin_name, 'title': plot_title, 'plot_type': plot_type, 'single_iov': single_iov, 'two_tags': two_tags }
-            #if modv.label == '2.0':
-            #    input_params = plot_method.inputParams()
-            #    output(' - input params: ', len(input_params))
-            #    plot_dict[ 'input_params'] = input_params
+            if modv.label == '2.0':
+                input_params = plot_method.inputParams()
+                output(' - input params: ', len(input_params))
+                plot_dict[ 'input_params'] = input_params
             result.setdefault(payload_type, []).append( plot_dict )
             output('currently discovered info: ', result)
     output('*** final output:', '')

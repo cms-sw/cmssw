@@ -9,17 +9,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "CommonTools/CandUtils/interface/CandMapTrait.h"
 
-namespace reco {
-  namespace modules {
-    template <typename S, typename Collection = CandidateCollection, typename D = DeltaR<reco::Candidate> >
-    class CandMatcher
-        : public Matcher<Collection, Collection, S, D, typename reco::helper::CandMapTrait<Collection>::type> {
-    public:
-      CandMatcher(const edm::ParameterSet& cfg)
-          : Matcher<Collection, Collection, S, D, typename reco::helper::CandMapTrait<Collection>::type>(cfg) {}
-      ~CandMatcher() override {}
-    };
-
-  }  // namespace modules
-}  // namespace reco
+namespace reco::modules {
+  template <typename S, typename Collection = CandidateCollection, typename D = DeltaR<reco::Candidate> >
+  using CandMatcher = Matcher<Collection, Collection, S, D, typename reco::helper::CandMapTrait<Collection>::type>;
+}  // namespace reco::modules
 #endif

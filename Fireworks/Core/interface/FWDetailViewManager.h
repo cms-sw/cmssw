@@ -57,13 +57,13 @@ public:
     ViewFrame& operator=(ViewFrame&&) = default;
   };
 
+  FWDetailViewManager(const FWDetailViewManager&) = delete;                   // stop default
+  const FWDetailViewManager& operator=(const FWDetailViewManager&) = delete;  // stop default
+
 protected:
   fireworks::Context* m_context;
 
 private:
-  FWDetailViewManager(const FWDetailViewManager&) = delete;                   // stop default
-  const FWDetailViewManager& operator=(const FWDetailViewManager&) = delete;  // stop default
-
   std::vector<std::string> findViewersFor(const std::string&) const;
 
   typedef std::vector<ViewFrame> vViews_t;

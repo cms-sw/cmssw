@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,11 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 
 DTCCBConfigValidateDBRead::DTCCBConfigValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtccbToken_(esConsumes()) {}
 
-DTCCBConfigValidateDBRead::DTCCBConfigValidateDBRead(int i) {}
-
-DTCCBConfigValidateDBRead::~DTCCBConfigValidateDBRead() {}
+DTCCBConfigValidateDBRead::DTCCBConfigValidateDBRead(int i) : dtccbToken_(esConsumes()) {}
 
 void DTCCBConfigValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -40,8 +40,7 @@ void DTCCBConfigValidateDBRead::analyze(const edm::Event& e, const edm::EventSet
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTCCBConfig> conf;
-  context.get<DTCCBConfigRcd>().get(conf);
+  auto conf = context.getHandle(dtccbToken_);
   std::cout << conf->version() << std::endl;
   std::cout << std::distance(conf->begin(), conf->end()) << " data in the container" << std::endl;
   int whe;

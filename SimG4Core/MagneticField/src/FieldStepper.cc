@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
+#include "SimG4Core/MagneticField/interface/Field.h"
 
 #include "G4BogackiShampine45.hh"
 #include "G4CashKarpRKF45.hh"
@@ -8,6 +9,7 @@
 #include "G4TClassicalRK4.hh"
 #include "G4DormandPrince745.hh"
 #include "G4TDormandPrince45.hh"
+#include "CMSTDormandPrince45.h"
 #include "G4HelixExplicitEuler.hh"
 #include "G4HelixHeum.hh"
 #include "G4HelixImplicitEuler.hh"
@@ -15,6 +17,7 @@
 #include "G4ImplicitEuler.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4TMagFieldEquation.hh"
+#include "CMSTMagFieldEquation.h"
 #include "G4NystromRK4.hh"
 #include "G4SimpleHeum.hh"
 #include "G4SimpleRunge.hh"
@@ -53,7 +56,11 @@ void FieldStepper::selectStepper(const std::string &ss) {
   else if (ss == "G4DormandPrince745")
     theStepper = new G4DormandPrince745(theEquation);
   else if (ss == "G4TDormandPrince45")
-    theStepper = new G4TDormandPrince45<G4Mag_UsualEqRhs>(theEquation);
+    theStepper = new G4TDormandPrince45<G4TMagFieldEquation<sim::Field>>(
+        dynamic_cast<G4TMagFieldEquation<sim::Field> *>(theEquation));
+  else if (ss == "CMSTDormandPrince45")
+    theStepper = new CMSTDormandPrince45<CMSTMagFieldEquation<sim::Field>>(
+        dynamic_cast<CMSTMagFieldEquation<sim::Field> *>(theEquation));
   else if (ss == "G4BogackiShampine45")
     theStepper = new G4BogackiShampine45(theEquation);
   else if (ss == "G4TsitourasRK45")

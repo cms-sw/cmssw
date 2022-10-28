@@ -38,7 +38,7 @@
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 //
 // constants, enums and typedefs
 //
@@ -134,7 +134,7 @@ public:
     }
     dataChanged();
   }
-  sigc::signal<void, int> indexSelected_;
+  sigc::signal<void(int)> indexSelected_;
 
 private:
   void changeSelection(int iRow) {

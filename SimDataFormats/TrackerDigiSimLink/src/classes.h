@@ -8,5 +8,6 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripCompactDigiSimLinks.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfo.h"
 
 #endif  // TRACKERDIGISIMLINK_CLASSES_H

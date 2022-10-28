@@ -89,16 +89,12 @@ protected:
   //	2D actual values
   hcaldqm::ContainerProf2D _cMean1LS_depth;    // 1LS
   hcaldqm::ContainerProf2D _cRMS1LS_depth;     //  1lS
-  hcaldqm::ContainerProf2D _cMean1LS_FEDVME;   // 1ls
   hcaldqm::ContainerProf2D _cMean1LS_FEDuTCA;  // 1ls
-  hcaldqm::ContainerProf2D _cRMS1LS_FEDVME;    // 1ls
   hcaldqm::ContainerProf2D _cRMS1LS_FEDuTCA;   // 1ls
 
   hcaldqm::ContainerProf2D _cMeanTotal_depth;
   hcaldqm::ContainerProf2D _cRMSTotal_depth;
-  hcaldqm::ContainerProf2D _cMeanTotal_FEDVME;
   hcaldqm::ContainerProf2D _cMeanTotal_FEDuTCA;
-  hcaldqm::ContainerProf2D _cRMSTotal_FEDVME;
   hcaldqm::ContainerProf2D _cRMSTotal_FEDuTCA;
 
   //	Comparison with DB Conditions
@@ -108,16 +104,12 @@ protected:
   hcaldqm::Container1D _cRMSDBRefTotal_Subdet;
   hcaldqm::ContainerProf2D _cMeanDBRef1LS_depth;
   hcaldqm::ContainerProf2D _cRMSDBRef1LS_depth;
-  hcaldqm::ContainerProf2D _cMeanDBRef1LS_FEDVME;
   hcaldqm::ContainerProf2D _cMeanDBRef1LS_FEDuTCA;
-  hcaldqm::ContainerProf2D _cRMSDBRef1LS_FEDVME;
   hcaldqm::ContainerProf2D _cRMSDBRef1LS_FEDuTCA;
 
   hcaldqm::ContainerProf2D _cMeanDBRefTotal_depth;
   hcaldqm::ContainerProf2D _cRMSDBRefTotal_depth;
-  hcaldqm::ContainerProf2D _cMeanDBRefTotal_FEDVME;
   hcaldqm::ContainerProf2D _cMeanDBRefTotal_FEDuTCA;
-  hcaldqm::ContainerProf2D _cRMSDBRefTotal_FEDVME;
   hcaldqm::ContainerProf2D _cRMSDBRefTotal_FEDuTCA;
 
   //	vs LS
@@ -131,25 +123,19 @@ protected:
 
   //	map of missing channels
   hcaldqm::Container2D _cMissing1LS_depth;
-  hcaldqm::Container2D _cMissing1LS_FEDVME;
   hcaldqm::Container2D _cMissing1LS_FEDuTCA;
   hcaldqm::Container2D _cMissingTotal_depth;
-  hcaldqm::Container2D _cMissingTotal_FEDVME;
   hcaldqm::Container2D _cMissingTotal_FEDuTCA;
 
   //	Mean/RMS Bad Maps
   hcaldqm::Container2D _cMeanBad1LS_depth;
   hcaldqm::Container2D _cRMSBad1LS_depth;
-  hcaldqm::Container2D _cMeanBad1LS_FEDVME;
   hcaldqm::Container2D _cRMSBad1LS_FEDuTCA;
-  hcaldqm::Container2D _cRMSBad1LS_FEDVME;
   hcaldqm::Container2D _cMeanBad1LS_FEDuTCA;
 
   hcaldqm::Container2D _cMeanBadTotal_depth;
   hcaldqm::Container2D _cRMSBadTotal_depth;
-  hcaldqm::Container2D _cMeanBadTotal_FEDVME;
   hcaldqm::Container2D _cRMSBadTotal_FEDuTCA;
-  hcaldqm::Container2D _cRMSBadTotal_FEDVME;
   hcaldqm::Container2D _cMeanBadTotal_FEDuTCA;
 
   hcaldqm::Container1D _cADC_SubdetPM;

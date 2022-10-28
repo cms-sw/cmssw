@@ -18,6 +18,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,20 +32,21 @@
 // class decleration
 //
 
-class VertexHistoryAnalyzer : public edm::one::EDAnalyzer<> {
+class VertexHistoryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit VertexHistoryAnalyzer(const edm::ParameterSet &);
+  ~VertexHistoryAnalyzer() override = default;
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  void beginJob() override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override{};
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // Member data
+  const edm::ESGetToken<ParticleDataTable, PDTRecord> pdtToken_;
+  const edm::EDGetTokenT<edm::View<reco::Vertex>> vtxToken_;
 
   VertexClassifier classifier_;
-
-  edm::InputTag vertexProducer_;
 
   edm::ESHandle<ParticleDataTable> pdt_;
 
@@ -59,10 +61,9 @@ private:
 };
 
 VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet &config)
-    : classifier_(config, consumesCollector()) {
-  vertexProducer_ = config.getUntrackedParameter<edm::InputTag>("vertexProducer");
-  consumes<edm::View<reco::Vertex>>(vertexProducer_);
-}
+    : pdtToken_(esConsumes<edm::Transition::BeginRun>()),
+      vtxToken_(consumes<edm::View<reco::Vertex>>(config.getUntrackedParameter<edm::InputTag>("vertexProducer"))),
+      classifier_(config, consumesCollector()) {}
 
 void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Set the classifier for a new event
@@ -70,14 +71,14 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
   // Vertex collection
   edm::Handle<edm::View<reco::Vertex>> vertexCollection;
-  event.getByLabel(vertexProducer_, vertexCollection);
+  event.getByToken(vtxToken_, vertexCollection);
 
   // Get a constant reference to the track history associated to the classifier
   VertexHistory const &tracer = classifier_.history();
 
   // Loop over the track collection.
   for (std::size_t index = 0; index < vertexCollection->size(); index++) {
-    std::cout << std::endl << "History for vertex #" << index << " : " << std::endl;
+    edm::LogPrint("VertexHistoryAnalyzer") << std::endl << "History for vertex #" << index << " : ";
 
     // Classify the track and detect for fakes
     if (!classifier_.evaluate(reco::VertexBaseRef(vertexCollection, index)).is(VertexClassifier::Fake)) {
@@ -86,8 +87,8 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
       // Loop over all simParticles
       for (std::size_t hindex = 0; hindex < simParticles.size(); hindex++) {
-        std::cout << "  simParticles [" << hindex << "] : " << particleString(simParticles[hindex]->pdgId())
-                  << std::endl;
+        edm::LogPrint("VertexHistoryAnalyzer")
+            << "  simParticles [" << hindex << "] : " << particleString(simParticles[hindex]->pdgId());
       }
 
       // Get the list of TrackingVertexes associated to
@@ -96,20 +97,20 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSet
       // Loop over all simVertexes
       if (!simVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < simVertexes.size(); hindex++) {
-          std::cout << "  simVertex    [" << hindex << "] : "
-                    << vertexString(simVertexes[hindex]->sourceTracks(), simVertexes[hindex]->daughterTracks())
-                    << std::endl;
+          edm::LogPrint("VertexHistoryAnalyzer")
+              << "  simVertex    [" << hindex
+              << "] : " << vertexString(simVertexes[hindex]->sourceTracks(), simVertexes[hindex]->daughterTracks());
         }
       } else
-        std::cout << "  simVertex no found" << std::endl;
+        edm::LogPrint("VertexHistoryAnalyzer") << "  simVertex no found";
 
       // Get the list of GenParticles associated to
       VertexHistory::GenParticleTrail genParticles(tracer.genParticleTrail());
 
       // Loop over all genParticles
       for (std::size_t hindex = 0; hindex < genParticles.size(); hindex++) {
-        std::cout << "  genParticles [" << hindex << "] : " << particleString(genParticles[hindex]->pdg_id())
-                  << std::endl;
+        edm::LogPrint("VertexHistoryAnalyzer")
+            << "  genParticles [" << hindex << "] : " << particleString(genParticles[hindex]->pdg_id());
       }
 
       // Get the list of TrackingVertexes associated to
@@ -118,29 +119,25 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSet
       // Loop over all simVertexes
       if (!genVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < genVertexes.size(); hindex++) {
-          std::cout << "  genVertex    [" << hindex << "] : "
-                    << vertexString(genVertexes[hindex]->particles_in_const_begin(),
-                                    genVertexes[hindex]->particles_in_const_end(),
-                                    genVertexes[hindex]->particles_out_const_begin(),
-                                    genVertexes[hindex]->particles_out_const_end())
-                    << std::endl;
+          edm::LogPrint("VertexHistoryAnalyzer") << "  genVertex    [" << hindex << "] : "
+                                                 << vertexString(genVertexes[hindex]->particles_in_const_begin(),
+                                                                 genVertexes[hindex]->particles_in_const_end(),
+                                                                 genVertexes[hindex]->particles_out_const_begin(),
+                                                                 genVertexes[hindex]->particles_out_const_end());
         }
       } else
-        std::cout << "  genVertex no found" << std::endl;
+        edm::LogPrint("VertexHistoryAnalyzer") << "  genVertex no found";
     } else
-      std::cout << "  fake vertex" << std::endl;
+      edm::LogPrint("VertexHistoryAnalyzer") << "  fake vertex";
 
-    std::cout << "  vertex categories : " << classifier_;
-    std::cout << std::endl;
+    edm::LogPrint("VertexHistoryAnalyzer") << "  vertex categories : " << classifier_;
   }
 }
 
 void VertexHistoryAnalyzer::beginRun(const edm::Run &run, const edm::EventSetup &setup) {
   // Get the particles table.
-  setup.getData(pdt_);
+  pdt_ = setup.getHandle(pdtToken_);
 }
-
-void VertexHistoryAnalyzer::beginJob() {}
 
 std::string VertexHistoryAnalyzer::particleString(int pdgId) const {
   ParticleData const *pid;

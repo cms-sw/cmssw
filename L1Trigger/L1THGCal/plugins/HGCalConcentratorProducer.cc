@@ -53,7 +53,6 @@ HGCalConcentratorProducer::HGCalConcentratorProducer(const edm::ParameterSet& co
 
 void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
   triggerGeometry_ = es.getHandle(triggerGeomToken_);
-
   concentratorProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -66,7 +65,7 @@ void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  concentratorProcess_->run(trigCellBxColl, cc_output, es);
+  concentratorProcess_->run(trigCellBxColl, cc_output);
   // Put in the event
   e.put(std::make_unique<l1t::HGCalTriggerCellBxCollection>(std::move(std::get<0>(cc_output))),
         concentratorProcess_->name());

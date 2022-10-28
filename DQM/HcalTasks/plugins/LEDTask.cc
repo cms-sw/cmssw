@@ -104,13 +104,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                 0);
 
   if (_ptype == fLocal) {  // hidefed2crate
-    _cSignalMean_FEDVME.initialize(_name,
-                                   "SignalMean",
-                                   hcaldqm::hashfunctions::fFED,
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_400000, true),
-                                   0);
     _cSignalMean_FEDuTCA.initialize(_name,
                                     "SignalMean",
                                     hcaldqm::hashfunctions::fFED,
@@ -118,26 +111,12 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_400000, true),
                                     0);
-    _cSignalRMS_FEDVME.initialize(_name,
-                                  "SignalRMS",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_10000, true),
-                                  0);
     _cSignalRMS_FEDuTCA.initialize(_name,
                                    "SignalRMS",
                                    hcaldqm::hashfunctions::fFED,
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_10000, true),
-                                   0);
-    _cTimingMean_FEDVME.initialize(_name,
-                                   "TimingMean",
-                                   hcaldqm::hashfunctions::fFED,
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                    0);
     _cTimingMean_FEDuTCA.initialize(_name,
                                     "TimingMean",
@@ -146,13 +125,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                     0);
-    _cTimingRMS_FEDVME.initialize(_name,
-                                  "TimingRMS",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-                                  0);
     _cTimingRMS_FEDuTCA.initialize(_name,
                                    "TimingRMS",
                                    hcaldqm::hashfunctions::fFED,
@@ -206,13 +178,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                              0);
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMissing_FEDVME.initialize(_name,
-                                "Missing",
-                                hcaldqm::hashfunctions::fFED,
-                                new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                0);
     _cMissing_FEDuTCA.initialize(_name,
                                  "Missing",
                                  hcaldqm::hashfunctions::fFED,
@@ -295,16 +260,11 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
 
   _cMissing_depth.book(ib, _emap, _subsystem);
   if (_ptype == fLocal) {  // hidefed2crate
-    _cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cSignalMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cSignalRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cSignalRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cTimingMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cTimingRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
-    _cMissing_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMissing_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
   if (_ptype == fOnline || _ptype == fLocal) {
@@ -345,13 +305,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _cTimingRMS_depth.reset();
 
   if (_ptype == fLocal) {  // hidefed2crate
-    _cSignalMean_FEDVME.reset();
     _cSignalMean_FEDuTCA.reset();
-    _cSignalRMS_FEDVME.reset();
     _cSignalRMS_FEDuTCA.reset();
-    _cTimingMean_FEDVME.reset();
     _cTimingMean_FEDuTCA.reset();
-    _cTimingRMS_FEDVME.reset();
     _cTimingRMS_FEDuTCA.reset();
   }
 
@@ -371,9 +327,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     if (n == 0) {
       _cMissing_depth.fill(did);
       if (_ptype == fLocal) {  // hidefed2crate
-        if (eid.isVMEid())
-          _cMissing_FEDVME.fill(eid);
-        else
+        if (!eid.isVMEid())
           _cMissing_FEDuTCA.fill(eid);
       }
       continue;
@@ -387,12 +341,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     _cTimingRMS_Subdet.fill(did, rtim);
     _cTimingRMS_depth.fill(did, rtim);
     if (_ptype == fLocal) {  // hidefed2crate
-      if (eid.isVMEid()) {
-        _cSignalMean_FEDVME.fill(eid, msig);
-        _cSignalRMS_FEDVME.fill(eid, rsig);
-        _cTimingMean_FEDVME.fill(eid, mtim);
-        _cTimingRMS_FEDVME.fill(eid, rtim);
-      } else {
+      if (!eid.isVMEid()) {
         _cSignalMean_FEDuTCA.fill(eid, msig);
         _cSignalRMS_FEDuTCA.fill(eid, rsig);
         _cTimingMean_FEDuTCA.fill(eid, mtim);

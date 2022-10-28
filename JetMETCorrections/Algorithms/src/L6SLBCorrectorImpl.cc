@@ -24,7 +24,7 @@
 using namespace std;
 
 L6SLBCorrectorImplMaker::L6SLBCorrectorImplMaker(edm::ParameterSet const& fConfig, edm::ConsumesCollector fCollector)
-    : JetCorrectorImplMakerBase(fConfig),
+    : JetCorrectorImplMakerBase(fConfig, fCollector),
       elecToken_(fCollector.consumes<std::vector<reco::SoftLeptonTagInfo>>(
           fConfig.getParameter<edm::InputTag>("srcBTagInfoElectron"))),
       muonToken_(fCollector.consumes<std::vector<reco::SoftLeptonTagInfo>>(

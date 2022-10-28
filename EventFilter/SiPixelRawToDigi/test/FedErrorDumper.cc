@@ -7,7 +7,7 @@
  * Works for CMSSW7X (bytoken)d.k.
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -312,17 +312,15 @@ int MyDecode::data(int word, int &fedChannel, int fed, bool print) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class FedErrorDumper : public edm::EDAnalyzer {
+class FedErrorDumper : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// ctor
   explicit FedErrorDumper(const edm::ParameterSet &cfg);
 
   /// dtor
-  virtual ~FedErrorDumper() {}
+  virtual ~FedErrorDumper() = default;
 
   void beginJob();
-
-  //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
   void endJob();
@@ -359,6 +357,7 @@ FedErrorDumper::FedErrorDumper(const edm::ParameterSet &cfg) : theConfig(cfg) {
 
   // For the ByToken method
   fedErrorContainer = consumes<edm::DetSetVector<SiPixelRawDataError> >(src);
+  usesResource(TFileService::kSharedResource);
 }
 
 //---------------------------------

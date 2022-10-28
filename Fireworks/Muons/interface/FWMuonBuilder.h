@@ -34,11 +34,11 @@ public:
 
   void setLineWidth(int w) { m_lineWidth = w; }
 
-private:
   FWMuonBuilder(const FWMuonBuilder&) = delete;  // stop default
 
   const FWMuonBuilder& operator=(const FWMuonBuilder&) = delete;  // stop default
 
+private:
   void calculateField(const reco::Muon& iData, FWMagField* field);
 
   // ---------- member data --------------------------------

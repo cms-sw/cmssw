@@ -1,7 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-import six
 
 process = cms.Process("PAT")
 
@@ -124,9 +123,9 @@ process.out.fileName = 'test_deep_doubleb_AODSIM.root'
 
 #Trick to make it work in >=9_1_X
 process.tsk = cms.Task()
-for mod in six.itervalues(process.producers_()):
+for mod in process.producers_().values():
     process.tsk.add(mod)
-for mod in six.itervalues(process.filters_()):
+for mod in process.filters_().values():
     process.tsk.add(mod)
 
 process.p = cms.Path(

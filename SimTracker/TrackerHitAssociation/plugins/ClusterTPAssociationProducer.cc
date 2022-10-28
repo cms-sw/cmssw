@@ -121,7 +121,6 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
-  //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
   auto pixelSimLinksFound = iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
   if (not throwOnMissingCollections_ and foundPixelClusters and not pixelSimLinksFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();

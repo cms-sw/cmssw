@@ -8,9 +8,6 @@
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
@@ -29,7 +26,7 @@
 //#define EDM_ML_DEBUG
 
 HGCalSD::HGCalSD(const std::string& name,
-                 const edm::EventSetup& es,
+                 const HGCalDDDConstants* hgc,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
@@ -39,10 +36,11 @@ HGCalSD::HGCalSD(const std::string& name,
              manager,
              static_cast<float>(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
-      hgcons_(nullptr),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT1_(99),
       levelT2_(99),
+      useSimWt_(0),
       tan30deg_(std::tan(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   mouseBite_.reset(nullptr);
@@ -56,6 +54,7 @@ HGCalSD::HGCalSD(const std::string& name,
   waferRot_ = m_HGC.getParameter<bool>("RotatedWafer");
   cornerMinMask_ = m_HGC.getParameter<int>("CornerMinMask");
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
+  missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -138,15 +137,24 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   int iz(globalZ > 0 ? 1 : -1);
 
   int layer(0), module(-1), cell(-1);
-  if (geom_mode_ == HGCalGeometryMode::Hexagon8Module) {
-    if (touch->GetHistoryDepth() > levelT2_) {
+  if ((geom_mode_ == HGCalGeometryMode::Hexagon8Module) || (geom_mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
+    if (useSimWt_ > 0) {
+      layer = touch->GetReplicaNumber(2);
+      module = touch->GetReplicaNumber(1);
+    } else if (touch->GetHistoryDepth() > levelT2_) {
       layer = touch->GetReplicaNumber(4);
       module = touch->GetReplicaNumber(3);
       cell = touch->GetReplicaNumber(1);
     } else {
-      layer = touch->GetReplicaNumber(2);
-      module = touch->GetReplicaNumber(1);
+      layer = touch->GetReplicaNumber(3);
+      module = touch->GetReplicaNumber(2);
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
+                               << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
+                               << layer << ":" << module << ":" << cell;
+    printDetectorLevels(touch);
+#endif
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
 #ifdef EDM_ML_DEBUG
@@ -200,25 +208,22 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void HGCalSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es->get<IdealGeometryRecord>().get(nameX_, hdc);
-  if (hdc.isValid()) {
-    hgcons_ = hdc.product();
+  if (hgcons_ != nullptr) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    useSimWt_ = hgcons_->getParameter()->useSimWt_;
     double waferSize = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                               << " top Level " << levelT1_ << ":" << levelT2_ << " wafer " << waferSize << ":"
-                               << mouseBite;
+                               << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
+                               << waferSize << ":" << mouseBite;
 #endif
 
-    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
@@ -240,7 +245,7 @@ uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeV
       ignoreRejection();
     }
   }
-  if ((geom_mode_ == HGCalGeometryMode::Hexagon8File) || (geom_mode_ == HGCalGeometryMode::Hexagon8Module) || (id == 0))
+  if (hgcons_->waferHexagon8File() || (id == 0))
     ignoreRejection();
   return id;
 }

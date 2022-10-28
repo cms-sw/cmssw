@@ -252,13 +252,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
 
-    _cTimingCut_FEDVME.initialize(_name,
-                                  "TimingCut",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),
-                                  0);
     _cTimingCut_FEDuTCA.initialize(_name,
                                    "TimingCut",
                                    hcaldqm::hashfunctions::fFED,
@@ -272,13 +265,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::LumiSection(_maxLS),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),
                                    0);
-    _cTimingCut_ElectronicsVME.initialize(_name,
-                                          "TimingCut",
-                                          hcaldqm::hashfunctions::fElectronics,
-                                          new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                          new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),
-                                          0);
     _cTimingCut_ElectronicsuTCA.initialize(_name,
                                            "TimingCut",
                                            hcaldqm::hashfunctions::fElectronics,
@@ -287,13 +273,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
                                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),
                                            0);
 
-    _cOccupancy_FEDVME.initialize(_name,
-                                  "Occupancy",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                  0);
     _cOccupancy_FEDuTCA.initialize(_name,
                                    "Occupancy",
                                    hcaldqm::hashfunctions::fFED,
@@ -301,13 +280,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
-    _cOccupancy_ElectronicsVME.initialize(_name,
-                                          "Occupancy",
-                                          hcaldqm::hashfunctions::fElectronics,
-                                          new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                          new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                          0);
     _cOccupancy_ElectronicsuTCA.initialize(_name,
                                            "Occupancy",
                                            hcaldqm::hashfunctions::fElectronics,
@@ -316,13 +288,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
                                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                            0);
 
-    _cOccupancyCut_FEDVME.initialize(_name,
-                                     "OccupancyCut",
-                                     hcaldqm::hashfunctions::fFED,
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                     0);
     _cOccupancyCut_FEDuTCA.initialize(_name,
                                       "OccupancyCut",
                                       hcaldqm::hashfunctions::fFED,
@@ -330,13 +295,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                       0);
-    _cOccupancyCut_ElectronicsVME.initialize(_name,
-                                             "OccupancyCut",
-                                             hcaldqm::hashfunctions::fElectronics,
-                                             new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                             new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                             new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                             0);
     _cOccupancyCut_ElectronicsuTCA.initialize(_name,
                                               "OccupancyCut",
                                               hcaldqm::hashfunctions::fElectronics,
@@ -378,9 +336,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
   _cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
   _cTimingvsEnergy_SubdetPM.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
-    _cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
   _cTimingCut_HBHEPartition.book(ib, _emap, _subsystem);
@@ -393,17 +349,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
   //	Occupancy
   _cOccupancy_depth.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
-    _cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
   _cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
   _cOccupancyCut_depth.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
-    _cOccupancyCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancyCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
 
@@ -498,7 +450,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
 
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
-  uint32_t rawidValid = 0;
   uint32_t rawidHBValid = 0;
   uint32_t rawidHEValid = 0;
 
@@ -527,7 +478,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
 
     HcalElectronicsId const& eid(rawid);
-    rawidValid = did.rawId();
     if (did.subdet() == HcalBarrel)
       rawidHBValid = did.rawId();
     else if (did.subdet() == HcalEndcap)
@@ -550,10 +500,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     if (_ptype != fOffline) {  // hidefed2crate
       //	Also, for these electronics plots, require that the channel was found in the emap.
       if (rawid != 0) {
-        if (eid.isVMEid()) {
-          _cOccupancy_FEDVME.fill(eid);
-          _cOccupancy_ElectronicsVME.fill(eid);
-        } else if (eid.isUTCAid()) {
+        if (!eid.isVMEid()) {
           _cOccupancy_FEDuTCA.fill(eid);
           _cOccupancy_ElectronicsuTCA.fill(eid);
         }
@@ -598,21 +545,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
       _cOccupancyCut_depth.fill(did);
       if (_ptype != fOffline) {  // hidefed2crate
         if (rawid != 0) {
-          if (eid.isVMEid()) {
-            //	ONLINE
-            if (_ptype == fOnline) {
-              _cTimingCut_FEDVME.fill(eid, timing);
-              _cTimingCut_ElectronicsVME.fill(eid, timing);
-            }  // ^^^ ONLINE
-            else {
-              _cTimingCut_FEDVME.fill(eid, timing);
-              _cTimingCut_ElectronicsVME.fill(eid, timing);
-            }
-            //	^^^ONLINE
-
-            _cOccupancyCut_FEDVME.fill(eid);
-            _cOccupancyCut_ElectronicsVME.fill(eid);
-          } else if (eid.isUTCAid()) {
+          if (eid.isUTCAid()) {
             if (_ptype == fOnline) {
               //	time constraints are explicit!
               _cTimingCut_FEDuTCA.fill(eid, timing);
@@ -645,8 +578,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //	^^^ONLINE ONLY!
   }
 
-  //	reset
-  rawidValid = 0;
+  //  To fill histograms outside of the loop, you need to determine if there were
+  //  any valid det ids first
+  uint32_t rawidValid = 0;
 
   int nChsHO = 0;
   int nChsHOCut = 0;
@@ -681,10 +615,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //	ONLINE ONLY!
 
     if (_ptype != fOffline) {  // hidefed2crate
-      if (eid.isVMEid()) {
-        _cOccupancy_FEDVME.fill(eid);
-        _cOccupancy_ElectronicsVME.fill(eid);
-      } else {
+      if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
       }
@@ -715,12 +646,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_depth.fill(did, timing);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid()) {
-          _cTimingCut_FEDVME.fill(eid, timing);
-          _cTimingCut_ElectronicsVME.fill(eid, timing);
-          _cOccupancyCut_FEDVME.fill(eid);
-          _cOccupancyCut_ElectronicsVME.fill(eid);
-        } else {
+        if (!eid.isVMEid()) {
           _cTimingCut_FEDuTCA.fill(eid, timing);
           _cTimingCut_ElectronicsuTCA.fill(eid, timing);
           _cOccupancyCut_FEDuTCA.fill(eid);
@@ -780,10 +706,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //	ONLINE ONLY!
 
     if (_ptype != fOffline) {  // hidefed2crate
-      if (eid.isVMEid()) {
-        _cOccupancy_FEDVME.fill(eid);
-        _cOccupancy_ElectronicsVME.fill(eid);
-      } else {
+      if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
       }
@@ -816,12 +739,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_depth.fill(did, timing);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid()) {
-          _cTimingCut_FEDVME.fill(eid, timing);
-          _cTimingCut_ElectronicsVME.fill(eid, timing);
-          _cOccupancyCut_FEDVME.fill(eid);
-          _cOccupancyCut_ElectronicsVME.fill(eid);
-        } else {
+        if (!eid.isVMEid()) {
           _cTimingCut_FEDuTCA.fill(eid, timing);
           _cTimingCut_ElectronicsuTCA.fill(eid, timing);
           _cOccupancyCut_FEDuTCA.fill(eid);

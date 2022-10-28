@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,7 +37,7 @@
 // class declaration
 //
 
-class TestAnalyzer : public edm::EDAnalyzer {
+class TestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestAnalyzer(const edm::ParameterSet&);
   ~TestAnalyzer();
@@ -46,6 +46,7 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   TTree* theTree;
   TFile* theFile;
   float x_, y_, z_, phi_, theta_, length_, thick_, width_;
@@ -56,7 +57,7 @@ private:
 //
 // constructors and destructor
 //
-TestAnalyzer::TestAnalyzer(const edm::ParameterSet& iConfig) {
+TestAnalyzer::TestAnalyzer(const edm::ParameterSet& iConfig) : tkGeomToken_(esConsumes()) {
   // Open root file and define tree
   std::string fileName = iConfig.getUntrackedParameter<std::string>("fileName", "test.root");
   theFile = new TFile(fileName.c_str(), "RECREATE");
@@ -86,8 +87,7 @@ void TestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //
   // Retrieve tracker geometry from event setup
   //
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(tkGeomToken_);
 
   // Now loop on detector units, and store position and orientation
   for (auto iGeomDet = trackerGeometry->dets().begin(); iGeomDet != trackerGeometry->dets().end(); iGeomDet++) {

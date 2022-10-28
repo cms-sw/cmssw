@@ -23,7 +23,8 @@
 #include <TrackingTools/KalmanUpdators/interface/KFUpdator.h>
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
-TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet &par, edm::ConsumesCollector &iC) {
+TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet &par, edm::ConsumesCollector &iC)
+    : theGeometricSearchTrackerToken(iC.esConsumes()) {
   theOption = par.getParameter<unsigned int>("option");
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");
 
@@ -69,13 +70,7 @@ void TSGForRoadSearch::init(const MuonServiceProxy *service) { theProxyService =
 
 void TSGForRoadSearch::setEvent(const edm::Event &event) {
   //get the measurementtracker
-  if (theManySeeds) {
-    theProxyService->eventSetup().get<CkfComponentsRecord>().get(theMeasurementTracker);
-    if (!theMeasurementTracker.isValid()) /*abort*/ {
-      edm::LogError(theCategory) << "measurement tracker geometry not found ";
-    }
-  }
-  theProxyService->eventSetup().get<TrackerRecoGeometryRecord>().get(theGeometricSearchTracker);
+  theGeometricSearchTracker = theProxyService->eventSetup().getHandle(theGeometricSearchTrackerToken);
 
   edm::Handle<MeasurementTrackerEvent> data;
   event.getByToken(theMeasurementTrackerEventToken, data);

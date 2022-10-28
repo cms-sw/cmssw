@@ -20,6 +20,8 @@
 #include <cmath>
 #include <sys/time.h>
 #include <cstring>
+#include <cstdlib>
+#include <chrono>
 
 using namespace std;
 using namespace edm;
@@ -33,6 +35,7 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
     : runNum(1),
       eventNum(1),
       empty_events(pset.getUntrackedParameter<bool>("emptyEvents", false)),
+      fillRandom_(pset.getUntrackedParameter<bool>("fillRandom", false)),
       meansize(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
       width(pset.getUntrackedParameter<unsigned int>("width", 1024)),
       injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
@@ -43,6 +46,12 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
   if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
     throw cms::Exception("DaqFakeReader::DaqFakeReader")
         << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
+  if (fillRandom_) {
+    //intialize random seed
+    auto time_count =
+        static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    srand(time_count & 0xffffffff);
+  }
   produces<FEDRawDataCollection>();
 }
 
@@ -101,6 +110,18 @@ void DaqFakeReader::fillFEDs(
     FEDRawData& feddata = data.FEDData(fedId);
     // Allocate space for header+trailer+payload
     feddata.resize(size + 16);
+
+    if (fillRandom_) {
+      //fill FED with random values
+      size_t size_ui = size - size % sizeof(unsigned int);
+      for (size_t i = 0; i < size_ui; i += sizeof(unsigned int)) {
+        *((unsigned int*)(feddata.data() + i)) = (unsigned int)rand();
+      }
+      //remainder
+      for (size_t i = size_ui; i < size; i++) {
+        *(feddata.data() + i) = rand() & 0xff;
+      }
+    }
 
     // Generate header
     FEDHeader::set(feddata.data(),
@@ -163,4 +184,16 @@ void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   std::cout << "DaqFakeReader begin Lumi " << iL.luminosityBlock() << std::endl;
   fakeLs_ = iL.luminosityBlock();
+}
+
+void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Injector of generated raw FED data for DAQ testing");
+  desc.addUntracked<bool>("emptyEvents", false);
+  desc.addUntracked<bool>("fillRandom", false);
+  desc.addUntracked<unsigned int>("meanSize", 1024);
+  desc.addUntracked<unsigned int>("width", 1024);
+  desc.addUntracked<unsigned int>("injectErrPpm", 1024);
+  desc.addUntracked<unsigned int>("tcdsFEDID", 1024);
+  descriptions.add("DaqFakeReader", desc);
 }

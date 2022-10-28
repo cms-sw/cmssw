@@ -1,38 +1,36 @@
-#ifndef EcalErrorMask_H
-#define EcalErrorMask_H
+#ifndef CondTools_Ecal_EcalErrorMask_H
+#define CondTools_Ecal_EcalErrorMask_H
 
 #include <cstdlib>
 #include <map>
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 class EcalCondDBInterface;
-
 class EcalLogicID;
-
-class RunCrystalErrorsDat;
-class RunTTErrorsDat;
-class RunPNErrorsDat;
-class RunMemChErrorsDat;
-class RunMemTTErrorsDat;
 class RunIOV;
 
 class EcalErrorMask {
 public:
-  static void readDB(EcalCondDBInterface* eConn, RunIOV* runIOV) noexcept(false);
+  void readDB(EcalCondDBInterface* eConn, RunIOV* runIOV) noexcept(false);
 
-  static void fetchDataSet(std::map<EcalLogicID, RunCrystalErrorsDat>* fillMap);
-  static void fetchDataSet(std::map<EcalLogicID, RunTTErrorsDat>* fillMap);
-  static void fetchDataSet(std::map<EcalLogicID, RunPNErrorsDat>* fillMap);
-  static void fetchDataSet(std::map<EcalLogicID, RunMemChErrorsDat>* fillMap);
-  static void fetchDataSet(std::map<EcalLogicID, RunMemTTErrorsDat>* fillMap);
+  void fetchDataSet(std::map<EcalLogicID, RunCrystalErrorsDat>* fillMap);
+  void fetchDataSet(std::map<EcalLogicID, RunTTErrorsDat>* fillMap);
+  void fetchDataSet(std::map<EcalLogicID, RunPNErrorsDat>* fillMap);
+  void fetchDataSet(std::map<EcalLogicID, RunMemChErrorsDat>* fillMap);
+  void fetchDataSet(std::map<EcalLogicID, RunMemTTErrorsDat>* fillMap);
 
 private:
-  static int runNb_;
+  int runNb_;
 
-  static std::map<EcalLogicID, RunCrystalErrorsDat> mapCrystalErrors_;
-  static std::map<EcalLogicID, RunTTErrorsDat> mapTTErrors_;
-  static std::map<EcalLogicID, RunPNErrorsDat> mapPNErrors_;
-  static std::map<EcalLogicID, RunMemChErrorsDat> mapMemChErrors_;
-  static std::map<EcalLogicID, RunMemTTErrorsDat> mapMemTTErrors_;
+  std::map<EcalLogicID, RunCrystalErrorsDat> mapCrystalErrors_;
+  std::map<EcalLogicID, RunTTErrorsDat> mapTTErrors_;
+  std::map<EcalLogicID, RunPNErrorsDat> mapPNErrors_;
+  std::map<EcalLogicID, RunMemChErrorsDat> mapMemChErrors_;
+  std::map<EcalLogicID, RunMemTTErrorsDat> mapMemTTErrors_;
 };
 
-#endif  // EcalErrorMask_H
+#endif  // CondTools_Ecal_EcalErrorMask_H

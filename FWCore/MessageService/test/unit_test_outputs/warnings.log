@@ -1,5 +1,5 @@
 %MSG-w cat_A:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
-Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
+Test of std::setprecision(p): Pi with precision 12 is 3.14159265359
 %MSG
 %MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 		Emit Warning level message 1

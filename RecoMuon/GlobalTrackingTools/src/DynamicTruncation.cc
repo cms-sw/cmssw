@@ -26,7 +26,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #define MAX_THR 1e7
 
@@ -42,20 +41,38 @@ namespace dyt_utils {
                                                              {etaRegion::eta2p4, "eta2p4"}};
 };
 
-DynamicTruncation::DynamicTruncation(const edm::Event &event, const MuonServiceProxy &theService) {
+DynamicTruncation::Config::Config(edm::ConsumesCollector iC)
+    : cscGeomToken_(iC.esConsumes()),
+      muonRecHitBuilderToken_(iC.esConsumes(edm::ESInputTag("", "MuonRecHitBuilder"))),
+      updatorToken_(iC.esConsumes(edm::ESInputTag("", "KFUpdator"))),
+      navMuonToken_(iC.esConsumes()),
+      dytThresholdsToken_(iC.esConsumes()),
+      dtAlignmentErrorsToken_(iC.esConsumes()),
+      cscAlignmentErrorsToken_(iC.esConsumes()) {}
+
+DynamicTruncation::DynamicTruncation(Config const &config,
+                                     const edm::EventSetup &eventSetup,
+                                     const MuonServiceProxy &theService) {
   propagator = theService.propagator("SmartPropagatorAny");
   propagatorPF = theService.propagator("SmartPropagatorAny");
   propagatorCompatibleDet = theService.propagator("SmartPropagatorAny");
   theG = theService.trackingGeometry();
-  theService.eventSetup().get<TransientRecHitRecord>().get("MuonRecHitBuilder", theMuonRecHitBuilder);
-  theService.eventSetup().get<TrackingComponentsRecord>().get("KFUpdator", updatorHandle);
-  theService.eventSetup().get<MuonGeometryRecord>().get(cscGeom);
-  theService.eventSetup().get<MuonRecoGeometryRecord>().get(navMuon);
-  theService.eventSetup().get<IdealMagneticFieldRecord>().get(magfield);
-  navigation = new DirectMuonNavigation(theService.detLayerGeometry());
-  getSegs = new ChamberSegmentUtility();
-  thrManager = new ThrParameters(&theService.eventSetup());
+  theMuonRecHitBuilder = eventSetup.getHandle(config.muonRecHitBuilderToken_);
+  updatorHandle = eventSetup.getHandle(config.updatorToken_);
+  cscGeom = eventSetup.getHandle(config.cscGeomToken_);
+  navMuon = eventSetup.getHandle(config.navMuonToken_);
+  magfield = theService.magneticField();
+  navigation = std::make_unique<DirectMuonNavigation>(theService.detLayerGeometry());
+  getSegs = std::make_unique<ChamberSegmentUtility>();
+  {
+    edm::ESHandle<DYTThrObject> dytThresholdsH = eventSetup.getHandle(config.dytThresholdsToken_);
+    AlignmentErrorsExtended const &dtAlignmentErrorsExtended = eventSetup.getData(config.dtAlignmentErrorsToken_);
+    AlignmentErrorsExtended const &cscAlignmentErrorsExtended = eventSetup.getData(config.cscAlignmentErrorsToken_);
+
+    thrManager = std::make_unique<ThrParameters>(dytThresholdsH, dtAlignmentErrorsExtended, cscAlignmentErrorsExtended);
+  }
   useDBforThr = thrManager->isValidThdDB();
+  dytThresholds = nullptr;
   if (useDBforThr)
     dytThresholds = thrManager->getInitialThresholds();
 
@@ -63,11 +80,7 @@ DynamicTruncation::DynamicTruncation(const edm::Event &event, const MuonServiceP
   useParametrizedThr = false;
 }
 
-DynamicTruncation::~DynamicTruncation() {
-  delete navigation;
-  delete thrManager;
-  delete getSegs;
-}
+DynamicTruncation::~DynamicTruncation() {}
 
 void DynamicTruncation::update(TrajectoryStateOnSurface &tsos, ConstRecHitPointer rechit) {
   TrajectoryStateOnSurface temp = updatorHandle->update(tsos, *rechit);

@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
@@ -28,7 +29,8 @@ typedef reco::Particle::LorentzVector lorentzVector;
 
 class MuScleFitMuonSelector {
 public:
-  MuScleFitMuonSelector(const edm::InputTag& muonLabel,
+  MuScleFitMuonSelector(edm::ConsumesCollector& iC,
+                        const edm::InputTag& muonLabel,
                         const int muonType,
                         const bool PATmuons,
                         const std::vector<int>& resfind,
@@ -47,8 +49,16 @@ public:
         compareToSimTracks_(compareToSimTracks),
         simTracksCollectionName_(simTracksCollectionName),
         sherpa_(sherpa),
-        debug_(debug) {}
-  ~MuScleFitMuonSelector() {}
+        debug_(debug),
+        onia2MuMuToken_(iC.consumes<pat::CompositeCandidateCollection>(edm::InputTag("onia2MuMuPatTrkTrk"))),
+        trackCollectionToken_(iC.consumes<reco::TrackCollection>(muonLabel_)),
+        patMuonToken_(iC.consumes<pat::MuonCollection>(muonLabel_)),
+        recoMuonToken_(iC.consumes<reco::MuonCollection>(muonLabel_)),
+        caloMuonToken_(iC.consumes<reco::CaloMuonCollection>(muonLabel_)),
+        evtMCToken_(iC.consumes<edm::HepMCProduct>(genParticlesName_)),
+        genParticleToken_(iC.consumes<reco::GenParticleCollection>(genParticlesName_)),
+        simTrackToken_(iC.consumes<edm::SimTrackContainer>(simTracksCollectionName_)) {}
+  ~MuScleFitMuonSelector() = default;
 
   //Method to get the muon after FSR (status 1 muon in PYTHIA6) starting from status 3 muon which is daughter of the Z
   const reco::Candidate* getStatus1Muon(const reco::Candidate* status3Muon);
@@ -156,6 +166,16 @@ protected:
   const edm::InputTag simTracksCollectionName_;
   const bool sherpa_;
   const bool debug_;
+
+  const edm::EDGetTokenT<pat::CompositeCandidateCollection> onia2MuMuToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  const edm::EDGetTokenT<pat::MuonCollection> patMuonToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> recoMuonToken_;
+  const edm::EDGetTokenT<reco::CaloMuonCollection> caloMuonToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> evtMCToken_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+
   static const double mMu2;
   static const unsigned int motherPdgIdArray[6];
 };

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -20,16 +20,16 @@
 //
 // class declaration
 //
-class BufferedBoostIODBWriter : public edm::EDAnalyzer {
+class BufferedBoostIODBWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit BufferedBoostIODBWriter(const edm::ParameterSet&);
   ~BufferedBoostIODBWriter() override {}
 
-private:
   BufferedBoostIODBWriter() = delete;
   BufferedBoostIODBWriter(const BufferedBoostIODBWriter&) = delete;
   BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&) = delete;
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string inputFile;
@@ -63,7 +63,7 @@ void BufferedBoostIODBWriter::analyze(const edm::Event& iEvent, const edm::Event
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(fcp.release(), poolDbService->currentTime(), record);
+    poolDbService->writeOneIOV(*fcp, poolDbService->currentTime(), record);
   else
     throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
                                                << "please configure it properly" << std::endl;

@@ -6,6 +6,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 template <typename TILES>
 void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
@@ -23,7 +24,10 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               float etaLimitIncreaseWindow,
                                               int skip_layers,
                                               int maxNumberOfLayers,
-                                              float maxDeltaTime) {
+                                              float maxDeltaTime,
+                                              int lastLayerEE,
+                                              int lastLayerFH,
+                                              const std::vector<double> &siblings_maxRSquared) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
@@ -31,6 +35,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
   bool checkDistanceRootDoubletVsSeed = root_doublet_max_distance_from_seed_squared < 9999;
   float origin_eta;
   float origin_phi;
+  float maxRSquared;
   for (const auto &r : regions) {
     bool isGlobal = (r.index == -1);
     auto zSide = r.zSide;
@@ -66,7 +71,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
       endEtaBin = std::min(entryEtaBin + etaWindow + 1, nEtaBins);
       startPhiBin = entryPhiBin - phiWindow;
       endPhiBin = entryPhiBin + phiWindow + 1;
-      if (verbosity_ > Guru) {
+      if (verbosity_ > ticl::VerbosityLevel::Guru) {
         LogDebug("HGCGraph") << " Entrance eta, phi: " << origin_eta << ", " << origin_phi
                              << " entryEtaBin: " << entryEtaBin << " entryPhiBin: " << entryPhiBin
                              << " globalBin: " << firstLayerHisto.globalBin(origin_eta, origin_phi)
@@ -87,8 +92,11 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
+        maxRSquared = (il <= lastLayerEE)   ? siblings_maxRSquared[0]
+                      : (il <= lastLayerFH) ? siblings_maxRSquared[1]
+                                            : siblings_maxRSquared[2];
         const int etaLimitIncreaseWindowBin = innerLayerHisto.etaBin(etaLimitIncreaseWindow);
-        if (verbosity_ > Advanced) {
+        if (verbosity_ > ticl::VerbosityLevel::Advanced) {
           LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
                                << " at etaBin: " << etaLimitIncreaseWindowBin << std::endl;
         }
@@ -97,7 +105,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
           auto offset = ieta * nPhiBins;
           for (int iphi_it = startPhiBin; iphi_it < endPhiBin; ++iphi_it) {
             int iphi = ((iphi_it % nPhiBins + nPhiBins) % nPhiBins);
-            if (verbosity_ > Guru) {
+            if (verbosity_ > ticl::VerbosityLevel::Advanced) {
               LogDebug("HGCGraph") << "Inner Global Bin: " << (offset + iphi)
                                    << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
                                    << " with clusters: " << innerLayerHisto[offset + iphi].size() << std::endl;
@@ -105,7 +113,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
             for (auto innerClusterId : innerLayerHisto[offset + iphi]) {
               // Skip masked clusters
               if (mask[innerClusterId] == 0.) {
-                if (verbosity_ > Advanced)
+                if (verbosity_ > ticl::VerbosityLevel::Advanced)
                   LogDebug("HGCGraph") << "Skipping inner masked cluster " << innerClusterId << std::endl;
                 continue;
               }
@@ -120,7 +128,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
               if (isGlobal && ieta > etaLimitIncreaseWindowBin) {
                 etaWindow++;
                 phiWindow++;
-                if (verbosity_ > Advanced) {
+                if (verbosity_ > ticl::VerbosityLevel::Advanced) {
                   LogDebug("HGCGraph") << "Eta and Phi window increased by one" << std::endl;
                 }
               }
@@ -136,7 +144,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                   // account for all other cases, since we add in
                   // between a full nPhiBins slot.
                   auto ophi = ((iphi + phiRange - phiWindow) % nPhiBins + nPhiBins) % nPhiBins;
-                  if (verbosity_ > Guru) {
+                  if (verbosity_ > ticl::VerbosityLevel::Guru) {
                     LogDebug("HGCGraph") << "Outer Global Bin: " << (oeta * nPhiBins + ophi)
                                          << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
                                          << " with clusters: " << innerLayerHisto[oeta * nPhiBins + ophi].size()
@@ -145,19 +153,29 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                   for (auto outerClusterId : outerLayerHisto[oeta * nPhiBins + ophi]) {
                     // Skip masked clusters
                     if (mask[outerClusterId] == 0.) {
-                      if (verbosity_ > Advanced)
+                      if (verbosity_ > ticl::VerbosityLevel::Advanced)
                         LogDebug("HGCGraph") << "Skipping outer masked cluster " << outerClusterId << std::endl;
                       continue;
                     }
                     auto doubletId = allDoublets_.size();
                     if (maxDeltaTime != -1 &&
                         !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime)) {
-                      if (verbosity_ > Advanced)
+                      if (verbosity_ > ticl::VerbosityLevel::Advanced)
                         LogDebug("HGCGraph") << "Rejecting doublets due to timing!" << std::endl;
                       continue;
                     }
-                    allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, r.index);
-                    if (verbosity_ > Advanced) {
+                    if (currentOuterLayerId - currentInnerLayerId == 1) {
+                      if (areOverlappingOnSiblingLayers(innerClusterId, outerClusterId, layerClusters, maxRSquared)) {
+                        allDoublets_.emplace_back(
+                            innerClusterId, outerClusterId, doubletId, &layerClusters, r.index, true);
+                      } else {
+                        continue;
+                      }
+                    } else {
+                      allDoublets_.emplace_back(
+                          innerClusterId, outerClusterId, doubletId, &layerClusters, r.index, false);
+                    }
+                    if (verbosity_ > ticl::VerbosityLevel::Advanced) {
                       LogDebug("HGCGraph")
                           << "Creating doubletsId: " << doubletId << " layerLink in-out: [" << currentInnerLayerId
                           << ", " << currentOuterLayerId << "] clusterLink in-out: [" << innerClusterId << ", "
@@ -166,25 +184,26 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                     isOuterClusterOfDoublets_[outerClusterId].push_back(doubletId);
                     auto &neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
                     auto &thisDoublet = allDoublets_[doubletId];
-                    if (verbosity_ > Expert) {
+                    if (verbosity_ > ticl::VerbosityLevel::Expert) {
                       LogDebug("HGCGraph")
                           << "Checking compatibility of doubletId: " << doubletId
                           << " with all possible inners doublets link by the innerClusterId: " << innerClusterId
                           << std::endl;
                     }
-                    bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_,
-                                                                              neigDoublets,
-                                                                              r.directionAtOrigin,
-                                                                              minCosTheta,
-                                                                              minCosPointing,
-                                                                              verbosity_ > Advanced);
+                    bool isRootDoublet =
+                        thisDoublet.checkCompatibilityAndTag(allDoublets_,
+                                                             neigDoublets,
+                                                             r.directionAtOrigin,
+                                                             minCosTheta,
+                                                             minCosPointing,
+                                                             verbosity_ > ticl::VerbosityLevel::Advanced);
                     if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
-                      auto dEtaSquared = (layerClusters[innerClusterId].eta() - origin_eta);
-                      dEtaSquared *= dEtaSquared;
-                      auto dPhiSquared = (layerClusters[innerClusterId].phi() - origin_phi);
-                      dPhiSquared *= dPhiSquared;
-                      if (dEtaSquared + dPhiSquared > root_doublet_max_distance_from_seed_squared)
+                      if (reco::deltaR2(layerClusters[innerClusterId].eta(),
+                                        layerClusters[innerClusterId].phi(),
+                                        origin_eta,
+                                        origin_phi) > root_doublet_max_distance_from_seed_squared) {
                         isRootDoublet = false;
+                      }
                     }
                     if (isRootDoublet) {
                       theRootDoublets_.push_back(doubletId);
@@ -199,7 +218,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
     }
   }
   // #ifdef FP_DEBUG
-  if (verbosity_ > None) {
+  if (verbosity_ > ticl::VerbosityLevel::None) {
     LogDebug("HGCGraph") << "number of Root doublets " << theRootDoublets_.size() << " over a total number of doublets "
                          << allDoublets_.size() << std::endl;
   }
@@ -218,6 +237,17 @@ bool HGCGraphT<TILES>::areTimeCompatible(int innerIdx,
 
   return (timeIn == -99. || timeOut == -99. ||
           std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE * timeInE + timeOutE * timeOutE));
+}
+
+template <typename TILES>
+bool HGCGraphT<TILES>::areOverlappingOnSiblingLayers(int innerIdx,
+                                                     int outerIdx,
+                                                     const std::vector<reco::CaloCluster> &layerClusters,
+                                                     float maxRSquared) {
+  return reco::deltaR2(layerClusters[outerIdx].eta(),
+                       layerClusters[outerIdx].phi(),
+                       layerClusters[innerIdx].eta(),
+                       layerClusters[innerIdx].phi()) < maxRSquared;
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters

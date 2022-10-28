@@ -7,7 +7,6 @@ import ROOT
 import sys
 from .TkAlExceptions import AllInOneError
 import CondCore.Utilities.conddblib as conddblib
-import six
 
 ####################--- Helpers ---############################
 def replaceByMap(target, the_map):
@@ -28,7 +27,7 @@ def replaceByMap(target, the_map):
                     result = result.replace(".oO["+key+"]Oo.",the_map[key])
                 except TypeError:   #try a dict
                     try:
-                        for keykey, value in six.iteritems(the_map[key]):
+                        for keykey, value in the_map[key].items():
                            result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
                            result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
                     except AttributeError:   #try a list
@@ -157,12 +156,12 @@ def cache(function):
     cache = {}
     def newfunction(*args, **kwargs):
         try:
-            return cache[args, tuple(sorted(six.iteritems(kwargs)))]
+            return cache[args, tuple(sorted(kwargs.items()))]
         except TypeError:
-            print(args, tuple(sorted(six.iteritems(kwargs))))
+            print(args, tuple(sorted(kwargs.items())))
             raise
         except KeyError:
-            cache[args, tuple(sorted(six.iteritems(kwargs)))] = function(*args, **kwargs)
+            cache[args, tuple(sorted(kwargs.items()))] = function(*args, **kwargs)
             return newfunction(*args, **kwargs)
     newfunction.__name__ = function.__name__
     return newfunction

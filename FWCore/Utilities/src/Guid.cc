@@ -9,7 +9,7 @@
 //      Author    : Markus Frank
 //
 //      ====================================================================
-#include "Guid.h"
+#include "FWCore/Utilities/interface/Guid.h"
 #include <cstring>
 #include <cassert>
 
@@ -46,6 +46,12 @@ namespace edm {
     auto err = ::uuid_parse(source.c_str(), data_);
     assert(err == 0);
     return *this;
+  }
+
+  bool Guid::isValidString(std::string const& source) {
+    uuid_t tmp;
+    auto err = ::uuid_parse(source.c_str(), tmp);
+    return err == 0;
   }
 
   bool Guid::operator<(Guid const& g) const { return ::uuid_compare(data_, g.data_) < 0; }

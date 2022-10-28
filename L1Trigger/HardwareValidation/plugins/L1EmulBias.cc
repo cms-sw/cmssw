@@ -139,7 +139,7 @@ L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
 L1EmulBias::~L1EmulBias() {}
 
 // ------------ method called to produce the data  ------------
-void L1EmulBias::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1EmulBias::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 

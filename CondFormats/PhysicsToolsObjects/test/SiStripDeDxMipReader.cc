@@ -1,22 +1,39 @@
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
-#include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
-
-#include "CondFormats/PhysicsToolsObjects/test/SiStripDeDxMipReader.h"
-
+// system includes
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
 
+// user include files
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class SiStripDeDxMipReader : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripDeDxMipReader(const edm::ParameterSet&);
+  ~SiStripDeDxMipReader();
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  const edm::ESGetToken<PhysicsTools::Calibration::HistogramD2D, SiStripDeDxMipRcd> SiStripDeDxMipToken_;
+};
+
 using namespace cms;
 
-SiStripDeDxMipReader::SiStripDeDxMipReader(const edm::ParameterSet& iConfig) {}
-//:  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)){}
+SiStripDeDxMipReader::SiStripDeDxMipReader(const edm::ParameterSet& iConfig) : SiStripDeDxMipToken_(esConsumes()) {}
 
-SiStripDeDxMipReader::~SiStripDeDxMipReader() {}
+SiStripDeDxMipReader::~SiStripDeDxMipReader() = default;
 
 void SiStripDeDxMipReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<PhysicsTools::Calibration::HistogramD2D> SiStripDeDxMip_;
-  iSetup.get<SiStripDeDxMipRcd>().get(SiStripDeDxMip_);
+  edm::ESHandle<PhysicsTools::Calibration::HistogramD2D> SiStripDeDxMip_ = iSetup.getHandle(SiStripDeDxMipToken_);
   edm::LogInfo("SiStripDeDxMipReader") << "[SiStripDeDxMipReader::analyze] End Reading SiStripDeDxMip" << std::endl;
   std::cout << SiStripDeDxMip_->numberOfBinsX() << "   " << SiStripDeDxMip_->numberOfBinsY() << std::endl;
   for (int ix = 0; ix < 300; ix++) {
@@ -24,24 +41,6 @@ void SiStripDeDxMipReader::analyze(const edm::Event& e, const edm::EventSetup& i
       std::cout << SiStripDeDxMip_->binContent(ix, iy) << " " << SiStripDeDxMip_->value(ix / 100., iy) << std::endl;
     }
   }
-
-  //   std::vector<uint32_t> detid;
-  //   SiStripDeDxMip_->getDetIds(detid);
-  //   edm::LogInfo("Number of detids ")  << detid.size() << std::endl;
-
-  //   if (printdebug_)
-  //     for (size_t id=0;id<detid.size() && id<printdebug_;id++)
-  //       {
-  // 	SiStripDeDxMip::Range range=SiStripDeDxMip_->getRange(detid[id]);
-
-  // 	int apv=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  edm::LogInfo("SiStripDeDxMipReader")  << "detid " << detid[id] << " \t"
-  // 					     << " apv " << apv++ << " \t"
-  // 					     << SiStripDeDxMip_->getDeDxMip(it,range)     << " \t"
-  // 					     << std::endl;
-  // 	}
-  //       }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -30,6 +30,8 @@ produceDenoms = cms.Sequence(
     produceDenominatorZMM+
     produceDenominatorZTT
     )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(produceDenoms,produceDenoms.copyAndExclude([produceDenominatorRealData,produceDenominatorRealElectronsData,produceDenominatorRealMuonsData]))
 
 runTauEff = cms.Sequence(
     efficienciesQCD+

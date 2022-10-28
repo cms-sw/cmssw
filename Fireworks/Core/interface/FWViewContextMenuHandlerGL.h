@@ -14,10 +14,10 @@ public:
   ~FWViewContextMenuHandlerGL() override {}
   void select(int iEntryIndex, const FWModelId &id, int iX, int iY) override;
 
-private:
   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL &) = delete;                   // stop default
   const FWViewContextMenuHandlerGL &operator=(const FWViewContextMenuHandlerGL &) = delete;  // stop default
 
+private:
   void init(FWViewContextMenuHandlerBase::MenuEntryAdder &, const FWModelId &id) override;
 
   FWEveView *m_view;

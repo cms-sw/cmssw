@@ -9,7 +9,6 @@ Toy EDProducers of Ints for testing purposes only.
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/limited/EDProducer.h"
@@ -119,6 +118,12 @@ namespace edmtest {
         : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {}
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      descriptions.addDefault(desc);
+    }
+
   private:
     edm::EDPutTokenT<IntProduct> token_;
     int value_;
@@ -133,19 +138,33 @@ namespace edmtest {
   //
   // Produces an IntProduct instance.
   //
-  class IntLegacyProducer : public edm::EDProducer {
+  class IntOneSharedProducer : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
-    explicit IntLegacyProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue")) {
+    explicit IntOneSharedProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue")) {
       produces<IntProduct>();
+      for (auto const& r : p.getUntrackedParameter<std::vector<std::string>>("resourceNames")) {
+        usesResource(r);
+      }
     }
-    explicit IntLegacyProducer(int i) : value_(i) { produces<IntProduct>(); }
+    explicit IntOneSharedProducer(int i) : value_(i) {
+      produces<IntProduct>();
+      usesResource("IntOneShared");
+    }
     void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& iConfig) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      desc.addUntracked<std::vector<std::string>>("resourceNames", std::vector<std::string>{});
+
+      iConfig.addDefault(desc);
+    }
 
   private:
     int value_;
   };
 
-  void IntLegacyProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void IntOneSharedProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     e.put(std::make_unique<IntProduct>(value_));
   }
@@ -237,13 +256,25 @@ namespace edmtest {
   }
 
   //--------------------------------------------------------------------
-  class BusyWaitIntLegacyProducer : public edm::EDProducer {
+  class BusyWaitIntOneSharedProducer : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
-    explicit BusyWaitIntLegacyProducer(edm::ParameterSet const& p)
+    explicit BusyWaitIntOneSharedProducer(edm::ParameterSet const& p)
         : value_(p.getParameter<int>("ivalue")),
           iterations_(p.getParameter<unsigned int>("iterations")),
           pi_(std::acos(-1)) {
+      for (auto const& r : p.getUntrackedParameter<std::vector<std::string>>("resourceNames")) {
+        usesResource(r);
+      }
       produces<IntProduct>();
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& iConfig) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      desc.add<unsigned int>("iterations");
+      desc.addUntracked<std::vector<std::string>>("resourceNames", std::vector<std::string>{});
+
+      iConfig.addDefault(desc);
     }
 
     void produce(edm::Event& e, edm::EventSetup const& c) override;
@@ -254,7 +285,7 @@ namespace edmtest {
     const double pi_;
   };
 
-  void BusyWaitIntLegacyProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void BusyWaitIntOneSharedProducer::produce(edm::Event& e, edm::EventSetup const&) {
     double sum = 0.;
     const double stepSize = pi_ / iterations_;
     for (unsigned int i = 0; i < iterations_; ++i) {
@@ -346,6 +377,46 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces a TransientIntParent instance.
+  //
+  class TransientIntParentProducer : public edm::global::EDProducer<> {
+  public:
+    explicit TransientIntParentProducer(edm::ParameterSet const& p)
+        : token_{produces<TransientIntParent>()}, value_(p.getParameter<int>("ivalue")) {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    const edm::EDPutTokenT<TransientIntParent> token_;
+    const int value_;
+  };
+
+  void TransientIntParentProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    // EventSetup is not used.
+    e.emplace(token_, value_);
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces a IntProduct instance from a TransientIntParent
+  //
+  class IntProducerFromTransientParent : public edm::global::EDProducer<> {
+  public:
+    explicit IntProducerFromTransientParent(edm::ParameterSet const& p)
+        : putToken_{produces<IntProduct>()}, getToken_{consumes(p.getParameter<edm::InputTag>("src"))} {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    const edm::EDPutTokenT<IntProduct> putToken_;
+    const edm::EDGetTokenT<TransientIntParent> getToken_;
+  };
+
+  void IntProducerFromTransientParent::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    // EventSetup is not used.
+    e.emplace(putToken_, e.get(getToken_).value);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an Int16_tProduct instance.
   //
   class Int16_tProducer : public edm::global::EDProducer<> {
@@ -373,13 +444,20 @@ namespace edmtest {
     explicit AddIntsProducer(edm::ParameterSet const& p)
         : putToken_{produces<IntProduct>()},
           otherPutToken_{produces<IntProduct>("other")},
-          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
+          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent")) {
       auto const& labels = p.getParameter<std::vector<edm::InputTag>>("labels");
       for (auto const& label : labels) {
         tokens_.emplace_back(consumes(label));
       }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<unsigned int>("onlyGetOnEvent", 0u);
+      desc.add<std::vector<edm::InputTag>>("labels");
+      descriptions.addDefault(desc);
+    }
 
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
@@ -399,6 +477,36 @@ namespace edmtest {
     }
     e.emplace(putToken_, value);
     e.emplace(otherPutToken_, value);
+  }
+
+  //
+  // Produces an IntProduct instance, using many IntProducts as input.
+  //
+
+  class AddAllIntsProducer : public edm::global::EDProducer<> {
+  public:
+    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    const edm::EDPutTokenT<int> putToken_;
+  };
+
+  void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    std::vector<edm::Handle<IntProduct>> ints;
+    e.getManyByType(ints);
+
+    int value = 0;
+    for (auto const& i : ints) {
+      value += i->value;
+    }
+
+    e.emplace(putToken_, value);
   }
 
   //
@@ -457,7 +565,7 @@ namespace edmtest {
     }
 
     // EventSetup is not used.
-    for (auto const tv : tokenValues_) {
+    for (auto const& tv : tokenValues_) {
       e.emplace(tv.token, tv.value);
     }
   }
@@ -831,15 +939,16 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
-using edmtest::BusyWaitIntLegacyProducer;
 using edmtest::BusyWaitIntLimitedProducer;
+using edmtest::BusyWaitIntOneSharedProducer;
 using edmtest::BusyWaitIntProducer;
 using edmtest::ConsumingIntProducer;
 using edmtest::EventNumberIntProducer;
 using edmtest::FailingProducer;
 using edmtest::Int16_tProducer;
-using edmtest::IntLegacyProducer;
+using edmtest::IntOneSharedProducer;
 using edmtest::IntProducer;
 using edmtest::IntProducerBeginProcessBlock;
 using edmtest::IntProducerEndProcessBlock;
@@ -855,16 +964,19 @@ DEFINE_FWK_MODULE(edmtest::FailingInLumiProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
-DEFINE_FWK_MODULE(IntLegacyProducer);
+DEFINE_FWK_MODULE(IntOneSharedProducer);
 DEFINE_FWK_MODULE(BusyWaitIntProducer);
 DEFINE_FWK_MODULE(BusyWaitIntLimitedProducer);
-DEFINE_FWK_MODULE(BusyWaitIntLegacyProducer);
+DEFINE_FWK_MODULE(BusyWaitIntOneSharedProducer);
 DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
+DEFINE_FWK_MODULE(edmtest::TransientIntParentProducer);
+DEFINE_FWK_MODULE(edmtest::IntProducerFromTransientParent);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
+DEFINE_FWK_MODULE(AddAllIntsProducer);
 DEFINE_FWK_MODULE(ManyIntProducer);
 DEFINE_FWK_MODULE(ManyIntWhenRegisteredProducer);
 DEFINE_FWK_MODULE(NonEventIntProducer);

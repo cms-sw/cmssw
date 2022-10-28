@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdlib.h>
-#include "tbb/global_control.h"
-#include "tbb/parallel_for.h"
-#include "tbb/blocked_range.h"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/blocked_range.h"
 
 using namespace tbb;
 using namespace std;

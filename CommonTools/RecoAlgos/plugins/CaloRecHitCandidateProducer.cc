@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 
@@ -6,7 +6,7 @@ namespace reco {
   namespace modules {
 
     template <typename HitCollection>
-    class CaloRecHitCandidateProducer : public edm::EDProducer {
+    class CaloRecHitCandidateProducer : public edm::global::EDProducer<> {
     public:
       /// constructor
       CaloRecHitCandidateProducer(const edm::ParameterSet &cfg)
@@ -16,9 +16,9 @@ namespace reco {
 
     private:
       /// process one event
-      void produce(edm::Event &, const edm::EventSetup &) override;
+      void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
       /// source collection tag
-      edm::EDGetTokenT<HitCollection> srcToken_;
+      const edm::EDGetTokenT<HitCollection> srcToken_;
     };
   }  // namespace modules
 }  // namespace reco
@@ -31,7 +31,9 @@ namespace reco {
   namespace modules {
 
     template <typename HitCollection>
-    void CaloRecHitCandidateProducer<HitCollection>::produce(edm::Event &evt, const edm::EventSetup &) {
+    void CaloRecHitCandidateProducer<HitCollection>::produce(edm::StreamID,
+                                                             edm::Event &evt,
+                                                             const edm::EventSetup &) const {
       using namespace edm;
       using namespace reco;
       using namespace std;

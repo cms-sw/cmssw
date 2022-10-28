@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -6,7 +6,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-class PatElectronEAIsoCorrectionProducer : public edm::EDProducer {
+class PatElectronEAIsoCorrectionProducer : public edm::stream::EDProducer<> {
 public:
   explicit PatElectronEAIsoCorrectionProducer(const edm::ParameterSet& iConfig);
   ~PatElectronEAIsoCorrectionProducer() override{};

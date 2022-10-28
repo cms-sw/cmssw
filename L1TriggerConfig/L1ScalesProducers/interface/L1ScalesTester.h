@@ -18,23 +18,34 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
 //
 // class decleration
 //
 
-class L1ScalesTester : public edm::EDAnalyzer {
+class L1ScalesTester : public edm::one::EDAnalyzer<> {
 public:
   explicit L1ScalesTester(const edm::ParameterSet&);
-  ~L1ScalesTester() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken_;
+  const edm::ESGetToken<L1CaloEcalScale, L1CaloEcalScaleRcd> ecalScaleToken_;
+  const edm::ESGetToken<L1CaloHcalScale, L1CaloHcalScaleRcd> hcalScaleToken_;
+  const edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> jetScaleToken_;
 };
 
 //

@@ -56,6 +56,9 @@ namespace npstat {
           table_(tab.table_, Same<Num2>(), tab.title().c_str(), tab.accumulatedDataLabel().c_str()),
           deg_(tab.deg_) {}
 
+    /** Default constructor not implemented **/
+    StorableHistoNDFunctor() = delete;
+
     ~StorableHistoNDFunctor() override {}
 
     unsigned minDim() const override { return table_.dim(); };
@@ -104,8 +107,6 @@ namespace npstat {
     }
 
   private:
-    StorableHistoNDFunctor() = delete;
-
     Table table_;
     unsigned deg_;
     Converter conv_;

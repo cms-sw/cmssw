@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 process = cms.Process('SIMDIGI')
 
@@ -94,16 +93,10 @@ process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.doRecHits = False
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
                              'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -120,7 +113,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in six.iteritems(process.producers_()):
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

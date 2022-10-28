@@ -1,38 +1,36 @@
-#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include <string>
 #include <iostream>
 
-struct TestSeedingLayers final : public edm::EDAnalyzer {
-  explicit TestSeedingLayers(const edm::ParameterSet& conf) {}
+struct TestSeedingLayers final : public edm::global::EDAnalyzer<> {
+  explicit TestSeedingLayers(const edm::ParameterSet& conf)
+      : SeedingLayerSetsHits_token(consumes<SeedingLayerSetsHits>(edm::InputTag("MixedLayerTriplets"))) {}
+  virtual ~TestSeedingLayers() = default;
 
-  virtual ~TestSeedingLayers() {}
-
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) {
-    edm::Handle<SeedingLayerSetsHits> layersH;
-
-    std::string layerProd = "MixedLayerTriplets";
-    e.getByLabel(layerProd, layersH);
-
+  void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+    edm::Handle<SeedingLayerSetsHits> layersH = iEvent.getHandle(SeedingLayerSetsHits_token);
     auto const& layers = *layersH;
 
-    std::cout << layers.numberOfLayersInSet() << ' ' << layers.size() << std::endl;
+    edm::LogPrint("TestSeedingLayers") << layers.numberOfLayersInSet() << ' ' << layers.size();
 
     for (auto const& lset : layers) {
-      std::cout << lset.size();
+      edm::LogPrint("TestSeedingLayers") << lset.size();
       for (auto const& la : lset) {
-        std::cout << ": " << la.name() << ' ' << la.index() << ' ' << la.hits().size();
+        edm::LogPrint("TestSeedingLayers") << ": " << la.name() << ' ' << la.index() << ' ' << la.hits().size();
       }
-      std::cout << std::endl;
+      edm::LogPrint("TestSeedingLayers");
     }
   }
+
+private:
+  edm::EDGetTokenT<SeedingLayerSetsHits> SeedingLayerSetsHits_token;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

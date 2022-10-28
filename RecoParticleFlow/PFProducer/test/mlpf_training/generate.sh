@@ -26,7 +26,7 @@ PILEUP_INPUT=dbs:/MinBias_TuneCP5_13TeV-pythia8/RunIIFall18GS-102X_upgrade2018_r
 
 #Generate the MC
 cmsDriver.py $SAMPLE \
-  --conditions auto:phase1_2021_realistic \
+  --conditions auto:phase1_2022_realistic \
   -n $N \
   --era Run3 \
   --eventcontent FEVTDEBUGHLT \
@@ -42,7 +42,7 @@ cmsDriver.py $SAMPLE \
 
 #Run the reco sequences
 cmsDriver.py step3 \
-  --conditions auto:phase1_2021_realistic \
+  --conditions auto:phase1_2022_realistic \
   --era Run3 \
   -n -1 \
   --eventcontent FEVTDEBUGHLT \

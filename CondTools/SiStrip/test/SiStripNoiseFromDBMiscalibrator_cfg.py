@@ -33,7 +33,7 @@ process.MessageLogger.SiStripNoisesFromDBMiscalibrator=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),
-    threshold = cms.untracked.string("INFO"),
+    threshold = cms.untracked.string("WARNING"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
@@ -214,24 +214,23 @@ process.load("CondTools.SiStrip.scaleAndSmearSiStripNoises_cfi")
 #process.scaleAndSmearSiStripNoises.params  = subsets        # as a cms.VPset
 #process.scaleAndSmearSiStripNoises.params  = byLayerOnlyTIB # as a cms.VPset
 process.scaleAndSmearSiStripNoises.params  = autoparams
-process.scaleAndSmearSiStripNoises.fillDefaults = False     # to fill uncabled DetIds with default
-
-##
-## Database output service
-##
-process.load("CondCore.CondDB.CondDB_cfi")
+process.scaleAndSmearSiStripNoises.fillDefaults = False      # to fill uncabled DetIds with default
 
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedNoise_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDB,
-                                          timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripNoisesRcd'),
-                                                                     tag = cms.string('modifiedNoise')
-                                                                     )
-                                                            )
-                                          )
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(3),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:modifiedSiStripNoise_%s_IOV_%s.db' % ( process.GlobalTag.globaltag._value, str(options.runNumber))),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripNoisesRcd'),
+        tag = cms.string('modifiedNoise')
+    ))
+)
 
 process.p = cms.Path(process.scaleAndSmearSiStripNoises)

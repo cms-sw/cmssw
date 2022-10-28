@@ -4,8 +4,6 @@
 <use name="TrackingTools/DetLayers"/>
 <use name="FWCore/Framework"/>
 <use name="RecoTracker/TkDetLayers"/>
-<use name="RecoTracker/Record"/>
-<use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>
 <export>
   <lib name="1"/>

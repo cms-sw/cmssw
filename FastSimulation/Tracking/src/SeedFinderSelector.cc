@@ -1,23 +1,24 @@
 #include "FastSimulation/Tracking/interface/SeedFinderSelector.h"
 
 // framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // track reco
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
 // data formats
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
@@ -25,7 +26,11 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
     : trackingRegion_(nullptr),
       eventSetup_(nullptr),
       measurementTracker_(nullptr),
-      measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")) {
+      measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")),
+      measurementTrackerESToken_(consumesCollector.esConsumes(edm::ESInputTag("", measurementTrackerLabel_))),
+      trackerTopologyESToken_(consumesCollector.esConsumes()),
+      fieldESToken_(consumesCollector.esConsumes()),
+      msMakerESToken_(consumesCollector.esConsumes()) {
   if (cfg.exists("pixelTripletGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
     pixelTripletGenerator_ = HitTripletGeneratorFromPairAndLayersFactory::get()->create(
@@ -35,7 +40,7 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
   if (cfg.exists("MultiHitGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
     multiHitGenerator_ = MultiHitGeneratorFromPairAndLayersFactory::get()->create(
-        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig);
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector);
   }
 
   if (cfg.exists("CAHitTripletGeneratorFactory")) {
@@ -77,10 +82,10 @@ SeedFinderSelector::~SeedFinderSelector() { ; }
 void SeedFinderSelector::initEvent(const edm::Event &ev, const edm::EventSetup &es) {
   eventSetup_ = &es;
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTrackerHandle);
-  es.get<TrackerTopologyRcd>().get(trackerTopology);
-  measurementTracker_ = &(*measurementTrackerHandle);
+  measurementTracker_ = &es.getData(measurementTrackerESToken_);
+  trackerTopology_ = &es.getData(trackerTopologyESToken_);
+  field_ = &es.getData(fieldESToken_);
+  msmaker_ = &es.getData(msMakerESToken_);
 
   if (multiHitGenerator_) {
     multiHitGenerator_->initES(es);
@@ -125,7 +130,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
 
   HitDoublets result(fhm, shm);
   HitPairGeneratorFromLayerPair::doublets(
-      *trackingRegion_, *firstLayer, *secondLayer, fhm, shm, *eventSetup_, 0, result);
+      *trackingRegion_, *firstLayer, *secondLayer, fhm, shm, *field_, *msmaker_, 0, result);
 
   if (result.empty()) {
     return false;
@@ -151,8 +156,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
       return !tripletresult.empty();
     } else if (multiHitGenerator_) {
       OrderedMultiHits tripletresult;
-      multiHitGenerator_->hitTriplets(
-          *trackingRegion_, tripletresult, *eventSetup_, result, &thmp, thirdLayerDetLayer, 1);
+      multiHitGenerator_->hitTriplets(*trackingRegion_, tripletresult, result, &thmp, thirdLayerDetLayer, 1);
       return !tripletresult.empty();
     }
     //new for Phase1
@@ -210,13 +214,13 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
           pairCandidate1[1], std::make_unique<RecHitsSortedInPhi>(sHits, trackingRegion_->origin(), sLayer));
       HitDoublets res1(firsthm, secondhm);
       HitPairGeneratorFromLayerPair::doublets(
-          *trackingRegion_, *fLayer, *sLayer, firsthm, secondhm, *eventSetup_, 0, res1);
+          *trackingRegion_, *fLayer, *sLayer, firsthm, secondhm, *field_, *msmaker_, 0, res1);
       filler.addDoublets(pairCandidate1, std::move(res1));
       const RecHitsSortedInPhi &thirdhm = *layerCache.add(
           pairCandidate2[1], std::make_unique<RecHitsSortedInPhi>(tHits, trackingRegion_->origin(), tLayer));
       HitDoublets res2(secondhm, thirdhm);
       HitPairGeneratorFromLayerPair::doublets(
-          *trackingRegion_, *sLayer, *tLayer, secondhm, thirdhm, *eventSetup_, 0, res2);
+          *trackingRegion_, *sLayer, *tLayer, secondhm, thirdhm, *field_, *msmaker_, 0, res2);
       filler.addDoublets(pairCandidate2, std::move(res2));
 
       std::vector<OrderedHitSeeds> tripletresult;
@@ -224,7 +228,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
       for (auto &ntuplet : tripletresult)
         ntuplet.reserve(3);
       //calling the function from the class, modifies tripletresult
-      CAHitTriplGenerator_->hitNtuplets(ihd, tripletresult, *eventSetup_, *seedingLayer);
+      CAHitTriplGenerator_->hitNtuplets(ihd, tripletresult, *seedingLayer);
       return !tripletresult[0].empty();
     }
   }
@@ -291,19 +295,19 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
         pairCandidate1[1], std::make_unique<RecHitsSortedInPhi>(sHits, trackingRegion_->origin(), sLayer));
     HitDoublets res1(firsthm, secondhm);
     HitPairGeneratorFromLayerPair::doublets(
-        *trackingRegion_, *fLayer, *sLayer, firsthm, secondhm, *eventSetup_, 0, res1);
+        *trackingRegion_, *fLayer, *sLayer, firsthm, secondhm, *field_, *msmaker_, 0, res1);
     filler.addDoublets(pairCandidate1, std::move(res1));
     const RecHitsSortedInPhi &thirdhm = *layerCache.add(
         pairCandidate2[1], std::make_unique<RecHitsSortedInPhi>(tHits, trackingRegion_->origin(), tLayer));
     HitDoublets res2(secondhm, thirdhm);
     HitPairGeneratorFromLayerPair::doublets(
-        *trackingRegion_, *sLayer, *tLayer, secondhm, thirdhm, *eventSetup_, 0, res2);
+        *trackingRegion_, *sLayer, *tLayer, secondhm, thirdhm, *field_, *msmaker_, 0, res2);
     filler.addDoublets(pairCandidate2, std::move(res2));
     const RecHitsSortedInPhi &fourthhm = *layerCache.add(
         pairCandidate3[1], std::make_unique<RecHitsSortedInPhi>(frHits, trackingRegion_->origin(), frLayer));
     HitDoublets res3(thirdhm, fourthhm);
     HitPairGeneratorFromLayerPair::doublets(
-        *trackingRegion_, *tLayer, *frLayer, thirdhm, fourthhm, *eventSetup_, 0, res3);
+        *trackingRegion_, *tLayer, *frLayer, thirdhm, fourthhm, *field_, *msmaker_, 0, res3);
     filler.addDoublets(pairCandidate3, std::move(res3));
 
     std::vector<OrderedHitSeeds> quadrupletresult;
@@ -311,7 +315,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
     for (auto &ntuplet : quadrupletresult)
       ntuplet.reserve(4);
     //calling the function from the class, modifies quadrupletresult
-    CAHitQuadGenerator_->hitNtuplets(ihd, quadrupletresult, *eventSetup_, *seedingLayer);
+    CAHitQuadGenerator_->hitNtuplets(ihd, quadrupletresult, *seedingLayer);
     return !quadrupletresult[0].empty();
   }
 
@@ -320,7 +324,6 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
 
 //new for Phase1
 SeedingLayerSetsBuilder::SeedingLayerId SeedFinderSelector::Layer_tuple(const FastTrackerRecHit *hit) const {
-  const TrackerTopology *const tTopo = trackerTopology.product();
   GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
   TrackerDetSide side = TrackerDetSide::Barrel;
   int idLayer = 0;
@@ -328,11 +331,11 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedFinderSelector::Layer_tuple(const Fa
   if ((hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelBarrel) {
     subdet = GeomDetEnumerators::PixelBarrel;
     side = TrackerDetSide::Barrel;
-    idLayer = tTopo->pxbLayer(hit->det()->geographicalId());
+    idLayer = trackerTopology_->pxbLayer(hit->det()->geographicalId());
   } else if ((hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelEndcap) {
     subdet = GeomDetEnumerators::PixelEndcap;
-    idLayer = tTopo->pxfDisk(hit->det()->geographicalId());
-    if (tTopo->pxfSide(hit->det()->geographicalId()) == 1) {
+    idLayer = trackerTopology_->pxfDisk(hit->det()->geographicalId());
+    if (trackerTopology_->pxfSide(hit->det()->geographicalId()) == 1) {
       side = TrackerDetSide::NegEndcap;
     } else {
       side = TrackerDetSide::PosEndcap;

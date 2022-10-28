@@ -40,7 +40,7 @@
 class HcalSimHitAnalysis : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   HcalSimHitAnalysis(const edm::ParameterSet& ps);
-  ~HcalSimHitAnalysis() override {}
+  ~HcalSimHitAnalysis() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -51,25 +51,23 @@ protected:
 
 private:
   static const int ndets_ = 4;
-  std::string g4Label_, hcalHits_;
-  bool verbose_, testNumber_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const std::string g4Label_, hcalHits_;
+  const bool verbose_, testNumber_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   TH2F *poszp_[ndets_], *poszn_[ndets_];
 };
 
-HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps) {
+HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps)
+    : g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+      hcalHits_(ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
+      verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
+      testNumber_(ps.getUntrackedParameter<bool>("TestNumber", true)),
+      tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()) {
   usesResource(TFileService::kSharedResource);
-
-  g4Label_ = ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits");
-  hcalHits_ = ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits");
-  verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
-  testNumber_ = ps.getUntrackedParameter<bool>("TestNumber", true);
-
-  tok_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
 
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_ << " testNumber "
                                << testNumber_;
@@ -127,8 +125,7 @@ void HcalSimHitAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iS)
   const auto& pHRNDC = iS.getData(tok_HRNDC_);
   const HcalDDDRecConstants* hcons = &pHRNDC;
 
-  edm::Handle<edm::PCaloHitContainer> hitsCalo;
-  e.getByToken(tok_calo_, hitsCalo);
+  const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   if (verbose_)

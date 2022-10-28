@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,10 +10,10 @@
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
 #include <iostream>
 
-class CSCMapperTestStartup : public edm::EDAnalyzer {
+class CSCMapperTestStartup : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCMapperTestStartup(const edm::ParameterSet &);
-  ~CSCMapperTestStartup();
+  ~CSCMapperTestStartup() = default;
 
 private:
   virtual void beginJob();
@@ -21,13 +21,13 @@ private:
   virtual void endJob();
 
   std::string algoName;
+
+  const edm::ESGetToken<CSCChannelMapperBase, CSCChannelMapperRecord> theCSCChannelMapperToken_;
 };
 
-CSCMapperTestStartup::CSCMapperTestStartup(const edm::ParameterSet &pset) {}
+CSCMapperTestStartup::CSCMapperTestStartup(const edm::ParameterSet &pset) : theCSCChannelMapperToken_(esConsumes()) {}
 
-CSCMapperTestStartup::~CSCMapperTestStartup() {}
-
-void CSCMapperTestStartup::analyze(const edm::Event &ev, const edm::EventSetup &esu) {
+void CSCMapperTestStartup::analyze(const edm::Event &ev, const edm::EventSetup &iSetup) {
   const int egeo[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};        // endcap 1=+z, 2=-z
   const int sgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};        // station 1-4
   const int rgeo[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};        // ring 1-4
@@ -55,9 +55,7 @@ void CSCMapperTestStartup::analyze(const edm::Event &ev, const edm::EventSetup &
   const int cdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // chamber 1-18/36
   const int ldetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // layer 1-6
 
-  const CSCChannelMapperRecord &irec = esu.get<CSCChannelMapperRecord>();
-  edm::ESHandle<CSCChannelMapperBase> mapper_;
-  irec.get(mapper_);
+  const auto mapper_ = &iSetup.getData(theCSCChannelMapperToken_);
 
   algoName = mapper_->name();
 

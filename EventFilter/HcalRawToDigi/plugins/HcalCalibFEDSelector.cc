@@ -1,6 +1,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -14,15 +14,12 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalFEDList.h"
 
-class HcalCalibFEDSelector : public edm::EDProducer {
+class HcalCalibFEDSelector : public edm::global::EDProducer<> {
 public:
   HcalCalibFEDSelector(const edm::ParameterSet&);
-  ~HcalCalibFEDSelector() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> tok_fed_;
@@ -35,9 +32,7 @@ HcalCalibFEDSelector::HcalCalibFEDSelector(const edm::ParameterSet& iConfig) {
   produces<FEDRawDataCollection>();
 }
 
-HcalCalibFEDSelector::~HcalCalibFEDSelector() {}
-
-void HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HcalCalibFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<FEDRawDataCollection> rawIn;
@@ -106,11 +101,5 @@ void HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   iEvent.put(std::move(producedData));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void HcalCalibFEDSelector::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HcalCalibFEDSelector::endJob() {}
 
 DEFINE_FWK_MODULE(HcalCalibFEDSelector);

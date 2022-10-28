@@ -11,7 +11,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@ namespace edm {
 
 class TFile;
 
-class CSCGainsStudy : public edm::EDAnalyzer {
+class CSCGainsStudy : public edm::one::EDAnalyzer<> {
 public:
   /// configurable parameters
   explicit CSCGainsStudy(const edm::ParameterSet& p);
@@ -112,6 +112,7 @@ private:
   std::string rootFileName;
 
   // Store in memory the Gains
+  const edm::ESGetToken<CSCGains, CSCGainsRcd> gainsToken;
   const CSCGains* pGains;
 };
 

@@ -36,6 +36,7 @@
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="2"/>
     <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>

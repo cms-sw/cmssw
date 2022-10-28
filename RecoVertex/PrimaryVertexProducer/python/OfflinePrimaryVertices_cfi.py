@@ -67,20 +67,24 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_XeXe_2017 | pp_on_AA).toModify(offlinePrimaryVertices,
                TkFilterParameters = dict(
+                   algorithm="filterWithThreshold",
                    maxD0Significance = 2.0,
                    maxD0Error = 10.0, 
                    maxDzError = 10.0, 
                    minPixelLayersWithHits=3,
                    minPt = 0.7,
-                   trackQuality = "highPurity"
+                   trackQuality = "highPurity",
+                   numTracksThreshold = cms.int32(10),
+                   maxNumTracksThreshold = cms.int32(1000),
+                   minPtTight = cms.double(1.0)
                ),
                TkClusParameters = cms.PSet(
-            algorithm = cms.string("gap"),
-            TkGapClusParameters = cms.PSet(
-                zSeparation = cms.double(1.0)        
-                )
-            )
+                 algorithm = cms.string("gap"),
+                 TkGapClusParameters = cms.PSet(
+                   zSeparation = cms.double(1.0)        
+                 )
                )
+)
     
 from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
 highBetaStar_2018.toModify(offlinePrimaryVertices,

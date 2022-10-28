@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -28,13 +27,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
 namespace {
@@ -139,6 +136,7 @@ private:
   };
 
   // module configuration
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenuToken;
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results;
   const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results;
   const std::string m_dqm_path;
@@ -159,6 +157,7 @@ void TriggerRatesMonitor::fillDescriptions(edm::ConfigurationDescriptions &descr
 
 TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const &config)
     :  // module configuration
+      m_l1tMenuToken{esConsumes<edm::Transition::BeginRun>()},
       m_l1t_results(consumes<GlobalAlgBlkBxCollection>(config.getUntrackedParameter<edm::InputTag>("l1tResults"))),
       m_hlt_results(consumes<edm::TriggerResults>(config.getUntrackedParameter<edm::InputTag>("hltResults"))),
       m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
@@ -238,7 +237,7 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
 
   // book the rate histograms for the L1 triggers that are included in the L1 menu
   booker.setCurrentFolder(m_dqm_path + "/L1T");
-  auto const &l1tMenu = edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
+  auto const &l1tMenu = setup.getData(m_l1tMenuToken);
   for (auto const &keyval : l1tMenu.getAlgorithmMap()) {
     unsigned int bit = keyval.second.getIndex();
     bool masked = false;  // FIXME read L1 masks once they will be avaiable in the EventSetup
@@ -333,7 +332,7 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
     histograms.tcds_counts[event.experimentType()]->Fill(lumisection);
 
   // monitor the L1 triggers rates
-  auto const &bxvector = edm::get(event, m_l1t_results);
+  auto const &bxvector = event.get(m_l1t_results);
   if (not bxvector.isEmpty(0)) {
     auto const &results = bxvector.at(0, 0);
     for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
@@ -344,9 +343,8 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
 
   // monitor the HLT triggers and datsets rates
   if (histograms.hltConfig.inited()) {
-    edm::TriggerResults const &hltResults = edm::get(event, m_hlt_results);
-    if (hltResults.size() == histograms.hltIndices.size()) {
-    } else {
+    auto const &hltResults = event.get(m_hlt_results);
+    if (hltResults.size() != histograms.hltIndices.size()) {
       edm::LogWarning("TriggerRatesMonitor")
           << "This should never happen: the number of HLT paths has changed since the beginning of the run";
     }

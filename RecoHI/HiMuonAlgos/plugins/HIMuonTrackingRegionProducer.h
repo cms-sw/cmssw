@@ -53,7 +53,7 @@ public:
     std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // initialize the region builder
-    theRegionBuilder->setEvent(ev);
+    theRegionBuilder->setEvent(ev, es);
 
     // get stand-alone muon collection
     edm::Handle<reco::TrackCollection> muonH;

@@ -13,13 +13,11 @@ namespace reco::tau {
     explicit RecoTauLexicographicalRanking(const RankingList& rankers) : rankers_(rankers) {}
     // Predicate to compare a and b
     bool operator()(const Type& a, const Type& b) const {
-      typename RankingList::const_iterator ranker = rankers_.begin();
-      while (ranker != rankers_.end()) {
+      for (auto const& ranker : rankers_) {
         double aResult = (*ranker)(a);
         double bResult = (*ranker)(b);
         if (aResult != bResult)
           return (aResult < bResult);
-        ++ranker;
       }
       // If all aare equal return false
       return false;
@@ -31,28 +29,21 @@ namespace reco::tau {
 
   template <typename Container, class OverlapFunction>
   Container cleanOverlaps(const Container& dirty) {
-    typedef typename Container::const_iterator Iterator;
     // Output container of clean objects
     Container clean;
     OverlapFunction overlapChecker;
-    for (Iterator candidate = dirty.begin(); candidate != dirty.end(); ++candidate) {
+    for (auto const& candidate : dirty) {
       // Check if this overlaps with a pizero already in the clean list
       bool overlaps = false;
-      for (Iterator cleaned = clean.begin(); cleaned != clean.end() && !overlaps; ++cleaned) {
-        overlaps = overlapChecker(*candidate, *cleaned);
+      for (auto cleaned = clean.begin(); cleaned != clean.end() && !overlaps; ++cleaned) {
+        overlaps = overlapChecker(candidate, *cleaned);
       }
       // If it didn't overlap with anything clean, add it to the clean list
       if (!overlaps)
-        clean.insert(clean.end(), *candidate);
+        clean.insert(clean.end(), candidate);
     }
     return clean;
   }
-
-  template <typename T>
-  class SortByDescendingPt {
-  public:
-    bool operator()(const T& a, const T& b) const { return a.pt() > b.pt(); }
-  };
 
 }  // namespace reco::tau
 

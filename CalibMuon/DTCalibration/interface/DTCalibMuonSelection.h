@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -12,18 +12,18 @@
 #include <vector>
 #include <string>
 
-class DTCalibMuonSelection : public edm::EDFilter {
+class DTCalibMuonSelection : public edm::stream::EDFilter<> {
 public:
   explicit DTCalibMuonSelection(const edm::ParameterSet&);
 
   ~DTCalibMuonSelection() override;
 
 private:
-  void beginJob() override;
+  void beginStream(edm::StreamID) override;
 
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
-  void endJob() override;
+  void endStream() override;
 
   edm::EDGetTokenT<reco::MuonCollection> muonList;
 

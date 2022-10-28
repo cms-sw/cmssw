@@ -30,6 +30,11 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -105,6 +110,9 @@ namespace edm {
     //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
     std::string label_;
+
+    edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedToken_;
+    edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> grToken_;
   };
 }  // namespace edm
 

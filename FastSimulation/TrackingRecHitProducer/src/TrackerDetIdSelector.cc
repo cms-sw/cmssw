@@ -80,46 +80,40 @@ const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTabl
 }
 ;
 
-ExpressionAST operator>(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::GREATER, lhs, rhs);
-  return ast;
-}
+namespace detail {
+  ExpressionAST opGreater(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::GREATER, lhs, rhs);
+  }
 
-ExpressionAST operator>=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::GREATER_EQUAL, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opGreaterEq(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::GREATER_EQUAL, lhs, rhs);
+  }
 
-ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::EQUAL, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opEq(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::EQUAL, lhs, rhs);
+  }
 
-ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::LESS_EQUAL, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opLesserEq(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::LESS_EQUAL, lhs, rhs);
+  }
 
-ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(::BinaryOP::OP::LESS, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opLesser(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(::BinaryOP::OP::LESS, lhs, rhs);
+  }
 
-ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::NOT_EQUAL, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opNotEq(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::NOT_EQUAL, lhs, rhs);
+  }
 
-ExpressionAST operator&&(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::AND, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opAnd(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::AND, lhs, rhs);
+  }
 
-ExpressionAST operator||(ExpressionAST const& lhs, ExpressionAST const& rhs) {
-  ExpressionAST ast = BinaryOP(BinaryOP::OP::OR, lhs, rhs);
-  return ast;
-}
+  ExpressionAST opOr(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return BinaryOP(BinaryOP::OP::OR, lhs, rhs);
+  }
 
+}  // namespace detail
 ExpressionAST& ExpressionAST::operator!() {
   expr = UnaryOP(UnaryOP::OP::NEG, expr);
   return *this;

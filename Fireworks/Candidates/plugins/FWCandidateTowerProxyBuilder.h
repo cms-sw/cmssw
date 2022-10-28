@@ -29,10 +29,11 @@ protected:
   FWHistSliceSelector* instantiateSliceSelector() override;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
-private:
+public:
   FWCandidateTowerProxyBuilder(const FWCandidateTowerProxyBuilder&) = delete;                   // stop default
   const FWCandidateTowerProxyBuilder& operator=(const FWCandidateTowerProxyBuilder&) = delete;  // stop default
 
+private:
   virtual void itemChangedImp(const FWEventItem*);
   // ---------- member data --------------------------------
   FWSimpleProxyHelper m_helper;

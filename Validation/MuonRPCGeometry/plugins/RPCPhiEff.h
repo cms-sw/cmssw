@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +37,7 @@
 // class decleration
 //
 
-class RPCPhiEff : public edm::EDAnalyzer {
+class RPCPhiEff : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCPhiEff(const edm::ParameterSet &);
   ~RPCPhiEff() override;

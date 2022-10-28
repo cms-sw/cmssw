@@ -1,6 +1,5 @@
 import os
 import collections
-import six
 
 def _lowerFirst(s):
     return s[0].lower()+s[1:]
@@ -374,7 +373,7 @@ class Page(object):
         self._tables[section] = table
 
     def isEmpty(self):
-        for plotSet in six.itervalues(self._plotSets):
+        for plotSet in self._plotSets.values():
             if len(plotSet) > 0:
                 return False
 

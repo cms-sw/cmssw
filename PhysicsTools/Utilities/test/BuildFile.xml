@@ -1,6 +1,7 @@
-<bin name="testPhysicsToolsUtilities" file="testPolynomial.cc,testParameter.cc,testFunctions.cc,testSimplifications.cc,testFunctionsIO.cc,testVariables.cc,testDerivatives.cc,testPrimitive.cc,testIntegral.cc,testRunner.cpp,testLumiReweight.cc">
+<bin name="testPhysicsToolsUtilities" file="testPolynomial.cc,testParameter.cc,testFunctions.cc,testSimplifications.cc,testFunctionsIO.cc,testVariables.cc,testDerivatives.cc,testPrimitive.cc,testIntegral.cc,testRunner.cpp,testLumiReweight.cc,test_correctionlib.cc">
   <use name="PhysicsTools/Utilities"/>
   <use name="cppunit"/>
+  <use name="correctionlib"/>
 </bin>
 
 <bin file="testZMassFit.cpp" name="testZMassFit">
@@ -52,3 +53,5 @@
 <bin file="test_Poisson.cpp">
   <use name="PhysicsTools/Utilities"/>
 </bin>
+
+<test name="test_edmPickEvents" command="test_edmPickEvents.sh"/>

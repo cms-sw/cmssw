@@ -15,6 +15,7 @@
 // user include files
 #include "SimG4CMS/Forward/interface/TotemT1Organization.h"
 #include "SimG4CMS/Forward/interface/TotemNumberMerger.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VPhysicalVolume.hh"
@@ -32,7 +33,7 @@ TotemT1Organization ::TotemT1Organization()
       _currentCSC(-1),
       _currentLayer(-1),
       _currentObjectType(Undefined) {
-  edm::LogInfo("ForwardSim") << "Creating TotemT1Organization";
+  edm::LogVerbatim("ForwardSim") << "Creating TotemT1Organization";
 }
 
 TotemT1Organization ::~TotemT1Organization() {}
@@ -58,10 +59,13 @@ uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) {
                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
 #endif
 
-    if (physVol->GetName() == "TotemT1" && physVol->GetCopyNo() == 1)
-      _currentDetectorPosition = 1;
-    if (physVol->GetName() == "TotemT1" && physVol->GetCopyNo() == 2)
-      _currentDetectorPosition = 2;
+    std::string dName = ForwardName::getName(physVol->GetName());
+    if (dName == "TotemT1") {
+      if (physVol->GetCopyNo() == 1)
+        _currentDetectorPosition = 1;
+      else if (physVol->GetCopyNo() == 2)
+        _currentDetectorPosition = 2;
+    }
   }
 
   touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -188,7 +192,7 @@ int TotemT1Organization ::fromObjectTypeToInt(ObjectType objectType) {
   int result(static_cast<int>(objectType));
   if (result < 0 || result >= MaxObjectTypes) {
     result = 0;
-    edm::LogInfo("ForwardSim") << "Invalid ObjectType value (" << objectType << "). Now is \"Undefined\"";
+    edm::LogVerbatim("ForwardSim") << "Invalid ObjectType value (" << objectType << "). Now is \"Undefined\"";
   }
   return result;
 }
@@ -299,24 +303,24 @@ void TotemT1Organization ::_FromDataToUnitID(void) {
     default:
       _currentDetectorPosition = 0;
       currDP = 0;
-      edm::LogInfo("ForwardSim") << "Invalid _currentDetectorPosition value (" << _currentDetectorPosition
-                                 << "). Now is \"Undefined\"";
+      edm::LogVerbatim("ForwardSim") << "Invalid _currentDetectorPosition value (" << _currentDetectorPosition
+                                     << "). Now is \"Undefined\"";
   }
 
   if (_currentPlane < -1) {
-    edm::LogInfo("ForwardSim") << "Invalid _currentPlane value (" << _currentPlane << "). Now is -1";
+    edm::LogVerbatim("ForwardSim") << "Invalid _currentPlane value (" << _currentPlane << "). Now is -1";
     _currentPlane = -1;
   }
   currPL = _currentPlane + 1;
 
   if (_currentCSC < -1 || _currentCSC > 5) {
-    edm::LogInfo("ForwardSim") << "Invalid _currentCSC value (" << _currentCSC << "). Now is -1";
+    edm::LogVerbatim("ForwardSim") << "Invalid _currentCSC value (" << _currentCSC << "). Now is -1";
     _currentCSC = -1;
   }
   currCSC = _currentCSC + 1;
 
   if (_currentLayer < -1) {
-    edm::LogInfo("ForwardSim") << "Invalid _currentLayer value (" << _currentLayer << "). Now is -1";
+    edm::LogVerbatim("ForwardSim") << "Invalid _currentLayer value (" << _currentLayer << "). Now is -1";
     _currentLayer = -1;
   }
   currLA = _currentLayer + 1;

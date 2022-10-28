@@ -6,7 +6,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Alignment/SurveyAnalysis/plugins/DTSurveyConvert.h"
 
-DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet &iConfig) : muonGeoToken_(esConsumes()) {
+DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet &iConfig)
+    : muonGeoToken_(esConsumes()),
+      dtGeomToken_(esConsumes()),
+      cscGeomToken_(esConsumes()),
+      gemGeomToken_(esConsumes()) {
   //now do what ever initialization is needed
   nameWheel_m2 = iConfig.getUntrackedParameter<std::string>("nameWheel_m2");
   nameWheel_m1 = iConfig.getUntrackedParameter<std::string>("nameWheel_m1");
@@ -75,7 +79,11 @@ void DTSurveyConvert::analyze(const edm::Event &, const edm::EventSetup &iSetup)
 
   if (WriteToDB == true) {
     // Instantiate the helper class
-    MuonAlignment align(iSetup);
+    const DTGeometry *dtGeometry = &iSetup.getData(dtGeomToken_);
+    const CSCGeometry *cscGeometry = &iSetup.getData(cscGeomToken_);
+    const GEMGeometry *gemGeometry = &iSetup.getData(gemGeomToken_);
+
+    MuonAlignment align(&*dtGeometry, &*cscGeometry, &*gemGeometry);
     std::ifstream inFile(outputFileName.c_str());
     while (!inFile.eof()) {
       float dx, dy, dz, sigma_dx, sigma_dy, sigma_dz;

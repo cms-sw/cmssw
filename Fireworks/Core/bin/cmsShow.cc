@@ -11,7 +11,7 @@
 #include <memory>
 #include <csignal>
 
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/CmsShowMain.h"
 #include "Fireworks/Core/interface/fwPaths.h"
 /* NOTE: This is a short term work around until FWLite can properly handle the MessageLogger
  */
@@ -29,7 +29,6 @@ namespace {
 
     void runCommand(edm::MessageLoggerQ::OpCode opcode, void* operand) override;
 
-  private:
     SilentMLscribe(const SilentMLscribe&) = delete;  // stop default
 
     const SilentMLscribe& operator=(const SilentMLscribe&) = delete;  // stop default

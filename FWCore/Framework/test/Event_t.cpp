@@ -83,7 +83,7 @@ namespace {
   template <typename T>
   class TestProducer : public edm::ProducerBase {
   public:
-    TestProducer(std::string const& productInstanceName) { token_ = produces<T>(productInstanceName); }
+    TestProducer(std::string const& productInstanceName) { token_ = produces(productInstanceName); }
     EDPutTokenT<T> token_;
   };
 }  // namespace
@@ -449,8 +449,8 @@ void testEvent::setUp() {
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
-  auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<RunPrincipal>(preg, pc, &historyAppender_, 0);
+  rp->setAux(RunAuxiliary(id.run(), time, time));
   lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);

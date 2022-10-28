@@ -26,27 +26,27 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
-  bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
+  bool fromDD4hep_;
 };
 
 HcalSimParametersESModule::HcalSimParametersESModule(const edm::ParameterSet& ps) {
-  fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = ps.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this);
-  if (fromDD4Hep_)
-    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   else
     cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalSimParametersESModule::HcalSimParametersESModule called with dd4hep: "
-                               << fromDD4Hep_;
+                               << fromDD4hep_;
 #endif
 }
 
 void HcalSimParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("hcalSimulationParameters", desc);
 }
 
@@ -58,11 +58,11 @@ HcalSimParametersESModule::ReturnType HcalSimParametersESModule::produce(const H
   auto ptp = std::make_unique<HcalSimulationParameters>();
   HcalSimParametersFromDD builder;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalSimParametersESModule::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(*cpv, *ptp);
   } else {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);

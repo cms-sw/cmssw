@@ -82,6 +82,10 @@ namespace l1t {
 
     OMDSReader(const std::string& connectString, const std::string& authenticationPath);
 
+    OMDSReader(const OMDSReader&) = delete;  // stop default
+
+    const OMDSReader& operator=(const OMDSReader&) = delete;  // stop default
+
     ~OMDSReader() override;
 
     // ---------- const member functions ---------------------
@@ -183,10 +187,6 @@ namespace l1t {
     void connect(const std::string& connectString, const std::string& authenticationPath);
 
   private:
-    OMDSReader(const OMDSReader&) = delete;  // stop default
-
-    const OMDSReader& operator=(const OMDSReader&) = delete;  // stop default
-
     // ---------- member data --------------------------------
   };
 

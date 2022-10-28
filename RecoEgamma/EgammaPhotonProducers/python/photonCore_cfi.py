@@ -13,12 +13,15 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
     pixelSeedProducer = cms.InputTag('electronMergedSeeds'),
     minSCEt = cms.double(10.0),
     risolveConversionAmbiguity = cms.bool(True),
+    endcapOnly = cms.bool(False),
 #    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
 )
 
-photonCoreFromMultiCl = photonCore.clone(
-    scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMultiCl',
-    pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
+photonCoreHGC = photonCore.clone(
+    scHybridBarrelProducer = "",
+    scIslandEndcapProducer = 'particleFlowSuperClusterHGCal',
+    pixelSeedProducer = 'electronMergedSeeds',
+    endcapOnly = True,
 )
 
 islandPhotonCore = photonCore.clone(

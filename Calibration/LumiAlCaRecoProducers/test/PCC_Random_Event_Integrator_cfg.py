@@ -28,8 +28,7 @@ process.alcaPCCEventProducer = cms.EDProducer("AlcaPCCEventProducer",
 
 process.alcaPCCIntegrator = cms.EDProducer("AlcaPCCIntegrator",
     AlcaPCCIntegratorParameters = cms.PSet(
-        inputPccLabel = cms.string("alcaPCCEventProducer"),
-        trigstring = cms.untracked.string("alcaPCCRandomEvent"),
+        inputPccLabel = cms.InputTag("alcaPCCEventProducer","alcaPCCRandomEvent"),
         ProdInst = cms.string("alcaPCCRandom")
     ),
 )

@@ -45,6 +45,9 @@ namespace sistrip {
                       bool mark_missing_feds,
                       const uint32_t errorThreshold);
 
+    /// private default constructor
+    RawToDigiUnpacker() = delete;
+
     /// default constructor
     ~RawToDigiUnpacker();
 
@@ -85,9 +88,6 @@ namespace sistrip {
     /// fill DetSetVectors using registries
     void update(
         RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, RawDigis& common_mode);
-
-    /// private default constructor
-    RawToDigiUnpacker() = delete;
 
     /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
     void updateEventSummary(const sistrip::FEDBuffer&, SiStripEventSummary&);

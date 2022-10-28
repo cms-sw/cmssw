@@ -1,7 +1,3 @@
-<use name="Geometry/GEMGeometry"/>
-<use name="DataFormats/GEMDigi"/>
-<use name="Geometry/Records"/>
-<use name="CondFormats/DataRecord"/>
 <use name="FWCore/Framework"/>
 <use name="rootgraphics"/>
 <library file="*.cc" name="GEMTriggerPrimitivesTest">

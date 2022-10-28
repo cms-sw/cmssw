@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -51,7 +51,7 @@
 // class decleration
 //
 
-class APVCyclePhaseProducerFromL1ABC : public edm::EDProducer {
+class APVCyclePhaseProducerFromL1ABC : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   explicit APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet&);
   ~APVCyclePhaseProducerFromL1ABC() override;

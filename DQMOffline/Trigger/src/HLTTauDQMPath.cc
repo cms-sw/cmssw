@@ -54,6 +54,8 @@ namespace {
           continue;
         if (type == "HLTTriggerTypeFilter" || type == "HLTBool")
           continue;
+        if (iLabel->find('-') == 0)  // ignore
+          continue;
         if (type == "HLT2PhotonPFTau" || type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" ||
             type == "HLT2PhotonTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);

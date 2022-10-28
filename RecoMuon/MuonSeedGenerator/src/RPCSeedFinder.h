@@ -12,13 +12,11 @@
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeed.h>
 #include <RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <vector>
 #include <algorithm>
 
-namespace edm {
-  class EventSetup;
-}
+class MagneticField;
+class RPCGeometry;
 
 class RPCSeedFinder {
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -34,7 +32,7 @@ public:
   void setOutput(std::vector<weightedTrajectorySeed> *goodweightedRef,
                  std::vector<weightedTrajectorySeed> *candidateweightedRef);
   void setrecHits(ConstMuonRecHitContainer &recHits);
-  void setEventSetup(const edm::EventSetup &iSetup);
+  void setEventSetup(const MagneticField &field, const RPCGeometry &rpcGeom);
   void seed();
 
 private:
@@ -43,7 +41,8 @@ private:
   bool isConfigured;
   bool isOutputset;
   bool isEventSetupset;
-  const edm::EventSetup *eSetup;
+  const MagneticField *pField = nullptr;
+  const RPCGeometry *pRPCGeom = nullptr;
   RPCSeedPattern oneSeed;
   //ConstMuonRecHitContainer theRecHits;
   std::vector<weightedTrajectorySeed> *goodweightedSeedsRef;

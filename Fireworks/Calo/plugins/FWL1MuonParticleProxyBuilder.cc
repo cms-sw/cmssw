@@ -22,10 +22,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWL1MuonParticleProxyBuilder(const FWL1MuonParticleProxyBuilder&) = delete;                   // stop default
   const FWL1MuonParticleProxyBuilder& operator=(const FWL1MuonParticleProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<l1extra::L1MuonParticle>::build;
   void build(const l1extra::L1MuonParticle& iData,
              unsigned int iIndex,

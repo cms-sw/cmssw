@@ -44,21 +44,25 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## Load DBSetup (if needed)
 ##
 from Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_DevDB_cff import *
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-trackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+trackerAlignment = poolDBESSource.clone(
+    connect = 'frontier://FrontierDev/CMS_COND_ALIGNMENT',
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('TrackerAlignmentRcd'),
+            tag = cms.string('Tracker10pbScenario210_mc')
+        ),
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('Tracker10pbScenarioErrors210_mc')
+        )
+    )
+)
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 
 es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
 
-trackerAlignment.connect = 'frontier://FrontierDev/CMS_COND_ALIGNMENT'
-trackerAlignment.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('TrackerAlignmentRcd'),
-    tag = cms.string('Tracker10pbScenario210_mc')
-), 
-    cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('Tracker10pbScenarioErrors210_mc')
-    ))
+
 # to apply misalignments
 TrackerDigiGeometryESModule.applyAlignment = True
 

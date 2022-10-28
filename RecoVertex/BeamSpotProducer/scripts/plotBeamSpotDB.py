@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #
@@ -46,7 +46,7 @@ from __future__ import print_function
 
 from builtins import range
 import os, string, re, sys, math
-import commands, time
+import subprocess, time
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
 from CommonMethods import *
@@ -187,7 +187,7 @@ if __name__ == '__main__':
         if option.destDB:
             mydestdb = option.destDB
         acommand = 'cmscond_list_iov -c '+mydestdb+' -P /afs/cern.ch/cms/DB/conddb -t '+ tag
-        tmpstatus = commands.getstatusoutput( acommand )
+        tmpstatus = subprocess.getstatusoutput( acommand )
         tmplistiov = tmpstatus[1].split('\n')
         #print tmplistiov
 
@@ -255,7 +255,7 @@ if __name__ == '__main__':
                     tmplumi = unpack(iIOV.since)[1]
                     acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(tmprun) +" -l "+str(tmplumi) +otherArgs
                     print(acommand)
-                status = commands.getstatusoutput( acommand )
+                status = subprocess.getstatusoutput( acommand )
                 tmpfile.write(status[1])
 
         print(" beam spot data collected and stored in file " + datafilename)
@@ -269,7 +269,7 @@ if __name__ == '__main__':
     # check if input data exists if given
     if option.data:
         if os.path.isdir(option.data):
-            tmp = commands.getstatusoutput("ls "+option.data)
+            tmp = subprocess.getstatusoutput("ls "+option.data)
             files = tmp[1].split()
             datafilename = "combined_all.txt"
             output = open(datafilename,"w")

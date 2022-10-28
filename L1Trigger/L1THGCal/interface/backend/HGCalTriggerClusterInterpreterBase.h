@@ -3,13 +3,14 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 class HGCalTriggerClusterInterpreterBase {
 public:
   HGCalTriggerClusterInterpreterBase(){};
   virtual ~HGCalTriggerClusterInterpreterBase(){};
   virtual void initialize(const edm::ParameterSet& conf) = 0;
-  virtual void eventSetup(const edm::EventSetup& es) = 0;
+  virtual void setGeometry(const HGCalTriggerGeometryBase* const) = 0;
   virtual void interpret(l1t::HGCalMulticlusterBxCollection& multiclusters) const = 0;
 };
 

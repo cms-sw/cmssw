@@ -12,8 +12,6 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTConfigPrint.h"
-#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
-#include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 
 namespace edmtest {
 
@@ -27,11 +25,10 @@ namespace edmtest {
       catalog = "";
     else
       catalog = p.getParameter<std::string>("catalog");
+    es_token = esConsumes();
   }
 
   DTConfigPrint::DTConfigPrint(int i) {}
-
-  DTConfigPrint::~DTConfigPrint() {}
 
   void DTConfigPrint::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
@@ -40,13 +37,12 @@ namespace edmtest {
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
 
     // get configuration for current run
-    edm::ESHandle<DTCCBConfig> conf;
-    context.get<DTCCBConfigRcd>().get(conf);
-    std::cout << conf->version() << std::endl;
-    std::cout << std::distance(conf->begin(), conf->end()) << " data in the container" << std::endl;
+    const auto& conf = context.getData(es_token);
+    std::cout << conf.version() << std::endl;
+    std::cout << std::distance(conf.begin(), conf.end()) << " data in the container" << std::endl;
 
     // loop over chambers
-    DTCCBConfig::ccb_config_map configKeys(conf->configKeyMap());
+    DTCCBConfig::ccb_config_map configKeys(conf.configKeyMap());
     DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
     DTCCBConfig::ccb_config_iterator iend = configKeys.end();
     while (iter != iend) {

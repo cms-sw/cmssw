@@ -52,7 +52,7 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
     template <typename T>
-    void push(tbb::task_group& iGroup, T&& iAction);
+    void push(oneapi::tbb::task_group& iGroup, T&& iAction);
 
     class Resumer {
     public:
@@ -102,7 +102,7 @@ namespace edm {
        Using this function will decrease the allowed concurrency limit by 1.
        */
     template <typename T>
-    void pushAndPause(tbb::task_group& iGroup, T&& iAction);
+    void pushAndPause(oneapi::tbb::task_group& iGroup, T&& iAction);
 
     unsigned int concurrencyLimit() const { return m_queues.size(); }
 
@@ -112,7 +112,7 @@ namespace edm {
   };
 
   template <typename T>
-  void LimitedTaskQueue::push(tbb::task_group& iGroup, T&& iAction) {
+  void LimitedTaskQueue::push(oneapi::tbb::task_group& iGroup, T&& iAction) {
     auto set_to_run = std::make_shared<std::atomic<bool>>(false);
     for (auto& q : m_queues) {
       q.push(iGroup, [set_to_run, iAction]() mutable {
@@ -125,7 +125,7 @@ namespace edm {
   }
 
   template <typename T>
-  void LimitedTaskQueue::pushAndPause(tbb::task_group& iGroup, T&& iAction) {
+  void LimitedTaskQueue::pushAndPause(oneapi::tbb::task_group& iGroup, T&& iAction) {
     auto set_to_run = std::make_shared<std::atomic<bool>>(false);
     for (auto& q : m_queues) {
       q.push(iGroup, [&q, set_to_run, iAction]() mutable {

@@ -29,12 +29,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWTrackingParticleProxyBuilder(const FWTrackingParticleProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWTrackingParticleProxyBuilder& operator=(const FWTrackingParticleProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<TrackingParticle>::build;
   void build(const TrackingParticle& iData,
              unsigned int iIndex,

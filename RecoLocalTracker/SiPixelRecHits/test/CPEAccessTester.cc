@@ -1,14 +1,15 @@
+// system includes
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// user includes
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -17,28 +18,26 @@
 
 using namespace edm;
 
-class CPEAccessTester : public edm::EDAnalyzer {
+class CPEAccessTester : public edm::one::EDAnalyzer<> {
 public:
-  CPEAccessTester(const edm::ParameterSet& pset) : conf_(pset) {}
+  CPEAccessTester(const edm::ParameterSet& pset)
+      : cpeName_(pset.getParameter<std::string>("PixelCPE")), cpeToken_(esConsumes(edm::ESInputTag("", cpeName_))) {
+    edm::LogPrint("CPEAccessTester") << "Asking for the CPE with name " << cpeName_;
+  }
 
-  ~CPEAccessTester() {}
-
+  ~CPEAccessTester() = default;
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     //
     // access the CPE
     //
-    std::string cpeName = conf_.getParameter<std::string>("PixelCPE");
-    std::cout << "Asking for the CPE with name " << cpeName << std::endl;
-
-    edm::ESHandle<PixelClusterParameterEstimator> theEstimator;
-    setup.get<TkPixelCPERecord>().get(cpeName, theEstimator);
-
+    edm::ESHandle<PixelClusterParameterEstimator> theEstimator = setup.getHandle(cpeToken_);
     auto& estimator = *theEstimator;
-    std::cout << "Got a " << typeid(estimator).name() << std::endl;
+    edm::LogPrint("CPEAccessTester") << "Got a " << typeid(estimator).name();
   }
 
 private:
-  edm::ParameterSet conf_;
+  const std::string cpeName_;
+  const edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> cpeToken_;
 };
 
 // define this as a plug-in

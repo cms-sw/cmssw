@@ -31,11 +31,11 @@ namespace muonAssociatorByHitsDiagnostics {
 
     InputDumper(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC) : InputDumper(conf) {
       if (crossingframe) {
-        iC.consumes<CrossingFrame<SimTrack>>(simtracksXFTag);
-        iC.consumes<CrossingFrame<SimVertex>>(simtracksXFTag);
+        simtracksXFToken_ = iC.consumes<CrossingFrame<SimTrack>>(simtracksXFTag);
+        simvertexXFToken_ = iC.consumes<CrossingFrame<SimVertex>>(simtracksXFTag);
       } else {
-        iC.consumes<edm::SimTrackContainer>(simtracksTag);
-        iC.consumes<edm::SimVertexContainer>(simtracksTag);
+        simtracksToken_ = iC.consumes<edm::SimTrackContainer>(simtracksTag);
+        simvertexToken_ = iC.consumes<edm::SimVertexContainer>(simtracksTag);
       }
     }
 
@@ -45,6 +45,10 @@ namespace muonAssociatorByHitsDiagnostics {
     edm::InputTag const simtracksTag;
     edm::InputTag const simtracksXFTag;
     bool const crossingframe;
+    edm::EDGetTokenT<CrossingFrame<SimTrack>> simtracksXFToken_;
+    edm::EDGetTokenT<CrossingFrame<SimVertex>> simvertexXFToken_;
+    edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
+    edm::EDGetTokenT<edm::SimVertexContainer> simvertexToken_;
   };
 
   void InputDumper::dump(const TrackHitsCollection &tC,
@@ -73,16 +77,8 @@ namespace muonAssociatorByHitsDiagnostics {
       }
     }
 
-    // SimTrack collection
-    edm::Handle<CrossingFrame<SimTrack>> cf_simtracks;
-    edm::Handle<edm::SimTrackContainer> simTrackCollection;
-
-    // SimVertex collection
-    edm::Handle<CrossingFrame<SimVertex>> cf_simvertices;
-    edm::Handle<edm::SimVertexContainer> simVertexCollection;
-
     if (crossingframe) {
-      event.getByLabel(simtracksXFTag, cf_simtracks);
+      const auto &cf_simtracks = event.getHandle(simtracksXFToken_);
       unique_ptr<MixCollection<SimTrack>> SimTk(new MixCollection<SimTrack>(cf_simtracks.product()));
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -96,7 +92,7 @@ namespace muonAssociatorByHitsDiagnostics {
             << ", pT = " << ITER->momentum().Pt() << ", eta = " << ITER->momentum().Eta()
             << ", phi = " << ITER->momentum().Phi() << "\n * " << *ITER << endl;
       }
-      event.getByLabel(simtracksXFTag, cf_simvertices);
+      const auto &cf_simvertices = event.getHandle(simvertexXFToken_);
       unique_ptr<MixCollection<SimVertex>> SimVtx(new MixCollection<SimVertex>(cf_simvertices.product()));
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -107,7 +103,7 @@ namespace muonAssociatorByHitsDiagnostics {
         edm::LogVerbatim("MuonAssociatorByHits") << "SimVertex " << kv << " : " << *VITER << endl;
       }
     } else {
-      event.getByLabel(simtracksTag, simTrackCollection);
+      const auto &simTrackCollection = event.getHandle(simtracksToken_);
       const edm::SimTrackContainer simTC = *(simTrackCollection.product());
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -121,7 +117,7 @@ namespace muonAssociatorByHitsDiagnostics {
             << ", pT = " << ITER->momentum().Pt() << ", eta = " << ITER->momentum().Eta()
             << ", phi = " << ITER->momentum().Phi() << "\n * " << *ITER << endl;
       }
-      event.getByLabel(simtracksTag, simVertexCollection);
+      const auto &simVertexCollection = event.getHandle(simvertexToken_);
       const edm::SimVertexContainer simVC = *(simVertexCollection.product());
       edm::LogVerbatim("MuonAssociatorByHits") << "\n"
                                                << "SimVertex collection with InputTag = "
@@ -137,12 +133,14 @@ namespace muonAssociatorByHitsDiagnostics {
 }  // namespace muonAssociatorByHitsDiagnostics
 
 MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
-    : helper_(conf), conf_(conf), trackerHitAssociatorConfig_(conf, std::move(iC)) {
+    : helper_(conf),
+      trackerHitAssociatorConfig_(conf, std::move(iC)),
+      gemHitAssociatorConfig_(conf, iC),
+      rpcHitAssociatorConfig_(conf, iC),
+      cscHitAssociatorConfig_(conf, iC),
+      dtHitAssociatorConfig_(conf, iC),
+      ttopoToken_(iC.esConsumes()) {
   // hack for consumes
-  RPCHitAssociator rpctruth(conf, std::move(iC));
-  GEMHitAssociator gemtruth(conf, std::move(iC));
-  DTHitAssociator dttruth(conf, std::move(iC));
-  CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
     diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
@@ -163,21 +161,19 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS(true);
-  DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
+  DTHitAssociator dttruth(*e, *setup, dtHitAssociatorConfig_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, rpcHitAssociatorConfig_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
@@ -211,21 +207,19 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS = false;
-  DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
+  DTHitAssociator dttruth(*e, *setup, dtHitAssociatorConfig_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, rpcHitAssociatorConfig_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};

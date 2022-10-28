@@ -2,24 +2,22 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 // ======= specific includes =======
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -53,7 +51,6 @@ namespace {
     void operator()(P p, std::string const&) {
       f(*p);
     }
-
     F& f;
   };
 
@@ -65,34 +62,26 @@ using namespace std;
 class TkDetLayersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TkDetLayersAnalyzer(const edm::ParameterSet&);
-  ~TkDetLayersAnalyzer();
-
-  void beginJob() override {}
+  ~TkDetLayersAnalyzer() = default;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
-TkDetLayersAnalyzer::TkDetLayersAnalyzer(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-}
-
-TkDetLayersAnalyzer::~TkDetLayersAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+TkDetLayersAnalyzer::TkDetLayersAnalyzer(const edm::ParameterSet& iConfig)
+    : geomToken_(esConsumes()), geomDetToken_(esConsumes()), tTopoToken_(esConsumes()) {}
 
 void TkDetLayersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  ESHandle<TrackerGeometry> pTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pTrackerGeometry);
+  const TrackerGeometry* pTrackerGeometry = &iSetup.getData(geomToken_);
 
-  ESHandle<GeometricDet> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
+  const GeometricDet* pDD = &iSetup.getData(geomDetToken_);
   edm::LogInfo("TkDetLayersAnalyzer") << " Top node is  " << &(*pDD) << "\n"
                                       << " And Contains  Daughters: " << (*pDD).components().size();
 
-  ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   /*
 
@@ -191,7 +180,7 @@ void TkDetLayersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // -------- here it constructs the whole GeometricSearchTracker --------------
   GeometricSearchTrackerBuilder myTrackerBuilder;
-  GeometricSearchTracker* testTracker = myTrackerBuilder.build(&(*pDD), &(*pTrackerGeometry), &(*tTopo_handle));
+  GeometricSearchTracker* testTracker = myTrackerBuilder.build(&(*pDD), &(*pTrackerGeometry), &(*tTopo));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTracker: " << testTracker;
 
   for (auto const& l : testTracker->allLayers()) {

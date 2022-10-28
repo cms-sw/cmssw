@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.RecoGeometry.RecoGeometries_cff import *
 hltESPDummyDetLayerGeometry = DummyDetLayerGeometry.clone(
-    ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
+    ComponentName =  "hltESPDummyDetLayerGeometry" 
 )
 
 # strip cluster monitor
@@ -15,64 +15,64 @@ hltESPDummyDetLayerGeometry = DummyDetLayerGeometry.clone(
 ##     make sure they are not already defined somewhereelse in the final configuration
 from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import templates
 hltESPPixelCPETemplateReco = templates.clone(
-  LoadTemplatesFromDB = cms.bool( True ),
-  ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
-  Alpha2Order = cms.bool( True ),
-  ClusterProbComputationFlag = cms.int32( 0 ),
-  speed = cms.int32( -2 ),
-  UseClusterSplitter = cms.bool( False )
+  LoadTemplatesFromDB =  True ,
+  ComponentName = "hltESPPixelCPETemplateReco" ,
+  Alpha2Order =  True ,
+  ClusterProbComputationFlag =  0 ,
+  speed =  -2 ,
+  UseClusterSplitter =  False 
 )
 
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import PixelCPEGenericESProducer
 hltESPPixelCPEGeneric = PixelCPEGenericESProducer.clone(
-  EdgeClusterErrorX = cms.double( 50.0 ),
-  DoCosmics = cms.bool( False ),
-  LoadTemplatesFromDB = cms.bool( True ),
-  UseErrorsFromTemplates = cms.bool( True ),
-  eff_charge_cut_highX = cms.double( 1.0 ),
-  TruncatePixelCharge = cms.bool( True ),
-  size_cutY = cms.double( 3.0 ),
-  size_cutX = cms.double( 3.0 ),
-  inflate_all_errors_no_trk_angle = cms.bool( False ),
-  IrradiationBiasCorrection = cms.bool( False ),
-  inflate_errors = cms.bool( False ),
-  eff_charge_cut_lowX = cms.double( 0.0 ),
-  eff_charge_cut_highY = cms.double( 1.0 ),
-  ClusterProbComputationFlag = cms.int32( 0 ),
-  EdgeClusterErrorY = cms.double( 85.0 ),
-  ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
-  eff_charge_cut_lowY = cms.double( 0.0 ),
-  Alpha2Order = cms.bool( True )
+  EdgeClusterErrorX =  50.0 ,
+  DoCosmics =  False ,
+  LoadTemplatesFromDB =  True ,
+  UseErrorsFromTemplates =  True ,
+  eff_charge_cut_highX =  1.0 ,
+  TruncatePixelCharge =  True ,
+  size_cutY =  3.0 ,
+  size_cutX =  3.0 ,
+  inflate_all_errors_no_trk_angle =  False ,
+  IrradiationBiasCorrection =  False ,
+  inflate_errors = False ,
+  eff_charge_cut_lowX =  0.0 ,
+  eff_charge_cut_highY =  1.0 ,
+  ClusterProbComputationFlag = 0 ,
+  EdgeClusterErrorY = 85.0 ,
+  ComponentName = "hltESPPixelCPEGeneric" ,
+  eff_charge_cut_lowY = 0.0 ,
+  Alpha2Order =  True 
 )
 
 from RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi import TTRHBuilderAngleAndTemplate
 hltESPTTRHBuilderAngleAndTemplate = TTRHBuilderAngleAndTemplate.clone(
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  Matcher = cms.string( "StandardMatcher" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPETemplateReco" ),
-  ComponentName = cms.string( "hltESPTTRHBuilderAngleAndTemplate" )
+  StripCPE = "hltESPStripCPEfromTrackAngle" ,
+  Matcher = "StandardMatcher" ,
+  ComputeCoarseLocalPositionFromDisk = False ,
+  PixelCPE = "hltESPPixelCPETemplateReco",
+  ComponentName ="hltESPTTRHBuilderAngleAndTemplate" 
 )
 hltESPTTRHBWithTrackAngle = TTRHBuilderAngleAndTemplate.clone(
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  Matcher = cms.string( "StandardMatcher" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-  ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" )
+  StripCPE = "hltESPStripCPEfromTrackAngle",
+  Matcher = "StandardMatcher",
+  ComputeCoarseLocalPositionFromDisk = False,
+  PixelCPE = "hltESPPixelCPEGeneric",
+  ComponentName = "hltESPTTRHBWithTrackAngle" 
 )
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import stripCPEESProducer
 hltESPStripCPEfromTrackAngle = stripCPEESProducer.clone(
-  ComponentType = cms.string( "StripCPEfromTrackAngle" ),
-  ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
+  ComponentType = "StripCPEfromTrackAngle" ,
+  ComponentName = "hltESPStripCPEfromTrackAngle",
   parameters = cms.PSet( 
-    mLC_P2 = cms.double( 0.3 ),
-    mLC_P1 = cms.double( 0.618 ),
-    mLC_P0 = cms.double( -0.326 ),
+    mLC_P2 = cms.double(0.3),
+    mLC_P1 = cms.double(0.618),
+    mLC_P0 = cms.double(-0.326),
 #    useLegacyError = cms.bool( True ), # 50ns menu
 #    maxChgOneMIP = cms.double( -6000.0 ), # 50ns menu
-    useLegacyError = cms.bool( False ), # 25ns menu
-    maxChgOneMIP = cms.double( 6000.0 ), #25ns menu
+    useLegacyError = cms.bool(False) , # 25ns menu
+    maxChgOneMIP = cms.double(6000.0) , #25ns menu
     mTEC_P1 = cms.double( 0.471 ),
     mTEC_P0 = cms.double( -1.885 ),
     mTOB_P0 = cms.double( -1.026 ),
@@ -86,17 +86,17 @@ hltESPStripCPEfromTrackAngle = stripCPEESProducer.clone(
 
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cfi import navigationSchoolESProducer
 navigationSchoolESProducer = navigationSchoolESProducer.clone(
-  ComponentName = cms.string( "SimpleNavigationSchool" ),
-  SimpleMagneticField = cms.string( "ParabolicMf" )
+  ComponentName = "SimpleNavigationSchool" ,
+  SimpleMagneticField ="ParabolicMf" 
 )
 
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import MeasurementTracker
 hltESPMeasurementTracker = MeasurementTracker.clone(
-  UseStripStripQualityDB = cms.bool( True ),
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  UsePixelROCQualityDB = cms.bool( True ),
-  DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( True ),
+  UseStripStripQualityDB =  True ,
+  StripCPE = "hltESPStripCPEfromTrackAngle",
+  UsePixelROCQualityDB = True ,
+  DebugPixelROCQualityDB = False,
+  UseStripAPVFiberQualityDB = True ,
   badStripCuts = cms.PSet(
     TOB = cms.PSet(
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -115,17 +115,17 @@ hltESPMeasurementTracker = MeasurementTracker.clone(
       maxBad = cms.uint32( 9999 )
     )
   ),
-  DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTracker" ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
-  UsePixelModuleQualityDB = cms.bool( True ),
-  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  HitMatcher = cms.string( "StandardMatcher" ),
-  DebugStripStripQualityDB = cms.untracked.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-  SiStripQualityLabel = cms.string( "" ),
-  UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True )
+  DebugStripModuleQualityDB = False ,
+  ComponentName ="hltESPMeasurementTracker",
+  DebugPixelModuleQualityDB = False,
+  UsePixelModuleQualityDB = True,
+  DebugStripAPVFiberQualityDB = False,
+  HitMatcher = "StandardMatcher",
+  DebugStripStripQualityDB = False,
+  PixelCPE = "hltESPPixelCPEGeneric",
+  SiStripQualityLabel = "" ,
+  UseStripModuleQualityDB = True,
+  MaskBadAPVFibers = True
 )
 
 hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
@@ -140,7 +140,7 @@ hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESPro
 
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import KFUpdatorESProducer
 hltESPKFUpdator = KFUpdatorESProducer.clone(
-  ComponentName = cms.string( "hltESPKFUpdator" )
+  ComponentName = "hltESPKFUpdator" 
 )
 
 hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
@@ -243,6 +243,7 @@ HLTSiStripMonitorClusterAPVgainCalibration.BPTXfilter = cms.PSet(
    andOr         = cms.bool( False ),
 ### DCS selection
    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+   dcsRecordInputTag   = cms.InputTag( "onlineMetaDataDigis" ),
    dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ),
    andOrDcs      = cms.bool( False ),
    errorReplyDcs = cms.bool( True ),

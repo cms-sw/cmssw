@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDHGCalMixLayer.cc
-// Description: Geometry factory class for HGCal (Mix) adopted for DD4HEP
+// Description: Geometry factory class for HGCal (Mix) adopted for DD4hep
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
@@ -43,11 +43,12 @@ struct HGCalMixLayer {
     partialTypes_ = args.value<int>("PartialTypes");
     orientationTypes_ = args.value<int>("OrientationTypes");
     phiBinsScint_ = args.value<int>("NPhiBinScint");
+    forFireworks_ = args.value<int>("ForFireWorks");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::Number of types of wafers: " << waferTypes_
                                   << " facings: " << facingTypes_ << " partials: " << partialTypes_
                                   << " Orientations: " << orientationTypes_ << "; number of cells along phi "
-                                  << phiBinsScint_;
+                                  << phiBinsScint_ << " forFireworks_: " << forFireworks_;
 #endif
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
@@ -75,10 +76,10 @@ struct HGCalMixLayer {
     rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < slopeB_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
+      edm::LogVerbatim("HGCalGeom") << "Bottom Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
                                     << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
     for (unsigned int i = 0; i < slopeT_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
+      edm::LogVerbatim("HGCalGeom") << "Top Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
                                     << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
 #endif
 
@@ -127,10 +128,12 @@ struct HGCalMixLayer {
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerTypes_ = args.value<std::vector<int>>("LayerTypes");
+    layerOrient_ = args.value<std::vector<int>>("LayerTypes");
+    for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+      layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerTypes_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
+    for (unsigned int i = 0; i < layerOrient_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -371,11 +374,11 @@ struct HGCalMixLayer {
         int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         double phi1 = dphi * (fimin - 1);
-        double phi2 = dphi * (fimax - fimin + 1);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
-                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
-                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R "
+                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
+                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R "
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);
@@ -417,10 +420,8 @@ struct HGCalMixLayer {
     // Make the bottom part next
     int layer = (copyM - firstLayer_);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
-                          ? 1
-                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
-    int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+    int layercenter = layerOrient_[layer];
+    int layerType = (layerOrient_[layer] == HGCalTypes::WaferCenterB) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
@@ -505,6 +506,7 @@ struct HGCalMixLayer {
   int partialTypes_;                      // Number of partial wafer types
   int orientationTypes_;                  // Number of partial wafer orienations
   int phiBinsScint_;                      // Maximum number of cells along phi
+  int forFireworks_;                      // Needed for Fireworks(1)/Geant4(0)
   int firstLayer_;                        // Copy # of the first sensitive layer
   int absorbMode_;                        // Absorber mode
   int sensitiveMode_;                     // Sensitive mode
@@ -533,7 +535,7 @@ struct HGCalMixLayer {
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerTypes_;           // Layer type of silicon layers
+  std::vector<int> layerOrient_;          // Layer orientation of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer

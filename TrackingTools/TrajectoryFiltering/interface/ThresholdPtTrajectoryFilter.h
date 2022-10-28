@@ -1,10 +1,10 @@
 #ifndef ThresholdPtTrajectoryFilter_H
 #define ThresholdPtTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateAccessor.h"
@@ -24,6 +24,12 @@ public:
       : thePtThreshold(pset.getParameter<double>("thresholdPt")),
         theNSigma(pset.getParameter<double>("nSigmaThresholdPt")),
         theMinHits(pset.getParameter<int>("minHitsThresholdPt")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<double>("thresholdPt", 10.);
+    iDesc.add<double>("nSigmaThresholdPt", 5.);
+    iDesc.add<int>("minHitsThresholdPt", 3);
+  }
 
   bool qualityFilter(const Trajectory& traj) const override { return !test(traj.lastMeasurement(), traj.foundHits()); }
   bool qualityFilter(const TempTrajectory& traj) const override {

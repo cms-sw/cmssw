@@ -43,11 +43,11 @@ public:
   // ---------- member functions ---------------------------
   static bool inheritsFrom(const edm::TypeWithDict& iChild, const std::string& iParentTypeName, unsigned int& distance);
 
-private:
   FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&) = delete;  // stop default
 
   const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const std::string m_typeidName;
 };

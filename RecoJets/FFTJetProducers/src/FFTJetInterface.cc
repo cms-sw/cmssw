@@ -15,8 +15,7 @@ namespace fftjetcms {
   bool FFTJetInterface::storeInSinglePrecision() const { return true; }
 
   FFTJetInterface::FFTJetInterface(const edm::ParameterSet& ps)
-      : edm::EDProducer(),
-        inputLabel(ps.getParameter<edm::InputTag>("src")),
+      : inputLabel(ps.getParameter<edm::InputTag>("src")),
         init_param(std::string, outputLabel),
         jetType(parseJetType(ps.getParameter<std::string>("jetType"))),
         init_param(bool, doPVCorrection),

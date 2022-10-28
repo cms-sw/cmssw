@@ -2,7 +2,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -21,7 +21,7 @@ using namespace std;
 //
 // class declaration
 
-class PFTauElecRejectionBenchmarkAnalyzer : public edm::EDAnalyzer {
+class PFTauElecRejectionBenchmarkAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;

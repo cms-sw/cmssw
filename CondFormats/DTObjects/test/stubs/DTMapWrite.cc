@@ -28,8 +28,6 @@ namespace edmtest {
 
   DTMapWrite::DTMapWrite(int i) {}
 
-  DTMapWrite::~DTMapWrite() {}
-
   void DTMapWrite::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
@@ -43,7 +41,7 @@ namespace edmtest {
       return;
     }
 
-    DTReadOutMapping* ro_map = new DTReadOutMapping("cmssw_ROB", "cmssw_ROS");
+    DTReadOutMapping ro_map("cmssw_ROB", "cmssw_ROS");
     int status = 0;
     std::ifstream ifile("testMap.txt");
     int ddu;
@@ -58,14 +56,13 @@ namespace edmtest {
     int lay;
     int cel;
     while (ifile >> ddu >> ros >> rob >> tdc >> cha >> whe >> sta >> sec >> qua >> lay >> cel) {
-      status = ro_map->insertReadOutGeometryLink(ddu, ros, rob, tdc, cha, whe, sta, sec, qua, lay, cel);
+      status = ro_map.insertReadOutGeometryLink(ddu, ros, rob, tdc, cha, whe, sta, sec, qua, lay, cel);
       std::cout << ddu << " " << ros << " " << rob << " " << tdc << " " << cha << " " << whe << " " << sta << " " << sec
                 << " " << qua << " " << lay << " " << cel << "  -> ";
       std::cout << "insert status: " << status << std::endl;
     }
     if (dbservice->isNewTagRequest("DTReadOutMappingRcd")) {
-      dbservice->createNewIOV<DTReadOutMapping>(
-          ro_map, dbservice->beginOfTime(), dbservice->endOfTime(), "DTReadOutMappingRcd");
+      dbservice->createOneIOV<DTReadOutMapping>(ro_map, dbservice->beginOfTime(), "DTReadOutMappingRcd");
     } else {
       std::cout << "already present tag" << std::endl;
       //      dbservice->appendSinceTime<DTReadOutMapping>(

@@ -174,32 +174,15 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
   // L1Offset correction, which is an additional input to the L1JPTOffset
   // corrector
   if (std::find(levels.begin(), levels.end(), "L1JPTOffset") != levels.end()) {
-    if (cfg.existsAs<std::string>("extraJPTOffset")) {
-      extraJPTOffset_.push_back(cfg.getParameter<std::string>("extraJPTOffset"));
-    } else {
-      throw cms::Exception("No parameter extraJPTOffset specified")
-          << "The configured correction levels contain a L1JPTOffset correction, which re- \n"
-          << "quires the additional parameter extraJPTOffset or type std::string. This     \n"
-          << "string should correspond to the L1Offset corrections that should be applied  \n"
-          << "together with the JPTL1Offset corrections. These corrections can be of type  \n"
-          << "L1Offset or L1FastJet.                                                       \n";
-    }
+    extraJPTOffset_.push_back(cfg.getParameter<std::string>("extraJPTOffset"));
   }
   // if the std::string L1Offset can be found in levels an additional para-
   // meter primaryVertices is needed, which should pass on the offline pri-
   // mary vertex collection. The size of this collection is needed for the
   // L1Offset correction.
   if (useNPV_) {
-    if (cfg.existsAs<edm::InputTag>("primaryVertices")) {
-      primaryVertices_ = cfg.getParameter<edm::InputTag>("primaryVertices");
-      primaryVerticesToken_ = mayConsume<std::vector<reco::Vertex> >(primaryVertices_);
-    } else {
-      throw cms::Exception("No primaryVertices specified")
-          << "The configured correction levels contain an L1Offset or L1FastJet correction, \n"
-          << "which requires the number of offlinePrimaryVertices. Please specify this col- \n"
-          << "lection as additional optional parameter primaryVertices of type edm::InputTag\n"
-          << "in the jetCorrFactors module.                                                 \n";
-    }
+    primaryVertices_ = cfg.getParameter<edm::InputTag>("primaryVertices");
+    primaryVerticesToken_ = mayConsume<std::vector<reco::Vertex> >(primaryVertices_);
   }
   // if the std::string L1FastJet can be found in levels an additional
   // parameter rho is needed, which should pass on the energy density
@@ -207,16 +190,8 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
   if (useRho_) {
     if ((!extraJPTOffset_.empty() && extraJPTOffset_.front() == std::string("L1FastJet")) ||
         std::find(levels.begin(), levels.end(), "L1FastJet") != levels.end()) {
-      if (cfg.existsAs<edm::InputTag>("rho")) {
-        rho_ = cfg.getParameter<edm::InputTag>("rho");
-        rhoToken_ = mayConsume<double>(rho_);
-      } else {
-        throw cms::Exception("No parameter rho specified")
-            << "The configured correction levels contain a L1FastJet correction, which re- \n"
-            << "quires the energy density parameter rho. Please specify this collection as \n"
-            << "additional optional parameter rho of type edm::InputTag in the jetCorrFac- \n"
-            << "tors module.                                                               \n";
-      }
+      rho_ = cfg.getParameter<edm::InputTag>("rho");
+      rhoToken_ = mayConsume<double>(rho_);
     } else {
       edm::LogInfo message("Parameter rho not used");
       message << "Module is configured to use the parameter rho, but rho is only used     \n"

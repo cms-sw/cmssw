@@ -14,9 +14,9 @@ run2_ECAL_2017.toModify(hcalIsoTrackStudy,
   EEHitEnergyThresholdHigh= cms.double(10.0),
 )
 
-from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+from Configuration.Eras.Modifier_run2_ECAL_2018_cff import run2_ECAL_2018
 
-run2_HCAL_2018.toModify(hcalIsoTrackStudy,
+run2_ECAL_2018.toModify(hcalIsoTrackStudy,
   EBHitEnergyThreshold    = cms.double(0.10),
   EEHitEnergyThreshold0   = cms.double(-41.0664),
   EEHitEnergyThreshold1   = cms.double(68.795),

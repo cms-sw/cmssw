@@ -9,8 +9,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
-#include "tbb/task_arena.h"
-#include "tbb/tbb.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb.h"
 
 using namespace hgcal_clustering;
 

@@ -23,8 +23,6 @@
 #include <utility>
 #include <algorithm>
 
-#include "boost/lexical_cast.hpp"
-
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

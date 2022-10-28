@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "TMath.h"
 
 #include <vector>
@@ -27,6 +28,8 @@ HLTMuonL1TFilter::HLTMuonL1TFilter(const edm::ParameterSet& iConfig)
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
       maxEta_(iConfig.getParameter<double>("MaxEta")),
       minPt_(iConfig.getParameter<double>("MinPt")),
+      maxDR_(iConfig.getParameter<double>("MaxDeltaR")),
+      maxDR2_(maxDR_ * maxDR_),
       minN_(iConfig.getParameter<int>("MinN")),
       centralBxOnly_(iConfig.getParameter<bool>("CentralBxOnly")) {
   //set the quality bit mask
@@ -38,7 +41,11 @@ HLTMuonL1TFilter::HLTMuonL1TFilter(const edm::ParameterSet& iConfig)
     //     }
     qualityBitMask_ |= 1 << selectQualitie;
   }
-
+  //make sure cut parameter for candidate matching is strictly positive
+  if (maxDR_ <= 0.) {
+    throw cms::Exception("HLTMuonL1TFilterConfiguration")
+        << "invalid value for parameter \"MaxDeltaR\" (must be > 0): " << maxDR_;
+  }
   // dump parameters for debugging
   if (edm::isDebugEnabled()) {
     ostringstream ss;
@@ -67,6 +74,7 @@ void HLTMuonL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("PreviousCandTag", edm::InputTag(""));
   desc.add<double>("MaxEta", 2.5);
   desc.add<double>("MinPt", 0.0);
+  desc.add<double>("MaxDeltaR", 0.3);
   desc.add<int>("MinN", 1);
   desc.add<bool>("CentralBxOnly", true);
   {
@@ -109,10 +117,6 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
     for (auto it = allMuons->begin(ibx); it != allMuons->end(ibx); it++) {
       MuonRef muon(allMuons, distance(allMuons->begin(allMuons->getFirstBX()), it));
 
-      // Only select muons that were selected in the previous level
-      if (find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end())
-        continue;
-
       //check maxEta cut
       if (fabs(muon->eta()) > maxEta_)
         continue;
@@ -127,6 +131,18 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
         if ((quality & qualityBitMask_) == 0)
           continue;
       }
+
+      // Only select muons that were selected in the previous level
+      bool matchPrevL1 = false;
+      int prevSize = prevMuons.size();
+      for (int it2 = 0; it2 < prevSize; it2++) {
+        if (deltaR2(muon->eta(), muon->phi(), prevMuons[it2]->eta(), prevMuons[it2]->phi()) < maxDR2_) {
+          matchPrevL1 = true;
+          break;
+        }
+      }
+      if (!matchPrevL1)
+        continue;
 
       //we have a good candidate
       n++;

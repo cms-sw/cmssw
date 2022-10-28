@@ -18,7 +18,7 @@
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -31,15 +31,15 @@
 #include "TH1F.h"
 
 namespace cms {
-  class SiPixelFakeGainForHLTReader : public edm::EDAnalyzer {
+  class SiPixelFakeGainForHLTReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit SiPixelFakeGainForHLTReader(const edm::ParameterSet& iConfig);
 
     ~SiPixelFakeGainForHLTReader(){};
-    virtual void beginJob() { ; }
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
   private:
     edm::ParameterSet conf_;

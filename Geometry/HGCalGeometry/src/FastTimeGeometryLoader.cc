@@ -1,9 +1,12 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometryLoader.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
@@ -19,9 +22,10 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
   unsigned int numberOfCells = topology.totalGeomModules();  // both sides
   int detType = topology.detectorType();
 #ifdef EDM_ML_DEBUG
-  std::cout << "Number of Cells " << numberOfCells << " for type " << detType << " of sub-detector "
-            << topology.subDetector() << " Shape parameters " << FastTimeGeometry::k_NumberOfShapes << ":"
-            << FastTimeGeometry::k_NumberOfParametersPerShape << std::endl;
+  edm::LogVerbatim("FastTimeGeom") << "Number of Cells " << numberOfCells << " for type " << detType
+                                   << " of sub-detector " << topology.subDetector() << " Shape parameters "
+                                   << FastTimeGeometry::k_NumberOfShapes << ":"
+                                   << FastTimeGeometry::k_NumberOfParametersPerShape;
 #endif
   geom->allocateCorners(numberOfCells);
   geom->allocatePar(FastTimeGeometry::k_NumberOfShapes, FastTimeGeometry::k_NumberOfParametersPerShape);
@@ -30,12 +34,12 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
   ParmVec params(FastTimeGeometry::k_NumberOfParametersPerShape, 0);
   unsigned int counter(0);
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeGeometryLoader with # of transformation matrices " << numberOfCells << std::endl;
+  edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometryLoader with # of transformation matrices " << numberOfCells;
 #endif
   for (unsigned itr = 0; itr < numberOfCells; ++itr) {
     int zside = (itr == 0) ? 1 : -1;
 #ifdef EDM_ML_DEBUG
-    std::cout << "FastTimeGeometryLoader:: Z:Layer:Type " << zside << ":" << detType << std::endl;
+    edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometryLoader:: Z:Layer:Type " << zside << ":" << detType;
 #endif
     double zv = zside * (topology.dddConstants().getZPos(detType));
     const CLHEP::HepRep3x3 rotation =
@@ -45,7 +49,8 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
     const HepGeom::Transform3D ht3d(hr, h3v);
     DetId detId = (DetId)(FastTimeDetId(detType, 0, 0, zside));
 #ifdef EDM_ML_DEBUG
-    std::cout << "FastTimeGeometryLoader:: transf " << ht3d.getTranslation() << " and " << ht3d.getRotation();
+    edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometryLoader:: transf " << ht3d.getTranslation() << " and "
+                                     << ht3d.getRotation();
 #endif
     params[0] = topology.dddConstants().getZHalf(detType);
     params[1] = params[2] = 0;
@@ -61,7 +66,7 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
   geom->sortDetIds();
 
   if (counter != numberOfCells) {
-    std::cerr << "inconsistent # of cells: expected " << numberOfCells << " , inited " << counter << std::endl;
+    edm::LogWarning("FastTimeGeom") << "inconsistent # of cells: expected " << numberOfCells << " , inited " << counter;
     assert(counter == numberOfCells);
   }
 
@@ -74,10 +79,11 @@ void FastTimeGeometryLoader::buildGeom(const ParmVec& params,
                                        const FastTimeTopology& topology,
                                        FastTimeGeometry* geom) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "Volume Parameters";
+  std::ostringstream st1;
+  st1 << "Volume Parameters";
   for (unsigned int i = 0; i < 12; ++i)
-    std::cout << " : " << params[i];
-  std::cout << std::endl;
+    st1 << " : " << params[i];
+  edm::LogVerbatim("FastTimeGeom") << st1.str();
 #endif
   FastTimeDetId id = FastTimeDetId(detId);
   std::vector<GlobalPoint> corners = topology.dddConstants().getCorners(id.type(), 1, 1, id.zside());

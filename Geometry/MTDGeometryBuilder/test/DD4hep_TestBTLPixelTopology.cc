@@ -224,10 +224,10 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
 
       int origRow = theId.row(topo.nrows());
       int origCol = theId.column(topo.nrows());
-      spix << "rawId= " << theId.rawId() << " side/rod= " << theId.mtdSide() << " / " << theId.mtdRR()
+      spix << "rawId= " << theId.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theId.mtdSide() << " / "
+           << theId.mtdRR() << " type/RU= " << theId.modType() << " / " << theId.runit()
            << " module/geomodule= " << theId.module() << " / " << static_cast<BTLDetId>(geoId).module()
-           << " crys/type= " << theId.crystal() << " / " << theId.modType() << " BTLDetId row/col= " << origRow << " / "
-           << origCol;
+           << " crys= " << theId.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol;
       spix << "\n";
 
       //
@@ -318,12 +318,11 @@ void DD4hep_TestBTLPixelTopology::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.setSize(fv.navPos().size());
 
   for (uint ii = 0; ii < fv.navPos().size(); ii++) {
-    std::string name((fv.geoHistory()[ii])->GetName());
-    name.assign(name.erase(name.rfind('_')));
-    int copyN(fv.copyNos()[ii]);
-    thisN_.addLevel(name, copyN);
+    std::string_view name((fv.geoHistory()[ii])->GetName());
+    size_t ipos = name.rfind('_');
+    thisN_.addLevel(name.substr(0, ipos), fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name << " " << copyN;
+    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }

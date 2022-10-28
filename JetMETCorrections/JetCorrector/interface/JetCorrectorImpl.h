@@ -31,6 +31,9 @@ namespace reco {
   class JetCorrectorImpl {
   public:
     JetCorrectorImpl();
+    JetCorrectorImpl(const JetCorrectorImpl&) = delete;
+    const JetCorrectorImpl& operator=(const JetCorrectorImpl&) = delete;
+
     virtual ~JetCorrectorImpl();
 
     typedef reco::Particle::LorentzVector LorentzVector;
@@ -61,10 +64,6 @@ namespace reco {
     // ---------- member functions ---------------------------
 
   private:
-    JetCorrectorImpl(const JetCorrectorImpl&) = delete;
-
-    const JetCorrectorImpl& operator=(const JetCorrectorImpl&) = delete;
-
     // ---------- member data --------------------------------
   };
 }  // namespace reco

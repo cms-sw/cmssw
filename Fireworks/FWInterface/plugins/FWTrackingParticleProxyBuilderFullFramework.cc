@@ -33,11 +33,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWTrackingParticleProxyBuilderFullFramework(const FWTrackingParticleProxyBuilderFullFramework&) = delete;
   const FWTrackingParticleProxyBuilderFullFramework& operator=(const FWTrackingParticleProxyBuilderFullFramework&) =
       delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<TrackingParticle>::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 

@@ -36,10 +36,13 @@ namespace magneticfield {
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     edm::ParameterSet pset_;
     const bool debug_;
     const bool useParametrizedTrackerField_;
+    const bool useMergeFileIfAvailable_;
     const MagFieldConfig conf_;
     const std::string version_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
@@ -53,6 +56,7 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
     : pset_{iConfig},
       debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
+      useMergeFileIfAvailable_{iConfig.getParameter<bool>("useMergeFileIfAvailable")},
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
   LogTrace("MagGeoBuilder") << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer";
@@ -71,7 +75,7 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produc
     LogTrace("MagGeoBuilder") << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
   }
 
-  MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_);
+  MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_, useMergeFileIfAvailable_);
 
   // Set scaling factors
   if (!conf_.keys.empty()) {
@@ -104,6 +108,33 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produc
                                                     builder.maxZ(),
                                                     paramField,
                                                     false);
+}
+
+void DD4hep_VolumeBasedMagneticFieldESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("debugBuilder", false);
+  desc.add<bool>("useMergeFileIfAvailable", true);
+  desc.add<bool>("useParametrizedTrackerField");
+  desc.addUntracked<std::string>("label", "");
+  desc.add<std::string>("version");
+  desc.add<std::string>("paramLabel");
+
+  //from MagFieldConfig
+  desc.add<int>("geometryVersion");
+  {
+    edm::ParameterSetDescription sub;
+    sub.add<std::string>("volumes");
+    sub.add<std::string>("sectors");
+    sub.add<int>("master");
+    sub.add<std::string>("path");
+    desc.addVPSet("gridFiles", sub);
+  }
+  desc.add<std::vector<int> >("scalingVolumes");
+  desc.add<std::vector<double> >("scalingFactors");
+  //default used to be compatible with older configurations
+  desc.add<std::vector<double> >("paramData", std::vector<double>());
+
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DD4hep_VolumeBasedMagneticFieldESProducer);

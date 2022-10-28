@@ -29,9 +29,9 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegEta.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
@@ -163,19 +163,6 @@ void L1MuDTTrack::setTSeta(const vector<const L1MuDTTrackSegEta*>& tsList) {
         m_tsetaList.push_back(**iter);
     }
   }
-}
-
-//
-// convert pt value in GeV to pt code
-//
-unsigned int L1MuDTTrack::triggerScale(float value, const edm::EventSetup& c) const {
-  const float eps = 1.e-5;  // add an epsilon so that setting works with low edge value
-
-  edm::ESHandle<L1MuTriggerPtScale> theTriggerScales;
-  c.get<L1MuTriggerPtScaleRcd>().get(theTriggerScales);
-  unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked(value + eps);
-
-  return t_Scale;
 }
 
 //

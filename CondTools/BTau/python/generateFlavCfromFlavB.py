@@ -8,7 +8,6 @@ import itertools
 from . import dataLoader
 from . import checkBTagCalibrationConsistency as checker
 
-import six
 
 def generate_flav_c(loaded_data):
     flav_b_data = [e for e in loaded_data.entries if e.params.jetFlavor == 0]
@@ -41,7 +40,7 @@ def generate_flav_c(loaded_data):
             central = d.pop('central')
             central.params.jetFlavor = 1
             yield central.makeCSVLine()
-            for e in six.itervalues(d):
+            for e in d.values():
                 e.params.jetFlavor = 1
                 e.formula = '2*(%s)-(%s)' % (e.formula, central.formula)
                 yield e.makeCSVLine()

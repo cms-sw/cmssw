@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/Factory.h"
 
 namespace edm {
@@ -24,7 +24,7 @@ namespace edm {
       signalslot::Signal<void(ModuleDescription const&)>& iPost) {
     auto modItr = labelToModule_.find(moduleLabel);
     if (modItr == labelToModule_.end()) {
-      auto modPtr = Factory::get()->makeModule(p, iPre, iPost);
+      auto modPtr = Factory::get()->makeModule(p, typeResolver_.get(), iPre, iPost);
 
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;

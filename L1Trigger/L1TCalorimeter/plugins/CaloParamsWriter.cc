@@ -1,6 +1,6 @@
 // CaloParamsWriter
 //
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-class CaloParamsWriter : public edm::EDAnalyzer {
+class CaloParamsWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloParamsWriter(const edm::ParameterSet&) {}
   ~CaloParamsWriter() override {}

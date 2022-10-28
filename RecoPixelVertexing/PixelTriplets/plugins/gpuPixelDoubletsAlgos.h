@@ -29,7 +29,7 @@ namespace gpuPixelDoublets {
                                                     CellNeighborsVector* cellNeighbors,
                                                     CellTracksVector* cellTracks,
                                                     TrackingRecHit2DSOAView const& __restrict__ hh,
-                                                    GPUCACell::OuterHitOfCell* isOuterHitOfCell,
+                                                    GPUCACell::OuterHitOfCell isOuterHitOfCell,
                                                     int16_t const* __restrict__ phicuts,
                                                     float const* __restrict__ minz,
                                                     float const* __restrict__ maxz,
@@ -222,7 +222,7 @@ namespace gpuPixelDoublets {
             break;
           }  // move to SimpleVector??
           // int layerPairId, int doubletId, int innerHitId, int outerHitId)
-          cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, ind, i, oi);
+          cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, i, oi);
           isOuterHitOfCell[oi].push_back(ind);
 #ifdef GPU_DEBUG
           if (isOuterHitOfCell[oi].full())

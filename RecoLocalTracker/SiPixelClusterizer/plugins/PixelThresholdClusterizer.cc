@@ -33,7 +33,8 @@
 #include <vector>
 #include <iostream>
 #include <atomic>
-using namespace std;
+#include <algorithm>
+#include <limits>
 
 //----------------------------------------------------------------------------
 //! Constructor:
@@ -52,6 +53,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
       theOffset_L1(conf.getParameter<int>("VCaltoElectronOffset_L1")),
       theElectronPerADCGain(conf.getParameter<double>("ElectronPerADCGain")),
       doPhase2Calibration(conf.getParameter<bool>("Phase2Calibration")),
+      dropDuplicates(conf.getParameter<bool>("DropDuplicates")),
       thePhase2ReadoutMode(conf.getParameter<int>("Phase2ReadoutMode")),
       thePhase2DigiBaseline(conf.getParameter<double>("Phase2DigiBaseline")),
       thePhase2KinkADC(conf.getParameter<int>("Phase2KinkADC")),
@@ -62,6 +64,8 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
       doMissCalibrate(conf.getParameter<bool>("MissCalibrate")),
       doSplitClusters(conf.getParameter<bool>("SplitClusters")) {
   theBuffer.setSize(theNumOfRows, theNumOfCols);
+  theFakePixels.clear();
+  thePixelOccurrence.clear();
 }
 /////////////////////////////////////////////////////////////////////////////
 PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
@@ -79,6 +83,7 @@ void PixelThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<double>("ElectronPerADCGain", 135.);
+  desc.add<bool>("DropDuplicates", true);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
   desc.add<double>("Phase2DigiBaseline", 1200.);
@@ -101,14 +106,17 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit* pixDet) {
   theNumOfCols = ncols;
 
   if (nrows > theBuffer.rows() || ncols > theBuffer.columns()) {  // change only when a larger is needed
-    //if( nrows != theNumOfRows || ncols != theNumOfCols ) {
-    //cout << " PixelThresholdClusterizer: pixel buffer redefined to "
-    // << nrows << " * " << ncols << endl;
+    if (nrows != theNumOfRows || ncols != theNumOfCols)
+      edm::LogWarning("setup()") << "pixel buffer redefined to" << nrows << " * " << ncols;
     //theNumOfRows = nrows;  // Set new sizes
     //theNumOfCols = ncols;
     // Resize the buffer
     theBuffer.setSize(nrows, ncols);  // Modify
   }
+
+  theFakePixels.resize(nrows * ncols, false);
+
+  thePixelOccurrence.resize(nrows * ncols, 0);
 
   return true;
 }
@@ -128,8 +136,11 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
   typename T::const_iterator begin = input.begin();
   typename T::const_iterator end = input.end();
 
-  // Do not bother for empty detectors
-  //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
+  // this should never happen and the raw2digi does not create empty detsets
+  if (begin == end) {
+    edm::LogError("PixelThresholdClusterizer") << "@SUB=PixelThresholdClusterizer::clusterizeDetUnitT()"
+                                               << " No digis to clusterize";
+  }
 
   //  Set up the clusterization on this DetId.
   if (!setup(pixDet))
@@ -145,11 +156,11 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
-  copy_to_buffer(begin, end);
+  if (end > begin)
+    copy_to_buffer(begin, end);
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  //  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
     // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
     // so we don't want to call "make_cluster" for these cases
@@ -160,7 +171,6 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
       //  Check if the cluster is above threshold
       // (TO DO: one is signed, other unsigned, gcc warns...)
       if (cluster.charge() >= clusterThreshold) {
-        // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
         // sort by row (x)
         output.push_back(std::move(cluster));
         std::push_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
@@ -179,6 +189,10 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 
   //  Need to clean unused pixels from the buffer array.
   clear_buffer(begin, end);
+
+  theFakePixels.clear();
+
+  thePixelOccurrence.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -217,8 +231,15 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
 #endif
+
+  //If called with empty/invalid DetSet, warn the user
+  if (end <= begin) {
+    edm::LogWarning("PixelThresholdClusterizer") << " copy_to_buffer called with empty or invalid range" << std::endl;
+    return;
+  }
+
   int electron[end - begin];  // pixel charge in electrons
-  memset(electron, 0, sizeof(electron));
+  memset(electron, 0, (end - begin) * sizeof(int));
 
   if (doPhase2Calibration) {
     int i = 0;
@@ -257,7 +278,9 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
   for (DigiIterator di = begin; di != end; ++di) {
     int row = di->row();
     int col = di->column();
-    int adc = electron[i++];  // this is in electrons
+    // VV: do not calibrate a fake pixel, it already has a unit of 10e-:
+    int adc = (di->flag() != 0) ? di->adc() * 10 : electron[i];  // this is in electrons
+    i++;
 
 #ifdef PIXELREGRESSION
     int adcOld = calibrate(di->adc(), col, row);
@@ -275,10 +298,30 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
        of view of the final cluster charge since these are typically >= 20000.
     */
 
-    if (adc >= thePixelThreshold) {
-      theBuffer.set_adc(row, col, adc);
-      if (adc >= theSeedThreshold)
-        theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+    thePixelOccurrence[theBuffer.index(row, col)]++;  // increment the occurrence counter
+    uint8_t occurrence =
+        (!dropDuplicates) ? 1 : thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
+
+    switch (occurrence) {
+      // the 1st occurrence (standard treatment)
+      case 1:
+        if (adc >= thePixelThreshold) {
+          theBuffer.set_adc(row, col, adc);
+          // VV: add pixel to the fake list. Only when running on digi collection
+          if (di->flag() != 0)
+            theFakePixels[row * theNumOfCols + col] = true;
+          if (adc >= theSeedThreshold)
+            theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+        }
+        break;
+
+      // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
+      case 2:
+        theBuffer.set_adc(row, col, 0);
+        std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
+        break;
+
+        // in case a pixel appears more than twice, nothing needs to be done because it was already removed at the 2nd occurrence
     }
   }
   assert(i == (end - begin));
@@ -390,8 +433,8 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
 SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::PixelPos& pix,
                                                        edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   //First we acquire the seeds for the clusters
-  int seed_adc;
-  stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
+  uint16_t seed_adc;
+  std::stack<SiPixelCluster::PixelPos, std::vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
 
   //The individual modules have been loaded into a buffer.
   //After each pixel has been considered by the clusterizer, we set the adc count to 1
@@ -410,12 +453,16 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
     }
     else {
   */
-  seed_adc = theBuffer(pix.row(), pix.col());
+  // Note: each ADC value is limited here to 65535 (std::numeric_limits<uint16_t>::max),
+  //       as it is later stored as uint16_t in SiPixelCluster and PixelClusterizerBase/AccretionCluster
+  //       (reminder: ADC values here may be expressed in number of electrons)
+  seed_adc = std::min(theBuffer(pix.row(), pix.col()), int(std::numeric_limits<uint16_t>::max()));
   theBuffer.set_adc(pix, 1);
   //  }
 
-  AccretionCluster acluster;
+  AccretionCluster acluster, cldata;
   acluster.add(pix, seed_adc);
+  cldata.add(pix, seed_adc);
 
   //Here we search all pixels adjacent to all pixels in the cluster.
   bool dead_flag = false;
@@ -431,8 +478,13 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
            ++r) {
         if (theBuffer(r, c) >= thePixelThreshold) {
           SiPixelCluster::PixelPos newpix(r, c);
-          if (!acluster.add(newpix, theBuffer(r, c)))
+          auto const newpix_adc = std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max()));
+          if (!acluster.add(newpix, newpix_adc))
             goto endClus;
+          // VV: no fake pixels in cluster, leads to non-contiguous clusters
+          if (!theFakePixels[r * theNumOfCols + c]) {
+            cldata.add(newpix, newpix_adc);
+          }
           theBuffer.set_adc(newpix, 1);
         }
 
@@ -448,8 +500,8 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 	      
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      if(!doSplitClusters){
-	      
-	      cluster.add(newpix, theBuffer(r,c));}
+
+	      cluster.add(newpix, std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max())));}
 	      else if(doSplitClusters){
 	      dead_pixel_stack.push(newpix);
 	      dead_flag = true;}
@@ -464,7 +516,7 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   }  // while accretion
 endClus:
-  SiPixelCluster cluster(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin);
+  SiPixelCluster cluster(cldata.isize, cldata.adc, cldata.x, cldata.y, cldata.xmin, cldata.ymin);
   //Here we split the cluster, if the flag to do so is set and we have found a dead or noisy pixel.
 
   if (dead_flag && doSplitClusters) {
@@ -495,9 +547,9 @@ endClus:
       //This loop adds the second cluster to the first.
       const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
       for (unsigned int i = 0; i < branch_pixels.size(); i++) {
-        int temp_x = branch_pixels[i].x;
-        int temp_y = branch_pixels[i].y;
-        int temp_adc = branch_pixels[i].adc;
+        auto const temp_x = branch_pixels[i].x;
+        auto const temp_y = branch_pixels[i].y;
+        auto const temp_adc = branch_pixels[i].adc;
         SiPixelCluster::PixelPos newpix(temp_x, temp_y);
         cluster.add(newpix, temp_adc);
       }

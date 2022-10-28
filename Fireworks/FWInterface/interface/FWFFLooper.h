@@ -38,6 +38,12 @@ class TEveMagField;
 class TEveTrackPropagator;
 class TRint;
 class TGWindow;
+class FWRecoGeometry;
+class FWRecoGeometryRecord;
+class RunInfo;
+class RunInfoRcd;
+class TGeoManager;
+class DisplayGeomRecord;
 
 class FWFFLooper : public CmsShowMainBase, public edm::EDLooperBase {
 public:
@@ -107,6 +113,9 @@ private:
   bool m_isLastEvent;
 
   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
+  const edm::ESGetToken<FWRecoGeometry, FWRecoGeometryRecord> m_recoGeomToken;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> m_runInfoToken;
+  const edm::ESGetToken<TGeoManager, DisplayGeomRecord> m_displayGeomToken;
 };
 
 #endif

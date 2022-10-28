@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 

@@ -1,6 +1,6 @@
 #ifndef RecoLuminosity_LumiProducer_LumiCalculator_h
 #define RecoLuminosity_LumiProducer_LumiCalculator_h
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -31,7 +31,7 @@ struct MyPerLumiInfo {
   unsigned long long deadcount;
 };
 
-class LumiCalculator : public edm::EDAnalyzer {
+class LumiCalculator : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit LumiCalculator(edm::ParameterSet const& pset);
   ~LumiCalculator() override;
@@ -40,6 +40,7 @@ private:
   void beginJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override {}
   void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void endJob() override;

@@ -45,46 +45,126 @@ namespace BeamSpotOnlineObjectsImpl {
 }  //namespace BeamSpotOnlineObjectsImpl
 
 // getters
-int BeamSpotOnlineObjects::GetNumTracks() const {
-  return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_TRACKS);
+int BeamSpotOnlineObjects::numTracks() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_TRACKS); }
+
+int BeamSpotOnlineObjects::numPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_PVS); }
+
+int BeamSpotOnlineObjects::usedEvents() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, USED_EVENTS);
 }
 
-int BeamSpotOnlineObjects::GetNumPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_PVS); }
+int BeamSpotOnlineObjects::maxPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, MAX_PVS); }
 
-cond::Time_t BeamSpotOnlineObjects::GetCreationTime() const {
+float BeamSpotOnlineObjects::meanPV() const { return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, MEAN_PV); }
+
+float BeamSpotOnlineObjects::meanErrorPV() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, ERR_MEAN_PV);
+}
+
+float BeamSpotOnlineObjects::rmsPV() const { return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, RMS_PV); }
+
+float BeamSpotOnlineObjects::rmsErrorPV() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, ERR_RMS_PV);
+}
+
+std::string BeamSpotOnlineObjects::startTime() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, START_TIME);
+}
+
+std::string BeamSpotOnlineObjects::endTime() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, END_TIME);
+}
+
+std::string BeamSpotOnlineObjects::lumiRange() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, LUMI_RANGE);
+}
+
+cond::Time_t BeamSpotOnlineObjects::creationTime() const {
   return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, CREATE_TIME);
 }
 
+cond::Time_t BeamSpotOnlineObjects::startTimeStamp() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, START_TIMESTAMP);
+}
+
+cond::Time_t BeamSpotOnlineObjects::endTimeStamp() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, END_TIMESTAMP);
+}
+
 // setters
-void BeamSpotOnlineObjects::SetNumTracks(int nTracks) {
+void BeamSpotOnlineObjects::setNumTracks(int nTracks) {
   BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_TRACKS, nTracks);
 }
 
-void BeamSpotOnlineObjects::SetNumPVs(int nPVs) { BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_PVS, nPVs); }
+void BeamSpotOnlineObjects::setNumPVs(int nPVs) { BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_PVS, nPVs); }
 
-void BeamSpotOnlineObjects::SetCreationTime(cond::Time_t createTime) {
+void BeamSpotOnlineObjects::setUsedEvents(int usedEvents) {
+  BeamSpotOnlineObjectsImpl::setOneParam(intParams_, USED_EVENTS, usedEvents);
+}
+
+void BeamSpotOnlineObjects::setMaxPVs(int maxPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(intParams_, MAX_PVS, maxPVs);
+}
+
+void BeamSpotOnlineObjects::setMeanPV(float meanPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, MEAN_PV, meanPVs);
+}
+
+void BeamSpotOnlineObjects::setMeanErrorPV(float errMeanPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, ERR_MEAN_PV, errMeanPVs);
+}
+
+void BeamSpotOnlineObjects::setRmsPV(float rmsPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, RMS_PV, rmsPVs);
+}
+
+void BeamSpotOnlineObjects::setRmsErrorPV(float errRmsPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, ERR_RMS_PV, errRmsPVs);
+}
+
+void BeamSpotOnlineObjects::setStartTime(std::string startTime) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, START_TIME, startTime);
+}
+
+void BeamSpotOnlineObjects::setEndTime(std::string endTime) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, END_TIME, endTime);
+}
+
+void BeamSpotOnlineObjects::setLumiRange(std::string lumiRange) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, LUMI_RANGE, lumiRange);
+}
+
+void BeamSpotOnlineObjects::setCreationTime(cond::Time_t createTime) {
   BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, CREATE_TIME, createTime);
+}
+
+void BeamSpotOnlineObjects::setStartTimeStamp(cond::Time_t starTimeStamp) {
+  BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, START_TIMESTAMP, starTimeStamp);
+}
+
+void BeamSpotOnlineObjects::setEndTimeStamp(cond::Time_t endTimeStamp) {
+  BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, END_TIMESTAMP, endTimeStamp);
 }
 
 // printers
 void BeamSpotOnlineObjects::print(std::stringstream& ss) const {
   ss << "-----------------------------------------------------\n"
      << "              BeamSpotOnline Data\n\n"
-     << " Beam type    = " << GetBeamType() << "\n"
-     << "       X0     = " << GetX() << " +/- " << GetXError() << " [cm]\n"
-     << "       Y0     = " << GetY() << " +/- " << GetYError() << " [cm]\n"
-     << "       Z0     = " << GetZ() << " +/- " << GetZError() << " [cm]\n"
-     << " Sigma Z0     = " << GetSigmaZ() << " +/- " << GetSigmaZError() << " [cm]\n"
-     << " dxdz         = " << Getdxdz() << " +/- " << GetdxdzError() << " [radians]\n"
-     << " dydz         = " << Getdydz() << " +/- " << GetdydzError() << " [radians]\n"
-     << " Beam Width X = " << GetBeamWidthX() << " +/- " << GetBeamWidthXError() << " [cm]\n"
-     << " Beam Width Y = " << GetBeamWidthY() << " +/- " << GetBeamWidthYError() << " [cm]\n"
-     << " Emittance X  = " << GetEmittanceX() << " [cm]\n"
-     << " Emittance Y  = " << GetEmittanceY() << " [cm]\n"
-     << " Beta star    = " << GetBetaStar() << " [cm]\n"
-     << " Last Lumi    = " << GetLastAnalyzedLumi() << "\n"
-     << " Last Run     = " << GetLastAnalyzedRun() << "\n"
-     << " Last Fill    = " << GetLastAnalyzedFill() << "\n"
+     << " Beam type    = " << beamType() << "\n"
+     << "       X0     = " << x() << " +/- " << xError() << " [cm]\n"
+     << "       Y0     = " << y() << " +/- " << yError() << " [cm]\n"
+     << "       Z0     = " << z() << " +/- " << zError() << " [cm]\n"
+     << " Sigma Z0     = " << sigmaZ() << " +/- " << sigmaZError() << " [cm]\n"
+     << " dxdz         = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
+     << " dydz         = " << dydz() << " +/- " << dydzError() << " [radians]\n"
+     << " Beam Width X = " << beamWidthX() << " +/- " << beamWidthXError() << " [cm]\n"
+     << " Beam Width Y = " << beamWidthY() << " +/- " << beamWidthYError() << " [cm]\n"
+     << " Emittance X  = " << emittanceX() << " [cm]\n"
+     << " Emittance Y  = " << emittanceY() << " [cm]\n"
+     << " Beta star    = " << betaStar() << " [cm]\n"
+     << " Last Lumi    = " << lastAnalyzedLumi() << "\n"
+     << " Last Run     = " << lastAnalyzedRun() << "\n"
+     << " Last Fill    = " << lastAnalyzedFill() << "\n"
      << "-----------------------------------------------------\n\n";
 }
 

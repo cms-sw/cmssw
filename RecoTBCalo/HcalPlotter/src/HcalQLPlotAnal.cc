@@ -21,10 +21,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,10 +36,10 @@
 // class declaration
 //
 
-class HcalQLPlotAnal : public edm::EDAnalyzer {
+class HcalQLPlotAnal : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalQLPlotAnal(const edm::ParameterSet&);
-  ~HcalQLPlotAnal() override;
+  ~HcalQLPlotAnal() override = default;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -87,11 +86,6 @@ HcalQLPlotAnal::HcalQLPlotAnal(const edm::ParameterSet& iConfig)
   tok_hf_ = consumes<HFDigiCollection>(hcalDigiLabel_);
   tok_calib_ = consumes<HcalCalibDigiCollection>(hcalDigiLabel_);
   tok_tb_ = consumes<HcalTBTriggerData>(iConfig.getUntrackedParameter<edm::InputTag>("hcalTrigTag"));
-}
-
-HcalQLPlotAnal::~HcalQLPlotAnal() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //

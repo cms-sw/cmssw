@@ -72,7 +72,7 @@ if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 #open the map file
-mapfile = open(options.Map,'rU', newline='')
+mapfile = open(options.Map,'r', newline='')
 #read the csv file into a reader
 mapfilereader = csv.reader(mapfile,delimiter=options.Delimiter,quotechar=options.Quotechar)
 #separate into the different sections
@@ -172,6 +172,8 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("SiPixelTemplateDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('SiPixelTemplateDBObjectUploader_Phase2.log'))
 
 geometry_cff = ''
 recoGeometry_cff = ''
@@ -190,9 +192,9 @@ elif tGeometry == 'T14':
 elif tGeometry == 'T15':
     geometry_cff = 'GeometryExtended2026D49_cff'
     recoGeometry_cff = 'GeometryExtended2026D49Reco_cff'
-elif tGeometry == 'T16':
-    geometry_cff = 'GeometryExtended2026D48_cff'
-    recoGeometry_cff = 'GeometryExtended2026D48Reco_cff'
+elif tGeometry == 'T21':
+    geometry_cff = 'GeometryExtended2026D92_cff'
+    recoGeometry_cff = 'GeometryExtended2026D92Reco_cff'
 else:
     print("Unknown tracker geometry")
     print("What are you doing ?!?!?!?!")

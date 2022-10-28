@@ -17,16 +17,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # different !!
 process.source = cms.Source("EmptySource",
-    timetype = cms.string("runnumber"),
-    firstRun = cms.untracked.uint32(1),
-    lastRun = cms.untracked.uint32(1),
-    interval = cms.untracked.uint32(1)
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -34,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripSummaryRcd'),#different
         tag = cms.string('SiStripSummary_test1')

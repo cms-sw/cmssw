@@ -1,5 +1,6 @@
 #include "L1Trigger/L1TMuonOverlap/interface/GhostBusterPreferRefDt.h"
 
+#include <algorithm>
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

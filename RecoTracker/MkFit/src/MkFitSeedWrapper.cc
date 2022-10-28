@@ -1,7 +1,7 @@
 #include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 
 // mkFit includes
-#include "Track.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
 
 MkFitSeedWrapper::MkFitSeedWrapper() = default;
 

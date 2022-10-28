@@ -3,19 +3,15 @@
  *
  *  \author Loic Quertenmont 
  */
-#include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
+#include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include <string>
 #include "TMath.h"
 

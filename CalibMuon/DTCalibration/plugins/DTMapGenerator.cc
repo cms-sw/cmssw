@@ -28,8 +28,6 @@ DTMapGenerator::DTMapGenerator(const ParameterSet& pset) {
   }
 }
 
-DTMapGenerator::~DTMapGenerator() {}
-
 void DTMapGenerator::endJob() {
   cout << "DTMapGenerator: Output Map: " << outputMapName << " ROS Type: " << rosType << endl;
 
@@ -130,8 +128,7 @@ void DTMapGenerator::endJob() {
             } else {
               outRob = robCounter + 21;
             }
-          }
-          if (sector == 4) {
+          } else if (sector == 4) {
             if (robCounter == 3 || robCounter == 4) {
               continue;
             }

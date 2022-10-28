@@ -25,7 +25,8 @@
 using namespace edm;
 using namespace std;
 
-DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps) : muonGeomToken_(esConsumes()) {
+DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   edm::LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: Constructor";
 
   parameters = ps;

@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTracksFromVertexSelector.h"
@@ -32,10 +32,10 @@ private:
   AlignmentTrackFromVertexSelector theBaseSelector;
 };
 
-class AlignmentTrackFromVertexSelectorModule : public ObjectSelectorStream<TrackFromVertexConfigSelector> {
+class AlignmentTrackFromVertexSelectorModule : public ObjectSelector<TrackFromVertexConfigSelector> {
 public:
   AlignmentTrackFromVertexSelectorModule(const edm::ParameterSet &ps)
-      : ObjectSelectorStream<TrackFromVertexConfigSelector>(ps) {}
+      : ObjectSelector<TrackFromVertexConfigSelector>(ps) {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
     desc.setComment("Alignment Tracks Selector from Vertices");

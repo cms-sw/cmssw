@@ -90,7 +90,7 @@ ctpps.toReplaceWith(localreco_HcalNZSTask, _ctpps_localreco_HcalNZSTask)
 ###########################################
 _fastSim_localrecoTask = localrecoTask.copyAndExclude([
     castorreco,
-    totemRPLocalReconstructionTask,totemTimingLocalReconstructionTask,ctppsDiamondLocalReconstructionTask,
+    totemRPLocalReconstructionTask,totemTimingLocalReconstructionTask,diamondSampicLocalReconstructionTask,ctppsDiamondLocalReconstructionTask,
     ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstructionTask,ctppsProtons,
     trackerlocalrecoTask
 ])
@@ -230,6 +230,9 @@ reconstruction_ecalOnlyTask = cms.Task(
     particleFlowSuperClusterECALOnly
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(reconstruction_ecalOnlyTask, reconstruction_ecalOnlyTask.copyAndExclude([pfClusteringPSTask, pfClusteringECALTask, particleFlowSuperClusterECALOnly]))
 
 reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,

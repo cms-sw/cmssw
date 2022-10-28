@@ -69,7 +69,7 @@
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
@@ -85,7 +85,7 @@
 
 #include "FWCore/Common/interface/EventBase.h"
 
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 // constants, enums and typedefs
@@ -162,8 +162,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
     getAction(cmsshow::sLoadPartialConfig)
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
     getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+
     getAction(cmsshow::sSavePartialConfig)
-        ->activated.connect(sigc::mem_fun(this, &FWGUIManager::savePartialToConfigurationFile));
+        ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::savePartialToConfigurationFile));
     getAction(cmsshow::sSaveConfigAs)
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForSaveConfigurationFile));
     getAction(cmsshow::sSavePartialConfigAs)
@@ -173,7 +174,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
     getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
 
     getAction(cmsshow::sBackgroundColor)
-        ->activated.connect(sigc::mem_fun(m_context->colorManager(), &FWColorManager::switchBackground));
+        ->activated.connect(sigc::mem_fun(*m_context->colorManager(), &FWColorManager::switchBackground));
     getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
     getAction(cmsshow::sShowInvMassDialog)

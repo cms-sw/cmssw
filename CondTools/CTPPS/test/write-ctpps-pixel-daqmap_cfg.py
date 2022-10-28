@@ -15,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
 #)
 
 # load a mapping
-process.load("CondFormats.PPSObjects.CTPPSPixelDAQMappingESSourceXML_cfi")
+process.load("CalibPPS.ESProducers.CTPPSPixelDAQMappingESSourceXML_cfi")
 
 #Database output service
 process.load("CondCore.CondDB.CondDB_cfi")

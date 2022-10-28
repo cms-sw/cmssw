@@ -5,22 +5,14 @@ import time
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineLegacy'
-BSOnlineJobName = 'BeamSpotOnlineLegacy'
+BSOnlineTag = 'BeamSpotOnlineFakeLegacy'
+BSOnlineJobName = 'BeamSpotOnlineFakeLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("FakeBeamMonitor", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("FakeBeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-    BSOnlineTag = BSOnlineTag + 'Playback'
-    BSOnlineJobName = BSOnlineJobName + 'Playback'
-    BSOnlineOmsServiceUrl = ''
-    useLockRecords = False
-
-#
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cerr = cms.untracked.PSet(
@@ -68,6 +60,12 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'FakeBeamMonitorLegacy'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+    BSOnlineTag = BSOnlineTag + 'Playback'
+    BSOnlineJobName = BSOnlineJobName + 'Playback'
+    BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
 
 #---------------
 """
@@ -77,7 +75,7 @@ if (live):
 else:
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
     # you may need to set manually the GT in the line below
     #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 """
@@ -155,7 +153,6 @@ if unitTest == False:
 
         runNumber = cms.untracked.uint64(options.runNumber),
         omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
@@ -178,11 +175,10 @@ else:
                             ),
 
         # Upload to CondDB
-        connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
-        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+        connect = cms.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
+        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
@@ -198,6 +194,11 @@ print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path
+print("Final Source settings:", process.source)
+
 process.p = cms.Path(process.dqmcommon
                      * process.monitor
                     )
+
+
+

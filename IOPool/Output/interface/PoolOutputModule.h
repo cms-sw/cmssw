@@ -57,6 +57,7 @@ namespace edm {
     int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
     bool overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
     bool compactEventAuxiliary() const { return compactEventAuxiliary_; }
+    bool mergeJob() const { return mergeJob_; }
     DropMetaData const& dropMetaData() const { return dropMetaData_; }
     std::string const& catalog() const { return catalog_; }
     std::string const& moduleLabel() const { return moduleLabel_; }
@@ -212,8 +213,10 @@ namespace edm {
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
     bool compactEventAuxiliary_;
+    bool mergeJob_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
+    std::string overrideGUID_;
     std::vector<std::string> processesWithSelectedMergeableRunProducts_;
   };
 }  // namespace edm

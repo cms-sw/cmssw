@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +11,7 @@
 
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 
-class SiStripDetVOffHandler : public edm::EDAnalyzer {
+class SiStripDetVOffHandler : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDetVOffHandler(const edm::ParameterSet& iConfig);
   ~SiStripDetVOffHandler() override;
@@ -43,7 +43,7 @@ SiStripDetVOffHandler::SiStripDetVOffHandler(const edm::ParameterSet& iConfig)
     m_condDb = m_localCondDbFile;
 }
 
-SiStripDetVOffHandler::~SiStripDetVOffHandler() {}
+SiStripDetVOffHandler::~SiStripDetVOffHandler() = default;
 
 void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   // get last payload from condDb

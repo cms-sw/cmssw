@@ -9,12 +9,15 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <iostream>
 #include <map>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
@@ -22,32 +25,31 @@ Toy EDProducers and EDProducts for testing purposes only.
 using namespace std;
 
 namespace edmtest {
-  class CSCCrossTalkReadAnalyzer : public edm::EDAnalyzer {
+  class CSCCrossTalkReadAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit CSCCrossTalkReadAnalyzer(edm::ParameterSet const& p) {}
-    explicit CSCCrossTalkReadAnalyzer(int i) {}
-    virtual ~CSCCrossTalkReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCCrossTalkReadAnalyzer(edm::ParameterSet const& p) : crosstalkToken_{esConsumes()} {}
+    ~CSCCrossTalkReadAnalyzer() override {}
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    edm::ESGetToken<CSCcrosstalk, CSCcrosstalkRcd> crosstalkToken_;
   };
 
-  void CSCCrossTalkReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void CSCCrossTalkReadAnalyzer::analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
     // Context is not used.
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCcrosstalk> pcrosstalk;
-    context.get<CSCcrosstalkRcd>().get(pcrosstalk);
+    edm::LogSystem log("CSCCrossTalk");
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
 
-    const CSCcrosstalk* mycrosstalk = pcrosstalk.product();
+    const CSCcrosstalk* mycrosstalk = &context.getData(crosstalkToken_);
     std::map<int, std::vector<CSCcrosstalk::Item> >::const_iterator it;
     for (it = mycrosstalk->crosstalk.begin(); it != mycrosstalk->crosstalk.end(); ++it) {
-      std::cout << "layer id found " << it->first << std::endl;
+      log << "layer id found " << it->first << std::endl;
       std::vector<CSCcrosstalk::Item>::const_iterator crosstalkit;
       for (crosstalkit = it->second.begin(); crosstalkit != it->second.end(); ++crosstalkit) {
-        std::cout << "  crosstalk_slope_right:  " << crosstalkit->xtalk_slope_right
-                  << " crosstalk_intercept_right: " << crosstalkit->xtalk_intercept_right << std::endl;
+        log << "  crosstalk_slope_right:  " << crosstalkit->xtalk_slope_right
+            << " crosstalk_intercept_right: " << crosstalkit->xtalk_intercept_right << std::endl;
       }
     }
   }

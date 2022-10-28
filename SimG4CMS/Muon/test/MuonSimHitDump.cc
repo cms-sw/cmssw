@@ -71,8 +71,7 @@ void MuonSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<std::string> dets = {"DT", "CSC", "RPC", "GEM", "ME0"};
   if ((kount_ <= maxEvent_) || (maxEvent_ <= 0)) {
     for (unsigned int k = 0; k < toksMuon_.size(); ++k) {
-      edm::Handle<edm::PSimHitContainer> hitsMuon;
-      e.getByToken(toksMuon_[k], hitsMuon);
+      const edm::Handle<edm::PSimHitContainer>& hitsMuon = e.getHandle(toksMuon_[k]);
       if (hitsMuon.isValid())
         edm::LogVerbatim("HitStudy") << "MuonSimHitDump: Input " << hitsMuon->size() << " hits of type " << types_[k]
                                      << " (" << dets[k] << ")";

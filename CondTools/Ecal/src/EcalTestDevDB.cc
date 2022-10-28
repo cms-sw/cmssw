@@ -17,7 +17,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <map>
 #include <vector>
 
 using namespace std;
@@ -74,151 +73,140 @@ void EcalTestDevDB::analyze(const edm::Event& evt, const edm::EventSetup& evtSet
 
       // Arguments 0 0 mean infinite IOV
       if (m_firstRun == 0 && m_lastRun == 0) {
-        std::cout << "Infinite IOV mode" << std::endl;
+        edm::LogInfo("EcalTestDevDB") << "Infinite IOV mode";
         irun = edm::IOVSyncValue::endOfTime().eventID().run();
       }
 
-      std::cout << "Starting Transaction for run " << irun << "..." << std::flush;
+      edm::LogInfo("EcalTestDevDB") << "Starting Transaction for run " << irun << "...";
 
       if (container == "EcalPedestals") {
-        EcalPedestals* condObject = generateEcalPedestals();
-
+        const auto condObject = generateEcalPedestals();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalPedestals>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalPedestals>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalPedestals>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalPedestals>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalADCToGeVConstant") {
-        EcalADCToGeVConstant* condObject = generateEcalADCToGeVConstant();
+        const auto condObject = generateEcalADCToGeVConstant();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalADCToGeVConstant>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalADCToGeVConstant>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalADCToGeVConstant>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalADCToGeVConstant>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalIntercalibConstants") {
-        EcalIntercalibConstants* condObject = generateEcalIntercalibConstants();
+        const auto condObject = generateEcalIntercalibConstants();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalIntercalibConstants>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalIntercalibConstants>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalIntercalibConstants>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalIntercalibConstants>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLinearCorrections") {
-        EcalLinearCorrections* condObject = generateEcalLinearCorrections();
+        const auto condObject = generateEcalLinearCorrections();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLinearCorrections>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalLinearCorrections>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLinearCorrections>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalLinearCorrections>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalGainRatios") {
-        EcalGainRatios* condObject = generateEcalGainRatios();
+        const auto condObject = generateEcalGainRatios();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalGainRatios>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalGainRatios>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalGainRatios>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalGainRatios>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalWeightXtalGroups") {
-        EcalWeightXtalGroups* condObject = generateEcalWeightXtalGroups();
+        const auto condObject = generateEcalWeightXtalGroups();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalWeightXtalGroups>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalWeightXtalGroups>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalWeightXtalGroups>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalWeightXtalGroups>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalTBWeights") {
-        EcalTBWeights* condObject = generateEcalTBWeights();
+        const auto condObject = generateEcalTBWeights();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalTBWeights>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalTBWeights>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalTBWeights>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalTBWeights>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalLaserAPDPNRatios") {
-        EcalLaserAPDPNRatios* condObject = generateEcalLaserAPDPNRatios(irun);
+        const auto condObject = generateEcalLaserAPDPNRatios(irun);
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAPDPNRatios>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalLaserAPDPNRatios>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAPDPNRatios>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalLaserAPDPNRatios>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLaserAPDPNRatiosRef") {
-        EcalLaserAPDPNRatiosRef* condObject = generateEcalLaserAPDPNRatiosRef();
+        const auto condObject = generateEcalLaserAPDPNRatiosRef();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalLaserAPDPNRatiosRef>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAPDPNRatiosRef>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalLaserAPDPNRatiosRef>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLaserAlphas") {
-        EcalLaserAlphas* condObject = generateEcalLaserAlphas();
+        const auto condObject = generateEcalLaserAlphas();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
-          std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAlphas>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          edm::LogInfo("EcalTestDevDB") << "First One ";
+          dbOutput->createOneIOV<const EcalLaserAlphas>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
-          std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAlphas>(condObject, irun, recordName);
+          edm::LogInfo("EcalTestDevDB") << "Old One ";
+          dbOutput->appendOneIOV<const EcalLaserAlphas>(*condObject, irun, recordName);
         }
       } else {
-        std::cout << "it does not work yet for " << container << "..." << std::flush;
+        edm::LogWarning("EcalTestDevDB") << "it does not work yet for " << container << "...";
       }
     }
   }
 }
 
 //-------------------------------------------------------------
-EcalPedestals* EcalTestDevDB::generateEcalPedestals() {
+std::shared_ptr<EcalPedestals> EcalTestDevDB::generateEcalPedestals() {
   //-------------------------------------------------------------
 
-  EcalPedestals* peds = new EcalPedestals();
+  auto peds = std::make_shared<EcalPedestals>();
   EcalPedestals::Item item;
   for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
     if (iEta == 0)
@@ -239,19 +227,19 @@ EcalPedestals* EcalTestDevDB::generateEcalPedestals() {
 }
 
 //-------------------------------------------------------------
-EcalADCToGeVConstant* EcalTestDevDB::generateEcalADCToGeVConstant() {
+std::shared_ptr<EcalADCToGeVConstant> EcalTestDevDB::generateEcalADCToGeVConstant() {
   //-------------------------------------------------------------
 
   double r = (double)std::rand() / (double(RAND_MAX) + double(1));
-  EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(36. + r * 4., 60. + r * 4);
+  auto agc = std::make_shared<EcalADCToGeVConstant>(36. + r * 4., 60. + r * 4);
   return agc;
 }
 
 //-------------------------------------------------------------
-EcalIntercalibConstants* EcalTestDevDB::generateEcalIntercalibConstants() {
+std::shared_ptr<EcalIntercalibConstants> EcalTestDevDB::generateEcalIntercalibConstants() {
   //-------------------------------------------------------------
 
-  EcalIntercalibConstants* ical = new EcalIntercalibConstants();
+  auto ical = std::make_shared<EcalIntercalibConstants>();
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -267,10 +255,10 @@ EcalIntercalibConstants* EcalTestDevDB::generateEcalIntercalibConstants() {
 }
 
 //-------------------------------------------------------------
-EcalLinearCorrections* EcalTestDevDB::generateEcalLinearCorrections() {
+std::shared_ptr<EcalLinearCorrections> EcalTestDevDB::generateEcalLinearCorrections() {
   //-------------------------------------------------------------
 
-  EcalLinearCorrections* ical = new EcalLinearCorrections();
+  auto ical = std::make_shared<EcalLinearCorrections>();
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -328,11 +316,11 @@ EcalLinearCorrections* EcalTestDevDB::generateEcalLinearCorrections() {
 }
 
 //-------------------------------------------------------------
-EcalGainRatios* EcalTestDevDB::generateEcalGainRatios() {
+std::shared_ptr<EcalGainRatios> EcalTestDevDB::generateEcalGainRatios() {
   //-------------------------------------------------------------
 
   // create gain ratios
-  EcalGainRatios* gratio = new EcalGainRatios;
+  auto gratio = std::make_shared<EcalGainRatios>();
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -354,10 +342,10 @@ EcalGainRatios* EcalTestDevDB::generateEcalGainRatios() {
 }
 
 //-------------------------------------------------------------
-EcalWeightXtalGroups* EcalTestDevDB::generateEcalWeightXtalGroups() {
+std::shared_ptr<EcalWeightXtalGroups> EcalTestDevDB::generateEcalWeightXtalGroups() {
   //-------------------------------------------------------------
 
-  EcalWeightXtalGroups* xtalGroups = new EcalWeightXtalGroups();
+  auto xtalGroups = std::make_shared<EcalWeightXtalGroups>();
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
       continue;
@@ -370,10 +358,10 @@ EcalWeightXtalGroups* EcalTestDevDB::generateEcalWeightXtalGroups() {
 }
 
 //-------------------------------------------------------------
-EcalTBWeights* EcalTestDevDB::generateEcalTBWeights() {
+std::shared_ptr<EcalTBWeights> EcalTestDevDB::generateEcalTBWeights() {
   //-------------------------------------------------------------
 
-  EcalTBWeights* tbwgt = new EcalTBWeights();
+  auto tbwgt = std::make_shared<EcalTBWeights>();
 
   // create weights for each distinct group ID
   int nMaxTDC = 10;
@@ -392,7 +380,6 @@ EcalTBWeights* EcalTestDevDB::generateEcalTBWeights() {
       for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 10; ++j) {
           double ww = igrp * itdc * r + i * 10. + j;
-          //std::cout << "row: " << i << " col: " << j << " -  val: " << ww  << std::endl;
           mat1(i, j) = ww;
           mat2(i, j) = 100 + ww;
         }
@@ -418,22 +405,22 @@ EcalTBWeights* EcalTestDevDB::generateEcalTBWeights() {
 }
 
 //--------------------------------------------------------------
-EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
+std::shared_ptr<EcalLaserAPDPNRatios> EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
   //--------------------------------------------------------------
 
-  EcalLaserAPDPNRatios* laser = new EcalLaserAPDPNRatios();
+  auto laser = std::make_shared<EcalLaserAPDPNRatios>();
 
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair APDPNpair;
   EcalLaserAPDPNRatios::EcalLaserTimeStamp TimeStamp;
 
   //  if((m_firstRun == 0 && i_run == 0) || (m_firstRun == 1 && i_run == 1)){
 
-  std::cout << "First & last run: " << i_run << " " << m_firstRun << " " << m_lastRun << " " << std::endl;
+  edm::LogInfo("EcalTestDevDB") << "First & last run: " << i_run << " " << m_firstRun << " " << m_lastRun;
   if (m_firstRun == i_run && (i_run == 0 || i_run == 1)) {
     APDPNpair.p1 = (double(1) + 1 / double(log(exp(1) + double((i_run - m_firstRun) * 10)))) / double(2);
     APDPNpair.p2 = (double(1) + 1 / double(log(exp(1) + double((i_run - m_firstRun) * 10) + double(10)))) / double(2);
     APDPNpair.p3 = double(0);
-    std::cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
+    edm::LogInfo("EcalTestDevDB") << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2;
 
     for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
       if (iEta == 0)
@@ -448,7 +435,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
           continue;
         }
       }
@@ -469,7 +456,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
           continue;
         }
 
@@ -483,21 +470,19 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
           continue;
         }
       }
     }
 
-    std::cout << std::endl;
     for (int i = 0; i < 92; i++) {
       if (i < static_cast<int>(laser->getTimeMap().size())) {
         TimeStamp.t1 = edm::Timestamp(1380 * (i_run - m_firstRun) + 15 * i);
         TimeStamp.t2 = edm::Timestamp(1380 * (i_run - m_firstRun + 1) + 15 * i);
         laser->setTime(i, TimeStamp);
-        //std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (time)!";
         continue;
       }
     }
@@ -506,7 +491,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
     APDPNpair.p1 = (double(1) + 1 / double(log(exp(1) + double((i_run - m_firstRun) * 10)))) / double(2);
     APDPNpair.p2 = (double(1) + 1 / double(log(exp(1) + double((i_run - m_firstRun) * 10) + double(10)))) / double(2);
     APDPNpair.p3 = double(0);
-    std::cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
+    edm::LogInfo("EcalTestDevDB") << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2;
 
     for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
       if (iEta == 0)
@@ -518,7 +503,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
         }
       }
     }
@@ -534,7 +519,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
           continue;
         }
 
@@ -546,21 +531,19 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
         if (hi < static_cast<int>(laser->getLaserMap().size())) {
           laser->setValue(hi, APDPNpair);
         } else {
-          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;
+          edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!";
           continue;
         }
       }
     }
 
-    std::cout << std::endl;
     for (int i = 0; i < 92; i++) {
       if (i < static_cast<int>(laser->getTimeMap().size())) {
         TimeStamp.t1 = edm::Timestamp(1380 * (i_run - m_firstRun) + 15 * i);
         TimeStamp.t2 = edm::Timestamp(1380 * (i_run - m_firstRun + 1) + 15 * i);
         laser->setTime(i, TimeStamp);
-        //std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (time)!";
         continue;
       }
     }
@@ -570,10 +553,10 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
 }
 
 //--------------------------------------------------------------
-EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
+std::shared_ptr<EcalLaserAPDPNRatiosRef> EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
   //--------------------------------------------------------------
 
-  EcalLaserAPDPNRatiosRef* laser = new EcalLaserAPDPNRatiosRef();
+  auto laser = std::make_shared<EcalLaserAPDPNRatiosRef>();
 
   EcalLaserAPDPNref APDPNref;
 
@@ -588,7 +571,7 @@ EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, APDPNref);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!";
       }
     }
   }
@@ -605,7 +588,7 @@ EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, APDPNref);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!";
       }
 
       if (!EEDetId::validDetId(iX, iY, -1))
@@ -618,7 +601,7 @@ EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, APDPNref);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!";
       }
     }
   }
@@ -627,10 +610,10 @@ EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
 }
 
 //--------------------------------------------------------------
-EcalLaserAlphas* EcalTestDevDB::generateEcalLaserAlphas() {
+std::shared_ptr<EcalLaserAlphas> EcalTestDevDB::generateEcalLaserAlphas() {
   //--------------------------------------------------------------
 
-  EcalLaserAlphas* laser = new EcalLaserAlphas();
+  auto laser = std::make_shared<EcalLaserAlphas>();
 
   EcalLaserAlpha Alpha;
 
@@ -645,7 +628,7 @@ EcalLaserAlphas* EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, Alpha);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!";
       }
     }
   }
@@ -662,7 +645,7 @@ EcalLaserAlphas* EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, Alpha);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!";
       }
 
       if (!EEDetId::validDetId(iX, iY, -1))
@@ -674,7 +657,7 @@ EcalLaserAlphas* EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi < static_cast<int>(laser->getMap().size())) {
         laser->setValue(hi, Alpha);
       } else {
-        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;
+        edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!";
       }
     }
   }

@@ -28,7 +28,7 @@ namespace l1t {
     return m_hwPt == rhs.hwPt() && m_hwPtUnconstrained == rhs.hwPtUnconstrained() && m_hwDXY == rhs.hwDXY() &&
            m_hwPhi == rhs.hwPhi() && m_hwEta == rhs.hwEta() && m_hwHF == (bool)rhs.hwHF() && m_hwSign == rhs.hwSign() &&
            m_hwSignValid == rhs.hwSignValid() && m_hwQuality == rhs.hwQual() && m_link == rhs.link() &&
-           m_processor == rhs.processor() && m_trackFinder == rhs.trackFinderType() &&
+           m_muIdx == rhs.muIdx() && m_processor == rhs.processor() && m_trackFinder == rhs.trackFinderType() &&
            m_trackAddress == rhs.trackAddress();
   }
 

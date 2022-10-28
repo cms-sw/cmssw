@@ -3,9 +3,10 @@
  *  \author N. Amapane - CERN
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
@@ -18,30 +19,30 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
-class testMagGeometryAnalyzer : public edm::EDAnalyzer {
+class testMagGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
-  testMagGeometryAnalyzer(const edm::ParameterSet& pset){};
+  testMagGeometryAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~testMagGeometryAnalyzer(){};
+  ~testMagGeometryAnalyzer() override = default;
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() {}
+  void endJob() override {}
 
 private:
-  void testGrids(const vector<MagVolume6Faces const*>& bvol, const VolumeBasedMagneticField* field);
+  void testGrids(const std::vector<MagVolume6Faces const*>& bvol, const VolumeBasedMagneticField* field);
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
 };
 
-using namespace edm;
+testMagGeometryAnalyzer::testMagGeometryAnalyzer(const edm::ParameterSet&)
+    : magfieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
 
 void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  ESHandle<MagneticField> magfield;
-  eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
+  const edm::ESHandle<MagneticField>& magfield = eventSetup.getHandle(magfieldToken_);
 
   const VolumeBasedMagneticField* field = dynamic_cast<const VolumeBasedMagneticField*>(magfield.product());
   const MagGeometry* geom = field->field;
@@ -58,10 +59,10 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
   // Test that each grid point is inside its own volume
   // and check numerical problems in global volume search at volume boundaries.
   if (true) {
-    cout << "***TEST GRIDS: barrel volumes: " << geom->barrelVolumes().size() << endl;
+    edm::LogVerbatim("MagGeometry") << "***TEST GRIDS: barrel volumes: " << geom->barrelVolumes().size();
     testGrids(geom->barrelVolumes(), field);
 
-    cout << "***TEST GRIDS: endcap volumes: " << geom->endcapVolumes().size() << endl;
+    edm::LogVerbatim("MagGeometry") << "***TEST GRIDS: endcap volumes: " << geom->endcapVolumes().size();
     testGrids(geom->endcapVolumes(), field);
   }
 }
@@ -69,25 +70,25 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "VolumeGridTester.h"
 
-void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol,
+void testMagGeometryAnalyzer::testGrids(const std::vector<MagVolume6Faces const*>& bvol,
                                         const VolumeBasedMagneticField* field) {
-  static map<string, int> nameCalls;
+  static std::map<std::string, int> nameCalls;
 
-  for (vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
+  for (std::vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
     if ((*i)->copyno != 1) {
       continue;
     }
 
     const MagProviderInterpol* prov = (**i).provider();
     if (prov == 0) {
-      cout << (*i)->volumeNo << " No interpolator; skipping " << endl;
+      edm::LogVerbatim("MagGeometry") << (*i)->volumeNo << " No interpolator; skipping ";
       continue;
     }
     VolumeGridTester tester(*i, prov, field);
     if (tester.testInside())
-      cout << "testGrids: success: " << (**i).volumeNo << endl;
+      edm::LogVerbatim("MagGeometry") << "testGrids: success: " << (**i).volumeNo;
     else
-      cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
+      edm::LogVerbatim("MagGeometry") << "testGrids: ERROR: " << (**i).volumeNo;
   }
 }
 

@@ -109,7 +109,7 @@ namespace {
 
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      TPad** pad = new TPad*[3];
       for (int obj = 0; obj < 3; obj++) {
         pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
@@ -262,7 +262,7 @@ namespace {
       }
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      TPad** pad = new TPad*[3];
       for (int obj = 0; obj < 3; obj++) {
         pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();

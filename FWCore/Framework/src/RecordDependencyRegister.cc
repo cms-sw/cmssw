@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
@@ -23,13 +23,13 @@ namespace edm {
         std::size_t operator()(EventSetupRecordKey const& iKey) const { return iKey.type().value().hash_code(); }
       };
 
-      tbb::concurrent_unordered_map<EventSetupRecordKey, DepFunction, KeyHash>& getMap() {
-        static tbb::concurrent_unordered_map<EventSetupRecordKey, DepFunction, KeyHash> s_map;
+      oneapi::tbb::concurrent_unordered_map<EventSetupRecordKey, DepFunction, KeyHash>& getMap() {
+        static oneapi::tbb::concurrent_unordered_map<EventSetupRecordKey, DepFunction, KeyHash> s_map;
         return s_map;
       }
 
-      tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash>& getAllowMap() {
-        static tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash> s_allow_map;
+      oneapi::tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash>& getAllowMap() {
+        static oneapi::tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash> s_allow_map;
         return s_allow_map;
       }
     }  // namespace

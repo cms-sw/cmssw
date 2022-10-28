@@ -19,21 +19,20 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
 // class decleration
 //
+class DTConfigManager;
+class DTConfigManagerRcd;
 
-class DTConfigTester : public edm::EDAnalyzer {
+class DTConfigTester : public edm::one::EDAnalyzer<> {
 public:
   //! Constructor
   explicit DTConfigTester(const edm::ParameterSet &);
-
-  //! Destructor
-  ~DTConfigTester() override;
 
   // Analyze Method
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -45,4 +44,6 @@ private:
   int my_traco;
   int my_bti;
   int my_sl;
+
+  edm::ESGetToken<DTConfigManager, DTConfigManagerRcd> my_configToken;
 };

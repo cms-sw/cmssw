@@ -53,7 +53,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // The inward-outward fitter (starts from seed state)
   ParameterSet filterPSet = par.getParameter<ParameterSet>("FilterParameters");
   filterPSet.addParameter<string>("NavigationType", theNavigationType);
-  theFilter = new StandAloneMuonFilter(filterPSet, theService, iC);
+  theFilter = std::make_unique<StandAloneMuonFilter>(filterPSet, theService, iC);
 
   // Fit direction
   string seedPosition = par.getParameter<string>("SeedPosition");
@@ -87,7 +87,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
     //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
     bwFilterPSet.addParameter<string>("NavigationType", theNavigationType);
-    theBWFilter = new StandAloneMuonFilter(bwFilterPSet, theService, iC);
+    theBWFilter = std::make_unique<StandAloneMuonFilter>(bwFilterPSet, theService, iC);
 
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
@@ -95,13 +95,13 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if (doRefit) {
     // The outward-inward fitter (starts from theBWFilter innermost state)
     ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-    theRefitter = new StandAloneMuonRefitter(refitterPSet, theService);
+    theRefitter = std::make_unique<StandAloneMuonRefitter>(refitterPSet, iC, theService);
   }
 
   // The seed transformer (used to refit the seed and get the seed transient state)
   //  ParameterSet seedTransformerPSet = par.getParameter<ParameterSet>("SeedTransformerParameters");
   ParameterSet seedTransformerParameters = par.getParameter<ParameterSet>("SeedTransformerParameters");
-  theSeedTransformer = new SeedTransformer(seedTransformerParameters);
+  theSeedTransformer = std::make_unique<SeedTransformer>(seedTransformerParameters, iC);
 }
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
@@ -113,15 +113,6 @@ void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder() {
   LogTrace("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder")
       << "StandAloneMuonTrajectoryBuilder destructor called" << endl;
-
-  if (theFilter)
-    delete theFilter;
-  if (doBackwardFilter && theBWFilter)
-    delete theBWFilter;
-  if (doRefit && theRefitter)
-    delete theRefitter;
-  if (theSeedTransformer)
-    delete theSeedTransformer;
 }
 
 namespace {

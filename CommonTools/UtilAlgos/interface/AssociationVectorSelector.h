@@ -8,12 +8,12 @@
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/AnySelector.h"
 
 template <typename KeyRefProd, typename CVal, typename KeySelector = AnySelector, typename ValSelector = AnySelector>
-class AssociationVectorSelector : public edm::EDProducer {
+class AssociationVectorSelector : public edm::stream::EDProducer<> {
 public:
   AssociationVectorSelector(const edm::ParameterSet&);
 

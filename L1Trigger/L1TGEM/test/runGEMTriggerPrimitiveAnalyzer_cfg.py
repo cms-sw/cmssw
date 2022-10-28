@@ -5,8 +5,6 @@ from Configuration.Eras.Era_Run3_cff import Run3
 
 options = VarParsing('analysis')
 options.register ("dataVsEmulation", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("analyzeEffiency", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("analyzeResolution", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dataVsEmulationFile", "empty", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 """
 - For CMS runs, use the actual run number. Set B904Setup to False
@@ -29,12 +27,6 @@ process.source = cms.Source(
       fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
-## if dataVsEmulation and analyzeEffiency or analyzeResolution are true,
-## pick dataVsEmulation
-if options.dataVsEmulation and (options.analyzeEffiency or options.analyzeResolution):
-    options.analyzeEffiency = False
-    options.analyzeResolution = False
-
 if options.dataVsEmulation:
     options.maxEvents = 1
     process.source = cms.Source("EmptySource")
@@ -54,8 +46,6 @@ process.gemTriggerPrimitivesAnalyzer = cms.EDAnalyzer(
     ## e.g. 334393
     runNumber = cms.uint32(options.runNumber),
     dataVsEmulatorPlots = cms.bool(options.dataVsEmulation),
-    mcEfficiencyPlots = cms.bool(options.analyzeEffiency),
-    mcResolutionPlots = cms.bool(options.analyzeResolution),
     B904RunNumber = cms.string(options.B904RunNumber)
 )
 

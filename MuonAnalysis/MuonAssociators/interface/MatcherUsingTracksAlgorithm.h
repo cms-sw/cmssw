@@ -16,6 +16,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,9 +27,13 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+class IdealMagneticFieldRecord;
+class TrackingComponentsRecord;
+class GlobalTrackingGeometryRecord;
+
 class MatcherUsingTracksAlgorithm {
 public:
-  explicit MatcherUsingTracksAlgorithm(const edm::ParameterSet &iConfig);
+  explicit MatcherUsingTracksAlgorithm(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
   virtual ~MatcherUsingTracksAlgorithm() {}
 
   /// Call this method at the beginning of each run, to initialize geometry, magnetic field and propagators
@@ -130,6 +135,10 @@ private:
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
 
   /// Get track reference out of a Candidate (via dynamic_cast to reco::RecoCandidate)
   reco::TrackRef getTrack(const reco::Candidate &reco, WhichTrack which) const;

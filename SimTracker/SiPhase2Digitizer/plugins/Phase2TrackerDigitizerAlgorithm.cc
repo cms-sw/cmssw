@@ -23,10 +23,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 
 // Geometry
@@ -35,27 +32,15 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 using namespace edm;
-using namespace sipixelobjects;
 
-namespace {
+namespace ph2tkdigialgo {
   // Mass in MeV
   constexpr double m_pion = 139.571;
   constexpr double m_kaon = 493.677;
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-  float calcQ(float x);
-}  // namespace
-namespace {
-  float calcQ(float x) {
-    constexpr float p1 = 12.5f;
-    constexpr float p2 = 0.2733f;
-    constexpr float p3 = 0.147f;
-
-    auto xx = std::min(0.5f * x * x, p1);
-    return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
-  }
-}  // namespace
+}  // namespace ph2tkdigialgo
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
@@ -279,17 +264,17 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
 //==============================================================================
 std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
     int pid, float particleMomentum, float eloss, float length, int NumberOfSegs) const {
-  double particleMass = ::m_pion;  // Mass in MeV, assume pion
+  double particleMass = ph2tkdigialgo::m_pion;  // Mass in MeV, assume pion
   pid = std::abs(pid);
   if (pid != 211) {  // Mass in MeV
     if (pid == 11)
-      particleMass = ::m_electron;
+      particleMass = ph2tkdigialgo::m_electron;
     else if (pid == 13)
-      particleMass = ::m_muon;
+      particleMass = ph2tkdigialgo::m_muon;
     else if (pid == 321)
-      particleMass = ::m_kaon;
+      particleMass = ph2tkdigialgo::m_kaon;
     else if (pid == 2212)
-      particleMass = ::m_proton;
+      particleMass = ph2tkdigialgo::m_proton;
   }
   // What is the track segment length.
   float segmentLength = length / NumberOfSegs;
@@ -513,7 +498,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix, 0.0);
         xLB = topol->localPosition(mp).x();
-        LowerBound = 1 - ::calcQ((xLB - CloudCenterX) / SigmaX);
+        LowerBound = 1 - calcQ((xLB - CloudCenterX) / SigmaX);
       }
 
       float xUB, UpperBound;
@@ -522,7 +507,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix + 1, 0.0);
         xUB = topol->localPosition(mp).x();
-        UpperBound = 1. - ::calcQ((xUB - CloudCenterX) / SigmaX);
+        UpperBound = 1. - calcQ((xUB - CloudCenterX) / SigmaX);
       }
       float TotalIntegrationRange = UpperBound - LowerBound;  // get strip
       x.emplace(ix, TotalIntegrationRange);                   // save strip integral
@@ -537,7 +522,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy);
         yLB = topol->localPosition(mp).y();
-        LowerBound = 1. - ::calcQ((yLB - CloudCenterY) / SigmaY);
+        LowerBound = 1. - calcQ((yLB - CloudCenterY) / SigmaY);
       }
 
       float yUB, UpperBound;
@@ -546,7 +531,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy + 1);
         yUB = topol->localPosition(mp).y();
-        UpperBound = 1. - ::calcQ((yUB - CloudCenterY) / SigmaY);
+        UpperBound = 1. - calcQ((yUB - CloudCenterY) / SigmaY);
       }
 
       float TotalIntegrationRange = UpperBound - LowerBound;
@@ -863,69 +848,6 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
       s.second.set(0.);
   }
 }
-// ==========================================================================
-void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
-  bool isbad = false;
-  uint32_t detID = pixdet->geographicalId().rawId();
-  int ncol = pixdet->specificTopology().ncolumns();
-  if (ncol < 0)
-    return;
-  std::vector<SiPixelQuality::disabledModuleType> disabledModules = siPixelBadModule_->getBadComponentList();
-
-  SiPixelQuality::disabledModuleType badmodule;
-  for (size_t id = 0; id < disabledModules.size(); id++) {
-    if (detID == disabledModules[id].DetID) {
-      isbad = true;
-      badmodule = disabledModules[id];
-      break;
-    }
-  }
-
-  if (!isbad)
-    return;
-
-  signal_map_type& theSignal = _signal[detID];  // check validity
-  if (badmodule.errorType == 0) {               // this is a whole dead module.
-    for (auto& s : theSignal)
-      s.second.set(0.);  // reset amplitude
-  } else {               // all other module types: half-modules and single ROCs.
-    // Get Bad ROC position:
-    // follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc
-    std::vector<GlobalPixel> badrocpositions;
-    for (size_t j = 0; j < static_cast<size_t>(ncol); j++) {
-      if (siPixelBadModule_->IsRocBad(detID, j)) {
-        std::vector<CablingPathToDetUnit> path = fedCablingMap_->pathToDetUnit(detID);
-        for (auto const& p : path) {
-          const PixelROC* myroc = fedCablingMap_->findItem(p);
-          if (myroc->idInDetUnit() == j) {
-            LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
-            GlobalPixel global = myroc->toGlobal(LocalPixel(local));
-            badrocpositions.push_back(global);
-            break;
-          }
-        }
-      }
-    }
-
-    for (auto& s : theSignal) {
-      std::pair<int, int> ip;
-      if (pixelFlag_)
-        ip = PixelDigi::channelToPixel(s.first);
-      else
-        ip = Phase2TrackerDigi::channelToPixel(s.first);
-
-      for (auto const& p : badrocpositions) {
-        for (auto& k : badPixels_) {
-          if (p.row == k.getParameter<int>("row") && ip.first == k.getParameter<int>("row") &&
-              std::abs(ip.second - p.col) < k.getParameter<int>("col")) {
-            s.second.set(0.);
-          }
-        }
-      }
-    }
-  }
-}
-
 // For premixing
 void Phase2TrackerDigitizerAlgorithm::loadAccumulator(uint32_t detId, const std::map<int, float>& accumulator) {
   auto& theSignal = _signal[detId];
@@ -1040,4 +962,12 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
         << temp_signal << " signal_in_adc " << signal_in_adc;
   }
   return signal_in_adc;
+}
+float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
+  constexpr float p1 = 12.5f;
+  constexpr float p2 = 0.2733f;
+  constexpr float p3 = 0.147f;
+
+  auto xx = std::min(0.5f * x * x, p1);
+  return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
 }

@@ -14,7 +14,6 @@ namespace ticl {
     static constexpr int nLayers = 104;
     static constexpr int iterations = 4;
     static constexpr int nBins = nEtaBins * nPhiBins;
-    static constexpr int type = 0;
   };
 
   struct TileConstantsHFNose {
@@ -25,7 +24,6 @@ namespace ticl {
     static constexpr int nLayers = 16;  // 8x2
     static constexpr int iterations = 4;
     static constexpr int nBins = nEtaBins * nPhiBins;
-    static constexpr int type = 1;
   };
 
 }  // namespace ticl

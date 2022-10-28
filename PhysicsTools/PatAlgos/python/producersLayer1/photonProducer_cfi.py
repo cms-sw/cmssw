@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.PatAlgos.PATPhotonProducer_cfi as _mod
 
-patPhotons = cms.EDProducer("PATPhotonProducer",
+patPhotons = _mod.PATPhotonProducer.clone(
     # input collection
-    photonSource = cms.InputTag("gedPhotons"),
-    electronSource = cms.InputTag("gedGsfElectrons"),             
-    beamLineSrc = cms.InputTag("offlineBeamSpot"),
+    photonSource   = "gedPhotons",
+    electronSource = "gedGsfElectrons",
+    beamLineSrc    = "offlineBeamSpot",
 
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),             
-             
     # user data to add
-    userData = cms.PSet(
+    userData = dict(
       # add custom classes here
       userClasses = cms.PSet(
         src = cms.VInputTag('')
@@ -28,18 +26,17 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(),
-      userFunctionLabels = cms.vstring()
+      userFunctions = [],
+      userFunctionLabels = []
     ),
 
-
     # embedding of AOD items
-    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
-    embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the photon's seedcluster 
-    embedBasicClusters             = cms.bool(True),  ## embed in AOD externally stored the photon's basic clusters 
-    embedPreshowerClusters         = cms.bool(True),  ## embed in AOD externally stored the photon's preshower clusters 
-    embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
-    saveRegressionData   = cms.bool(True),  ## save regression input variables
+    embedSuperCluster      = True, ## whether to embed in AOD externally stored supercluster
+    embedSeedCluster       = True, ## embed in AOD externally stored the photon's seedcluster 
+    embedBasicClusters     = True, ## embed in AOD externally stored the photon's basic clusters 
+    embedPreshowerClusters = True, ## embed in AOD externally stored the photon's preshower clusters 
+    embedRecHits           = True, ## embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
+    saveRegressionData     = True, ## save regression input variables
     
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),
@@ -47,30 +44,31 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Photon::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
-    userIsolation = cms.PSet(
-        #PFClusterEcalIso = cms.InputTag('electronEcalPFClusterIsolationProducer'),
-        #PFClusterHcalIso = cms.InputTag('electronHcalPFClusterIsolationProducer'),
+    userIsolation = dict(
+        #PFClusterEcalIso = 'electronEcalPFClusterIsolationProducer',
+        #PFClusterHcalIso = 'electronHcalPFClusterIsolationProducer',
         ),
 
     # photon ID
-    addPhotonID = cms.bool(False),
+    addPhotonID     = False,
     photonIDSources = cms.PSet(),
     # mc matching
-    addGenMatch = cms.bool(True),
-    embedGenMatch = cms.bool(True),
-    genParticleMatch = cms.InputTag("photonMatch"), ## particles source to be used for the matching
+    addGenMatch      = True,
+    embedGenMatch    = True,
+    genParticleMatch = "photonMatch", ## particles source to be used for the matching
 
     # efficiencies
-    addEfficiencies = cms.bool(False),
-    efficiencies    = cms.PSet(),
+    addEfficiencies = False,
+    efficiencies    = dict(),
 
     # resolutions
-    addResolutions  = cms.bool(False),
-    resolutions     = cms.PSet(),
+    addResolutions  = False,
+    resolutions     = dict(),
 
     # PFClusterIso
-    addPFClusterIso = cms.bool(False),
-    ecalPFClusterIsoMap = cms.InputTag(""),
-    hcalPFClusterIsoMap = cms.InputTag(""),
-    addPuppiIsolation = cms.bool(False)
+    addPFClusterIso     = False,
+    ecalPFClusterIsoMap = "",
+    hcalPFClusterIsoMap = "",
+    addPuppiIsolation   = False
 )
+del patPhotons.photonIDSource

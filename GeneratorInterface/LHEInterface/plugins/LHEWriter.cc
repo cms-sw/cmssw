@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -18,7 +18,7 @@
 
 using namespace lhef;
 
-class LHEWriter : public edm::EDAnalyzer {
+class LHEWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit LHEWriter(const edm::ParameterSet &params);
   ~LHEWriter() override;
@@ -50,9 +50,9 @@ void LHEWriter::beginRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void LHEWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
-  edm::Handle<LHERunInfoProduct> product;
+  const edm::Handle<LHERunInfoProduct> &product = run.getHandle(tokenLHERunInfo_);
   //run.getByLabel("source", product);
-  run.getByToken(tokenLHERunInfo_, product);
+  //run.getByToken(tokenLHERunInfo_, product);
 
   std::copy(product->begin(), product->end(), std::ostream_iterator<std::string>(file));
 
@@ -65,9 +65,9 @@ void LHEWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void LHEWriter::analyze(const edm::Event &event, const edm::EventSetup &es) {
-  edm::Handle<LHEEventProduct> product;
+  const edm::Handle<LHEEventProduct> &product = event.getHandle(tokenLHEEvent_);
   //event.getByLabel("source", product);
-  event.getByToken(tokenLHEEvent_, product);
+  //event.getByToken(tokenLHEEvent_, product);
 
   std::copy(product->begin(), product->end(), std::ostream_iterator<std::string>(file1));
 }

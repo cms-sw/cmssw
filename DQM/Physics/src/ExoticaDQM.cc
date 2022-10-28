@@ -520,11 +520,18 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         MuonEta[0] = muon_->eta();
         MuonPhi[0] = muon_->phi();
         MuonCharge[0] = muon_->charge();
+      } else if (muon_->pt() > MuonPt[1] && muon_->pt() < MuonPt[0]) {
+        MuonPt[1] = muon_->pt();
+        MuonPx[1] = muon_->px();
+        MuonPy[1] = muon_->py();
+        MuonEta[1] = muon_->eta();
+        MuonPhi[1] = muon_->phi();
+        MuonCharge[1] = muon_->charge();
       }
     }
     if (muon_->pt() > dimuon_Muon1_pt_cut_)
       dimuon_countMuon_++;
-    if (muon_->pt() > dimuon_Muon1_pt_cut_)
+    if (muon_->pt() > monomuon_Muon_pt_cut_)
       monomuon_countMuon_++;
   }
 
@@ -576,10 +583,17 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       ElectronEta[0] = electron_->eta();
       ElectronPhi[0] = electron_->phi();
       ElectronCharge[0] = electron_->charge();
+    } else if (electron_->pt() > ElectronPt[1] && electron_->pt() < ElectronPt[0]) {
+      ElectronPt[1] = electron_->pt();
+      ElectronPx[1] = electron_->px();
+      ElectronPy[1] = electron_->py();
+      ElectronEta[1] = electron_->eta();
+      ElectronPhi[1] = electron_->phi();
+      ElectronCharge[1] = electron_->charge();
     }
     if (electron_->pt() > dielectron_Electron1_pt_cut_)
       dielectron_countElectron_++;
-    if (electron_->pt() > dielectron_Electron1_pt_cut_)
+    if (electron_->pt() > monoelectron_Electron_pt_cut_)
       monoelectron_countElectron_++;
   }
 
@@ -598,7 +612,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       PhotonTrkSumPtSolidConeDR03[1] = PhotonTrkSumPtSolidConeDR03[0];
       PhotonE1x5E5x5[1] = PhotonE1x5E5x5[0];
       PhotonE2x5E5x5[1] = PhotonE2x5E5x5[0];
-
       PhotonEnergy[0] = photon_->energy();
       PhotonPt[0] = photon_->pt();
       PhotonEt[0] = photon_->et();
@@ -610,10 +623,21 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       PhotonTrkSumPtSolidConeDR03[0] = photon_->trkSumPtSolidConeDR03();
       PhotonE1x5E5x5[0] = photon_->e1x5() / photon_->e5x5();
       PhotonE2x5E5x5[0] = photon_->e2x5() / photon_->e5x5();
-
-      if (photon_->pt() > dielectron_Electron1_pt_cut_)
-        diphoton_countPhoton_++;
+    } else if (photon_->pt() > PhotonPt[1] && photon_->pt() < PhotonPt[0]) {
+      PhotonEnergy[1] = photon_->energy();
+      PhotonPt[1] = photon_->pt();
+      PhotonEt[1] = photon_->et();
+      PhotonEta[1] = photon_->eta();
+      PhotonEtaSc[1] = photon_->caloPosition().eta();
+      PhotonPhi[1] = photon_->phi();
+      PhotonHoverE[1] = photon_->hadronicOverEm();
+      PhotonSigmaIetaIeta[1] = photon_->sigmaIetaIeta();
+      PhotonTrkSumPtSolidConeDR03[1] = photon_->trkSumPtSolidConeDR03();
+      PhotonE1x5E5x5[1] = photon_->e1x5() / photon_->e5x5();
+      PhotonE2x5E5x5[1] = photon_->e2x5() / photon_->e5x5();
     }
+    if (photon_->pt() > diphoton_Photon1_pt_cut_)
+      diphoton_countPhoton_++;
   }
 
   //

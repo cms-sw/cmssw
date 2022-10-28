@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,12 +19,11 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-class SiStripDetVOffTkMapPlotter : public edm::EDAnalyzer {
+class SiStripDetVOffTkMapPlotter : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDetVOffTkMapPlotter(const edm::ParameterSet& iConfig);
   ~SiStripDetVOffTkMapPlotter() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-  void endJob() override;
 
 private:
   std::string formatIOV(cond::Time_t iov, std::string format = "%Y-%m-%d__%H_%M_%S");
@@ -60,7 +59,7 @@ SiStripDetVOffTkMapPlotter::SiStripDetVOffTkMapPlotter(const edm::ParameterSet& 
   m_connectionPool.configure();
 }
 
-SiStripDetVOffTkMapPlotter::~SiStripDetVOffTkMapPlotter() {}
+SiStripDetVOffTkMapPlotter::~SiStripDetVOffTkMapPlotter() = default;
 
 void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   cond::Time_t theIov = 0;
@@ -120,8 +119,6 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
     hvhisto.save(m_outputFile);
   }
 }
-
-void SiStripDetVOffTkMapPlotter::endJob() {}
 
 std::string SiStripDetVOffTkMapPlotter::formatIOV(cond::Time_t iov, std::string format) {
   auto facet = new boost::posix_time::time_facet(format.c_str());

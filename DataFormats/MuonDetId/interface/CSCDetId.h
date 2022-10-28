@@ -249,6 +249,12 @@ public:
   static std::string chamberName(int endcap, int station, int ring, int chamber);
   static std::string chamberName(int iChamberType);
   std::string chamberName() const;
+  /**
+    * Returns the layer name in the format
+    * ME$sign$station/$ring/$chamber/$layer. Example: ME+1/1/9/1
+    */
+  static std::string layerName(int endcap, int station, int ring, int chamber, int layer);
+  std::string layerName() const;
 
 private:
   /**

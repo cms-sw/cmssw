@@ -1,8 +1,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ThirdHitPrediction.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -18,19 +18,14 @@ using namespace std;
 ThirdHitPrediction::ThirdHitPrediction(const TrackingRegion& region,
                                        GlobalPoint inner,
                                        GlobalPoint outer,
-                                       const edm::EventSetup& es,
+                                       const MagneticField& magfield,
+                                       const TransientTrackingRecHitBuilder& ttrhBuilder,
                                        double nSigMultipleScattering,
-                                       double maxAngleRatio,
-                                       string builderName) {
+                                       double maxAngleRatio) {
   using namespace edm;
-  ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  theTTRecHitBuilder = &ttrhBuilder;
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-  es.get<TransientRecHitRecord>().get(builderName, ttrhbESH);
-  theTTRecHitBuilder = ttrhbESH.product();
-
-  Bz = fabs(magfield->inInverseGeV(GlobalPoint(0, 0, 0)).z());
+  Bz = fabs(magfield.inInverseGeV(GlobalPoint(0, 0, 0)).z());
 
   c0 = Global2DVector(region.origin().x(), region.origin().y());
 
@@ -345,7 +340,7 @@ void ThirdHitPrediction::getRanges(float rz3, float phi[], float rz[]) { calcula
 bool ThirdHitPrediction::isCompatibleWithMultipleScattering(GlobalPoint g3,
                                                             const vector<const TrackingRecHit*>& h,
                                                             vector<GlobalVector>& globalDirs,
-                                                            const edm::EventSetup& es) {
+                                                            const MultipleScatteringParametrisationMaker& msmaker) {
   Global2DVector p1(g1.x(), g1.y());
   Global2DVector p2(g2.x(), g2.y());
   Global2DVector p3(g3.x(), g3.y());
@@ -383,7 +378,7 @@ bool ThirdHitPrediction::isCompatibleWithMultipleScattering(GlobalPoint g3,
     float m_pi = 0.13957018;
     float beta = p / sqrt(sqr(p) + sqr(m_pi));
 
-    MultipleScatteringParametrisation msp(theLayer, es);
+    MultipleScatteringParametrisation msp = msmaker.parametrisation(theLayer);
     PixelRecoPointRZ rz2(g2.perp(), g2.z());
 
     float sigma_z = msp(pt, cotTheta, rz2) / beta;

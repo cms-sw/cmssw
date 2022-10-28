@@ -67,26 +67,26 @@ muonSeededTrajectoryFilterForOutIn = muonSeededTrajectoryFilterForInOut.clone(
 ###------------- TrajectoryBuilders ----------------
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    foundHitBonus    = 1000.0,  
-    lostHitPenalty   = 1.0,   
+    foundHitBonus    = 1000.0,
+    lostHitPenalty   = 1.0,
     maxCand          = 5,
     estimator        = 'muonSeededMeasurementEstimatorForInOut',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')),
-    inOutTrajectoryFilter      = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')), # not sure if it is used
+    trajectoryFilter = dict(refToPSet_ = 'muonSeededTrajectoryFilterForInOut'),
+    inOutTrajectoryFilter      = dict(refToPSet_ = 'muonSeededTrajectoryFilterForInOut'), # not sure if it is used
     minNrOfHitsForRebuild      = 2,
     requireSeedHitsInRebuild   = True, 
     keepOriginalIfRebuildFails = True, 
 )
 muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    foundHitBonus    = 1000.0,  
-    lostHitPenalty   = 1.0,   
+    foundHitBonus    = 1000.0,
+    lostHitPenalty   = 1.0,
     maxCand          = 3,
     estimator        = 'muonSeededMeasurementEstimatorForOutIn',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')),
-    inOutTrajectoryFilter      = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')), # not sure if it is used
+    trajectoryFilter = dict(refToPSet_ = 'muonSeededTrajectoryFilterForOutIn'),
+    inOutTrajectoryFilter      = dict(refToPSet_ = 'muonSeededTrajectoryFilterForOutIn'), # not sure if it is used
     minNrOfHitsForRebuild      = 5,
-    requireSeedHitsInRebuild   = True, 
-    keepOriginalIfRebuildFails = False, 
+    requireSeedHitsInRebuild   = True,
+    keepOriginalIfRebuildFails = False,
 )
 
 ###-------------  Fitter-Smoother -------------------
@@ -101,16 +101,16 @@ muonSeededFittingSmootherWithOutliersRejectionAndRK = TrackingTools.TrackFitters
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 muonSeededTrackCandidatesInOut = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'muonSeededSeedsInOut',
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryBuilderForInOut')),
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'muonSeededTrajectoryBuilderForInOut'),
     TrajectoryCleaner     = 'muonSeededTrajectoryCleanerBySharedHits',
     RedundantSeedCleaner  = 'none', 
 )
 muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'muonSeededSeedsOutIn',
-    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryBuilderForOutIn')),
+    TrajectoryBuilderPSet       = dict(refToPSet_ = 'muonSeededTrajectoryBuilderForOutIn'),
     TrajectoryCleaner           = 'muonSeededTrajectoryCleanerBySharedHits',
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(False),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = False,
 )
 
 ######## TRACK PRODUCERS 
@@ -150,6 +150,44 @@ muonSeededTracksOutInClassifier = TrackCutClassifier.clone(
         min3DLayers   = [1,2,2],
         maxLostLayers = [4,3,2]
     )
+)
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(muonSeededTracksOutInClassifier.mva,
+                  dr_par = cms.PSet(
+                      d0err = cms.vdouble(0.003, 0.003, 0.003),
+                      d0err_par = cms.vdouble(0.001, 0.001, 0.001),
+                      dr_exp = cms.vint32(4, 4, 4),
+                      dr_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dr_par2 = cms.vdouble(0.3, 0.3, 0.3)
+                  ),
+                  dz_par = cms.PSet(
+                      dz_exp = cms.vint32(4, 4, 4),
+                      dz_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dz_par2 = cms.vdouble(0.35, 0.35, 0.35)
+                  ),
+                  maxDr         = [9999.,9999.,0.5],
+                  maxDz         = [9999.,9999.,0.5],
+                  minHits     =   [0,0,10],
+                  minPixelHits  = [0,0,1],
+)
+pp_on_AA.toModify(muonSeededTracksInOutClassifier.mva,
+                  dr_par = cms.PSet(
+                      d0err = cms.vdouble(0.003, 0.003, 0.003),
+                      d0err_par = cms.vdouble(0.001, 0.001, 0.001),
+                      dr_exp = cms.vint32(4, 4, 4),
+                      dr_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dr_par2 = cms.vdouble(0.3, 0.3, 0.3)
+                  ),
+                  dz_par = cms.PSet(
+                      dz_exp = cms.vint32(4, 4, 4),
+                      dz_par1 = cms.vdouble(0.4, 0.4, 0.4),
+                      dz_par2 = cms.vdouble(0.35, 0.35, 0.35)
+                  ),
+                  maxDr         = [9999.,9999.,0.5],
+                  maxDz         = [9999.,9999.,0.5],
+                  minHits     =   [0,0,10],
+                  minPixelHits  = [0,0,1],
 )
 
 # For Phase2PU140
@@ -248,6 +286,11 @@ muonSeededStepCoreTask = cms.Task(
 muonSeededStepCore = cms.Sequence(muonSeededStepCoreTask)
 #Phase2 : just muon Seed InOut is used in this moment
 #trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(muonSeededTracksInOut, TrajectoryInEvent = True)
+phase2_timing_layer.toModify(muonSeededTracksOutIn, TrajectoryInEvent = True)
+
 muonSeededStepExtraInOutTask = cms.Task(
     muonSeededTracksInOutClassifier
 )

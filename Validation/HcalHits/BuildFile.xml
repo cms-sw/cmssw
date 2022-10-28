@@ -1,5 +1,4 @@
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Math"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>
@@ -14,6 +13,5 @@
 <use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
-<use name="boost"/>
 <use name="rootmath"/>
 <flags EDM_PLUGIN="1"/>

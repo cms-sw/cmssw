@@ -7,7 +7,8 @@
 #include <SimCalorimetry/EcalSimProducers/test/ESDigisReferenceDistrib.h>
 
 ESDigisReferenceDistrib::ESDigisReferenceDistrib(const edm::ParameterSet &ps)
-    : ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection")) {
+    : ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection")),
+      ecalDigiESToken_(consumes<ESDigiCollection>(ESdigiCollection_)) {
   // root and txt outputs
   outputRootFile_ = ps.getUntrackedParameter<std::string>("outputRootFile", "");
   outputTxtFile_ = ps.getUntrackedParameter<std::string>("outputTxtFile", "");
@@ -73,8 +74,7 @@ void ESDigisReferenceDistrib::beginJob() {}
 void ESDigisReferenceDistrib::endJob() {}
 
 void ESDigisReferenceDistrib::analyze(const edm::Event &e, const edm::EventSetup &c) {
-  edm::Handle<ESDigiCollection> EcalDigiES;
-  e.getByLabel(ESdigiCollection_, EcalDigiES);
+  const auto &EcalDigiES = e.getHandle(ecalDigiESToken_);
 
   // loop over Digis
   const ESDigiCollection *preshowerDigi = EcalDigiES.product();

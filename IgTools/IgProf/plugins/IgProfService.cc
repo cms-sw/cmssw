@@ -58,8 +58,21 @@ IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
   atPreEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEvent", atPreEvent_);
   atPostEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEvent", atPostEvent_);
 
+  modules_ = ps.getUntrackedParameter<std::vector<std::string>>("reportModules", modules_);
+  moduleTypes_ = ps.getUntrackedParameter<std::vector<std::string>>("reportModuleTypes", moduleTypes_);
+  std::sort(modules_.begin(), modules_.end());
+  std::sort(moduleTypes_.begin(), moduleTypes_.end());
+  atPreModuleEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreModuleEvent", atPreModuleEvent_);
+  atPostModuleEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostModuleEvent", atPostModuleEvent_);
+
   atPostEndLumi_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndLumi", atPostEndLumi_);
+  atPreEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndRun", atPreEndRun_);
   atPostEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndRun", atPostEndRun_);
+  atPreEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPreEndProcessBlock", atPreEndProcessBlock_);
+  atPostEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPostEndProcessBlock", atPostEndProcessBlock_);
+  atPreEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndJob", atPreEndJob_);
   atPostEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndJob", atPostEndJob_);
 
   atPostOpenFile_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostOpenFile", atPostOpenFile_);
@@ -73,8 +86,17 @@ IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
   iRegistry.watchPreEvent(this, &IgProfService::preEvent);
   iRegistry.watchPostEvent(this, &IgProfService::postEvent);
 
+  if (not modules_.empty() or not moduleTypes_.empty()) {
+    iRegistry.watchPreModuleEvent(this, &IgProfService::preModuleEvent);
+    iRegistry.watchPostModuleEvent(this, &IgProfService::postModuleEvent);
+  }
+
   iRegistry.watchPostGlobalEndLumi(this, &IgProfService::postEndLumi);
+  iRegistry.watchPreGlobalEndRun(this, &IgProfService::preEndRun);
   iRegistry.watchPostGlobalEndRun(this, &IgProfService::postEndRun);
+  iRegistry.watchPreEndProcessBlock(this, &IgProfService::preEndProcessBlock);
+  iRegistry.watchPostEndProcessBlock(this, &IgProfService::postEndProcessBlock);
+  iRegistry.watchPreEndJob(this, &IgProfService::preEndJob);
   iRegistry.watchPostEndJob(this, &IgProfService::postEndJob);
 
   iRegistry.watchPostOpenFile(this, &IgProfService::postOpenFile);
@@ -106,23 +128,64 @@ void IgProfService::postEvent(StreamContext const &iStream) {
     makeDump(atPostEvent_);
 }
 
-void IgProfService::postEndLumi(GlobalContext const &) { makeDump(atPostEndLumi_); }
+void IgProfService::preModuleEvent(StreamContext const &iStream, ModuleCallingContext const &mcc) {
+  nevent_ = iStream.eventID().event();
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0)) {
+    auto const &moduleLabel = mcc.moduleDescription()->moduleLabel();
+    auto const &moduleType = mcc.moduleDescription()->moduleName();
+    if (std::binary_search(modules_.begin(), modules_.end(), moduleLabel) or
+        std::binary_search(moduleTypes_.begin(), moduleTypes_.end(), moduleType)) {
+      makeDump(atPreModuleEvent_, moduleLabel);
+    }
+  }
+}
 
-void IgProfService::postEndRun(GlobalContext const &) { makeDump(atPostEndRun_); }
+void IgProfService::postModuleEvent(StreamContext const &iStream, ModuleCallingContext const &mcc) {
+  nevent_ = iStream.eventID().event();
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0)) {
+    auto const &moduleLabel = mcc.moduleDescription()->moduleLabel();
+    auto const &moduleType = mcc.moduleDescription()->moduleName();
+    if (std::binary_search(modules_.begin(), modules_.end(), moduleLabel) or
+        std::binary_search(moduleTypes_.begin(), moduleTypes_.end(), moduleType)) {
+      makeDump(atPostModuleEvent_, moduleLabel);
+    }
+  }
+}
+
+void IgProfService::postEndLumi(GlobalContext const &gc) {
+  nlumi_ = gc.luminosityBlockID().luminosityBlock();
+  makeDump(atPostEndLumi_);
+}
+
+void IgProfService::preEndRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPreEndRun_);
+}
+
+void IgProfService::postEndRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPostEndRun_);
+}
+
+void IgProfService::preEndProcessBlock(GlobalContext const &gc) { makeDump(atPreEndProcessBlock_); }
+
+void IgProfService::postEndProcessBlock(GlobalContext const &gc) { makeDump(atPostEndProcessBlock_); }
+
+void IgProfService::preEndJob() { makeDump(atPreEndJob_); }
 
 void IgProfService::postEndJob() { makeDump(atPostEndJob_); }
 
-void IgProfService::postOpenFile(std::string const &, bool) {
+void IgProfService::postOpenFile(std::string const &) {
   ++nfileopened_;
   makeDump(atPostOpenFile_);
 }
 
-void IgProfService::postCloseFile(std::string const &, bool) {
+void IgProfService::postCloseFile(std::string const &) {
   ++nfileclosed_;
   makeDump(atPostCloseFile_);
 }
 
-void IgProfService::makeDump(const std::string &format) {
+void IgProfService::makeDump(const std::string &format, std::string_view moduleLabel) {
   if (!dump_ || format.empty())
     return;
 
@@ -133,6 +196,7 @@ void IgProfService::makeDump(const std::string &format) {
   final = replaceU64(final, "%L", nlumi_);
   final = replace(final, "%F", nfileopened_);
   final = replace(final, "%C", nfileclosed_);
+  final = replace(final, "%M", moduleLabel);
   dump_(final.c_str());
 }
 
@@ -159,6 +223,18 @@ std::string IgProfService::replaceU64(const std::string &s, const char *pat, uns
     int n = sprintf(buf, "%llu", val);
     result.replace(pos, patlen, buf);
     pos = pos - patlen + n;
+  }
+
+  return result;
+}
+
+std::string IgProfService::replace(const std::string &s, const char *pat, std::string_view val) {
+  size_t pos = 0;
+  size_t patlen = strlen(pat);
+  std::string result = s;
+  while ((pos = result.find(pat, pos)) != std::string::npos) {
+    result.replace(pos, patlen, val.data());
+    pos = pos - patlen + val.size();
   }
 
   return result;

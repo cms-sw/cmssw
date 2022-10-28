@@ -7,7 +7,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsExtendedGeometryHFLibraryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 

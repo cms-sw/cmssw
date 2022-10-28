@@ -6,7 +6,6 @@ import os
 from ROOT import *
 from copy import deepcopy
 from array import array
-import six
 
 gROOT.SetBatch() # don't pop up canvases
 

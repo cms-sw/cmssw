@@ -56,15 +56,7 @@ StKinFitter::StKinFitter(Param jetParam,
   setupFitter();
 }
 
-StKinFitter::~StKinFitter() {
-  delete cons1_;
-  delete cons2_;
-  delete cons3_;
-  delete fitBottom_;
-  delete fitLight_;
-  delete fitLepton_;
-  delete fitNeutrino_;
-}
+StKinFitter::~StKinFitter() = default;
 
 StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution* asol) {
   StEvtSolution fitsol(*asol);
@@ -278,47 +270,47 @@ void StKinFitter::setupFitter() {
   TMatrixD empty3(3, 3);
   TMatrixD empty4(4, 4);
   if (jetParam_ == kEMom) {
-    fitBottom_ = new TFitParticleEMomDev("Jet1", "Jet1", nullptr, &empty4);
-    fitLight_ = new TFitParticleEMomDev("Jet2", "Jet2", nullptr, &empty4);
+    fitBottom_ = std::make_unique<TFitParticleEMomDev>("Jet1", "Jet1", nullptr, &empty4);
+    fitLight_ = std::make_unique<TFitParticleEMomDev>("Jet2", "Jet2", nullptr, &empty4);
   } else if (jetParam_ == kEtEtaPhi) {
-    fitBottom_ = new TFitParticleEtEtaPhi("Jet1", "Jet1", nullptr, &empty3);
-    fitLight_ = new TFitParticleEtEtaPhi("Jet2", "Jet2", nullptr, &empty3);
+    fitBottom_ = std::make_unique<TFitParticleEtEtaPhi>("Jet1", "Jet1", nullptr, &empty3);
+    fitLight_ = std::make_unique<TFitParticleEtEtaPhi>("Jet2", "Jet2", nullptr, &empty3);
   } else if (jetParam_ == kEtThetaPhi) {
-    fitBottom_ = new TFitParticleEtThetaPhi("Jet1", "Jet1", nullptr, &empty3);
-    fitLight_ = new TFitParticleEtThetaPhi("Jet2", "Jet2", nullptr, &empty3);
+    fitBottom_ = std::make_unique<TFitParticleEtThetaPhi>("Jet1", "Jet1", nullptr, &empty3);
+    fitLight_ = std::make_unique<TFitParticleEtThetaPhi>("Jet2", "Jet2", nullptr, &empty3);
   }
   if (lepParam_ == kEMom) {
-    fitLepton_ = new TFitParticleEScaledMomDev("Lepton", "Lepton", nullptr, &empty3);
+    fitLepton_ = std::make_unique<TFitParticleEScaledMomDev>("Lepton", "Lepton", nullptr, &empty3);
   } else if (lepParam_ == kEtEtaPhi) {
-    fitLepton_ = new TFitParticleEtEtaPhi("Lepton", "Lepton", nullptr, &empty3);
+    fitLepton_ = std::make_unique<TFitParticleEtEtaPhi>("Lepton", "Lepton", nullptr, &empty3);
   } else if (lepParam_ == kEtThetaPhi) {
-    fitLepton_ = new TFitParticleEtThetaPhi("Lepton", "Lepton", nullptr, &empty3);
+    fitLepton_ = std::make_unique<TFitParticleEtThetaPhi>("Lepton", "Lepton", nullptr, &empty3);
   }
   if (metParam_ == kEMom) {
-    fitNeutrino_ = new TFitParticleEScaledMomDev("Neutrino", "Neutrino", nullptr, &empty3);
+    fitNeutrino_ = std::make_unique<TFitParticleEScaledMomDev>("Neutrino", "Neutrino", nullptr, &empty3);
   } else if (metParam_ == kEtEtaPhi) {
-    fitNeutrino_ = new TFitParticleEtEtaPhi("Neutrino", "Neutrino", nullptr, &empty3);
+    fitNeutrino_ = std::make_unique<TFitParticleEtEtaPhi>("Neutrino", "Neutrino", nullptr, &empty3);
   } else if (metParam_ == kEtThetaPhi) {
-    fitNeutrino_ = new TFitParticleEtThetaPhi("Neutrino", "Neutrino", nullptr, &empty3);
+    fitNeutrino_ = std::make_unique<TFitParticleEtThetaPhi>("Neutrino", "Neutrino", nullptr, &empty3);
   }
 
-  cons1_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, mW_);
-  cons1_->addParticles1(fitLepton_, fitNeutrino_);
-  cons2_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, mTop_);
-  cons2_->addParticles1(fitLepton_, fitNeutrino_, fitBottom_);
-  cons3_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, 0.);
-  cons3_->addParticle1(fitNeutrino_);
+  cons1_ = std::make_unique<TFitConstraintM>("MassConstraint", "Mass-Constraint", nullptr, nullptr, mW_);
+  cons1_->addParticles1(fitLepton_.get(), fitNeutrino_.get());
+  cons2_ = std::make_unique<TFitConstraintM>("MassConstraint", "Mass-Constraint", nullptr, nullptr, mTop_);
+  cons2_->addParticles1(fitLepton_.get(), fitNeutrino_.get(), fitBottom_.get());
+  cons3_ = std::make_unique<TFitConstraintM>("MassConstraint", "Mass-Constraint", nullptr, nullptr, 0.);
+  cons3_->addParticle1(fitNeutrino_.get());
 
   for (unsigned int i = 0; i < constraints_.size(); i++) {
     if (constraints_[i] == 1)
-      fitter_->addConstraint(cons1_);
+      fitter_->addConstraint(cons1_.get());
     if (constraints_[i] == 2)
-      fitter_->addConstraint(cons2_);
+      fitter_->addConstraint(cons2_.get());
     if (constraints_[i] == 3)
-      fitter_->addConstraint(cons3_);
+      fitter_->addConstraint(cons3_.get());
   }
-  fitter_->addMeasParticle(fitBottom_);
-  fitter_->addMeasParticle(fitLight_);
-  fitter_->addMeasParticle(fitLepton_);
-  fitter_->addMeasParticle(fitNeutrino_);
+  fitter_->addMeasParticle(fitBottom_.get());
+  fitter_->addMeasParticle(fitLight_.get());
+  fitter_->addMeasParticle(fitLepton_.get());
+  fitter_->addMeasParticle(fitNeutrino_.get());
 }

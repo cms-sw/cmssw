@@ -31,6 +31,7 @@
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationLUTRcd.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<> {
 public:
@@ -43,6 +44,7 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
+  edm::ESGetToken<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd> timingCalibrationLUTToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
 
   /// A watcher to detect timing calibration changes.
@@ -60,6 +62,7 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer(const edm::ParameterSet& 
   if (applyCalib_) {
     timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
+    timingCalibrationLUTToken_ = esConsumes<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd>();
   }
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
@@ -68,19 +71,14 @@ void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSet
   auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit> >();
 
   // get the digi collection
-  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi> > digis;
-  iEvent.getByToken(digiToken_, digis);
+  const auto& digis = iEvent.get(digiToken_);
 
-  if (!digis->empty()) {
-    if (applyCalib_ && calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
-      algo_.setCalibration(*hTimingCalib);
-    }
-    // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
+  if (!digis.empty()) {
+    if (applyCalib_ && calibWatcher_.check(iSetup))
+      algo_.setCalibration(iSetup.getData(timingCalibrationToken_), iSetup.getData(timingCalibrationLUTToken_));
 
     // produce the rechits collection
-    algo_.build(*geometry, *digis, *pOut);
+    algo_.build(iSetup.getData(geometryToken_), digis, *pOut);
   }
 
   iEvent.put(std::move(pOut));

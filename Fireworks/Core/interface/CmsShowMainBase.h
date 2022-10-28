@@ -34,7 +34,7 @@ class FWConfigurationManager;
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 
 namespace fireworks {
   class Context;
@@ -133,7 +133,7 @@ public:
       timeout_();
       return true;
     }
-    sigc::signal<void> timeout_;
+    sigc::signal<void()> timeout_;
   };
 
 protected:

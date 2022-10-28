@@ -51,8 +51,10 @@
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
@@ -95,6 +97,8 @@ namespace CondFormats_L1TObjects {
     //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
     //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
     //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
+    L1TMuonOverlapFwVersion dummy15;
+
     L1TMuonGlobalParams dummy16;
     std::vector<L1TMuonGlobalParams::Node> dummy16a;
 
@@ -103,6 +107,8 @@ namespace CondFormats_L1TObjects {
 
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
+    L1TMuonBarrelKalmanParams dummy18b;
+    std::vector<L1TMuonBarrelKalmanParams::Node> dummy18c;
 
     L1TMuonEndCapParams dummy19;
 

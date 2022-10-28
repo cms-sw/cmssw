@@ -2,12 +2,12 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace {
   template <typename T, typename U>

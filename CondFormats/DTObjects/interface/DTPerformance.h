@@ -70,6 +70,8 @@ public:
   /** Constructor
    */
   DTPerformance();
+  DTPerformance(DTPerformance const&) = delete;
+  DTPerformance& operator=(DTPerformance const&) = delete;
   DTPerformance(const std::string& version);
 
   /** Destructor
@@ -212,9 +214,6 @@ public:
   void initialize();
 
 private:
-  DTPerformance(DTPerformance const&) = delete;
-  DTPerformance& operator=(DTPerformance const&) = delete;
-
   std::string dataVersion;
   float nsPerCount;
 

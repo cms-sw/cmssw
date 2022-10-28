@@ -22,11 +22,14 @@ DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet)
       _flavor(iPSet.getParameter<int>("decaysTo")),
       _name(iPSet.getParameter<std::string>("name")) {
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 DrellYanValidation::~DrellYanValidation() {}
 
-void DrellYanValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) { c.getData(fPDGTable); }
+void DrellYanValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  fPDGTable = c.getHandle(fPDGTableToken);
+}
 
 void DrellYanValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
   ///Setting the DQM top directories

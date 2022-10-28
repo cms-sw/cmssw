@@ -56,7 +56,7 @@ _dqmPhysics += CentralityDQM
 pp_on_AA.toModify(CentralityDQM, vertexcollection=cms.InputTag("offlinePrimaryVertices"))
 pp_on_AA.toReplaceWith(dqmPhysics, _dqmPhysics)
 
-bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
+bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex="hiSelectedVertex")
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
 
 from DQM.Physics.qcdPhotonsCosmicDQM_cff import *

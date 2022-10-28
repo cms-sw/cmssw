@@ -19,6 +19,8 @@ int main(int argc, char **argv) try {
 
   int datasetN = ::atoi(argv[1]);
   std::string outputURL = argv[2];
+
+  using namespace edm::storage;
   std::unique_ptr<Storage> outputFile = 0;
   IOSize totSize = 0;
   std::vector<std::unique_ptr<Storage>> indexFiles;

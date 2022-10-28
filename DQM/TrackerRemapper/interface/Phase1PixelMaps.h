@@ -80,7 +80,7 @@ public:
   // drawing methos
   void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = nullptr);
   void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = nullptr);
-  void drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas);
+  void drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = nullptr);
 
 private:
   Option_t* m_option;

@@ -52,6 +52,7 @@ private:
   // ----------member data ---------------------------
 protected:
   l1t::OMDSReader m_omdsReader;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

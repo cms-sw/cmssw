@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Sim")
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("Sim",Run2_2018)
+
 process.load("Configuration.Generator.QCD_Pt_3000_3500_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -17,7 +16,7 @@ process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run1_mc']
+process.GlobalTag.globaltag = autoCond['run2_mc']
 
 process.source = cms.Source("EmptySource")
 

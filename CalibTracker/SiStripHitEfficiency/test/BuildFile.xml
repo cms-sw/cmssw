@@ -1,0 +1,4 @@
+<bin name="testSiStripHitEfficiency" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripHitEfficiency/test test_SiStripHitEfficiency.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>

@@ -32,7 +32,10 @@ namespace edm {
             "In all cases, the number of concurrent luminosity blocks will be reset to "
             "be the same as the number of streams if it is greater than the "
             "numbers of streams.");
-    description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1);
+    description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1)
+        ->setComment(
+            "If zero or greater than the number of concurrent luminosity blocks, this will be reset to "
+            "be the same as the number of concurrent luminosity blocks.");
 
     edm::ParameterSetDescription eventSetupDescription;
     eventSetupDescription.addUntracked<unsigned int>("numberOfConcurrentIOVs", 0)
@@ -50,6 +53,16 @@ namespace edm {
     eventSetupDescription.addUntracked<edm::ParameterSetDescription>("forceNumberOfConcurrentIOVs", nestedDescription);
     description.addUntracked<edm::ParameterSetDescription>("eventSetup", eventSetupDescription);
 
+    description.addUntracked<std::vector<std::string>>("accelerators", {"*"})
+        ->setComment(
+            "Specify the set of compute accelerator(s) the job is allowed to use. The values can contain the direct "
+            "names of accelerators supported by the ProcessAccelerators defined in the configuration, or patterns "
+            "matching to them (patterns use '*' and '?' wildcards similar to shell). The actual set of accelerators to "
+            "be used is determined on the worker node based on the available hardware. A CPU fallback with the name "
+            "'cpu' is always included in the set of available accelerators. If no accelerator matching to the patterns "
+            "are available on the worker node, the job is terminated with a specific error code. Same happens if an "
+            "empty value is given in the configuration. Default value is pattern '*', which implies use of any "
+            "supported and available hardware (including the CPU fallback).");
     description.addUntracked<bool>("wantSummary", false)
         ->setComment("Set true to print a report on the trigger decisions and timing of modules");
     description.addUntracked<std::string>("fileMode", "FULLMERGE")
@@ -78,6 +91,19 @@ namespace edm {
     description.addUntracked<std::vector<std::string>>("canDeleteEarly", emptyVector)
         ->setComment("Branch names of products that the Framework can try to delete before the end of the Event");
 
+    {
+      edm::ParameterSetDescription validator;
+      validator.add<std::string>("product");
+      validator.add<std::vector<std::string>>("references")
+          ->setComment("All the branch names for products to which 'product' contains a reference.");
+      description.addVPSetUntracked("holdsReferencesToDeleteEarly", validator, std::vector<edm::ParameterSet>{})
+          ->setComment(
+              "The 'product' branch name of product which internally hold references to data in another product");
+    }
+    description.addUntracked<std::vector<std::string>>("modulesToIgnoreForDeleteEarly", emptyVector)
+        ->setComment(
+            "labels of modules whose consumes information will be ingored when determing lifetime for delete early "
+            "data products");
     description.addUntracked<bool>("dumpOptions", false)
         ->setComment(
             "Print values of selected Framework parameters. The Framework might modify the values "

@@ -18,12 +18,12 @@ l1tStage2BmtfZeroSuppRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     binomialErr = cms.untracked.bool(True)
 )
 
-l1tStage2BmtfZeroSuppFatEvtsRatioClient = l1tStage2BmtfZeroSuppRatioClient.clone()
-l1tStage2BmtfZeroSuppFatEvtsRatioClient.monitorDir = cms.untracked.string(bmtfZSDqmDir+'/FatEvts')
-l1tStage2BmtfZeroSuppFatEvtsRatioClient.inputNum = cms.untracked.string(bmtfZSDqmDir+'/FatEvts/'+errHistNumStr)
-l1tStage2BmtfZeroSuppFatEvtsRatioClient.inputDen = cms.untracked.string(bmtfZSDqmDir+'/FatEvts/'+errHistDenStr)
-l1tStage2BmtfZeroSuppFatEvtsRatioClient.ratioTitle = cms.untracked.string('Summary of bad zero suppression rates')
-
+l1tStage2BmtfZeroSuppFatEvtsRatioClient = l1tStage2BmtfZeroSuppRatioClient.clone(
+    monitorDir = bmtfZSDqmDir+'/FatEvts',
+    inputNum = bmtfZSDqmDir+'/FatEvts/'+errHistNumStr,
+    inputDen = bmtfZSDqmDir+'/FatEvts/'+errHistDenStr,
+    ratioTitle = 'Summary of bad zero suppression rates'
+)
 # sequences
 l1tStage2BmtfZeroSuppCompClient = cms.Sequence(
     l1tStage2BmtfZeroSuppRatioClient

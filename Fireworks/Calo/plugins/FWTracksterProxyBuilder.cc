@@ -12,10 +12,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWTracksterProxyBuilder(const FWTracksterProxyBuilder &) = delete;                   // stop default
   const FWTracksterProxyBuilder &operator=(const FWTracksterProxyBuilder &) = delete;  // stop default
 
+private:
   void build(const ticl::Trackster &iData,
              unsigned int iIndex,
              TEveElement &oItemHolder,

@@ -20,7 +20,7 @@ options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, 
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
 options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
 options.register('conditions',"None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "File with conditions")
-
+options.register('cosmics', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Cosmic data set")
 # get and parse the command line arguments
 options.parseArguments()   
 
@@ -194,7 +194,6 @@ if options.iterNumber!=0:
         )
     )
     process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-    
 
 
 ##
@@ -253,11 +252,18 @@ process.TFileService = cms.Service("TFileService",
 ##
 ## Path
 ##
-process.p = cms.Path(
-    #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
-    process.RefitterHighPuritySequence*
-    process.ApeEstimatorSequence
-)
+
+if not options.cosmics:
+    process.p = cms.Path(
+        #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
+        process.RefitterHighPuritySequence*
+        process.ApeEstimatorSequence
+    )
+else:
+    process.p = cms.Path(
+        process.RefitterNoPuritySequence* # this sequence doesn't include high purity track criteria
+        process.ApeEstimatorSequence
+    )
 
 
 

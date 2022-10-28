@@ -313,10 +313,22 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
 
   if (minPixelHits_ > 0) {
     int numPixelHits = 0;
+    const int nProngs = tau->decayMode() / 5 + 1;  //no. of charged prongs expected for this tau
+    int nTracks = 0;
     for (const auto& chargedHadrCand : tau->signalChargedHadrCands()) {
       const reco::Track* track = getTrack(*chargedHadrCand);
       if (track != nullptr) {
         numPixelHits += track->hitPattern().numberOfValidPixelHits();
+        nTracks++;
+      }
+    }
+    //MB: how to deal with tau@miniAOD case?
+    if (nTracks < nProngs) {  //"lost track" probably used to build this tau
+      for (const auto& track : tau->signalTracks()) {
+        if (track.isNonnull()) {
+          numPixelHits += track->hitPattern().numberOfValidPixelHits();
+          nTracks++;
+        }
       }
     }
     if (!(numPixelHits >= minPixelHits_)) {

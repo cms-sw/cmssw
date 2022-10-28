@@ -10,6 +10,8 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace edm::storage;
+
 StorageFactory StorageFactory::s_instance;
 
 StorageFactory::StorageFactory(void)

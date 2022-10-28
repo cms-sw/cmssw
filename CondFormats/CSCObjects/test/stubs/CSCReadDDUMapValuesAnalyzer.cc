@@ -10,13 +10,15 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <fstream>
 #include <map>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
@@ -25,66 +27,65 @@ Toy EDProducers and EDProducts for testing purposes only.
 using namespace std;
 
 namespace edmtest {
-  class CSCReadDDUMapValuesAnalyzer : public edm::EDAnalyzer {
+  class CSCReadDDUMapValuesAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit CSCReadDDUMapValuesAnalyzer(edm::ParameterSet const& p) {}
-    explicit CSCReadDDUMapValuesAnalyzer(int i) {}
-    virtual ~CSCReadDDUMapValuesAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCReadDDUMapValuesAnalyzer(edm::ParameterSet const& p) : mapToken_{esConsumes()} {}
+    ~CSCReadDDUMapValuesAnalyzer() override {}
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    edm::ESGetToken<CSCDDUMap, CSCDDUMapRcd> mapToken_;
   };
 
-  void CSCReadDDUMapValuesAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void CSCReadDDUMapValuesAnalyzer::analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
-    // Context is not used.
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCDDUMap> pDDUMap;
-    context.get<CSCDDUMapRcd>().get(pDDUMap);
 
-    const CSCDDUMap* myDDUMap = pDDUMap.product();
+    edm::LogSystem log("CSCDDUMap");
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
+
+    const CSCDDUMap* myDDUMap = &context.getData(mapToken_);
 
     std::map<int, CSCMapItem::MapItem>::const_iterator it;
 
     int count = 0;
     for (it = myDDUMap->ddu_map.begin(); it != myDDUMap->ddu_map.end(); ++it) {
       count = count + 1;
-      std::cout << "Key: ddu_crate*10+ddu_input " << it->first << std::endl;
+      log << "Key: ddu_crate*10+ddu_input " << it->first << std::endl;
 
-      std::cout << count << ") ";
-      std::cout << it->second.chamberLabel << "  ";
-      std::cout << it->second.chamberId << "  ";
-      std::cout << it->second.endcap << "  ";
-      std::cout << it->second.station << "  ";
-      std::cout << it->second.ring << "  ";
-      std::cout << it->second.chamber << "  ";
-      std::cout << it->second.cscIndex << "  ";
-      std::cout << it->second.layerIndex << "  ";
-      std::cout << it->second.stripIndex << "  ";
-      std::cout << it->second.anodeIndex << "  ";
-      std::cout << it->second.strips << "  ";
-      std::cout << it->second.anodes << "  ";
-      std::cout << it->second.crateLabel << "  ";
-      std::cout << it->second.crateid << "  ";
-      std::cout << it->second.sector << "  ";
-      std::cout << it->second.trig_sector << "  ";
-      std::cout << it->second.dmb << "  ";
-      std::cout << it->second.cscid << "  ";
-      std::cout << it->second.ddu << "  ";
-      std::cout << it->second.ddu_input << "  ";
-      std::cout << it->second.slink << "  ";
-      std::cout << it->second.fed_crate << "  "
-                << "  ";
-      std::cout << it->second.ddu_slot << "  "
-                << "  ";
-      std::cout << it->second.dcc_fifo << "  "
-                << "  ";
-      std::cout << it->second.fiber_crate << "  "
-                << "  ";
-      std::cout << it->second.fiber_pos << "  "
-                << "  ";
-      std::cout << it->second.fiber_socket << "  " << std::endl;
+      log << count << ") ";
+      log << it->second.chamberLabel << "  ";
+      log << it->second.chamberId << "  ";
+      log << it->second.endcap << "  ";
+      log << it->second.station << "  ";
+      log << it->second.ring << "  ";
+      log << it->second.chamber << "  ";
+      log << it->second.cscIndex << "  ";
+      log << it->second.layerIndex << "  ";
+      log << it->second.stripIndex << "  ";
+      log << it->second.anodeIndex << "  ";
+      log << it->second.strips << "  ";
+      log << it->second.anodes << "  ";
+      log << it->second.crateLabel << "  ";
+      log << it->second.crateid << "  ";
+      log << it->second.sector << "  ";
+      log << it->second.trig_sector << "  ";
+      log << it->second.dmb << "  ";
+      log << it->second.cscid << "  ";
+      log << it->second.ddu << "  ";
+      log << it->second.ddu_input << "  ";
+      log << it->second.slink << "  ";
+      log << it->second.fed_crate << "  "
+          << "  ";
+      log << it->second.ddu_slot << "  "
+          << "  ";
+      log << it->second.dcc_fifo << "  "
+          << "  ";
+      log << it->second.fiber_crate << "  "
+          << "  ";
+      log << it->second.fiber_pos << "  "
+          << "  ";
+      log << it->second.fiber_socket << "  " << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCReadDDUMapValuesAnalyzer);

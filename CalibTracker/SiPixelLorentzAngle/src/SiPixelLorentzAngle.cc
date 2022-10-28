@@ -29,7 +29,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "SiPixelLorentzAngle.h"
-int lower_bin_;
 
 using namespace std;
 using namespace edm;
@@ -67,7 +66,7 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf)
 }
 
 // Virtual destructor needed.
-SiPixelLorentzAngle::~SiPixelLorentzAngle() {}
+SiPixelLorentzAngle::~SiPixelLorentzAngle() = default;
 
 void SiPixelLorentzAngle::beginJob() {
   // 	cout << "started SiPixelLorentzAngle" << endl;

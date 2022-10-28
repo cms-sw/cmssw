@@ -91,9 +91,7 @@ L2MuonProducer::L2MuonProducer(const edm::ParameterSet& parameterSet) {
   // instantiate the concrete trajectory builder in the Track Finder
 
   edm::ConsumesCollector iC = consumesCollector();
-  string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder")
-                             ? parameterSet.getParameter<string>("MuonTrajectoryBuilder")
-                             : "StandAloneMuonTrajectoryBuilder";
+  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if (typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder.empty())
     trajectoryBuilder =
         std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
@@ -113,10 +111,13 @@ L2MuonProducer::L2MuonProducer(const edm::ParameterSet& parameterSet) {
                                         std::make_unique<MuonTrajectoryCleaner>(true),
                                         iC);
 
-  produces<reco::TrackCollection>();
-  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>();
+  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<reco::TrackToTrackMap>();
 
   produces<std::vector<Trajectory>>();

@@ -13,7 +13,9 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include <bitset>
 
 namespace ecaldqm {
@@ -57,6 +59,7 @@ namespace ecaldqm {
     edm::InputTag L1MuGMTReadoutCollectionTag_;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> L1GlobalTriggerReadoutRecordToken_;
     edm::EDGetTokenT<L1MuGMTReadoutCollection> L1MuGMTReadoutCollectionToken_;
+    edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> menuRcd;
   };
 
   inline bool ClusterTask::analyze(void const* _p, Collections _collection) {

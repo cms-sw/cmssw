@@ -26,5 +26,7 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
-        puppiMETSequence = cms.Sequence(process.puppi*process.puppiNoLep)
+        puppiMETTask = cms.Task(process.puppi, process.puppiNoLep)
+        setattr(process, "puppiMETTask", puppiMETTask)
+        puppiMETSequence = cms.Sequence(puppiMETTask)
         setattr(process, "puppiMETSequence", puppiMETSequence)

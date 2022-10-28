@@ -1,21 +1,19 @@
 import FWCore.ParameterSet.Config as cms
-import string
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
-process = cms.Process('RECODQM')
+process = cms.Process('RECODQM', Run2_2018)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.verbosity = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cerr'),
     cerr = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING')
     )
 )
-    
-    # import of standard configurations
+
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -30,47 +28,31 @@ process.dqmSaver.tag = "CTPPS"
 
 # raw data source
 process.source = cms.Source("PoolSource",
-    # replace '*.root',',' with the source file you want to use
     fileNames = cms.untracked.vstring(
-    *(
-'/store/data/Run2017C/ZeroBias/AOD/PromptReco-v2/000/300/088/00000/469D8C89-1477-E711-A6A4-02163E01190C.root',
-     )
+'/store/data/Run2018D/ZeroBias/AOD/12Nov2019_UL2018_rsb-v1/280000/FE61A0D8-CEDC-2142-81AA-06301F452792.root',
     ),
 )
 
-
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '120X_dataRun2_v2', '')
 
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoPPS.Configuration.recoCTPPS_cff")
-
-# rechits production
-process.load('RecoPPS.Local.ctppsDiamondRecHits_cfi')
-
-# local tracks fitter
-process.load('RecoPPS.Local.ctppsDiamondLocalTracks_cfi')
-
-# pixel
-process.load('RecoPPS.Local.ctppsPixelLocalTracks_cfi')
-
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
-process.ctppsDiamondDQMSource.excludeMultipleHits = cms.bool(True);
-
+process.ctppsDiamondDQMSource.excludeMultipleHits = cms.bool(True)
+process.ctppsDiamondDQMSource.plotOnline = cms.untracked.bool(True)
+process.ctppsDiamondDQMSource.plotOffline = cms.untracked.bool(False)
 process.path = cms.Path(
-    #process.ctppsRawToDigi *
-    process.recoCTPPS *
-    #process.ctppsDiamondRawToDigi *
-    process.ctppsDiamondRecHits *
-    process.ctppsDiamondLocalTracks *
-    process.ctppsPixelLocalTracks *
-    process.ctppsDQM
-    )
-
+    process.recoCTPPS*
+    process.ctppsDQMOnlineSource*
+    process.ctppsDQMOnlineHarvest
+)
 
 process.end_path = cms.EndPath(
     process.dqmEnv +

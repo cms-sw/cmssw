@@ -29,10 +29,10 @@ process.TFileService = cms.Service("TFileService",
 
 
 ##### DATABASE CONNECTION INFO ######
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:test.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel = 1
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'sqlite_file:test.db'
+process.CondDB.DBParameters.authenticationPath = '.'
+process.CondDB.DBParameters.messageLevel = 1
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -52,7 +52,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 
 ###### TAGS TO READ ######
 process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
             record = cms.string('SiPixelFedCablingMapRcd'),

@@ -34,7 +34,7 @@
 class __class__ : public edm::ESProducerLooper {
 public:
   __class__(const edm::ParameterSet&);
-  ~__class__();
+  ~__class__() override;
 
 #python_begin
     if  len(__datatypes__) > 1:

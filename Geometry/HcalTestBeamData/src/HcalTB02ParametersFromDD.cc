@@ -41,7 +41,7 @@ bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Para
     edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape "
                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
     if (dd4hep::isA<dd4hep::Trap>(fv.solid())) {
-      double dz = 2 * k_ScaleFromDD4HepToG4 * paras[0];
+      double dz = 2 * k_ScaleFromDD4hepToG4 * paras[0];
       php.lengthMap_.insert(std::pair<std::string, double>(namx, dz));
     }
   }

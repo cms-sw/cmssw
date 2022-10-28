@@ -17,12 +17,15 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -38,10 +41,11 @@ class BPHPhiToKKBuilder : public BPHDecayToChargedXXbarBuilder {
 public:
   /** Constructor
    */
-  BPHPhiToKKBuilder(const edm::EventSetup& es,
+  BPHPhiToKKBuilder(const BPHEventSetupWrapper& es,
                     const BPHRecoBuilder::BPHGenericCollection* posCollection,
                     const BPHRecoBuilder::BPHGenericCollection* negCollection)
-      : BPHDecayToChargedXXbarBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToChargedXXbarBuilder(es,
                                       "KPos",
                                       "KNeg",
                                       BPHParticleMasses::kaonMass,
@@ -60,7 +64,7 @@ public:
 
   /** Destructor
    */
-  ~BPHPhiToKKBuilder() override {}
+  ~BPHPhiToKKBuilder() override = default;
 };
 
 #endif

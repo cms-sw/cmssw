@@ -1,13 +1,10 @@
 #include "MeasurementTrackerEventProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
@@ -15,7 +12,8 @@
 #include <algorithm>
 
 MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::ParameterSet& iConfig)
-    : measurementTrackerLabel_(iConfig.getParameter<std::string>("measurementTracker")),
+    : measurementTrackerToken_(
+          esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("measurementTracker")))),
       switchOffPixelsIfEmpty_(iConfig.getParameter<bool>("switchOffPixelsIfEmpty")) {
   std::vector<edm::InputTag> inactivePixelDetectorTags(
       iConfig.getParameter<std::vector<edm::InputTag>>("inactivePixelDetectorLabels"));
@@ -27,7 +25,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   if (!badPixelFEDChannelCollectionTags.empty()) {
     for (auto& t : badPixelFEDChannelCollectionTags)
       theBadPixelFEDChannelsLabels.push_back(consumes<PixelFEDChannelCollection>(t));
-    pixelCablingMapLabel_ = iConfig.getParameter<std::string>("pixelCablingMapLabel");
+    pixelCablingMapToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCablingMapLabel")));
   }
 
   std::vector<edm::InputTag> inactiveStripDetectorTags(
@@ -100,13 +98,12 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
 }
 
 void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MeasurementTracker> measurementTracker;
-  iSetup.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTracker);
+  auto const& measurementTracker = iSetup.getData(measurementTrackerToken_);
 
   // create new data structures from templates
-  auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
-  auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
-  auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker->phase2DetConditions());
+  auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker.stripDetConditions());
+  auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker.pixelDetConditions());
+  auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker.phase2DetConditions());
 
   std::vector<bool> stripClustersToSkip;
   std::vector<bool> pixelClustersToSkip;
@@ -116,7 +113,7 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   updatePixels(iEvent,
                *pixelData,
                pixelClustersToSkip,
-               dynamic_cast<const TrackerGeometry&>(*(measurementTracker->geomTracker())),
+               dynamic_cast<const TrackerGeometry&>(*(measurementTracker.geomTracker())),
                iSetup);
   updatePhase2OT(iEvent, *phase2OTData);
   updateStacks(iEvent, *phase2OTData);
@@ -127,7 +124,7 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
 
   const VectorHitCollection* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
   const VectorHitCollection* phase2OTVectorHitsRej = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
-  iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
+  iEvent.put(std::make_unique<MeasurementTrackerEvent>(measurementTracker,
                                                        stripData.release(),
                                                        pixelData.release(),
                                                        phase2OTData.release(),
@@ -177,8 +174,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
   }
 
   if (!theBadPixelFEDChannelsLabels.empty()) {
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMapLabel_, cablingMap);
+    auto const& cablingMap = iSetup.getData(pixelCablingMapToken_);
 
     edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
     for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk : theBadPixelFEDChannelsLabels) {
@@ -194,7 +190,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
           // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
           // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
           for (path.roc = 1; path.roc <= (ch.roc_last - ch.roc_first) + 1; path.roc++) {
-            const sipixelobjects::PixelROC* roc = cablingMap->findItem(path);
+            const sipixelobjects::PixelROC* roc = cablingMap.findItem(path);
             if (roc == nullptr)
               continue;
             assert(roc->rawId() == disabledChannels.detId());

@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,16 +34,18 @@
 // class declaration
 //
 
-class EcalExclusiveTrigFilter : public edm::EDFilter {
+class EcalExclusiveTrigFilter : public edm::one::EDFilter<> {
 public:
   explicit EcalExclusiveTrigFilter(const edm::ParameterSet&);
-  ~EcalExclusiveTrigFilter() override;
+  ~EcalExclusiveTrigFilter() override = default;
 
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  edm::InputTag l1GTReadoutRecTag_;
+  const edm::InputTag l1GTReadoutRecTag_;
+  const edm::EDGetTokenT<L1MuGMTReadoutCollection> l1GTReadoutRecToken_;
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GTReadoutToken_;
   std::vector<int> l1Accepts_;
   std::vector<std::string> l1Names_;
 };

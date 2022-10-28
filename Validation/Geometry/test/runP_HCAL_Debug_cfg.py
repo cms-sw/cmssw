@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PROD',Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('PROD',Run3_DDD)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")

@@ -3,7 +3,6 @@
 
 #include <utility>
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
@@ -32,6 +31,8 @@ public:
 
   pixelCPEforGPU::ParamsOnGPU const &getCPUProduct() const { return cpuData_; }
 
+  bool isPhase2() const { return isPhase2_; };
+
 private:
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
@@ -47,6 +48,8 @@ private:
   pixelCPEforGPU::LayerGeometry layerGeometry_;
   pixelCPEforGPU::AverageGeometry averageGeometry_;
   pixelCPEforGPU::ParamsOnGPU cpuData_;
+
+  bool isPhase2_;
 
   struct GPUData {
     ~GPUData();

@@ -88,12 +88,12 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   if (!hpv.isValid()) {
     edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
   }
-  std::vector<reco::Vertex> goodVertices;
+  uint ngoodVertices = 0;
   for (unsigned i = 0; i < hpv->size(); i++) {
     if ((*hpv)[i].ndof() > 4 && (fabs((*hpv)[i].z()) <= 24.) && (fabs((*hpv)[i].position().rho()) <= 2.0))
-      goodVertices.push_back((*hpv)[i]);
+      ngoodVertices += 1;
   }
-  int ngoodVertices = goodVertices.size();
+  uint nVertices = hpv->size();
 
   for (unsigned i = 0; i < counts_.size(); i++)
     counts_[i] = 0;
@@ -106,15 +106,18 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> weights;
   if (!weightsToken_.isUninitialized())
     evt.getByToken(weightsToken_, weights);
-  for (unsigned i = 0; i < particleFlow->size(); ++i) {
-    const reco::Candidate& c = particleFlow->at(i);
-    for (unsigned j = 0; j < type_.size(); j++) {
-      if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
-        if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
-          float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
-          counts_[j] += (weight > 0);
-          sumPt_[j] += c.pt() * weight;
-          continue;
+  if (std::find(varType_.begin(), varType_.end(), 0) != varType_.end() ||
+      std::find(varType_.begin(), varType_.end(), 2) != varType_.end()) {
+    for (unsigned i = 0; i < particleFlow->size(); ++i) {
+      const reco::Candidate& c = particleFlow->at(i);
+      for (unsigned j = 0; j < type_.size(); j++) {
+        if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
+          if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
+            float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+            counts_[j] += (weight > 0);
+            sumPt_[j] += c.pt() * weight;
+            continue;
+          }
         }
       }
     }
@@ -133,12 +136,12 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     double val(0.);
     if (varType_[j] == 0) {
       val = counts_[j];
-    }
-    if (varType_[j] == 1) {
+    } else if (varType_[j] == 1) {
       val = ngoodVertices;
-    }
-    if (varType_[j] == 2) {
+    } else if (varType_[j] == 2) {
       val = sumPt_[j];
+    } else if (varType_[j] == 3) {
+      val = nVertices;
     }
 
     corx -= formula_x_[j]->Eval(val);

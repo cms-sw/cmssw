@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +53,7 @@
 // class decleration
 //
 
-class L1GtRunSettingsViewer : public edm::EDAnalyzer {
+class L1GtRunSettingsViewer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1GtRunSettingsViewer(const edm::ParameterSet&);
   ~L1GtRunSettingsViewer() override;

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@
 // class declaration
 //
 
-class FEDBadModuleFilter : public edm::EDFilter {
+class FEDBadModuleFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
 public:
   explicit FEDBadModuleFilter(const edm::ParameterSet&);
   ~FEDBadModuleFilter() override;
@@ -55,6 +55,7 @@ private:
   void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void endJob() override;
 
   // ----------member data ---------------------------

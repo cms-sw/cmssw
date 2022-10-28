@@ -1,45 +1,44 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForGlobalCosmicMuons.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace std;
 using namespace edm;
 
 /// Constructor
-TrackTransformerForGlobalCosmicMuons::TrackTransformerForGlobalCosmicMuons(const ParameterSet& parameterSet) {
-  theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
-
+TrackTransformerForGlobalCosmicMuons::TrackTransformerForGlobalCosmicMuons(const ParameterSet& parameterSet,
+                                                                           edm::ConsumesCollector iC)
+    : theIOpropToken(iC.esConsumes(edm::ESInputTag("", "SmartPropagatorRK"))),
+      theOIpropToken(iC.esConsumes(edm::ESInputTag("", "SmartPropagatorRKOpposite"))),
+      thGlobTrackGeoToken(iC.esConsumes()),
+      theMFToken(iC.esConsumes()),
+      theIOFitterToken(iC.esConsumes(edm::ESInputTag("", "KFFitterForRefitInsideOut"))),
+      theOIFitterToken(iC.esConsumes(edm::ESInputTag("", "KFSmootherForRefitInsideOut"))),
+      theIOSmootherToken(iC.esConsumes(edm::ESInputTag("", "KFFitterForRefitOutsideIn"))),
+      theOISmootherToken(iC.esConsumes(edm::ESInputTag("", "KFSmootherForRefitOutsideIn"))),
+      theTkRecHitBuildToken(
+          iC.esConsumes(edm::ESInputTag("", parameterSet.getParameter<string>("TrackerRecHitBuilder")))),
+      theMuonRecHitBuildToken(
+          iC.esConsumes(edm::ESInputTag("", parameterSet.getParameter<string>("MuonRecHitBuilder")))),
+      theTopologyToken(iC.esConsumes()) {
   theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
-
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
   theSkipStationDT = parameterSet.getParameter<int>("SkipStationDT");
   theSkipStationCSC = parameterSet.getParameter<int>("SkipStationCSC");
@@ -55,18 +54,18 @@ TrackTransformerForGlobalCosmicMuons::~TrackTransformerForGlobalCosmicMuons() {}
 void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup) {
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut", theFitterIO);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut", theSmootherIO);
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitOutsideIn", theFitterOI);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitOutsideIn", theSmootherOI);
+  theFitterIO = setup.getHandle(theIOFitterToken);
+  theFitterOI = setup.getHandle(theOIFitterToken);
+  theSmootherIO = setup.getHandle(theIOSmootherToken);
+  theSmootherOI = setup.getHandle(theOISmootherToken);
 
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
   if (newCacheId_TC != theCacheId_TC) {
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK", thePropagatorIO);
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite", thePropagatorOI);
+    thePropagatorIO = setup.getHandle(theIOpropToken);
+    thePropagatorOI = setup.getHandle(theOIpropToken);
   }
 
   // Global Tracking Geometry
@@ -74,7 +73,7 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup) 
   if (newCacheId_GTG != theCacheId_GTG) {
     LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
-    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+    theTrackingGeometry = setup.getHandle(thGlobTrackGeoToken);
   }
 
   // Magfield Field
@@ -82,7 +81,7 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup) 
   if (newCacheId_MG != theCacheId_MG) {
     LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
-    setup.get<IdealMagneticFieldRecord>().get(theMGField);
+    theMGField = setup.getHandle(theMFToken);
   }
 
   // Transient Rechit Builders
@@ -90,14 +89,12 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup) 
   if (newCacheId_TRH != theCacheId_TRH) {
     theCacheId_TRH = newCacheId_TRH;
     LogTrace(metname) << "TransientRecHitRecord changed!";
-    setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+    theTrackerRecHitBuilder = setup.getHandle(theTkRecHitBuildToken);
+    theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuildToken);
   }
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup.get<TrackerTopologyRcd>().get(tTopoHand);
-  tTopo_ = tTopoHand.product();
+  tTopo_ = &setup.getData(theTopologyToken);
 }
 
 TransientTrackingRecHit::ConstRecHitContainer TrackTransformerForGlobalCosmicMuons::getTransientRecHits(

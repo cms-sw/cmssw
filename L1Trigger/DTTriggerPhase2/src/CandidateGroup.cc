@@ -6,7 +6,7 @@
 using namespace dtbayesam;
 
 //------------------------------------------------------------------
-//--- Constructores y destructores
+//--- Constructors and destructor
 //------------------------------------------------------------------
 CandidateGroup::CandidateGroup(DTPatternPtr p) {
   nhits_ = 0;

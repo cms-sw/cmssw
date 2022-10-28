@@ -1,12 +1,12 @@
 /* Implementation of the  RPCGeometryParsFromDD Class
- *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  Build the RPCGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
  *  Created:  Mon, 09 Nov 2020 
  *
  */
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/RPCGeometryBuilder/interface/RPCGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <DetectorDescription/Core/interface/DDFilter.h>
@@ -42,7 +42,7 @@ void RPCGeometryParsFromDD::build(const DDCompactView* cview,
   this->buildGeometry(fview, muonConstants, rgeo);
 }
 
-// DD4Hep
+// DD4hep
 
 void RPCGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
@@ -126,7 +126,7 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
   }
 }
 
-// DD4Hep
+// DD4hep
 
 void RPCGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fview,
                                           const MuonGeometryConstants& muonConstants,

@@ -33,7 +33,6 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                        edm::ConsumesCollector& iC,
                                        const MuonServiceProxy* service)
     : theCategory("Muon|RecoMuon|TSGFromPropagation"),
-      theMeasTrackerName(iConfig.getParameter<std::string>("MeasurementTrackerName")),
       theService(service),
       theMaxChi2(iConfig.getParameter<double>("MaxChi2")),
       theFixedErrorRescaling(iConfig.getParameter<double>("ErrorRescaling")),
@@ -61,7 +60,8 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
       theErrorMatrixPset(iConfig.getParameter<edm::ParameterSet>("errorMatrixPset")),
       theBeamSpotToken(iC.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       theMeasurementTrackerEventToken(
-          iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))) {}
+          iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
+      theTrackerToken(iC.esConsumes()) {}
 
 TSGFromPropagation::~TSGFromPropagation() { LogTrace(theCategory) << " TSGFromPropagation dtor called "; }
 
@@ -157,8 +157,6 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
-  theCacheId_MT = 0;
-
   theCacheId_TG = 0;
 
   theService = service;
@@ -168,38 +166,21 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   if (theResetMethod == ResetMethod::matrix && !theErrorMatrixPset.empty()) {
     theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(theErrorMatrixPset);
   }
-
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   iEvent.getByToken(theBeamSpotToken, beamSpot);
 
-  unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
-
-  if (theUpdateStateFlag && newCacheId_MT != theCacheId_MT) {
-    LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
-    theCacheId_MT = newCacheId_MT;
-    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTrackerName, theMeasTracker);
-  }
-
   if (theUpdateStateFlag) {
     iEvent.getByToken(theMeasurementTrackerEventToken, theMeasTrackerEvent);
   }
-
-  bool trackerGeomChanged = false;
 
   unsigned long long newCacheId_TG = theService->eventSetup().get<TrackerRecoGeometryRecord>().cacheIdentifier();
 
   if (newCacheId_TG != theCacheId_TG) {
     LogTrace(theCategory) << "Tracker Reco Geometry changed!";
     theCacheId_TG = newCacheId_TG;
-    theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-    trackerGeomChanged = true;
-  }
-
-  if (trackerGeomChanged && (theTracker.product() != nullptr)) {
+    edm::ESHandle<GeometricSearchTracker> theTracker = theService->eventSetup().getHandle(theTrackerToken);
     theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }

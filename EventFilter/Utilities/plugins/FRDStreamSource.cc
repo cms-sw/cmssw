@@ -22,8 +22,8 @@ FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset, edm::InputSource
       verifyAdler32_(pset.getUntrackedParameter<bool>("verifyAdler32", true)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)) {
-  itFileName_ = fileNames(0).begin();
-  endFileName_ = fileNames(0).end();
+  fileNames_ = fileNames(0), itFileName_ = fileNames_.begin();
+  endFileName_ = fileNames_.end();
   openFile(*itFileName_);
   produces<FEDRawDataCollection>();
 }

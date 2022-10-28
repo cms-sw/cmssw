@@ -587,7 +587,8 @@ SiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackClusters',
         vertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry,
-        triggerflags = trigger.SiPixelPhase1Triggers
+        triggerflags = trigger.SiPixelPhase1Triggers,
+        VertexCut = cms.untracked.bool(True)
 )
 
 SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

@@ -77,6 +77,7 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPopConAnalyzer",
                                    connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
                                    ecalConnectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"),
                                    DIPSchema = cms.untracked.string("CMS_BEAM_COND"),
+                                   omsBaseUrl = cms.untracked.string("http://vocms0184.cern.ch/agg/api/v1"),
                                    #authenticationPath =  cms.untracked.string("."),
                                    debug=cms.untracked.bool(False)
                                                  ),

@@ -138,7 +138,7 @@ L1DummyProducer::L1DummyProducer(const edm::ParameterSet& iConfig) {
 
 L1DummyProducer::~L1DummyProducer() {}
 
-void L1DummyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1DummyProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
@@ -171,55 +171,56 @@ void L1DummyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> glt_evm_data(new L1GlobalTriggerEvmReadoutRecord);
   std::unique_ptr<L1GlobalTriggerObjectMapRecord> glt_obj_data(new L1GlobalTriggerObjectMapRecord);
 
+  int nevt = nevt_++;
   /// fill candidate collections
   if (m_doSys[ETP])
-    SimpleDigi(engine, ecal_tp_data);
+    SimpleDigi(nevt, engine, ecal_tp_data);
   if (m_doSys[HTP])
-    SimpleDigi(engine, hcal_tp_data);
+    SimpleDigi(nevt, engine, hcal_tp_data);
   if (m_doSys[RCT])
-    SimpleDigi(engine, rct_em_data);
+    SimpleDigi(nevt, engine, rct_em_data);
   if (m_doSys[RCT])
-    SimpleDigi(engine, rct_rgn_data);
+    SimpleDigi(nevt, engine, rct_rgn_data);
   if (m_doSys[GCT])
-    SimpleDigi(engine, gct_isolaem_data, 0);
+    SimpleDigi(nevt, engine, gct_isolaem_data, 0);
   if (m_doSys[GCT])
-    SimpleDigi(engine, gct_noisoem_data, 1);
+    SimpleDigi(nevt, engine, gct_noisoem_data, 1);
   if (m_doSys[GCT])
-    SimpleDigi(engine, gct_cenjets_data, 0);
+    SimpleDigi(nevt, engine, gct_cenjets_data, 0);
   if (m_doSys[GCT])
-    SimpleDigi(engine, gct_forjets_data, 1);
+    SimpleDigi(nevt, engine, gct_forjets_data, 1);
   if (m_doSys[GCT])
-    SimpleDigi(engine, gct_taujets_data, 2);
+    SimpleDigi(nevt, engine, gct_taujets_data, 2);
   if (m_doSys[DTP])
-    SimpleDigi(engine, dtp_ph_data);
+    SimpleDigi(nevt, engine, dtp_ph_data);
   if (m_doSys[DTP])
-    SimpleDigi(engine, dtp_th_data);
+    SimpleDigi(nevt, engine, dtp_th_data);
   if (m_doSys[DTF])
-    SimpleDigi(engine, dtf_data, 0);
+    SimpleDigi(nevt, engine, dtf_data, 0);
   if (m_doSys[DTF])
-    SimpleDigi(engine, dtf_trk_data);
+    SimpleDigi(nevt, engine, dtf_trk_data);
   if (m_doSys[CTP])
-    SimpleDigi(engine, ctp_data);
+    SimpleDigi(nevt, engine, ctp_data);
   if (m_doSys[CTF])
-    SimpleDigi(engine, ctf_data, 2);
+    SimpleDigi(nevt, engine, ctf_data, 2);
   if (m_doSys[CTF])
-    SimpleDigi(engine, ctf_trk_data);
+    SimpleDigi(nevt, engine, ctf_trk_data);
   if (m_doSys[RPC])
-    SimpleDigi(engine, rpc_cen_data, 1);
+    SimpleDigi(nevt, engine, rpc_cen_data, 1);
   if (m_doSys[RPC])
-    SimpleDigi(engine, rpc_for_data, 3);
+    SimpleDigi(nevt, engine, rpc_for_data, 3);
   if (m_doSys[LTC])
-    SimpleDigi(engine, ltc_data);
+    SimpleDigi(nevt, engine, ltc_data);
   if (m_doSys[GMT])
-    SimpleDigi(engine, gmt_data);
+    SimpleDigi(nevt, engine, gmt_data);
   if (m_doSys[GMT])
-    SimpleDigi(engine, gmt_rdt_data);
+    SimpleDigi(nevt, engine, gmt_rdt_data);
   if (m_doSys[GLT])
-    SimpleDigi(engine, glt_rdt_data);
+    SimpleDigi(nevt, engine, glt_rdt_data);
   if (m_doSys[GLT])
-    SimpleDigi(engine, glt_evm_data);
+    SimpleDigi(nevt, engine, glt_evm_data);
   if (m_doSys[GLT])
-    SimpleDigi(engine, glt_obj_data);
+    SimpleDigi(nevt, engine, glt_obj_data);
 
   /// put collection
   if (m_doSys[ETP])
@@ -270,8 +271,6 @@ void L1DummyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(std::move(glt_evm_data), instName[GLT][0]);
   if (m_doSys[GLT])
     iEvent.put(std::move(glt_obj_data), instName[GLT][0]);
-
-  nevt_++;
 
   if (verbose())
     std::cout << "L1DummyProducer::produce end.\n" << std::flush;

@@ -1,9 +1,8 @@
 from __future__ import print_function
 from builtins import range
-import math, re, optparse, commands, os, sys, time, datetime
+import math, re, optparse, subprocess, os, sys, time, datetime
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
-import six
 
 lockFile = ".lock"
 
@@ -57,7 +56,7 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
 
     if not fileExist or not alreadyThere or isTimeout or (reset and alreadyThere):
         if fileExist:
-            commands.getstatusoutput("rm -rf " + fileName)
+            subprocess.getstatusoutput("rm -rf " + fileName)
         file = open(fileName,'w')
         file.write(text)
         file.close()
@@ -81,13 +80,13 @@ def checkLock():
 ###########################################################################################
 def lock():
     global lockFile
-    commands.getstatusoutput( "touch " + lockFile)
+    subprocess.getstatusoutput( "touch " + lockFile)
 
 ###########################################################################################
 def rmLock():
     global lockFile
     if checkLock():
-        commands.getstatusoutput( "rm " + lockFile)
+        subprocess.getstatusoutput( "rm " + lockFile)
 
 ###########################################################################################
 def exit(msg=""):
@@ -131,7 +130,7 @@ def parse(docstring, arglist=None):
 ###########################################################################################
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in six.itervalues(self.__dict__):
+    for v in self.__dict__.values():
         if v is not None: return True
     return False
 
@@ -160,7 +159,7 @@ def sendEmail(mailList,error):
 def dirExists(dir):
     if dir.find("castor") != -1:
         lsCommand = "nsls " + dir
-        output = commands.getstatusoutput( lsCommand )
+        output = subprocess.getstatusoutput( lsCommand )
         return not output[0]
     else:
         return os.path.exists(dir)
@@ -180,7 +179,7 @@ def ls(dir,filter=""):
     if filter != "":
         aCommand  += " | grep " + filter 
 
-    tmpStatus = commands.getstatusoutput( aCommand )
+    tmpStatus = subprocess.getstatusoutput( aCommand )
     listOfFiles = tmpStatus[1].split('\n')
     if len(listOfFiles) == 1:
         if listOfFiles[0].find('No such file or directory') != -1:
@@ -214,7 +213,7 @@ def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
         # copy to local disk
         aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
         print(" >> " + aCommand)
-        tmpStatus = commands.getstatusoutput( aCommand )
+        tmpStatus = subprocess.getstatusoutput( aCommand )
         if tmpStatus[0] == 0:
             copiedFiles.append(file)
         else:
@@ -898,7 +897,7 @@ def writeSqliteFile(sqliteFileName,tagName,timeType,beamSpotFile,sqliteTemplateF
 
     wNewFile.close()
     print("writing sqlite file ...")
-    status_wDB = commands.getstatusoutput('cmsRun '+ writeDBOut)
+    status_wDB = subprocess.getstatusoutput('cmsRun '+ writeDBOut)
     print(status_wDB[1])
 
     os.system("rm -f " + writeDBOut)
@@ -920,7 +919,7 @@ def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
         rNewFile.write(line)
 
     rNewFile.close()
-    status_rDB = commands.getstatusoutput('cmsRun '+ readDBOut)
+    status_rDB = subprocess.getstatusoutput('cmsRun '+ readDBOut)
 
     outtext = status_rDB[1]
     print(outtext)
@@ -931,7 +930,7 @@ def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
 def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, IOVTill ,tmpDir="/tmp/"):
     aCommand = "conddb_import -c sqlite_file:" + tmpDir + combinedSqliteFileName + " -f sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -b " + IOVSince + " -e " + IOVTill
     print(aCommand)
-    std = commands.getstatusoutput(aCommand)
+    std = subprocess.getstatusoutput(aCommand)
     print(std[1])
     return not std[0]
 
@@ -939,7 +938,7 @@ def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, 
 def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
     # Changing permissions to metadata
     acmd = "chmod a+w " + sqliteFileDirName + sqliteFileName + ".txt"
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(acmd)
 #    print outcmd[1]
     if outcmd[0]:
@@ -948,7 +947,7 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
     acmd = "cp " + sqliteFileDirName + sqliteFileName + ".db " + sqliteFileDirName + sqliteFileName + ".txt ." 
     print(acmd)
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(outcmd[1])
     if outcmd[0]:
         print("Couldn't cd to " + sqliteFileDirName)
@@ -956,14 +955,14 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
     acmd = "tar -cvjf " + sqliteFileName + ".tar.bz2 " + sqliteFileName + ".db " + sqliteFileName + ".txt"
     print(acmd)
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(outcmd[1])
     if outcmd[0]:
         print("Couldn't zip the files!")
         return False
 
     acmd = "chmod a+w " + sqliteFileName + ".tar.bz2"
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(acmd)
 #    print outcmd[1]
     if outcmd[0]:
@@ -972,7 +971,7 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
     acmd = "scp -p " + sqliteFileName + ".tar.bz2" + " webcondvm.cern.ch:" + dropbox
     print(acmd)
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(outcmd[1])
     if outcmd[0]:
         print("Couldn't scp the files to DropBox!")
@@ -981,7 +980,7 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
     acmd = "mv " + sqliteFileName + ".tar.bz2 " + sqliteFileDirName
     print(acmd)
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(outcmd[1])
     if outcmd[0]:
         print("Couldn't mv the file to " + sqliteFileDirName)
@@ -989,14 +988,14 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
     acmd = "rm " + sqliteFileName + ".db " + sqliteFileName + ".txt"
     print(acmd)
-    outcmd = commands.getstatusoutput(acmd)
+    outcmd = subprocess.getstatusoutput(acmd)
     print(outcmd[1])
     if outcmd[0]:
         print("Couldn't rm the db and txt files")
         return False
 
 #    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"
-#    outcmd = commands.getstatusoutput(acmd)
+#    outcmd = subprocess.getstatusoutput(acmd)
 #    print acmd
 #    print outcmd[1]
 #    if outcmd[0]:
@@ -1005,14 +1004,14 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 
 #    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + sqliteFileName + ".db /tmp/" + sqliteFileName + ".txt " + dropbox +"\""
 #    print acmd
-#    outcmd = commands.getstatusoutput(acmd)
+#    outcmd = subprocess.getstatusoutput(acmd)
 #    print outcmd[1]
 #    if outcmd[0]:
 #        print "Can't move files from tmp to dropbox!"
         return False
 
 #    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
-#    outcmd = commands.getstatusoutput(acmd)
+#    outcmd = subprocess.getstatusoutput(acmd)
 #    print acmd
 #    print outcmd[1]
 #    if outcmd[0]:

@@ -36,12 +36,6 @@ HGCalGeomParameters::HGCalGeomParameters() : sqrt3_(std::sqrt(3.0)) {
 #endif
 }
 
-HGCalGeomParameters::~HGCalGeomParameters() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters::destructed!!!";
-#endif
-}
-
 void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
                                               HGCalParameters& php,
                                               const std::string& sdTag1,
@@ -59,7 +53,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     const DDSolid& sol = fv.logicalPart().solid();
     // Layers first
     std::vector<int> copy = fv.copyNumbers();
-    int nsiz = (int)(copy.size());
+    int nsiz = static_cast<int>(copy.size());
     int lay = (nsiz > 0) ? copy[nsiz - 1] : 0;
     int zp = (nsiz > 2) ? copy[nsiz - 3] : -1;
     if (zp != 1)
@@ -134,12 +128,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       const DDSolid& sol = fv1.logicalPart().solid();
       const std::string& name = fv1.logicalPart().name().name();
       std::vector<int> copy = fv1.copyNumbers();
-      int nsiz = (int)(copy.size());
+      int nsiz = static_cast<int>(copy.size());
       int wafer = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int layer = (nsiz > 1) ? copy[nsiz - 2] : 0;
       if (nsiz < 2) {
         throw cms::Exception("DDException") << "Funny wafer # " << wafer << " in " << nsiz << " components";
-      } else if (layer > (int)(layers.size())) {
+      } else if (layer > static_cast<int>(layers.size())) {
         edm::LogWarning("HGCalGeom") << "Funny wafer # " << wafer << " Layer " << layer << ":" << layers.size()
                                      << " among " << nsiz << " components";
       } else {
@@ -211,7 +205,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       const DDSolid& sol = fv2.logicalPart().solid();
       const std::string& name = sol.name().name();
       std::vector<int> copy = fv2.copyNumbers();
-      int nsiz = (int)(copy.size());
+      int nsiz = static_cast<int>(copy.size());
       int cellx = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int wafer = (nsiz > 1) ? copy[nsiz - 2] : 0;
       int cell = HGCalTypes::getUnpackedCell6(cellx);
@@ -285,7 +279,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
     const std::vector<double>& pars = fv.parameters();
     // Layers first
     std::vector<int> copy = fv.copyNos();
-    int nsiz = (int)(copy.size());
+    int nsiz = static_cast<int>(copy.size());
     int lay = (nsiz > 0) ? copy[0] : 0;
     int zp = (nsiz > 2) ? copy[2] : -1;
     if (zp != 1)
@@ -296,16 +290,16 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
         php.layer_.emplace_back(lay);
       auto itr = layers.find(lay);
-      double zz = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
+      double zz = HGCalParameters::k_ScaleFromDD4hep * fv.translation().Z();
       if (itr == layers.end()) {
         double rin(0), rout(0);
         if (dd4hep::isA<dd4hep::Polyhedra>(fv.solid())) {
-          rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
-          rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
+          rin = 0.5 * HGCalParameters::k_ScaleFromDD4hep * (pars[5] + pars[8]);
+          rout = 0.5 * HGCalParameters::k_ScaleFromDD4hep * (pars[6] + pars[9]);
         } else if (dd4hep::isA<dd4hep::Tube>(fv.solid())) {
           dd4hep::Tube tubeSeg(fv.solid());
-          rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMin();
-          rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMax();
+          rin = HGCalParameters::k_ScaleFromDD4hep * tubeSeg.rMin();
+          rout = HGCalParameters::k_ScaleFromDD4hep * tubeSeg.rMax();
         }
         HGCalGeomParameters::layerParameters laypar(rin, rout, zz);
         layers[lay] = laypar;
@@ -317,13 +311,13 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
         fv.rotation().GetComponents(x, y, z);
         const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
         const CLHEP::HepRotation hr(rotation);
-        double xx = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X();
+        double xx = HGCalParameters::k_ScaleFromDD4hep * fv.translation().X();
         if (std::abs(xx) < tolerance)
           xx = 0;
-        double yy = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y();
+        double yy = HGCalParameters::k_ScaleFromDD4hep * fv.translation().Y();
         if (std::abs(yy) < tolerance)
           yy = 0;
-        double zz = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
+        double zz = HGCalParameters::k_ScaleFromDD4hep * fv.translation().Z();
         const CLHEP::Hep3Vector h3v(xx, yy, zz);
         HGCalParameters::hgtrform mytrf;
         mytrf.zp = zp;
@@ -357,12 +351,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
     while (dodet) {
       const std::string name = static_cast<std::string>(fv1.name());
       std::vector<int> copy = fv1.copyNos();
-      int nsiz = (int)(copy.size());
+      int nsiz = static_cast<int>(copy.size());
       int wafer = (nsiz > 0) ? copy[0] : 0;
       int layer = (nsiz > 1) ? copy[1] : 0;
       if (nsiz < 2) {
         throw cms::Exception("DDException") << "Funny wafer # " << wafer << " in " << nsiz << " components";
-      } else if (layer > (int)(layers.size())) {
+      } else if (layer > static_cast<int>(layers.size())) {
         edm::LogWarning("HGCalGeom") << "Funny wafer # " << wafer << " Layer " << layer << ":" << layers.size()
                                      << " among " << nsiz << " components";
       } else {
@@ -374,14 +368,14 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
         if (itr == copies.end()) {
           copies[wafer] = wafer2copy.size();
           copiesInLayers[layer][wafer] = wafer2copy.size();
-          double xx = HGCalParameters::k_ScaleFromDD4Hep * fv1.translation().X();
+          double xx = HGCalParameters::k_ScaleFromDD4hep * fv1.translation().X();
           if (std::abs(xx) < tolerance)
             xx = 0;
-          double yy = HGCalParameters::k_ScaleFromDD4Hep * fv1.translation().Y();
+          double yy = HGCalParameters::k_ScaleFromDD4hep * fv1.translation().Y();
           if (std::abs(yy) < tolerance)
             yy = 0;
           wafer2copy.emplace_back(wafer);
-          GlobalPoint p(xx, yy, HGCalParameters::k_ScaleFromDD4Hep * fv1.translation().Z());
+          GlobalPoint p(xx, yy, HGCalParameters::k_ScaleFromDD4hep * fv1.translation().Z());
           HGCalGeomParameters::cellParameters cell(false, wafer, p);
           wafers.emplace_back(cell);
           if (names.count(name) == 0) {
@@ -396,9 +390,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
               zv[1] = pars[9];
               rv = pars[4];
             }
-            php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDD4HepToG4 * rv * tan30deg_;
-            php.waferSize_ = HGCalParameters::k_ScaleFromDD4Hep * rv;
-            double dz = 0.5 * HGCalParameters::k_ScaleFromDD4HepToG4 * (zv[1] - zv[0]);
+            php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDD4hepToG4 * rv * tan30deg_;
+            php.waferSize_ = HGCalParameters::k_ScaleFromDD4hep * rv;
+            double dz = 0.5 * HGCalParameters::k_ScaleFromDD4hepToG4 * (zv[1] - zv[0]);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
                 << "Mode " << mode << " R " << php.waferSize_ << ":" << php.waferR_ << " z " << dz;
@@ -433,7 +427,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
     while (dodet) {
       const std::string name = static_cast<std::string>(fv2.name());
       std::vector<int> copy = fv2.copyNos();
-      int nsiz = (int)(copy.size());
+      int nsiz = static_cast<int>(copy.size());
       int cellx = (nsiz > 0) ? copy[0] : 0;
       int wafer = (nsiz > 1) ? copy[1] : 0;
       int cell = HGCalTypes::getUnpackedCell6(cellx);
@@ -458,8 +452,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
         }
         if (newc) {
           bool half = (name.find("Half") != std::string::npos);
-          double xx = HGCalParameters::k_ScaleFromDD4Hep * fv2.translation().X();
-          double yy = HGCalParameters::k_ScaleFromDD4Hep * fv2.translation().Y();
+          double xx = HGCalParameters::k_ScaleFromDD4hep * fv2.translation().X();
+          double yy = HGCalParameters::k_ScaleFromDD4hep * fv2.translation().Y();
           if (half) {
             math::XYZPointD p1(-2.0 * cellsize / 9.0, 0, 0);
             math::XYZPointD p2 = fv2.rotation()(p1);
@@ -509,7 +503,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
 
   for (unsigned int i = 0; i < layers.size(); ++i) {
     for (auto& layer : layers) {
-      if (layer.first == (int)(i + php.firstLayer_)) {
+      if (layer.first == static_cast<int>(i + php.firstLayer_)) {
         php.layerIndex_.emplace_back(i);
         php.rMinLayHex_.emplace_back(layer.second.rmin);
         php.rMaxLayHex_.emplace_back(layer.second.rmax);
@@ -521,7 +515,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
 
   for (unsigned int i = 0; i < php.layer_.size(); ++i) {
     for (unsigned int i1 = 0; i1 < trforms.size(); ++i1) {
-      if (!trformUse[i1] && php.layerGroup_[trforms[i1].lay - 1] == (int)(i + 1)) {
+      if (!trformUse[i1] && php.layerGroup_[trforms[i1].lay - 1] == static_cast<int>(i + 1)) {
         trforms[i1].h3v *= static_cast<double>(HGCalParameters::k_ScaleFromDDD);
         trforms[i1].lay = (i + 1);
         trformUse[i1] = true;
@@ -529,7 +523,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
         int nz(1);
         for (unsigned int i2 = i1 + 1; i2 < trforms.size(); ++i2) {
           if (!trformUse[i2] && trforms[i2].zp == trforms[i1].zp &&
-              php.layerGroup_[trforms[i2].lay - 1] == (int)(i + 1)) {
+              php.layerGroup_[trforms[i2].lay - 1] == static_cast<int>(i + 1)) {
             php.addTrForm(trforms[i2].h3v);
             nz++;
             trformUse[i2] = true;
@@ -561,7 +555,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
     php.waferTypeL_.emplace_back(type);
   }
   php.copiesInLayers_ = copiesInLayers;
-  php.nSectors_ = (int)(php.waferCopy_.size());
+  php.nSectors_ = static_cast<int>(php.waferCopy_.size());
 
   std::vector<HGCalGeomParameters::cellParameters>::const_iterator itrf = wafers.end();
   for (unsigned int i = 0; i < cellsf.size(); ++i) {
@@ -597,7 +591,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
   for (unsigned int i = 0; i < php.layerGroup_.size(); ++i) {
     bool first(true);
     for (unsigned int k = 0; k < php.layerGroup_.size(); ++k) {
-      if (php.layerGroup_[k] == (int)(i + 1)) {
+      if (php.layerGroup_[k] == static_cast<int>(i + 1)) {
         if (first) {
           php.depth_.emplace_back(i + 1);
           php.depthIndex_.emplace_back(depth);
@@ -693,7 +687,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
     ++ntot;
 #endif
     std::vector<int> copy = fv.copyNumbers();
-    int nsiz = (int)(copy.size());
+    int nsiz = static_cast<int>(copy.size());
     if (nsiz < levelTop) {
       int lay = copy[nsiz - 1];
       int zside = (nsiz > php.levelZSide_) ? copy[php.levelZSide_] : -1;
@@ -789,11 +783,11 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
         const std::vector<double>& pars = fv.parameters();
-        double rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
-        double rout = HGCalParameters::k_ScaleFromDD4Hep * pars[1];
+        double rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
+        double rout = HGCalParameters::k_ScaleFromDD4hep * pars[1];
         auto itr = layers.find(lay);
         if (itr == layers.end()) {
-          double zp = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
+          double zp = HGCalParameters::k_ScaleFromDD4hep * fv.translation().Z();
           HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
           layers[lay] = laypar;
         } else {
@@ -807,11 +801,11 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
           const CLHEP::HepRotation hr(rotation);
           double xx = ((std::abs(fv.translation().X()) < tolerance)
                            ? 0
-                           : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X());
+                           : HGCalParameters::k_ScaleFromDD4hep * fv.translation().X());
           double yy = ((std::abs(fv.translation().Y()) < tolerance)
                            ? 0
-                           : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y());
-          const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z());
+                           : HGCalParameters::k_ScaleFromDD4hep * fv.translation().Y());
+          const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDD4hep * fv.translation().Z());
           HGCalParameters::hgtrform mytrf;
           mytrf.zp = zside;
           mytrf.lay = lay;
@@ -954,6 +948,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
@@ -972,7 +969,7 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
                                                     const std::string& sdTag2,
                                                     int firstLayer) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters (DD4Hep)::loadGeometryHexagonModule called with tags " << sdTag1
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters (DD4hep)::loadGeometryHexagonModule called with tags " << sdTag1
                                 << ":" << sdTag2 << " firstLayer " << firstLayer;
   int ntot1(0), ntot2(0);
 #endif
@@ -999,7 +996,7 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (zvals.find(std::make_pair(lay, zside)) == zvals.end()) {
-          zvals[std::make_pair(lay, zside)] = HGCalParameters::k_ScaleFromDD4Hep * fv1.translation().Z();
+          zvals[std::make_pair(lay, zside)] = HGCalParameters::k_ScaleFromDD4hep * fv1.translation().Z();
 #ifdef EDM_ML_DEBUG
           std::ostringstream st1;
           st1 << "Name0 " << fv1.name() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << " # of levels "
@@ -1046,10 +1043,10 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
             const std::vector<double>& pars = fv2.parameters();
-            double rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
+            double rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
             double rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
                               ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
-                              : HGCalParameters::k_ScaleFromDD4Hep * pars[1];
+                              : HGCalParameters::k_ScaleFromDD4hep * pars[1];
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
@@ -1071,10 +1068,10 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
             const CLHEP::HepRotation hr(rotation);
             double xx = ((std::abs(fv2.translation().X()) < tolerance)
                              ? 0
-                             : HGCalParameters::k_ScaleFromDD4Hep * fv2.translation().X());
+                             : HGCalParameters::k_ScaleFromDD4hep * fv2.translation().X());
             double yy = ((std::abs(fv2.translation().Y()) < tolerance)
                              ? 0
-                             : HGCalParameters::k_ScaleFromDD4Hep * fv2.translation().Y());
+                             : HGCalParameters::k_ScaleFromDD4hep * fv2.translation().Y());
             const CLHEP::Hep3Vector h3v(xx, yy, zvals[std::make_pair(lay, zside)]);
             HGCalParameters::hgtrform mytrf;
             mytrf.zp = zside;
@@ -1084,6 +1081,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
@@ -1102,7 +1102,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const std::map<int, HGCalGeomPara
   double rmin(0), rmax(0);
   for (unsigned int i = 0; i < layers.size(); ++i) {
     for (auto& layer : layers) {
-      if (layer.first == (int)(i + firstLayer)) {
+      if (layer.first == static_cast<int>(i + firstLayer)) {
         php.layerIndex_.emplace_back(i);
         php.rMinLayHex_.emplace_back(layer.second.rmin);
         php.rMaxLayHex_.emplace_back(layer.second.rmax);
@@ -1128,7 +1128,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const std::map<int, HGCalGeomPara
 
   for (unsigned int i = 0; i < php.layer_.size(); ++i) {
     for (auto& trform : trforms) {
-      if (trform.first.first == (int)(i + firstLayer)) {
+      if (trform.first.first == static_cast<int>(i + firstLayer)) {
         php.fillTrForm(trform.second);
       }
     }
@@ -1173,6 +1173,11 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   php.layerGroupM_ = dbl_to_int(getDDDArray("GroupingZMid", sv, 0));
   php.layerGroupO_ = dbl_to_int(getDDDArray("GroupingZOut", sv, 0));
   php.slopeMin_ = getDDDArray("Slope", sv, 1);
+  const auto& dummy2 = getDDDArray("LayerOffset", sv, 0);
+  if (!dummy2.empty())
+    php.layerOffset_ = dummy2[0];
+  else
+    php.layerOffset_ = 0;
 
   // Wafer size
   std::string attribute = "Volume";
@@ -1202,9 +1207,9 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
                                               const std::string& sdTag3,
                                               const std::string& sdTag4) {
   php.boundR_ = fv.get<std::vector<double> >(sdTag4, "RadiusBound");
-  rescale(php.boundR_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.boundR_, HGCalParameters::k_ScaleFromDD4hep);
   php.rLimit_ = fv.get<std::vector<double> >(sdTag4, "RadiusLimits");
-  rescale(php.rLimit_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rLimit_, HGCalParameters::k_ScaleFromDD4hep);
   php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(sdTag4, "LevelTop"));
 
   // Grouping of layers
@@ -1217,11 +1222,19 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
 
   // Wafer size
   const auto& dummy = fv.get<std::vector<double> >(sdTag2, "WaferSize");
-  waferSize_ = dummy[0] * HGCalParameters::k_ScaleFromDD4HepToG4;
+  waferSize_ = dummy[0] * HGCalParameters::k_ScaleFromDD4hepToG4;
 
   // Cell size
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3, "CellSize");
-  rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4HepToG4);
+  rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4hepToG4);
+
+  // Layer Offset
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
+  if (!dummy2.empty()) {
+    php.layerOffset_ = dummy2[0];
+  } else {
+    php.layerOffset_ = 0;
+  }
 
   loadSpecParsHexagon(php);
 }
@@ -1242,6 +1255,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const HGCalParameters& php) {
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: " << php.cellSize_.size() << " cells of sizes:";
   for (unsigned int k = 0; k < php.cellSize_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << php.cellSize_[k];
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: First Layer " << php.firstLayer_ << " and layer offset "
+                                << php.layerOffset_;
 #endif
 }
 
@@ -1249,7 +1264,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   DDsvalues_type sv(fv.mergedSpecifics());
   php.cellThickness_ = getDDDArray("CellThickness", sv, 3);
   rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDDD);
-  if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+  if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
     php.waferThickness_ = getDDDArray("WaferThickness", sv, 3);
     rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDDD);
   } else {
@@ -1261,8 +1276,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   php.radius200to300_ = getDDDArray("Radius200to300", sv, 5);
 
   const auto& dummy = getDDDArray("RadiusCuts", sv, 4);
-  php.choiceType_ = (int)(dummy[0]);
-  php.nCornerCut_ = (int)(dummy[1]);
+  php.choiceType_ = static_cast<int>(dummy[0]);
+  php.nCornerCut_ = static_cast<int>(dummy[1]);
   php.fracAreaMin_ = dummy[2];
   php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD * dummy[3];
 
@@ -1293,21 +1308,32 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
     std::vector<int> layerType, waferIndex, waferProperties;
+    std::vector<double> cassetteShift;
     if (php.waferMaskMode_ == siliconFileEE) {
       waferIndex = dbl_to_int(fv.vector("WaferIndexEE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesEE"));
+    } else if (php.waferMaskMode_ == siliconCassetteEE) {
+      waferIndex = dbl_to_int(fv.vector("WaferIndexEE"));
+      waferProperties = dbl_to_int(fv.vector("WaferPropertiesEE"));
+      cassetteShift = fv.vector("CassetteShiftEE");
     } else if (php.waferMaskMode_ == siliconFileHE) {
       waferIndex = dbl_to_int(fv.vector("WaferIndexHE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesHE"));
+    } else if (php.waferMaskMode_ == siliconCassetteHE) {
+      waferIndex = dbl_to_int(fv.vector("WaferIndexHE"));
+      waferProperties = dbl_to_int(fv.vector("WaferPropertiesHE"));
+      cassetteShift = fv.vector("CassetteShiftHE");
     }
-    if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-      if (php.waferMaskMode_ == siliconFileEE) {
+    if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
+      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconCassetteEE)) {
         layerType = dbl_to_int(fv.vector("LayerTypesEE"));
-      } else if (php.waferMaskMode_ == siliconFileHE) {
+      } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
         layerType = dbl_to_int(fv.vector("LayerTypesHE"));
       }
     }
 
+    php.cassetteShift_ = cassetteShift;
+    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDDD);
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
@@ -1317,10 +1343,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
                                                HGCalParameters& php,
                                                const std::string& sdTag1) {
   php.cellThickness_ = fv.get<std::vector<double> >(sdTag1, "CellThickness");
-  rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4Hep);
-  if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+  rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4hep);
+  if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
     php.waferThickness_ = fv.get<std::vector<double> >(sdTag1, "WaferThickness");
-    rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDD4Hep);
+    rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDD4hep);
   } else {
     for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
       php.waferThickness_.emplace_back(php.waferThick_);
@@ -1334,22 +1360,22 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     php.choiceType_ = static_cast<int>(dummy[0]);
     php.nCornerCut_ = static_cast<int>(dummy[1]);
     php.fracAreaMin_ = dummy[2];
-    php.zMinForRad_ = HGCalParameters::k_ScaleFromDD4Hep * dummy[3];
+    php.zMinForRad_ = HGCalParameters::k_ScaleFromDD4hep * dummy[3];
   } else {
     php.choiceType_ = php.nCornerCut_ = php.fracAreaMin_ = php.zMinForRad_ = 0;
   }
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1, "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1, "ZFrontBottom");
-  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4hep);
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1, "RMinFront");
-  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4hep);
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1, "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1, "ZFrontTop");
-  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4hep);
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1, "RMaxFront");
-  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4hep);
   unsigned int kmax = (php.zFrontTop_.size() - php.slopeTop_.size());
   for (unsigned int k = 0; k < kmax; ++k)
     php.slopeTop_.emplace_back(0);
@@ -1364,10 +1390,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   for (auto const& it : vmap) {
     if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
-        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
     } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ZRanges")) {
       for (const auto& i : it.second)
-        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
     } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
         php.layerCenter_.emplace_back(std::round(i));
@@ -1379,7 +1405,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
     std::vector<int> layerType, waferIndex, waferProperties;
-    if (php.waferMaskMode_ == siliconFileEE) {
+    std::vector<double> cassetteShift;
+    if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconCassetteEE)) {
       for (auto const& it : vmap) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexEE")) {
           for (const auto& i : it.second)
@@ -1389,7 +1416,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
             waferProperties.emplace_back(std::round(i));
         }
       }
-    } else if (php.waferMaskMode_ == siliconFileHE) {
+      if (php.waferMaskMode_ == siliconCassetteEE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftEE")) {
+            for (const auto& i : it.second)
+              cassetteShift.emplace_back(i);
+          }
+        }
+      }
+    } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
       for (auto const& it : vmap) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexHE")) {
           for (const auto& i : it.second)
@@ -1399,9 +1434,17 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
             waferProperties.emplace_back(std::round(i));
         }
       }
+      if (php.waferMaskMode_ == siliconCassetteHE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftHE")) {
+            for (const auto& i : it.second)
+              cassetteShift.emplace_back(i);
+          }
+        }
+      }
     }
-    if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-      if (php.waferMaskMode_ == siliconFileEE) {
+    if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
+      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconFileHE)) {
         for (auto const& it : vmap) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesEE")) {
             for (const auto& i : it.second)
@@ -1418,6 +1461,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
       }
     }
 
+    php.cassetteShift_ = cassetteShift;
+    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDD4hep);
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
@@ -1463,13 +1508,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                                const std::vector<int>& waferIndex,
                                                const std::vector<int>& waferProperties) {
   // Store parameters from Philip's file
-  int types[5] = {HGCalTypes::WaferCenter,
-                  HGCalTypes::WaferCenterB,
-                  HGCalTypes::CornerCenterYm,
-                  HGCalTypes::CornerCenterYp,
-                  HGCalTypes::WaferCenterR};
   for (unsigned int k = 0; k < layerType.size(); ++k) {
-    php.layerType_.emplace_back(types[layerType[k]]);
+    php.layerType_.emplace_back(HGCalTypes::layerType(layerType[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
 #endif
@@ -1485,9 +1525,14 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
-    int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
-    php.waferInfoMap_[waferIndex[k]] =
-        HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]), partial, orient);
+    int orient =
+        (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)
+            ? HGCalProperty::waferOrient(waferProperties[k])
+            : HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
+    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]),
+                                                                  partial,
+                                                                  orient,
+                                                                  HGCalProperty::waferCassette(waferProperties[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":"
                                   << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":"
@@ -1536,11 +1581,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if (php.waferMaskMode_ == scintillatorFile) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4;
     std::vector<double> tileRMin, tileRMax;
     std::vector<int> tileRingMin, tileRingMax;
+    std::vector<double> cassetteShift;
     tileIndx = dbl_to_int(fv.vector("TileIndex"));
     tileProperty = dbl_to_int(fv.vector("TileProperty"));
     tileHEX1 = dbl_to_int(fv.vector("TileHEX1"));
@@ -1553,7 +1599,14 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
     rescale(tileRMax, HGCalParameters::k_ScaleFromDDD);
     tileRingMin = dbl_to_int(fv.vector("TileRingMin"));
     tileRingMax = dbl_to_int(fv.vector("TileRingMax"));
+    if (php.waferMaskMode_ == scintillatorCassette) {
+      if (php.cassettes_ > 0)
+        php.nphiCassette_ = php.nCellsCoarse_ / php.cassettes_;
+      cassetteShift = fv.vector("CassetteShiftHE");
+      rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
+    }
 
+    php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,
@@ -1575,10 +1628,10 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   for (auto const& it : vmap) {
     if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
-        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
     } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ZRanges")) {
       for (const auto& i : it.second)
-        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+        php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
     } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
         php.layerCenter_.emplace_back(std::round(i));
@@ -1588,7 +1641,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   php.nPhiBinBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "NPhiBinBH"));
   php.layerFrontBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "LayerFrontBH"));
   php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1, "RMinLayerBH");
-  rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4hep);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -1596,15 +1649,15 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
 
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag1, "SlopeBottom");
   php.zFrontMin_ = fv.get<std::vector<double> >(sdTag1, "ZFrontBottom");
-  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.zFrontMin_, HGCalParameters::k_ScaleFromDD4hep);
   php.rMinFront_ = fv.get<std::vector<double> >(sdTag1, "RMinFront");
-  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rMinFront_, HGCalParameters::k_ScaleFromDD4hep);
 
   php.slopeTop_ = fv.get<std::vector<double> >(sdTag1, "SlopeTop");
   php.zFrontTop_ = fv.get<std::vector<double> >(sdTag1, "ZFrontTop");
-  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.zFrontTop_, HGCalParameters::k_ScaleFromDD4hep);
   php.rMaxFront_ = fv.get<std::vector<double> >(sdTag1, "RMaxFront");
-  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4Hep);
+  rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDD4hep);
   unsigned int kmax = (php.zFrontTop_.size() - php.slopeTop_.size());
   for (unsigned int k = 0; k < kmax; ++k)
     php.slopeTop_.emplace_back(0);
@@ -1615,11 +1668,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if (php.waferMaskMode_ == scintillatorFile) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4;
     std::vector<double> tileRMin, tileRMax;
     std::vector<int> tileRingMin, tileRingMax;
+    std::vector<double> cassetteShift;
     for (auto const& it : vmap) {
       if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileIndex")) {
         for (const auto& i : it.second)
@@ -1641,10 +1695,10 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
           tileHEX4.emplace_back(std::round(i));
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMin")) {
         for (const auto& i : it.second)
-          tileRMin.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+          tileRMin.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMax")) {
         for (const auto& i : it.second)
-          tileRMax.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+          tileRMax.emplace_back(HGCalParameters::k_ScaleFromDD4hep * i);
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMin")) {
         for (const auto& i : it.second)
           tileRingMin.emplace_back(std::round(i));
@@ -1653,7 +1707,17 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
           tileRingMax.emplace_back(std::round(i));
       }
     }
+    if (php.waferMaskMode_ == scintillatorCassette) {
+      for (auto const& it : vmap) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftHE")) {
+          for (const auto& i : it.second)
+            cassetteShift.emplace_back(i);
+        }
+      }
+    }
 
+    rescale(cassetteShift, HGCalParameters::k_ScaleFromDD4hep);
+    php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,
@@ -1757,8 +1821,8 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
   double dx = 0.5 * waferW;
   double dy = 3.0 * dx * tan(30._deg);
   double rr = 2.0 * dx * tan(30._deg);
-  int ncol = (int)(2.0 * rout / waferW) + 1;
-  int nrow = (int)(rout / (waferW * tan(30._deg))) + 1;
+  int ncol = static_cast<int>(2.0 * rout / waferW) + 1;
+  int nrow = static_cast<int>(rout / (waferW * tan(30._deg))) + 1;
   int ns2 = (2 * ncol + 1) * (2 * nrow + 1) * php.layer_.size();
   int incm(0), inrm(0), kount(0), ntot(0);
   HGCalParameters::layer_map copiesInLayers(php.layer_.size() + 1);
@@ -1808,9 +1872,9 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
               auto cpy = copiesInLayers[php.layer_[il]].find(copy);
               if (cpy == copiesInLayers[php.layer_[il]].end())
                 copiesInLayers[php.layer_[il]][copy] =
-                    ((corner.first == (int)(HGCalParameters::k_CornerSize)) ? php.waferCopy_.size() : -1);
+                    ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) ? php.waferCopy_.size() : -1);
             }
-            if ((corner.first > 0) && (corner.first < (int)(HGCalParameters::k_CornerSize))) {
+            if ((corner.first > 0) && (corner.first < static_cast<int>(HGCalParameters::k_CornerSize))) {
               int wl = HGCalWaferIndex::waferIndex(php.layer_[il], copy, 0, true);
               waferTypes[wl] = corner;
             }
@@ -1821,7 +1885,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
   }
   php.copiesInLayers_ = copiesInLayers;
   php.waferTypes_ = waferTypes;
-  php.nSectors_ = (int)(php.waferCopy_.size());
+  php.nSectors_ = static_cast<int>(php.waferCopy_.size());
   php.waferUVMax_ = 0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalWaferHexagon: # of columns " << incm << " # of rows " << inrm << " and "
@@ -1864,7 +1928,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   double dy = 0.75 * R;
   double r1 = 0.5 * waferW;
   double R1 = 2.0 * r1 / sqrt3_;
-  int N = (r == 0) ? 3 : ((int)(0.5 * rout / r) + 3);
+  int N = (r == 0) ? 3 : (static_cast<int>(0.5 * rout / r) + 3);
   int ns1 = (2 * N + 1) * (2 * N + 1);
   int ns2 = ns1 * php.zLayerHex_.size();
 #ifdef EDM_ML_DEBUG
@@ -1891,7 +1955,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
       wafersInLayers[indx] = ipos;
       ++ipos;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r1, R1, 0, rout, false);
-      if ((corner.first == (int)(HGCalParameters::k_CornerSize)) || ((corner.first > 0) && php.defineFull_)) {
+      if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) ||
+          ((corner.first > 0) && php.defineFull_)) {
         uvmax = std::max(uvmax, std::max(std::abs(u), std::abs(v)));
       }
       for (unsigned int i = 0; i < php.zLayerHex_.size(); ++i) {
@@ -1903,7 +1968,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         double zpos = php.zLayerHex_[i];
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
         int type(-1);
-        if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module))
+        if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
+            (php.mode_ == HGCalGeometryMode::Hexagon8Cassette))
           type = wType->getType(kndx, php.waferInfoMap_);
         if (type < 0)
           type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
@@ -1923,10 +1989,11 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                                         << " u " << u << " v " << v << " with " << corner.first << " corners";
         }
 #endif
-        if ((corner.first == (int)(HGCalParameters::k_CornerSize)) || ((corner.first > 0) && php.defineFull_)) {
+        if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) ||
+            ((corner.first > 0) && php.defineFull_)) {
           uvmx[i] = std::max(uvmx[i], std::max(std::abs(u), std::abs(v)));
         }
-        if ((corner.first < (int)(HGCalParameters::k_CornerSize)) && (corner.first > 0)) {
+        if ((corner.first < static_cast<int>(HGCalParameters::k_CornerSize)) && (corner.first > 0)) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
                                         << corner.first << ":" << corner.second;
@@ -1935,15 +2002,18 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
           if (php.waferMaskMode_ > 0) {
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
                 xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
-            if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module)) {
+            if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
+                (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
               auto itr = php.waferInfoMap_.find(wl);
               if (itr != php.waferInfoMap_.end()) {
                 int part = (itr->second).part;
                 int orient = (itr->second).orient;
-                bool ok = HGCalWaferMask::goodTypeMode(
-                    xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
+                bool ok = (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)
+                              ? true
+                              : HGCalWaferMask::goodTypeMode(
+                                    xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
                 if (ok)
-                  corner0 = std::make_pair(part, (HGCalWaferMask::k_OffsetRotation + orient));
+                  corner0 = std::make_pair(part, (HGCalTypes::k_OffsetRotation + orient));
 #ifdef EDM_ML_DEBUG
                 edm::LogVerbatim("HGCalGeom")
                     << "Layer:u:v " << i << ":" << lay << ":" << u << ":" << v << " Part " << corner0.first << ":"
@@ -1982,7 +2052,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   php.wafersInLayers_ = wafersInLayers;
   php.typesInLayers_ = typesInLayers;
   php.waferTypes_ = waferTypes;
-  php.nSectors_ = (int)(php.waferCopy_.size());
+  php.nSectors_ = static_cast<int>(php.waferCopy_.size());
   HGCalParameters::hgtrap mytr;
   mytr.lay = 1;
   mytr.bl = php.waferR_;
@@ -2091,7 +2161,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
   // Find the radius of each eta-partitions
 
-  if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule)) {
+  if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
+      (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
     //Ring radii for each partition
     for (unsigned int k = 0; k < 2; ++k) {
       for (unsigned int kk = 0; kk < php.tileRingR_.size(); ++kk) {
@@ -2109,9 +2180,9 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     // Minimum and maximum radius index for each layer
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k].first);
-      php.iradMaxBH_.emplace_back(php.tileRingRange_[k].second);
+      php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k].second);
 #ifdef EDM_ML_DEBUG
-      int kk = php.scintType(php.firstLayer_ + (int)(k));
+      int kk = php.scintType(php.firstLayer_ + static_cast<int>(k));
       edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge " << php.iradMinBH_.back()
                                     << " Top edge " << php.iradMaxBH_.back();
 #endif
@@ -2143,16 +2214,16 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     }
     // Find minimum and maximum radius index for each layer
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
-      int kk = php.scintType(php.firstLayer_ + (int)(k));
+      int kk = php.scintType(php.firstLayer_ + static_cast<int>(k));
       std::vector<double>::iterator low, high;
       low = std::lower_bound(php.radiusLayer_[kk].begin(), php.radiusLayer_[kk].end(), php.rMinLayHex_[k]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Old [" << k << "] RLow = " << php.rMinLayHex_[k] << " pos "
-                                    << (int)(low - php.radiusLayer_[kk].begin());
+                                    << static_cast<int>(low - php.radiusLayer_[kk].begin());
 #endif
       if (low == php.radiusLayer_[kk].begin())
         ++low;
-      int irlow = (int)(low - php.radiusLayer_[kk].begin());
+      int irlow = static_cast<int>(low - php.radiusLayer_[kk].begin());
       double drlow = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "irlow " << irlow << " dr " << drlow << " min " << php.minTileSize_;
@@ -2167,11 +2238,11 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       high = std::lower_bound(php.radiusLayer_[kk].begin(), php.radiusLayer_[kk].end(), php.rMaxLayHex_[k]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Old [" << k << "] RHigh = " << php.rMaxLayHex_[k] << " pos "
-                                    << (int)(high - php.radiusLayer_[kk].begin());
+                                    << static_cast<int>(high - php.radiusLayer_[kk].begin());
 #endif
       if (high == php.radiusLayer_[kk].end())
         --high;
-      int irhigh = (int)(high - php.radiusLayer_[kk].begin());
+      int irhigh = static_cast<int>(high - php.radiusLayer_[kk].begin());
       double drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh - 1];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "irhigh " << irhigh << " dr " << drhigh << " min " << php.minTileSize_;
@@ -2207,7 +2278,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
     if (php.iradMaxBH_[k] > php.waferUVMax_)
       php.waferUVMax_ = php.iradMaxBH_[k];
-    int kk = ((php.firstLayer_ + (int)(k)) < php.layerFrontBH_[1]) ? 0 : 1;
+    int kk = ((php.firstLayer_ + static_cast<int>(k)) < php.layerFrontBH_[1]) ? 0 : 1;
     int irm = php.radiusLayer_[kk].size() - 1;
 #ifdef EDM_ML_DEBUG
     double rmin = php.radiusLayer_[kk][std::max((php.iradMinBH_[k] - 1), 0)];

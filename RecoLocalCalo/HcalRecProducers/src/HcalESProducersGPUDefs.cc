@@ -33,6 +33,9 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQualityGPU.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
@@ -64,6 +67,9 @@ using HcalPedestalWidthsGPUESProducer =
 using HcalGainWidthsGPUESProducer = ConvertingESProducerT<HcalGainWidthsRcd, HcalGainWidthsGPU, HcalGainWidths>;
 
 using HcalQIECodersGPUESProducer = ConvertingESProducerT<HcalQIEDataRcd, HcalQIECodersGPU, HcalQIEData>;
+
+using HcalChannelQualityGPUESProducer =
+    ConvertingESProducerT<HcalChannelQualityRcd, HcalChannelQualityGPU, HcalChannelQuality>;
 
 using HcalQIETypesGPUESProducer = ConvertingESProducerT<HcalQIETypesRcd, HcalQIETypesGPU, HcalQIETypes>;
 
@@ -111,6 +117,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(HcalTimeCorrsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalPedestalWidthsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalGainWidthsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalQIECodersGPUESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(HcalChannelQualityGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalQIETypesGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMParametersGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMCharacteristicsGPUESProducer);

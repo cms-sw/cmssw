@@ -1,4 +1,3 @@
-
 #ifndef CalibTracker_SiPixelerrorEstimation_SiPixelErrorEstimation_h
 #define CalibTracker_SiPixelerrorEstimation_SiPixelErrorEstimation_h
 
@@ -6,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +59,7 @@
 class TTree;
 class TFile;
 
-class SiPixelErrorEstimation : public edm::EDAnalyzer {
+class SiPixelErrorEstimation : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelErrorEstimation(const edm::ParameterSet&);
   ~SiPixelErrorEstimation() override;

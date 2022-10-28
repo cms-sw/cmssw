@@ -8,14 +8,14 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
-class TestAssociator : public edm::EDAnalyzer {
+class TestAssociator : public edm::one::EDAnalyzer<> {
 public:
   explicit TestAssociator(const edm::ParameterSet& conf);
 

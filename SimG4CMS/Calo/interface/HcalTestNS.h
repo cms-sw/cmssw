@@ -7,7 +7,7 @@
 class HcalTestNS {
 public:
   HcalTestNS(const HcalDDDRecConstants*);
-  virtual ~HcalTestNS();
+  ~HcalTestNS() = default;
 
   bool compare(HcalNumberingFromDDD::HcalID const&, uint32_t const&);
 

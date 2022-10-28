@@ -1,11 +1,39 @@
-#include "LocalMaximumSeedFinder.h"
+#include "CommonTools/Utils/interface/DynArray.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
 #include <algorithm>
-#include <queue>
 #include <cfloat>
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "CommonTools/Utils/interface/DynArray.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <tuple>
+#include <unordered_map>
+#include <queue>
+
+class LocalMaximumSeedFinder final : public SeedFinderBase {
+public:
+  LocalMaximumSeedFinder(const edm::ParameterSet& conf);
+  LocalMaximumSeedFinder(const LocalMaximumSeedFinder&) = delete;
+  LocalMaximumSeedFinder& operator=(const LocalMaximumSeedFinder&) = delete;
+
+  void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
+                 const std::vector<bool>& mask,
+                 std::vector<bool>& seedable) override;
+
+private:
+  const int _nNeighbours;
+
+  const std::unordered_map<std::string, int> _layerMap;
+
+  typedef std::tuple<std::vector<int>, std::vector<double>, std::vector<double> > I3tuple;
+
+  std::array<I3tuple, 35> _thresholds;
+  static constexpr int layerOffset = 15;
+
+  static constexpr double detacut = 0.01;
+  static constexpr double dphicut = 0.01;
+};
+
+DEFINE_EDM_PLUGIN(SeedFinderFactory, LocalMaximumSeedFinder, "LocalMaximumSeedFinder");
 
 namespace {
   const reco::PFRecHit::Neighbours _noNeighbours(nullptr, 0);

@@ -111,6 +111,4 @@ process.hcalHitsValidation_step = cms.EndPath(
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.HLTSchedule)
 process.schedule.extend([process.hcalHitsValidation_step,process.FEVTDEBUGHLToutput_step])
-

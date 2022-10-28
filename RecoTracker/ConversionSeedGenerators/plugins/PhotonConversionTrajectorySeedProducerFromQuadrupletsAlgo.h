@@ -2,7 +2,6 @@
 #define PhotonConversionFinderFromTracks_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,7 +20,7 @@
 #include "CombinedHitQuadrupletGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-#include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 
 #include <sstream>
 

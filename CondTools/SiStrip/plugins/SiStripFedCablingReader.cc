@@ -1,12 +1,42 @@
-#include "CondTools/SiStrip/plugins/SiStripFedCablingReader.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
 #include <iostream>
 #include <sstream>
+
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class SiStripFedCablingReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  SiStripFedCablingReader(const edm::ParameterSet&);
+  ~SiStripFedCablingReader() override = default;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+
+private:
+  bool printFecCabling_;
+  bool printDetCabling_;
+  bool printRegionCabling_;
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const edm::ESGetToken<SiStripFecCabling, SiStripFecCablingRcd> fecCablingToken_;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> regionCablingToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+};
 
 // -----------------------------------------------------------------------------
 //
@@ -102,3 +132,8 @@ void SiStripFedCablingReader::beginRun(const edm::Run& run, const edm::EventSetu
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripFedCablingReader);

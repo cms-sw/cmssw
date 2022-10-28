@@ -13,12 +13,14 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidatePtr.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusVertex.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -33,9 +35,12 @@ class BPHPlusMinusCandidate : public BPHRecoCandidate, public virtual BPHPlusMin
   friend class BPHRecoCandidate;
 
 public:
+  typedef BPHPlusMinusCandidatePtr pointer;
+  typedef BPHPlusMinusConstCandPtr const_pointer;
+
   /** Constructor
    */
-  BPHPlusMinusCandidate(const edm::EventSetup* es);
+  BPHPlusMinusCandidate(const BPHEventSetupWrapper* es);
 
   // deleted copy constructor and assignment operator
   BPHPlusMinusCandidate(const BPHPlusMinusCandidate& x) = delete;
@@ -43,7 +48,7 @@ public:
 
   /** Destructor
    */
-  ~BPHPlusMinusCandidate() override;
+  ~BPHPlusMinusCandidate() override = default;
 
   /** Operations
    */
@@ -61,6 +66,15 @@ public:
   /// specified in the BPHRecoBuilder, with given names for
   /// positive and negative particle
   /// charge selection is applied inside
+  struct BuilderParameters {
+    const std::string* posName;
+    const std::string* negName;
+    double constrMass;
+    double constrSigma;
+  };
+  static std::vector<BPHPlusMinusConstCandPtr> build(const BPHRecoBuilder& builder, const BuilderParameters& par) {
+    return build(builder, *par.posName, *par.negName, par.constrMass, par.constrSigma);
+  }
   static std::vector<BPHPlusMinusConstCandPtr> build(const BPHRecoBuilder& builder,
                                                      const std::string& nPos,
                                                      const std::string& nNeg,
@@ -87,7 +101,7 @@ protected:
 
 private:
   // constructor
-  BPHPlusMinusCandidate(const edm::EventSetup* es, const BPHRecoBuilder::ComponentSet& compList);
+  BPHPlusMinusCandidate(const BPHEventSetupWrapper* es, const BPHRecoBuilder::ComponentSet& compList);
 
   // return true or false for positive or negative phi_pos-phi_neg difference
   bool phiDiff() const;

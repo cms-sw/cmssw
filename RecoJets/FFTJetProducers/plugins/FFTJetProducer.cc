@@ -38,6 +38,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 // Loader for the lookup tables
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequenceLoader.h"
@@ -53,28 +55,28 @@
 // JPTJet is omitted for now: there is no reco::writeSpecific method
 // for it (see header JetSpecific.h in the JetProducers package)
 //
-#define jet_type_switch(method, arg1, arg2)                    \
-  do {                                                         \
-    switch (jetType) {                                         \
-      case CALOJET:                                            \
-        method<reco::CaloJet>(arg1, arg2);                     \
-        break;                                                 \
-      case PFJET:                                              \
-        method<reco::PFJet>(arg1, arg2);                       \
-        break;                                                 \
-      case GENJET:                                             \
-        method<reco::GenJet>(arg1, arg2);                      \
-        break;                                                 \
-      case TRACKJET:                                           \
-        method<reco::TrackJet>(arg1, arg2);                    \
-        break;                                                 \
-      case BASICJET:                                           \
-        method<reco::BasicJet>(arg1, arg2);                    \
-        break;                                                 \
-      default:                                                 \
-        assert(!"ERROR in FFTJetProducer : invalid jet type."\
+#define jet_type_switch(method, arg1, arg2)                      \
+  do {                                                           \
+    switch (jetType) {                                           \
+      case CALOJET:                                              \
+        method<reco::CaloJet>(arg1, arg2);                       \
+        break;                                                   \
+      case PFJET:                                                \
+        method<reco::PFJet>(arg1, arg2);                         \
+        break;                                                   \
+      case GENJET:                                               \
+        method<reco::GenJet>(arg1, arg2);                        \
+        break;                                                   \
+      case TRACKJET:                                             \
+        method<reco::TrackJet>(arg1, arg2);                      \
+        break;                                                   \
+      case BASICJET:                                             \
+        method<reco::BasicJet>(arg1, arg2);                      \
+        break;                                                   \
+      default:                                                   \
+        assert(!"ERROR in FFTJetProducer : invalid jet type."  \
                " This is a bug. Please report."); \
-    }                                                          \
+    }                                                            \
   } while (0);
 
 namespace {
@@ -159,6 +161,11 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   const std::string alias(ps.getUntrackedParameter<std::string>("alias", outputLabel));
   jet_type_switch(makeProduces, alias, outputLabel);
 
+  if (jetType == CALOJET) {
+    geometry_token_ = esConsumes();
+    topology_token_ = esConsumes();
+  }
+
   // Build the set of pattern recognition scales.
   // This is needed in order to read the clustering tree
   // from the event record.
@@ -166,14 +173,18 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   checkConfig(iniScales, "invalid set of scales");
   std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
 
-  input_recotree_token_ =
-      consumes<reco::PattRecoTree<fftjetcms::Real, reco::PattRecoPeak<fftjetcms::Real> > >(treeLabel);
+  if (storeInSinglePrecision())
+    input_recotree_token_f_ = consumes<reco::PattRecoTree<float, reco::PattRecoPeak<float> > >(treeLabel);
+  else
+    input_recotree_token_d_ = consumes<reco::PattRecoTree<double, reco::PattRecoPeak<double> > >(treeLabel);
   input_genjet_token_ = consumes<std::vector<reco::FFTAnyJet<reco::GenJet> > >(genJetsLabel);
   input_energyflow_token_ = consumes<reco::DiscretizedEnergyFlow>(treeLabel);
   input_pusummary_token_ = consumes<reco::FFTJetPileupSummary>(pileupLabel);
 
+  esLoader_.acquireToken(pileupTableRecord, consumesCollector());
+
   // Most of the configuration has to be performed inside
-  // the "beginJob" method. This is because chaining of the
+  // the "beginStream" method. This is because chaining of the
   // parsers between this base class and the derived classes
   // can not work from the constructor of the base class.
 }
@@ -184,12 +195,13 @@ FFTJetProducer::~FFTJetProducer() {}
 // member functions
 //
 template <class Real>
-void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent) {
+void FFTJetProducer::loadSparseTreeData(
+    const edm::Event& iEvent, const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok) {
   typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
 
   // Get the input
   edm::Handle<StoredTree> input;
-  iEvent.getByToken(input_recotree_token_, input);
+  iEvent.getByToken(tok, input);
 
   if (!input->isSparse())
     throw cms::Exception("FFTJetBadConfig") << "The stored clustering tree is not sparse" << std::endl;
@@ -565,7 +577,13 @@ void FFTJetProducer::writeJets(edm::Event& iEvent, const edm::EventSetup& iSetup
     // vertex, constituents). These are overridden functions that will
     // call the appropriate specific code.
     T jet;
-    writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], iSetup);
+    if constexpr (std::is_same_v<T, reco::CaloJet>) {
+      const CaloGeometry& geometry = iSetup.getData(geometry_token_);
+      const HcalTopology& topology = iSetup.getData(topology_token_);
+      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], geometry, topology);
+    } else {
+      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1]);
+    }
 
     // calcuate the jet area
     double ncells = myjet.ncells();
@@ -638,9 +656,9 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup, 
 void FFTJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Load the clustering tree made by FFTJetPatRecoProducer
   if (storeInSinglePrecision())
-    loadSparseTreeData<float>(iEvent);
+    loadSparseTreeData<float>(iEvent, input_recotree_token_f_);
   else
-    loadSparseTreeData<double>(iEvent);
+    loadSparseTreeData<double>(iEvent, input_recotree_token_d_);
 
   // Do we need to load the candidate collection?
   if (assignConstituents || !(useGriddedAlgorithm && reuseExistingGrid))
@@ -797,7 +815,7 @@ FFTJetProducer::parse_jetDistanceCalc(const edm::ParameterSet& ps) {
 void FFTJetProducer::assignMembershipFunctions(std::vector<fftjet::Peak>*) {}
 
 // ------------ method called once each job just before starting event loop
-void FFTJetProducer::beginJob() {
+void FFTJetProducer::beginStream(edm::StreamID) {
   const edm::ParameterSet& ps(myConfiguration);
 
   // Parse the peak selector definition
@@ -948,8 +966,7 @@ void FFTJetProducer::determinePileupDensityFromConfig(const edm::Event& iEvent,
 void FFTJetProducer::determinePileupDensityFromDB(const edm::Event& iEvent,
                                                   const edm::EventSetup& iSetup,
                                                   std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density) {
-  edm::ESHandle<FFTJetLookupTableSequence> h;
-  StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, pileupTableRecord, h);
+  edm::ESHandle<FFTJetLookupTableSequence> h = esLoader_.load(pileupTableRecord, iSetup);
   std::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[pileupTableCategory][pileupTableName];
 
   edm::Handle<reco::FFTJetPileupSummary> summary;
@@ -1094,9 +1111,6 @@ void FFTJetProducer::determinePileup() {
     }
   }
 }
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetProducer);

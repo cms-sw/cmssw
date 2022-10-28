@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -12,6 +11,8 @@
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TPFUtils.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace l1tpf {
   class PFTrackProducerFromL1Tracks : public edm::stream::EDProducer<> {
@@ -26,6 +27,8 @@ namespace l1tpf {
     int nParam_;
     float fBz_;
     l1tpf::ParametricResolution resolCalo_, resolTrk_;
+    std::vector<StringCutObjectSelector<l1t::PFTrack::L1TTTrackType>> qualityBitSetters_;
+    bool redigitizeTrackWord_;
 
     void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -37,7 +40,11 @@ l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::Param
       BFieldTag_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       nParam_(iConfig.getParameter<unsigned int>("nParam")),
       resolCalo_(iConfig.getParameter<edm::ParameterSet>("resolCalo")),
-      resolTrk_(iConfig.getParameter<edm::ParameterSet>("resolTrack")) {
+      resolTrk_(iConfig.getParameter<edm::ParameterSet>("resolTrack")),
+      redigitizeTrackWord_(iConfig.getParameter<bool>("redigitizeTrackWord")) {
+  for (const auto &cut : iConfig.getParameter<std::vector<std::string>>("qualityBits")) {
+    qualityBitSetters_.emplace_back(cut);
+  }
   produces<l1t::PFTrackCollection>();
 }
 
@@ -64,13 +71,17 @@ void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::
 
     reco::Candidate::PolarLorentzVector p4p(pt, eta, phi, 0.137);  // pion mass
     reco::Particle::LorentzVector p4(p4p.X(), p4p.Y(), p4p.Z(), p4p.E());
-    reco::Particle::Point vtx(0., 0., z0);
+    reco::Particle::Point vtx(tk.POCA().x(), tk.POCA().y(), z0);
 
     auto caloetaphi = l1tpf::propagateToCalo(p4, math::XYZTLorentzVector(0., 0., z0, 0.), charge, fBz_);
 
     float trkErr = resolTrk_(pt, std::abs(eta));
     float caloErr = resolCalo_(pt, std::abs(eta));
-    int quality = 1;
+    int quality = 0;
+    for (int i = 0, n = qualityBitSetters_.size(), bit = 1; i < n; ++i, bit <<= 1) {
+      if (qualityBitSetters_[i](tk))
+        quality += bit;
+    }
     out->emplace_back(charge,
                       p4,
                       vtx,
@@ -81,6 +92,25 @@ void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::
                       trkErr,
                       caloErr,
                       quality);
+
+    if (redigitizeTrackWord_) {
+      // Force re-digitization if an old TTrack object is read from an EDM file, and update the quaility bit for now
+      l1t::PFTrack::L1TTTrackType trackCopy = tk;
+      trackCopy.setTrackWordBits();  // important
+      TTTrack_TrackWord &tw = out->back().trackWord();
+      tw.setTrackWord(trackCopy.getValidWord(),
+                      trackCopy.getRinvWord(),
+                      trackCopy.getPhiWord(),
+                      trackCopy.getTanlWord(),
+                      trackCopy.getZ0Word(),
+                      trackCopy.getD0Word(),
+                      trackCopy.getChi2RPhiWord(),
+                      trackCopy.getChi2RZWord(),
+                      trackCopy.getBendChi2Word(),
+                      trackCopy.getHitPatternWord(),
+                      trackCopy.getMVAQualityWord(),
+                      ap_uint<TTTrack_TrackWord::kMVAOtherSize>(quality));
+    }
   }
   iEvent.put(std::move(out));
 }

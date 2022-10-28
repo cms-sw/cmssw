@@ -1,11 +1,9 @@
-<use name="CalibFormats/SiStripObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="DataFormats/SiStripCommon"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DQMServices/Core"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

@@ -7,6 +7,7 @@ cleaningParameters = cms.PSet(
         andOr         = cms.bool( False ),
         #dbLabel       = cms.string( 'jetmet_trigsel' ), # will be discussed below (DB)
         #dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+        #dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" ),
         #dcsPartitions = cms.vint32( 24, 25, 26, 27 ),
         #andOrDcs      = cms.bool( False ),
         #errorReplyDcs = cms.bool( False ),

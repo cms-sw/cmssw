@@ -7,7 +7,7 @@ def enablePileUpCorrectionInPF2PAT( process, postfix, sequence='PF2PAT'):
 
     # pile up subtraction
     getattr(process,"pfNoPileUp"+postfix).enable = True 
-    getattr(process,"pfPileUp"+postfix).Enable = True 
+    getattr(process,"pfPileUp"+postfix).enable = True 
     getattr(process,"pfPileUp"+postfix).checkClosestZVertex = False 
     getattr(process,"pfPileUp"+postfix).Vertices = 'goodOfflinePrimaryVertices'
 

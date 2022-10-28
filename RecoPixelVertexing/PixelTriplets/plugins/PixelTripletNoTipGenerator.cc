@@ -1,4 +1,5 @@
 #include "PixelTripletNoTipGenerator.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,6 +27,8 @@ using namespace std;
 
 PixelTripletNoTipGenerator::PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : HitTripletGeneratorFromPairAndLayers(cfg),
+      fieldToken_(iC.esConsumes()),
+      msmakerToken_(iC.esConsumes()),
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
       extraHitPhiToleranceForPreFiltering(cfg.getParameter<double>("extraHitPhiToleranceForPreFiltering")),
@@ -69,11 +72,14 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
 
   const RecHitsSortedInPhi** thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il = 0; il <= size - 1; il++) {
-    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
+    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region);
   }
 
-  MultipleScatteringParametrisation sigma1RPhi(firstLayer, es);
-  MultipleScatteringParametrisation sigma2RPhi(secondLayer, es);
+  const auto& field = es.getData(fieldToken_);
+  const auto& msmaker = es.getData(msmakerToken_);
+
+  MultipleScatteringParametrisation sigma1RPhi = msmaker.parametrisation(firstLayer);
+  MultipleScatteringParametrisation sigma2RPhi = msmaker.parametrisation(secondLayer);
 
   typedef RecHitsSortedInPhi::Hit Hit;
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
@@ -81,7 +87,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
     GlobalPoint p2((*ip).outer()->globalPosition() - shift);
 
     ThirdHitPredictionFromInvLine predictionRPhiTMP(p1, p2);
-    double pt_p1p2 = 1. / PixelRecoUtilities::inversePt(predictionRPhiTMP.curvature(), es);
+    double pt_p1p2 = 1. / PixelRecoUtilities::inversePt(predictionRPhiTMP.curvature(), field);
 
     PixelRecoPointRZ point1(p1.perp(), p1.z());
     PixelRecoPointRZ point2(p2.perp(), p2.z());
@@ -100,7 +106,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
     for (int il = 0; il <= size - 1; il++) {
       const DetLayer* layer = thirdLayers[il].detLayer();
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
-      MultipleScatteringParametrisation sigma3RPhi(layer, es);
+      MultipleScatteringParametrisation sigma3RPhi = msmaker.parametrisation(layer);
       double msRPhi3 = sigma3RPhi(pt_p1p2, line.cotLine(), point2);
 
       Range rRange;
@@ -165,7 +171,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
         Range hitZRange(z3Hit - z3HitError, z3Hit + z3HitError);
         bool inside = hitZRange.hasIntersection(zRange);
 
-        double curvatureMS = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+        double curvatureMS = PixelRecoUtilities::curvature(1. / region.ptMin(), field);
         bool ptCut = (predictionRPhi.curvature() - theNSigma * predictionRPhi.errorCurvature() < curvatureMS);
         bool chi2Cut = (predictionRPhi.chi2() < theChi2Cut);
         if (inside && ptCut && chi2Cut) {

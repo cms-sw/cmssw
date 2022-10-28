@@ -18,7 +18,6 @@ process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 
 #DTTriggerPhase2
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
-#process.dtTriggerPhase2PrimitiveDigis.trigger_with_sl = 3  #4 means SL 1 and 3
 #for the moment the part working in phase2 format is the slice test
 #process.dtTriggerPhase2PrimitiveDigis.p2_df = 0 //0 is phase1, 1 is slice test, 2 is phase2(carlo-federica)
 

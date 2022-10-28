@@ -13,6 +13,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
+        'keep *_slimmedJPTJets_*_*',
         'keep *_slimmedJets_*_*',
         # keep slimmedJets TagInfos, currently only PixelClusterTagInfo
         'keep recoBaseTagInfosOwned_slimmedJets_*_*',
@@ -95,6 +96,12 @@ MicroEventContent = cms.PSet(
         # patLowPtElectrons
         'keep *_slimmedLowPtElectrons_*_*',
         'keep *_gsfTracksOpenConversions_*_*',
+        # patDisplacedMuons
+        'keep *_slimmedDisplacedMuons_*_*',
+        'keep recoTrackExtras_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep TrackingRecHitsOwned_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep SiPixelClusteredmNewDetSetVector_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep SiStripClusteredmNewDetSetVector_slimmedDisplacedMuonTrackExtras_*_*',
     )
 )
 
@@ -162,7 +169,7 @@ MicroEventContentMC.outputCommands += [
                                         # RUN
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
-_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*']
+_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*','keep edmGenHIEvent_heavyIon_*_*']
 pp_on_AA.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
@@ -186,7 +193,7 @@ cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
 
-_phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
+_phase2_hgc_extraCommands = ["keep *_slimmedElectronsHGC_*_*", "keep *_slimmedPhotonsHGC_*_*"]
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_hgc_extraCommands)
 

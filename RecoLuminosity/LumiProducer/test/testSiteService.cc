@@ -1,6 +1,6 @@
 #ifndef RecoLuminosity_LumiProducer_testSiteService_h
 #define RecoLuminosity_LumiProducer_testSiteService_h
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -13,23 +13,19 @@
 
 #include <iostream>
 
-class testSiteService : public edm::EDAnalyzer {
+class testSiteService : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit testSiteService(edm::ParameterSet const&);
-  virtual ~testSiteService();
 
 private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void beginJob() override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override {}
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endJob() override;
 };  //end class
 // -----------------------------------------------------------------
 testSiteService::testSiteService(edm::ParameterSet const& iConfig) {}
-// -----------------------------------------------------------------
-testSiteService::~testSiteService() {}
 // -----------------------------------------------------------------
 void testSiteService::analyze(edm::Event const& e, edm::EventSetup const&) {}
 // -----------------------------------------------------------------
@@ -52,10 +48,6 @@ void testSiteService::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
 }
 // -----------------------------------------------------------------
 void testSiteService::beginJob() { std::cout << "testEvtLoop::beginJob" << std::endl; }
-// -----------------------------------------------------------------
-void testSiteService::beginRun(const edm::Run& run, const edm::EventSetup& c) {}
-// -----------------------------------------------------------------
-void testSiteService::endRun(edm::Run const& run, edm::EventSetup const& c) {}
 // -----------------------------------------------------------------
 void testSiteService::endJob() {}
 DEFINE_FWK_MODULE(testSiteService);

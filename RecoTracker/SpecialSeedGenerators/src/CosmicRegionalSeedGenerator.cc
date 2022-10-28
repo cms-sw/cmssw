@@ -2,8 +2,6 @@
 #include <memory>
 #include <string>
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -18,26 +16,26 @@ using namespace reco;
 using namespace edm;
 
 CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const& conf, edm::ConsumesCollector&& iC)
-    : conf_(conf) {
+    : magfieldToken_(iC.esConsumes()) {
   edm::LogInfo("CosmicRegionalSeedGenerator") << "Begin Run:: Constructing  CosmicRegionalSeedGenerator";
 
-  regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+  edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
   ptMin_ = regionPSet.getParameter<double>("ptMin");
   rVertex_ = regionPSet.getParameter<double>("rVertex");
   zVertex_ = regionPSet.getParameter<double>("zVertex");
   deltaEta_ = regionPSet.getParameter<double>("deltaEtaRegion");
   deltaPhi_ = regionPSet.getParameter<double>("deltaPhiRegion");
 
-  edm::ParameterSet toolsPSet = conf_.getParameter<edm::ParameterSet>("ToolsPSet");
-  thePropagatorName_ = toolsPSet.getParameter<std::string>("thePropagatorName");
+  edm::ParameterSet toolsPSet = conf.getParameter<edm::ParameterSet>("ToolsPSet");
+  propagatorToken_ = iC.esConsumes(edm::ESInputTag("", toolsPSet.getParameter<std::string>("thePropagatorName")));
   regionBase_ = toolsPSet.getParameter<std::string>("regionBase");
 
-  edm::ParameterSet collectionsPSet = conf_.getParameter<edm::ParameterSet>("CollectionsPSet");
+  edm::ParameterSet collectionsPSet = conf.getParameter<edm::ParameterSet>("CollectionsPSet");
   recoMuonsCollection_ = collectionsPSet.getParameter<edm::InputTag>("recoMuonsCollection");
   recoTrackMuonsCollection_ = collectionsPSet.getParameter<edm::InputTag>("recoTrackMuonsCollection");
   recoL2MuonsCollection_ = collectionsPSet.getParameter<edm::InputTag>("recoL2MuonsCollection");
 
-  edm::ParameterSet regionInJetsCheckPSet = conf_.getParameter<edm::ParameterSet>("RegionInJetsCheckPSet");
+  edm::ParameterSet regionInJetsCheckPSet = conf.getParameter<edm::ParameterSet>("RegionInJetsCheckPSet");
   doJetsExclusionCheck_ = regionInJetsCheckPSet.getParameter<bool>("doJetsExclusionCheck");
   deltaRExclusionSize_ = regionInJetsCheckPSet.getParameter<double>("deltaRExclusionSize");
   jetsPtMin_ = regionInJetsCheckPSet.getParameter<double>("jetsPtMin");
@@ -63,6 +61,11 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     event.getByToken(measurementTrackerEventToken_, hmte);
     measurementTracker = hmte.product();
   }
+
+  //get the propagator
+  auto const& propagator = es.getData(propagatorToken_);
+  auto const& magfield = es.getData(magfieldToken_);
+
   //________________________________________
   //
   //Seeding on Sta muon (MC && Datas)
@@ -88,16 +91,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //get the jet collection
     edm::Handle<CaloJetCollection> caloJetsHandle;
     event.getByToken(recoCaloJetsToken_, caloJetsHandle);
-
-    //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
-
-    //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-    //const TrackerGeometry& theTracker(*theTrackerGeometry);
 
     //definition of the region
     //+++++++++++++++++++++++++
@@ -144,9 +137,9 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       if (staMuon->standAloneMuon()->outerPosition().y() > 0)
         initialRegionMomentum *= -1;
       GlobalTrajectoryParameters glb_parameters(
-          initialRegionPosition, initialRegionMomentum, charge, thePropagator->magneticField());
+          initialRegionPosition, initialRegionMomentum, charge, propagator.magneticField());
       FreeTrajectoryState fts(glb_parameters);
-      StateOnTrackerBound onBounds(thePropagator.product());
+      StateOnTrackerBound onBounds(&propagator);
       TrajectoryStateOnSurface outer = onBounds(fts);
 
       if (!outer.isValid()) {
@@ -200,7 +193,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //definition of the region
 
       result.push_back(std::make_unique<CosmicTrackingRegion>(
-          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, regionPSet, measurementTracker));
+          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, magfield, measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")
           << "Final CosmicTrackingRegion \n "
@@ -241,15 +234,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     edm::Handle<CaloJetCollection> caloJetsHandle;
     event.getByToken(recoCaloJetsToken_, caloJetsHandle);
 
-    //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
-
-    //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-
     //definition of the region
     //+++++++++++++++++++++++++
 
@@ -285,9 +269,9 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       if (cosmicMuon->outerPosition().y() > 0 && cosmicMuon->momentum().y() < 0)
         initialRegionMomentum *= -1;
       GlobalTrajectoryParameters glb_parameters(
-          initialRegionPosition, initialRegionMomentum, charge, thePropagator->magneticField());
+          initialRegionPosition, initialRegionMomentum, charge, propagator.magneticField());
       FreeTrajectoryState fts(glb_parameters);
-      StateOnTrackerBound onBounds(thePropagator.product());
+      StateOnTrackerBound onBounds(&propagator);
       TrajectoryStateOnSurface outer = onBounds(fts);
 
       if (!outer.isValid()) {
@@ -340,7 +324,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
 
       //definition of the region
       result.push_back(std::make_unique<CosmicTrackingRegion>(
-          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, regionPSet, measurementTracker));
+          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, magfield, measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")
           << "Final CosmicTrackingRegion \n "
@@ -376,15 +360,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     }
 
     LogDebug("CosmicRegionalSeedGenerator") << "L2 muons collection size = " << L2MuonsHandle->size();
-
-    //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
-
-    //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
 
     //definition of the region
     //+++++++++++++++++++++++++
@@ -425,9 +400,9 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       }
 
       GlobalTrajectoryParameters glb_parameters(
-          initialRegionPosition, initialRegionMomentum, charge, thePropagator->magneticField());
+          initialRegionPosition, initialRegionMomentum, charge, propagator.magneticField());
       FreeTrajectoryState fts(glb_parameters);
-      StateOnTrackerBound onBounds(thePropagator.product());
+      StateOnTrackerBound onBounds(&propagator);
       TrajectoryStateOnSurface outer = onBounds(fts);
 
       if (!outer.isValid()) {
@@ -456,7 +431,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
 
       //definition of the region
       result.push_back(std::make_unique<CosmicTrackingRegion>(
-          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, regionPSet, measurementTracker));
+          (-1) * regionMom, center, ptMin_, rVertex_, zVertex_, deltaEta_, deltaPhi_, magfield, measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")
           << "Final L2TrackingRegion \n "

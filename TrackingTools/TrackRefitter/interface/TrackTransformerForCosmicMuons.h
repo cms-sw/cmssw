@@ -19,21 +19,21 @@
  *  modified for zed ordering by N. Kypreos - UF <nicholas.theodore.kypreos@cern.ch> 
  */
 
-#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
-
-#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
-
-#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
-
-#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
+#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 namespace edm {
   class ParameterSet;
@@ -52,7 +52,7 @@ class Trajectory;
 class TrackTransformerForCosmicMuons : public TrackTransformerBase {
 public:
   /// Constructor
-  TrackTransformerForCosmicMuons(const edm::ParameterSet&);
+  TrackTransformerForCosmicMuons(const edm::ParameterSet&, edm::ConsumesCollector);
 
   /// Destructor
   ~TrackTransformerForCosmicMuons() override;
@@ -85,6 +85,17 @@ public:
 
 protected:
 private:
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> theIOpropToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> theOIpropToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> thGlobTrackGeoToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theIOFitterToken;
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theOIFitterToken;
+  const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> theIOSmootherToken;
+  const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> theOISmootherToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTkRecHitBuildToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuildToken;
+
   edm::ESHandle<Propagator> thePropagatorIO;
   edm::ESHandle<Propagator> thePropagatorOI;
 

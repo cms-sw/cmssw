@@ -14,8 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
 
 #include <vector>
 #include <string>
@@ -28,6 +28,8 @@ public:
 
   // constructor
   ComparatorCodeLUT(const edm::ParameterSet& conf);
+
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
 
   // runs the CCLUT procedure
   void run(CSCCLCTDigi& digi, unsigned numCFEBs) const;
@@ -44,17 +46,11 @@ private:
   // actual LUT used
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
 
-  std::vector<std::string> positionLUTFiles_;
-  std::vector<std::string> slopeLUTFiles_;
-  std::vector<std::string> patternConversionLUTFiles_;
-
-  // unique pointers to the luts
-  std::array<std::unique_ptr<CSCLUTReader>, CSCConstants::NUM_CLCT_PATTERNS_RUN3> lutpos_;
-  std::array<std::unique_ptr<CSCLUTReader>, CSCConstants::NUM_CLCT_PATTERNS_RUN3> lutslope_;
-  std::array<std::unique_ptr<CSCLUTReader>, CSCConstants::NUM_CLCT_PATTERNS_RUN3> lutpatconv_;
-
   // verbosity level
   unsigned infoV_;
+
+  // access to lookup tables via eventsetup
+  const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
 };
 
 #endif

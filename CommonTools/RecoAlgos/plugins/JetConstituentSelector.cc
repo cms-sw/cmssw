@@ -44,16 +44,10 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
-    desc.add<std::string>("cut")->setComment(
-        "Cut used by which to select jets.  For example:\n"
-        "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
-
-    // addDefault must be used here instead of add unless this function is specialized
-    // for different sets of template parameter types. Each specialization would need
-    // a different module label. Otherwise the generated cfi filenames will conflict
-    // for the different plugins.
-    descriptions.addDefault(desc);
+    desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("InputTag used for retrieving jets in event.");
+    desc.add<std::string>("cut", "")->setComment(
+        "Cut used by which to select jets. For example:\n  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
+    descriptions.addWithDefaultLabel(desc);
   }
 
   // Default initialization is for edm::FwdPtr. Specialization (below) is for edm::Ptr.

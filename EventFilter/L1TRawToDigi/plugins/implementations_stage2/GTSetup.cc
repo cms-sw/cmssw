@@ -21,6 +21,7 @@ namespace l1t {
       desc.addOptional<edm::InputTag>("GtInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("ExtInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("MuonInputTag")->setComment("for stage2");
+      desc.addOptional<edm::InputTag>("ShowerInputTag")->setComment("for Run3");
       desc.addOptional<edm::InputTag>("EGammaInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("JetInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("TauInputTag")->setComment("for stage2");
@@ -30,8 +31,9 @@ namespace l1t {
     PackerMap GTSetup::getPackers(int fed, unsigned int fw) {
       PackerMap res;
 
-      if (fed == 1404) {
+      if ((fed == 1404) || (fed == 1405)) {
         // Use board id 1 for packing
+        //fed id 1404 corresponds to the production crate, 1405 to the test crate
         auto gt_muon_packer =
             static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
         gt_muon_packer->setFed(fed);
@@ -50,6 +52,7 @@ namespace l1t {
 
     void GTSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<MuonBxCollection>("Muon");
+      prod.produces<MuonShowerBxCollection>("MuonShower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");
       prod.produces<JetBxCollection>("Jet");
@@ -58,6 +61,7 @@ namespace l1t {
       prod.produces<GlobalExtBlkBxCollection>();
       for (int i = 2; i < 7; ++i) {  // Collections from boards 2-6
         prod.produces<MuonBxCollection>("Muon" + std::to_string(i));
+        prod.produces<MuonShowerBxCollection>("MuonShower" + std::to_string(i));
         prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
         prod.produces<EtSumBxCollection>("EtSum" + std::to_string(i));
         prod.produces<JetBxCollection>("Jet" + std::to_string(i));
@@ -98,8 +102,9 @@ namespace l1t {
 
       UnpackerMap res;
 
-      if (fed == 1404) {
+      if ((fed == 1404) || (fed == 1405)) {
         // From the rx buffers
+        // fed id 1404 corresponds to the production crate, 1405 to the test crate
         res[0] = muon_unp;
         res[2] = muon_unp;
         res[4] = muon_unp;

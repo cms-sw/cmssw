@@ -1,12 +1,31 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
-#include "Timestamp.h"
 #include <iostream>
+#include <string>
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+// class decleration
+class Timestamp : public edm::one::EDAnalyzer<> {
+public:
+  explicit Timestamp(const edm::ParameterSet& iConfig);
+  virtual ~Timestamp();
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void endJob();
+
+private:
+  std::string m_record;
+};
 
 Timestamp::Timestamp(const edm::ParameterSet& iConfig) : m_record(iConfig.getParameter<std::string>("record")) {
   std::cout << "Timestamp::Timestamp" << std::endl;
@@ -33,7 +52,7 @@ void Timestamp::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
   std::cout << myped.m_pedestals[1].m_mean << std::endl;
   std::cout << "currentTime " << mydbservice->currentTime() << std::endl;
   if (mydbservice->currentTime() % 5 == 0) {
-    mydbservice->writeOne(&myped, mydbservice->currentTime(), m_record);
+    mydbservice->writeOneIOV(myped, mydbservice->currentTime(), m_record);
   }
 }
 void Timestamp::endJob() {}

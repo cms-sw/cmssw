@@ -20,7 +20,7 @@
 
 // user include files
 #include "Fireworks/Core/src/FWExpressionValidator.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 
 //
 // constants, enums and typedefs

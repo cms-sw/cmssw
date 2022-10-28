@@ -7,14 +7,13 @@
 class AnomalousTower {
 public:
   explicit AnomalousTower(const edm::ParameterSet&);
+  AnomalousTower() = delete;
   virtual ~AnomalousTower() {}
 
   // operator() returns "true" if the tower is anomalous
   virtual bool operator()(const reco::Candidate& input) const;
 
 private:
-  AnomalousTower() = delete;
-
   const unsigned maxBadEcalCells;          // maximum number of bad ECAL cells
   const unsigned maxRecoveredEcalCells;    // maximum number of recovered ECAL cells
   const unsigned maxProblematicEcalCells;  // maximum number of problematic ECAL cells

@@ -24,7 +24,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
   iEvent.getByToken(tpToken_, trackingParticleHandle_);
 
   //  const TrackerTopology* const tTopo = theTrackerTopology_.product();
-  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry_.product();
+  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(theTrackerGeometryToken_);
 
   /// Preliminary task: map SimTracks by TrackingParticle
   /// Prepare the map

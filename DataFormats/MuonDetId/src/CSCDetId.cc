@@ -76,6 +76,12 @@ std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber
   return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber);
 }
 
+std::string CSCDetId::layerName(int endcap, int station, int ring, int chamber, int layer) {
+  const std::string eSign = endcap == 1 ? "+" : "-";
+  return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber) + "/" +
+         std::to_string(layer);
+}
+
 std::string CSCDetId::chamberName(int chamberType) {
   // ME1a, ME1b, ME12, ME13, ME21, ME22, ME31, ME32, ME41, ME42
   const unsigned stations[10] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4};
@@ -84,6 +90,8 @@ std::string CSCDetId::chamberName(int chamberType) {
 }
 
 std::string CSCDetId::chamberName() const { return chamberName(endcap(), station(), ring(), chamber()); }
+
+std::string CSCDetId::layerName() const { return layerName(endcap(), station(), ring(), chamber(), layer()); }
 
 std::ostream& operator<<(std::ostream& os, const CSCDetId& id) {
   // Note that there is no endl to end the output

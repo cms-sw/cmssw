@@ -8,7 +8,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -54,6 +53,7 @@ private:
   // fix for consumes
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollection_token_;
   edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_token_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> ecalPeds;
 
   MonitorElement *meEEUncalibRecHitsOccupancyPlus_;
   MonitorElement *meEEUncalibRecHitsOccupancyMinus_;

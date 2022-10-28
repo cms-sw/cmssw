@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +17,7 @@
 
 using namespace edm;
 
-class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
+class TrackInfoAnalyzerExample : public edm::one::EDAnalyzer<> {
   edm::EDGetTokenT<reco::TrackInfoTrackAssociationCollection> TItkassociatorCollectionToken;
   edm::EDGetTokenT<reco::TrackCollection> tkCollectionToken;
 

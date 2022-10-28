@@ -30,9 +30,8 @@ private:
   bool isBCMeson(const reco::GenParticle& gp) const;
   bool isBCBaryon(const reco::GenParticle& gp) const;
 
-  //constants:
-  const float FILTER_ETA_MAX_;
   //filter parameters:
+  const float maxAbsEta_;
   const float eTThreshold_;
   const edm::EDGetTokenT<reco::GenParticleCollection> genParSource_;
 };

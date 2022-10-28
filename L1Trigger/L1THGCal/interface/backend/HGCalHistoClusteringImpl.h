@@ -15,9 +15,9 @@ class HGCalHistoClusteringImpl {
 public:
   HGCalHistoClusteringImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    shape_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    shape_.setGeometry(geom);
     if ((!dr_byLayer_coefficientA_.empty() && (dr_byLayer_coefficientA_.size() - 1) < triggerTools_.lastLayerBH()) ||
         (!dr_byLayer_coefficientB_.empty() && (dr_byLayer_coefficientB_.size() - 1) < triggerTools_.lastLayerBH())) {
       throw cms::Exception("Configuration")

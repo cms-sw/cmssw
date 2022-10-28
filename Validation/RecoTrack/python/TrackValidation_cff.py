@@ -6,8 +6,6 @@ from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
 from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import Validation.RecoTrack.cutsRecoTracks_cfi as cutsRecoTracks_cfi
 #from . import cutsRecoTracks_cfi
@@ -23,7 +21,6 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-import six
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -184,7 +181,7 @@ def _taskForEachEra(function, args, names, task, modDict, plainArgs=[], modifyTa
         _era.toReplaceWith(defaultTask, modDict[task+_postfix])
 def _setForEra(module, eraName, era, **kwargs):
     if eraName == "":
-        for key, value in six.iteritems(kwargs):
+        for key, value in kwargs.items():
             setattr(module, key, value)
     else:
         era.toModify(module, **kwargs)
@@ -244,7 +241,7 @@ def _getMVASelectors(postfix):
     mvaSel = _utils.getMVASelectors(postfix)
 
     pset = cms.untracked.PSet()
-    for iteration, (trackProducer, classifiers) in six.iteritems(mvaSel):
+    for iteration, (trackProducer, classifiers) in mvaSel.items():
         setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:
@@ -1003,10 +1000,10 @@ trackSelector = cms.EDFilter('TrackSelector',
                              cut = cms.string("")
 )
 
-cutstring = "numberOfValidHits == 3"
+cutstring = "hitPattern.trackerLayersWithMeasurement == 3"
 pixelTracks3hits = trackRefSelector.clone( cut = cutstring )
 
-cutstring = "numberOfValidHits >= 4"
+cutstring = "hitPattern.trackerLayersWithMeasurement >= 4"
 pixelTracks4hits = trackRefSelector.clone( cut = cutstring )
 
 cutstring = "pt > 0.9"
@@ -1017,7 +1014,7 @@ pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.
 #pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["loose","tight","highPurity"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
 pixelTracksFromPVPt09 = pixelTracksFromPV.clone(ptMin = 0.9)
 
-cutstring = "numberOfValidHits >= 4"
+cutstring = "hitPattern.trackerLayersWithMeasurement >= 4"
 #pixelTracksFromPV4hits = trackRefSelector.clone( cut = cutstring, src = "pixelTracksFromPV" )
 pixelTracksFromPV4hits = pixelTracksFromPV.clone( numberOfValidPixelHits = 4 )
 
@@ -1127,7 +1124,7 @@ for key,value in quality.items():
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #-----------         
     label = "pixelTracks4hits"+key
-    cutstring = "numberOfValidHits == 4 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
+    cutstring = "hitPattern.trackerLayersWithMeasurement >= 4 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
     
@@ -1137,7 +1134,7 @@ for key,value in quality.items():
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #--------    
     label = "pixelTracks3hits"+key
-    cutstring = "numberOfValidHits == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
+    cutstring = "hitPattern.trackerLayersWithMeasurement == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
      

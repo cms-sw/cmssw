@@ -162,168 +162,195 @@
 class L1TConfigDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TConfigDumper(const edm::ParameterSet&);
-  ~L1TConfigDumper() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyList, L1TriggerKeyListRcd> AToken_;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> BToken_;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> CToken_;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> DToken_;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> EToken_;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> FToken_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> GToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> HToken_;
+  edm::ESGetToken<L1MuGMTScales, L1MuGMTScalesRcd> IToken_;
+  edm::ESGetToken<L1MuCSCTFConfiguration, L1MuCSCTFConfigurationRcd> JToken_;
+  edm::ESGetToken<L1MuCSCTFAlignment, L1MuCSCTFAlignmentRcd> KToken_;
+  edm::ESGetToken<L1MuCSCPtLut, L1MuCSCPtLutRcd> LToken_;
+  edm::ESGetToken<L1MuDTEtaPatternLut, L1MuDTEtaPatternLutRcd> MToken_;
+  edm::ESGetToken<L1MuDTExtLut, L1MuDTExtLutRcd> NToken_;
+  edm::ESGetToken<L1MuDTPhiLut, L1MuDTPhiLutRcd> OToken_;
+  edm::ESGetToken<L1MuDTPtaLut, L1MuDTPtaLutRcd> PToken_;
+  edm::ESGetToken<L1MuDTQualPatternLut, L1MuDTQualPatternLutRcd> QToken_;
+  edm::ESGetToken<L1MuDTTFParameters, L1MuDTTFParametersRcd> RToken_;
+  edm::ESGetToken<L1RPCConfig, L1RPCConfigRcd> SToken_;
+  edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> TToken_;
+  edm::ESGetToken<L1RPCHsbConfig, L1RPCHsbConfigRcd> UToken_;
+  edm::ESGetToken<L1RPCBxOrConfig, L1RPCBxOrConfigRcd> VToken_;
+  edm::ESGetToken<L1MuGMTParameters, L1MuGMTParametersRcd> WToken_;
+  edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> XToken_;
+  edm::ESGetToken<L1CaloEcalScale, L1CaloEcalScaleRcd> YToken_;
+  edm::ESGetToken<L1CaloHcalScale, L1CaloHcalScaleRcd> ZToken_;
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> AAToken_;
+  edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> BBToken_;
+  edm::ESGetToken<L1GtParameters, L1GtParametersRcd> CCToken_;
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> DDToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> EEToken_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> FFToken_;
+  edm::ESGetToken<L1GtPsbSetup, L1GtPsbSetupRcd> GGToken_;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> HHToken_;
+  edm::ESGetToken<L1MuDTTFMasks, L1MuDTTFMasksRcd> IIToken_;
+  edm::ESGetToken<L1MuGMTChannelMask, L1MuGMTChannelMaskRcd> JJToken_;
+  edm::ESGetToken<L1RCTChannelMask, L1RCTChannelMaskRcd> KKToken_;
+  edm::ESGetToken<L1RCTNoisyChannelMask, L1RCTNoisyChannelMaskRcd> LLToken_;
+  edm::ESGetToken<L1GctChannelMask, L1GctChannelMaskRcd> MMToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> NNToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> OOToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> PPToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> QQToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> RRToken_;
 };
 
 L1TConfigDumper::L1TConfigDumper(const edm::ParameterSet& iConfig)
-
-{}
-
-L1TConfigDumper::~L1TConfigDumper() {}
+    : AToken_(esConsumes()),
+      BToken_(esConsumes()),
+      CToken_(esConsumes()),
+      DToken_(esConsumes()),
+      EToken_(esConsumes()),
+      FToken_(esConsumes()),
+      GToken_(esConsumes()),
+      HToken_(esConsumes()),
+      IToken_(esConsumes()),
+      JToken_(esConsumes()),
+      KToken_(esConsumes()),
+      LToken_(esConsumes()),
+      MToken_(esConsumes()),
+      NToken_(esConsumes()),
+      OToken_(esConsumes()),
+      PToken_(esConsumes()),
+      QToken_(esConsumes()),
+      RToken_(esConsumes()),
+      SToken_(esConsumes()),
+      TToken_(esConsumes()),
+      UToken_(esConsumes()),
+      VToken_(esConsumes()),
+      WToken_(esConsumes()),
+      XToken_(esConsumes()),
+      YToken_(esConsumes()),
+      ZToken_(esConsumes()),
+      AAToken_(esConsumes()),
+      BBToken_(esConsumes()),
+      CCToken_(esConsumes()),
+      DDToken_(esConsumes()),
+      EEToken_(esConsumes()),
+      FFToken_(esConsumes()),
+      GGToken_(esConsumes()),
+      HHToken_(esConsumes()),
+      IIToken_(esConsumes()),
+      JJToken_(esConsumes()),
+      KKToken_(esConsumes()),
+      LLToken_(esConsumes()),
+      MMToken_(esConsumes()),
+      NNToken_(esConsumes()),
+      OOToken_(esConsumes()),
+      PPToken_(esConsumes()),
+      QQToken_(esConsumes()),
+      RRToken_(esConsumes()) {}
 
 void L1TConfigDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<L1TriggerKeyList> A;
-  iSetup.get<L1TriggerKeyListRcd>().get(A);
+  edm::ESHandle<L1TriggerKeyList> A = iSetup.getHandle(AToken_);
 
-  edm::ESHandle<L1TriggerKey> B;
-  iSetup.get<L1TriggerKeyRcd>().get(B);
+  edm::ESHandle<L1TriggerKey> B = iSetup.getHandle(BToken_);
 
-  //edm::ESHandle< L1JetEtScale > C;
-  edm::ESHandle<L1CaloEtScale> C;
-  iSetup.get<L1JetEtScaleRcd>().get(C);
+  edm::ESHandle<L1CaloEtScale> C = iSetup.getHandle(CToken_);
 
-  //edm::ESHandle< L1EmEtScale > D;
-  edm::ESHandle<L1CaloEtScale> D;
-  iSetup.get<L1EmEtScaleRcd>().get(D);
+  edm::ESHandle<L1CaloEtScale> D = iSetup.getHandle(DToken_);
 
-  //edm::ESHandle< L1HtMissScale > E;
-  edm::ESHandle<L1CaloEtScale> E;
-  iSetup.get<L1HtMissScaleRcd>().get(E);
+  edm::ESHandle<L1CaloEtScale> E = iSetup.getHandle(EToken_);
 
-  //edm::ESHandle< L1HfRingEtScale > F;
-  edm::ESHandle<L1CaloEtScale> F;
-  iSetup.get<L1HfRingEtScaleRcd>().get(F);
+  edm::ESHandle<L1CaloEtScale> F = iSetup.getHandle(FToken_);
 
-  edm::ESHandle<L1MuTriggerScales> G;
-  iSetup.get<L1MuTriggerScalesRcd>().get(G);
+  edm::ESHandle<L1MuTriggerScales> G = iSetup.getHandle(GToken_);
 
-  edm::ESHandle<L1MuTriggerPtScale> H;
-  iSetup.get<L1MuTriggerPtScaleRcd>().get(H);
+  edm::ESHandle<L1MuTriggerPtScale> H = iSetup.getHandle(HToken_);
 
-  edm::ESHandle<L1MuGMTScales> I;
-  iSetup.get<L1MuGMTScalesRcd>().get(I);
+  edm::ESHandle<L1MuGMTScales> I = iSetup.getHandle(IToken_);
 
-  edm::ESHandle<L1MuCSCTFConfiguration> J;
-  iSetup.get<L1MuCSCTFConfigurationRcd>().get(J);
+  edm::ESHandle<L1MuCSCTFConfiguration> J = iSetup.getHandle(JToken_);
 
-  edm::ESHandle<L1MuCSCTFAlignment> K;
-  iSetup.get<L1MuCSCTFAlignmentRcd>().get(K);
+  edm::ESHandle<L1MuCSCTFAlignment> K = iSetup.getHandle(KToken_);
 
-  edm::ESHandle<L1MuCSCPtLut> L;
-  iSetup.get<L1MuCSCPtLutRcd>().get(L);
+  edm::ESHandle<L1MuCSCPtLut> L = iSetup.getHandle(LToken_);
 
-  edm::ESHandle<L1MuDTEtaPatternLut> M;
-  iSetup.get<L1MuDTEtaPatternLutRcd>().get(M);
+  edm::ESHandle<L1MuDTEtaPatternLut> M = iSetup.getHandle(MToken_);
 
-  edm::ESHandle<L1MuDTExtLut> N;
-  iSetup.get<L1MuDTExtLutRcd>().get(N);
+  edm::ESHandle<L1MuDTExtLut> N = iSetup.getHandle(NToken_);
 
-  edm::ESHandle<L1MuDTPhiLut> O;
-  iSetup.get<L1MuDTPhiLutRcd>().get(O);
+  edm::ESHandle<L1MuDTPhiLut> O = iSetup.getHandle(OToken_);
 
-  edm::ESHandle<L1MuDTPtaLut> P;
-  iSetup.get<L1MuDTPtaLutRcd>().get(P);
+  edm::ESHandle<L1MuDTPtaLut> P = iSetup.getHandle(PToken_);
 
-  edm::ESHandle<L1MuDTQualPatternLut> Q;
-  iSetup.get<L1MuDTQualPatternLutRcd>().get(Q);
+  edm::ESHandle<L1MuDTQualPatternLut> Q = iSetup.getHandle(QToken_);
 
-  edm::ESHandle<L1MuDTTFParameters> R;
-  iSetup.get<L1MuDTTFParametersRcd>().get(R);
+  edm::ESHandle<L1MuDTTFParameters> R = iSetup.getHandle(RToken_);
 
-  edm::ESHandle<L1RPCConfig> S;
-  iSetup.get<L1RPCConfigRcd>().get(S);
+  edm::ESHandle<L1RPCConfig> S = iSetup.getHandle(SToken_);
 
-  edm::ESHandle<L1RPCConeDefinition> T;
-  iSetup.get<L1RPCConeDefinitionRcd>().get(T);
+  edm::ESHandle<L1RPCConeDefinition> T = iSetup.getHandle(TToken_);
 
-  edm::ESHandle<L1RPCHsbConfig> U;
-  iSetup.get<L1RPCHsbConfigRcd>().get(U);
+  edm::ESHandle<L1RPCHsbConfig> U = iSetup.getHandle(UToken_);
 
-  edm::ESHandle<L1RPCBxOrConfig> V;
-  iSetup.get<L1RPCBxOrConfigRcd>().get(V);
+  edm::ESHandle<L1RPCBxOrConfig> V = iSetup.getHandle(VToken_);
 
-  edm::ESHandle<L1MuGMTParameters> W;
-  iSetup.get<L1MuGMTParametersRcd>().get(W);
+  edm::ESHandle<L1MuGMTParameters> W = iSetup.getHandle(WToken_);
 
-  edm::ESHandle<L1RCTParameters> X;
-  iSetup.get<L1RCTParametersRcd>().get(X);
+  edm::ESHandle<L1RCTParameters> X = iSetup.getHandle(XToken_);
 
-  edm::ESHandle<L1CaloEcalScale> Y;
-  iSetup.get<L1CaloEcalScaleRcd>().get(Y);
+  edm::ESHandle<L1CaloEcalScale> Y = iSetup.getHandle(YToken_);
 
-  edm::ESHandle<L1CaloHcalScale> Z;
-  iSetup.get<L1CaloHcalScaleRcd>().get(Z);
+  edm::ESHandle<L1CaloHcalScale> Z = iSetup.getHandle(ZToken_);
 
-  edm::ESHandle<L1GctJetFinderParams> AA;
-  iSetup.get<L1GctJetFinderParamsRcd>().get(AA);
+  edm::ESHandle<L1GctJetFinderParams> AA = iSetup.getHandle(AAToken_);
 
-  edm::ESHandle<L1GtBoardMaps> BB;
-  iSetup.get<L1GtBoardMapsRcd>().get(BB);
+  edm::ESHandle<L1GtBoardMaps> BB = iSetup.getHandle(BBToken_);
 
-  edm::ESHandle<L1GtParameters> CC;
-  iSetup.get<L1GtParametersRcd>().get(CC);
+  edm::ESHandle<L1GtParameters> CC = iSetup.getHandle(CCToken_);
 
-  edm::ESHandle<L1GtStableParameters> DD;
-  iSetup.get<L1GtStableParametersRcd>().get(DD);
+  edm::ESHandle<L1GtStableParameters> DD = iSetup.getHandle(DDToken_);
 
-  //edm::ESHandle< L1GtTriggerMaskVetoAlgoTrig > EE;
-  edm::ESHandle<L1GtTriggerMask> EE;
-  iSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(EE);
+  edm::ESHandle<L1GtTriggerMask> EE = iSetup.getHandle(EEToken_);
 
-  edm::ESHandle<L1GtTriggerMenu> FF;
-  iSetup.get<L1GtTriggerMenuRcd>().get(FF);
+  edm::ESHandle<L1GtTriggerMenu> FF = iSetup.getHandle(FFToken_);
 
-  edm::ESHandle<L1GtPsbSetup> GG;
-  iSetup.get<L1GtPsbSetupRcd>().get(GG);
+  edm::ESHandle<L1GtPsbSetup> GG = iSetup.getHandle(GGToken_);
 
-  edm::ESHandle<L1CaloGeometry> HH;
-  iSetup.get<L1CaloGeometryRecord>().get(HH);  // Record spelled out
+  edm::ESHandle<L1CaloGeometry> HH = iSetup.getHandle(HHToken_);
 
-  edm::ESHandle<L1MuDTTFMasks> II;
-  iSetup.get<L1MuDTTFMasksRcd>().get(II);
+  edm::ESHandle<L1MuDTTFMasks> II = iSetup.getHandle(IIToken_);
 
-  edm::ESHandle<L1MuGMTChannelMask> JJ;
-  iSetup.get<L1MuGMTChannelMaskRcd>().get(JJ);
+  edm::ESHandle<L1MuGMTChannelMask> JJ = iSetup.getHandle(JJToken_);
 
-  edm::ESHandle<L1RCTChannelMask> KK;
-  iSetup.get<L1RCTChannelMaskRcd>().get(KK);
+  edm::ESHandle<L1RCTChannelMask> KK = iSetup.getHandle(KKToken_);
 
-  edm::ESHandle<L1RCTNoisyChannelMask> LL;
-  iSetup.get<L1RCTNoisyChannelMaskRcd>().get(LL);
+  edm::ESHandle<L1RCTNoisyChannelMask> LL = iSetup.getHandle(LLToken_);
 
-  edm::ESHandle<L1GctChannelMask> MM;
-  iSetup.get<L1GctChannelMaskRcd>().get(MM);
+  edm::ESHandle<L1GctChannelMask> MM = iSetup.getHandle(MMToken_);
 
-  //edm::ESHandle< L1GtPrescaleFactorsAlgoTrig > NN;
-  edm::ESHandle<L1GtPrescaleFactors> NN;
-  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(NN);
+  edm::ESHandle<L1GtPrescaleFactors> NN = iSetup.getHandle(NNToken_);
 
-  //edm::ESHandle< L1GtPrescaleFactorsTechTrig > OO;
-  edm::ESHandle<L1GtPrescaleFactors> OO;
-  iSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(OO);
+  edm::ESHandle<L1GtPrescaleFactors> OO = iSetup.getHandle(OOToken_);
 
-  //edm::ESHandle< L1GtTriggerMaskAlgoTrig > PP;
-  edm::ESHandle<L1GtTriggerMask> PP;
-  iSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(PP);
+  edm::ESHandle<L1GtTriggerMask> PP = iSetup.getHandle(PPToken_);
 
-  //edm::ESHandle< L1GtTriggerMaskTechTrig > QQ;
-  edm::ESHandle<L1GtTriggerMask> QQ;
-  iSetup.get<L1GtTriggerMaskTechTrigRcd>().get(QQ);
+  edm::ESHandle<L1GtTriggerMask> QQ = iSetup.getHandle(QQToken_);
 
-  //edm::ESHandle< L1GtTriggerMaskVetoTechTrig > RR;
-  edm::ESHandle<L1GtTriggerMask> RR;
-  iSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(RR);
+  edm::ESHandle<L1GtTriggerMask> RR = iSetup.getHandle(RRToken_);
 
   //edm::ESHandle< NumL1Cond > SS;
   //iSetup.get< NumL1CondRcd >().get( SS) ;
@@ -343,10 +370,6 @@ void L1TConfigDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   X->print(std::cout);
   //U->print(std::cout); // no member named 'print'
 }
-
-void L1TConfigDumper::beginJob() {}
-
-void L1TConfigDumper::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TConfigDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -14,3 +14,8 @@
     <flags TEST_RUNNER_ARGS="/bin/bash RecoVertex/BeamSpotProducer/test testReadWriteBSFromDB.sh"/>
   </bin>
 </environment>
+
+<bin file="testBeamSpotAnalyzer.cc">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>

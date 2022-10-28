@@ -70,11 +70,12 @@ protected:
   hcaldqm::Container1D _cEtEmul_TTSubdet;
   hcaldqm::Container2D _cEtCorr_TTSubdet;
   hcaldqm::Container2D _cSOIEtCorr_TTSubdet;
+  hcaldqm::Container2D _cSOIEtCorrEmulL1_TTSubdet;
   hcaldqm::Container2D _cEtCorr2x3_TTSubdet;  //	online only
   hcaldqm::Container2D _cFGCorr_TTSubdet[hcaldqm::constants::NUM_FGBITS];
   hcaldqm::ContainerProf1D _cEtCutDatavsLS_TTSubdet;  // online only!
   hcaldqm::ContainerProf1D _cEtCutEmulvsLS_TTSubdet;  // online only!
-  hcaldqm::ContainerProf1D _cEtCutDatavsBX_TTSubdet;  // online only!
+  hcaldqm::Container2D _cEtCutDatavsBX_TTSubdet;      // online only!
   hcaldqm::ContainerProf1D _cEtCutEmulvsBX_TTSubdet;  // online only!
 
   hcaldqm::ContainerProf2D _cEtData_ElectronicsuTCA;
@@ -163,6 +164,7 @@ protected:
   hcaldqm::ContainerSingle1D _cOccupancy_HF_ieta, _cOccupancyNoTDC_HF_ieta;
 
   // Container storing matched sent-received TPs
+  std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > _vEmulTPDigis_SentRec;
   std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > _vTPDigis_SentRec;
 };
 

@@ -6,7 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 //from lwtnn
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -14,7 +14,9 @@
 
 namespace {
   struct lwtnn {
-    lwtnn(const edm::ParameterSet& cfg) : lwtnnLabel_(cfg.getParameter<std::string>("lwtnnLabel")) {}
+    lwtnn(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+        : lwtnnLabel_(cfg.getParameter<std::string>("lwtnnLabel")),
+          lwtnnToken_(iC.esConsumes(edm::ESInputTag("", lwtnnLabel_))) {}
 
     static const char* name() { return "TrackLwtnnClassifier"; }
 
@@ -23,11 +25,7 @@ namespace {
     }
 
     void beginStream() {}
-    void initEvent(const edm::EventSetup& es) {
-      edm::ESHandle<lwt::LightweightNeuralNetwork> lwtnnHandle;
-      es.get<TrackingComponentsRecord>().get(lwtnnLabel_, lwtnnHandle);
-      neuralNetwork_ = lwtnnHandle.product();
-    }
+    void initEvent(const edm::EventSetup& es) { neuralNetwork_ = &es.getData(lwtnnToken_); }
 
     std::pair<float, bool> operator()(reco::Track const& trk,
                                       reco::BeamSpot const& beamSpot,
@@ -91,6 +89,7 @@ namespace {
     }
 
     std::string lwtnnLabel_;
+    edm::ESGetToken<lwt::LightweightNeuralNetwork, TrackingComponentsRecord> lwtnnToken_;
     const lwt::LightweightNeuralNetwork* neuralNetwork_;
   };
 

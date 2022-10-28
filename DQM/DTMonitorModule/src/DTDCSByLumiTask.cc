@@ -18,7 +18,6 @@
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Utilities/interface/Transition.h"

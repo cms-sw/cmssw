@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-process = cms.Process("MUTRKDQM", Run2_2018_pp_on_AA)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("MUTRKDQM", Run3)
 
 live=True
 unitTest=False
@@ -98,7 +99,7 @@ if (live):
 elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 
 
@@ -188,5 +189,6 @@ process.allPaths = cms.Path(process.hltHighLevel *
 from DQM.Integration.config.online_customizations_cfi import *
 
 process = customise(process)
-
+process.options.wantSummary = cms.untracked.bool(True)
+print("Final Source settings:", process.source)
 

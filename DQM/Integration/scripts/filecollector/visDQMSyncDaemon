@@ -52,7 +52,7 @@ INDEPQUEUES   = []
 
 REPODIR     = ""
 DESTDIR     = ""
-MAXQUOTA    = long(0)
+MAXQUOTA    = int(0)
 SAFEFACTOR  = 0.01
 currTime    = time.time()
 unitsDic    = {"B":0,"K":1,"M":2,"G":3,"T":4}
@@ -111,9 +111,9 @@ def getFileList(path, quota = -1,all = True):
       
   if quota > -1:
     for f in sorted(finalFileDict.keys(),key=lambda x:finalFileDict[x][0], reverse=True):
-      if aQuota+long(finalFileDict[f][1]) <= quota:
+      if aQuota+int(finalFileDict[f][1]) <= quota:
         fileList.append(f)
-        aQuota=aQuota+long(finalFileDict[f][1])
+        aQuota=aQuota+int(finalFileDict[f][1])
         continue
       break
   else:
@@ -148,12 +148,12 @@ try:
     elif opt == "--dirs":
       WATCHDIRS=val.split(",")
     elif "--dirs_quotas" == opt:
-      INDEPQUEUES=[ long(i[:-1])*pow(1024,unitsDic[i[-1]]) for i in val.split(",") if i!='' and len(i)>1]
+      INDEPQUEUES=[ int(i[:-1])*pow(1024,unitsDic[i[-1]]) for i in val.split(",") if i!='' and len(i)>1]
   if len(args) != 3:
     print __doc__
     logme('ERROR: Argument ')
     sys.exit(0)
-  MAXQUOTA= long(args[0][:-1])*pow(1024,unitsDic[args[0][-1]])
+  MAXQUOTA= int(args[0][:-1])*pow(1024,unitsDic[args[0][-1]])
   REPODIR = args[1]
   DESTDIR = args[2]      
   if WATCHDIRS:
@@ -168,7 +168,7 @@ try:
   totalQuotaAlloc=sum(dirsQuotaDic.values())
   totalDirs4Alloc=sum([1 for q in dirsQuotaDic.values() if q ==0])
   quota = 0
-  if totalDirs4Alloc > 0: quota=long((MAXQUOTA-totalQuotaAlloc)/totalDirs4Alloc*(1-SAFEFACTOR))
+  if totalDirs4Alloc > 0: quota=int((MAXQUOTA-totalQuotaAlloc)/totalDirs4Alloc*(1-SAFEFACTOR))
   if quota < 0 or totalQuotaAlloc+quota*totalDirs4Alloc > MAXQUOTA:
     logme('ERROR: Auto quota set up error, quota for unallocated directories %d ,Total Individual Quotas Allocation %d - MAX_QUOTA %d. please revise ',quota,totalQuotaAlloc+quota*totalDirs4Alloc, MAXQUOTA )
     sys.exit(0)   

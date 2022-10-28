@@ -269,7 +269,7 @@ private:
   /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
   double eidCutValue_;
   /// jet corrector as extra selection type
-  std::string jetCorrector_;
+  edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
   /// choice for b-tag as extra selection type
   edm::EDGetTokenT<reco::JetTagCollection> btagLabel_;
   /// choice of b-tag working point as extra selection type
@@ -301,7 +301,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
     eidCutValue_ = elecId.getParameter<double>("cutValue");
   }
   if (cfg.exists("jetCorrector")) {
-    jetCorrector_ = cfg.getParameter<std::string>("jetCorrector");
+    jetCorrector_ = iC.esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("jetCorrector")));
   }
   if (cfg.existsAs<edm::ParameterSet>("jetBTagger")) {
     edm::ParameterSet jetBTagger = cfg.getParameter<edm::ParameterSet>("jetBTagger");
@@ -468,10 +468,10 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
 
   // load jet corrector if configured such
   const JetCorrector* corrector = nullptr;
-  if (!jetCorrector_.empty()) {
+  if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
-      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+      corrector = &setup.getData(jetCorrector_);
     } else {
       edm::LogVerbatim("TopDQMHelpers") << "\n"
                                         << "---------------------------------------------------------------\n"

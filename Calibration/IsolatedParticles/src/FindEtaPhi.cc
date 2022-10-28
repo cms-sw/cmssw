@@ -1,18 +1,9 @@
 #include "Calibration/IsolatedParticles/interface/FindEtaPhi.h"
-#include <iostream>
-
-//#define EDM_ML_DEBUG
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace spr {
 
-  spr::EtaPhi getEtaPhi(int ieta,
-                        int iphi,
-                        bool
-#ifdef EDM_ML_DEBUG
-                            debug
-#endif
-  ) {
-
+  spr::EtaPhi getEtaPhi(int ieta, int iphi, bool debug) {
     int ietal = (ieta - 1) / 2;
     int ietar = ieta - ietal - 1;
     int iphil = (iphi - 1) / 2;
@@ -46,16 +37,15 @@ namespace spr {
       etaphi.iphiS[1] = iphil;
     }
 
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "getEtaPhi:: Has " << etaphi.ntrys << " possibilites for " << ieta << "X" << iphi << " matrix"
-                << std::endl;
+      edm::LogVerbatim("IsoTrack") << "getEtaPhi:: Has " << etaphi.ntrys << " possibilites for " << ieta << "X" << iphi
+                                   << " matrix";
       for (int itry = 0; itry < etaphi.ntrys; itry++) {
-        std::cout << "Trial " << itry << " with etaE|etaW " << etaphi.ietaE[itry] << "|" << etaphi.ietaW[itry]
-                  << " and phiN|PhiS " << etaphi.iphiN[itry] << "|" << etaphi.iphiS[itry] << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Trial " << itry << " with etaE|etaW " << etaphi.ietaE[itry] << "|"
+                                     << etaphi.ietaW[itry] << " and phiN|PhiS " << etaphi.iphiN[itry] << "|"
+                                     << etaphi.iphiS[itry];
       }
     }
-#endif
     return etaphi;
   }
 }  // namespace spr

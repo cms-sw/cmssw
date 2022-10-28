@@ -44,7 +44,7 @@ namespace edmtest {
 
   ConcurrentIOVAnalyzer::ConcurrentIOVAnalyzer(edm::ParameterSet const& pset)
       : checkExpectedValues_{pset.getUntrackedParameter<bool>("checkExpectedValues")},
-        esTokenFromESSource_{esConsumes(edm::ESInputTag("", ""))},
+        esTokenFromESSource_{esConsumes(pset.getUntrackedParameter<edm::ESInputTag>("fromSource"))},
         esTokenFromESProducer_{esConsumes(edm::ESInputTag("", "fromESProducer"))} {}
 
   void ConcurrentIOVAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& eventSetup) const {
@@ -138,6 +138,7 @@ namespace edmtest {
   void ConcurrentIOVAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.addUntracked<bool>("checkExpectedValues", true);
+    desc.addUntracked<edm::ESInputTag>("fromSource", edm::ESInputTag("", ""));
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

@@ -2,7 +2,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameterMap.h"
 #include <iostream>
 
 // some arbitrary numbers for now

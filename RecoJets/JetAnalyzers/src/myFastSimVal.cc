@@ -15,7 +15,6 @@
 // #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
@@ -702,9 +701,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   EtaOk10 = 0;
   EtaOk13 = 0;
   EtaOk40 = 0;
-
-  //  const JetCorrector* corrector =
-  //    JetCorrector::getJetCorrector (JetCorrectionService, es);
 
   double highestPt;
   double nextPt;

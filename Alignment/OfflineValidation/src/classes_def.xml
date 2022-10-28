@@ -3,4 +3,5 @@
   <class name="EopVariables"/>
   <class name="pvCand"/>
   <class name="pvEvent"/>
+  <class name="EopElecVariables"/>
 </lcgdict>

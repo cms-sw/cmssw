@@ -12,15 +12,8 @@ import gzip
 import hashlib
 from stat import *
 
-try:
-  import urllib.request as urllib2
-except ImportError:
-  import urllib2
-
-try:
-  from commands import getstatusoutput
-except ImportError:
-  from subprocess import getstatusoutput
+import urllib.request as urllib2
+from subprocess import getstatusoutput
 
 try:
   from Monitoring.DQM import visDQMUtils

@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Validation/HcalRecHits/interface/NoiseRatesClient.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,7 +26,7 @@ void NoiseRatesClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) 
   ig.setCurrentFolder(dirName_);
 
   if (verbose_)
-    std::cout << "\nrunClient" << std::endl;
+    edm::LogVerbatim("NoiseRates") << "\nrunClient";
 
   std::vector<MonitorElement *> hcalMEs;
 
@@ -35,20 +36,20 @@ void NoiseRatesClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) 
   std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
   for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
     if (verbose_)
-      std::cout << "\nfullPath: " << fullPathHLTFolders[i] << std::endl;
+      edm::LogVerbatim("NoiseRates") << "\nfullPath: " << fullPathHLTFolders[i];
     ig.setCurrentFolder(fullPathHLTFolders[i]);
 
     std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
     for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
       if (verbose_)
-        std::cout << "fullSub: " << fullSubPathHLTFolders[j] << std::endl;
+        edm::LogVerbatim("NoiseRates") << "fullSub: " << fullSubPathHLTFolders[j];
 
       if (strcmp(fullSubPathHLTFolders[j].c_str(), "NoiseRatesV/NoiseRatesTask") == 0) {
         hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
         if (verbose_)
-          std::cout << "hltMES size : " << hcalMEs.size() << std::endl;
+          edm::LogVerbatim("NoiseRates") << "hltMES size : " << hcalMEs.size();
         if (!NoiseRatesEndjob(hcalMEs))
-          std::cout << "\nError in NoiseRatesEndjob!" << std::endl << std::endl;
+          edm::LogVerbatim("NoiseRates") << "\nError in NoiseRatesEndjob!\n";
       }
     }
   }

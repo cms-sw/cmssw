@@ -10,9 +10,20 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 options = VarParsing ('analysis')
-options.register ("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register ("inputFilesGEM", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("readGEMData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+                 "The first run for this data. Typically for Run-3 it needs to be set high enough, so that \
+                  cmsRun recognizes GEM detectors as valid. That is the case starting run 341761. Beyond making \
+                  sure that the GEM detectors are there, firstRun does not have a meaning.")
+options.register("inputFilesGEM", "", VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 "The GEM input file (if applicable). This needs to be filled for joint GEM-CSC runs with B904 ME1/1 test-stand.")
+options.register("readGEMData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to process the GEM data as well as the CSC data.")
+options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data.")
+options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
+options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
 options.maxEvents = 10000
 options.parseArguments()
 
@@ -50,18 +61,39 @@ process.rawDataCollectorGEM = cms.EDAlias(
     )
 )
 
-# Note by Sven Dildick: I had to change the CSC producer module name to process.rawDataCollectorCSC so
-# that the name would not conflict with the GEM source.
-
 # For B904 setup ME11 chamber, which corresponds to ME+1/1/02 in the production system mapping
 # changing to FED837 and RUI16 could let to pass data without disabling mapping consistency check unpacking flags
+if options.useB904ME11:
+    FEDRUI = cms.PSet(
+        FED846 = cms.untracked.vstring('RUI01'),
+        RUI01 = cms.untracked.vstring(options.inputFiles[0])
+    )
+# For B904 setup ME21 chamber, which corresponds to ME+2/1/03 VMECrate13 / DMBSlot2 RUI17 / FED838 in the production system mapping
+elif options.useB904ME21:
+    FEDRUI = cms.PSet(
+        FED838 = cms.untracked.vstring('RUI17'),
+        RUI17 = cms.untracked.vstring(options.inputFiles[0])
+    )
+# Please note that after passing mapping check this chamber still would be recognized as production chamber
+# ME+2/2/03, which is OK, because this is the same chamber type as ME42 hardware-wise.
+elif options.useB904ME234s2:
+    FEDRUI = cms.PSet(
+        FED839 = cms.untracked.vstring('RUI18'),
+        RUI18 = cms.untracked.vstring(options.inputFiles[0])
+    )
+## default case
+else:
+    FEDRUI = cms.PSet(
+        FED837 = cms.untracked.vstring('RUI16'),
+        RUI16 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210519_162820_UTC.raw')
+    )
+
+# Note by Sven Dildick: I had to change the CSC producer module name to process.rawDataCollectorCSC so
+# that the name would not conflict with the GEM source.
 process.rawDataCollectorCSC = cms.EDProducer(
     'CSCFileReader',
+    FEDRUI,
     firstEvent  = cms.untracked.int32(0),
-    FED846 = cms.untracked.vstring('RUI01'),
-    RUI01 = cms.untracked.vstring(options.inputFiles[0])
-    #      FED837 = cms.untracked.vstring('RUI16'),
-    #      RUI16 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210519_162820_UTC.raw')
 )
 
 process.FEVT = cms.OutputModule(

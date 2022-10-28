@@ -17,21 +17,17 @@
 //
 //
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorQuality.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // std

@@ -20,7 +20,7 @@ fi
 
 #
 #set default conditions - run3 2021
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 GEOM=DB.Extended CUSTOM=
+CONDITIONS=auto:phase1_2022_realistic ERA=Run3 GEOM=DB.Extended CUSTOM=
 #
 #conditions - 2018
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB.Extended CUSTOM=
@@ -48,6 +48,11 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd $CMSSW_BASE
 eval `scram runtime -sh`
 
+#define HOME if not defined.
+if [ -z "$HOME" ]; then
+    export HOME=/tmp
+fi
+
 #if the _CONDOR_SCRATCH_DIR is not defined, we are not inside a condor batch job
 if [ -z "$_CONDOR_SCRATCH_DIR" ]; then
     cd $LAUNCHDIR
@@ -64,13 +69,13 @@ elif [ "$1" == "QCDPU" ]; then
     NAME=QCDPU
 elif [ "$1" == "ZEEPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZEE_PU.txt
-    NAME=ZEE
+    NAME=ZEEPU
 elif [ "$1" == "ZMMPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM_PU.txt
-    NAME=ZMM
+    NAME=ZMMPU
 elif [ "$1" == "TenTauPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TenTau_PU.txt
-    NAME=TenTau
+    NAME=TenTauPU
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
@@ -108,7 +113,7 @@ if [ $STEP == "RECO" ]; then
 	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
 	echo "FILENAME="$FILENAME
 
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3.py $CUSTOM
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3.py $CUSTOM
 	
     else
 	
@@ -127,7 +132,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO" 
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root $CUSTOM | tee step3.log  2>&1
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root $CUSTOM | tee step3.log  2>&1
    
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events

@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,7 +23,7 @@
 #include <TH1.h>
 #include <TProfile.h>
 
-class CandIsoComparer : public edm::EDAnalyzer {
+class CandIsoComparer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   CandIsoComparer(const edm::ParameterSet&);
 
@@ -46,6 +46,7 @@ CandIsoComparer::CandIsoComparer(const edm::ParameterSet& par)
       src2Token_(consumes<reco::CandViewDoubleAssociations>(par.getParameter<edm::InputTag>("src2"))) {
   label_ = par.getParameter<std::string>("@module_label");
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   double max = par.getParameter<double>("max");
   double rmax = par.getParameter<double>("rmax");

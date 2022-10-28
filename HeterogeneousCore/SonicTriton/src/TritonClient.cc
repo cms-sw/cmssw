@@ -55,7 +55,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     setMode(SonicMode::Sync);
 
   //connect to the server
-  triton_utils::throwIfError(
+  TRITON_THROW_IF_ERROR(
       tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
       "TritonClient(): unable to create inference context");
 
@@ -66,8 +66,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
 
   //config needed for batch size
   inference::ModelConfigResponse modelConfigResponse;
-  triton_utils::throwIfError(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_),
-                             "TritonClient(): unable to get model config");
+  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_),
+                        "TritonClient(): unable to get model config");
   inference::ModelConfig modelConfig(modelConfigResponse.config());
 
   //check batch size limitations (after i/o setup)
@@ -80,8 +80,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
 
   //get model info
   inference::ModelMetadataResponse modelMetadata;
-  triton_utils::throwIfError(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_),
-                             "TritonClient(): unable to get model metadata");
+  TRITON_THROW_IF_ERROR(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_),
+                        "TritonClient(): unable to get model metadata");
 
   //get input and output (which know their sizes)
   const auto& nicInputs = modelMetadata.inputs();
@@ -227,8 +227,9 @@ void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
     //set shape here before output becomes const
     if (output.variableDims()) {
       std::vector<int64_t> tmp_shape;
-      triton_utils::throwIfError(results->Shape(oname, &tmp_shape),
-                                 "getResults(): unable to get output shape for " + oname);
+      TRITON_THROW_IF_ERROR(results->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for " + oname);
+      if (!noBatch_)
+        tmp_shape.erase(tmp_shape.begin());
       output.setShape(tmp_shape);
       output.computeSizes();
     }
@@ -266,41 +267,40 @@ void TritonClient::evaluate() {
   if (mode_ == SonicMode::Async) {
     //non-blocking call
     success = handle_exception([&]() {
-      triton_utils::throwIfError(client_->AsyncInfer(
-                                     [start_status, this](tc::InferResult* results) {
-                                       //get results
-                                       std::shared_ptr<tc::InferResult> results_ptr(results);
-                                       auto success = handle_exception([&]() {
-                                         triton_utils::throwIfError(results_ptr->RequestStatus(),
-                                                                    "evaluate(): unable to get result");
-                                       });
-                                       if (!success)
-                                         return;
+      TRITON_THROW_IF_ERROR(
+          client_->AsyncInfer(
+              [start_status, this](tc::InferResult* results) {
+                //get results
+                std::shared_ptr<tc::InferResult> results_ptr(results);
+                auto success = handle_exception(
+                    [&]() { TRITON_THROW_IF_ERROR(results_ptr->RequestStatus(), "evaluate(): unable to get result"); });
+                if (!success)
+                  return;
 
-                                       if (verbose()) {
-                                         inference::ModelStatistics end_status;
-                                         success = handle_exception([&]() { end_status = getServerSideStatus(); });
-                                         if (!success)
-                                           return;
+                if (verbose()) {
+                  inference::ModelStatistics end_status;
+                  success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                  if (!success)
+                    return;
 
-                                         const auto& stats = summarizeServerStats(start_status, end_status);
-                                         reportServerSideStats(stats);
-                                       }
+                  const auto& stats = summarizeServerStats(start_status, end_status);
+                  reportServerSideStats(stats);
+                }
 
-                                       //check result
-                                       success = handle_exception([&]() { getResults(results_ptr); });
-                                       if (!success)
-                                         return;
+                //check result
+                success = handle_exception([&]() { getResults(results_ptr); });
+                if (!success)
+                  return;
 
-                                       //finish
-                                       finish(true);
-                                     },
-                                     options_,
-                                     inputsTriton_,
-                                     outputsTriton_,
-                                     headers_,
-                                     compressionAlgo_),
-                                 "evaluate(): unable to launch async run");
+                //finish
+                finish(true);
+              },
+              options_,
+              inputsTriton_,
+              outputsTriton_,
+              headers_,
+              compressionAlgo_),
+          "evaluate(): unable to launch async run");
     });
     if (!success)
       return;
@@ -308,7 +308,7 @@ void TritonClient::evaluate() {
     //blocking call
     tc::InferResult* results;
     success = handle_exception([&]() {
-      triton_utils::throwIfError(
+      TRITON_THROW_IF_ERROR(
           client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
           "evaluate(): unable to run and/or get result");
     });
@@ -395,8 +395,8 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    triton_utils::throwIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
-                               "getServerSideStatus(): unable to get model statistics");
+    TRITON_THROW_IF_ERROR(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+                          "getServerSideStatus(): unable to get model statistics");
     return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
@@ -412,7 +412,6 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   //server parameters should not affect the physics results
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
-  descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});

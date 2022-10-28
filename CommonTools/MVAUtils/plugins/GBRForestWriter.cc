@@ -7,7 +7,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-class GBRForestWriter : public edm::EDAnalyzer {
+class GBRForestWriter : public edm::one::EDAnalyzer<> {
 public:
   GBRForestWriter(const edm::ParameterSet&);
   ~GBRForestWriter() override;
@@ -169,7 +169,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
         std::string outputRecord = (*job)->outputRecord_;
         if (gbrForests.size() > 1)
           outputRecord.append("_").append(gbrForest->first);
-        dbService->writeOne(gbrForest->second, dbService->beginOfTime(), outputRecord);
+        dbService->writeOneIOV(*gbrForest->second, dbService->beginOfTime(), outputRecord);
       }
     }
 

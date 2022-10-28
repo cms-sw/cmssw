@@ -10,7 +10,7 @@
 #include <cmath>
 #include <iostream>
 
-uint32_t EcalMonitorPrescaler::filterBits_[EcalMonitorPrescaler::nPrescalers] = {
+const uint32_t EcalMonitorPrescaler::filterBits_[ecaldqm::nPrescalers] = {
     (1 << EcalDCCHeaderBlock::MTCC) | (1 << EcalDCCHeaderBlock::PHYSICS_GLOBAL) |
         (1 << EcalDCCHeaderBlock::PHYSICS_LOCAL),  // kPhysics
     (1 << EcalDCCHeaderBlock::COSMIC) | (1 << EcalDCCHeaderBlock::COSMICS_GLOBAL) |
@@ -29,56 +29,53 @@ uint32_t EcalMonitorPrescaler::filterBits_[EcalMonitorPrescaler::nPrescalers] = 
 EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const &_ps)
     : EcalRawDataCollection_(
           consumes<EcalRawDataCollection>(_ps.getParameter<edm::InputTag>("EcalRawDataCollection"))) {
-  for (unsigned iP(0); iP != nPrescalers; ++iP)
-    prescalers_[iP].first = 0;
-
-  prescalers_[kPhysics].second = _ps.getUntrackedParameter<unsigned>("physics", -1);
-  prescalers_[kCosmics].second = _ps.getUntrackedParameter<unsigned>("cosmics", -1);
-  prescalers_[kCalibration].second = _ps.getUntrackedParameter<unsigned>("calibration", -1);
-  prescalers_[kLaser].second = _ps.getUntrackedParameter<unsigned>("laser", -1);
-  prescalers_[kLed].second = _ps.getUntrackedParameter<unsigned>("led", -1);
-  prescalers_[kTestPulse].second = _ps.getUntrackedParameter<unsigned>("testPulse", -1);
-  prescalers_[kPedestal].second = _ps.getUntrackedParameter<unsigned>("pedestal", -1);
+  prescalers_[ecaldqm::kPhysics] = _ps.getUntrackedParameter<unsigned>("physics", -1);
+  prescalers_[ecaldqm::kCosmics] = _ps.getUntrackedParameter<unsigned>("cosmics", -1);
+  prescalers_[ecaldqm::kCalibration] = _ps.getUntrackedParameter<unsigned>("calibration", -1);
+  prescalers_[ecaldqm::kLaser] = _ps.getUntrackedParameter<unsigned>("laser", -1);
+  prescalers_[ecaldqm::kLed] = _ps.getUntrackedParameter<unsigned>("led", -1);
+  prescalers_[ecaldqm::kTestPulse] = _ps.getUntrackedParameter<unsigned>("testPulse", -1);
+  prescalers_[ecaldqm::kPedestal] = _ps.getUntrackedParameter<unsigned>("pedestal", -1);
 
   // Backward compatibility
-  prescalers_[kPhysics].second = std::min(
-      prescalers_[kPhysics].second, (unsigned int)(_ps.getUntrackedParameter<int>("occupancyPrescaleFactor", -1)));
-  prescalers_[kPhysics].second = std::min(
-      prescalers_[kPhysics].second, (unsigned int)(_ps.getUntrackedParameter<int>("integrityPrescaleFactor", -1)));
-  prescalers_[kCosmics].second = std::min(prescalers_[kCosmics].second,
-                                          (unsigned int)(_ps.getUntrackedParameter<int>("cosmicPrescaleFactor", -1)));
-  prescalers_[kLaser].second =
-      std::min(prescalers_[kLaser].second, (unsigned int)(_ps.getUntrackedParameter<int>("laserPrescaleFactor", -1)));
-  prescalers_[kLed].second =
-      std::min(prescalers_[kLed].second, (unsigned int)(_ps.getUntrackedParameter<int>("ledPrescaleFactor", -1)));
-  prescalers_[kPedestal].second = std::min(
-      prescalers_[kPedestal].second, (unsigned int)(_ps.getUntrackedParameter<int>("pedestalPrescaleFactor", -1)));
-  prescalers_[kPedestal].second =
-      std::min(prescalers_[kPedestal].second,
+  prescalers_[ecaldqm::kPhysics] = std::min(
+      prescalers_[ecaldqm::kPhysics], (unsigned int)(_ps.getUntrackedParameter<int>("occupancyPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPhysics] = std::min(
+      prescalers_[ecaldqm::kPhysics], (unsigned int)(_ps.getUntrackedParameter<int>("integrityPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kCosmics] = std::min(prescalers_[ecaldqm::kCosmics],
+                                            (unsigned int)(_ps.getUntrackedParameter<int>("cosmicPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kLaser] =
+      std::min(prescalers_[ecaldqm::kLaser], (unsigned int)(_ps.getUntrackedParameter<int>("laserPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kLed] =
+      std::min(prescalers_[ecaldqm::kLed], (unsigned int)(_ps.getUntrackedParameter<int>("ledPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPedestal] = std::min(
+      prescalers_[ecaldqm::kPedestal], (unsigned int)(_ps.getUntrackedParameter<int>("pedestalPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPedestal] =
+      std::min(prescalers_[ecaldqm::kPedestal],
                (unsigned int)(_ps.getUntrackedParameter<int>("pedestalonlinePrescaleFactor", -1)));
-  prescalers_[kTestPulse].second = std::min(
-      prescalers_[kTestPulse].second, (unsigned int)(_ps.getUntrackedParameter<int>("testpulsePrescaleFactor", -1)));
-  prescalers_[kPedestal].second =
-      std::min(prescalers_[kPedestal].second,
+  prescalers_[ecaldqm::kTestPulse] = std::min(
+      prescalers_[ecaldqm::kTestPulse], (unsigned int)(_ps.getUntrackedParameter<int>("testpulsePrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPedestal] =
+      std::min(prescalers_[ecaldqm::kPedestal],
                (unsigned int)(_ps.getUntrackedParameter<int>("pedestaloffsetPrescaleFactor", -1)));
-  prescalers_[kPhysics].second = std::min(
-      prescalers_[kPhysics].second, (unsigned int)(_ps.getUntrackedParameter<int>("triggertowerPrescaleFactor", -1)));
-  prescalers_[kPhysics].second = std::min(prescalers_[kPhysics].second,
-                                          (unsigned int)(_ps.getUntrackedParameter<int>("timingPrescaleFactor", -1)));
-  prescalers_[kPhysics].second = std::min(prescalers_[kPhysics].second,
-                                          (unsigned int)(_ps.getUntrackedParameter<int>("physicsPrescaleFactor", -1)));
-  prescalers_[kPhysics].second = std::min(prescalers_[kPhysics].second,
-                                          (unsigned int)(_ps.getUntrackedParameter<int>("clusterPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPhysics] = std::min(
+      prescalers_[ecaldqm::kPhysics], (unsigned int)(_ps.getUntrackedParameter<int>("triggertowerPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPhysics] = std::min(prescalers_[ecaldqm::kPhysics],
+                                            (unsigned int)(_ps.getUntrackedParameter<int>("timingPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPhysics] = std::min(
+      prescalers_[ecaldqm::kPhysics], (unsigned int)(_ps.getUntrackedParameter<int>("physicsPrescaleFactor", -1)));
+  prescalers_[ecaldqm::kPhysics] = std::min(
+      prescalers_[ecaldqm::kPhysics], (unsigned int)(_ps.getUntrackedParameter<int>("clusterPrescaleFactor", -1)));
 }
 
 EcalMonitorPrescaler::~EcalMonitorPrescaler() {}
 
-void EcalMonitorPrescaler::beginRun(edm::Run const &, edm::EventSetup const &) {
-  for (unsigned iP(0); iP != nPrescalers; ++iP)
-    prescalers_[iP].first = 0;
+std::shared_ptr<ecaldqm::PrescaleCounter> EcalMonitorPrescaler::globalBeginRun(edm::Run const &,
+                                                                               edm::EventSetup const &) const {
+  return std::make_shared<ecaldqm::PrescaleCounter>();
 }
 
-bool EcalMonitorPrescaler::filter(edm::Event &_event, edm::EventSetup const &) {
+bool EcalMonitorPrescaler::filter(edm::StreamID, edm::Event &_event, edm::EventSetup const &) const {
   edm::Handle<EcalRawDataCollection> dcchs;
 
   if (!_event.getByToken(EcalRawDataCollection_, dcchs)) {
@@ -90,12 +87,15 @@ bool EcalMonitorPrescaler::filter(edm::Event &_event, edm::EventSetup const &) {
   for (EcalRawDataCollection::const_iterator dcchItr(dcchs->begin()); dcchItr != dcchs->end(); ++dcchItr)
     eventBits |= (1 << dcchItr->getRunType());
 
-  for (unsigned iP(0); iP != nPrescalers; ++iP) {
-    if ((eventBits & filterBits_[iP]) != 0 && ++prescalers_[iP].first % prescalers_[iP].second == 0)
+  for (unsigned iP(0); iP != ecaldqm::nPrescalers; ++iP) {
+    if ((eventBits & filterBits_[iP]) != 0 &&
+        ++(runCache(_event.getRun().index())->counters_[iP]) % prescalers_[iP] == 0)
       return true;
   }
 
   return false;
 }
+
+void EcalMonitorPrescaler::globalEndRun(edm::Run const &, edm::EventSetup const &) const {}
 
 DEFINE_FWK_MODULE(EcalMonitorPrescaler);

@@ -84,6 +84,7 @@ namespace edm {
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,
              RunHelperBase* runHelper,
+             bool noRunLumiSort,
              bool noEventSort,
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
@@ -140,6 +141,7 @@ namespace edm {
                    processingMode,
                    runHelper,
                    false,
+                   false,
                    productSelectorRules,
                    inputType,
                    branchIDListHelper,
@@ -190,6 +192,7 @@ namespace edm {
                    InputSource::RunsLumisAndEvents,
                    runHelper,
                    false,
+                   false,
                    productSelectorRules,
                    inputType,
                    nullptr,
@@ -228,9 +231,9 @@ namespace edm {
     bool nextProcessBlock_(ProcessBlockPrincipal&);
     void readProcessBlock_(ProcessBlockPrincipal&);
 
-    void readRun_(RunPrincipal& runPrincipal);
+    bool readRun_(RunPrincipal& runPrincipal);
     void readFakeRun_(RunPrincipal& runPrincipal);
-    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
+    bool readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::string const& file() const { return file_; }
     std::shared_ptr<ProductRegistry const> productRegistry() const { return productRegistry_; }
     // IndexIntoFile::EntryNumber_t const& entryNumber() const {return indexIntoFileIter().entry();}
@@ -371,6 +374,7 @@ namespace edm {
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_;  // backward compatibility
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
     bool skipAnyEvents_;
+    bool noRunLumiSort_;
     bool noEventSort_;
     bool enforceGUIDInFileName_;
     int whyNotFastClonable_;

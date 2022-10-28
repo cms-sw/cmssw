@@ -9,7 +9,7 @@
 //
 // Original Author:  dkcira
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,10 +19,10 @@
 
 class TrackerTopology;
 namespace cms {
-  class ClusterMTCCFilter : public edm::EDFilter {
+  class ClusterMTCCFilter : public edm::stream::EDFilter<> {
   public:
     ClusterMTCCFilter(const edm::ParameterSet& ps);
-    ~ClusterMTCCFilter() override {}
+    ~ClusterMTCCFilter() override = default;
     bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:

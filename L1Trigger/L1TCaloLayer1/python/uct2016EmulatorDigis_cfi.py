@@ -44,7 +44,7 @@ pumLUT17p=  cms.vdouble(3.28, 2.64, 2.26, 2.23, 1.97, 1.89, 7.61, 2.27, 2.33, 2.
                                       tauIsolationFactor = cms.double(0.3),
                                       eGammaSeed = cms.uint32(5),
                                       eGammaIsolationFactor = cms.double(0.3),
-                                      boostedJetPtFactor = cms.double(1.2),
+                                      boostedJetPtFactor = cms.double(1.5),
                                       verbose = cms.bool(False),
                                       # See UCTLayer1.hh for firmware version
                                       firmwareVersion = cms.int32(1)

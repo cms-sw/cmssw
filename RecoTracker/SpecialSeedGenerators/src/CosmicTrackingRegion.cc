@@ -13,8 +13,6 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 namespace {
   template <class T>
   T sqr(T t) {
@@ -48,15 +46,14 @@ void CosmicTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std:
   }
 }
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
-                                                const SeedingLayerSetsHits::SeedingLayer& layer) const {
+TrackingRegion::Hits CosmicTrackingRegion::hits(const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;
-  hits_(es, layer, result);
+  hits_(layer, result);
   return result;
 }
 
 template <typename T>
-void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, TrackingRegion::Hits& result) const {
+void CosmicTrackingRegion::hits_(const T& layer, TrackingRegion::Hits& result) const {
   //get and name collections
   //++++++++++++++++++++++++
 
@@ -64,11 +61,6 @@ void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, Trac
   const DetLayer* detLayer = layer.detLayer();
   LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer.name();
   EtaPhiMeasurementEstimator est(0.3, 0.3);
-
-  //magnetic field
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-  const MagneticField* magField = field.product();
 
   //region
   const GlobalPoint vtx = origin();
@@ -85,12 +77,12 @@ void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, Trac
   Surface::RotationType rot(sin(phi), -cos(phi), 0, 0, 0, -1, cos(phi), sin(phi), 0);
 
   Plane::PlanePointer surface = Plane::build(vtx, rot);
-  FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, magField));
+  FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, theMagneticField_));
   TrajectoryStateOnSurface tsos(fts, *surface);
   LogDebug("CosmicTrackingRegion") << "The state used to find measurement with the measurement tracker is:\n" << tsos;
 
   //propagator
-  AnalyticalPropagator prop(magField, alongMomentum);
+  AnalyticalPropagator prop(theMagneticField_, alongMomentum);
 
   //propagation verification (debug)
   //++++++++++++++++++++++++++++++++

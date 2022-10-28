@@ -27,7 +27,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-class FilterScrapingPixelProbability : public edm::EDFilter {
+class FilterScrapingPixelProbability : public edm::stream::EDFilter<> {
 public:
   explicit FilterScrapingPixelProbability(const edm::ParameterSet &);
   ~FilterScrapingPixelProbability() override;

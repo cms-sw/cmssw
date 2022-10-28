@@ -4,6 +4,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/FEConfigCokeDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigCokeInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -33,7 +34,7 @@ void FEConfigCokeDat::prepareWrite() noexcept(false) {
         "VALUES (:coke_conf_id, :logic_id, "
         ":m1, :m2, :m3, :m4, :m5, :m6, :m7, :m8, :m9, :m10, :m11, :m12, :m13, :m14, :m15, :m16, :m17, :m18, :m19 )");
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigCokeDat::prepareWrite():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeDat::prepareWrite(): " << e.getMessage();
   }
 }
 
@@ -78,7 +79,7 @@ void FEConfigCokeDat::writeDB(const EcalLogicID* ecid,
 
     m_writeStmt->executeUpdate();
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigCokeDat::writeDB():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeDat::writeDB():  " << e.getMessage();
   }
 }
 
@@ -142,7 +143,7 @@ void FEConfigCokeDat::fetchData(map<EcalLogicID, FEConfigCokeDat>* fillMap, FECo
       fillMap->insert(p);
     }
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigCokeDat::fetchData:  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeDat::fetchData:  " << e.getMessage();
   }
 }
 
@@ -332,6 +333,6 @@ void FEConfigCokeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigCokeDat>*
     delete[] x19_len;
 
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigCokeDat::writeArrayDB():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeDat::writeArrayDB():  " << e.getMessage();
   }
 }

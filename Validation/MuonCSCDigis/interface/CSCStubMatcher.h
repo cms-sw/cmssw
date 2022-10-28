@@ -11,6 +11,7 @@
 #include "Validation/MuonCSCDigis/interface/CSCDigiMatcher.h"
 #include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -92,6 +93,15 @@ private:
 
   void clear();
 
+  void addGhostLCTs(const CSCCorrelatedLCTDigi& lct11,
+                    const CSCCorrelatedLCTDigi& lct22,
+                    CSCCorrelatedLCTDigiContainer& lctcontainer) const;
+
+  edm::InputTag clctInputTag_;
+  edm::InputTag alctInputTag_;
+  edm::InputTag lctInputTag_;
+  edm::InputTag mplctInputTag_;
+
   edm::EDGetTokenT<CSCCLCTDigiCollection> clctToken_;
   edm::EDGetTokenT<CSCALCTDigiCollection> alctToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctToken_;
@@ -125,6 +135,8 @@ private:
 
   bool addGhostLCTs_;
   bool useGEMs_;
+
+  bool matchTypeTightLCT_;
 
   int minNHitsChamber_;
   int minNHitsChamberALCT_;

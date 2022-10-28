@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,10 +29,10 @@
 #include <vector>
 #include <string>
 
-class HcalTestSimHitID : public edm::EDAnalyzer {
+class HcalTestSimHitID : public edm::one::EDAnalyzer<> {
 public:
   HcalTestSimHitID(const edm::ParameterSet& ps);
-
+  ~HcalTestSimHitID() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -90,8 +90,7 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
 
   if (nevt_ <= maxEvent_) {
     std::vector<PCaloHit> hcHits;
-    edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByToken(toks_calo_, hitsCalo);
+    const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(toks_calo_);
     if (hitsCalo.isValid()) {
       std::vector<PCaloHit> hits;
       hits.insert(hits.end(), hitsCalo->begin(), hitsCalo->end());

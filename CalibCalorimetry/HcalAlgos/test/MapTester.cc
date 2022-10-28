@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,17 +40,17 @@
 // class decleration
 //
 
-class MapTester : public edm::EDAnalyzer {
+class MapTester : public edm::one::EDAnalyzer<> {
 public:
   explicit MapTester(const edm::ParameterSet&);
-  ~MapTester();
+  ~MapTester() override = default;
 
 private:
   unsigned int mapIOV_;  //1 for first set, 2 for second, ...
   bool generateTextfiles_;
   bool generateEmap_;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
@@ -61,8 +61,6 @@ MapTester::MapTester(const edm::ParameterSet& iConfig) : tok_topo_(esConsumes<Hc
   generateTextfiles_ = iConfig.getParameter<bool>("generateTextfiles");
   generateEmap_ = iConfig.getParameter<bool>("generateEmap");
 }
-
-MapTester::~MapTester() {}
 
 // ------------ method called to for each event  ------------
 void MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

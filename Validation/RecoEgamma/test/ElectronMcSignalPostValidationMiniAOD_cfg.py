@@ -12,6 +12,9 @@ cmsEnv.checkValues()
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process("electronPostValidation",Run2_2017)
+elif cmsEnv.beginTag() == 'Run3':
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process('electronPostValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronPostValidation',Phase2)
@@ -51,8 +54,7 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 print('= inputPostFile : %s' % os.environ['inputPostFile'])
-t1 = os.environ['inputPostFile'].split('.')
-localFileInput = os.environ['inputPostFile'].replace(".root", "_a.root") #
+localFileInput = os.environ['inputPostFile']#.replace(".root", "_a.root") #
 # Source
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
@@ -62,10 +64,14 @@ process.electronMcSignalPostValidatorMiniAOD.OutputFolderName = cms.string("Egam
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
+process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
+#process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
 #process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 
-process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'
+rel = os.environ['DD_SAMPLE']
+part1 = os.environ['DD_RELEASE']
+part2 = os.environ['TEST_GLOBAL_TAG']
+process.dqmSaver.workflow = '/' + rel + '/' + part1 + '-' + part2 + '/RECO'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMiniAOD * process.dqmStoreStats)

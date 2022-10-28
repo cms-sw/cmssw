@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,11 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 DTTtrigValidateDBRead::DTTtrigValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtTrigToken_(esConsumes()) {}
 
-DTTtrigValidateDBRead::DTTtrigValidateDBRead(int i) {}
-
-DTTtrigValidateDBRead::~DTTtrigValidateDBRead() {}
+DTTtrigValidateDBRead::DTTtrigValidateDBRead(int i) : dtTrigToken_(esConsumes()) {}
 
 void DTTtrigValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -40,8 +40,7 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTTtrig> tT;
-  context.get<DTTtrigRcd>().get(tT);
+  auto tT = context.getHandle(dtTrigToken_);
   std::cout << tT->version() << std::endl;
   std::cout << std::distance(tT->begin(), tT->end()) << " data in the container" << std::endl;
   int status;

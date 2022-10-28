@@ -7,12 +7,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Database
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 // Alignment
@@ -21,7 +20,7 @@
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
-class GlobalPositionRcdWrite : public edm::EDAnalyzer {
+class GlobalPositionRcdWrite : public edm::one::EDAnalyzer<> {
 public:
   explicit GlobalPositionRcdWrite(const edm::ParameterSet& iConfig)
       : m_useEulerAngles(iConfig.getParameter<bool>("useEulerAngles")),
@@ -63,13 +62,13 @@ AlignTransform::Rotation GlobalPositionRcdWrite::toMatrix(double alpha, double b
 
 void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
   if (nEventCalls_ > 0) {
-    std::cout << "Writing to DB to be done only once, "
-              << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
-              << "(Your writing should be fine.)" << std::endl;
+    edm::LogPrint("GlobalPositionRcdWrite") << "Writing to DB to be done only once, "
+                                            << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
+                                            << "(Your writing should be fine.)" << std::endl;
     return;
   }
 
-  Alignments* globalPositions = new Alignments();
+  Alignments globalPositions{};
 
   AlignTransform tracker(AlignTransform::Translation(m_tracker.getParameter<double>("x"),
                                                      m_tracker.getParameter<double>("y"),
@@ -127,37 +126,38 @@ void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetu
                                                                m_calo.getParameter<double>("gamma")),
       DetId(DetId::Calo).rawId());
 
-  std::cout << "\nProvided rotation angles are interpreted as "
-            << ((m_useEulerAngles != true) ? "rotations around X, Y and Z" : "Euler angles") << ".\n"
-            << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite")
+      << "\nProvided rotation angles are interpreted as "
+      << ((m_useEulerAngles != true) ? "rotations around X, Y and Z" : "Euler angles") << ".\n"
+      << std::endl;
 
-  std::cout << "Tracker (" << tracker.rawId() << ") at " << tracker.translation() << " "
-            << tracker.rotation().eulerAngles() << std::endl;
-  std::cout << tracker.rotation() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << "Tracker (" << tracker.rawId() << ") at " << tracker.translation() << " "
+                                          << tracker.rotation().eulerAngles() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << tracker.rotation() << std::endl;
 
-  std::cout << "Muon (" << muon.rawId() << ") at " << muon.translation() << " " << muon.rotation().eulerAngles()
-            << std::endl;
-  std::cout << muon.rotation() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite")
+      << "Muon (" << muon.rawId() << ") at " << muon.translation() << " " << muon.rotation().eulerAngles() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << muon.rotation() << std::endl;
 
-  std::cout << "Ecal (" << ecal.rawId() << ") at " << ecal.translation() << " " << ecal.rotation().eulerAngles()
-            << std::endl;
-  std::cout << ecal.rotation() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite")
+      << "Ecal (" << ecal.rawId() << ") at " << ecal.translation() << " " << ecal.rotation().eulerAngles() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << ecal.rotation() << std::endl;
 
-  std::cout << "Hcal (" << hcal.rawId() << ") at " << hcal.translation() << " " << hcal.rotation().eulerAngles()
-            << std::endl;
-  std::cout << hcal.rotation() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite")
+      << "Hcal (" << hcal.rawId() << ") at " << hcal.translation() << " " << hcal.rotation().eulerAngles() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << hcal.rotation() << std::endl;
 
-  std::cout << "Calo (" << calo.rawId() << ") at " << calo.translation() << " " << calo.rotation().eulerAngles()
-            << std::endl;
-  std::cout << calo.rotation() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite")
+      << "Calo (" << calo.rawId() << ") at " << calo.translation() << " " << calo.rotation().eulerAngles() << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << calo.rotation() << std::endl;
 
-  globalPositions->m_align.push_back(tracker);
-  globalPositions->m_align.push_back(muon);
-  globalPositions->m_align.push_back(ecal);
-  globalPositions->m_align.push_back(hcal);
-  globalPositions->m_align.push_back(calo);
+  globalPositions.m_align.push_back(tracker);
+  globalPositions.m_align.push_back(muon);
+  globalPositions.m_align.push_back(ecal);
+  globalPositions.m_align.push_back(hcal);
+  globalPositions.m_align.push_back(calo);
 
-  std::cout << "Uploading to the database..." << std::endl;
+  edm::LogPrint("GlobalPositionRcdWrite") << "Uploading to the database..." << std::endl;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
@@ -165,16 +165,12 @@ void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetu
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   //    if (poolDbService->isNewTagRequest("GlobalPositionRcd")) {
-  //       poolDbService->createNewIOV<Alignments>(&(*globalPositions), poolDbService->endOfTime(), "GlobalPositionRcd");
+  //       poolDbService->createOneIOV<Alignments>(globalPositions, poolDbService->endOfTime(), "GlobalPositionRcd");
   //    } else {
-  //       poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
+  //       poolDbService->appendOneIOV<Alignments>(globalPositions, poolDbService->currentTime(), "GlobalPositionRcd");
   //    }
-  poolDbService->writeOne<Alignments>(&(*globalPositions),
-                                      poolDbService->currentTime(),
-                                      //poolDbService->beginOfTime(),
-                                      "GlobalPositionRcd");
-
-  std::cout << "done!" << std::endl;
+  poolDbService->writeOneIOV<Alignments>(globalPositions, poolDbService->currentTime(), "GlobalPositionRcd");
+  edm::LogPrint("GlobalPositionRcdWrite") << "done!" << std::endl;
   nEventCalls_++;
 }
 

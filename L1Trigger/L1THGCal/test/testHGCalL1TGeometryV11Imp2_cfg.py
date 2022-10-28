@@ -94,13 +94,13 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V11
-process = custom_geometry_decentralized_V11(process)
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp2
+process = custom_geometry_V11_Imp2(process)
 
-process.hgcaltriggergeomtester = cms.EDAnalyzer(
+process.L1THGCaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9Imp2"
     )
-process.test_step = cms.Path(process.hgcaltriggergeomtester)
+process.test_step = cms.Path(process.L1THGCaltriggergeomtester)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.test_step,process.endjob_step)

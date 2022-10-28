@@ -54,12 +54,13 @@ public:
            measurementTypesB_.size() == nDiscs && measurementTypesC_.size() == nDiscs &&
            measurementTypesUDSG_.size() == nDiscs && sysTypes_.size() == nDiscs);
 
+    bool validate = iConfig.getUntrackedParameter<bool>("validate");
     for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc) {
       if (weightFiles_[iDisc] != "unavailable") {
         // setup calibration
         BTagCalibration calib;
         edm::FileInPath fip(weightFiles_[iDisc]);
-        calib = BTagCalibration(discShortNames_[iDisc], fip.fullPath());
+        calib = BTagCalibration(discShortNames_[iDisc], fip.fullPath(), validate);
 
         // determine op
         std::string opname;
@@ -143,7 +144,7 @@ public:
     desc.add<std::vector<std::string>>("sysTypes")
         ->setComment(
             "\"up\", \"central\", \"down\", but arbitrary strings possible, like \"up_generator\" or \"up_jec\"");
-
+    desc.addUntracked<bool>("validate", false)->setComment("validate the function expressions in the weightFiles");
     descriptions.add("BTagWeightTable", desc);
   }
 

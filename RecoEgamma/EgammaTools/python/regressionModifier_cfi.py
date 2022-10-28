@@ -238,13 +238,31 @@ regressionModifier80X = \
 #by default we use the regression inappropriate to the main purpose of this release
 #life is simplier that way
 regressionModifier = regressionModifier94X.clone()
-
+regressionModifierRun2 = regressionModifier106XUL.clone()
 
 from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 
-(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toReplaceWith(regressionModifier,regressionModifier106XUL)
+(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toReplaceWith(regressionModifier,regressionModifierRun2)
+
+regressionModifierRun3 = regressionModifierRun2.clone(
+    eleRegs = dict(
+        ecalOnlyMean = dict(
+            rangeMinHighEt = 0.2,
+            rangeMaxHighEt = 2.0
+        )
+    ),
+    phoRegs = dict(
+        ecalOnlyMean = dict(
+            rangeMinHighEt = 0.2,
+            rangeMaxHighEt = 2.0
+        )
+    )
+)
+
+from Configuration.Eras.Modifier_run3_egamma_cff import run3_egamma
+run3_egamma.toReplaceWith(regressionModifier,regressionModifierRun3)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)

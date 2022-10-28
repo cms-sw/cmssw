@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,7 @@
 // class declaration
 //
 
-class TagProbeMassEDMFilter : public edm::EDFilter {
+class TagProbeMassEDMFilter : public edm::one::EDFilter<> {
 public:
   explicit TagProbeMassEDMFilter(const edm::ParameterSet&);
   ~TagProbeMassEDMFilter() override;

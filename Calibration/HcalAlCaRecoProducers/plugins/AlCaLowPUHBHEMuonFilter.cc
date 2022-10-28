@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaLowPUHBHEMuons {
+namespace alCaLowPUHBHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaLowPUHBHEMuons
+}  // namespace alCaLowPUHBHEMuonFilter
 
-class AlCaLowPUHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaLowPUHBHEMuons::Counters> > {
+class AlCaLowPUHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaLowPUHBHEMuonFilter::Counters> > {
 public:
-  explicit AlCaLowPUHBHEMuonFilter(edm::ParameterSet const&, const AlCaLowPUHBHEMuons::Counters* count);
+  explicit AlCaLowPUHBHEMuonFilter(edm::ParameterSet const&, const alCaLowPUHBHEMuonFilter::Counters* count);
   ~AlCaLowPUHBHEMuonFilter() override;
 
-  static std::unique_ptr<AlCaLowPUHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaLowPUHBHEMuons::Counters>();
+  static std::unique_ptr<alCaLowPUHBHEMuonFilter::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaLowPUHBHEMuonFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaLowPUHBHEMuons::Counters* counters);
+  static void globalEndJob(const alCaLowPUHBHEMuonFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -91,7 +91,7 @@ private:
 // constructors and destructor
 //
 AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter(edm::ParameterSet const& iConfig,
-                                                 const AlCaLowPUHBHEMuons::Counters* count)
+                                                 const alCaLowPUHBHEMuonFilter::Counters* count)
     : nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
   trigNames_ = iConfig.getParameter<std::vector<std::string> >("triggers");
@@ -134,8 +134,7 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     bool ok(false);
     std::vector<std::string> modules;
@@ -166,13 +165,13 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
       // Relevant blocks from iEvent
-      edm::Handle<reco::MuonCollection> _Muon;
-      iEvent.getByToken(tok_Muon_, _Muon);
+      auto muonHandle = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
+      edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << muonHandle.isValid();
 #endif
-      if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+      if (muonHandle.isValid()) {
+        for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+             ++RecMuon) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("LowPUHBHEMuon")
               << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "
@@ -219,7 +218,7 @@ void AlCaLowPUHBHEMuonFilter::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaLowPUHBHEMuonFilter::globalEndJob(const AlCaLowPUHBHEMuons::Counters* count) {
+void AlCaLowPUHBHEMuonFilter::globalEndJob(const alCaLowPUHBHEMuonFilter::Counters* count) {
   edm::LogVerbatim("LowPUHBHEMuon") << "Selects " << count->nGood_ << " good events out of " << count->nAll_
                                     << " total # of events";
 }

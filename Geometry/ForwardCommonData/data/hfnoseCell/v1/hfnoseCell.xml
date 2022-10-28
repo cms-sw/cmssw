@@ -14,6 +14,8 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hfnoseWafer:HFNoseWafer"/>
     <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="0"/>
     <Numeric name="WaferThick"   value="[WaferThickness]"/>
     <Numeric name="CellThick"    value="[CellThicknessFine]"/>
     <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
@@ -45,6 +47,8 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hfnoseWafer:HFNoseWafer"/>
     <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="0"/>
     <Numeric name="WaferThick"   value="[WaferThickness]"/>
     <Numeric name="CellThick"    value="[CellThicknessFine]"/>
     <Numeric name="NCells"       value="[NumberOfCellsFine]"/>

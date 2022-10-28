@@ -2,12 +2,8 @@
 #define SimG4Core_CustomUIsession_H
 
 #include "G4UIsession.hh"
-#include "G4UImanager.hh"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include <iostream>
-//#include <iomanip>
 #include <fstream>
 
 class CustomUIsession : public G4UIsession {

@@ -15,7 +15,7 @@
 // ==                                                       ==
 // ===========================================================
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h"
 
 #include <iostream>
 #include "TMath.h"
@@ -118,7 +118,7 @@ double PulseFitWithFunction::Fit_electronic(int data, double *adc_to_fit, double
   //
   fAmp_fitted_max = 0.;
   fTim_fitted_max = 0.;
-  double un_sur_sigma = 1. / fSigma_ped;
+  double un_sur_sigma = 1.;
   double variation_func_max = 0.;
   double variation_tim_max = 0.;
   //
@@ -131,8 +131,6 @@ double PulseFitWithFunction::Fit_electronic(int data, double *adc_to_fit, double
 
   if (sigmas_sample > 0.)
     un_sur_sigma = 1. / sigmas_sample;
-  else
-    un_sur_sigma = 1.;
 
   double func, delta;
   //          Loop on iterations

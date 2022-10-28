@@ -63,7 +63,6 @@ process.RawToDigi.remove(process.siStripDigis)
 process.RawToDigi.remove(process.castorDigis)
 process.RawToDigi.remove(process.scalersRawToDigi)
 process.RawToDigi.remove(process.tcdsDigis)
-process.RawToDigi.remove(process.totemTriggerRawToDigi)
 process.RawToDigi.remove(process.totemRPRawToDigi)
 process.RawToDigi.remove(process.ctppsDiamondRawToDigi)
 process.RawToDigi.remove(process.ctppsPixelDigis)
@@ -142,7 +141,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.tcdsDigis.InputLabel = "rawDataRepacker"
     process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
     process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
-    process.totemTriggerRawToDigi.rawDataTag = "rawDataRepacker"
     process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
     process.csctfDigis.producer = "rawDataRepacker"
     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
@@ -180,3 +178,4 @@ process.schedule = cms.Schedule(
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Final Source settings:", process.source)

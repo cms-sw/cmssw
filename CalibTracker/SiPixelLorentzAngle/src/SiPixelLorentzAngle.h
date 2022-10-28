@@ -1,7 +1,7 @@
 #ifndef CalibTracker_SiPixelLorentzAngle_SiPixelLorentzAngle_h
 #define CalibTracker_SiPixelLorentzAngle_SiPixelLorentzAngle_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -80,12 +80,11 @@ struct Rechit {
 
 //SiPixelLorentzAngle is already the name of a data product
 namespace analyzer {
-  class SiPixelLorentzAngle : public edm::EDAnalyzer {
+  class SiPixelLorentzAngle : public edm::one::EDAnalyzer<> {
   public:
     explicit SiPixelLorentzAngle(const edm::ParameterSet &conf);
 
     ~SiPixelLorentzAngle() override;
-    //virtual void beginJob(const edm::EventSetup& c);
     void beginJob() override;
     void endJob() override;
     void analyze(const edm::Event &e, const edm::EventSetup &c) override;

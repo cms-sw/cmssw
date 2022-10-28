@@ -14,23 +14,11 @@
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include <iostream>
-
 class RPCHitCleaner {
 public:
   RPCHitCleaner(RPCDigiCollection const& inrpcDigis);
 
-  void run(const edm::EventSetup& c);
+  void run();
 
   ///Return Output RPCCollection
   RPCDigiCollection const& getRPCCollection() { return m_outrpcDigis; }

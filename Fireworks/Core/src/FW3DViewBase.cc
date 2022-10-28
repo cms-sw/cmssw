@@ -53,11 +53,12 @@ namespace {
   const float fgColor[4] = {1.0, 0.6, 0.2, 0.5};
 
   class Clipsi : public TGLClip {
-  private:
-    TGLRnrCtx* m_rnrCtx;
+  public:
     Clipsi(const Clipsi&) = delete;             // Not implemented
     Clipsi& operator=(const Clipsi&) = delete;  // Not implemented
 
+  private:
+    TGLRnrCtx* m_rnrCtx;
     TGLVertex3 vtx[4];
     TGLVertex3 appexOffset;
 
@@ -371,7 +372,7 @@ void FW3DViewBase::updateClipPlanes(bool resetCamera) {
     bmarker->SetMarkerSize(0.2);
     for (int i = 0; i < 8; ++i)
         bmarker->SetPoint(i, bbox[i].X(), bbox[i].Y(), bbox[i].Z());
-    eventScene()->AddElement(bmarker); 
+    eventScene()->AddElement(bmarker);
       */
 
       TGLCamera& cam = viewerGL()->CurrentCamera();
@@ -410,7 +411,7 @@ void FW3DViewBase::updateHGCalVisibility(bool) {
   if (HGCalHSi) {
     for (const auto& it : HGCalHSi->RefChildren()) {
       std::string title(it->GetElementTitle());
-      int layer = stoi(title.substr(title.length() - 2)) + 28;
+      int layer = stoi(title.substr(title.length() - 2));
       it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
     }
   }
@@ -419,7 +420,7 @@ void FW3DViewBase::updateHGCalVisibility(bool) {
   if (HGCalHSc) {
     for (const auto& it : HGCalHSc->RefChildren()) {
       std::string title(it->GetElementTitle());
-      int layer = stoi(title.substr(title.length() - 2)) + 28;
+      int layer = stoi(title.substr(title.length() - 2));
       it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
     }
   }

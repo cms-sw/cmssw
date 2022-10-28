@@ -185,7 +185,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
 
         if (csvColumn.size() == csvFormat_ncolumns_) {
           // Skip the legend lines
-          if (0 == csvColumn[0].compare(std::string("Module DetId/U"))) {
+          if (0 == csvColumn[0].compare(std::string("Module_DetId/U"))) {
             if (verbosity_ >= 1) {
               edm::LogInfo("CSVParser") << "-- skipping legend line" << endl;
             }
@@ -269,7 +269,7 @@ void DTCCablingMapProducer::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCablingMap_.release(), iovBeginTime_, record_);
+    poolDbService->writeOneIOV(*pCablingMap_, iovBeginTime_, record_);
   } else {
     throw cms::Exception("PoolDBServiceNotFound") << "A running PoolDBService instance is required.";
   }

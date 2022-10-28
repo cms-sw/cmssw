@@ -2,6 +2,7 @@
 #define DataFormats_Run3ScoutingElectron_h
 
 #include <vector>
+#include <cstdint>
 
 // Class for holding electron information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
@@ -27,9 +28,11 @@ public:
                        float r9,
                        float sMin,
                        float sMaj,
-                       unsigned int seedId,
+                       uint32_t seedId,
                        std::vector<float> energyMatrix,
-                       std::vector<float> timingMatrix)
+                       std::vector<uint32_t> detIds,
+                       std::vector<float> timingMatrix,
+                       bool rechitZeroSuppression)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -51,7 +54,9 @@ public:
         sMaj_(sMaj),
         seedId_(seedId),
         energyMatrix_(std::move(energyMatrix)),
-        timingMatrix_(std::move(timingMatrix)) {}
+        detIds_(std::move(detIds)),
+        timingMatrix_(std::move(timingMatrix)),
+        rechitZeroSuppression_(rechitZeroSuppression) {}
   //default constructor
   Run3ScoutingElectron()
       : pt_(0),
@@ -73,7 +78,8 @@ public:
         r9_(0),
         sMin_(0),
         sMaj_(0),
-        seedId_(0) {}
+        seedId_(0),
+        rechitZeroSuppression_(false) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -95,9 +101,11 @@ public:
   float r9() const { return r9_; }
   float sMin() const { return sMin_; }
   float sMaj() const { return sMaj_; }
-  unsigned int seedId() const { return seedId_; }
+  uint32_t seedId() const { return seedId_; }
   std::vector<float> const& energyMatrix() const { return energyMatrix_; }
+  std::vector<uint32_t> const& detIds() const { return detIds_; }
   std::vector<float> const& timingMatrix() const { return timingMatrix_; }
+  bool rechitZeroSuppression() const { return rechitZeroSuppression_; }
 
 private:
   float pt_;
@@ -119,9 +127,11 @@ private:
   float r9_;
   float sMin_;
   float sMaj_;
-  unsigned int seedId_;
+  uint32_t seedId_;
   std::vector<float> energyMatrix_;
+  std::vector<uint32_t> detIds_;
   std::vector<float> timingMatrix_;
+  bool rechitZeroSuppression_;
 };
 
 typedef std::vector<Run3ScoutingElectron> Run3ScoutingElectronCollection;

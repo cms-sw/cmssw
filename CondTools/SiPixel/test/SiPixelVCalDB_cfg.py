@@ -26,7 +26,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
-#process.load("CondCore.DBCommon.CondDBCommon_cfi") # deprecated
+#process.load("CondCore.CondDB.CondDB_cfi") # deprecated
 process.load("CondCore.CondDB.CondDB_cfi")
 
 # GLOBAL TAG

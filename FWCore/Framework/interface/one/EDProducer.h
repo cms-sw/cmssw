@@ -37,6 +37,9 @@ namespace edm {
                     "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
 
       EDProducer() = default;
+      EDProducer(const EDProducer&) = delete;
+      const EDProducer& operator=(const EDProducer&) = delete;
+
 #ifdef __INTEL_COMPILER
       virtual ~EDProducer() = default;
 #endif
@@ -69,9 +72,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      EDProducer(const EDProducer&) = delete;
-      const EDProducer& operator=(const EDProducer&) = delete;
-
       // ---------- member data --------------------------------
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value>

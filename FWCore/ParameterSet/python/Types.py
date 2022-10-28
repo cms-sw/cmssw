@@ -7,8 +7,7 @@ from past.builtins import long
 import codecs
 import copy
 import math
-import six
-from six.moves import builtins
+import builtins
 
 _builtin_bool = bool
 
@@ -879,7 +878,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return True
     def setValue(self,value):
         if isinstance(value,dict):
-            for k,v in six.iteritems(value):
+            for k,v in value.items():
                 setattr(self,k,v)
 
     def configValue(self, options=PrintOptions()):
@@ -1241,7 +1240,7 @@ def makeCppPSet(module,cppPSetMaker):
     if not isinstance(module,dict):
         module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
 
-    for x,p in six.iteritems(module):
+    for x,p in module.items():
         if isinstance(p,PSet):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
@@ -1390,7 +1389,7 @@ def convertToPSet(name,module):
 
 def convertToVPSet( **kw ):
     returnValue = VPSet()
-    for name,module in six.iteritems(kw):
+    for name,module in kw.items():
         returnValue.append(convertToPSet(name,module))
     return returnValue
 
@@ -2001,7 +2000,7 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
-            self.assertEquals(p2.aValue.value(),2)
+            self.assertEqual(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
@@ -2009,7 +2008,7 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
-            self.assertEquals(p2.aValue.value(),2)
+            self.assertEqual(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)

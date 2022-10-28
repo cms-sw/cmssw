@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 
@@ -14,6 +14,7 @@
 
 namespace gpuClustering {
 
+  template <bool isPhase2>
   __global__ void clusterChargeCut(
       SiPixelClusterThresholds
           clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
@@ -28,13 +29,32 @@ namespace gpuClustering {
     __shared__ uint8_t ok[maxNumClustersPerModules];
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
+    constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
+    [[maybe_unused]] constexpr int nMaxModules =
+        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+
+    assert(nMaxModules < maxNumModules);
+    assert(startBPIX2 < nMaxModules);
+
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < maxNumModules);
-      assert(thisModuleId == moduleId[module]);
+      while (thisModuleId == invalidModuleId and firstPixel < numElements) {
+        // skip invalid or duplicate pixels
+        ++firstPixel;
+        thisModuleId = id[firstPixel];
+      }
+      if (firstPixel >= numElements) {
+        // reached the end of the input while skipping the invalid pixels, nothing left to do
+        break;
+      }
+      if (thisModuleId != moduleId[module]) {
+        // reached the end of the module while skipping the invalid pixels, skip this module
+        continue;
+      }
+      assert(thisModuleId < nMaxModules);
 
       auto nclus = nClustersInModule[thisModuleId];
       if (nclus == 0)
@@ -85,32 +105,26 @@ namespace gpuClustering {
       }
       __syncthreads();
 
-      auto chargeCut =
-          clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
+      auto chargeCut = clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < startBPIX2);
+
+      bool good = true;
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
-        newclusId[i] = ok[i] = charge[i] > chargeCut ? 1 : 0;
+        newclusId[i] = ok[i] = charge[i] >= chargeCut ? 1 : 0;
+        if (0 == ok[i])
+          good = false;
       }
 
-      __syncthreads();
+      // if all clusters above threshold do nothing
+      if (__syncthreads_and(good))
+        continue;
 
       // renumber
       __shared__ uint16_t ws[32];
       cms::cuda::blockPrefixScan(newclusId, nclus, ws);
 
-      assert(nclus >= newclusId[nclus - 1]);
-
-      if (nclus == newclusId[nclus - 1])
-        continue;
+      assert(nclus > newclusId[nclus - 1]);
 
       nClustersInModule[thisModuleId] = newclusId[nclus - 1];
-      __syncthreads();
-
-      // mark bad cluster again
-      for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
-        if (0 == ok[i])
-          newclusId[i] = invalidModuleId + 1;
-      }
-      __syncthreads();
 
       // reassign id
       for (auto i = first; i < numElements; i += blockDim.x) {
@@ -118,12 +132,14 @@ namespace gpuClustering {
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
-        clusterId[i] = newclusId[clusterId[i]] - 1;
-        if (clusterId[i] == invalidModuleId)
-          id[i] = invalidModuleId;
+        if (0 == ok[clusterId[i]])
+          clusterId[i] = id[i] = invalidModuleId;
+        else
+          clusterId[i] = newclusId[clusterId[i]] - 1;
       }
 
       //done
+      __syncthreads();
     }  // loop on modules
   }
 

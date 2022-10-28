@@ -76,6 +76,11 @@ void HcalCPURecHitsProducer::acquire(edm::Event const& event,
   std::cout << "num rec Hits = " << recHits.size << std::endl;
 #endif
 
+  // do not try to copy the rechits if they are empty
+  if (recHits.size == 0) {
+    return;
+  }
+
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
     using src_data_type = typename std::remove_pointer<decltype(src)>::type;
@@ -98,14 +103,18 @@ void HcalCPURecHitsProducer::produce(edm::Event& event, edm::EventSetup const& s
     // did not set size with ctor as there is no setter for did
     recHitsLegacy->reserve(tmpRecHits_.did.size());
     for (uint32_t i = 0; i < tmpRecHits_.did.size(); i++) {
+      // skip bad channels
+      if (tmpRecHits_.chi2[i] < 0)
+        continue;
+
+      // build a legacy rechit with the computed detid and MAHI energy
       recHitsLegacy->emplace_back(HcalDetId{tmpRecHits_.did[i]},
                                   tmpRecHits_.energy[i],
                                   0  // timeRising
       );
-
-      // update newly pushed guy
-      (*recHitsLegacy)[i].setChiSquared(tmpRecHits_.chi2[i]);
-      (*recHitsLegacy)[i].setRawEnergy(tmpRecHits_.energyM0[i]);
+      // update the legacy rechit with the Chi2 and M0 values
+      recHitsLegacy->back().setChiSquared(tmpRecHits_.chi2[i]);
+      recHitsLegacy->back().setRawEnergy(tmpRecHits_.energyM0[i]);
     }
 
     // put the legacy collection

@@ -108,7 +108,7 @@ private:
 public:
   HGCalHistoSeedingImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   float dR(const l1t::HGCalCluster& clu, const GlobalPoint& seed) const;
 

@@ -66,6 +66,8 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     # global quality
     fillGlobalTrackQuality = cms.bool(False), #input depends on external module output --> set to True where the sequence is defined
     globalTrackQualityInputTag = cms.InputTag('glbTrackQual'),
+    selectHighPurity = cms.bool(False),
+    pvInputTag = cms.InputTag('offlinePrimaryVertices'),
 
     # tracker kink finding
     fillTrackerKink = cms.bool(True),
@@ -100,7 +102,7 @@ muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(muons1stStep, minPt = 0.8)
+pp_on_AA.toModify(muons1stStep, minPt = 0.8, selectHighPurity = True)
 
 from Configuration.ProcessModifiers.recoFromReco_cff import recoFromReco
 recoFromReco.toModify(muons1stStep,fillShowerDigis = False)

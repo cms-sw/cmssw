@@ -75,6 +75,7 @@ private:
 
     std::unique_ptr<TH1D> h_de_t;
     std::unique_ptr<TProfile> p_de_t_vs_xi_simu, p_de_t_vs_t_simu;
+    std::unique_ptr<TH2D> h2_de_t_vs_t_simu;
 
     PlotGroup()
         : h_de_xi(new TH1D("", ";#xi_{reco} - #xi_{simu}", 100, 0., 0.)),
@@ -92,7 +93,8 @@ private:
 
           h_de_t(new TH1D("", ";t_{reco} - t_{simu}", 100, -1., +1.)),
           p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 50, 0., 0.25)),
-          p_de_t_vs_t_simu(new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.)) {}
+          p_de_t_vs_t_simu(new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.)),
+          h2_de_t_vs_t_simu(new TH2D("", ";t_{simu};t_{reco} - t_{simu}", 150, 0., 5., 300, -2., +2.)) {}
 
     static TGraphErrors profileToRMSGraph(TProfile *p, const char *name = "") {
       TGraphErrors gr_err;
@@ -142,6 +144,7 @@ private:
       profileToRMSGraph(p_de_t_vs_xi_simu.get(), "g_rms_de_t_vs_xi_simu").Write();
       p_de_t_vs_t_simu->Write("p_de_t_vs_t_simu");
       profileToRMSGraph(p_de_t_vs_t_simu.get(), "g_rms_de_t_vs_t_simu").Write();
+      h2_de_t_vs_t_simu->Write("h2_de_t_vs_t_simu");
     }
   };
 
@@ -385,6 +388,7 @@ void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_i
   plt.h_de_t->Fill(t_reco - t_simu);
   plt.p_de_t_vs_xi_simu->Fill(xi_simu, t_reco - t_simu);
   plt.p_de_t_vs_t_simu->Fill(t_simu, t_reco - t_simu);
+  plt.h2_de_t_vs_t_simu->Fill(t_simu, t_reco - t_simu);
 }
 
 //----------------------------------------------------------------------------------------------------

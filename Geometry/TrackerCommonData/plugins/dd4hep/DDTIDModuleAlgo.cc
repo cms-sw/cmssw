@@ -73,42 +73,44 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double coolThick = args.dble("CoolInsertThick");                 //              thickness
   double coolWidth = args.dble("CoolInsertWidth");                 //              width
 
-  LogDebug("TIDGeom") << "Parent " << mother << " General Material " << genMat << " Detector Planes " << detectorN;
+  edm::LogVerbatim("TIDGeom") << "Parent " << mother << " General Material " << genMat << " Detector Planes "
+                              << detectorN;
 
-  LogDebug("TIDGeom") << "ModuleThick " << moduleThick << " Detector Tilt " << convertRadToDeg(detTilt) << " Height "
-                      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid
-                      << " doComponents " << doComponents;
-  LogDebug("TIDGeom") << "" << boxFrameName << " Material " << boxFrameMat << " Thickness " << boxFrameThick
-                      << " width " << boxFrameWidth << " height " << boxFrameHeight << " Extra Height at Bottom "
-                      << bottomFrameHeight << " Overlap " << bottomFrameOver;
-
-  for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << sideFrameName[i] << " Material " << sideFrameMat << " Width " << sideFrameWidth
-                        << " Thickness " << sideFrameThick << " Overlap " << sideFrameOver << " Hole  "
-                        << holeFrameName[i];
+  edm::LogVerbatim("TIDGeom") << "ModuleThick " << moduleThick << " Detector Tilt " << convertRadToDeg(detTilt)
+                              << " Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
+                              << " dl(Hybrid) " << dlHybrid << " doComponents " << doComponents;
+  edm::LogVerbatim("TIDGeom") << "" << boxFrameName << " Material " << boxFrameMat << " Thickness " << boxFrameThick
+                              << " width " << boxFrameWidth << " height " << boxFrameHeight
+                              << " Extra Height at Bottom " << bottomFrameHeight << " Overlap " << bottomFrameOver;
 
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << kaptonName[i] << " Material " << kaptonMat << " Thickness " << kaptonThick << " Overlap "
-                        << kaptonOver << " Hole  " << holeKaptonName[i];
+    edm::LogVerbatim("TIDGeom") << sideFrameName[i] << " Material " << sideFrameMat << " Width " << sideFrameWidth
+                                << " Thickness " << sideFrameThick << " Overlap " << sideFrameOver << " Hole  "
+                                << holeFrameName[i];
 
-  LogDebug("TIDGeom") << "Wafer Material " << waferMat << " Side Width Top " << sideWidthTop << " Side Width Bottom "
-                      << sideWidthBottom;
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\twaferName[" << i << "] = " << waferName[i];
+    edm::LogVerbatim("TIDGeom") << kaptonName[i] << " Material " << kaptonMat << " Thickness " << kaptonThick
+                                << " Overlap " << kaptonOver << " Hole  " << holeKaptonName[i];
 
-  LogDebug("TIDGeom") << "Active Material " << activeMat << " Height " << activeHeight << " rotated by " << activeRot;
+  edm::LogVerbatim("TIDGeom") << "Wafer Material " << waferMat << " Side Width Top " << sideWidthTop
+                              << " Side Width Bottom " << sideWidthBottom;
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << " translated by (0," << -0.5 * backplaneThick[i] << ",0)\tactiveName[" << i
-                        << "] = " << activeName[i] << " of thickness " << waferThick[i] - backplaneThick[i];
+    edm::LogVerbatim("TIDGeom") << "\twaferName[" << i << "] = " << waferName[i];
 
-  LogDebug("TIDGeom") << "" << hybridName << " Material " << hybridMat << " Height " << hybridHeight << " Width "
-                      << hybridWidth << " Thickness " << hybridThick;
-  LogDebug("TIDGeom") << "Pitch Adapter Material " << pitchMat << " Height " << pitchHeight << " Thickness "
-                      << pitchThick;
+  edm::LogVerbatim("TIDGeom") << "Active Material " << activeMat << " Height " << activeHeight << " rotated by "
+                              << activeRot;
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\tpitchName[" << i << "] = " << pitchName[i];
-  LogDebug("TIDGeom") << "Cool Element Material " << coolMat << " Height " << coolHeight << " Thickness " << coolThick
-                      << " Width " << coolWidth;
+    edm::LogVerbatim("TIDGeom") << " translated by (0," << -0.5 * backplaneThick[i] << ",0)\tactiveName[" << i
+                                << "] = " << activeName[i] << " of thickness " << waferThick[i] - backplaneThick[i];
+
+  edm::LogVerbatim("TIDGeom") << "" << hybridName << " Material " << hybridMat << " Height " << hybridHeight
+                              << " Width " << hybridWidth << " Thickness " << hybridThick;
+  edm::LogVerbatim("TIDGeom") << "Pitch Adapter Material " << pitchMat << " Height " << pitchHeight << " Thickness "
+                              << pitchThick;
+  for (int i = 0; i < detectorN; i++)
+    edm::LogVerbatim("TIDGeom") << "\tpitchName[" << i << "] = " << pitchName[i];
+  edm::LogVerbatim("TIDGeom") << "Cool Element Material " << coolMat << " Height " << coolHeight << " Thickness "
+                              << coolThick << " Width " << coolWidth;
 
   string name = mother;
   double sidfr = sideFrameWidth - sideFrameOver;  // width of side frame on the sides of module
@@ -150,10 +152,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double dx, dy;
   double dz = 0.5 * (boxFrameHeight + sideFrameHeight);
 
-  Solid solid = ns.addSolidNS(name, Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
-  /* Volume module = */ ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
-  LogDebug("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, " << h1
-                      << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
+  Solid solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
+  /* Volume module = */ ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
+  edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, "
+                              << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+                              << ", 0";
 
   if (doComponents) {
     //Box frame
@@ -161,30 +164,30 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dx = 0.5 * boxFrameWidth;
     dy = 0.5 * boxFrameThick;
     dz = 0.5 * boxFrameHeight;
-    solid = ns.addSolidNS(name, Box(dx, dy, dz));
-    LogDebug("TIDGeom") << solid.name() << " Box made of " << boxFrameMat << " of dimensions " << dx << ", " << dy
-                        << ", " << dz;
-    /* Volume boxFrame = */ ns.addVolumeNS(Volume(name, solid, ns.material(boxFrameMat)));
+    solid = ns.addSolidNS(ns.prepend(name), Box(dx, dy, dz));
+    edm::LogVerbatim("TIDGeom") << solid.name() << " Box made of " << boxFrameMat << " of dimensions " << dx << ", "
+                                << dy << ", " << dz;
+    /* Volume boxFrame = */ ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(boxFrameMat)));
 
     // Hybrid
     name = hybridName;
     dx = 0.5 * hybridWidth;
     dy = 0.5 * hybridThick;
     dz = 0.5 * hybridHeight;
-    solid = ns.addSolidNS(name, Box(dx, dy, dz));
-    LogDebug("TIDGeom") << solid.name() << " Box made of " << hybridMat << " of dimensions " << dx << ", " << dy << ", "
-                        << dz;
-    /* Volume hybrid = */ ns.addVolumeNS(Volume(name, solid, ns.material(hybridMat)));
+    solid = ns.addSolidNS(ns.prepend(name), Box(dx, dy, dz));
+    edm::LogVerbatim("TIDGeom") << solid.name() << " Box made of " << hybridMat << " of dimensions " << dx << ", " << dy
+                                << ", " << dz;
+    /* Volume hybrid = */ ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(hybridMat)));
 
     // Cool Insert
     name = coolName;
     dx = 0.5 * coolWidth;
     dy = 0.5 * coolThick;
     dz = 0.5 * coolHeight;
-    solid = ns.addSolidNS(name, Box(dx, dy, dz));
-    LogDebug("TIDGeom") << solid.name() << " Box made of " << coolMat << " of dimensions " << dx << ", " << dy << ", "
-                        << dz;
-    /* Volume cool = */ ns.addVolumeNS(Volume(name, solid, ns.material(coolMat)));
+    solid = ns.addSolidNS(ns.prepend(name), Box(dx, dy, dz));
+    edm::LogVerbatim("TIDGeom") << solid.name() << " Box made of " << coolMat << " of dimensions " << dx << ", " << dy
+                                << ", " << dz;
+    /* Volume cool = */ ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(coolMat)));
 
     // Loop over detectors to be placed
     for (int k = 0; k < detectorN; k++) {
@@ -202,11 +205,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       }
       h1 = 0.5 * sideFrameThick;
       dz = 0.5 * sideFrameHeight;
-      solid = ns.addSolidNS(name, Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
-      LogDebug("TIDGeom") << solid.name() << " Trap made of " << sideFrameMat << " of dimensions " << dz << ", 0, 0, "
-                          << h1 << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2
-                          << ", 0";
-      Volume sideFrame = ns.addVolumeNS(Volume(name, solid, ns.material(sideFrameMat)));
+      solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << sideFrameMat << " of dimensions " << dz
+                                  << ", 0, 0, " << h1 << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2
+                                  << ", " << bbl2 << ", 0";
+      Volume sideFrame = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(sideFrameMat)));
 
       std::string rotstr, rotns;
       Rotation3D rot;
@@ -225,15 +228,16 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         zpos = bottomFrameHeight + 0.5 * dz - 0.5 * sideFrameHeight;
       }
       dz /= 2.;
-      solid = ns.addSolidNS(name, Trap(dz, 0, 0, h1, bbl1, bbl1, 0, h1, bbl2, bbl2, 0));
-      LogDebug("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, " << h1
-                          << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2 << ", 0";
-      Volume holeFrame = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
+      solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0, 0, h1, bbl1, bbl1, 0, h1, bbl2, bbl2, 0));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, "
+                                  << h1 << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2
+                                  << ", 0";
+      Volume holeFrame = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
 
       rot = ns.rotation(holeFrameRot[k]);
       sideFrame.placeVolume(holeFrame, 1, Transform3D(rot, Position(0e0, 0e0, zpos)));  // copyNr=1
-      LogDebug("TIDGeom") << holeFrame.name() << " number 1 positioned in " << sideFrame.name() << " at (0,0," << zpos
-                          << ") with no rotation";
+      edm::LogVerbatim("TIDGeom") << holeFrame.name() << " number 1 positioned in " << sideFrame.name() << " at (0,0,"
+                                  << zpos << ") with no rotation";
 
       // Kapton circuit
       double kaptonExtraHeight = 0;  // kapton extra height in the stereo
@@ -265,7 +269,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       if (k == 1) {
         // Uncut solid
         Solid solidUncut =
-            ns.addSolidNS(kaptonName[k] + "Uncut", Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0));
+            ns.addSolidNS(ns.prepend(kaptonName[k] + "Uncut"), Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0));
 
         // Piece to be cut
         dz = (dlHybrid > dlTop) ? 0.5 * dlTop : 0.5 * dlBottom;
@@ -274,24 +278,24 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         bbl2 = bbl1 * 0.000001;
         double thet = atan((bbl1 - bbl2) / (2 * dz));
         Solid solidCut =
-            ns.addSolidNS(kaptonName[k] + "Cut", Trap(dz, thet, 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0));
+            ns.addSolidNS(ns.prepend(kaptonName[k] + "Cut"), Trap(dz, thet, 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0));
 
         // Subtraction Solid
         name = kaptonName[k];
         rot = ns.rotation("tidmodpar:9PYX");
         xpos = -0.5 * fullHeight * sin(detTilt);
         zpos = 0.5 * kaptonHeight - bbl2;
-        solid =
-            ns.addSolidNS(name, SubtractionSolid(solidUncut, solidCut, Transform3D(rot, Position(xpos, 0.0, zpos))));
+        solid = ns.addSolidNS(ns.prepend(name),
+                              SubtractionSolid(solidUncut, solidCut, Transform3D(rot, Position(xpos, 0.0, zpos))));
       } else {
         name = kaptonName[k];
-        solid = ns.addSolidNS(name, Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
+        solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
       }
 
-      Volume kapton = ns.addVolumeNS(Volume(name, solid, ns.material(kaptonMat)));
-      LogDebug("TIDGeom") << solid.name() << " SUBTRACTION SOLID Trap made of " << kaptonMat << " of dimensions " << dz
-                          << ", 0, 0, " << h1 << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", "
-                          << bbl2 << ", 0";
+      Volume kapton = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(kaptonMat)));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " SUBTRACTION SOLID Trap made of " << kaptonMat
+                                  << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " << bbl1
+                                  << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2 << ", 0";
 
       // Hole in the kapton below the wafer
       name = holeKaptonName[k];
@@ -313,15 +317,16 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         zpos = -0.5 * (kaptonHeight - kaptonExtraHeight - dz);
       }
       dz /= 2.;
-      solid = ns.addSolidNS(name, Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
-      LogDebug("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, " << h1
-                          << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2 << ", 0";
-      Volume holeKapton = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
+      solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0., 0., h1, bbl1, bbl1, 0., h1, bbl2, bbl2, 0.));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << genMat << " of dimensions " << dz << ", 0, 0, "
+                                  << h1 << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2
+                                  << ", 0";
+      Volume holeKapton = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
 
       rot = ns.rotation(holeKaptonRot[k]);
       kapton.placeVolume(holeKapton, 1, Transform3D(rot, Position(xpos, 0.0, zpos)));
-      LogDebug("TIDGeom") << holeKapton.name() << " number 1 positioned in " << kapton.name() << " at (0,0," << zpos
-                          << ") with no rotation";
+      edm::LogVerbatim("TIDGeom") << holeKapton.name() << " number 1 positioned in " << kapton.name() << " at (0,0,"
+                                  << zpos << ") with no rotation";
 
       // Wafer
       name = waferName[k];
@@ -334,10 +339,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       }
       h1 = 0.5 * waferThick[k];
       dz = 0.5 * fullHeight;
-      solid = ns.addSolidNS(name, Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
-      LogDebug("TIDGeom") << solid.name() << " Trap made of " << waferMat << " of dimensions " << dz << ", 0, 0, " << h1
-                          << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
-      Volume wafer = ns.addVolumeNS(Volume(name, solid, ns.material(waferMat)));
+      solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << waferMat << " of dimensions " << dz
+                                  << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
+                                  << ", " << bl2 << ", 0";
+      Volume wafer = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(waferMat)));
 
       // Active
       name = activeName[k];
@@ -350,15 +356,16 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       }
       dz = 0.5 * (waferThick[k] - backplaneThick[k]);  // inactive backplane
       h1 = 0.5 * activeHeight;
-      solid = ns.addSolidNS(name, Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0));
-      LogDebug("TIDGeom") << solid.name() << " Trap made of " << activeMat << " of dimensions " << dz << ", 0, 0, "
-                          << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0";
-      Volume active = ns.addVolumeNS(Volume(name, solid, ns.material(activeMat)));
+      solid = ns.addSolidNS(ns.prepend(name), Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0));
+      edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << activeMat << " of dimensions " << dz
+                                  << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
+                                  << ", " << bl1 << ", 0";
+      Volume active = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(activeMat)));
       rot = ns.rotation(activeRot);
       Position tran(0.0, -0.5 * backplaneThick[k], 0.0);     // from the definition of the wafer local axes
       wafer.placeVolume(active, 1, Transform3D(rot, tran));  // inactive backplane copyNr=1
-      LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << active.name() << " number 1 positioned in " << wafer.name()
-                          << " at " << tran << " with " << rot;
+      edm::LogVerbatim("TIDGeom") << "DDTIDModuleAlgo test: " << active.name() << " number 1 positioned in "
+                                  << wafer.name() << " at " << tran << " with " << rot;
 
       //Pitch Adapter
       name = pitchName[k];
@@ -371,9 +378,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         dx = dz;
         dy = 0.5 * pitchThick;
         dz = 0.5 * pitchHeight;
-        solid = ns.addSolidNS(name, Box(dx, dy, dz));
-        LogDebug("TIDGeom") << solid.name() << " Box made of " << pitchMat << " of dimensions"
-                            << " " << dx << ", " << dy << ", " << dz;
+        solid = ns.addSolidNS(ns.prepend(name), Box(dx, dy, dz));
+        edm::LogVerbatim("TIDGeom") << solid.name() << " Box made of " << pitchMat << " of dimensions"
+                                    << " " << dx << ", " << dy << ", " << dz;
       } else {
         h1 = 0.5 * pitchThick;
         bl1 = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
@@ -384,15 +391,15 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         bl2 -= pitchStereoTol;
 
         double thet = atan((bl1 - bl2) / (2. * dz));
-        solid = ns.addSolidNS(name, Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
-        LogDebug("TIDGeom") << solid.name() << " Trap made of " << pitchMat << " of "
-                            << "dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", " << bl1
-                            << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
+        solid = ns.addSolidNS(ns.prepend(name), Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
+        edm::LogVerbatim("TIDGeom") << solid.name() << " Trap made of " << pitchMat << " of "
+                                    << "dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "
+                                    << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
       }
-      /* Volume pa = */ ns.addVolumeNS(Volume(name, solid, ns.material(pitchMat)));
+      /* Volume pa = */ ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(pitchMat)));
     }
   }
-  LogDebug("TIDGeom") << "<<== End of DDTIDModuleAlgo construction ...";
+  edm::LogVerbatim("TIDGeom") << "<<== End of DDTIDModuleAlgo construction ...";
   return 1;
 }
 

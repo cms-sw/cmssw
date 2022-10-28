@@ -21,7 +21,7 @@
 
 #include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <string>
 #include <vector>
 
@@ -33,7 +33,7 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset)
+  DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset, edm::ConsumesCollector cc)
       : nSigmas_(pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1)),
         mTimeMap_(nullptr),
         vDriftMap_(nullptr) {
@@ -45,6 +45,11 @@ namespace dtCalibration {
     //if(debug) fitter_->setVerbosity(1);
 
     readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
+    if (readLegacyVDriftDB) {
+      mTimeMapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
+    } else {
+      vDriftMapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
+    }
   }
 
   DTVDriftSegment::~DTVDriftSegment() {
@@ -55,13 +60,9 @@ namespace dtCalibration {
   void DTVDriftSegment::setES(const edm::EventSetup& setup) {
     // Get the map of vdrift from the setup
     if (readLegacyVDriftDB) {
-      ESHandle<DTMtime> mTime;
-      setup.get<DTMtimeRcd>().get(mTime);
-      mTimeMap_ = &*mTime;
+      mTimeMap_ = &setup.getData(mTimeMapToken_);
     } else {
-      ESHandle<DTRecoConditions> hVdrift;
-      setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
-      vDriftMap_ = &*hVdrift;
+      vDriftMap_ = &setup.getData(vDriftMapToken_);
       // Consistency check: no parametrization is implemented for the time being
       int version = vDriftMap_->version();
       if (version != 1) {

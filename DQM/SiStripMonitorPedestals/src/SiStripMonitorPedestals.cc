@@ -17,30 +17,27 @@
 //
 //
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-
-#include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+// ROOT profile
 #include "TProfile.h"
-// std
+
+// std includes
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>

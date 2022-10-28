@@ -81,6 +81,8 @@ namespace edm {
     std::string const& productInstanceName() const { return productInstanceName_; }
     bool produced() const { return transient_.produced_; }
     void setProduced(bool isProduced) { transient_.produced_ = isProduced; }
+    bool isTransform() const { return transient_.isTransform_; }
+    void setIsTransform(bool isTransform) { transient_.isTransform_ = isTransform; }
     bool present() const { return !transient_.dropped_; }
     bool dropped() const { return transient_.dropped_; }
     void setDropped(bool isDropped) { transient_.dropped_ = isDropped; }
@@ -158,9 +160,11 @@ namespace edm {
       BranchID switchAliasForBranchID_;
 
       // A TypeWithDict object for the wrapped object
+      // This is set if and only if the dropped_ is false
       TypeWithDict wrappedType_;
 
       // A TypeWithDict object for the unwrapped object
+      // This is set if and only if the dropped_ is false
       TypeWithDict unwrappedType_;
 
       // The split level of the branch, as marked
@@ -177,6 +181,9 @@ namespace edm {
       // Was this branch produced in this current process and by unscheduled production
       // This item is set only in the framework, not by FWLite.
       bool onDemand_;
+
+      // Was this branch produced in this current process via the transform ability
+      bool isTransform_;
 
       // Has the branch been dropped from the product tree in this file
       // (or if this is a merged product registry, in the first file).

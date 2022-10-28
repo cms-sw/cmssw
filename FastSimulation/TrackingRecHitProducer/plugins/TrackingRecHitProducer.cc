@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -50,6 +49,9 @@ private:
   std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
   void setupDetIdPipes(const edm::EventSetup& eventSetup);
   std::vector<SiPixelTemplateStore> _pixelTempStore;  // pixel template storage
+  const edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> siPixelTemplateDBObjectESToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
 
 public:
   TrackingRecHitProducer(const edm::ParameterSet& config);
@@ -65,7 +67,10 @@ public:
   ~TrackingRecHitProducer() override;
 };
 
-TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config) {
+TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
+    : siPixelTemplateDBObjectESToken_(esConsumes<edm::Transition::BeginRun>()),
+      trackerGeometryESToken_(esConsumes()),
+      trackerTopologyESToken_(esConsumes()) {
   edm::ConsumesCollector consumeCollector = consumesCollector();
   const std::vector<edm::ParameterSet>& pluginConfigs = config.getParameter<std::vector<edm::ParameterSet>>("plugins");
 
@@ -109,20 +114,18 @@ void TrackingRecHitProducer::beginRun(edm::Run const& run, const edm::EventSetup
   //    the pixel algorithms implement beginRun(), for the strip tracker this defaults
   //    to a no-op.
 
-  edm::ESHandle<SiPixelTemplateDBObject> templateDBobject;
-  eventSetup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-  const SiPixelTemplateDBObject* pixelTemplateDBObject = templateDBobject.product();
+  const SiPixelTemplateDBObject& pixelTemplateDBObject = eventSetup.getData(siPixelTemplateDBObjectESToken_);
 
   //--- Now that we have the DB object, load the correct templates from the DB.
   //    (They are needed for data and full sim MC, so in a production FastSim
   //    run, everything should already be in the DB.)
-  if (!SiPixelTemplate::pushfile(*pixelTemplateDBObject, _pixelTempStore)) {
+  if (!SiPixelTemplate::pushfile(pixelTemplateDBObject, _pixelTempStore)) {
     throw cms::Exception("TrackingRecHitProducer:")
         << "SiPixel Templates not loaded correctly from the DB object!" << std::endl;
   }
 
   for (auto& algo : _recHitAlgorithms) {
-    algo->beginRun(run, eventSetup, pixelTemplateDBObject, _pixelTempStore);
+    algo->beginRun(run, eventSetup, &pixelTemplateDBObject, _pixelTempStore);
   }
 }
 
@@ -133,21 +136,18 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup) 
       trackerTopoRec.cacheIdentifier() != _trackerTopologyCacheID) {
     _trackerGeometryCacheID = trackerGeomRec.cacheIdentifier();
     _trackerTopologyCacheID = trackerTopoRec.cacheIdentifier();
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-    trackerGeomRec.get(trackerGeometryHandle);
-    trackerTopoRec.get(trackerTopologyHandle);
-    const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
-    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
+
+    const TrackerGeometry& trackerGeometry = trackerGeomRec.get(trackerGeometryESToken_);
+    const TrackerTopology& trackerTopology = trackerTopoRec.get(trackerTopologyESToken_);
 
     _detIdPipes.clear();
 
     //build pipes for all detIds
-    const std::vector<DetId>& detIds = trackerGeometry->detIds();
+    const std::vector<DetId>& detIds = trackerGeometry.detIds();
     std::vector<unsigned int> numberOfDetIdsPerAlgorithm(_recHitAlgorithms.size(), 0);
 
     for (const DetId& detId : detIds) {
-      TrackerDetIdSelector selector(detId, *trackerTopology);
+      TrackerDetIdSelector selector(detId, trackerTopology);
 
       TrackingRecHitPipe pipe;
       for (unsigned int ialgo = 0; ialgo < _recHitAlgorithms.size(); ++ialgo) {
@@ -159,7 +159,7 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup) 
       }
       if (pipe.size() == 0) {
         throw cms::Exception("FastSimulation/TrackingRecHitProducer: DetId not configured! (" +
-                             trackerTopology->print(detId) + ")");
+                             trackerTopology.print(detId) + ")");
       }
       _detIdPipes[detId.rawId()] = pipe;
     }

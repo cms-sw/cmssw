@@ -2,7 +2,6 @@
 #define CommonTools_PFCandProducer_PFPileUpAlgo_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -28,6 +27,8 @@ public:
   inline void setVerbose(bool verbose) { verbose_ = verbose; }
 
   inline void setCheckClosestZVertex(bool val) { checkClosestZVertex_ = val; }
+  inline void setNumOfPUVtxsForCharged(unsigned int val) { fNumOfPUVtxsForCharged_ = val; }
+  inline void setDzCutForChargedFromPUVtxs(double val) { fDzCutForChargedFromPUVtxs_ = val; }
 
   const PFCollection& getPFCandidatesFromPU() const { return pfCandidatesFromPU_; }
 
@@ -38,6 +39,8 @@ public:
 private:
   /// use the closest z vertex if a track is not in a vertex
   bool checkClosestZVertex_;
+  unsigned int fNumOfPUVtxsForCharged_;
+  double fDzCutForChargedFromPUVtxs_;
 
   /// verbose ?
   bool verbose_;

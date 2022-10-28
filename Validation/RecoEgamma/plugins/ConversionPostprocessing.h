@@ -16,7 +16,7 @@
 #include "TProfile.h"
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -45,7 +45,7 @@ class TH2F;
 class TProfile;
 class TTree;
 
-class ConversionPostprocessing : public edm::EDAnalyzer {
+class ConversionPostprocessing : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -56,6 +56,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override {}
   void endRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:

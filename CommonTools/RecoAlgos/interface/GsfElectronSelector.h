@@ -19,7 +19,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 
 namespace helper {
   struct GsfElectronCollectionStoreManager {
@@ -108,7 +108,7 @@ namespace helper {
     std::unique_ptr<TrackingRecHitCollection> selHits_;
   };
 
-  class GsfElectronSelectorBase : public edm::EDFilter {
+  class GsfElectronSelectorBase : public edm::stream::EDFilter<> {
   public:
     GsfElectronSelectorBase(const edm::ParameterSet& cfg) {
       std::string alias(cfg.getParameter<std::string>("@module_label"));
@@ -122,11 +122,26 @@ namespace helper {
     }
   };
 
-  template <>
-  struct StoreManagerTrait<reco::GsfElectronCollection> {
+  struct GsfElectronCollectionStoreManagerTrait {
     typedef GsfElectronCollectionStoreManager type;
     typedef GsfElectronSelectorBase base;
   };
+
 }  // namespace helper
+
+template <typename Selector,
+          typename StoreManagerTrait = ::helper::GsfElectronCollectionStoreManagerTrait,
+          typename OutputCollection =
+              typename ::helper::SelectedOutputCollectionTrait<reco::GsfElectronCollection>::type,
+          typename StoreContainer = typename ::helper::StoreContainerTrait<reco::GsfElectronCollection>::type,
+          typename PostProcessor = ::helper::NullPostProcessor<reco::GsfElectronCollection> >
+using GsfElectronSingleObjectSelector = SingleObjectSelectorBase<reco::GsfElectronCollection,
+                                                                 Selector,
+                                                                 typename StoreManagerTrait::base,
+                                                                 OutputCollection,
+                                                                 StoreContainer,
+                                                                 PostProcessor,
+                                                                 typename StoreManagerTrait::type,
+                                                                 typename StoreManagerTrait::base>;
 
 #endif

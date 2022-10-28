@@ -75,6 +75,7 @@ private:
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 
   MonitorElement *nTaus, *nPrimeTaus;
   MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, *TauSpinEffectsW_X,

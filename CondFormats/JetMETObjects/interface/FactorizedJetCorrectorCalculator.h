@@ -95,14 +95,14 @@ public:
                                    const std::string& fTags,
                                    const std::string& fOptions = "");
   FactorizedJetCorrectorCalculator(const std::vector<JetCorrectorParameters>& fParameters);
+  FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&) = delete;
+  FactorizedJetCorrectorCalculator& operator=(const FactorizedJetCorrectorCalculator&) = delete;
   ~FactorizedJetCorrectorCalculator();
   float getCorrection(VariableValues&) const;
   std::vector<float> getSubCorrections(VariableValues&) const;
 
 private:
   //---- Member Functions ----
-  FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&) = delete;
-  FactorizedJetCorrectorCalculator& operator=(const FactorizedJetCorrectorCalculator&) = delete;
   float getLepPt(const VariableValues&) const;
   float getRelLepPt(const VariableValues&) const;
   float getPtRel(const VariableValues&) const;

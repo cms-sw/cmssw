@@ -54,7 +54,7 @@
 
 #include <vector>
 
-class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
+class dso_hidden PixelThresholdClusterizer : public PixelClusterizerBase {
 public:
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
   ~PixelThresholdClusterizer() override;
@@ -77,7 +77,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
-private:
+protected:
   template <typename T>
   void clusterizeDetUnitT(const T& input,
                           const PixelGeomDetUnit* pixDet,
@@ -89,6 +89,10 @@ private:
   SiPixelArrayBuffer theBuffer;                    // internal nrow * ncol matrix
   std::vector<SiPixelCluster::PixelPos> theSeeds;  // cached seed pixels
   std::vector<SiPixelCluster> theClusters;         // resulting clusters
+
+  std::vector<bool> theFakePixels;  // fake pixels introduced to guide clustering
+
+  std::vector<uint8_t> thePixelOccurrence;  // the number of times each pixel occurs (for tracking duplicate pixels)
 
   //! Clustering-related quantities:
   float thePixelThresholdInNoiseUnits;    // Pixel threshold in units of noise
@@ -107,6 +111,7 @@ private:
   const double theElectronPerADCGain;  //  ADC to electrons conversion
 
   const bool doPhase2Calibration;      // The ADC --> electrons calibration is for phase-2 tracker
+  const bool dropDuplicates;           // Enabling dropping duplicate pixels
   const int thePhase2ReadoutMode;      // Readout mode of the phase-2 IT digitizer
   const double thePhase2DigiBaseline;  // Threshold above which digis are measured in the phase-2 IT
   const int thePhase2KinkADC;          // ADC count at which the kink in the dual slop kicks in

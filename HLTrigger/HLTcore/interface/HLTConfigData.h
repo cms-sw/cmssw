@@ -1,5 +1,5 @@
-#ifndef HLTcore_HLTConfigData_h
-#define HLTcore_HLTConfigData_h
+#ifndef HLTrigger_HLTcore_HLTConfigData_h
+#define HLTrigger_HLTcore_HLTConfigData_h
 
 /** \class HLTConfigData
  *
@@ -11,12 +11,14 @@
  *
  */
 
-#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
+#include "HLTrigger/HLTcore/interface/FractionalPrescale.h"
 
 #include <map>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 //
 // class declaration
@@ -91,15 +93,15 @@ public:
 
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
-  const std::vector<std::vector<std::pair<bool, std::string> > >& hltL1GTSeeds() const;
+  const std::vector<std::vector<std::pair<bool, std::string>>>& hltL1GTSeeds() const;
   /// HLTLevel1GTSeed modules for trigger path with name
-  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(const std::string& trigger) const;
+  const std::vector<std::pair<bool, std::string>>& hltL1GTSeeds(const std::string& trigger) const;
   /// HLTLevel1GTSeed modules for trigger path with index i
-  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(unsigned int trigger) const;
+  const std::vector<std::pair<bool, std::string>>& hltL1GTSeeds(unsigned int trigger) const;
 
   /// HLTL1TSeed module
   /// HLTL1TSeed modules for all trigger paths
-  const std::vector<std::vector<std::string> >& hltL1TSeeds() const;
+  const std::vector<std::vector<std::string>>& hltL1TSeeds() const;
   /// HLTL1TSeed modules for trigger path with name
   const std::vector<std::string>& hltL1TSeeds(const std::string& trigger) const;
   /// HLTL1TSeed modules for trigger path with index i
@@ -113,7 +115,7 @@ public:
   /// index of stream with name
   unsigned int streamIndex(const std::string& stream) const;
   /// names of datasets for all streams
-  const std::vector<std::vector<std::string> >& streamContents() const;
+  const std::vector<std::vector<std::string>>& streamContents() const;
   /// names of datasets in stream with index i
   const std::vector<std::string>& streamContent(unsigned int stream) const;
   /// names of datasets in stream with name
@@ -127,7 +129,7 @@ public:
   /// index of dataset with name
   unsigned int datasetIndex(const std::string& dataset) const;
   /// names of trigger paths for all datasets
-  const std::vector<std::vector<std::string> >& datasetContents() const;
+  const std::vector<std::vector<std::string>>& datasetContents() const;
   /// names of trigger paths in dataset with index i
   const std::vector<std::string>& datasetContent(unsigned int dataset) const;
   /// names of trigger paths in dataset with name
@@ -137,10 +139,13 @@ public:
   /// Number of HLT prescale sets
   unsigned int prescaleSize() const;
   /// HLT prescale value in specific prescale set for a specific trigger path
-  unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
-  /// low-level data member access
+  template <typename T = unsigned int>
+  T prescaleValue(unsigned int set, const std::string& trigger) const;
+  /// labels of HLT prescale columns
   const std::vector<std::string>& prescaleLabels() const;
-  const std::map<std::string, std::vector<unsigned int> >& prescaleTable() const;
+  /// map of HLT prescales by trigger-path name (key=path, value=prescales)
+  template <typename T = unsigned int>
+  std::map<std::string, std::vector<T>> const& prescaleTable() const;
 
   /// technical: id() function needed for use with ThreadSafeRegistry
   edm::ParameterSetID id() const;
@@ -152,24 +157,49 @@ private:
   std::string globalTag_;
   std::string tableName_;
   std::vector<std::string> triggerNames_;
-  std::vector<std::vector<std::string> > moduleLabels_;
-  std::vector<std::vector<std::string> > saveTagsModules_;
+  std::vector<std::vector<std::string>> moduleLabels_;
+  std::vector<std::vector<std::string>> saveTagsModules_;
 
   std::map<std::string, unsigned int> triggerIndex_;
-  std::vector<std::map<std::string, unsigned int> > moduleIndex_;
+  std::vector<std::map<std::string, unsigned int>> moduleIndex_;
 
   unsigned int l1tType_;
-  std::vector<std::vector<std::pair<bool, std::string> > > hltL1GTSeeds_;
-  std::vector<std::vector<std::string> > hltL1TSeeds_;
+  std::vector<std::vector<std::pair<bool, std::string>>> hltL1GTSeeds_;
+  std::vector<std::vector<std::string>> hltL1TSeeds_;
 
   std::vector<std::string> streamNames_;
   std::map<std::string, unsigned int> streamIndex_;
-  std::vector<std::vector<std::string> > streamContents_;
+  std::vector<std::vector<std::string>> streamContents_;
 
   std::vector<std::string> datasetNames_;
   std::map<std::string, unsigned int> datasetIndex_;
-  std::vector<std::vector<std::string> > datasetContents_;
+  std::vector<std::vector<std::string>> datasetContents_;
 
   trigger::HLTPrescaleTable hltPrescaleTable_;
+  std::map<std::string, std::vector<double>> hltPrescaleTableValuesDouble_;
+  std::map<std::string, std::vector<FractionalPrescale>> hltPrescaleTableValuesFractional_;
 };
-#endif
+
+template <typename T>
+T HLTConfigData::prescaleValue(unsigned int set, const std::string& trigger) const {
+  static_assert(std::is_same_v<T, double> or std::is_same_v<T, FractionalPrescale>,
+                "\n\tPlease use prescaleValue<double> or prescaleValue<FractionalPrescale>"
+                "\n\t(other types for HLT prescales are not supported anymore by HLTConfigData)");
+  return hltPrescaleTable_.prescale(set, trigger);
+}
+
+template <typename T>
+std::map<std::string, std::vector<T>> const& HLTConfigData::prescaleTable() const {
+  static_assert(std::is_same_v<T, double> or std::is_same_v<T, FractionalPrescale>,
+                "\n\tPlease use prescaleTable<double> or prescaleTable<FractionalPrescale>"
+                "\n\t(other types for HLT prescales are not supported anymore by HLTConfigData)");
+  return hltPrescaleTable_.table();
+}
+
+template <>
+std::map<std::string, std::vector<double>> const& HLTConfigData::prescaleTable() const;
+
+template <>
+std::map<std::string, std::vector<FractionalPrescale>> const& HLTConfigData::prescaleTable() const;
+
+#endif  // HLTrigger_HLTcore_HLTConfigData_h

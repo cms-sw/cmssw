@@ -11,9 +11,25 @@
 #include <iomanip>
 #include <iostream>
 
-enum Pattern_Info { NUM_LAYERS = 6, ALCT_PATTERN_WIDTH = 5 };
-
 using namespace std;
+
+namespace {
+  enum Pattern_Info { NUM_LAYERS = 6, ALCT_PATTERN_WIDTH = 5 };
+
+  CSCALCTDigi::WireContainer makeEmptyContainer() {
+    CSCALCTDigi::WireContainer ret;
+    ret.resize(NUM_LAYERS);
+    for (auto& p : ret) {
+      p.resize(ALCT_PATTERN_WIDTH);
+    }
+    return ret;
+  }
+}  // namespace
+
+CSCALCTDigi::WireContainer const& CSCALCTDigi::emptyContainer() {
+  static WireContainer const s_container = makeEmptyContainer();
+  return s_container;
+}
 
 /// Constructors
 CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
@@ -33,12 +49,7 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
       bx_(bx),
       trknmb_(trknmb),
       hmt_(hmt),
-      version_(version) {
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(ALCT_PATTERN_WIDTH);
-  }
-}
+      version_(version) {}
 
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
@@ -56,11 +67,8 @@ void CSCALCTDigi::clear() {
   trknmb_ = 0;
   fullbx_ = 0;
   hmt_ = 0;
-  hits_.resize(NUM_LAYERS);
+  hits_.clear();
   version_ = Version::Legacy;
-  for (auto& p : hits_) {
-    p.resize(ALCT_PATTERN_WIDTH);
-  }
 }
 
 uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }

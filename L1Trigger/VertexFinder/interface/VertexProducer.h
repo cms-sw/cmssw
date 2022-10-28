@@ -3,6 +3,8 @@
 
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,6 +15,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
+#include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
 #include <iostream>
 #include <map>
@@ -36,7 +39,7 @@ private:
 
 private:
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
   const std::string outputCollectionName_;
 
   l1tVertexFinder::AlgoSettings settings_;

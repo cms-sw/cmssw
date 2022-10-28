@@ -1,6 +1,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
@@ -10,18 +11,19 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
-ConditionHelper::ConditionHelper() : params_cache_id_(0ULL), forest_cache_id_(0ULL) {}
+ConditionHelper::ConditionHelper(edm::ConsumesCollector iC)
+    : params_cache_id_(0ULL), forest_cache_id_(0ULL), paramsToken_(iC.esConsumes()), forestToken_(iC.esConsumes()) {}
 
 ConditionHelper::~ConditionHelper() {}
 
-void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ConditionHelper::checkAndUpdateConditions(const edm::EventSetup& iSetup) {
   bool new_params = false;
   bool new_forests = false;
 
   // Pull configuration from the EventSetup
   auto params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
-    params_setup.get(params_);
+    params_ = params_setup.getHandle(paramsToken_);
 
     // with the magic above you can use params_->fwVersion to change emulator's behavior
     // ...
@@ -34,7 +36,7 @@ void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   // Pull pt LUT from the EventSetup
   auto forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
   if (forest_setup.cacheIdentifier() != forest_cache_id_) {
-    forest_setup.get(forest_);
+    forest_ = forest_setup.getHandle(forestToken_);
 
     // at this point we want to reload the newly pulled pT LUT
     // ...
@@ -73,15 +75,17 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
   // because of rigid CondFormats naming conventions - AWB 02.06.17
   // std::cout << "    - Getting proper PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
   // return params_->PhiMatchWindowSt1_;
-
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
   // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
   if (params_->firmwareVersion_ < 50000) {  // For 2016
     return 0;
   } else if (params_->firmwareVersion_ < 1537467271) {  // From the beginning of 2017
     return 1;                                           // Corresponding to FW timestamps before Sept. 20, 2018
+  } else if (params_->firmwareVersion_ <
+             1664468309) {  // Corresponds to September 29, 2022. The firmware got deployed on October 6, 2022.
+    return 2;               // Starting September 26, 2018 with run 323556 (data only, not in MC)
   } else {
-    return 2;  // Starting September 26, 2018 with run 323556 (data only, not in MC)
+    return 3;  // Starting October 6, 2022 with run 359924 (data only, not in MC)
   }
 }
 

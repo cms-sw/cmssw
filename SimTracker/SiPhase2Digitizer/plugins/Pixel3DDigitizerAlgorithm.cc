@@ -24,33 +24,8 @@ namespace {
   constexpr double operator""_um_inv(long double length) { return length * 1e4; }
 }  // namespace
 
-void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
-  // XXX: Just copied from PixelDigitizer Algorithm
-  //      CHECK if all these is needed
-
-  if (use_ineff_from_db_) {
-    // load gain calibration service fromdb...
-    theSiPixelGainCalibrationService_->setESObjects(es);
-  }
-
-  if (use_deadmodule_DB_) {
-    siPixelBadModule_ = &es.getData(siPixelBadModuleToken_);
-  }
-
-  if (use_LorentzAngle_DB_) {
-    // Get Lorentz angle from DB record
-    siPixelLorentzAngle_ = &es.getData(siPixelLorentzAngleToken_);
-  }
-
-  // gets the map and geometry from the DB (to kill ROCs)
-  fedCablingMap_ = &es.getData(fedCablingMapToken_);
-  geom_ = &es.getData(geomToken_);
-}
-
 Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-    : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm"),
-                                      iC),
+    : PixelDigitizerAlgorithm(conf, iC),
       np_column_radius_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
           1.0_um),
@@ -59,16 +34,9 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
           1.0_um),
       np_column_gap_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
-          1.0_um),
-      fedCablingMapToken_(iC.esConsumes()),
-      geomToken_(iC.esConsumes()) {
+          1.0_um) {
   // XXX - NEEDED?
   pixelFlag_ = true;
-
-  if (use_deadmodule_DB_)
-    siPixelBadModuleToken_ = iC.esConsumes();
-  if (use_LorentzAngle_DB_)
-    siPixelLorentzAngleToken_ = iC.esConsumes();
 
   edm::LogInfo("Pixel3DDigitizerAlgorithm")
       << "Algorithm constructed \n"

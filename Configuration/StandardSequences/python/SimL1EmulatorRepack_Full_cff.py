@@ -3,20 +3,20 @@ import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
 
-
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def _print(ignored):
-    print("L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
-    print("L1T WARN:  Use a legacy version of L1REPACK for now.")
+    print("# L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
+    print("# L1T WARN:  Use a legacy version of L1REPACK for now.")
 stage2L1Trigger.toModify(None, _print)
-(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
+(~stage2L1Trigger).toModify(None, lambda x: print("# L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
 
-import EventFilter.Utilities.tcdsRawToDigi_cfi
-unpackTcds = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+unpackTcds = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.L1TRawToDigi.bmtfDigis_cfi
@@ -58,7 +58,11 @@ unpackRPCTwinMux = EventFilter.RPCRawToDigi.rpcTwinMuxRawToDigi_cfi.rpcTwinMuxRa
 import EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi
 unpackTwinMux = EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi.twinMuxStage2Digis.clone(
     DTTM7_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
-        
+
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+unpackGEM = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 unpackEcal = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
@@ -92,6 +96,10 @@ simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = 'unpackCSC:MuonCSCWireDi
 simTwinMuxDigis.RPC_Source         = 'unpackRPCTwinMux'
 simTwinMuxDigis.DTDigi_Source      = "unpackTwinMux:PhIn"
 simTwinMuxDigis.DTThetaDigi_Source = "unpackTwinMux:ThIn"
+
+run3_GEM.toModify(simMuonGEMPadDigis,
+    InputCollection = 'unpackGEM'
+)
 
 # -----------------------------------------------------------
 # change when availalbe simTwinMux and reliable DTTPs, CSCTPs
@@ -150,11 +158,15 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
         ]
     )
 
-
 SimL1EmulatorTask = cms.Task()
 stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackEcal,unpackHcal,unpackCSC,unpackDT,unpackRPC,unpackRPCTwinMux,unpackTwinMux,unpackOmtf,unpackEmtf,unpackCsctf,unpackBmtf
                                                           ,unpackLayer1
                                                           ,unpackTcds
                                                           ,SimL1EmulatorCoreTask,packCaloStage2
                                                           ,packGmtStage2,packGtStage2,rawDataCollector))
+
+_SimL1EmulatorTaskWithGEM = SimL1EmulatorTask.copy()
+_SimL1EmulatorTaskWithGEM.add(unpackGEM)
+(stage2L1Trigger & run3_GEM).toReplaceWith(SimL1EmulatorTask, _SimL1EmulatorTaskWithGEM)
+
 SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

@@ -4,7 +4,7 @@
 */
 
 // Prototype class definition
-#include "SourceCardRouting.h"  //hh"
+#include "../interface/SourceCardRouting.h"  //hh"
 
 // File streams
 #include <iomanip>

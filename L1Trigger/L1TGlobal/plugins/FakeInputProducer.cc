@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,7 +41,7 @@ namespace l1t {
   // class declaration
   //
 
-  class FakeInputProducer : public EDProducer {
+  class FakeInputProducer : public global::EDProducer<> {
   public:
     explicit FakeInputProducer(const ParameterSet&);
     ~FakeInputProducer() override;
@@ -49,14 +49,9 @@ namespace l1t {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void produce(Event&, EventSetup const&) override;
-    void beginJob() override;
-    void endJob() override;
-    void beginRun(Run const& iR, EventSetup const& iE) override;
-    void endRun(Run const& iR, EventSetup const& iE) override;
+    void produce(StreamID, Event&, EventSetup const&) const override;
 
     // ----------member data ---------------------------
-    unsigned long long m_paramsCacheId;  // Cache-ID from current parameters, to check if needs to be updated.
     //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     //std::shared_ptr<const FirmwareVersion> m_fwv;
     //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
@@ -146,9 +141,6 @@ namespace l1t {
     fEtSumBx = etsum_params.getUntrackedParameter<vector<int>>("etsumBx");
     fEtSumHwPt = etsum_params.getUntrackedParameter<vector<int>>("etsumHwPt");
     fEtSumHwPhi = etsum_params.getUntrackedParameter<vector<int>>("etsumHwPhi");
-
-    // set cache id to zero, will be set at first beginRun:
-    m_paramsCacheId = 0;
   }
 
   FakeInputProducer::~FakeInputProducer() {}
@@ -158,7 +150,7 @@ namespace l1t {
   //
 
   // ------------ method called to produce the data ------------
-  void FakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup) {
+  void FakeInputProducer::produce(StreamID, Event& iEvent, const EventSetup& iSetup) const {
     LogDebug("l1t|Global") << "FakeInputProducer::produce function called...\n";
 
     // Set the range of BX....TO DO...move to Params or determine from param set.
@@ -219,21 +211,6 @@ namespace l1t {
     iEvent.put(std::move(jets));
     iEvent.put(std::move(etsums));
   }
-
-  // ------------ method called once each job just before starting event loop ------------
-  void FakeInputProducer::beginJob() {}
-
-  // ------------ method called once each job just after ending the event loop ------------
-  void FakeInputProducer::endJob() {}
-
-  // ------------ method called when starting to processes a run ------------
-
-  void FakeInputProducer::beginRun(Run const& iR, EventSetup const& iE) {
-    LogDebug("l1t|Global") << "FakeInputProducer::beginRun function called...\n";
-  }
-
-  // ------------ method called when ending the processing of a run ------------
-  void FakeInputProducer::endRun(Run const& iR, EventSetup const& iE) {}
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
   void FakeInputProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {

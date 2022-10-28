@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,24 +12,25 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
-class DDTestVectors : public one::EDAnalyzer<> {
+class DDTestVectors : public global::EDAnalyzer<> {
 public:
-  explicit DDTestVectors(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+  explicit DDTestVectors(const ParameterSet& iConfig)
+      : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")), m_token(esConsumes(m_tag)) {}
 
   void beginJob() override {}
-  void analyze(Event const& iEvent, EventSetup const&) override;
+  void analyze(StreamID, Event const& iEvent, EventSetup const&) const override;
   void endJob() override {}
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<DDVectorRegistry, DDVectorRegistryRcd> m_token;
 };
 
-void DDTestVectors::analyze(const Event&, const EventSetup& iEventSetup) {
-  LogVerbatim("Geometry") << "DDTestVectors::analyze: " << m_tag;
-  ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
+void DDTestVectors::analyze(StreamID, const Event&, const EventSetup& iEventSetup) const {
+  ESTransientHandle<DDVectorRegistry> registry = iEventSetup.getTransientHandle(m_token);
 
-  LogVerbatim("Geometry").log([&registry](auto& log) {
+  LogVerbatim("Geometry").log([&registry, this](auto& log) {
+    log << "DDTestVectors::analyze: " << m_tag;
     log << "DD Vector Registry size: " << registry->vectors.size() << "\n";
     for (const auto& p : registry->vectors) {
       log << " " << p.first << " => ";

@@ -41,10 +41,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWConversionProxyBuilder(const FWConversionProxyBuilder&) = delete;                   // stop default
   const FWConversionProxyBuilder& operator=(const FWConversionProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Conversion>::buildViewType;
   void buildViewType(const reco::Conversion& iData,
                      unsigned int iIndex,

@@ -1,5 +1,5 @@
 #chad harrington 2019
-#execute as python test/offsetStack.py -f HS_old:tmp/HS_old/DQMTotal.root HS:tmp/HS/DQMTotal.root -o .
+#execute as python3 test/offsetStack.py -f HS_old:tmp/HS_old/DQMTotal.root HS:tmp/HS/DQMTotal.root -o .
 import argparse
 import ROOT
 

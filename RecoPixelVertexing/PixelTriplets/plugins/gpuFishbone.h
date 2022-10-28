@@ -8,7 +8,7 @@
 #include <limits>
 
 #include "DataFormats/Math/interface/approx_atan2.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
@@ -16,27 +16,29 @@
 
 namespace gpuPixelDoublets {
 
-  //  __device__
-  //  __forceinline__
   __global__ void fishbone(GPUCACell::Hits const* __restrict__ hhp,
                            GPUCACell* cells,
                            uint32_t const* __restrict__ nCells,
-                           GPUCACell::OuterHitOfCell const* __restrict__ isOuterHitOfCell,
-                           uint32_t nHits,
+                           GPUCACell::OuterHitOfCell const isOuterHitOfCellWrap,
+                           int32_t nHits,
                            bool checkTrack) {
     constexpr auto maxCellsPerHit = GPUCACell::maxCellsPerHit;
 
     auto const& hh = *hhp;
 
-    // x run faster...
+    auto const isOuterHitOfCell = isOuterHitOfCellWrap.container;
+    int32_t offset = isOuterHitOfCellWrap.offset;
+
+    // x runs faster...
     auto firstY = threadIdx.y + blockIdx.y * blockDim.y;
     auto firstX = threadIdx.x;
 
     float x[maxCellsPerHit], y[maxCellsPerHit], z[maxCellsPerHit], n[maxCellsPerHit];
-    uint16_t d[maxCellsPerHit];  // uint8_t l[maxCellsPerHit];
     uint32_t cc[maxCellsPerHit];
+    uint16_t d[maxCellsPerHit];
+    uint8_t l[maxCellsPerHit];
 
-    for (int idy = firstY, nt = nHits; idy < nt; idy += gridDim.y * blockDim.y) {
+    for (int idy = firstY, nt = nHits - offset; idy < nt; idy += gridDim.y * blockDim.y) {
       auto const& vc = isOuterHitOfCell[idy];
       auto size = vc.size();
       if (size < 2)
@@ -55,6 +57,7 @@ namespace gpuPixelDoublets {
         if (checkTrack && ci.tracks().empty())
           continue;
         cc[sg] = vc[ic];
+        l[sg] = ci.layerPairId();
         d[sg] = ci.inner_detIndex(hh);
         x[sg] = ci.inner_x(hh) - xo;
         y[sg] = ci.inner_y(hh) - yo;
@@ -69,23 +72,36 @@ namespace gpuPixelDoublets {
         auto& ci = cells[cc[ic]];
         for (auto jc = ic + 1; jc < sg; ++jc) {
           auto& cj = cells[cc[jc]];
-          // must be different detectors (in the same layer)
+          // must be different detectors
           //        if (d[ic]==d[jc]) continue;
-          // || l[ic]!=l[jc]) continue;
           auto cos12 = x[ic] * x[jc] + y[ic] * y[jc] + z[ic] * z[jc];
-          if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * n[ic] * n[jc]) {
-            // alligned:  kill farthest  (prefer consecutive layers)
+          if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * (n[ic] * n[jc])) {
+            // alligned:  kill farthest (prefer consecutive layers)
+            // if same layer prefer farthest (longer level arm) and make space for intermediate hit
+            bool sameLayer = l[ic] == l[jc];
             if (n[ic] > n[jc]) {
-              ci.kill();
-              break;
+              if (sameLayer) {
+                cj.kill();  // closest
+                ci.setFishbone(cj.inner_hit_id(), cj.inner_z(hh), hh);
+              } else {
+                ci.kill();  // farthest
+                // break;  // removed to improve reproducibility. keep it for reference and tests
+              }
             } else {
-              cj.kill();
+              if (!sameLayer) {
+                cj.kill();  // farthest
+              } else {
+                ci.kill();  // closest
+                cj.setFishbone(ci.inner_hit_id(), ci.inner_z(hh), hh);
+                // break;  // removed to improve reproducibility. keep it for reference    and tests
+              }
             }
           }
-        }  //cj
+        }  // cj
       }    // ci
     }      // hits
   }
+
 }  // namespace gpuPixelDoublets
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_gpuFishbone_h

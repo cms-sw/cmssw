@@ -13,9 +13,9 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAddFourMomenta.h"
@@ -34,20 +34,16 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHPlusMinusCandidate::BPHPlusMinusCandidate(const edm::EventSetup* es)
+BPHPlusMinusCandidate::BPHPlusMinusCandidate(const BPHEventSetupWrapper* es)
     : BPHDecayVertex(es), BPHPlusMinusVertex(es), BPHRecoCandidate(es) {}
 
-BPHPlusMinusCandidate::BPHPlusMinusCandidate(const edm::EventSetup* es, const BPHRecoBuilder::ComponentSet& compList)
+BPHPlusMinusCandidate::BPHPlusMinusCandidate(const BPHEventSetupWrapper* es,
+                                             const BPHRecoBuilder::ComponentSet& compList)
     : BPHDecayMomentum(compList.daugMap, compList.compMap),
       BPHDecayVertex(this, es),
       BPHKinematicFit(this),
       BPHPlusMinusVertex(es),
       BPHRecoCandidate(es, compList) {}
-
-//--------------
-// Destructor --
-//--------------
-BPHPlusMinusCandidate::~BPHPlusMinusCandidate() {}
 
 //--------------
 // Operations --
@@ -89,7 +85,7 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
   class ChargeSelect : public BPHRecoSelect {
   public:
     ChargeSelect(int c) : charge(c) {}
-    ~ChargeSelect() override {}
+    ~ChargeSelect() override = default;
     bool accept(const reco::Candidate& cand) const override { return ((charge * cand.charge()) > 0); }
 
   private:

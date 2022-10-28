@@ -73,8 +73,7 @@ typedef HLTSinglet<l1extra::L1MuonParticle> HLTLevel1Muon;
 // filters for Phase-2
 typedef L1TJetFilterT<reco::CaloJet> L1TJetFilter;
 typedef L1TJetFilterT<l1t::PFJet> L1TPFJetFilter;
-typedef L1TEnergySumFilterT<reco::MET> L1TEnergySumFilter;
-typedef L1TEnergySumFilterT<reco::PFMET> L1TPFEnergySumFilter;
+typedef L1TEnergySumFilterT<l1t::EtSum> L1TEnergySumFilter;
 
 #include "HLTSmartSinglet.h"
 #include "HLTSmartSinglet.cc"
@@ -127,6 +126,10 @@ typedef HLTDoublet<RecoChargedCandidate, PFMET> HLT2MuonPFMET;
 typedef HLTDoublet<RecoEcalCandidate, MET> HLT2PhotonMET;
 typedef HLTDoublet<RecoEcalCandidate, PFMET> HLT2PhotonPFMET;
 
+#include "HLTDoubletSinglet.h"
+typedef HLTDoubletSinglet<PFTau, PFTau, PFJet> HLT3DoublePFTauPFJet;
+typedef HLTDoubletSinglet<RecoChargedCandidate, PFTau, PFJet> HLT3MuonPFTauPFJet;
+
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTHighLevel);
@@ -155,6 +158,9 @@ DEFINE_FWK_MODULE(HLT2MuonPFMET);
 DEFINE_FWK_MODULE(HLT2PhotonMET);
 DEFINE_FWK_MODULE(HLT2PhotonPFMET);
 
+DEFINE_FWK_MODULE(HLT3DoublePFTauPFJet);
+DEFINE_FWK_MODULE(HLT3MuonPFTauPFJet);
+
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
 DEFINE_FWK_MODULE(HLT1Muon);
@@ -180,7 +186,6 @@ DEFINE_FWK_MODULE(L1THPSPFTauFilter);
 DEFINE_FWK_MODULE(L1TJetFilter);
 DEFINE_FWK_MODULE(L1TPFJetFilter);
 DEFINE_FWK_MODULE(L1TEnergySumFilter);
-DEFINE_FWK_MODULE(L1TPFEnergySumFilter);
 
 DEFINE_FWK_MODULE(HLTGlobalSumsPFMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);

@@ -47,7 +47,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "TLorentzVector.h"

@@ -22,6 +22,8 @@
 #include <atomic>
 #include <memory>
 
+using namespace edm::storage;
+
 /// Information about file systems on this node.
 struct LocalFileSystem::FSInfo {
   char *fsname;               //< file system name
@@ -55,7 +57,7 @@ struct LocalFileSystem::FSInfo {
     The exceptions to /proc/filesystems list: lustre and fuse file
     systems are forced to remote status. Everything else like NFS,
     AFS, GPFS and various cluster-based systems are already remote. */
-int LocalFileSystem::readFSTypes(void) {
+int LocalFileSystem::readFSTypes() {
   int ret = 0;
 
 #if __linux__
@@ -188,7 +190,7 @@ LocalFileSystem::FSInfo *LocalFileSystem::initFSInfo(void *arg) {
     file systems, and initialises FSInfo structure for them.  It does
     not yet call statFSInfo() on them, so the device and file type ids
     are not yet complete. */
-int LocalFileSystem::initFSList(void) {
+int LocalFileSystem::initFSList() {
 #if BSD
   int rc;
   struct statfs *mtab = 0;
@@ -509,7 +511,7 @@ std::pair<std::string, std::string> LocalFileSystem::findCachePath(const std::ve
 }
 
 /** Initialise local file system status.  */
-LocalFileSystem::LocalFileSystem(void) {
+LocalFileSystem::LocalFileSystem() {
   if (readFSTypes() < 0)
     return;
 
@@ -518,7 +520,7 @@ LocalFileSystem::LocalFileSystem(void) {
 }
 
 /** Free local file system status resources. */
-LocalFileSystem::~LocalFileSystem(void) {
+LocalFileSystem::~LocalFileSystem() {
   for (size_t i = 0, e = fs_.size(); i < e; ++i)
     free(fs_[i]);
 }

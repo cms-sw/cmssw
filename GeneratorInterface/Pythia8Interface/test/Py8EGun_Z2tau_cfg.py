@@ -12,6 +12,7 @@ process.generator = cms.EDFilter("Pythia8EGun",
     maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
+    pythiaHepMCVerbosityParticles = cms.untracked.bool(True),
 
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(23),

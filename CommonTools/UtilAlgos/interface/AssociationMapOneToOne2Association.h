@@ -10,18 +10,18 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 template <typename CKey, typename CVal>
-class AssociationMapOneToOne2Association : public edm::EDProducer {
+class AssociationMapOneToOne2Association : public edm::global::EDProducer<> {
 public:
   AssociationMapOneToOne2Association(const edm::ParameterSet&);
 
 private:
   typedef edm::AssociationMap<edm::OneToOne<CKey, CVal> > am_t;
   typedef edm::Association<CVal> as_t;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   edm::EDGetTokenT<am_t> am_;
 };
 
@@ -38,7 +38,9 @@ AssociationMapOneToOne2Association<CKey, CVal>::AssociationMapOneToOne2Associati
 }
 
 template <typename CKey, typename CVal>
-void AssociationMapOneToOne2Association<CKey, CVal>::produce(edm::Event& evt, const edm::EventSetup&) {
+void AssociationMapOneToOne2Association<CKey, CVal>::produce(edm::StreamID,
+                                                             edm::Event& evt,
+                                                             const edm::EventSetup&) const {
   using namespace edm;
   using namespace std;
   Handle<am_t> am;

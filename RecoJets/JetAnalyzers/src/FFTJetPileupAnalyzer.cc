@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -49,16 +49,15 @@
 //
 // class declaration
 //
-class FFTJetPileupAnalyzer : public edm::EDAnalyzer {
+class FFTJetPileupAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
-  ~FFTJetPileupAnalyzer() override;
-
-private:
   FFTJetPileupAnalyzer() = delete;
   FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
   FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
+  ~FFTJetPileupAnalyzer() override;
 
+private:
   // The following method should take all necessary info from
   // PileupSummaryInfo and fill out the ntuple
   void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
@@ -134,6 +133,8 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       totalNpu(-1),
       totalNPV(-1),
       counter(0) {
+  usesResource(TFileService::kSharedResource);
+
   if (collectPileup || collectOOTPileup)
     pileupToken = consumes<std::vector<PileupSummaryInfo> >(pileupLabel);
 

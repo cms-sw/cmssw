@@ -15,7 +15,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -42,6 +41,8 @@ private:
   cond::Time_t analysismaskiov_;
   std::string record_;
   std::string label_;
+
+  edm::ESGetToken<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd> tokenAnalysisMask_;
 };
 
 using namespace std;
@@ -52,13 +53,10 @@ using namespace edm;
 WriteCTPPSPixelAnalysisMask::WriteCTPPSPixelAnalysisMask(const edm::ParameterSet &ps)
     : analysismaskiov_(ps.getParameter<unsigned long long>("analysismaskiov")),
       record_(ps.getParameter<string>("record")),
-      label_(ps.getParameter<string>("label")) {}
+      label_(ps.getParameter<string>("label")),
+      tokenAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup const &es) {
-  // get analysis mask to mask channels
-  ESHandle<CTPPSPixelAnalysisMask> analysisMask;
-  es.get<CTPPSPixelAnalysisMaskRcd>().get(label_, analysisMask);
-
   /*// print analysisMask
   printf("* mask\n");
   for (const auto &p : analysisMask->analysisMask)
@@ -68,10 +66,11 @@ void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup co
   */
 
   // Write Analysis Mask to sqlite file:
-  const CTPPSPixelAnalysisMask *pCTPPSPixelAnalysisMask = analysisMask.product();  // Analysis Mask
+
+  const auto &analysisMask = es.getData(tokenAnalysisMask_);
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCTPPSPixelAnalysisMask, analysismaskiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(analysisMask, analysismaskiov_, record_);
   }
 }
 

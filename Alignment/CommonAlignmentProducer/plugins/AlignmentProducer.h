@@ -58,33 +58,39 @@ private:
   bool getAliClusterValueMap(const edm::Event&, edm::Handle<AliClusterValueMap>&) override;
 
   const unsigned int maxLoops_;  /// Number of loops to loop
+
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAssociationCollectionToken_;
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  edm::EDGetTokenT<TkFittedLasBeamCollection> tkFittedLasBeamCollectionToken_;
+  edm::EDGetTokenT<TsosVectorCollection> tsosVectorCollectionToken_;
+  edm::EDGetTokenT<AliClusterValueMap> aliClusterValueMapToken_;
 };
 
 //------------------------------------------------------------------------------
 inline bool AlignmentProducer::getTrajTrackAssociationCollection(const edm::Event& event,
                                                                  edm::Handle<TrajTrackAssociationCollection>& result) {
-  return event.getByLabel(tjTkAssociationMapTag_, result);
+  return event.getByToken(trajTrackAssociationCollectionToken_, result);
 }
 
 //------------------------------------------------------------------------------
 inline bool AlignmentProducer::getBeamSpot(const edm::Event& event, edm::Handle<reco::BeamSpot>& result) {
-  return event.getByLabel(beamSpotTag_, result);
+  return event.getByToken(bsToken_, result);
 }
 
 //------------------------------------------------------------------------------
 inline bool AlignmentProducer::getTkFittedLasBeamCollection(const edm::Run& run,
                                                             edm::Handle<TkFittedLasBeamCollection>& result) {
-  return run.getByLabel(tkLasBeamTag_, result);
+  return run.getByToken(tkFittedLasBeamCollectionToken_, result);
 }
 
 //------------------------------------------------------------------------------
 inline bool AlignmentProducer::getTsosVectorCollection(const edm::Run& run, edm::Handle<TsosVectorCollection>& result) {
-  return run.getByLabel(tkLasBeamTag_, result);
+  return run.getByToken(tsosVectorCollectionToken_, result);
 }
 
 //------------------------------------------------------------------------------
 inline bool AlignmentProducer::getAliClusterValueMap(const edm::Event& event, edm::Handle<AliClusterValueMap>& result) {
-  return event.getByLabel(clusterValueMapTag_, result);
+  return event.getByToken(aliClusterValueMapToken_, result);
 }
 
 #endif

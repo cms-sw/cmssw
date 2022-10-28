@@ -62,8 +62,10 @@ namespace edm {
         branchChildren_(),
         overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
         compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
+        mergeJob_(pset.getUntrackedParameter<bool>("mergeJob")),
         rootOutputFile_(),
-        statusFileName_() {
+        statusFileName_(),
+        overrideGUID_(pset.getUntrackedParameter<std::string>("overrideGUID")) {
     if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
       std::ostringstream statusfilename;
       statusfilename << moduleLabel_ << '_' << getpid();
@@ -385,11 +387,14 @@ namespace edm {
 
   void PoolOutputModule::reallyOpenFile() {
     auto names = physicalAndLogicalNameForNewFile();
-    rootOutputFile_ = std::make_unique<RootOutputFile>(
-        this,
-        names.first,
-        names.second,
-        processesWithSelectedMergeableRunProducts_);  // propagate_const<T> has no reset() function
+    rootOutputFile_ = std::make_unique<RootOutputFile>(this,
+                                                       names.first,
+                                                       names.second,
+                                                       processesWithSelectedMergeableRunProducts_,
+                                                       overrideGUID_);  // propagate_const<T> has no reset() function
+    // Override the GUID of the first file only, in order to avoid two
+    // output files from one Output Module to have identical GUID.
+    overrideGUID_.clear();
   }
 
   void PoolOutputModule::updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,
@@ -459,10 +464,10 @@ namespace edm {
         ->setComment(
             "Maximum output file size, in kB.\n"
             "If over maximum, new output file will be started at next input file transition.");
-    desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
-    desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
+    desc.addUntracked<int>("compressionLevel", 4)->setComment("ROOT compression level of output file.");
+    desc.addUntracked<std::string>("compressionAlgorithm", "ZSTD")
         ->setComment(
-            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, and ZSTD");
+            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");
@@ -483,10 +488,14 @@ namespace edm {
         ->setComment(
             "True:  Allow fast copying, if possible.\n"
             "False: Disable fast copying.");
+    desc.addUntracked("mergeJob", false)
+        ->setComment(
+            "If set to true and fast copying is disabled, copy input file compression and basket sizes to the output "
+            "file.");
     desc.addUntracked<bool>("compactEventAuxiliary", false)
         ->setComment(
             "False: Write EventAuxiliary as we go like any other event metadata branch.\n"
-            "True:  Optimize the file layout be deferring writing the EventAuxiliary branch until the output file is "
+            "True:  Optimize the file layout by deferring writing the EventAuxiliary branch until the output file is "
             "closed.");
     desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
         ->setComment(
@@ -503,6 +512,11 @@ namespace edm {
             "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior "
             "processes.\n"
             "'ALL':     Drop all of it.");
+    desc.addUntracked<std::string>("overrideGUID", defaultString)
+        ->setComment(
+            "Allows to override the GUID of the file. Intended to be used only in Tier0 for re-creating files.\n"
+            "The GUID needs to be of the proper format. If a new output file is started (see maxSize), the GUID of\n"
+            "the first file only is overridden, i.e. the subsequent output files have different, generated GUID.");
     {
       ParameterSetDescription dataSet;
       dataSet.setAllowAnything();

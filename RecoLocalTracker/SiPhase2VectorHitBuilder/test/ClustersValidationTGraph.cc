@@ -1,43 +1,41 @@
+// system includes
 #include <map>
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
+// user includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+// ROOT includes
 #include <TGraph.h>
 #include <TH1F.h>
 #include <THStack.h>
@@ -75,7 +73,6 @@ public:
   explicit Phase2TrackerClusterizerValidationTGraph(const edm::ParameterSet&);
   ~Phase2TrackerClusterizerValidationTGraph();
   void beginJob();
-  void endJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -84,11 +81,14 @@ private:
   unsigned int getLayerNumber(const DetId&, const TrackerTopology*);
   unsigned int getModuleNumber(const DetId&, const TrackerTopology*);
   unsigned int getSimTrackId(const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >&, const DetId&, unsigned int);
-  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
-  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
-  edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenGeom_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTopo_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
   const TrackerGeometry* tkGeom_;
   const TrackerTopology* tkTopo_;
 
@@ -101,16 +101,20 @@ private:
   std::map<unsigned int, ClusterHistos> histograms_;
 };
 
-Phase2TrackerClusterizerValidationTGraph::Phase2TrackerClusterizerValidationTGraph(const edm::ParameterSet& conf) {
-  srcClu_ =
-      consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(conf.getParameter<std::string>("src")));
-  siphase2OTSimLinksToken_ = consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"));
-  simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"));
-  simTracksToken_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  simVerticesToken_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+Phase2TrackerClusterizerValidationTGraph::Phase2TrackerClusterizerValidationTGraph(const edm::ParameterSet& conf)
+    : esTokenGeom_(esConsumes()),
+      esTokenTopo_(esConsumes()),
+      srcClu_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(
+          edm::InputTag(conf.getParameter<std::string>("src")))),
+      siphase2OTSimLinksToken_(
+          consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"))),
+      simHitsToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"))),
+      simTracksToken_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+      simVerticesToken_(consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"))) {
+  usesResource(TFileService::kSharedResource);
 }
 
-Phase2TrackerClusterizerValidationTGraph::~Phase2TrackerClusterizerValidationTGraph() {}
+Phase2TrackerClusterizerValidationTGraph::~Phase2TrackerClusterizerValidationTGraph() = default;
 
 void Phase2TrackerClusterizerValidationTGraph::beginJob() {
   edm::Service<TFileService> fs;
@@ -137,8 +141,6 @@ void Phase2TrackerClusterizerValidationTGraph::beginJob() {
   trackerLayoutXYEC_->SetName("YVsXEC");
 }
 
-void Phase2TrackerClusterizerValidationTGraph::endJob() {}
-
 void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   // Get the needed objects
 
@@ -163,12 +165,8 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
   event.getByToken(simVerticesToken_, simVertices);
 
   // Get the geometry
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tkTopo_ = tTopoHandle.product();
+  tkGeom_ = &eventSetup.getData(esTokenGeom_);
+  tkTopo_ = &eventSetup.getData(esTokenTopo_);
 
   //set up for tree
   int layer_number;

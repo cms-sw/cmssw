@@ -1,21 +1,18 @@
 
 import FWCore.ParameterSet.Config as cms
-
+import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi  as _mod
 
 #==============================================================================
 # corrected pat electrons
 #==============================================================================
 
-calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
+calibratedElectrons = _mod.calibratedElectronProducer.clone(
 
     # input collections
     inputElectronsTag = cms.InputTag('gsfElectrons'),
     # name of the ValueMaps containing the regression outputs                               
     nameEnergyReg = cms.InputTag('eleRegressionEnergy:eneRegForGsfEle'),
     nameEnergyErrorReg = cms.InputTag('eleRegressionEnergy:eneErrorRegForGsfEle'),
-    # The rechits are needed to compute r9                                     
-    recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
-    recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
 
     outputGsfElectronCollectionLabel = cms.string('calibratedGsfElectrons'),
     # For conveniency  the ValueMaps are re-created with the new collection as key. The label of the ValueMap are defined below

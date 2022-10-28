@@ -11,10 +11,7 @@
 <use name="rootgraphics"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HcalTowerAlgo"/>
-<use name="Geometry/Records"/>
 <use name="TrackingTools/GeomPropagators"/>
-<use name="MagneticField/Records"/>
-<use name="TrackPropagation/SteppingHelixPropagator"/>
 <export>
   <lib name="1"/>
 </export>

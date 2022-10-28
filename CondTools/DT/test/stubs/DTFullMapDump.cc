@@ -26,8 +26,6 @@ namespace edmtest {
 
   DTFullMapDump::DTFullMapDump(int i) {}
 
-  DTFullMapDump::~DTFullMapDump() {}
-
   void DTFullMapDump::analyze(const edm::Event& e, const edm::EventSetup& context) {}
 
   void DTFullMapDump::endJob() {

@@ -21,6 +21,7 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
         'keep *_generalTracksExtra_*_*',
         'keep *_offlinePrimaryVertices_*_*',
         'keep *_TkAlIsoProdFilter_*_*',
+        'keep *_genParticles_*_*',
         )
 )
 

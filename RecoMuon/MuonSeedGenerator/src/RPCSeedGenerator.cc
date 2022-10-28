@@ -20,7 +20,7 @@ Implementation:
 #include <memory>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,6 +43,7 @@ Implementation:
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -82,16 +83,16 @@ typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 
 class RPCSeedFinder;
 
-class RPCSeedGenerator : public edm::EDProducer {
+class RPCSeedGenerator : public edm::stream::EDProducer<> {
 public:
   explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
   ~RPCSeedGenerator() override;
 
 private:
-  void beginJob() override;
+  void beginStream(edm::StreamID) override;
   void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void endJob() override;
+  void endStream() override;
 
   // ----------member data ---------------------------
   RPCSeedFinder Finder;
@@ -102,7 +103,12 @@ private:
   std::vector<weightedTrajectorySeed> candidateweightedSeeds;
   std::vector<weightedTrajectorySeed> goodweightedSeeds;
   edm::InputTag theRPCRecHits;
-  MuonDetLayerMeasurements* muonMeasurements;
+  std::unique_ptr<MuonDetLayerMeasurements> muonMeasurements;
+
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> brRPCGeometryToken;
+  const edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonLayersToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryToken;
 };
 
 //
@@ -116,7 +122,11 @@ private:
 //
 // constructors and destructor
 //
-RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig) {
+RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig)
+    : brRPCGeometryToken(esConsumes<edm::Transition::BeginRun>()),
+      muonLayersToken(esConsumes()),
+      fieldToken(esConsumes()),
+      rpcGeometryToken(esConsumes()) {
   //register your products
   /* Examples
        produces<ExampleData2>();
@@ -141,17 +151,17 @@ RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig) {
   // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
   edm::ConsumesCollector iC = consumesCollector();
 
-  muonMeasurements = new MuonDetLayerMeasurements(edm::InputTag(),
-                                                  edm::InputTag(),
-                                                  theRPCRecHits,
-                                                  edm::InputTag(),
-                                                  edm::InputTag(),
-                                                  iC,
-                                                  false,
-                                                  false,
-                                                  true,
-                                                  false,
-                                                  false);
+  muonMeasurements = std::make_unique<MuonDetLayerMeasurements>(edm::InputTag(),
+                                                                edm::InputTag(),
+                                                                theRPCRecHits,
+                                                                edm::InputTag(),
+                                                                edm::InputTag(),
+                                                                iC,
+                                                                false,
+                                                                false,
+                                                                true,
+                                                                false,
+                                                                false);
 
   cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
 }
@@ -160,9 +170,6 @@ RPCSeedGenerator::~RPCSeedGenerator() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   cout << "[RPCSeedGenerator] --> Destructor called" << endl;
-
-  if (muonMeasurements)
-    delete muonMeasurements;
 }
 
 //
@@ -180,18 +187,17 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   auto candidateCollection = std::make_unique<TrajectorySeedCollection>();
 
   // Muon Geometry - DT, CSC and RPC
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  iSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+  MuonDetLayerGeometry const& muonLayers = iSetup.getData(muonLayersToken);
 
   // Get the RPC layers
-  vector<const DetLayer*> RPCBarrelLayers = muonLayers->barrelRPCLayers();
+  vector<const DetLayer*> RPCBarrelLayers = muonLayers.barrelRPCLayers();
   const DetLayer* RB4L = RPCBarrelLayers[5];
   const DetLayer* RB3L = RPCBarrelLayers[4];
   const DetLayer* RB22L = RPCBarrelLayers[3];
   const DetLayer* RB21L = RPCBarrelLayers[2];
   const DetLayer* RB12L = RPCBarrelLayers[1];
   const DetLayer* RB11L = RPCBarrelLayers[0];
-  vector<const DetLayer*> RPCEndcapLayers = muonLayers->endcapRPCLayers();
+  vector<const DetLayer*> RPCEndcapLayers = muonLayers.endcapRPCLayers();
   const DetLayer* REM3L = RPCEndcapLayers[0];
   const DetLayer* REM2L = RPCEndcapLayers[1];
   const DetLayer* REM1L = RPCEndcapLayers[2];
@@ -234,7 +240,10 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   LayerFinder.setInput(recHitsRPC);
 
   // Set Magnetic Field EventSetup of RPCSeedFinder
-  Finder.setEventSetup(iSetup);
+  const MagneticField& Field = iSetup.getData(fieldToken);
+
+  const RPCGeometry& rpcGeom = iSetup.getData(rpcGeometryToken);
+  Finder.setEventSetup(Field, rpcGeom);
 
   // Start from filling layers to filling seeds
   LayerFinder.fill();
@@ -260,7 +269,7 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   LayerFinder.unsetInput();
 }
 
-void RPCSeedGenerator::beginJob() {
+void RPCSeedGenerator::beginStream(edm::StreamID) {
   // Set link and EventSetup of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
   cout << "set link and Geometry EventSetup of RPCSeedFinder, RPCSeedrecHitFinder, RPCCosmicSeedrecHitFinder, "
           "RPCSeedLayerFinder and RPCSeedOverlapper"
@@ -273,15 +282,14 @@ void RPCSeedGenerator::beginJob() {
 }
 void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   // Get RPCGeometry
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
+  RPCGeometry const& rpcGeometry = iSetup.getData(brRPCGeometryToken);
 
-  CosmicrecHitFinder.setEdge(*rpcGeometry);
-  Overlapper.setGeometry(*rpcGeometry);
+  CosmicrecHitFinder.setEdge(rpcGeometry);
+  Overlapper.setGeometry(rpcGeometry);
   Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
 }
 
-void RPCSeedGenerator::endJob() { cout << "All jobs completed" << endl; }
+void RPCSeedGenerator::endStream() { cout << "All jobs completed" << endl; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCSeedGenerator);

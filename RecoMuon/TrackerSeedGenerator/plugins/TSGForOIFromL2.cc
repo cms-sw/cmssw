@@ -47,10 +47,19 @@ TSGForOIFromL2::TSGForOIFromL2(const edm::ParameterSet& iConfig)
       SF4_(iConfig.getParameter<double>("SF4")),
       SF5_(iConfig.getParameter<double>("SF5")),
       SF6_(iConfig.getParameter<double>("SF6")),
+      SFHld_(iConfig.getParameter<double>("SFHld")),
+      SFHd_(iConfig.getParameter<double>("SFHd")),
       tsosDiff1_(iConfig.getParameter<double>("tsosDiff1")),
       tsosDiff2_(iConfig.getParameter<double>("tsosDiff2")),
+      displacedReco_(iConfig.getParameter<bool>("displacedReco")),
       propagatorName_(iConfig.getParameter<std::string>("propagatorName")),
-      theCategory_(std::string("Muon|RecoMuon|TSGForOIFromL2")) {
+      theCategory_(std::string("Muon|RecoMuon|TSGForOIFromL2")),
+      estimatorToken_(esConsumes(edm::ESInputTag("", estimatorName_))),
+      magfieldToken_(esConsumes()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", propagatorName_))),
+      tmpTkGeometryToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      sHPOppositeToken_(esConsumes(edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"))) {
   produces<std::vector<TrajectorySeed> >();
 }
 
@@ -66,25 +75,20 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
   unsigned int hitlessSeedsMadeIP = 0;
   unsigned int hitlessSeedsMadeMuS = 0;
   unsigned int hitSeedsMade = 0;
+  unsigned int hitSeedsMadeMuS = 0;
 
   // Surface used to make a TSOS at the PCA to the beamline
   Plane::PlanePointer dummyPlane = Plane::build(Plane::PositionType(), Plane::RotationType());
 
   // Read ESHandles
   edm::Handle<MeasurementTrackerEvent> measurementTrackerH;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH;
-  edm::ESHandle<MagneticField> magfieldH;
-  edm::ESHandle<Propagator> propagatorAlongH;
-  edm::ESHandle<Propagator> propagatorOppositeH;
-  edm::ESHandle<TrackerGeometry> tmpTkGeometryH;
-  edm::ESHandle<GlobalTrackingGeometry> geometryH;
+  const edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH = iSetup.getHandle(estimatorToken_);
+  const edm::ESHandle<MagneticField> magfieldH = iSetup.getHandle(magfieldToken_);
+  const edm::ESHandle<Propagator> propagatorAlongH = iSetup.getHandle(propagatorToken_);
+  const edm::ESHandle<Propagator>& propagatorOppositeH = propagatorAlongH;
+  const edm::ESHandle<TrackerGeometry> tmpTkGeometryH = iSetup.getHandle(tmpTkGeometryToken_);
+  const edm::ESHandle<GlobalTrackingGeometry> geometryH = iSetup.getHandle(geometryToken_);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometryH);
-  iSetup.get<TrackingComponentsRecord>().get(estimatorName_, estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
 
   // Read L2 track collection
@@ -110,8 +114,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
   std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH, oppositeToMomentum);
 
   // Stepping Helix Propagator for propogation from muon system to tracker
-  edm::ESHandle<Propagator> SHPOpposite;
-  iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
+  const edm::ESHandle<Propagator> SHPOpposite = iSetup.getHandle(sHPOppositeToken_);
 
   // Loop over the L2's and make seeds for all of them
   LogTrace(theCategory_) << "TSGForOIFromL2::produce: Number of L2's: " << l2TrackCol->size();
@@ -168,6 +171,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     hitlessSeedsMadeIP = 0;
     hitlessSeedsMadeMuS = 0;
     hitSeedsMade = 0;
+    hitSeedsMadeMuS = 0;
 
     // calculate scale factors
     double errorSFHits = (adjustErrorsDynamicallyForHits_ ? calculateSFFromL2(l2) : fixedErrorRescalingForHits_);
@@ -202,7 +206,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                             layerCount,
                             out);
 
-        if (useBoth) {
+        if (useBoth && !displacedReco_) {
           if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
             makeSeedsWithoutHits(**it,
                                  outerTkStateOutside,
@@ -219,7 +223,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     }
 
     // Reset number of seeds if in overlap region
-    if (absL2muonEta > minEtaForTEC_ && absL2muonEta < maxEtaForTOB_) {
+    if (absL2muonEta > minEtaForTEC_ && absL2muonEta < maxEtaForTOB_ && !displacedReco_) {
       numSeedsMade = 0;
       hitlessSeedsMadeIP = 0;
       hitlessSeedsMadeMuS = 0;
@@ -253,7 +257,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                             layerCount,
                             out);
 
-        if (useBoth) {
+        if (useBoth && !displacedReco_) {
           if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
             makeSeedsWithoutHits(**it,
                                  outerTkStateOutside,
@@ -296,7 +300,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                             layerCount,
                             out);
 
-        if (useBoth) {
+        if (useBoth && !displacedReco_) {
           if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
             makeSeedsWithoutHits(**it,
                                  outerTkStateOutside,
@@ -310,6 +314,93 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
       }
       LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
                                  << " , layerCount = " << layerCount << std::endl;
+    }
+
+    // Displaced Reconstruction
+    if (displacedReco_ && outerTkStateOutside.isValid()) {
+      layerCount = 0;
+      for (auto it = tob.rbegin(); it != tob.rend(); ++it) {
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount;
+        if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
+          makeSeedsWithoutHits(**it,
+                               outerTkStateOutside,
+                               *(propagatorOpposite.get()),
+                               estimatorH,
+                               errorSFHitless * SFHld_,
+                               hitlessSeedsMadeMuS,
+                               numSeedsMade,
+                               out);
+        if (hitSeedsMadeMuS < maxHitSeeds_ && numSeedsMade < maxSeeds_)
+          makeSeedsFromHits(**it,
+                            outerTkStateOutside,
+                            *(propagatorOpposite.get()),
+                            estimatorH,
+                            measurementTrackerH,
+                            errorSFHits * SFHd_,
+                            hitSeedsMadeMuS,
+                            numSeedsMade,
+                            layerCount,
+                            out);
+      }
+      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
+                                 << " , layerCount = " << layerCount;
+      if (L2muonEta >= 0.0) {
+        layerCount = 0;
+        for (auto it = tecPositive.rbegin(); it != tecPositive.rend(); ++it) {
+          LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC+ layer " << layerCount << std::endl;
+          if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
+            makeSeedsWithoutHits(**it,
+                                 outerTkStateOutside,
+                                 *(propagatorOpposite.get()),
+                                 estimatorH,
+                                 errorSFHitless * SFHld_,
+                                 hitlessSeedsMadeMuS,
+                                 numSeedsMade,
+                                 out);
+          if (hitSeedsMadeMuS < maxHitSeeds_ && numSeedsMade < maxSeeds_)
+            makeSeedsFromHits(**it,
+                              outerTkStateOutside,
+                              *(propagatorOpposite.get()),
+                              estimatorH,
+                              measurementTrackerH,
+                              errorSFHits * SFHd_,
+                              hitSeedsMadeMuS,
+                              numSeedsMade,
+                              layerCount,
+                              out);
+        }
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
+                                   << " , layerCount = " << layerCount;
+      }
+
+      else {
+        layerCount = 0;
+        for (auto it = tecNegative.rbegin(); it != tecNegative.rend(); ++it) {
+          LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount;
+          if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
+            makeSeedsWithoutHits(**it,
+                                 outerTkStateOutside,
+                                 *(propagatorOpposite.get()),
+                                 estimatorH,
+                                 errorSFHitless * SFHld_,
+                                 hitlessSeedsMadeMuS,
+                                 numSeedsMade,
+                                 out);
+          if (hitSeedsMadeMuS < maxHitSeeds_ && numSeedsMade < maxSeeds_)
+            makeSeedsFromHits(**it,
+                              outerTkStateOutside,
+                              *(propagatorOpposite.get()),
+                              estimatorH,
+                              measurementTrackerH,
+                              errorSFHits * SFHd_,
+                              hitSeedsMadeMuS,
+                              numSeedsMade,
+                              layerCount,
+                              out);
+        }
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
+                                   << " , layerCount = " << layerCount;
+      }
     }
 
     for (std::vector<TrajectorySeed>::iterator it = out.begin(); it != out.end(); ++it) {
@@ -329,7 +420,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
 void TSGForOIFromL2::makeSeedsWithoutHits(const GeometricSearchDet& layer,
                                           const TrajectoryStateOnSurface& tsos,
                                           const Propagator& propagatorAlong,
-                                          edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                                          const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
                                           double errorSF,
                                           unsigned int& hitlessSeedsMade,
                                           unsigned int& numSeedsMade,
@@ -363,8 +454,8 @@ void TSGForOIFromL2::makeSeedsWithoutHits(const GeometricSearchDet& layer,
 void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
                                        const TrajectoryStateOnSurface& tsos,
                                        const Propagator& propagatorAlong,
-                                       edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                                       edm::Handle<MeasurementTrackerEvent>& measurementTracker,
+                                       const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                                       const edm::Handle<MeasurementTrackerEvent>& measurementTracker,
                                        double errorSF,
                                        unsigned int& hitSeedsMade,
                                        unsigned int& numSeedsMade,
@@ -542,8 +633,11 @@ void TSGForOIFromL2::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("SF4", 7.0);
   desc.add<double>("SF5", 10.0);
   desc.add<double>("SF6", 2.0);
+  desc.add<double>("SFHld", 2.0)->setComment("Scale Factor used to rescale the TSOS error of the hitless seeds");
+  desc.add<double>("SFHd", 4.0)->setComment("Scale Factor used to rescale the TSOS error of the hit based seeds");
   desc.add<double>("tsosDiff1", 0.2);
   desc.add<double>("tsosDiff2", 0.02);
+  desc.add<bool>("displacedReco", false)->setComment("Flag to turn on the displaced seeding");
   desc.add<std::string>("propagatorName", "PropagatorWithMaterialParabolicMf");
   descriptions.add("TSGForOIFromL2", desc);
 }

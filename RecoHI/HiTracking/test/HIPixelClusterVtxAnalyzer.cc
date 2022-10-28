@@ -1,12 +1,10 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -29,7 +27,7 @@
 // ROOT includes
 #include <TH1.h>
 
-class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer {
+class HIPixelClusterVtxAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps);
 
@@ -43,20 +41,22 @@ private:
   virtual void analyze(const edm::Event &ev, const edm::EventSetup &es);
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
-  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;  //pixel rec hits
+  const edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;  //pixel rec hits
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
 
-  double minZ_;
-  double maxZ_;
-  double zStep_;
+  const double minZ_;
+  const double maxZ_;
+  const double zStep_;
+  const int maxHists_;
 
   edm::Service<TFileService> fs;
-  int maxHists_;
   int counter;
 };
 
 /*****************************************************************************/
 HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps)
     : srcPixels_(consumes<SiPixelRecHitCollection>(ps.getParameter<edm::InputTag>("pixelRecHits"))),
+      trackerToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       minZ_(ps.getParameter<double>("minZ")),
       maxZ_(ps.getParameter<double>("maxZ")),
       zStep_(ps.getParameter<double>("zStep")),
@@ -65,6 +65,7 @@ HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps
 
 {
   // Constructor
+  usesResource(TFileService::kSharedResource);
 }
 
 /*****************************************************************************/
@@ -90,8 +91,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
 
   // get tracker geometry
   if (hRecHits.isValid()) {
-    edm::ESHandle<TrackerGeometry> trackerHandle;
-    es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+    const auto &trackerHandle = es.getHandle(trackerToken_);
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
 

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -57,7 +57,7 @@
 // class decleration
 //
 
-class SiPixelOfflineCalibAnalysisBase : public edm::EDAnalyzer {
+class SiPixelOfflineCalibAnalysisBase : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -141,7 +141,7 @@ private:
   //the beginJob is used to load the calib database.  It then calls the pure
   //virtual calibrationSetup() function.  Derived classes should put beginJob functionality there.
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginRun(const edm::EventSetup& iSetup);
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void beginJob() override;
 
   //calibrationSetup will be used by derived classes

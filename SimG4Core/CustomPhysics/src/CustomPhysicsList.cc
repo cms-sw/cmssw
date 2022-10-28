@@ -58,7 +58,7 @@ void CustomPhysicsList::ConstructProcess() {
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
+  for (auto particle : fParticleFactory.get()->getCustomParticles()) {
     if (particle->GetParticleType() == "simp") {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if (pmanager) {

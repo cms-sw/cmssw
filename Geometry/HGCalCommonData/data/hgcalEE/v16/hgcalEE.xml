@@ -183,57 +183,54 @@
       hgcalwafer:HGCalEEWafer1Coarse2bm0, hgcalwafer:HGCalEEWafer1Coarse2bm1, 
       hgcalwafer:HGCalEEWafer1Coarse2bm2, hgcalwafer:HGCalEEWafer1Coarse2bm3, 
       hgcalwafer:HGCalEEWafer1Coarse2bm4, hgcalwafer:HGCalEEWafer1Coarse2bm5</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="11">
-      materials:Air, materials:Copper, materials:StainlessSteel, 
-      materials:Epoxy, materials:Lead, materials:Lead, materials:Lead,    
-      materials:Copper, materials:Copper, materials:Air, materials:Air</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="11">
-      HGCalEEHardPointGap, HGCalEEAbsorberCopper, HGCalEEAbsorberStainlessSteel, 
+    <Vector name="MaterialNames" type="string" nEntries="10">
+      materials:Copper, materials:StainlessSteel, materials:Epoxy, 
+      materials:Lead, materials:Lead, materials:Lead, materials:Copper,
+      materials:StainlessSteel, materials:Air, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="10">
+      HGCalEEAbsorberCopper, HGCalEEAbsorberStainlessSteel, 
       HGCalEEAbsorberEpoxy, HGCalEEAbsorberLead1, HGCalEEAbsorberLead2, 
-      HGCalEEAbsorberLead3,  HGCalEECoolingPlate, HGCalEECopperCover,
+      HGCalEEAbsorberLead3,  HGCalEECoolingPlate, HGCalEEStainlessSteelCover,
       HGCalEELayerF, HGCalEELayerB</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="11">
-      0.1*mm, 0.1*mm, 0.3*mm,  0.1*mm, 2.77*mm, 4.97*mm, 8.22*mm,
-      6.2*mm, 1.0*mm, [hgcal:ModuleThicknessEE], [hgcal:ModuleThicknessEE]
+    <Vector name="Thickness" type="numeric" nEntries="10">
+      0.1*mm, 0.3*mm,  0.05*mm, 2.77*mm, 4.97*mm, 8.22*mm,
+      6.05*mm, 1.0*mm, [hgcal:ModuleThicknessEE], [hgcal:ModuleThicknessEE]
     </Vector>
     <Vector name="Layers" type="numeric" nEntries="13"> 
-      12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13</Vector>
+      10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="13"> 
       28.37*mm, 30.57*mm, 30.57*mm, 30.57*mm, 30.57*mm, 30.57*mm, 30.57*mm,
       30.57*mm, 30.57*mm, 33.82*mm, 33.82*mm, 33.82*mm, 34.82*mm </Vector>
-    <Vector name="LayerType" type="numeric" nEntries="157"> 
-      0, 1, 2, 3, 4, 3, 2, 1, 9, 7, 10, 0,      
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 5, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 6, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 6, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 6, 3, 2, 1, 9, 7, 10, 0,
-      0, 1, 2, 3, 6, 3, 2, 1, 9, 7, 10, 0, 8
+    <Vector name="LayerType" type="numeric" nEntries="131"> 
+      0, 1, 2, 3, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 4, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 5, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 5, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 5, 2, 1, 0, 8, 6, 9,
+      0, 1, 2, 5, 2, 1, 0, 8, 6, 9, 7
     </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="157">
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,
-      0,-2,-2,-2,-2,-2,-2, 0, 1, 0, 2, 0,-2
+    <Vector name="LayerSense" type="numeric" nEntries="131">
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
+      -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,-2
     </Vector>
-    <Vector name="LayerCenter" type="numeric" nEntries="26">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">

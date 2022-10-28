@@ -1,4 +1,28 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullHadHypKinFit.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtFullHadHypothesis.h"
+
+#include "DataFormats/PatCandidates/interface/Particle.h"
+
+class TtFullHadHypKinFit : public TtFullHadHypothesis {
+public:
+  explicit TtFullHadHypKinFit(const edm::ParameterSet&);
+
+private:
+  /// build the event hypothesis key
+  void buildKey() override { key_ = TtFullHadronicEvent::kKinFit; };
+  /// build event hypothesis from the reco objects of a full-hadronic event
+  void buildHypo(edm::Event&,
+                 const edm::Handle<std::vector<pat::Jet> >&,
+                 std::vector<int>&,
+                 const unsigned int iComb) override;
+
+  edm::EDGetTokenT<std::vector<int> > statusToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightQToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightQBarToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > bToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > bBarToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightPToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightPBarToken_;
+};
 
 TtFullHadHypKinFit::TtFullHadHypKinFit(const edm::ParameterSet& cfg)
     : TtFullHadHypothesis(cfg),
@@ -9,8 +33,6 @@ TtFullHadHypKinFit::TtFullHadHypKinFit(const edm::ParameterSet& cfg)
       bBarToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("bBarTag"))),
       lightPToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("lightPTag"))),
       lightPBarToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("lightPBarTag"))) {}
-
-TtFullHadHypKinFit::~TtFullHadHypKinFit() {}
 
 void TtFullHadHypKinFit::buildHypo(edm::Event& evt,
                                    const edm::Handle<std::vector<pat::Jet> >& jets,
@@ -42,11 +64,14 @@ void TtFullHadHypKinFit::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if (!(lightQ->empty() || lightQBar->empty() || b->empty() || bBar->empty() || lightP->empty() ||
         lightPBar->empty())) {
-    setCandidate(lightQ, iComb, lightQ_);
-    setCandidate(lightQBar, iComb, lightQBar_);
-    setCandidate(b, iComb, b_);
-    setCandidate(bBar, iComb, bBar_);
-    setCandidate(lightP, iComb, lightP_);
-    setCandidate(lightPBar, iComb, lightPBar_);
+    lightQ_ = makeCandidate(lightQ, iComb);
+    lightQBar_ = makeCandidate(lightQBar, iComb);
+    b_ = makeCandidate(b, iComb);
+    bBar_ = makeCandidate(bBar, iComb);
+    lightP_ = makeCandidate(lightP, iComb);
+    lightPBar_ = makeCandidate(lightPBar, iComb);
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullHadHypKinFit);

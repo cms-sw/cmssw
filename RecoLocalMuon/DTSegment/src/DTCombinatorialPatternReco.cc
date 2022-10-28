@@ -10,6 +10,7 @@
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -30,13 +31,13 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTCombinatorialPatternReco::DTCombinatorialPatternReco(const edm::ParameterSet& pset)
-    : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco") {
+DTCombinatorialPatternReco::DTCombinatorialPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector iCC)
+    : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco"), theDTGeometryToken(iCC.esConsumes()) {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");                      //true;
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, iCC);
   theCleaner = new DTSegmentCleaner(pset);
   string theHitAlgoName = pset.getParameter<string>("recAlgo");
   usePairs = !(theHitAlgoName == "DTNoDriftAlgo");
@@ -76,7 +77,7 @@ edm::OwnVector<DTSLRecSegment2D> DTCombinatorialPatternReco::reconstruct(const D
 
 void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
 }
 

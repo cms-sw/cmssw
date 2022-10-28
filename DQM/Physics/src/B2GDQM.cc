@@ -52,9 +52,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-// JetCorrection
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 // ROOT
 #include "TLorentzVector.h"
 
@@ -248,8 +245,6 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Jet Correction
     int countJet = 0;
-    // const JetCorrector* pfcorrector =
-    // JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
 
     for (edm::View<reco::Jet>::const_iterator jet = pfjets.begin(), jetEnd = pfjets.end(); jet != jetEnd; ++jet) {
       if (jet->pt() < jetPtMins_[icoll])

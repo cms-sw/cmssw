@@ -65,30 +65,35 @@ common_MCtruth = cms.PSet(
 ## enable fine calorimeter functionality: must occur *before* common PSet is used below
 from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
 fineCalo.toModify(common_MCtruth,
-    DoFineCalo = True
+    DoFineCalo = True,
+    UseFineCalo = [2],
+    EminFineTrack = 0.0,
 )
 
 ## enable CaloBoundary information for all Phase2 workflows
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(common_MCtruth,
-        SaveCaloBoundaryInformation =True
+        SaveCaloBoundaryInformation = True
 )
 
 g4SimHits = cms.EDProducer("OscarMTProducer",
     g4GeometryDD4hepSource = cms.bool(False),
     NonBeamEvent = cms.bool(False),
-    G4EventManagerVerbosity = cms.untracked.int32(0),
+    EventVerbose = cms.int32(0),
     UseMagneticField = cms.bool(True),
+    UseCommandBaseScorer = cms.bool(False),
     StoreRndmSeeds = cms.bool(False),
     RestoreRndmSeeds = cms.bool(False),
     PhysicsTablesDirectory = cms.untracked.string('PhysicsTables'),
     StorePhysicsTables = cms.untracked.bool(False),
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
+    ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
+    TraceExceptions = cms.bool(False),
     CheckGeometry = cms.untracked.bool(False),
-    OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HGCSensitiveDetector', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
+    OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
     G4CheckOverlap = cms.untracked.PSet(
-        OutputBaseName = cms.string('2017'),
+        OutputBaseName = cms.string('2022'),
         MaterialFlag = cms.bool(True),
         GeomFlag = cms.bool(True),
         OverlapFlag = cms.bool(False),
@@ -105,6 +110,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
+    G4CommandsEndRun = cms.vstring(),
     SteppingVerbosity = cms.untracked.int32(0),
     StepVerboseThreshold = cms.untracked.double(0.1), # in GeV
     VerboseEvents = cms.untracked.vint32(),
@@ -128,7 +134,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ConfGlobalMFM = cms.PSet(
             Volume = cms.string('OCMS'),
             OCMS = cms.PSet(
-                Stepper = cms.string('G4TDormandPrince45'),
+                Stepper = cms.string('CMSTDormandPrince45'),
                 Type = cms.string('CMSIMField'),
                 StepperParam = cms.PSet(
                     VacRegions = cms.vstring(),
@@ -151,12 +157,12 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                     EnergyThSimple = cms.double(0.015),    ## in GeV
                     DeltaChordSimple = cms.double(0.1),    ## in mm
                     DeltaOneStepSimple = cms.double(0.1),  ## in mm
-                    DeltaIntersectionSimple = cms.double(0.01),       ## in mm
+                    DeltaIntersectionSimple = cms.double(0.01), ## in mm
                     MaxStepSimple = cms.double(50.),       ## in cm
                 )
             )
         ),
-        delta = cms.double(1.0)
+        delta = cms.double(1.0) ## in mm
     ),
     Physics = cms.PSet(
         common_maximum_time,
@@ -171,12 +177,15 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         G4MuonBremsstrahlungThreshold = cms.double(10000.), ## cut in GeV
+        G4TrackingCut = cms.double(0.025), ## cut in MeV
         G4MscRangeFactor = cms.double(0.04),
         G4MscGeomFactor = cms.double(2.5), 
         G4MscSafetyFactor = cms.double(0.6), 
-        G4MscLambdaLimit = cms.double(1.0), # mm 
-        G4MscStepLimit = cms.string("UseSafety"), 
-        G4GeneralProcess = cms.bool(False), 
+        G4MscLambdaLimit = cms.double(1.0), # in mm 
+        G4MscStepLimit = cms.string("UseSafety"),
+        G4GammaGeneralProcess = cms.bool(True),
+        G4NeutronGeneralProcess = cms.bool(False),
+        G4TransportWithMSC = cms.bool(False),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
@@ -212,7 +221,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         bField        = cms.double(3.8),
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
-        ThermalNeutrons  = cms.untracked.bool(False),
+        ThermalNeutrons = cms.untracked.bool(False),
         RusRoElectronEnergyLimit  = cms.double(0.0),
         RusRoEcalElectron         = cms.double(1.0),
         RusRoHcalElectron         = cms.double(1.0),
@@ -310,7 +319,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        MaxNumberOfSteps        = cms.int32(50000),
+        MaxNumberOfSteps        = cms.int32(20000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring()
@@ -326,7 +335,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     MuonSD = cms.PSet(
         EnergyThresholdForPersistency = cms.double(1.0),
         PrintHits = cms.bool(False),
-        AllMuonsPersistent = cms.bool(True)
+        AllMuonsPersistent = cms.bool(True),
+        UseDemoHitRPC = cms.bool(True),
+        UseDemoHitGEM = cms.bool(True),
+        HaveDemoChambers = cms.bool(True)
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
@@ -371,6 +383,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ScaleRadLength  = cms.untracked.double(1.0),
         StoreLayerTimeSim = cms.untracked.bool(False),
         AgeingWithSlopeLY = cms.untracked.bool(False),
+        Detectors         = cms.untracked.int32(3),
         DumpGeometry      = cms.untracked.int32(0)
         ),
     HCalSD = cms.PSet(
@@ -504,6 +517,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
         CheckID          = cms.untracked.bool(True),
+        UseDetector      = cms.untracked.int32(3),
+        Detectors        = cms.untracked.int32(2),
+        MissingWaferFile = cms.untracked.string("")
     ),
     HGCScintSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
@@ -515,6 +531,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
+        TileFileName     = cms.untracked.string("")
     ),
     HFNoseSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
@@ -621,27 +638,61 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )
 
 ##
-## Disable Castor from Run 3
+## Disable Castor from Run 3, enable PPS (***temporarily disable PPS***)
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
+run3_common.toModify( g4SimHits, LHCTransport = True )
+
+##
+## Disable PPS from Run 3 PbPb runs
+##
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
 
 ##
 ## Change ECAL time slices
 ##
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify( g4SimHits.ECalSD,
-                             StoreLayerTimeSim = cms.untracked.bool(True),
-                             TimeSliceUnit = cms.double(0.001) )
+phase2_timing.toModify( g4SimHits, ECalSD = dict(
+                             StoreLayerTimeSim = True,
+                             TimeSliceUnit = 0.001 )
+)
+
 ##
 ## Change CALO Thresholds
 ##
-h2tb.toModify(g4SimHits.CaloSD,
-              EminHits  = cms.vdouble(0.0,0.0,0.0,0.0,0.0),
-              TmaxHits  = cms.vdouble(1000.0,1000.0,1000.0,1000.0,2000.0) )
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
+h2tb.toModify(g4SimHits,
+              OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalTB06BeamDetector', 'HcalSensitiveDetector'],
+              CaloSD = dict(
+                  EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
+                  TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
+              CaloTrkProcessing = dict(
+                  TestBeam = True ),
+              HCalSD = dict(
+                  ForTBHCAL = True )
+)
 
 ##
-## DD4Hep migration
+## DD4hep migration
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
+
+##
+## Selection of SD's for Phase2, exclude PPS
+##
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(g4SimHits,
+                       OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
+                       LHCTransport = False, 
+                       MuonSD = dict( 
+                       HaveDemoChambers = False ) 
+)
+
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
+hgcaltb.toModify(g4SimHits,
+                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+)

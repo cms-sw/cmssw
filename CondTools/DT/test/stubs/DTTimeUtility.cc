@@ -35,8 +35,6 @@ namespace edmtest {
 
   DTTimeUtility::DTTimeUtility(int i) {}
 
-  DTTimeUtility::~DTTimeUtility() {}
-
   void DTTimeUtility::analyze(const edm::Event& e, const edm::EventSetup& context) {
     //    using namespace edm::eventsetup;
     long long int condConv = ((((condTime >> 32) & 0xFFFFFFFF) * 1000000000) + ((condTime & 0xFFFFFFFF) * 1000));

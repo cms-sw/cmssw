@@ -22,4 +22,5 @@
 <use name="DataFormats/HcalRecHit"/>
 <use name="RecoCaloTools/Selectors" source_only="1"/>
 <use name="clhep"/>
+<use name="PhysicsTools/TensorFlow" />
 <flags EDM_PLUGIN="1"/>

@@ -232,6 +232,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       // hits from DT segments
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
         ++segmFromDt;
+
         const DTRecSegment4D* seg4D = dynamic_cast<const DTRecSegment4D*>((*segment)->hit());
         if ((*seg4D).hasPhi())
           hitsFromSegmDt += (*seg4D).phiSegment()->specificRecHits().size();
@@ -244,6 +245,12 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         hitsFromSegmCsc += (*segment)->recHits().size();
         segmFromCsc++;
       }
+
+#ifdef DEBUG
+      cout << "[SegmentTrackAnalyzer] # of segments from DT and CSC: " << segmFromDt << ", " << segmFromCsc << endl;
+      cout << "[SegmentTrackAnalyzer] # of HITS from segments from DT: " << hitsFromSegmDt << endl;
+      cout << "[SegmentTrackAnalyzer] # of HITS from segments from CSC  " << hitsFromSegmCsc << endl;
+#endif
     }
 
     // hits from track

@@ -45,10 +45,10 @@ void MagFieldConfigDBWriter::endJob() {
     try {
       if (dbOutputSvc->isNewTagRequest(record)) {
         //create mode
-        dbOutputSvc->writeOne<MagFieldConfig>(conf, dbOutputSvc->beginOfTime(), record);
+        dbOutputSvc->writeOneIOV<MagFieldConfig>(*conf, dbOutputSvc->beginOfTime(), record);
       } else {
         //append mode. Note: correct PoolDBESSource must be loaded
-        dbOutputSvc->writeOne<MagFieldConfig>(conf, dbOutputSvc->currentTime(), record);
+        dbOutputSvc->writeOneIOV<MagFieldConfig>(*conf, dbOutputSvc->currentTime(), record);
       }
     } catch (const cond::Exception& er) {
       std::cout << er.what() << std::endl;

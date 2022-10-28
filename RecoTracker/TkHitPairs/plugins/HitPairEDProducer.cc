@@ -40,7 +40,7 @@ private:
 namespace {
   class ImplBase {
   public:
-    ImplBase(const edm::ParameterSet& iConfig);
+    ImplBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC);
     virtual ~ImplBase() = default;
 
     virtual void produces(edm::ProducesCollector) const = 0;
@@ -55,10 +55,11 @@ namespace {
     HitPairGeneratorFromLayerPair generator_;
     std::vector<unsigned> layerPairBegins_;
   };
-  ImplBase::ImplBase(const edm::ParameterSet& iConfig)
+  ImplBase::ImplBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
       : maxElement_(iConfig.getParameter<unsigned int>("maxElement")),
         maxElementTotal_(iConfig.getParameter<unsigned int>("maxElementTotal")),
-        generator_(0, 1, nullptr, maxElement_),  // these indices are dummy, TODO: cleanup HitPairGeneratorFromLayerPair
+        generator_(
+            iC, 0, 1, nullptr, maxElement_),  // these indices are dummy, TODO: cleanup HitPairGeneratorFromLayerPair
         layerPairBegins_(iConfig.getParameter<std::vector<unsigned>>("layerPairs")) {
     if (layerPairBegins_.empty())
       throw cms::Exception("Configuration")
@@ -70,8 +71,8 @@ namespace {
   class Impl : public ImplBase {
   public:
     template <typename... Args>
-    Impl(const edm::ParameterSet& iConfig, Args&&... args)
-        : ImplBase(iConfig), regionsLayers_(&layerPairBegins_, std::forward<Args>(args)...) {}
+    Impl(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC, Args&&... args)
+        : ImplBase(iConfig, iC), regionsLayers_(&layerPairBegins_, std::forward<Args>(args)..., iC) {}
     ~Impl() override = default;
 
     void produces(edm::ProducesCollector producesCollector) const override {
@@ -340,7 +341,7 @@ namespace {
     RegionsLayersSeparate(const std::vector<unsigned>* layerPairBegins,
                           const edm::InputTag& seedingLayerTag,
                           const edm::InputTag& regionTag,
-                          edm::ConsumesCollector&& iC)
+                          edm::ConsumesCollector iC)
         : layerPairBegins_(layerPairBegins),
           seedingLayerToken_(iC.consumes<SeedingLayerSetsHits>(seedingLayerTag)),
           regionToken_(iC.consumes<edm::OwnVector<TrackingRegion>>(regionTag)) {}
@@ -399,7 +400,7 @@ namespace {
 
     RegionsLayersTogether(const std::vector<unsigned>* layerPairBegins,
                           const edm::InputTag& regionLayerTag,
-                          edm::ConsumesCollector&& iC)
+                          edm::ConsumesCollector iC)
         : regionLayerToken_(iC.consumes<TrackingRegionsSeedingLayerSets>(regionLayerTag)) {
       if (layerPairBegins->size() != 1) {
         throw cms::Exception("LogicError") << "With trackingRegionsSeedingLayers mode, it doesn't make sense to "
@@ -456,14 +457,14 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
           << "Mode 'trackingRegionsSeedingLayers' makes sense only with 'produceSeedingHitsSets', now also "
              "'produceIntermediateHitDoublets is active";
     impl_ = std::make_unique<::Impl<::ImplSeedingHitSets, ::ImplIntermediateHitDoublets, ::RegionsLayersSeparate>>(
-        iConfig, layersTag, regionTag, consumesCollector());
+        iConfig, consumesCollector(), layersTag, regionTag);
   } else if (produceSeedingHitSets) {
     if (useRegionLayers) {
       impl_ = std::make_unique<::Impl<::ImplSeedingHitSets, ::DoNothing, ::RegionsLayersTogether>>(
-          iConfig, regionLayerTag, consumesCollector());
+          iConfig, consumesCollector(), regionLayerTag);
     } else {
       impl_ = std::make_unique<::Impl<::ImplSeedingHitSets, ::DoNothing, ::RegionsLayersSeparate>>(
-          iConfig, layersTag, regionTag, consumesCollector());
+          iConfig, consumesCollector(), layersTag, regionTag);
     }
   } else if (produceIntermediateHitDoublets) {
     if (useRegionLayers)
@@ -471,7 +472,7 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
           << "Mode 'trackingRegionsSeedingLayers' makes sense only with 'produceSeedingHitsSets', now "
              "'produceIntermediateHitDoublets is active instead";
     impl_ = std::make_unique<::Impl<::DoNothing, ::ImplIntermediateHitDoublets, ::RegionsLayersSeparate>>(
-        iConfig, layersTag, regionTag, consumesCollector());
+        iConfig, consumesCollector(), layersTag, regionTag);
   } else
     throw cms::Exception("Configuration")
         << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If "

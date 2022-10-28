@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,23 +47,23 @@ using namespace std;
 // class declaration
 //
 
-class HiCentralityBiasFilter : public edm::EDFilter {
+class HiCentralityBiasFilter : public edm::one::EDFilter<> {
 public:
   explicit HiCentralityBiasFilter(const edm::ParameterSet&);
-  ~HiCentralityBiasFilter() override;
+  ~HiCentralityBiasFilter() override = default;
 
 private:
   void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc_;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc_;
+  const std::string func_;
+  const std::vector<double> par_;
 
   edm::Service<edm::RandomNumberGenerator> rng_;
 
   TF1* fBias_;
-  string func_;
-  vector<double> par_;
 };
 
 //
@@ -77,16 +77,11 @@ private:
 //
 // constructors and destructor
 //
-HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-  hepmcSrc_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"));
-  func_ = iConfig.getParameter<string>("function");
-  par_ = iConfig.getParameter<vector<double> >("parameters");
-}
-
-HiCentralityBiasFilter::~HiCentralityBiasFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig)
+    : hepmcSrc_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"))),
+      func_(iConfig.getParameter<string>("function")),
+      par_(iConfig.getParameter<vector<double> >("parameters")) {
+  // Do what ever initialization is needed
 }
 
 //
@@ -99,8 +94,7 @@ bool HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
-  Handle<HepMCProduct> mc;
-  iEvent.getByToken(hepmcSrc_, mc);
+  const edm::Handle<HepMCProduct>& mc = iEvent.getHandle(hepmcSrc_);
   const HepMC::GenEvent* evt = mc->GetEvent();
 
   const HepMC::HeavyIon* hi = evt->heavy_ion();

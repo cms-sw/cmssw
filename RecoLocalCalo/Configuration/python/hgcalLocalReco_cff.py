@@ -18,8 +18,7 @@ hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        hgcalLayerClusters,
                                        hgcalMultiClusters,
                                        particleFlowRecHitHGC,
-                                       particleFlowClusterHGCal,
-                                       particleFlowClusterHGCalFromMultiCl )
+                                       particleFlowClusterHGCal )
 
 _hfnose_hgcalLocalRecoTask = hgcalLocalRecoTask.copy()
 _hfnose_hgcalLocalRecoTask.add(hgcalLayerClustersHFNose)

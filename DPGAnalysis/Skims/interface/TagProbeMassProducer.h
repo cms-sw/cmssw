@@ -24,22 +24,20 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 // forward declarations
 
-class TagProbeMassProducer : public edm::EDProducer {
+class TagProbeMassProducer : public edm::stream::EDProducer<> {
 public:
   explicit TagProbeMassProducer(const edm::ParameterSet&);
   ~TagProbeMassProducer() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   bool isPassingProbe(const unsigned int iprobe) const;
 

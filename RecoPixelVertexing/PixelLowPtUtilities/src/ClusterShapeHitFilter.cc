@@ -205,7 +205,10 @@ pair<float, float> ClusterShapeHitFilter::getDrift(const PixelGeomDetUnit* pixel
 float ClusterShapeHitFilter::getDrift(const StripGeomDetUnit* stripDet) const {
   LocalVector lBfield = (stripDet->surface()).toLocal(theMagneticField->inTesla(stripDet->surface().position()));
 
-  double theTanLorentzAnglePerTesla = theSiStripLorentzAngle->getLorentzAngle(stripDet->geographicalId().rawId());
+  double theTanLorentzAnglePerTesla = 0.0;
+  if (theSiStripLorentzAngle) {
+    theTanLorentzAnglePerTesla = theSiStripLorentzAngle->getLorentzAngle(stripDet->geographicalId().rawId());
+  }
 
   float dir = theTanLorentzAnglePerTesla * lBfield.y();
 

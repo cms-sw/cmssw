@@ -49,21 +49,25 @@ private:
   const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
+  const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
 
   // parameters
-  edm::InputTag m_muonCollectionTag;
-  double m_minTrackPt;
-  double m_minTrackP;
-  double m_maxDxy;
-  int m_minTrackerHits;
-  double m_maxTrackerRedChi2;
-  bool m_allowTIDTEC;
-  bool m_minNCrossedChambers;
-  int m_minDT13Hits;
-  int m_minDT2Hits;
-  int m_minCSCHits;
-  bool m_doDT;
-  bool m_doCSC;
+  const edm::InputTag m_muonCollectionTag;
+  const double m_minTrackPt;
+  const double m_minTrackP;
+  const double m_maxDxy;
+  const int m_minTrackerHits;
+  const double m_maxTrackerRedChi2;
+  const bool m_allowTIDTEC;
+  const bool m_minNCrossedChambers;
+  const int m_minDT13Hits;
+  const int m_minDT2Hits;
+  const int m_minCSCHits;
+  const bool m_doDT;
+  const bool m_doCSC;
+
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
   // wheel, sector, stationdiff
   TProfile *m_dt13_resid[5][12][3];
@@ -121,6 +125,7 @@ AlignmentMonitorSegmentDifferences::AlignmentMonitorSegmentDifferences(const edm
       m_esTokenDetId(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
       m_esTokenProp(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
       m_esTokenMF(iC.esConsumes()),
+      m_esTokenBuilder(iC.esConsumes(MuonResidualsFromTrack::builderESInputTag())),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),
       m_minTrackP(cfg.getParameter<double>("minTrackP")),
@@ -133,7 +138,9 @@ AlignmentMonitorSegmentDifferences::AlignmentMonitorSegmentDifferences(const edm
       m_minDT2Hits(cfg.getParameter<int>("minDT2Hits")),
       m_minCSCHits(cfg.getParameter<int>("minCSCHits")),
       m_doDT(cfg.getParameter<bool>("doDT")),
-      m_doCSC(cfg.getParameter<bool>("doCSC")) {}
+      m_doCSC(cfg.getParameter<bool>("doCSC")),
+      bsToken_(iC.consumes<reco::BeamSpot>(m_beamSpotTag)),
+      muonToken_(iC.consumes<reco::MuonCollection>(m_muonCollectionTag)) {}
 
 void AlignmentMonitorSegmentDifferences::book() {
   char name[225], pos[228], neg[228];
@@ -369,13 +376,13 @@ void AlignmentMonitorSegmentDifferences::book() {
 void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
                                                const edm::EventSetup &iSetup,
                                                const ConstTrajTrackPairCollection &trajtracks) {
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(m_beamSpotTag, beamSpot);
+  const edm::Handle<reco::BeamSpot> &beamSpot = iEvent.getHandle(bsToken_);
 
   const GlobalTrackingGeometry *globalGeometry = &iSetup.getData(m_esTokenGBTGeom);
   const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
   const Propagator *prop = &iSetup.getData(m_esTokenProp);
   const MagneticField *magneticField = &iSetup.getData(m_esTokenMF);
+  auto builder = iSetup.getHandle(m_esTokenBuilder);
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
@@ -386,13 +393,12 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
 
       if (track->pt() > m_minTrackPt && track->p() > m_minTrackP && fabs(track->dxy(beamSpot->position())) < m_maxDxy) {
         MuonResidualsFromTrack muonResidualsFromTrack(
-            iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
+            builder, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack);
       }
     }  // end loop over tracks
   } else {
-    edm::Handle<reco::MuonCollection> muons;
-    iEvent.getByLabel(m_muonCollectionTag, muons);
+    const edm::Handle<reco::MuonCollection> &muons = iEvent.getHandle(muonToken_);
 
     for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
       if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))

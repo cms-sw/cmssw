@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/egEnergyCorrectorFactoryFromRootFile.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -11,7 +12,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
-    : ecalClusterToolsESGetTokens_{std::move(iC)} {
+    : ecalClusterToolsESGetTokens_{iC}, caloGeomToken_{iC.esConsumes()} {
   minR9Barrel_ = config.getParameter<double>("minR9Barrel");
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
@@ -25,19 +26,19 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
 
   // function to extract f(eta) correction
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction");
-  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config);
+  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config, iC);
 
   // function to extract corrections to cracks
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction");
-  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config);
+  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config, iC);
 
   // function to extract the error on the sc ecal correction
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction");
-  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config);
+  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config, iC);
 
   // function  to extract the error on the photon ecal correction
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction");
-  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
+  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config, iC);
   //ingredient for photon uncertainty
   photonUncertaintyCalculator_ = std::make_unique<EnergyUncertaintyPhotonSpecific>(config);
 
@@ -50,30 +51,27 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
   // ingredient for energy regression
   weightsfromDB_ = config.getParameter<bool>("regressionWeightsFromDB");
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
-  if (weightsfromDB_)
+  if (weightsfromDB_) {
     w_db_ = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
-  else
-    w_db_ = "none";
-  regressionCorrector_ = std::make_unique<EGEnergyCorrector>();
+    regressionCorrectorFactory_ = std::make_unique<EGEnergyCorrectorFactoryFromEventSetup>(iC, w_db_);
+  } else if (w_file_ != "none") {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>(egEnergyCorrectorFactoryFromRootFile(w_file_.c_str()));
+  } else {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>();
+  }
 }
 
 void PhotonEnergyCorrector::init(const edm::EventSetup& theEventSetup) {
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(caloGeomToken_);
 
   scEnergyFunction_->init(theEventSetup);
   scCrackEnergyFunction_->init(theEventSetup);
   scEnergyErrorFunction_->init(theEventSetup);
   photonEcalEnergyCorrFunction_->init(theEventSetup);
 
-  if (weightsfromDB_) {
-    if (!regressionCorrector_->IsInitialized())
-      regressionCorrector_->Initialize(theEventSetup, w_db_, weightsfromDB_);
+  if (not regressionCorrector_) {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>(regressionCorrectorFactory_->build(theEventSetup));
   }
-  if (!weightsfromDB_ && !(w_file_ == "none")) {
-    if (!regressionCorrector_->IsInitialized())
-      regressionCorrector_->Initialize(theEventSetup, w_file_, weightsfromDB_);
-  }
-
   photonUncertaintyCalculator_->init(theEventSetup);
 }
 

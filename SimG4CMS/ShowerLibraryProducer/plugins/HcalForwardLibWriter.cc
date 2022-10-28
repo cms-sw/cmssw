@@ -1,15 +1,15 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/HcalForwardLibWriter.h"
-
-#include "TFile.h"
-#include "TTree.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
-  edm::ParameterSet theParms = iConfig.getParameter<edm::ParameterSet>("HcalForwardLibWriterParameters");
+  edm::ParameterSet theParms = iConfig.getParameter<edm::ParameterSet>("hcalForwardLibWriterParameters");
   edm::FileInPath fp = theParms.getParameter<edm::FileInPath>("FileName");
   nbins = theParms.getParameter<int>("Nbins");
   nshowers = theParms.getParameter<int>("Nshowers");
   bsize = theParms.getParameter<int>("BufSize");
   splitlevel = theParms.getParameter<int>("SplitLevel");
+  compressionAlgo = theParms.getParameter<int>("CompressionAlgo");
+  compressionLevel = theParms.getParameter<int>("CompressionLevel");
 
   std::string pName = fp.fullPath();
   if (pName.find('.') == 0)
@@ -17,16 +17,30 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   theDataFile = pName;
   readUserData();
 
+  edm::Service<TFileService> fs;
   fs->file().cd();
+  fs->file().SetCompressionAlgorithm(compressionAlgo);
+  fs->file().SetCompressionLevel(compressionLevel);
+
   LibTree = new TTree("HFSimHits", "HFSimHits");
 
   //https://root.cern/root/html534/TTree.html
   // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
-  LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
-  LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
+  emBranch = LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
+  hadBranch = LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
 }
 
-HcalForwardLibWriter::~HcalForwardLibWriter() {}
+void HcalForwardLibWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::FileInPath>("FileName", edm::FileInPath("SimG4CMS/ShowerLibraryProducer/data/fileList.txt"));
+  desc.add<int>("Nbins", 16);
+  desc.add<int>("Nshowers", 10000);
+  desc.add<int>("BufSize", 1);
+  desc.add<int>("SplitLevel", 2);
+  desc.add<int>("CompressionAlgo", 4);
+  desc.add<int>("CompressionLevel", 4);
+  descriptions.add("hcalForwardLibWriterParameters", desc);
+}
 
 void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Event info
@@ -36,6 +50,9 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
   for (int i = 0; i < nbins; ++i)
     en.push_back(momBin[i]);
 
+  int nem = 0;
+  int nhad = 0;
+
   //shower photons
   int n = theFileHandle.size();
   // cycle over files ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -43,7 +60,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     std::string fn = theFileHandle[i].name;
     std::string particle = theFileHandle[i].id;
 
-    //    std::cout << "*** Input file  " << i << "   " << fn << std::endl;
+    //    edm::LogVerbatim("HcalSim") << "*** Input file  " << i << "   " << fn;
 
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*)gDirectory->Get("g4SimHits/CherenkovPhotons");
@@ -108,16 +125,15 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
       }
       // end of cycle over photons in shower -------------------------------------------
 
-      //        if(iev>0) LibTree->SetBranchStatus("HFShowerLibInfo",0);
       if (particle == "electron") {
-        LibTree->SetBranchStatus("hadParticles", false);
-      } else {
-        LibTree->SetBranchStatus("emParticles", false);
-      }
-      LibTree->Fill();
-      if (particle == "electron") {
+        LibTree->SetEntries(nem + 1);
+        emBranch->Fill();
+        nem++;
         emColl.clear();
       } else {
+        LibTree->SetEntries(nhad + 1);
+        nhad++;
+        hadBranch->Fill();
         hadColl.clear();
       }
     }
@@ -130,6 +146,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
 void HcalForwardLibWriter::beginJob() {}
 
 void HcalForwardLibWriter::endJob() {
+  edm::Service<TFileService> fs;
   fs->file().cd();
   LibTree->Write();
   LibTree->Print();
@@ -159,5 +176,6 @@ int HcalForwardLibWriter::readUserData(void) {
   }
   return k;
 }
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalForwardLibWriter);

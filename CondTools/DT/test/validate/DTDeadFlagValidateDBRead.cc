@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,11 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 DTDeadFlagValidateDBRead::DTDeadFlagValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtdeadflagToken_(esConsumes()) {}
 
-DTDeadFlagValidateDBRead::DTDeadFlagValidateDBRead(int i) {}
-
-DTDeadFlagValidateDBRead::~DTDeadFlagValidateDBRead() {}
+DTDeadFlagValidateDBRead::DTDeadFlagValidateDBRead(int i) : dtdeadflagToken_(esConsumes()) {}
 
 void DTDeadFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -40,8 +40,7 @@ void DTDeadFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTDeadFlag> df;
-  context.get<DTDeadFlagRcd>().get(df);
+  auto df = context.getHandle(dtdeadflagToken_);
   std::cout << df->version() << std::endl;
   std::cout << std::distance(df->begin(), df->end()) << " data in the container" << std::endl;
   int whe;

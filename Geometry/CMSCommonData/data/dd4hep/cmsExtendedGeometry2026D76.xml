@@ -105,7 +105,7 @@
     <Include ref='Geometry/HcalSimData/data/CaloUtil/2026/v2c/CaloUtil.xml'/>
     <Include ref='Geometry/HGCalSimData/data/hgcsensv9.xml'/>
     <Include ref='Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml'/>
-    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml'/>
+    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecs.xml'/>
     <Include ref='Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml'/>

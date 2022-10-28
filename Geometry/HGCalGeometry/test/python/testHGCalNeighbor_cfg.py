@@ -15,6 +15,7 @@ process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

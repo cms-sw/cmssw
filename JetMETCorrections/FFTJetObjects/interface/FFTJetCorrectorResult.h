@@ -16,6 +16,7 @@ public:
 
   inline FFTJetCorrectorResult(const LorentzVector& v, const double correctionScale, const double systematicUncertainty)
       : vec_(v), scale_(correctionScale), sigma_(systematicUncertainty) {}
+  FFTJetCorrectorResult() = delete;
 
   inline const LorentzVector& vec() const { return vec_; }
   inline double scale() const { return scale_; }
@@ -26,8 +27,6 @@ public:
   inline void setSigma(const double s) { sigma_ = s; }
 
 private:
-  FFTJetCorrectorResult() = delete;
-
   LorentzVector vec_;
   double scale_;
   double sigma_;

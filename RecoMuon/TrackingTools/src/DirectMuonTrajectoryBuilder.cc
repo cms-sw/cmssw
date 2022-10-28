@@ -9,18 +9,21 @@
 
 #include "TrackingTools/TrackRefitter/interface/SeedTransformer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;
 
-DirectMuonTrajectoryBuilder::DirectMuonTrajectoryBuilder(const ParameterSet& par, const MuonServiceProxy* service)
+DirectMuonTrajectoryBuilder::DirectMuonTrajectoryBuilder(const ParameterSet& par,
+                                                         const MuonServiceProxy* service,
+                                                         ConsumesCollector iC)
     : theService(service) {
   // The seed transformer (used to refit the seed and get the seed transient state)
   //  ParameterSet seedTransformerPSet = par.getParameter<ParameterSet>("SeedTransformerParameters");
   ParameterSet seedTransformerParameters = par.getParameter<ParameterSet>("SeedTransformerParameters");
-  theSeedTransformer = new SeedTransformer(seedTransformerParameters);
+  theSeedTransformer = new SeedTransformer(seedTransformerParameters, iC);
 }
 
 DirectMuonTrajectoryBuilder::~DirectMuonTrajectoryBuilder() {

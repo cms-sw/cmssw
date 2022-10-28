@@ -5,10 +5,11 @@
 #include <cstdint>
 
 namespace HGCalProperty {
-  int32_t waferProperty(const int32_t thick, const int32_t partial, const int32_t orient);
+  int32_t waferProperty(const int32_t thick, const int32_t partial, const int32_t orient, const int32_t cassette = 0);
   int32_t waferThick(const int32_t property);
   int32_t waferPartial(const int32_t property);
   int32_t waferOrient(const int32_t property);
+  int32_t waferCassette(const int32_t property);
   int32_t tileProperty(const int32_t type, const int32_t sipm);
   int32_t tileType(const int32_t property);
   int32_t tileSiPM(const int32_t property);
@@ -35,9 +36,11 @@ namespace HGCalProperty {
 
   constexpr int32_t kHGCalFactor = 10;
   constexpr int32_t kHGCalFactorPartial = 100;
+  constexpr int32_t kHGCalFactorCassette = 100;
   constexpr int32_t kHGCalOffsetThick = 1;
   constexpr int32_t kHGCalOffsetPartial = 10;
   constexpr int32_t kHGCalOffsetOrient = 1000;
+  constexpr int32_t kHGCalOffsetCassette = 10000;
   constexpr int32_t kHGCalOffsetType = 1;
   constexpr int32_t kHGCalOffsetSiPM = 10;
   constexpr int32_t kHGCalTilePack = 1000;

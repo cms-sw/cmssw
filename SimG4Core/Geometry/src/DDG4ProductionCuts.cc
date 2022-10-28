@@ -88,24 +88,26 @@ void DDG4ProductionCuts::initialize() {
                                  << store->size();
     if (num != 1) {
       throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
+      return;
     }
     if (regionName != curName) {
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : regionName " << regionName << ", the store of size "
                                    << store->size();
       region = store->FindOrCreateRegion(regionName);
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : region " << region->GetName();
-      if (!region) {
+      if (nullptr == region) {
         throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
+        return;
       }
       curName = regionName;
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : new G4Region " << vv.first->GetName();
       setProdCuts(vv.second, region);
     }
-
-    region->AddRootLogicalVolume(vv.first);
-
-    if (verbosity_ > 0)
-      edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
+    if (nullptr != region) {
+      region->AddRootLogicalVolume(vv.first);
+      if (verbosity_ > 0)
+        edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
+    }
   }
 }
 
@@ -225,7 +227,7 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region
   // Create and fill production cuts
   //
   G4ProductionCuts* prodCuts = region->GetProductionCuts();
-  if (!prodCuts) {
+  if (nullptr == prodCuts) {
     prodCuts = new G4ProductionCuts();
     region->SetProductionCuts(prodCuts);
   }

@@ -14,8 +14,6 @@
  **/
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -28,7 +26,6 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class ChamberSegmentUtility {
 public:
@@ -43,9 +40,7 @@ public:
   std::vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
 
 private:
-  edm::ESHandle<CSCGeometry> cscGeometry;
   edm::Handle<CSCSegmentCollection> CSCSegments;
-  edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   std::vector<DTRecSegment4D> dtseg;
   std::vector<CSCSegment> cscseg;

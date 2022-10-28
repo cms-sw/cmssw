@@ -1,28 +1,22 @@
 #ifndef MTCCHLTrigger_H
 #define MTCCHLTrigger_H
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-// #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-// #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace cms {
-  class MTCCHLTrigger : public edm::EDFilter {
+  class MTCCHLTrigger : public edm::stream::EDFilter<> {
   public:
     MTCCHLTrigger(const edm::ParameterSet& ps);
-    ~MTCCHLTrigger() override {}
+    ~MTCCHLTrigger() override = default;
 
     bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
-    //   bool selOnClusterCharge;
     bool selOnDigiCharge;
     unsigned int ChargeThreshold;
-    //   unsigned int digiChargeThreshold;
-    //   std::string rawtodigiProducer;
-    //   std::string zsdigiProducer;
     std::string clusterProducer;
   };
 }  // namespace cms

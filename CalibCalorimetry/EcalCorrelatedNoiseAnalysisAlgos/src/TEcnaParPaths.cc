@@ -349,12 +349,12 @@ void TEcnaParPaths::GetCMSSWParameters() {
 //        M E T H O D S    T O    R E T U R N    T H E    P A R A M E T E R S
 //
 //=======================================================================================
-TString TEcnaParPaths::ResultsRootFilePath() { return fCfgResultsRootFilePath; }
-TString TEcnaParPaths::ResultsAsciiFilePath() { return fCfgResultsAsciiFilePath; }
-TString TEcnaParPaths::HistoryRunListFilePath() { return fCfgHistoryRunListFilePath; }
-TString TEcnaParPaths::CMSSWBase() { return fCfgCMSSWBase; }
-TString TEcnaParPaths::CMSSWSubsystem() { return fCfgCMSSWSubsystem; }
-TString TEcnaParPaths::SCRAMArch() { return fCfgSCRAMArch; }
+const TString &TEcnaParPaths::ResultsRootFilePath() const { return fCfgResultsRootFilePath; }
+const TString &TEcnaParPaths::ResultsAsciiFilePath() const { return fCfgResultsAsciiFilePath; }
+const TString &TEcnaParPaths::HistoryRunListFilePath() const { return fCfgHistoryRunListFilePath; }
+const TString &TEcnaParPaths::CMSSWBase() const { return fCfgCMSSWBase; }
+const TString &TEcnaParPaths::CMSSWSubsystem() const { return fCfgCMSSWSubsystem; }
+const TString &TEcnaParPaths::SCRAMArch() const { return fCfgSCRAMArch; }
 
 //.....................................................................................
 TString TEcnaParPaths::PathModulesData() {

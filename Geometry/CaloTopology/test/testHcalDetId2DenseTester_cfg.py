@@ -11,6 +11,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HcalGeom=dict()
+    process.MessageLogger.HCalGeom=dict()
     process.MessageLogger.CaloTopology=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")

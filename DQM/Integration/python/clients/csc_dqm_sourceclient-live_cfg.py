@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("CSCDQMLIVE")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("CSCDQMLIVE", Run3)
 
 #-------------------------------------------------
 # DQM Module Configuration
@@ -133,7 +134,7 @@ del cscConditions
 
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #--------------------------
 # Service
@@ -222,4 +223,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)
+

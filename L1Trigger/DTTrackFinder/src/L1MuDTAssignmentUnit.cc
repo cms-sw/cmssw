@@ -30,19 +30,20 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegLoc.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssembler.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackAssParam.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPhiLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
+#include "L1Trigger/L1TCommon/interface/BitShift.h"
 
 using namespace std;
 
@@ -54,8 +55,16 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id)
-    : m_sp(sp), m_id(id), m_addArray(), m_TSphi(), m_ptAssMethod(NODEF), nbit_phi(12), nbit_phib(10) {
+L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id, edm::ConsumesCollector iC)
+    : m_sp(sp),
+      m_id(id),
+      m_addArray(),
+      m_TSphi(),
+      m_ptAssMethod(NODEF),
+      thePhiToken(iC.esConsumes()),
+      thePtaToken(iC.esConsumes()),
+      nbit_phi(12),
+      nbit_phib(10) {
   m_TSphi.reserve(4);  // a track candidate can consist of max 4 TS
   reset();
 
@@ -133,7 +142,7 @@ void L1MuDTAssignmentUnit::reset() {
 void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   // calculate phi at station 2 using 8 bits (precision = 2.5 degrees)
 
-  c.get<L1MuDTPhiLutRcd>().get(thePhiLUTs);
+  thePhiLUTs = c.getHandle(thePhiToken);
 
   int sh_phi = 12 - m_sp.tf().config()->getNbitsPhiPhi();
   int sh_phib = 10 - m_sp.tf().config()->getNbitsPhiPhib();
@@ -178,10 +187,10 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   int phi_8 = static_cast<int>(floor(phi_f * k));
 
   if (second == nullptr && first) {
-    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((first->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0, bend_angle);
   } else if (second == nullptr && forth) {
-    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
+    int bend_angle = l1t::bitShift((forth->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1, bend_angle);
   }
 
@@ -203,7 +212,7 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 // assign pt with 5 bit precision
 //
 void L1MuDTAssignmentUnit::PtAU(const edm::EventSetup& c) {
-  c.get<L1MuDTPtaLutRcd>().get(thePtaLUTs);
+  thePtaLUTs = c.getHandle(thePtaToken);
 
   // get pt-assignment method as function of track class and TS phib values
   m_ptAssMethod = getPtMethod();
@@ -749,7 +758,7 @@ int L1MuDTAssignmentUnit::phiDiff(int stat1, int stat2) const {
   //  assert( abs(sectordiff) <= 1 );
 
   int offset = (2144 >> sh_phi) * sectordiff;
-  int bendangle = (phi2 - phi1 + offset) << sh_phi;
+  int bendangle = l1t::bitShift((phi2 - phi1 + offset), sh_phi);
 
   return bendangle;
 }

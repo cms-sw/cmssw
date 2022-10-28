@@ -87,7 +87,7 @@ namespace helper {
     ObjectSelectorBase(const edm::ParameterSet &) { this->template produces<OutputCollection>(); }
   };
 
-  template <typename OutputCollection, typename EdmFilter = edm::EDFilter>
+  template <typename OutputCollection, typename EdmFilter>
   struct StoreManagerTrait {
     using type = CollectionStoreManager<OutputCollection>;
     using base = ObjectSelectorBase<OutputCollection, EdmFilter>;

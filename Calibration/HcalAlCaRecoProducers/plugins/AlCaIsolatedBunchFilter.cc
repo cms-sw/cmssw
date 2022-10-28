@@ -27,25 +27,25 @@
 
 //#define EDM_ML_DEBUG
 
-namespace AlCaIsolatedBunch {
+namespace alCaIsolatedBunchFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaIsolatedBunch
+}  // namespace alCaIsolatedBunchFilter
 
-class AlCaIsolatedBunchFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsolatedBunch::Counters> > {
+class AlCaIsolatedBunchFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaIsolatedBunchFilter::Counters> > {
 public:
-  explicit AlCaIsolatedBunchFilter(edm::ParameterSet const&, const AlCaIsolatedBunch::Counters* count);
+  explicit AlCaIsolatedBunchFilter(edm::ParameterSet const&, const alCaIsolatedBunchFilter::Counters* count);
   ~AlCaIsolatedBunchFilter() override;
 
-  static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsolatedBunch::Counters>();
+  static std::unique_ptr<alCaIsolatedBunchFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsolatedBunchFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsolatedBunch::Counters* counters);
+  static void globalEndJob(const alCaIsolatedBunchFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -54,28 +54,26 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigJetNames_, trigIsoBunchNames_;
-  edm::InputTag theTriggerResultsLabel_;
-  std::string processName_;
   unsigned int nRun_, nAll_, nGood_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const std::vector<std::string> trigJetNames_, trigIsoBunchNames_;
+  const std::string processName_;
+  const edm::InputTag theTriggerResultsLabel_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
 };
 
 //
 // constructors and destructor
 //
 AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfig,
-                                                 const AlCaIsolatedBunch::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0) {
-  //now do what ever initialization is needed
-  trigJetNames_ = iConfig.getParameter<std::vector<std::string> >("triggerJet");
-  trigIsoBunchNames_ = iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch");
-  processName_ = iConfig.getParameter<std::string>("processName");
-  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
-
+                                                 const alCaIsolatedBunchFilter::Counters* count)
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      trigJetNames_(iConfig.getParameter<std::vector<std::string> >("triggerJet")),
+      trigIsoBunchNames_(iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch")),
+      processName_(iConfig.getParameter<std::string>("processName")),
+      theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
+      tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)) {
   edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
                                    << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
                                    << " process " << processName_ << std::endl;
@@ -104,8 +102,7 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
     accept = true;
   } else {
     /////////////////////////////TriggerResults
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
@@ -162,7 +159,7 @@ void AlCaIsolatedBunchFilter::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
+void AlCaIsolatedBunchFilter::globalEndJob(const alCaIsolatedBunchFilter::Counters* count) {
   edm::LogVerbatim("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
 }
 

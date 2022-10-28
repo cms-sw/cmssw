@@ -29,13 +29,17 @@ namespace {
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
 
-HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(unsigned int inner,
-                                                             unsigned int outer,
-                                                             LayerCacheType* layerCache,
-                                                             unsigned int max)
-    : theLayerCache(layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max) {}
+HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
+    edm::ConsumesCollector iC, unsigned int inner, unsigned int outer, LayerCacheType* layerCache, unsigned int max)
+    : theLayerCache(layerCache),
+      theFieldToken(iC.esConsumes()),
+      theMSMakerToken(iC.esConsumes()),
+      theOuterLayer(outer),
+      theInnerLayer(inner),
+      theMaxElement(max) {}
 
 HitPairGeneratorFromLayerPair::~HitPairGeneratorFromLayerPair() {}
 
@@ -90,17 +94,26 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region
                                                     const Layer& innerLayer,
                                                     const Layer& outerLayer,
                                                     LayerCacheType& layerCache) {
-  const RecHitsSortedInPhi& innerHitsMap = layerCache(innerLayer, region, iSetup);
+  const RecHitsSortedInPhi& innerHitsMap = layerCache(innerLayer, region);
   if (innerHitsMap.empty())
     return HitDoublets(innerHitsMap, innerHitsMap);
 
-  const RecHitsSortedInPhi& outerHitsMap = layerCache(outerLayer, region, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = layerCache(outerLayer, region);
   if (outerHitsMap.empty())
     return HitDoublets(innerHitsMap, outerHitsMap);
+  const auto& field = iSetup.getData(theFieldToken);
+  const auto& msmaker = iSetup.getData(theMSMakerToken);
   HitDoublets result(innerHitsMap, outerHitsMap);
   result.reserve(std::max(innerHitsMap.size(), outerHitsMap.size()));
-  doublets(
-      region, *innerLayer.detLayer(), *outerLayer.detLayer(), innerHitsMap, outerHitsMap, iSetup, theMaxElement, result);
+  doublets(region,
+           *innerLayer.detLayer(),
+           *outerLayer.detLayer(),
+           innerHitsMap,
+           outerHitsMap,
+           field,
+           msmaker,
+           theMaxElement,
+           result);
 
   return result;
 }
@@ -110,12 +123,13 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
                                              const DetLayer& outerHitDetLayer,
                                              const RecHitsSortedInPhi& innerHitsMap,
                                              const RecHitsSortedInPhi& outerHitsMap,
-                                             const edm::EventSetup& iSetup,
+                                             const MagneticField& field,
+                                             const MultipleScatteringParametrisationMaker& msmaker,
                                              const unsigned int theMaxElement,
                                              HitDoublets& result) {
   //  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
   typedef RecHitsSortedInPhi::Hit Hit;
-  InnerDeltaPhi deltaPhi(outerHitDetLayer, innerHitDetLayer, region, iSetup);
+  InnerDeltaPhi deltaPhi(outerHitDetLayer, innerHitDetLayer, region, field, msmaker);
 
   // std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << outerLayer.detLayer()->seqNum() << std::endl;
 
@@ -134,7 +148,6 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
     std::unique_ptr<const HitRZCompatibility> checkRZ =
         region.checkRZ(&innerHitDetLayer,
                        ohit,
-                       iSetup,
                        &outerHitDetLayer,
                        outerHitsMap.rv(io),
                        outerHitsMap.z[io],

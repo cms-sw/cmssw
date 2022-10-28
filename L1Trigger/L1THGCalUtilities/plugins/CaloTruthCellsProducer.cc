@@ -31,6 +31,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
 
   std::unordered_map<uint32_t, double> makeHitMap(edm::Event const&,
@@ -45,6 +46,8 @@ private:
   edm::EDGetTokenT<std::vector<PCaloHit>> simHitsTokenEE_;
   edm::EDGetTokenT<std::vector<PCaloHit>> simHitsTokenHEfront_;
   edm::EDGetTokenT<std::vector<PCaloHit>> simHitsTokenHEback_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
+  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeomHandle_;
 
   HGCalClusteringDummyImpl dummyClustering_;
   HGCalShowerShape showerShape_;
@@ -60,6 +63,7 @@ CaloTruthCellsProducer::CaloTruthCellsProducer(edm::ParameterSet const& config)
       simHitsTokenEE_(consumes<std::vector<PCaloHit>>(config.getParameter<edm::InputTag>("simHitsEE"))),
       simHitsTokenHEfront_(consumes<std::vector<PCaloHit>>(config.getParameter<edm::InputTag>("simHitsHEfront"))),
       simHitsTokenHEback_(consumes<std::vector<PCaloHit>>(config.getParameter<edm::InputTag>("simHitsHEback"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()),
       dummyClustering_(config.getParameterSet("dummyClustering")) {
   produces<CaloToCellsMap>();
   produces<l1t::HGCalClusterBxCollection>();
@@ -70,6 +74,10 @@ CaloTruthCellsProducer::CaloTruthCellsProducer(edm::ParameterSet const& config)
 
 CaloTruthCellsProducer::~CaloTruthCellsProducer() {}
 
+void CaloTruthCellsProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
+  triggerGeomHandle_ = es.getHandle(triggerGeomToken_);
+}
+
 void CaloTruthCellsProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
   edm::Handle<CaloParticleCollection> caloParticlesHandle;
   event.getByToken(caloParticlesToken_, caloParticlesHandle);
@@ -79,13 +87,11 @@ void CaloTruthCellsProducer::produce(edm::Event& event, edm::EventSetup const& s
   event.getByToken(triggerCellsToken_, triggerCellsHandle);
   auto const& triggerCells(*triggerCellsHandle);
 
-  dummyClustering_.eventSetup(setup);
-  showerShape_.eventSetup(setup);
-  triggerTools_.eventSetup(setup);
+  auto const& geometry(*triggerGeomHandle_);
 
-  edm::ESHandle<HGCalTriggerGeometryBase> geometryHandle;
-  setup.get<CaloGeometryRecord>().get(geometryHandle);
-  auto const& geometry(*geometryHandle);
+  dummyClustering_.setGeometry(triggerGeomHandle_.product());
+  showerShape_.setGeometry(triggerGeomHandle_.product());
+  triggerTools_.setGeometry(triggerGeomHandle_.product());
 
   std::unordered_map<uint32_t, CaloParticleRef> tcToCalo;
 
@@ -246,15 +252,9 @@ std::unordered_map<uint32_t, double> CaloTruthCellsProducer::makeHitMap(
                           [this, &geometry](DetId const& simId) -> DetId {
                             return this->triggerTools_.simToReco(simId, geometry.fhTopology());
                           }},
-                         {&simHitsTokenHEback_, nullptr}};
-  if (geometry.isV9Geometry())
-    specs[2].second = [this, &geometry](DetId const& simId) -> DetId {
-      return this->triggerTools_.simToReco(simId, geometry.hscTopology());
-    };
-  else
-    specs[2].second = [this, &geometry](DetId const& simId) -> DetId {
-      return this->triggerTools_.simToReco(simId, geometry.bhTopology());
-    };
+                         {&simHitsTokenHEback_, [this, &geometry](DetId const& simId) -> DetId {
+                            return this->triggerTools_.simToReco(simId, geometry.hscTopology());
+                          }}};
 
   for (auto const& tt : specs) {
     edm::Handle<std::vector<PCaloHit>> handle;

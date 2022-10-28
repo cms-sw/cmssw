@@ -11,15 +11,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 //
 // class decleration
@@ -41,7 +38,6 @@ private:
   // ----------member data ---------------------------
 
   edm::ParameterSet conf_;
-  edm::Service<TFileService> fs_;
   int verbose_;
   bool InMemory_;
   bool isData;

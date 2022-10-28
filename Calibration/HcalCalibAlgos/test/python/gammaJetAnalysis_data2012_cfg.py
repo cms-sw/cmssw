@@ -23,6 +23,8 @@ process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
 process.GammaJetAnalysis.rootHistFilename = cms.string('PhoJet_tree_CHS_data2012.root')
 process.GammaJetAnalysis.doPFJets = cms.bool(True)
 process.GammaJetAnalysis.doGenJets = cms.bool(False)
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string('PhoJet_tree_CHS_data2012.root'))
 
 # trigger names should not end with '_'
 process.GammaJetAnalysis.photonTriggers = cms.vstring(

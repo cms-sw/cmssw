@@ -72,7 +72,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
 
   readFromFile("last_tpg_badTT_settings.txt");
 
-  unsigned int min_run = m_i_run_number + 1;
+  unsigned int min_run;
 
   if (m_firstRun < m_i_run_number) {
     min_run = m_i_run_number + 1;

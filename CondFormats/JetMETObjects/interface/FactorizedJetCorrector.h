@@ -39,6 +39,8 @@ public:
   FactorizedJetCorrector();
   FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions = "");
   FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters);
+  FactorizedJetCorrector(const FactorizedJetCorrector&) = delete;
+  FactorizedJetCorrector& operator=(const FactorizedJetCorrector&) = delete;
 
   void setNPV(int fNPV);
   void setJetEta(float fEta);
@@ -60,8 +62,6 @@ public:
 
 private:
   //---- Member Functions ----
-  FactorizedJetCorrector(const FactorizedJetCorrector&) = delete;
-  FactorizedJetCorrector& operator=(const FactorizedJetCorrector&) = delete;
   //---- Member Data ---------
   FactorizedJetCorrectorCalculator::VariableValues mValues;
   FactorizedJetCorrectorCalculator mCalc;

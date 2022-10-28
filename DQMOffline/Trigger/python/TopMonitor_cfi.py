@@ -5,7 +5,7 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 hltTOPmonitoring = topMonitoring.clone()
 
 hltTOPmonitoring.FolderName = 'HLT/TOP/default/'
-hltTOPmonitoring.requireValidHLTPaths = True
+hltTOPmonitoring.requireValidHLTPaths = True 
 
 # histo PSets
 hltTOPmonitoring.histoPSet.lsPSet.nbins =  250
@@ -77,13 +77,14 @@ hltTOPmonitoring.histoPSet.phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849
 
 hltTOPmonitoring.enablePhotonPlot = False
 hltTOPmonitoring.enableMETPlot = False
+hltTOPmonitoring.enable2DPlots = True
 
 hltTOPmonitoring.applyLeptonPVcuts = False
 hltTOPmonitoring.leptonPVcuts.dxy = 9999.
 hltTOPmonitoring.leptonPVcuts.dz  = 9999.
 
-hltTOPmonitoring.met       = "pfMetEI" # pfMet
-hltTOPmonitoring.jets      = "ak4PFJetsCHS" # ak4PFJets, ak4PFJetsCHS, pfJetsEI
+hltTOPmonitoring.met       = "pfMet" # pfMet
+hltTOPmonitoring.jets      = "ak4PFJetsCHS" # ak4PFJets, ak4PFJetsCHS, ak4PFJets
 hltTOPmonitoring.electrons = "gedGsfElectrons" # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.elecID    = "egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight" #Electron ID
 hltTOPmonitoring.muons     = "muons" # while pfIsolatedMuonsEI are reco::PFCandidate !
@@ -109,6 +110,7 @@ hltTOPmonitoring.denGenericTriggerEventPSet.andOrHlt      = True # True:=OR; Fal
 hltTOPmonitoring.denGenericTriggerEventPSet.hltInputTag   = "TriggerResults::HLT"
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyHlt = False
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsInputTag   = "scalersRawToDigi"
+hltTOPmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = "onlineMetaDataDigis"
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsPartitions = [24, 25, 26, 27, 28, 29] # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltTOPmonitoring.denGenericTriggerEventPSet.andOrDcs      = False
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyDcs = True

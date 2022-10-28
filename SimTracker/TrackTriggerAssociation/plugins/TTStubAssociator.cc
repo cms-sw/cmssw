@@ -24,8 +24,8 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
   int ncont1 = 0;
 
-  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry_.product();
-  const TrackerTopology* const tTopo = theTrackerTopology_.product();
+  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(theTrackerGeometryToken_);
+  const TrackerTopology* const tTopo = &iSetup.getData(theTrackerTopologyToken_);
 
   /// Loop over the InputTags to handle multiple collections
 

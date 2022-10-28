@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
-#include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
+#include "SimCalorimetry/CastorSim/interface/CastorHitCorrection.h"
 
 CastorHitCorrection::CastorHitCorrection(const CaloVSimParameterMap *parameterMap) : theParameterMap(parameterMap) {}
 

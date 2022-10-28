@@ -29,7 +29,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v3/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms/2026/v3/cms.xml'/>

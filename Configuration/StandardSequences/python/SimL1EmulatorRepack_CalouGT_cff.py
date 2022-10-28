@@ -6,10 +6,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 def _print(ignored):
-    print("L1T WARN:  L1REPACK:CalouGT (intended for 2016/2017 data) only supports Stage 2 eras for now.")
-    print("L1T WARN:  Use a legacy version of L1REPACK for now.")
+    print("# L1T WARN:  L1REPACK:CalouGT (intended for 2016/2017 data) only supports Stage 2 eras for now.")
+    print("# L1T WARN:  Use a legacy version of L1REPACK for now.")
 stage2L1Trigger.toModify(None, _print)
-(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:CalouGT (intended for 2016/2017 data), reemulates the Calo part, uses unpacked Muons, and reemulates uGT."))
+(~stage2L1Trigger).toModify(None, lambda x: print("# L1T INFO:  L1REPACK:CalouGT (intended for 2016/2017 data), reemulates the Calo part, uses unpacked Muons, and reemulates uGT."))
 
 # First, Unpack all inputs to L1:
 import EventFilter.L1TRawToDigi.bmtfDigis_cfi

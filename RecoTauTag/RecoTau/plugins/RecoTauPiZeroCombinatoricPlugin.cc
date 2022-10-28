@@ -62,7 +62,7 @@ namespace reco {
       CandPtrs pfGammaCands = qcuts_.filterCandRefs(pfGammas(jet));
       // Check if we have anything to do...
       if (pfGammaCands.size() < choose_)
-        return output.release();
+        return output;
 
       // Define the valid range of gammas to use
       CandIter start_iter = pfGammaCands.begin();
@@ -81,8 +81,7 @@ namespace reco {
         std::unique_ptr<RecoTauPiZero> piZero(
             new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0), 111, 10001, true, RecoTauPiZero::kCombinatoric));
         // Add our daughters from this combination
-        for (ComboGenerator::combo_iterator candidate = combo->combo_begin(); candidate != combo->combo_end();
-             ++candidate) {
+        for (auto candidate = combo->combo_begin(); candidate != combo->combo_end(); ++candidate) {
           piZero->addDaughter(*candidate);
         }
         p4Builder_.set(*piZero);
@@ -91,9 +90,9 @@ namespace reco {
           piZero->setVertex(piZero->daughterPtr(0)->vertex());
 
         if ((maxMass_ < 0 || piZero->mass() < maxMass_) && piZero->mass() > minMass_)
-          output.push_back(piZero.get());
+          output.emplace_back(piZero.release());
       }
-      return output.release();
+      return output;
     }
 
   }  // namespace tau

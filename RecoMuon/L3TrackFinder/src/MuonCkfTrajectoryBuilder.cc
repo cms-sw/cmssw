@@ -21,6 +21,7 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf
       theDeltaPhi(conf.getParameter<double>("deltaPhi")),
       theProximityPropagatorName(conf.getParameter<std::string>("propagatorProximity")),
       theProximityPropagator(nullptr),
+      thePropagatorToken(iC.esConsumes(edm::ESInputTag("", theProximityPropagatorName))),
       theEtaPhiEstimator(nullptr) {
   //and something specific to me ?
   theUseSeedLayer = conf.getParameter<bool>("useSeedLayer");
@@ -29,12 +30,19 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf
 
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder() {}
 
+void MuonCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  CkfTrajectoryBuilder::fillPSetDescription(iDesc);
+  iDesc.add<double>("deltaEta", .1);
+  iDesc.add<double>("deltaPhi", .1);
+  iDesc.add<std::string>("propagatorProximity", "SteppingHelixPropagatorAny");
+  iDesc.add<bool>("useSeedLayer", false);
+  iDesc.add<double>("rescaleErrorIfFail", 1.);
+}
+
 void MuonCkfTrajectoryBuilder::setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CkfTrajectoryBuilder::setEvent_(iEvent, iSetup);
 
-  edm::ESHandle<Propagator> propagatorProximityHandle;
-  iSetup.get<TrackingComponentsRecord>().get(theProximityPropagatorName, propagatorProximityHandle);
-  theProximityPropagator = propagatorProximityHandle.product();
+  theProximityPropagator = &iSetup.getData(thePropagatorToken);
 
   // theEstimator is set for this event in the base class
   if (theEstimatorWatcher.check(iSetup) && theDeltaEta > 0 && theDeltaPhi > 0)

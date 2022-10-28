@@ -1,7 +1,7 @@
 from __future__ import print_function
 # test of iovInpector
 
-import os,os.path,string,commands
+import os,os.path,string
 import pluginCondDBPyInterface as CondDB
 from CondCore.Utilities import iovInspector as inspect
 

@@ -22,14 +22,14 @@ public:
   Bool_t HandleFocusChange(Event_t *event) override;
   Bool_t HandleCrossing(Event_t *event) override;
 
-  sigc::signal<void, Int_t, Int_t> openSelectedModelContextMenu_;
+  sigc::signal<void(Int_t, Int_t)> openSelectedModelContextMenu_;
 
   void setViewer(FWEveView *ev) { m_viewer = ev; }
 
-private:
   FWGLEventHandler(const FWGLEventHandler &) = delete;                   // stop default
   const FWGLEventHandler &operator=(const FWGLEventHandler &) = delete;  // stop default
 
+private:
   FWEveView *m_viewer;
 };
 

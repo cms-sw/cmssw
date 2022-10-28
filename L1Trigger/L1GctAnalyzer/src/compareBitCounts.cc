@@ -2,19 +2,6 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
-#include "CommonTools/UtilAlgos/interface/TFileService.h"  // Framework service for histograms
-
 compareBitCounts::compareBitCounts(const edm::Handle<L1GctHFBitCountsCollection> &data,
                                    const edm::Handle<L1GctHFBitCountsCollection> &emu,
                                    const GctErrorAnalyzerMBxInfo &mbxparams)

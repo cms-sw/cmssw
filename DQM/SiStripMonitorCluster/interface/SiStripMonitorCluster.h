@@ -11,24 +11,20 @@
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
 #include <memory>
+#include <vector>
+
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-
-#include <vector>
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"

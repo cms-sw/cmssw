@@ -99,11 +99,19 @@ combinatoricModifierConfigs = [
     ),
     # Tau energy reconstruction
     # (to avoid double-counting of energy carried by neutral PFCandidates
-    #  in case PFRecoTauChargedHadrons are built from reco::Tracks)                                          
+    #  in case PFRecoTauChargedHadrons are built from reco::Tracks)
     cms.PSet(
         pfTauEnergyAlgorithmPlugin,
         name = cms.string("tau_en_reconstruction"),
         plugin = cms.string("PFRecoTauEnergyAlgorithmPlugin"),
+    ),
+    # Add refs to "lost tracks", i.e. tracks associated to
+    # PFRecoTauChargedHadrons built from reco::Tracks
+    cms.PSet(
+        name = cms.string("tau_lost_tracks"),
+        trackSrc = cms.InputTag("generalTracks"),
+        plugin = cms.string("PFRecoTauLostTrackPlugin"),
+        verbosity = cms.int32(0)
     )
 ]
 

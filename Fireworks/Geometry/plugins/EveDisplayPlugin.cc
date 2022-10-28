@@ -47,11 +47,12 @@
 
 class EveDisplayPlugin : public fireworks::geometry::DisplayPlugin {
 public:
-  explicit EveDisplayPlugin();
+  explicit EveDisplayPlugin(edm::ConsumesCollector);
   ~EveDisplayPlugin() override;
 
 private:
   void run(const edm::EventSetup&) override;
+  const edm::ESGetToken<TGeoManager, DisplayGeomRecord> m_geomToken;
 };
 
 //
@@ -65,7 +66,7 @@ private:
 //
 // constructors and destructor
 //
-EveDisplayPlugin::EveDisplayPlugin() {
+EveDisplayPlugin::EveDisplayPlugin(edm::ConsumesCollector iCollector) : m_geomToken(iCollector.esConsumes()) {
   //now do what ever initialization is needed
 }
 
@@ -82,12 +83,11 @@ void EveDisplayPlugin::run(const edm::EventSetup& iSetup) {
   std::cout << "In the EveDisplayPlugin::analyze method..." << std::endl;
   using namespace edm;
 
-  ESHandle<TGeoManager> geom;
-  iSetup.get<DisplayGeomRecord>().get(geom);
+  TGeoManager const& geom = iSetup.getData(m_geomToken);
 
   TEveManager::Create();
 
-  TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(geom.product()), geom->GetTopNode());
+  TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(&geom), geom.GetTopNode());
   trk->SetVisLevel(2);
   gEve->AddGlobalElement(trk);
 }

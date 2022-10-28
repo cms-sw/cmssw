@@ -12,18 +12,17 @@ using namespace cmsdt;
 // ============================================================================
 MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset,
                                        edm::ConsumesCollector &iC,
-                                       std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer) {
+                                       std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
+    : debug_(pset.getUntrackedParameter<bool>("debug")),
+      clean_chi2_correlation_(pset.getParameter<bool>("clean_chi2_correlation")),
+      useBX_correlation_(pset.getParameter<bool>("useBX_correlation")),
+      allow_confirmation_(pset.getParameter<bool>("allow_confirmation")),
+      dT0_correlate_TP_(pset.getParameter<double>("dT0_correlate_TP")),
+      dBX_correlate_TP_(pset.getParameter<int>("dBX_correlate_TP")),
+      dTanPsi_correlate_TP_(pset.getParameter<double>("dTanPsi_correlate_TP")),
+      minx_match_2digis_(pset.getParameter<double>("minx_match_2digis")),
+      chi2corTh_(pset.getParameter<double>("chi2corTh")) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-  clean_chi2_correlation_ = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
-  useBX_correlation_ = pset.getUntrackedParameter<bool>("useBX_correlation");
-  allow_confirmation_ = pset.getUntrackedParameter<bool>("allow_confirmation");
-  dT0_correlate_TP_ = pset.getUntrackedParameter<double>("dT0_correlate_TP");
-  dBX_correlate_TP_ = pset.getUntrackedParameter<int>("dBX_correlate_TP");
-  dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
-  minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
-  chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
-  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -58,8 +57,7 @@ void MuonPathAssociator::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator::initialiase";
 
-  edm::ESHandle<DTGeometry> geom;
-  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  auto geom = iEventSetup.getHandle(dtGeomH_);
   dtGeo_ = &(*geom);
 }
 
@@ -135,7 +133,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         int sl1 = 0;
         int sl3 = 0;
         for (auto SL1metaPrimitive = SL1metaPrimitives.begin(); SL1metaPrimitive != SL1metaPrimitives.end();
-             ++SL1metaPrimitive, sl1++, sl3 = -1) {
+             ++SL1metaPrimitive, sl1++, sl3 = 0) {
           if (clean_chi2_correlation_)
             at_least_one_correlation = false;
           for (auto SL3metaPrimitive = SL3metaPrimitives.begin(); SL3metaPrimitive != SL3metaPrimitives.end();
@@ -377,7 +375,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
               // creating a new DTSuperLayerId object to compare with the required SL id
-              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 3);
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), dtLId.superLayer());
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
               double l_shift = 0;
@@ -392,6 +390,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               double x_inSL3 = SL1metaPrimitive->x - SL1metaPrimitive->tanPhi * (VERT_PHI1_PHI3 + l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
+                if ((*digiIt).time() < SL1metaPrimitive->t0)
+                  continue;
                 double x_wire =
                     shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL1metaPrimitive->t0) * DRIFT_SPEED / 10.;
                 double x_wire_left =
@@ -402,25 +402,39 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                   lat = 0;
                 }
                 if (std::abs(x_inSL3 - x_wire) < minx) {
-                  min2x = minx;
-                  minx = std::abs(x_inSL3 - x_wire);
-                  next_wire = best_wire;
-                  next_tdc = best_tdc;
-                  next_layer = best_layer;
-                  next_lat = best_lat;
-
+                  // different layer than the stored in best, hit added, matched_digis++;. This approach in somewhat
+                  // buggy, as we could have stored as best LayerX -> LayerY -> LayerX, and this should
+                  // count only as 2 hits. However, as we confirm with at least 2 hits, having 2 or more
+                  // makes no difference
+                  if (dtLId.layer() != best_layer) {
+                    minx = std::abs(x_inSL3 - x_wire);
+                    next_wire = best_wire;
+                    next_tdc = best_tdc;
+                    next_layer = best_layer;
+                    next_lat = best_lat;
+                    matched_digis++;
+                  }
                   best_wire = (*digiIt).wire();
                   best_tdc = (*digiIt).time();
                   best_layer = dtLId.layer();
                   best_lat = lat;
-                  matched_digis++;
+
                 } else if ((std::abs(x_inSL3 - x_wire) >= minx) && (std::abs(x_inSL3 - x_wire) < min2x)) {
+                  // same layer than the stored in best, no hit added
+                  if (dtLId.layer() == best_layer)
+                    continue;
+                  // different layer than the stored in next, hit added. This approach in somewhat
+                  // buggy, as we could have stored as next LayerX -> LayerY -> LayerX, and this should
+                  // count only as 2 hits. However, as we confirm with at least 2 hits, having 2 or more
+                  // makes no difference
+                  matched_digis++;
+                  // whether the layer is the same for this hit and the stored in next, we substitute
+                  // the one stored and modify the min distance
                   min2x = std::abs(x_inSL3 - x_wire);
                   next_wire = (*digiIt).wire();
                   next_tdc = (*digiIt).time();
                   next_layer = dtLId.layer();
                   next_lat = lat;
-                  matched_digis++;
                 }
               }
             }
@@ -589,7 +603,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
               // creating a new DTSuperLayerId object to compare with the required SL id
-              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 1);
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), dtLId.superLayer());
               if (dtSLId.rawId() != sl1Id.rawId())
                 continue;
               double l_shift = 0;
@@ -604,6 +618,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               double x_inSL1 = SL3metaPrimitive->x + SL3metaPrimitive->tanPhi * (VERT_PHI1_PHI3 - l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
+                if ((*digiIt).time() < SL3metaPrimitive->t0)
+                  continue;
                 double x_wire =
                     shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL3metaPrimitive->t0) * DRIFT_SPEED / 10.;
                 double x_wire_left =
@@ -614,24 +630,38 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                   lat = 0;
                 }
                 if (std::abs(x_inSL1 - x_wire) < minx) {
-                  minx = std::abs(x_inSL1 - x_wire);
-                  next_wire = best_wire;
-                  next_tdc = best_tdc;
-                  next_layer = best_layer;
-                  next_lat = best_lat;
-
+                  // different layer than the stored in best, hit added, matched_digis++;. This approach in somewhat
+                  // buggy, as we could have stored as best LayerX -> LayerY -> LayerX, and this should
+                  // count only as 2 hits. However, as we confirm with at least 2 hits, having 2 or more
+                  // makes no difference
+                  if (dtLId.layer() != best_layer) {
+                    minx = std::abs(x_inSL1 - x_wire);
+                    next_wire = best_wire;
+                    next_tdc = best_tdc;
+                    next_layer = best_layer;
+                    next_lat = best_lat;
+                    matched_digis++;
+                  }
                   best_wire = (*digiIt).wire();
                   best_tdc = (*digiIt).time();
                   best_layer = dtLId.layer();
                   best_lat = lat;
-                  matched_digis++;
                 } else if ((std::abs(x_inSL1 - x_wire) >= minx) && (std::abs(x_inSL1 - x_wire) < min2x)) {
-                  minx = std::abs(x_inSL1 - x_wire);
+                  // same layer than the stored in best, no hit added
+                  if (dtLId.layer() == best_layer)
+                    continue;
+                  // different layer than the stored in next, hit added. This approach in somewhat
+                  // buggy, as we could have stored as next LayerX -> LayerY -> LayerX, and this should
+                  // count only as 2 hits. However, as we confirm with at least 2 hits, having 2 or more
+                  // makes no difference
+                  matched_digis++;
+                  // whether the layer is the same for this hit and the stored in next, we substitute
+                  // the one stored and modify the min distance
+                  min2x = std::abs(x_inSL1 - x_wire);
                   next_wire = (*digiIt).wire();
                   next_tdc = (*digiIt).time();
                   next_layer = dtLId.layer();
                   next_lat = lat;
-                  matched_digis++;
                 }
               }
             }
@@ -941,8 +971,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt)
           if (metaprimitiveIt->rawId == sl2Id.rawId()) {
             SL2metaPrimitives.push_back(*metaprimitiveIt);
-            //std::cout<<"pushing back eta metaprimitive: ";
-            printmPC(*metaprimitiveIt);
+            if (debug_)
+              printmPC(*metaprimitiveIt);
             outMPaths.push_back(*metaprimitiveIt);
           }
       }

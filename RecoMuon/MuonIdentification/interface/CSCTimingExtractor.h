@@ -17,10 +17,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -50,6 +48,8 @@ namespace edm {
 }  // namespace edm
 
 class MuonServiceProxy;
+class Propagator;
+class TrackingComponentsRecord;
 
 class CSCTimingExtractor {
 public:
@@ -92,6 +92,7 @@ private:
 
   std::unique_ptr<MuonServiceProxy> theService;
   MuonSegmentMatcher *theMatcher;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 };
 
 #endif

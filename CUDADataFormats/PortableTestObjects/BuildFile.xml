@@ -1,0 +1,7 @@
+<use name="rootcore"/>
+<use name="CUDADataFormats/Common"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/PortableTestObjects"/>
+<export>
+  <lib name="1"/>
+</export>

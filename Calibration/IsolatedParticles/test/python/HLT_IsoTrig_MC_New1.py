@@ -134,8 +134,6 @@ process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence +
                                       process.HLTEndSequence 
                                       )
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
-
 # remove any instance of the FastTimerService
 if 'FastTimerService' in process.__dict__:
     del process.FastTimerService
@@ -207,7 +205,7 @@ process.validation_step = cms.EndPath(process.validation)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
-process.schedule.extend(process.HLTSchedule)
+process.schedule.extend([process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath])
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step])
 process.schedule.extend([process.dqmoffline_step])
 process.schedule.extend([process.e])
@@ -228,7 +226,6 @@ process = customizeHLTforMC(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 #from SLHCUpgradeSimulations.Configuration.postLS1Customs import *
-#process = customise_HLT(process)
 #process = customisePostLS1(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff

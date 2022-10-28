@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include <cassert>
 #include <ext/alloc_traits.h>

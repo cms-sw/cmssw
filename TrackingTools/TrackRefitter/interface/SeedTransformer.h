@@ -10,26 +10,32 @@
  */
 
 // Base class header
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+
 #include <vector>
 
 namespace edm {
   class ParameterSet;
   class EventSetup;
+  class ConsumesCollector;
 }  // namespace edm
 class Trajectory;
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class GlobalTrackingGeometry;
 class MagneticField;
-class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
 class Propagator;
+class GlobalTrackingGeometryRecord;
+class IdealMagneticFieldRecord;
+class TransientRecHitRecord;
+class TrackingComponentsRecord;
 
 class SeedTransformer {
 public:
   /// Constructor
-  SeedTransformer(const edm::ParameterSet&);
+  SeedTransformer(const edm::ParameterSet&, edm::ConsumesCollector);
 
   /// Destructor
   virtual ~SeedTransformer();
@@ -44,15 +50,17 @@ public:
 
 protected:
 private:
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  edm::ESHandle<MagneticField> theMagneticField;
-  edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-  edm::ESHandle<Propagator> thePropagator;
+  const GlobalTrackingGeometry* theTrackingGeometry;
+  const MagneticField* theMagneticField;
+  const TrajectoryFitter* theFitter;
+  const TransientTrackingRecHitBuilder* theMuonRecHitBuilder;
+  const Propagator* thePropagator;
 
-  std::string theFitterName;
-  std::string theMuonRecHitBuilderName;
-  std::string thePropagatorName;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMagneticFieldToken;
+  edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theFitterToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuilderToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 
   /// Minimum number of RecHits required to perform the fit
   unsigned int nMinRecHits;

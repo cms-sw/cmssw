@@ -20,7 +20,6 @@
 
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "tbb/task_arena.h"
 #include <map>
 #include <memory>
 #include <set>
@@ -33,6 +32,7 @@ namespace edm {
   class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
   class IOVSyncValue;
+  class ModuleTypeResolverBase;
   class ParameterSet;
 
   namespace eventsetup {
@@ -57,7 +57,6 @@ namespace edm {
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
       EventSetupProvider(ActivityRegistry const*,
-                         tbb::task_arena*,
                          unsigned subProcessIndex = 0U,
                          PreferredProviderInfo const* iInfo = nullptr);
       EventSetupProvider(EventSetupProvider const&) = delete;
@@ -91,6 +90,7 @@ namespace edm {
       void forceCacheClear();
 
       void checkESProducerSharing(
+          ModuleTypeResolverBase const* resolver,
           EventSetupProvider& precedingESProvider,
           std::set<ParameterSetIDHolder>& sharingCheckDone,
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,
@@ -136,7 +136,6 @@ namespace edm {
       RecordProviders recordProviders_;
 
       ActivityRegistry const* activityRegistry_;
-      tbb::task_arena* taskArena_;
 
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;

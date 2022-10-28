@@ -22,6 +22,8 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
   endcapHitsToken_ = consumes<EERecHitCollection>(endcapHits_);
   endcapClustersToken_ = consumes<reco::BasicClusterCollection>(endcapClusters_);
 
+  store5x5RecHitEB_ = false;
+
   doSelBarrel_ = iConfig.getParameter<bool>("doSelBarrel");
 
   if (doSelBarrel_) {

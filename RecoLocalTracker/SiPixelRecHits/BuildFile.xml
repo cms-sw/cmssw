@@ -2,12 +2,12 @@
 <use name="boost_regex"/>
 <use name="cuda"/>
 <use name="vdt_headers"/>
-<use name="CalibTracker/SiPixelESProducers"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="CondFormats/SiPixelTransient"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="FWCore/ParameterSet"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <export>

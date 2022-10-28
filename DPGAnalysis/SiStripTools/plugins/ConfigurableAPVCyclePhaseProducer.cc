@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -41,26 +41,23 @@
 // class decleration
 //
 
-class ConfigurableAPVCyclePhaseProducer : public edm::EDProducer {
+class ConfigurableAPVCyclePhaseProducer : public edm::global::EDProducer<edm::RunCache<APVCyclePhaseCollection>> {
 public:
   explicit ConfigurableAPVCyclePhaseProducer(const edm::ParameterSet&);
   ~ConfigurableAPVCyclePhaseProducer() override;
 
 private:
-  void beginJob() override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  std::shared_ptr<APVCyclePhaseCollection> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
   // ----------member data ---------------------------
 
   const std::vector<std::string> _defpartnames;
   const std::vector<int> _defphases;
 
-  std::map<int, std::vector<std::string> > _runpartnames;
-  std::map<int, std::vector<int> > _runphases;
-
-  APVCyclePhaseCollection _currapvphases;
+  std::map<int, std::vector<std::string>> _runpartnames;
+  std::map<int, std::vector<int>> _runphases;
 };
 
 //
@@ -75,9 +72,8 @@ private:
 // constructors and destructor
 //
 ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::ParameterSet& iConfig)
-    : _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
-      _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
-      _currapvphases() {
+    : _defpartnames(iConfig.getParameter<std::vector<std::string>>("defaultPartitionNames")),
+      _defphases(iConfig.getParameter<std::vector<int>>("defaultPhases")) {
   produces<APVCyclePhaseCollection, edm::InEvent>();
 
   //now do what ever other initialization is needed
@@ -88,12 +84,12 @@ ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::
         << " Inconsistent default phases/partitions vector sizes: " << _defphases.size() << " " << _defpartnames.size();
   }
 
-  std::vector<edm::ParameterSet> vps(iConfig.getParameter<std::vector<edm::ParameterSet> >("runPhases"));
+  std::vector<edm::ParameterSet> vps(iConfig.getParameter<std::vector<edm::ParameterSet>>("runPhases"));
 
   for (std::vector<edm::ParameterSet>::const_iterator ps = vps.begin(); ps != vps.end(); ps++) {
-    _runphases[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<int> >("phases", _defphases);
+    _runphases[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<int>>("phases", _defphases);
     _runpartnames[ps->getParameter<int>("runNumber")] =
-        ps->getUntrackedParameter<std::vector<std::string> >("partitions", _defpartnames);
+        ps->getUntrackedParameter<std::vector<std::string>>("partitions", _defpartnames);
 
     if (_runphases[ps->getParameter<int>("runNumber")].size() <
         _runpartnames[ps->getParameter<int>("runNumber")].size()) {
@@ -116,18 +112,19 @@ ConfigurableAPVCyclePhaseProducer::~ConfigurableAPVCyclePhaseProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+std::shared_ptr<APVCyclePhaseCollection> ConfigurableAPVCyclePhaseProducer::globalBeginRun(
+    const edm::Run& iRun, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  _currapvphases.get().clear();
+  auto currapvphases = std::make_shared<APVCyclePhaseCollection>();
 
   // fill phase map
 
-  const std::map<int, std::vector<std::string> >& _crunpartnames = _runpartnames;
-  const std::map<int, std::vector<int> >& _crunphases = _runphases;
+  const std::map<int, std::vector<std::string>>& _crunpartnames = _runpartnames;
+  const std::map<int, std::vector<int>>& _crunphases = _runphases;
 
-  std::map<int, std::vector<int> >::const_iterator trphases = _crunphases.find(iRun.run());
-  std::map<int, std::vector<std::string> >::const_iterator trpartnames = _crunpartnames.find(iRun.run());
+  std::map<int, std::vector<int>>::const_iterator trphases = _crunphases.find(iRun.run());
+  std::map<int, std::vector<std::string>>::const_iterator trpartnames = _crunpartnames.find(iRun.run());
 
   std::vector<int> phases = _defphases;
   std::vector<std::string> partnames = _defpartnames;
@@ -147,29 +144,27 @@ void ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm
 
   for (unsigned int ipart = 0; ipart < partnames.size(); ++ipart) {
     if (phases[ipart] >= 0) {
-      _currapvphases.get()[partnames[ipart]] = phases[ipart];
+      currapvphases->get()[partnames[ipart]] = phases[ipart];
     }
   }
 
-  for (std::map<std::string, int>::const_iterator it = _currapvphases.get().begin(); it != _currapvphases.get().end();
+  for (std::map<std::string, int>::const_iterator it = currapvphases->get().begin(); it != currapvphases->get().end();
        it++) {
     edm::LogInfo("APVCyclePhaseProducerDebug") << "partition " << it->first << " phase " << it->second;
   }
+  return currapvphases;
 }
 
-void ConfigurableAPVCyclePhaseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ConfigurableAPVCyclePhaseProducer::produce(edm::StreamID,
+                                                edm::Event& iEvent,
+                                                const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  std::unique_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection(_currapvphases));
+  std::unique_ptr<APVCyclePhaseCollection> apvphases =
+      std::make_unique<APVCyclePhaseCollection>(*runCache(iEvent.getRun().index()));
 
   iEvent.put(std::move(apvphases));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void ConfigurableAPVCyclePhaseProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void ConfigurableAPVCyclePhaseProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ConfigurableAPVCyclePhaseProducer);

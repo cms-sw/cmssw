@@ -1,0 +1,20 @@
+<use name="DataFormats/HcalDetId"/>
+<use name="Geometry/EcalCommonData"/>
+<use name="Geometry/HcalTestBeamData"/>
+<use name="SimDataFormats/HcalTestBeam"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4CMS/Calo"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="geant4core"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<use name="rootmath"/>
+<use name="rootphysics"/>
+<use name="root"/>
+<export>
+  <lib name="1"/>
+</export>

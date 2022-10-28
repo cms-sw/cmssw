@@ -99,6 +99,12 @@ PVValidationVariables::PVValidationVariables(
 
   // check if the base dir exists
   file = TFile::Open(fileName.Data(), "READ");
+
+  if (!file) {
+    std::cout << "ERROR! file " << fileName.Data() << " does not exist!" << std::endl;
+    assert(false);
+  }
+
   if (file->Get(baseDir.Data())) {
     std::cout << "found base directory: " << baseDir.Data() << std::endl;
   } else {
@@ -2354,7 +2360,7 @@ void arrangeBiasCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad = static_cast<TPad *>(canv->GetPad(k + 1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2515,7 +2521,7 @@ void arrangeCanvas(TCanvas *canv,
     current_pad = static_cast<TPad *>(canv->GetPad(0));
   }
 
-  CMS_lumi(current_pad, 4, 33);
+  CMS_lumi(current_pad, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
 
@@ -2561,7 +2567,7 @@ void arrangeCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad2 = static_cast<TPad *>(canv->GetPad(2));
-    CMS_lumi(current_pad2, 4, 33);
+    CMS_lumi(current_pad2, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2774,7 +2780,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
         hnewUp->Draw("same");
         makeNewXAxis(hnewUp);
       }
-      fright[j]->Draw("sames");
+      fright[j]->Draw("same");
       fleft[j]->Draw("same");
       fall[j]->Draw("same");
     }
@@ -2799,7 +2805,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
 
   //TkAlStyle::drawStandardTitle(Coll0T15);
   lego->Draw("same");
-  CMS_lumi(canv, 4, 33);
+  CMS_lumi(canv, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
   //pt->Draw("same");
@@ -3862,7 +3868,9 @@ void setStyle() {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text
-  lumi_13TeV = "p-p collisions";
+  lumi_13p6TeV = "pp collisions";
+  lumi_13TeV = "pp collisions";
+  lumi_0p9TeV = "pp collisions";
   extraText = "Internal";
 
   TH1::StatOverflows(kTRUE);
@@ -4048,13 +4056,29 @@ void makeNewXAxis(TH1F *h)
 void makeNewPairOfAxes(TH2F *h)
 /*--------------------------------------------------------------------*/
 {
-  int ndivx = 505;
-  float axmin = -etaRange;
-  float axmax = etaRange;
+  TString myTitle = h->GetName();
+  // fake defaults
+  float axmin = -999;
+  float axmax = 999.;
+  float aymin = -999;
+  float aymax = 999.;
+  int ndivx = h->GetXaxis()->GetNdivisions();
+  int ndivy = h->GetYaxis()->GetNdivisions();
 
-  int ndivy = 510;
-  float aymin = -TMath::Pi();
-  float aymax = TMath::Pi();
+  if (!myTitle.Contains("L1Map")) {
+    ndivx = 505;
+    ndivy = 510;
+    axmin = -etaRange;
+    axmax = etaRange;
+    aymin = -TMath::Pi();
+    aymax = TMath::Pi();
+  } else {
+    // this is a L1 map
+    axmin = 0.5;
+    axmax = nModZ_ + 0.5;
+    aymin = 0.5;
+    aymax = nLadders_ + 0.5;
+  }
 
   // Remove the current axis
   h->GetXaxis()->SetLabelOffset(999);
@@ -4200,17 +4224,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   if (theTitle.Contains("norm")) {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiNormMax().first, lims->get_dxyPhiNormMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaNormMax().first, lims->get_dxyEtaNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiNormMax().first, lims->get_dzPhiNormMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaNormMax().first, lims->get_dzEtaNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
@@ -4218,17 +4242,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
       }
     } else if (theTitle.Contains("widths")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dxyPhiNormMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dzPhiNormMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
@@ -4238,17 +4262,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   } else {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiMax().first, lims->get_dxyPhiMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaMax().first, lims->get_dxyEtaMax().first);
         } else {
           result = std::make_pair(-40., 40.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiMax().first, lims->get_dzPhiMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaMax().first, lims->get_dzEtaMax().first);
         } else {
           result = std::make_pair(-80., 80.);
@@ -4256,17 +4280,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
       }
     } else if (theTitle.Contains("widths")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dxyPhiMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaMax().second);
         } else {
           result = std::make_pair(0., 150.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dzPhiMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaMax().second);
         } else {
           result = std::make_pair(0., 300.);

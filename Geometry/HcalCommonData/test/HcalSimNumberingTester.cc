@@ -53,15 +53,15 @@ HcalSimNumberingTester::~HcalSimNumberingTester() {}
 void HcalSimNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const HcalDDDSimConstants hdc = iSetup.getData(token_);
 
-  edm::LogVerbatim("HcalGeom") << "about to getConst for 0..1";
+  edm::LogVerbatim("HCalGeom") << "about to getConst for 0..1";
   for (int i = 0; i <= 1; ++i) {
     std::vector<std::pair<double, double> > gcons = hdc.getConstHBHE(i);
-    edm::LogVerbatim("HcalGeom") << "Geometry Constants for [" << i << "] with " << gcons.size() << "  elements";
+    edm::LogVerbatim("HCalGeom") << "Geometry Constants for [" << i << "] with " << gcons.size() << "  elements";
     for (unsigned int k = 0; k < gcons.size(); ++k)
-      edm::LogVerbatim("HcalGeom") << "Element[" << k << "] = " << gcons[k].first << " : " << gcons[k].second;
+      edm::LogVerbatim("HCalGeom") << "Element[" << k << "] = " << gcons[k].first << " : " << gcons[k].second;
   }
   for (int i = 0; i < 4; ++i)
-    edm::LogVerbatim("HcalGeom") << "MaxDepth[" << i << "] = " << hdc.getMaxDepth(i);
+    edm::LogVerbatim("HCalGeom") << "MaxDepth[" << i << "] = " << hdc.getMaxDepth(i);
   hdc.printTiles();
 }
 

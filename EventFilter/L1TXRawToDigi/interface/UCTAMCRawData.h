@@ -5,6 +5,10 @@ class UCTAMCRawData {
 public:
   UCTAMCRawData(const uint32_t *d) : myDataPtr(d) {}
 
+  // No copy constructor and equality operator are needed
+  UCTAMCRawData(const UCTAMCRawData &) = delete;
+  const UCTAMCRawData &operator=(const UCTAMCRawData &i) = delete;
+
   virtual ~UCTAMCRawData() { ; }
 
   // Access functions for convenience
@@ -45,11 +49,6 @@ public:
   }
 
 private:
-  // No copy constructor and equality operator are needed
-
-  UCTAMCRawData(const UCTAMCRawData &) = delete;
-  const UCTAMCRawData &operator=(const UCTAMCRawData &i) = delete;
-
   // RawData data
 
   const uint32_t *myDataPtr;

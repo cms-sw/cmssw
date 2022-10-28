@@ -3,7 +3,6 @@ from __future__ import print_function
 import re
 import os, sys, shutil
 import subprocess
-import six
 """
 A simple helper script that provided with no arguments dumps a list of
 top-level keys, and provided with any key from this list as an argument,
@@ -82,7 +81,7 @@ batch = {
         }
 
 # do the main job here
-for config,fileName in six.iteritems(batch):
+for config,fileName in batch.items():
     sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
     query = queryAlgoKeys.format(config,queryKeys)

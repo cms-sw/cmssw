@@ -53,6 +53,6 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::InputTag DataLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
   std::vector<int> fedUnpackList_;
 };

@@ -15,7 +15,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 
 //---------------
 // C++ Headers --

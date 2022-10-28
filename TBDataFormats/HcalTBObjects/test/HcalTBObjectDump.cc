@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,10 +20,11 @@ namespace cms {
   $Revision: 1.8 $
   \author J. Mans - Minnesota
   */
-  class HcalTBObjectDump : public edm::EDAnalyzer {
+  class HcalTBObjectDump : public edm::one::EDAnalyzer<> {
   public:
     explicit HcalTBObjectDump(edm::ParameterSet const& conf);
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~HcalTBObjectDump() = default;
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;

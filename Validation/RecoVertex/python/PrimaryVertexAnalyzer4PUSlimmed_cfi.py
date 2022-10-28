@@ -6,12 +6,12 @@ selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
                                                filter = cms.bool(False)
 )
 
-selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone()
-selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesWithBS')
-
-selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
-selectedPixelVertices.src = cms.InputTag('pixelVertices')
-
+selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone(
+  src = 'offlinePrimaryVerticesWithBS'
+)
+selectedPixelVertices = selectedOfflinePrimaryVertices.clone(
+  src = 'pixelVertices'
+)
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
@@ -27,7 +27,13 @@ vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                                                       "selectedOfflinePrimaryVertices",
                                                                       "selectedOfflinePrimaryVerticesWithBS"
                                                                       ),
+                               nPUbins = cms.uint32(130)
 )
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( vertexAnalysis,
+                         nPUbins = 250 )
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(vertexAnalysis,
     trackingParticleCollection = "mixData:MergedTrackTruth",
@@ -92,6 +98,7 @@ vertexAnalysisSequencePixelTrackingOnly = cms.Sequence(
     selectedPixelVertices
     + pixelVertexAnalysisPixelTrackingOnly
 )
+
 
 
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer

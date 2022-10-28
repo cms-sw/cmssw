@@ -8,13 +8,15 @@ TPrefs = SimMuon.MCTruth.trackingParticleMuon_cfi.trackingParticleMuon.clone()
 TPmu = TPrefs.clone()
 TPmu_seq = cms.Sequence( TPmu )
 
-TPpfmu = TPrefs.clone()
-TPpfmu.skim = 'pf'
+TPpfmu = TPrefs.clone(
+    skim = 'pf'
+)
 TPpfmu_seq = cms.Sequence( TPpfmu )
 
-TPtrack = TPrefs.clone()
-TPtrack.skim = 'track'
-TPtrack.ptmin = 2.
+TPtrack = TPrefs.clone(
+    skim = 'track',
+    ptmin = 2.
+)
 TPtrack_seq = cms.Sequence( TPtrack )
 
 # TrackingParticle selectors for signal efficiencies

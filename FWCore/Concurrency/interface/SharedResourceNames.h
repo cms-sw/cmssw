@@ -28,14 +28,13 @@ namespace edm {
     static const std::string kPhotos;
     static const std::string kTauola;
     static const std::string kEvtGen;
-    static const std::string kHerwig6;
   };
 
   //ES modules can not share resources with ED modules
   class ESSharedResourceNames {
   public:
     static const std::string kDDGeometry;
-    static const std::string kDD4Hep;
+    static const std::string kDD4hep;
   };
 
   // Each time the following function is called, it returns a different

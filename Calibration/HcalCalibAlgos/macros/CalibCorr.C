@@ -7,8 +7,16 @@
 //      Defines depth of the DetId guided by the value of truncateFlag
 // double puFactor(type, ieta, pmom, eHcal, ediff, debug)
 //      Returns a multiplicative factor to the energy as PU correction
+//        int type = The type of data being considered
+//                   (1: Run 1 old; 2: Run1 new; 3: Run2 2016;
+//                    4: Run 2 2017; 5: Run2 2018; 6: Run3 Old;
+//                    7: Run 3 June 2021; 97: dlphin Try 3;
+//                    98: dlphin Try 2; 99: dlphin Try 1)
 // double puFactorRho(type, ieta, rho, double eHcal)
 //      Returns a multiplicative factor as PU correction evaluated from rho
+//        int type = The type of data being considered
+//                   (1: 2017 Data;  2: 2017 MC; 3: 2018 MC; 4: 2018AB;
+//                    5: 2018BC; 6: 2016 MC)
 // double puweight(vtx)
 //      Return PU weight for QCD PU sample
 // bool fillChain(chain, inputFileList)
@@ -32,6 +40,8 @@
 // void CalibCorrTest(infile, flag)
 //      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
+#ifndef CalibrationHcalCalibAlgosCalibCorr_h
+#define CalibrationHcalCalibAlgosCalibCorr_h
 
 #include <algorithm>
 #include <iomanip>
@@ -213,7 +223,41 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
-    } else if (type == 99) {  // dlphin
+    } else if (type == 97) {  // dlphin Try 3
+      const double CONST_COR_COEF[6] = {0.987617, 0.983421, 0.938622, 0.806662, 0.738354, 0.574195};
+      const double LINEAR_COR_COEF[6] = {-0.07018610, -0.2494880, -0.1997290, -0.1769320, -0.2427950, -0.1230480};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0263541, 0.0257008, 0.0426584, 0.0200361};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 98) {  // dlphin Try 2
+      const double CONST_COR_COEF[6] = {0.987665, 0.983468, 0.938628, 0.807241, 0.739132, 0.529059};
+      const double LINEAR_COR_COEF[6] = {-0.0708906, -0.249995, -0.199683, -0.177692, -0.243436, -0.0668783};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0263163, 0.0260158, 0.0426864, 0.00398778};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 99) {  // dlphin Try 1
       const double CONST_COR_COEF[6] = {0.98312, 0.978532, 0.972211, 0.756004, 0.638075, 0.547192};
       const double LINEAR_COR_COEF[6] = {-0.0472436, -0.186206, -0.247339, -0.166062, -0.159781, -0.118747};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0356827, 0.0202461, 0.01785078, 0.0123003};
@@ -307,7 +351,7 @@ bool fillChain(TChain* chain, const char* inputFileList) {
   if (fname.substr(fname.size() - 5, 5) == ".root") {
     chain->Add(fname.c_str());
   } else {
-    ifstream infile(inputFileList);
+    std::ifstream infile(inputFileList);
     if (!infile.is_open()) {
       std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
       return false;
@@ -861,3 +905,4 @@ unsigned int stringTest(const std::string& str) {
   std::cout << str << " has " << str.size() << " characters\n";
   return str.size();
 }
+#endif

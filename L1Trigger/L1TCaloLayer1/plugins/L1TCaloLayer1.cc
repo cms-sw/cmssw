@@ -76,6 +76,7 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   edm::EDPutTokenT<CaloTowerBxCollection> towerPutToken;
   edm::EDPutTokenT<L1CaloRegionCollection> regionPutToken;
+  const L1TCaloLayer1FetchLUTsTokens lutsTokens;
 
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > ecalLUT;
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > hcalLUT;
@@ -116,6 +117,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
       hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
       towerPutToken{produces<CaloTowerBxCollection>()},
       regionPutToken{produces<L1CaloRegionCollection>()},
+      lutsTokens{esConsumes<edm::Transition::BeginRun>(),
+                 esConsumes<edm::Transition::BeginRun>(),
+                 esConsumes<edm::Transition::BeginRun>()},
       ePhiMap(72 * 2, 0),
       hPhiMap(72 * 2, 0),
       hfPhiMap(72 * 2, 0),
@@ -205,16 +209,22 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       } else if (absCaloEta <= 41) {
         int caloPhi = hcalTp.id().iphi();
         int et = hcalTp.SOI_compressedEt();
-        bool fg = hcalTp.t0().fineGrain(0);
-        bool fg2 = hcalTp.t0().fineGrain(1);
+        bool fg = hcalTp.t0().fineGrain(0);   // depth
+        bool fg2 = hcalTp.t0().fineGrain(1);  // prompt
+        bool fg3 = hcalTp.t0().fineGrain(2);  // delay 1
+        bool fg4 = hcalTp.t0().fineGrain(3);  // delay 2
+        // note that hcalTp.t0().fineGrain(4) and hcalTp.t0().fineGrain(5) are the reserved MIP bits (not used for LLP logic)
         if (caloPhi <= 72) {
           UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
           uint32_t featureBits = 0;
-          if (fg)
-            featureBits |= 0b01;
-          // fg2 should only be set for HF
-          if (absCaloEta > 29 && fg2)
-            featureBits |= 0b10;
+          if (absCaloEta > 29) {
+            if (fg)
+              featureBits |= 0b01;
+            // fg2 should only be set for HF
+            if (fg2)
+              featureBits |= 0b10;
+          } else if (absCaloEta < 16)
+            featureBits |= (fg | ((!fg2) & (fg3 | fg4)));  // depth | (!prompt & (delay1 | delay2))
           if (!layer1->setHCALData(t, featureBits, et)) {
             LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
             LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
@@ -282,7 +292,8 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called when starting to processes a run  ------------
 void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  if (!L1TCaloLayer1FetchLUTs(iSetup,
+  if (!L1TCaloLayer1FetchLUTs(lutsTokens,
+                              iSetup,
                               ecalLUT,
                               hcalLUT,
                               hfLUT,

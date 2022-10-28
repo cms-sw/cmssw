@@ -3,7 +3,6 @@
 
 // Julia Yarba : related to particle gun prototypes
 //
-//#include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
 
 #include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
 #include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
@@ -25,11 +24,6 @@
 #include "IOMC/ParticleGuns/interface/RandomXiThetaGunProducer.h"
 // particle gun prototypes
 //
-
-/*
-using edm::FlatEGunASCIIWriter;
-DEFINE_FWK_MODULE(FlatEGunASCIIWriter);
-*/
 
 using edm::BeamMomentumGunProducer;
 DEFINE_FWK_MODULE(BeamMomentumGunProducer);

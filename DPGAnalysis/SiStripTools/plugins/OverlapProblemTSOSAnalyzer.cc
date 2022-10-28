@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -61,7 +61,7 @@
 // class decleration
 //
 
-class OverlapProblemTSOSAnalyzer : public edm::EDAnalyzer {
+class OverlapProblemTSOSAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit OverlapProblemTSOSAnalyzer(const edm::ParameterSet&);
   ~OverlapProblemTSOSAnalyzer() override;
@@ -101,6 +101,7 @@ OverlapProblemTSOSAnalyzer::OverlapProblemTSOSAnalyzer(const edm::ParameterSet& 
       m_debug(iConfig.getUntrackedParameter<bool>("debugMode", false)),
       m_tsoshm(iConfig.getParameter<edm::ParameterSet>("tsosHMConf")) {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> tfserv;
 

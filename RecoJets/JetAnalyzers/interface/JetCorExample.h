@@ -9,10 +9,10 @@
 #include "TNamed.h"
 #include <vector>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 template <class Jet>
-class JetCorExample : public edm::EDAnalyzer {
+class JetCorExample : public edm::one::EDAnalyzer<> {
 public:
   JetCorExample(edm::ParameterSet const& cfg);
 

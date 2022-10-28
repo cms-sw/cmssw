@@ -21,6 +21,3 @@ DEFINE_FWK_MODULE(RPCDCSSummary);
 
 #include <DQM/RPCMonitorClient/interface/RPCDataCertification.h>
 DEFINE_FWK_MODULE(RPCDataCertification);
-
-#include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
-DEFINE_FWK_MODULE(RPCChamberQuality);

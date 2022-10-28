@@ -14,7 +14,6 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
@@ -71,6 +70,7 @@ namespace gen {
     bool hydjet_init(const edm::ParameterSet& pset);
     inline double nuclear_radius() const;
     void rotateEvtPlane();
+    int convertStatus(int st);
 
     HepMC::GenEvent* evt;
     edm::ParameterSet pset_;

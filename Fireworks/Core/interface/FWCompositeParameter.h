@@ -39,11 +39,11 @@ public:
   // ---------- member functions ---------------------------
   void setFrom(const FWConfiguration&) override;
 
-private:
   FWCompositeParameter(const FWCompositeParameter&) = delete;  // stop default
 
   const FWCompositeParameter& operator=(const FWCompositeParameter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   unsigned int m_version;
 };

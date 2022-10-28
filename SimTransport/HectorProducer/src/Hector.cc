@@ -14,8 +14,12 @@
 
 #include <cmath>
 
-Hector::Hector(const edm::ParameterSet &param, bool verbosity, bool FP420Transport, bool ZDCTransport)
-    : m_verbosity(verbosity), m_FP420Transport(FP420Transport), m_ZDCTransport(ZDCTransport) {
+Hector::Hector(const edm::ParameterSet &param,
+               const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> &token,
+               bool verbosity,
+               bool FP420Transport,
+               bool ZDCTransport)
+    : tok_pdt_(token), m_verbosity(verbosity), m_FP420Transport(FP420Transport), m_ZDCTransport(ZDCTransport) {
   // Create LHC beam line
   edm::ParameterSet hector_par = param.getParameter<edm::ParameterSet>("Hector");
 
@@ -35,7 +39,6 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity, bool FP420Transpo
   m_smearE = hector_par.getParameter<bool>("smearEnergy");
   m_sig_e = hector_par.getParameter<double>("sigmaEnergy");
   etacut = hector_par.getParameter<double>("EtaCutForHector");
-
   theCorrespondenceMap.clear();
 
   if (m_verbosity) {
@@ -175,7 +178,7 @@ void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
           double charge = 1.;
           m_isCharged[line] = false;  // neutrals
           HepMC::GenParticle *g = (*eventParticle);
-          iSetup.getData(pdt);
+          pdt = iSetup.getHandle(tok_pdt_);
           const ParticleData *part = pdt->particle(g->pdg_id());
           if (part) {
             charge = part->charge();

@@ -13,6 +13,34 @@ ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
 ROOT.FWLiteEnabler.enable()
 
+# define some C++ helpers that are only used in this VID selector class and deriving classes
+ROOT.gInterpreter.Declare("""
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
+
+template <class PhysObj>
+struct MakeVersionedSelector {
+  MakeVersionedSelector() {}
+
+  VersionedSelector<edm::Ptr<PhysObj> > operator()(const std::string& pset, const std::string& which_config) {
+    const edm::ParameterSet& temp = edm::readPSetsFrom(pset)->getParameter<edm::ParameterSet>(which_config);
+    return VersionedSelector<edm::Ptr<PhysObj> >(temp);
+  }
+
+  VersionedSelector<edm::Ptr<PhysObj> > operator()() { return VersionedSelector<edm::Ptr<PhysObj> >(); }
+};
+
+template <class Collection,
+          class InPhysObj = typename Collection::value_type,
+          class OutPhysObj = typename Collection::value_type>
+struct MakePtrFromCollection {
+  edm::Ptr<OutPhysObj> operator()(const Collection& coll, unsigned idx) {
+    edm::Ptr<InPhysObj> temp(&coll, idx);
+    return edm::Ptr<OutPhysObj>(temp);
+  }
+};
+""")
+
+
 config_template = """
 import FWCore.ParameterSet.Config as cms
 
@@ -34,11 +62,10 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 class VIDSelectorBase:
-    def __init__(self, vidSelectorBuilder, ptrMaker, printer, pythonpset = None):        
+    def __init__(self, vidSelectorBuilder, ptrMaker, pythonpset = None):
         self.__initialized = False
         self.__suffix = id_generator(12)
-        self.__printer = printer()
-        self.__ptrMaker = ptrMaker()
+        self.__ptrMaker = ptrMaker
         self.__selectorBuilder = vidSelectorBuilder()
         self.__instance = None
         if pythonpset is not None:
@@ -130,4 +157,6 @@ class VIDSelectorBase:
         return self.__instance.md55Raw()
 
     def __repr__(self):
-        return self.__printer(self.__instance)
+        out = ROOT.std.stringstream()
+        self.__instance.print(out)
+        return out.str();

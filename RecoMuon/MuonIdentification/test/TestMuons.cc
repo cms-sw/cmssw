@@ -10,7 +10,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,32 +25,34 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-class TestMuons : public edm::EDAnalyzer {
+class TestMuons : public edm::one::EDAnalyzer<> {
 public:
   explicit TestMuons(const edm::ParameterSet&);
   virtual ~TestMuons() {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void printMuonCollections(const edm::Handle<edm::View<reco::Muon> >& muons);
+  void printMuonCollections(const edm::Handle<edm::View<reco::Muon>>& muons);
   void checkTimeMaps(const edm::Event& iEvent, const edm::Handle<reco::MuonCollection>& muons);
   void checkPFMap(const edm::Event& iEvent, const edm::Handle<reco::MuonCollection>& muons);
 
 private:
   edm::InputTag theInput;
+  edm::EDGetTokenT<edm::View<reco::Muon>> theMuonsVToken;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonsToken;
 };
 #endif
 
 TestMuons::TestMuons(const edm::ParameterSet& iConfig) {
   theInput = iConfig.getParameter<edm::InputTag>("InputCollection");
+  theMuonsVToken = consumes(theInput);
+  theMuonsToken = consumes(theInput);
 }
 
 void TestMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::View<reco::Muon> > muonsV;
-  iEvent.getByLabel(theInput, muonsV);
+  edm::Handle<edm::View<reco::Muon>> muonsV = iEvent.getHandle(theMuonsVToken);
   printMuonCollections(muonsV);
 
-  edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theInput, muons);
+  edm::Handle<reco::MuonCollection> muons = iEvent.getHandle(theMuonsToken);
 
   checkTimeMaps(iEvent, muons);
   checkPFMap(iEvent, muons);
@@ -75,7 +77,7 @@ void TestMuons::checkTimeMaps(const edm::Event& iEvent, const edm::Handle<reco::
   }
 }
 
-void TestMuons::printMuonCollections(const edm::Handle<edm::View<reco::Muon> >& muons) {
+void TestMuons::printMuonCollections(const edm::Handle<edm::View<reco::Muon>>& muons) {
   for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
     std::cout << "\n----------------------------------------------------" << std::endl;
     std::cout << "Muon (pt,eta,phi): " << muon->pt() << ", " << muon->eta() << ", " << muon->phi() << std::endl;
@@ -124,7 +126,7 @@ void TestMuons::printMuonCollections(const edm::Handle<edm::View<reco::Muon> >& 
 void TestMuons::checkPFMap(const edm::Event& iEvent, const edm::Handle<reco::MuonCollection>& muons) {
   std::cout << "checkPFMaps" << std::endl;
 
-  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > pfMap;
+  edm::Handle<edm::ValueMap<reco::PFCandidatePtr>> pfMap;
   iEvent.getByLabel("particleFlow", theInput.label(), pfMap);
 
   for (unsigned int imucount = 0; imucount < muons->size(); ++imucount) {

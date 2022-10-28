@@ -102,7 +102,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meGenJetPtTrg",
                    "_meGenJetPtTrgLow",
-                   "_meTurnOngJetPt",
+                   "_meTurnOngJetPtLow",
                    "Gen Jet PtLow",
                    "Gen Jet Pt Turn-On Data");
       dividehistos(ibooker,
@@ -116,7 +116,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meGenJetEtaTrg",
                    "_meGenJetEtaTrgLow",
-                   "_meTurnOngJetEta",
+                   "_meTurnOngJetEtaLow",
                    "Gen Jet EtaLow",
                    "Gen Jet Eta Turn-On Data");
       dividehistos(ibooker,
@@ -130,7 +130,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meGenJetPhiTrg",
                    "_meGenJetPhiTrgLow",
-                   "_meTurnOngJetPhi",
+                   "_meTurnOngJetPhiLow",
                    "Gen Jet PhiLow",
                    "Gen Jet Phi Turn-On Data");
 
@@ -146,7 +146,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meHLTJetPtTrg",
                    "_meHLTJetPtTrgLow",
-                   "_meTurnOnhJetPt",
+                   "_meTurnOnhJetPtLow",
                    "HLT Jet PtLow",
                    "HLT Jet Pt Turn-On Data");
       dividehistos(ibooker,
@@ -160,7 +160,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meHLTJetEtaTrg",
                    "_meHLTJetEtaTrgLow",
-                   "_meTurnOnhJetEta",
+                   "_meTurnOnhJetEtaLow",
                    "HLT Jet EtaLow",
                    "HLT Jet Eta Turn-On Data");
       dividehistos(ibooker,
@@ -174,7 +174,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
                    igetter,
                    "_meHLTJetPhiTrg",
                    "_meHLTJetPhiTrgLow",
-                   "_meTurnOnhJetPhi",
+                   "_meTurnOnhJetPhiLow",
                    "HLT Jet PhiLow",
                    "HLT Jet Phi Turn-On Data");
     }

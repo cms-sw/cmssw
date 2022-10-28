@@ -252,6 +252,9 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
         }
       }
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("ForwardSim") << "variant" << variant;
+#endif
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

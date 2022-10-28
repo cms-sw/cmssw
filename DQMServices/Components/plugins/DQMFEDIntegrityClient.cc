@@ -1,4 +1,3 @@
-
 /*
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
@@ -6,10 +5,69 @@
  *
  * Description: Summing up FED entries from all subdetectors.
  *
-*/
+ */
 
-#include "DQMFEDIntegrityClient.h"
+#include <string>
+#include <vector>
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+//
+// class declaration
+//
+
+class DQMFEDIntegrityClient : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  DQMFEDIntegrityClient(const edm::ParameterSet&);
+  ~DQMFEDIntegrityClient() override = default;
+
+protected:
+  void beginJob() override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endJob() override;
+
+private:
+  void initialize();
+  void fillHistograms();
+
+  edm::ParameterSet parameters_;
+
+  DQMStore* dbe_;
+
+  // ---------- member data ----------
+
+  int NBINS;
+  float XMIN, XMAX;
+  float SummaryContent[10];
+
+  MonitorElement* FedEntries;
+  MonitorElement* FedFatal;
+  MonitorElement* FedNonFatal;
+
+  MonitorElement* reportSummary;
+  MonitorElement* reportSummaryContent[10];
+  MonitorElement* reportSummaryMap;
+
+  bool fillInEventloop;
+  bool fillOnEndRun;
+  bool fillOnEndJob;
+  bool fillOnEndLumi;
+  std::string moduleName;
+  std::string fedFolderName;
+};
 
 // -----------------------------
 //  constructors and destructor
@@ -25,8 +83,6 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient(const edm::ParameterSet& ps) {
   moduleName = ps.getUntrackedParameter<std::string>("moduleName", "FED");
   fedFolderName = ps.getUntrackedParameter<std::string>("fedFolderName", "FEDIntegrity");
 }
-
-DQMFEDIntegrityClient::~DQMFEDIntegrityClient() = default;
 
 void DQMFEDIntegrityClient::initialize() {
   // get back-end interface
@@ -151,6 +207,8 @@ void DQMFEDIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& 
     fillHistograms();
 }
 
+void DQMFEDIntegrityClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {}
+
 void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& context) {
   if (fillOnEndLumi)
     fillHistograms();
@@ -173,18 +231,18 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
   for (auto ent = entries.begin(); ent != entries.end(); ++ent) {
     if (!(dbe_->get(*ent))) {
-      //      cout << ">> Endluminosity No histogram! <<" << endl;
       continue;
     }
 
     MonitorElement* me = dbe_->get(*ent);
-
     if (TH1F* rootHisto = me->getTH1F()) {
       int Nbins = me->getNbinsX();
       float entry = 0.;
       int xmin = (int)rootHisto->GetXaxis()->GetXmin();
       if (*ent == "L1T/" + fedFolderName + "/FEDEntries")
         xmin = xmin + 800;
+      if (*ent == "DT/" + fedFolderName + "/FEDEntries")
+        xmin = 770;  //Real DT FEDIDs are 1369-1371
 
       for (int bin = 1; bin <= Nbins; ++bin) {
         int id = xmin + bin;
@@ -218,7 +276,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
   auto ent = entries.begin();
   for (auto fat = fatal.begin(); fat != fatal.end(); ++fat) {
     if (!(dbe_->get(*fat))) {
-      //      cout << ">> No histogram! <<" << endl;
       reportSummaryContent[k]->Fill(-1);
       reportSummaryMap->setBinContent(1, nSubsystems - k, -1);
       k++;
@@ -228,7 +285,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
     MonitorElement* me = dbe_->get(*fat);
     MonitorElement* meNorm = dbe_->get(*ent);
-    //      cout << "Path : " << me->getFullname() << endl;
 
     float entry = 0.;
     float norm = 0.;
@@ -239,10 +295,8 @@ void DQMFEDIntegrityClient::fillHistograms() {
         int xmin = (int)rootHisto->GetXaxis()->GetXmin();
         if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
           xmin = xmin + 800;
-        //        int xmax = (int)rootHisto->GetXaxis()->GetXmax();
-        //        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
-        //          xmax = xmax + 800;
-        //        cout << "FED ID range : " << xmin << " - " << xmax << endl;
+        if (*fat == "DT/" + fedFolderName + "/FEDFatal")
+          xmin = 770;  //Real DT FED IDs are 1369-1371
 
         float binentry = 0.;
         for (int bin = 1; bin <= Nbins; ++bin) {
@@ -250,8 +304,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
           binentry = rootHisto->GetBinContent(bin);
           entry += binentry;
           norm += rootHistoNorm->GetBinContent(bin);
-          //      cout << *fat << "errors = " << entry << "\tnorm = " << norm << endl;
-          //      cout << "Bin content : " << entry << endl;
           FedFatal->setBinContent(id, binentry);
         }
       }
@@ -259,7 +311,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
     if (norm > 0)
       SummaryContent[k] = 1.0 - entry / norm;
-    //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
     if ((k == 2 || k == 3)  // for EE and EB only show yellow when more than 1% errors.
         && SummaryContent[k] >= 0.95 && SummaryContent[k] < 0.99)
@@ -291,7 +342,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
   for (auto non = nonfatal.begin(); non != nonfatal.end(); ++non) {
     if (!(dbe_->get(*non))) {
-      //      cout << ">> No histogram! <<" << endl;
       continue;
     }
 
@@ -323,3 +373,7 @@ void DQMFEDIntegrityClient::endJob() {
   if (fillOnEndJob)
     fillHistograms();
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMFEDIntegrityClient);

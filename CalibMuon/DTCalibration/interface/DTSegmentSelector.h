@@ -5,7 +5,7 @@
  *  \author A. Vilela Pereira
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <vector>
 
@@ -38,6 +40,7 @@ private:
   double maxChi2_;
   double maxAnglePhi_;
   double maxAngleZ_;
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> theStatusMapToken_;
 };
 
 #endif

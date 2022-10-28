@@ -25,6 +25,9 @@ class CSCChamberMap;
 
 class CSCDigiToRaw {
 public:
+  /// CSC Shower HMT bits types
+  enum CSCShowerType { lctShower = 0, anodeShower = 1, cathodeShower = 2, anodeALCTShower = 3 };
+
   /// Constructor
   explicit CSCDigiToRaw(const edm::ParameterSet& pset);
 
@@ -38,12 +41,13 @@ public:
                         const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                         const CSCShowerDigiCollection* showerDigis,
+                        const CSCShowerDigiCollection* anodeShowerDigis,
+                        const CSCShowerDigiCollection* cathodeShowerDigis,
+                        const CSCShowerDigiCollection* anodeALCTShowerDigis,
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
-                        const edm::EventID& eid,
-                        uint16_t theFormatVersion = 2005,
-                        bool packEverything = false) const;
+                        const edm::EventID& eid) const;
 
 private:
   struct FindEventDataInfo {
@@ -59,21 +63,20 @@ private:
   void add(const CSCStripDigiCollection& stripDigis,
            const CSCCLCTPreTriggerCollection* preTriggers,
            const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
-  void add(const CSCWireDigiCollection& wireDigis,
-           const CSCALCTDigiCollection& alctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           FindEventDataInfo&) const;
+  void add(const CSCWireDigiCollection& wireDigis, const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   // may require CLCTs to read out comparators.  Doesn't add CLCTs.
   void add(const CSCComparatorDigiCollection& comparatorDigis,
            const CSCCLCTDigiCollection& clctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           FindEventDataInfo&) const;
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
-  void add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo&) const;
+  /// Run3 packing of CSCShower objects depending on shower HMT type
+  void add(const CSCShowerDigiCollection& cscShowerDigis,
+           FindEventDataInfo&,
+           enum CSCShowerType shower = CSCShowerType::lctShower) const;
+  /// Run3 adding GEM GE11 Pad Clusters trigger objects
   void add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
   CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;
@@ -84,6 +87,11 @@ private:
   const int clctWindowMax_;
   const int preTriggerWindowMin_;
   const int preTriggerWindowMax_;
+
+  uint16_t formatVersion_;
+  bool packEverything_;
+  bool usePreTriggers_;
+  bool packByCFEB_;
 };
 
 #endif

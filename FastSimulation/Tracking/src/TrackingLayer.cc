@@ -1,4 +1,5 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
@@ -72,7 +73,8 @@ TrackingLayer TrackingLayer::createFromDetId(const DetId& detId, const TrackerTo
     throw cms::Exception("FastSimulation/Tracking")
         << "Cannot determine seeding layer from DetId:" << trackerTopology.print(detId).c_str() << std::endl;
   }
-  //std::cout<<"LayerSpec::createFromDetId: "<<trackerTopology.print(detId).c_str()<<", parsed="<<seedingLayer.print().c_str()<<std::endl;
+  edm::LogVerbatim("TrackingLayer") << "LayerSpec::createFromDetId: " << trackerTopology.print(detId).c_str()
+                                    << ", parsed=" << trackingLayer._layerNumber;
   return trackingLayer;
 }
 
@@ -168,7 +170,8 @@ TrackingLayer TrackingLayer::createFromString(std::string layerSpecification) {
         << "no case sensitive name of ['BPix','FPix','TIB','MTIB','TID','MTID','TOB','TEC','MTEC'] matches '"
         << layerSpecification.c_str() << "'";
   }
-  //std::cout<<"LayerSpec::createFromString: "<<layerSpecification.c_str()<<", parsed="<<seedingLayer.print().c_str()<<std::endl;
+  edm::LogVerbatim("TrackingLayer") << "LayerSpec::createFromString: " << layerSpecification.c_str()
+                                    << ", parsed=" << trackingLayer._layerNumber;
 
   return trackingLayer;
 }

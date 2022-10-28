@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("HFTEST")
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("HFTEST",Run2_2018)
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+
+process.load('Configuration.StandardSequences.Generator_cff')
 
 #--- Magnetic Field 		
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -12,8 +16,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #   include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
 #   include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
 process.load("Geometry.CMSCommonData.ecalhcalGeometryXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_mc']
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
@@ -21,14 +31,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.source = cms.Source("EmptySource")
 
@@ -62,9 +69,10 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('HF_test_ecalplushcalonly_nofield.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.MessageLogger.cerr.default.limit = 100
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector']
 
 

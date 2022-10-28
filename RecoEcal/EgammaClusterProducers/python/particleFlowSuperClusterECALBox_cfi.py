@@ -24,9 +24,6 @@ particleFlowSuperClusterECALBox = _mod.particleFlowSuperClusterECALMustache.clon
     PFBasicClusterCollectionPreshower = "particleFlowBasicClusterECALPreshower",
     PFSuperClusterCollectionEndcapWithPreshower = "particleFlowSuperClusterECALEndcapWithPreshower",
 
-    # use preshower ?
-    use_preshower = True,
-
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = True,
 

@@ -51,25 +51,46 @@ for tfunc in sorted(toplevelfuncs):
         if G.has_node(tfunc) and G.has_node(static) and nx.has_path(G, tfunc, static):
             path = nx.shortest_path(G, tfunc, static)
 
-            print("Non-const static variable \'"+re.sub(farg, "()",
-                                                        static)+"' is accessed in call stack '", end=' ')
-            for i in range(0, len(path)-1):
-                print(re.sub(farg, "()", path[i]) +
-                      G[path[i]][path[i+1]]['kind'], end=' ')
-            print(re.sub(farg, "()", path[i+1])+"' ,", end=' ')
-            for key in G[tfunc].keys():
-                if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ':
-                    print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
-                          re.sub(farg, "()", key)+"'", end=' ')
-            print()
+            if 'kind' in G[path[len(path)-2]][path[len(path)-1]] and G[path[len(path)-2]][path[len(path)-1]]['kind'] == ' static variable ':
+                for key in G[tfunc].keys():
+                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ':
+                        print("Non-const static variable \'"+re.sub(farg, "()",
+                                                                    static)+"' is accessed in call stack '", end=' ')
+                        for i in range(0, len(path)-1):
+                            print(re.sub(farg, "()", path[i]) +
+                                  G[path[i]][path[i+1]]['kind'], end=' ')
+                        print(re.sub(farg, "()", path[i+1])+"' ,", end=' ')
+                        print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
+                              re.sub(farg, "()", key)+"'", end=' ')
+                        print()
 
-            print("In call stack ' ", end=' ')
-            for i in range(0, len(path)-1):
-                print(re.sub(farg, "()", path[i]) +
-                      G[path[i]][path[i+1]]['kind'], end=' ')
-            print(re.sub(farg, "()", path[i+1])+"' is accessed ,", end=' ')
-            for key in G[tfunc].keys():
-                if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ':
-                    print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
-                          re.sub(farg, "()", key)+"'", end=' ')
-            print()
+                        print("In call stack ' ", end=' ')
+                        for i in range(0, len(path)-1):
+                            print(re.sub(farg, "()", path[i]) +
+                                  G[path[i]][path[i+1]]['kind'], end=' ')
+                        print(re.sub(farg, "()", path[i+1])+"' is accessed ,", end=' ')
+                        print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
+                              re.sub(farg, "()", key)+"'", end=' ')
+                        print()
+
+            else:
+                for key in G[tfunc].keys():
+                    if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function ' and not (key.startswith('edm::one') and 'TFileService::' in static):
+                        print("Known thread unsafe function '"+re.sub(farg, "()",
+                                                                       static)+"' is called in call stack '", end=' ')
+                        for i in range(0, len(path)-1):
+                            print(re.sub(farg, "()", path[i]) +
+                                  G[path[i]][path[i+1]]['kind'], end=' ')
+                        print(re.sub(farg, "()", path[i+1])+"' ,", end=' ')
+                        print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
+                                  re.sub(farg, "()", key)+"'", end=' ')
+                        print()
+
+                        print("In call stack ' ", end=' ')
+                        for i in range(0, len(path)-1):
+                            print(re.sub(farg, "()", path[i]) +
+                                  G[path[i]][path[i+1]]['kind'], end=' ')
+                        print(re.sub(farg, "()", path[i+1])+"' known thread unsafe function '"+re.sub(farg, "()", static)+"' is called, ", end=' ')
+                        print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
+                                      re.sub(farg, "()", key)+"'", end=' ')
+                        print()

@@ -4,7 +4,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -13,7 +13,7 @@
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-class PatMCMatchingExtended : public edm::EDAnalyzer {
+class PatMCMatchingExtended : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default constructor
   explicit PatMCMatchingExtended(const edm::ParameterSet&);
@@ -48,7 +48,9 @@ private:
 
 PatMCMatchingExtended::PatMCMatchingExtended(const edm::ParameterSet& iConfig)
     : histContainer_(),
-      muonSrcToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc"))) {}
+      muonSrcToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatMCMatchingExtended::~PatMCMatchingExtended() {}
 

@@ -3,8 +3,8 @@ the getByLabel function and supporting code. It makes
 a lot of getByLabel calls although it is not particularly
 realistic ... */
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,13 +16,11 @@ realistic ... */
 
 namespace edmtest {
 
-  class ManyProductProducer : public edm::EDProducer {
+  class ManyProductProducer : public edm::global::EDProducer<> {
   public:
     explicit ManyProductProducer(edm::ParameterSet const& iConfig);
 
-    virtual ~ManyProductProducer();
-
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final;
 
   private:
     unsigned int nProducts_;
@@ -39,22 +37,18 @@ namespace edmtest {
     }
   }
 
-  ManyProductProducer::~ManyProductProducer() {}
-
   // Functions that gets called by framework every event
-  void ManyProductProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void ManyProductProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     for (unsigned int i = 0; i < nProducts_; ++i) {
       e.put(std::make_unique<IntProduct>(1), instanceNames_[i]);
     }
   }
 
-  class ManyProductAnalyzer : public edm::EDAnalyzer {
+  class ManyProductAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ManyProductAnalyzer(edm::ParameterSet const& iConfig);
 
-    virtual ~ManyProductAnalyzer();
-
-    void analyze(edm::Event const&, edm::EventSetup const&);
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
 
   private:
     unsigned int nProducts_;
@@ -71,9 +65,7 @@ namespace edmtest {
     }
   }
 
-  ManyProductAnalyzer::~ManyProductAnalyzer() {}
-
-  void ManyProductAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void ManyProductAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     edm::Handle<IntProduct> h;
     for (auto const& tag : tags_) {
       e.getByLabel(tag, h);

@@ -106,6 +106,7 @@
 #include "CondFormats/SiPixelTransient/interface/SimplePixel.h"
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define LOGWARNING(x) LogWarning(x)
@@ -1326,6 +1327,12 @@ void SiPixelTemplate::postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_)
 // ************************************************************************************************************
 bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
   // Interpolate for a new set of track angles
+
+  //check for nan's
+  if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+    success_ = false;
+    return success_;
+  }
 
   // Local variables
   int i, j;

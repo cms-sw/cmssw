@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,6 +55,7 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducerToken_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducerBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducerEToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSevLvlAlgoToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   std::string outputCollection_;
@@ -64,7 +64,8 @@ private:
   double etCut_;
 };
 
-HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig) : ecalClusterToolsESGetTokens_{consumesCollector()} {
+HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig)
+    : ecalSevLvlAlgoToken_(esConsumes()), ecalClusterToolsESGetTokens_{consumesCollector()} {
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -102,34 +103,21 @@ void HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // Get raw SuperClusters from the event
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
-  try {
-    iEvent.getByToken(sCInputProducerToken_, pRawSuperClusters);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the rawSuperClusters ";
-  }
+  iEvent.getByToken(sCInputProducerToken_, pRawSuperClusters);
 
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHitsB;
-  try {
-    iEvent.getByToken(rHInputProducerBToken_, pRecHitsB);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the RecHits ";
-  }
+  iEvent.getByToken(rHInputProducerBToken_, pRecHitsB);
 
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHitsE;
-  try {
-    iEvent.getByToken(rHInputProducerEToken_, pRecHitsE);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the RecHits ";
-  }
+  iEvent.getByToken(rHInputProducerEToken_, pRecHitsE);
 
   // get the channel status from the DB
   //   edm::ESHandle<EcalChannelStatus> chStatus;
   //   iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
+  auto const& ecalSevLvlAlgo = iSetup.getData(ecalSevLvlAlgoToken_);
 
   // Create a pointer to the RecHits and raw SuperClusters
   const reco::SuperClusterCollection* rawClusters = pRawSuperClusters.product();
@@ -158,7 +146,7 @@ void HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     EcalRecHitCollection::const_iterator it = rechits.find(id);
 
     if (it != rechits.end()) {
-      ecalSevLvlAlgoHndl->severityLevel(id, rechits);
+      ecalSevLvlAlgo.severityLevel(id, rechits);
       swissCrx = EcalTools::swissCross(id, rechits, 0., true);
       //	    std::cout << "swissCross = " << swissCrx <<std::endl;
       // std::cout << " timing = " << it->time() << std::endl;

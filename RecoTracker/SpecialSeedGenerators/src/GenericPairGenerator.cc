@@ -24,8 +24,8 @@ const OrderedSeedingHits& GenericPairGenerator::run(const TrackingRegion& region
         << "You are using " << layers.numberOfLayersInSet() << " layers in set instead of 2 ";
 
   for (SeedingLayerSetsHits::SeedingLayerSet ls : layers) {
-    auto innerHits = region.hits(es, ls[0]);
-    auto outerHits = region.hits(es, ls[1]);
+    auto innerHits = region.hits(ls[0]);
+    auto outerHits = region.hits(ls[1]);
     for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++) {
       for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++) {
         hitPairs.push_back(OrderedHitPair(&(**iInnerHit), &(**iOuterHit)));

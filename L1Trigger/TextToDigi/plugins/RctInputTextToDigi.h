@@ -28,7 +28,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,7 +47,7 @@
 // class declaration
 //
 
-class RctInputTextToDigi : public edm::EDProducer {
+class RctInputTextToDigi : public edm::one::EDProducer<> {
 public:
   explicit RctInputTextToDigi(const edm::ParameterSet &);
   ~RctInputTextToDigi() override;
@@ -61,9 +61,10 @@ private:
 
   edm::FileInPath inputFile_;
   std::ifstream inputStream_;
+  L1RCTLookupTables *lookupTables_;
+  edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> paramsToken_;
   int nEvent_;
   bool oldVersion_;
-  L1RCTLookupTables *lookupTables_;
 };
 
 #endif

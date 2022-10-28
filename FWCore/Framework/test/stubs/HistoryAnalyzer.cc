@@ -5,7 +5,7 @@
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@ namespace edm {
 
 namespace edmtest {
 
-  class HistoryAnalyzer : public edm::EDAnalyzer {
+  class HistoryAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit HistoryAnalyzer(edm::ParameterSet const& params);
     void analyze(edm::Event const& event, edm::EventSetup const&);

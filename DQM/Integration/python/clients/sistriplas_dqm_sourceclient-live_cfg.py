@@ -1,7 +1,8 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "sistriplaserDQMLive" )
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process( "sistriplaserDQMLive", Run3 )
 process.MessageLogger = cms.Service( "MessageLogger",
   cout = cms.untracked.PSet(threshold = cms.untracked.string( 'ERROR' )),
   destinations = cms.untracked.vstring( 'cout')
@@ -30,7 +31,7 @@ process.siStripDigis.ProductLabel = "source"#"hltCalibrationRaw"
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #----------------------------
 # DQM Live Environment

@@ -17,7 +17,7 @@
 #include "HepMC/GenEvent.h"
 
 // #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -37,12 +37,14 @@ namespace gen {
 
   // class Pythia6Service;
 
-  class Pythia6Gun : public edm::EDProducer {
+  class Pythia6Gun
+      : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns, edm::one::SharedResources> {
   public:
     Pythia6Gun(const edm::ParameterSet&);
     ~Pythia6Gun() override;
     void beginJob() override;
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;

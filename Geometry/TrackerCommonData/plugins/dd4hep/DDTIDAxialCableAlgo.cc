@@ -107,7 +107,7 @@ namespace {
 
       std::string name = childName + std::to_string(k);
 
-      Solid solid = ns.addSolid(name, Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
+      Solid solid = ns.addSolid(ns.prepend(name), Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
 
       LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Polycone made of " << matIn
                              << " from " << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width)
@@ -142,7 +142,7 @@ namespace {
 
     std::string name = childName + std::to_string(zposWheel.size());
 
-    Solid solid = ns.addSolid(name, Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
+    Solid solid = ns.addSolid(ns.prepend(name), Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
 
     LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Polycone made of " << matIn << " from "
                            << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width) << " and with "
@@ -157,7 +157,7 @@ namespace {
     // Cable in the outer part
     name = childName + std::to_string(zposWheel.size() + 1);
     r = rTop - r;
-    solid = ns.addSolid(name, Tube(r, rTop, 0.5 * (zEnd - zBend), -0.5 * width, width));
+    solid = ns.addSolid(ns.prepend(name), Tube(r, rTop, 0.5 * (zEnd - zBend), -0.5 * width, width));
 
     LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Tubs made of " << matOut << " from "
                            << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width) << " with Rin "

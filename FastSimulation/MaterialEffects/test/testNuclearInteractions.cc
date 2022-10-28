@@ -16,8 +16,9 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 #include "TFile.h"
 #include "TTree.h"
 #include "TProcessID.h"
@@ -33,9 +34,15 @@ public:
 
 private:
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet particleFilter_;
-  bool saveNU;
-  std::vector<FSimEvent*> mySimEvent;
+  const edm::ParameterSet particleFilter_;
+  const bool saveNU;
+  const int maxNU;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fullSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fullSimVx_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fastSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fastSimVx_;
+  std::vector<std::unique_ptr<FSimEvent>> mySimEvent;
   NUEvent* nuEvent;
   TTree* nuTree;
   TFile* outFile;
@@ -57,15 +64,15 @@ private:
   std::vector<MonitorElement*> htmp;
   std::vector<MonitorElement*> totalCharge;
 
-  std::vector<std::vector<MonitorElement*> > h100;
-  std::vector<std::vector<MonitorElement*> > h200;
-  std::vector<std::vector<MonitorElement*> > h300;
-  std::vector<std::vector<double> > trackerRadius;
-  std::vector<std::vector<double> > trackerLength;
-  std::vector<std::vector<double> > blockTrackerRadius;
-  std::vector<std::vector<double> > blockTrackerLength;
-  std::vector<std::vector<double> > subTrackerRadius;
-  std::vector<std::vector<double> > subTrackerLength;
+  std::vector<std::vector<MonitorElement*>> h100;
+  std::vector<std::vector<MonitorElement*>> h200;
+  std::vector<std::vector<MonitorElement*>> h300;
+  std::vector<std::vector<double>> trackerRadius;
+  std::vector<std::vector<double>> trackerLength;
+  std::vector<std::vector<double>> blockTrackerRadius;
+  std::vector<std::vector<double>> blockTrackerLength;
+  std::vector<std::vector<double>> subTrackerRadius;
+  std::vector<std::vector<double>> subTrackerLength;
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
 
@@ -87,11 +94,17 @@ private:
 
   int totalNEvt;
   int totalNU;
-  int maxNU;
 };
 
 testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
+    : particleFilter_(p.getParameter<edm::ParameterSet>("TestParticleFilter")),
+      saveNU(p.getParameter<bool>("SaveNuclearInteractions")),
+      maxNU(p.getParameter<unsigned>("MaxNumberOfNuclearInteractions")),
+      tok_pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      tok_fullSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"))),
+      tok_fullSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"))),
+      tok_fastSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("famosSimHits"))),
+      tok_fastSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("famosSimHits"))),
       h0(2, static_cast<MonitorElement*>(0)),
       h1(2, static_cast<MonitorElement*>(0)),
       h2(2, static_cast<MonitorElement*>(0)),
@@ -123,18 +136,14 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
       totalNEvt(0),
       totalNU(0) {
   // Let's just initialize the SimEvent's
-  particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");
+  // For the full sim
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
+  // For the fast sim
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
 
   // Do we save the nuclear interactions?
-  saveNU = p.getParameter<bool>("SaveNuclearInteractions");
-  maxNU = p.getParameter<unsigned>("MaxNumberOfNuclearInteractions");
   if (saveNU)
     std::cout << "Nuclear Interactions will be saved ! " << std::endl;
-
-  // For the full sim
-  mySimEvent[0] = new FSimEvent(particleFilter_);
-  // For the fast sim
-  mySimEvent[1] = new FSimEvent(particleFilter_);
 
   // Where the nuclear interactions are saved;
   NUEventFileName = "none";
@@ -154,8 +163,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   ObjectNumber = -1;
 
   // Beam Pipe
-  std::vector<double> tmpRadius = p.getUntrackedParameter<std::vector<double> >("BPCylinderRadius");
-  std::vector<double> tmpLength = p.getUntrackedParameter<std::vector<double> >("BPCylinderLength");
+  std::vector<double> tmpRadius = p.getUntrackedParameter<std::vector<double>>("BPCylinderRadius");
+  std::vector<double> tmpLength = p.getUntrackedParameter<std::vector<double>>("BPCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -164,26 +173,26 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   subTrackerLength.push_back(tmpLength);
 
   // PIXB1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXB1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXB2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB3
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXB3CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXBCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -192,20 +201,20 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   blockTrackerLength.push_back(tmpLength);
 
   // PIXD1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXD1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXD1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXD2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXD2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXD2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXD Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("PXDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("PXDCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -218,32 +227,32 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   subTrackerLength.push_back(tmpLength);
 
   // TIB1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIB1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIB2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB3
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIB3CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB4
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIB4CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIBCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -252,26 +261,26 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   blockTrackerLength.push_back(tmpLength);
 
   // TID1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TID1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TID1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TID2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TID2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID3
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID3CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID3CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TID3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TID3CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TIDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TIDCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -284,44 +293,44 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   subTrackerLength.push_back(tmpLength);
 
   // TOB1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB3
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB3CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB4
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB4CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB5
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB5CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB6
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOB6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOB6CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TOBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TOBCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -330,56 +339,56 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   blockTrackerLength.push_back(tmpLength);
 
   // TEC1
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC1CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC2
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC2CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC3
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC3CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC4
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC4CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC5
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC5CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC6
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC6CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC7
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC7CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC7CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC8
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC8CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC8CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC9
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TEC9CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TEC9CylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -392,8 +401,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
   subTrackerLength.push_back(tmpLength);
 
   // Outer Cables
-  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderRadius");
-  tmpLength = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderLength");
+  tmpRadius = p.getUntrackedParameter<std::vector<double>>("TrackerCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double>>("TrackerCablesCylinderLength");
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
@@ -707,8 +716,7 @@ testNuclearInteractions::~testNuclearInteractions() {
 
 void testNuclearInteractions::dqmBeginRun(edm::Run const&, const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  const edm::ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(tok_pdt_);
 
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
@@ -722,19 +730,15 @@ void testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::Event
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
   //  std::cout << "Fill full event " << std::endl;
-  edm::Handle<std::vector<SimTrack> > fullSimTracks;
-  iEvent.getByLabel("g4SimHits", fullSimTracks);
-  edm::Handle<std::vector<SimVertex> > fullSimVertices;
-  iEvent.getByLabel("g4SimHits", fullSimVertices);
+  const edm::Handle<std::vector<SimTrack>>& fullSimTracks = iEvent.getHandle(tok_fullSimTk_);
+  const edm::Handle<std::vector<SimVertex>>& fullSimVertices = iEvent.getHandle(tok_fullSimVx_);
   mySimEvent[0]->fill(*fullSimTracks, *fullSimVertices);
 
   //  std::cout << "Fill fast event " << std::endl;
   /* */
   //  if ( !saveNU ) {
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("famosSimHits", fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("famosSimHits", fastSimVertices);
+  const edm::Handle<std::vector<SimTrack>>& fastSimTracks = iEvent.getHandle(tok_fastSimTk_);
+  const edm::Handle<std::vector<SimVertex>>& fastSimVertices = iEvent.getHandle(tok_fastSimVx_);
   mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
   //}
   /* */

@@ -7,6 +7,4 @@ class VIDElectronSelector(VIDSelectorBase):
         ptrmaker = ROOT.MakePtrFromCollection(ROOT.vector(ROOT.pat.Electron),
                                               ROOT.pat.Electron,
                                               ROOT.reco.GsfElectron)
-        printer  = ROOT.PrintVIDToString(ROOT.reco.GsfElectron)
-        VIDSelectorBase.__init__(self,builder,ptrmaker,printer,pythonpset)
-        
+        VIDSelectorBase.__init__(self,builder,ptrmaker,pythonpset)

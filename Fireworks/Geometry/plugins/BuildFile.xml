@@ -86,6 +86,7 @@
 </library>
 
 <library file="TGeoMgrFromDdd.cc" name="FireworksGeometryTGeoMgrFromDddPlugin">
+  <use name="DetectorDescription/Core"/>
   <use name="Fireworks/Geometry"/>
   <flags EDM_PLUGIN="1"/>
 </library>

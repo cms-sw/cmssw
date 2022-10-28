@@ -32,8 +32,6 @@ namespace {
 
   constexpr std::array<double, 4> occupancyGuesses = {{0.5, 0.2, 0.2, 0.8}};
 
-  float getPositionDistance(const HGCalGeometry* geom, const DetId& id) { return geom->getPosition(id).mag(); }
-
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
     return (1 + dddConst.waferType(detid));
@@ -231,23 +229,23 @@ namespace {
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
+      digiCollection_(ps.getParameter<std::string>("digiCollection")),
+      digitizationType_(ps.getParameter<uint32_t>("digitizationType")),
+      premixStage1_(ps.getParameter<bool>("premixStage1")),
+      premixStage1MinCharge_(ps.getParameter<double>("premixStage1MinCharge")),
+      premixStage1MaxCharge_(ps.getParameter<double>("premixStage1MaxCharge")),
+      maxSimHitsAccTime_(ps.getParameter<uint32_t>("maxSimHitsAccTime")),
+      bxTime_(ps.getParameter<double>("bxTime")),
+      hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
+      hitCollection_(ps.getParameter<std::string>("hitCollection")),
+      hitToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, hitCollection_))),
       geomToken_(iC.esConsumes()),
-      refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
+      verbosity_(ps.getUntrackedParameter<uint32_t>("verbosity", 0)),
+      tofDelay_(ps.getParameter<double>("tofDelay")),
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
   //configure from cfg
 
-  hitCollection_ = ps.getParameter<std::string>("hitCollection");
-  digiCollection_ = ps.getParameter<std::string>("digiCollection");
-  maxSimHitsAccTime_ = ps.getParameter<uint32_t>("maxSimHitsAccTime");
-  bxTime_ = ps.getParameter<double>("bxTime");
-  digitizationType_ = ps.getParameter<uint32_t>("digitizationType");
-  verbosity_ = ps.getUntrackedParameter<uint32_t>("verbosity", 0);
-  tofDelay_ = ps.getParameter<double>("tofDelay");
-  premixStage1_ = ps.getParameter<bool>("premixStage1");
-  premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
-  premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
-  iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", hitCollection_));
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
 
   if (myCfg_.existsAs<edm::ParameterSet>("chargeCollectionEfficiencies")) {
@@ -345,11 +343,10 @@ void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
                                         CLHEP::HepRandomEngine* hre) {
   //get inputs
 
-  edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate_minbias : can't find " << hitCollection_
-                                  << " collection of g4SimHits";
+    edm::LogError("HGCDigitizer") << " @ accumulate_minbias : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -364,10 +361,10 @@ void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
 //
 void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
   //get inputs
-  edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -383,11 +380,13 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
 void HGCDigitizer::accumulate_forPreMix(PileUpEventPrincipal const& e,
                                         edm::EventSetup const& eventSetup,
                                         CLHEP::HepRandomEngine* hre) {
+  edm::InputTag hitTag(hitsProducer_, hitCollection_);
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  e.getByLabel(hitTag, hits);
 
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -403,11 +402,13 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e,
                               edm::EventSetup const& eventSetup,
                               CLHEP::HepRandomEngine* hre) {
   //get inputs
+  edm::InputTag hitTag(hitsProducer_, hitCollection_);
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  e.getByLabel(hitTag, hits);
 
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -458,8 +459,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     const PCaloHit& hit = hits->at(hitidx);
     const float charge = hit.energy() * 1e6 * keV2fC;  // * getCCE(geom, id, cce_);
 
-    const float dist2center(getPositionDistance(geom, id));
-    const float tof = toa - dist2center / refSpeed_ + tofDelay_;
+    const float tof = toa + tofDelay_;
     const int itime = std::floor(tof / bxTime_) + 9;
 
     if (itime < 0 || itime > (int)maxBx_)
@@ -593,12 +593,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     const PCaloHit& hit = hits->at(hitidx);
     const float charge = hit.energy() * 1e6 * keV2fC;
 
-    //distance to the center of the detector
-    const float dist2center(getPositionDistance(geom, id));
-
-    //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
+    //hit time: [time()]=ns + delay
     //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const float tof = toa - dist2center / refSpeed_ + tofDelay_;
+    const float tof = toa + tofDelay_;
     const int itime = std::floor(tof / bxTime_) + 9;
 
     //no need to add bx crossing - tof comes already corrected from the mixing module

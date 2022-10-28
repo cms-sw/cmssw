@@ -40,7 +40,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 ### 2021 Geometry w/ GEM ###
 ############################
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_design', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_design', '')
 # from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions # RPC Conditions for Phase2 Detector (2021)
 # process = fixRPCConditions(process)                                                           # RPC Conditions for Phase2 Detector (2021)
 ### Info:

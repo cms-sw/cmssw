@@ -6,7 +6,7 @@ import os
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
-                  100, # default value
+                  100101, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Run Number")
@@ -40,7 +40,6 @@ options.register ('numFwkStreams',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW streams")
-
 
 options.parseArguments()
 
@@ -94,10 +93,10 @@ process.source = cms.Source("FedRawDataInputSource",
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),
                                        prescaleTable = cms.VPSet( 
-                                         cms.PSet(  pathName = cms.string( "p1" ),
+                                         cms.PSet(  pathName = cms.string( "HLT_Physics" ),
                                          prescales = cms.vuint32( 10)
                                          ),
-                                         cms.PSet(  pathName = cms.string( "p2" ),
+                                         cms.PSet(  pathName = cms.string( "HLT_Muon" ),
                                          prescales = cms.vuint32( 100 )
                                          )
                                        ),
@@ -121,27 +120,27 @@ process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultQualifier = cms.untracked.int32(5))
 
 
-process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
-    InputLabel = cms.InputTag("rawDataCollector")
-)
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+process.tcdsRawToDigi = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
 
-process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
-process.p2 = cms.Path(process.b*process.filter2)
+process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
+process.HLT_Muon = cms.Path(process.b*process.filter2)
 
 process.streamA = cms.OutputModule("EvFOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1' ))
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))
 )
 
-process.streamB = cms.OutputModule("EvFOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+process.streamB = cms.OutputModule("GlobalEvFOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Muon' ))
 )
 
-process.streamC = cms.OutputModule("ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+process.streamDQM = cms.OutputModule("GlobalEvFOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics', 'HLT_Muon' ))
 )
 
 process.streamD = cms.OutputModule("EventStreamFileWriter",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Muon' ))
 )
 
 process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
@@ -162,9 +161,20 @@ process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
 process.ep = cms.EndPath(
   process.streamA
   + process.streamB
-  + process.streamC
+  + process.streamDQM
 # + process.streamD
   + process.hltJson
   + process.daqHistoTest
   + process.hltDQMFileSaver
 )
+
+
+
+
+
+
+
+
+
+
+

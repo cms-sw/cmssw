@@ -19,6 +19,8 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet &ps, edm:
 CSCStripDigiValidation::~CSCStripDigiValidation() {}
 
 void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
+  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Strip/Occupancy");
+
   thePedestalPlot = iBooker.book1D("CSCPedestal", "CSC Pedestal;ADC Counts;Entries", 400, 550, 650);
   theAmplitudePlot = iBooker.book1D("CSCStripAmplitude", "CSC Strip Amplitude;Strip Amplitude;Entries", 200, 0, 2000);
   theRatio4to5Plot = iBooker.book1D("CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5;Strip Ratio;Entries", 100, 0, 1);
@@ -36,18 +38,6 @@ void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
                      100,
                      0,
                      500);
-
-  if (doSim_) {
-    for (int i = 1; i <= 10; ++i) {
-      const std::string t1("CSCStripPosResolution_" + CSCDetId::chamberName(i));
-      theResolutionPlots[i - 1] = iBooker.book1D(
-          t1,
-          "Strip X Position Resolution " + CSCDetId::chamberName(i) + ";Strip X Position Resolution; Entries",
-          100,
-          -5,
-          5);
-    }
-  }
 }
 
 void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
@@ -62,22 +52,12 @@ void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
   for (auto j = strips->begin(); j != strips->end(); j++) {
     auto digiItr = (*j).second.first;
     auto last = (*j).second.second;
-    int detId = (*j).first.rawId();
 
-    const CSCLayer *layer = findLayer(detId);
-    int chamberType = layer->chamber()->specs()->chamberType();
     int nDigis = last - digiItr;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlot->Fill(nDigis);
 
     double maxAmplitude = 0.;
-
-    if (doSim_) {
-      const edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
-      if (nDigis == 1 && simHits.size() == 1) {
-        plotResolution(simHits[0], digiItr->getStrip(), layer, chamberType);
-      }
-    }
 
     for (; digiItr != last; ++digiItr) {
       // average up the pedestals
@@ -117,11 +97,4 @@ void CSCStripDigiValidation::fillSignalPlots(const CSCStripDigi &digi) {
   theAmplitudePlot->Fill(adcCounts[4] - pedestal);
   theRatio4to5Plot->Fill((adcCounts[3] - pedestal) / (adcCounts[4] - pedestal));
   theRatio6to5Plot->Fill((adcCounts[5] - pedestal) / (adcCounts[4] - pedestal));
-}
-
-void CSCStripDigiValidation::plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType) {
-  double hitX = hit.localPosition().x();
-  double hitY = hit.localPosition().y();
-  double digiX = layer->geometry()->xOfStrip(strip, hitY);
-  theResolutionPlots[chamberType - 1]->Fill(digiX - hitX);
 }

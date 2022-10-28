@@ -63,6 +63,7 @@ phase2_hgcal.toModify(
 
 #
 # for simPF
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cff import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
@@ -72,6 +73,7 @@ _phase2_hgcal_simPFTask = cms.Task( pfTrack ,
                                     hgcalTrackCollection ,
                                     tpClusterProducer ,
                                     quickTrackAssociatorByHits ,
+                                    particleFlowClusterHGCalFromSimCl ,
                                     simPFProducer )
 _phase2_hgcal_simPFSequence = cms.Sequence(_phase2_hgcal_simPFTask)
 
@@ -95,19 +97,16 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
 
     e.toModify(particleFlowBlock, useNuclear = cms.bool(False))
 
-    e.toModify(pfNoPileUpIso, enable = cms.bool(False))
-    e.toModify(pfPileUpIso, enable = cms.bool(False))
-    e.toModify(pfNoPileUp, enable = cms.bool(False))
-    e.toModify(pfPileUp, enable = cms.bool(False))
+    e.toModify(pfNoPileUpIso, enable = False)
+    e.toModify(pfPileUpIso, enable = False)
+    e.toModify(pfNoPileUp, enable = False)
+    e.toModify(pfPileUp, enable = False)
 
-#
-# for MLPF
+
+# for MLPF, replace standard PFAlgo with the ONNX-based MLPF producer 
 from Configuration.ProcessModifiers.mlpf_cff import mlpf
 from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
-
-_mlpfTask = cms.Task(mlpfProducer, particleFlowRecoTask.copy())
-
-mlpf.toReplaceWith(particleFlowRecoTask, _mlpfTask)
+mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
 
 #
 # switch from pfTICL to simPF

@@ -63,7 +63,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
                cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                cfg.getParameter<bool>("useRiemannFit"),
-               cfg.getParameter<bool>("fit5as4"),
+               cfg.getParameter<bool>("fitNas4"),
                cfg.getParameter<bool>("includeJumpingForwardDoublets"),
                cfg.getParameter<bool>("earlyFishbone"),
                cfg.getParameter<bool>("lateFishbone"),
@@ -83,10 +83,11 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<double>("dcaCutOuterTriplet"),
                makeQualityCuts(cfg.getParameterSet("trackQualityCuts"))) {
 #ifdef DUMP_GPU_TK_TUPLES
-  printf("TK: %s %s % %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+  printf("TK: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
          "tid",
          "qual",
          "nh",
+         "nl",
          "charge",
          "pt",
          "eta",
@@ -98,39 +99,9 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
          "h2",
          "h3",
          "h4",
-         "h5");
+         "h5",
+         "hn");
 #endif
-
-  if (m_params.onGPU_) {
-    // allocate pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
-      cudaCheck(cudaMalloc(&m_counters, sizeof(Counters)));
-      cudaCheck(cudaMemset(m_counters, 0, sizeof(Counters)));
-    }
-  } else {
-    m_counters = new Counters();
-    memset(m_counters, 0, sizeof(Counters));
-  }
-}
-
-CAHitNtupletGeneratorOnGPU::~CAHitNtupletGeneratorOnGPU() {
-  if (m_params.onGPU_) {
-    // print the gpu statistics and free pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
-      if (m_params.doStats_) {
-        // crash on multi-gpu processes
-        CAHitNtupletGeneratorKernelsGPU::printCounters(m_counters);
-      }
-      cudaFree(m_counters);
-    }
-  } else {
-    if (m_params.doStats_) {
-      CAHitNtupletGeneratorKernelsCPU::printCounters(m_counters);
-    }
-    delete m_counters;
-  }
 }
 
 void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& desc) {
@@ -149,17 +120,17 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("fillStatistics", false);
   desc.add<unsigned int>("minHitsPerNtuplet", 4);
   desc.add<unsigned int>("maxNumberOfDoublets", caConstants::maxNumberOfDoublets);
-  desc.add<unsigned int>("minHitsForSharingCut", 5)
+  desc.add<unsigned int>("minHitsForSharingCut", 10)
       ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<bool>("fit5as4", true);
+  desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
   desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
   desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
-  desc.add<bool>("useSimpleTripletCleaner", false)->setComment("use alternate implementation");
+  desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -180,6 +151,39 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
           "cuts\" based on the fit results (pT, Tip, Zip).");
 }
 
+void CAHitNtupletGeneratorOnGPU::beginJob() {
+  if (m_params.onGPU_) {
+    // allocate pinned host memory only if CUDA is available
+    edm::Service<CUDAService> cs;
+    if (cs and cs->enabled()) {
+      cudaCheck(cudaMalloc(&m_counters, sizeof(Counters)));
+      cudaCheck(cudaMemset(m_counters, 0, sizeof(Counters)));
+    }
+  } else {
+    m_counters = new Counters();
+    memset(m_counters, 0, sizeof(Counters));
+  }
+}
+
+void CAHitNtupletGeneratorOnGPU::endJob() {
+  if (m_params.onGPU_) {
+    // print the gpu statistics and free pinned host memory only if CUDA is available
+    edm::Service<CUDAService> cs;
+    if (cs and cs->enabled()) {
+      if (m_params.doStats_) {
+        // crash on multi-gpu processes
+        CAHitNtupletGeneratorKernelsGPU::printCounters(m_counters);
+      }
+      cudaFree(m_counters);
+    }
+  } else {
+    if (m_params.doStats_) {
+      CAHitNtupletGeneratorKernelsCPU::printCounters(m_counters);
+    }
+    delete m_counters;
+  }
+}
+
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,
                                                                     float bfield,
                                                                     cudaStream_t stream) const {
@@ -194,9 +198,8 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
 
   kernels.buildDoublets(hits_d, stream);
   kernels.launchKernels(hits_d, soa, stream);
-  kernels.fillHitDetIndices(hits_d.view(), soa, stream);  // in principle needed only if Hits not "available"
 
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
   if (m_params.useRiemannFit_) {
     fitter.launchRiemannKernels(hits_d.view(), hits_d.nHits(), caConstants::maxNumberOfQuadruplets, stream);
@@ -226,13 +229,12 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
 
   kernels.buildDoublets(hits_d, nullptr);
   kernels.launchKernels(hits_d, soa, nullptr);
-  kernels.fillHitDetIndices(hits_d.view(), soa, nullptr);  // in principle needed only if Hits not "available"
 
   if (0 == hits_d.nHits())
     return tracks;
 
   // now fit
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
 
   if (m_params.useRiemannFit_) {
@@ -246,6 +248,16 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
 #ifdef GPU_DEBUG
   std::cout << "finished building pixel tracks on CPU" << std::endl;
 #endif
+
+  // check that the fixed-size SoA does not overflow
+  auto const& tsoa = *soa;
+  auto maxTracks = tsoa.stride();
+  auto nTracks = tsoa.nTracks();
+  assert(nTracks < maxTracks);
+  if (nTracks == maxTracks - 1) {
+    edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
+                                   << " candidates";
+  }
 
   return tracks;
 }

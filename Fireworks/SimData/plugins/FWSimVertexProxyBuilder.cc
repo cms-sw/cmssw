@@ -18,12 +18,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWSimVertexProxyBuilder(const FWSimVertexProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWSimVertexProxyBuilder& operator=(const FWSimVertexProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<SimVertex>::build;
   void build(const SimVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

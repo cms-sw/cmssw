@@ -13,6 +13,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -21,23 +22,28 @@
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassFitSelect.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
 //---------------
-#include <string>
 #include <vector>
+#include <iostream>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayGenericBuilder {
+template <class ProdType>
+class BPHDecayGenericBuilder : public virtual BPHDecayGenericBuilderBase {
 public:
+  typedef typename ProdType::const_pointer prod_ptr;
+
   /** Constructor
    */
-  BPHDecayGenericBuilder(const edm::EventSetup& es, BPHMassFitSelect* mfs = nullptr);
+  BPHDecayGenericBuilder(const BPHEventSetupWrapper& es, BPHMassFitSelect* mfs) : BPHDecayGenericBuilderBase(es, mfs) {}
 
   // deleted copy constructor and assignment operator
   BPHDecayGenericBuilder(const BPHDecayGenericBuilder& x) = delete;
@@ -45,39 +51,24 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHDecayGenericBuilder();
+  ~BPHDecayGenericBuilder() override = default;
 
   /** Operations
    */
-  /// set cuts
-  void setMassMin(double m);
-  void setMassMax(double m);
-  void setMassRange(double mMin, double mMax);
-  void setProbMin(double p);
-  void setMassFitMin(double m);
-  void setMassFitMax(double m);
-  void setMassFitRange(double mMin, double mMax);
-
-  /// get current cuts
-  double getMassMin() const { return massSel->getMassMin(); }
-  double getMassMax() const { return massSel->getMassMax(); }
-  double getProbMin() const { return chi2Sel->getProbMin(); }
-  double getMassFitMin() const { return mFitSel->getMassMin(); }
-  double getMassFitMax() const { return mFitSel->getMassMax(); }
-
-  /// track min p difference
-  void setMinPDiff(double mpd) { minPDiff = mpd; }
-  double getMinPDiff() { return minPDiff; }
+  /// build candidates
+  virtual std::vector<prod_ptr> build() {
+    if (outdated) {
+      recList.clear();
+      fillRecList();
+      outdated = false;
+    }
+    return recList;
+  }
 
 protected:
-  const edm::EventSetup* evSetup;
+  BPHDecayGenericBuilder() {}
 
-  BPHMassSelect* massSel;
-  BPHChi2Select* chi2Sel;
-  BPHMassFitSelect* mFitSel;
-
-  double minPDiff;
-  bool updated;
+  std::vector<prod_ptr> recList;
 };
 
 #endif

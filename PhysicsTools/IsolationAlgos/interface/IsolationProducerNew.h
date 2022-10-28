@@ -8,7 +8,7 @@
  *
  */
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -39,7 +39,7 @@ namespace reco {
               typename Alg,
               typename OutputCollection = edm::ValueMap<float>,
               typename Setup = typename helper::IsolationAlgorithmSetup<Alg>::type>
-    class IsolationProducer : public edm::EDProducer {
+    class IsolationProducer : public edm::stream::EDProducer<> {
     public:
       IsolationProducer(const edm::ParameterSet&);
       ~IsolationProducer() override;

@@ -27,9 +27,10 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
-#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
+#include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,11 +39,9 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry,
-                                           tbb::task_arena* taskArena,
                                            unsigned subProcessIndex,
                                            const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
-          taskArena_(taskArena),
           mustFinishConfiguration_(true),
           subProcessIndex_(subProcessIndex),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
@@ -91,6 +90,9 @@ namespace edm {
     void EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
+      if (activityRegistry_) {
+        activityRegistry_->postESModuleRegistrationSignal_(iProvider->description());
+      }
     }
 
     void EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxyProvider) {
@@ -392,6 +394,7 @@ namespace edm {
     }
 
     void EventSetupProvider::checkESProducerSharing(
+        ModuleTypeResolverBase const* resolver,
         EventSetupProvider& precedingESProvider,
         std::set<ParameterSetIDHolder>& sharingCheckDone,
         std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,
@@ -502,7 +505,7 @@ namespace edm {
         ParameterSetID const& psetID = candidate.first;
         bool canBeShared = candidate.second;
         if (canBeShared) {
-          ParameterSet const& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
+          ParameterSet const& pset = esController.getESProducerPSet(psetID, subProcessIndex_);
           logInfoWhenSharing(pset);
           ParameterSetIDHolder psetIDHolder(psetID);
           sharingCheckDone.insert(psetIDHolder);
@@ -527,8 +530,8 @@ namespace edm {
           }
         } else {
           if (esController.isLastMatch(psetID, subProcessIndex_, precedingESProvider.subProcessIndex_)) {
-            ParameterSet const& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
-            ModuleFactory::get()->addTo(esController, *this, pset, true);
+            ParameterSet& pset = esController.getESProducerPSet(psetID, subProcessIndex_);
+            ModuleFactory::get()->addTo(esController, *this, pset, resolver, true);
           }
         }
       }
@@ -698,7 +701,7 @@ namespace edm {
 
       if (needNewEventSetupImpl) {
         //cannot use make_shared because constructor is private
-        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl(taskArena_));
+        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
         newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
 

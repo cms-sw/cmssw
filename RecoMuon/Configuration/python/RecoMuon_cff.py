@@ -25,7 +25,9 @@ muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clo
     TimingFillerParameters = dict(
 	MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
 	DTTimingParameters = dict(PruneCut = 9999),
-	CSCTimingParameters = dict(PruneCut = 9999))
+	CSCTimingParameters = dict(PruneCut = 9999)),
+    selectHighPurity = False,
+    minPt = 0.5
 )
 
 #add regional cosmic tracks here
@@ -56,7 +58,9 @@ muonsFromCosmics1Leg = muons1stStep.clone(
     TimingFillerParameters = dict(
         MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
         DTTimingParameters = dict(PruneCut = 9999),
-        CSCTimingParameters = dict(PruneCut = 9999))
+        CSCTimingParameters = dict(PruneCut = 9999)),
+    selectHighPurity = False,
+    minPt = 0.5
 )
 
 muoncosmicreco1legSTATask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
@@ -71,8 +75,10 @@ muoncosmichighlevelreco = cms.Sequence(muoncosmichighlevelrecoTask)
 
 #### High level sequence (i.e., post PF reconstruction) ###
 from RecoMuon.MuonIdentification.muons_cfi import *
+from RecoMuon.MuonIdentification.displacedMuons_cfi import *
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
 from RecoMuon.MuonIdentification.muonReducedTrackExtras_cfi import *
+from RecoMuon.MuonIdentification.displacedMuonReducedTrackExtras_cfi import *
 
 # clusters are not present in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -81,6 +87,10 @@ fastSim.toModify(muonReducedTrackExtras, outputClusters = False)
 # cluster collections are different in phase 2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
+phase2_tracker.toModify(displacedMuonReducedTrackExtras, outputClusters = False)
 
-muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,muons,muonReducedTrackExtras)
+muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,displacedMuonPFIsolationTask,muons,displacedMuons,muonReducedTrackExtras, displacedMuonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
+
+# displaced sequences do not run in fastsim
+fastSim.toReplaceWith(muonshighlevelrecoTask,muonshighlevelrecoTask.copyAndExclude([displacedMuonPFIsolationTask,displacedMuons,displacedMuonReducedTrackExtras]))

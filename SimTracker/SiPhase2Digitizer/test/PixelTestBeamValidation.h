@@ -33,6 +33,10 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 // system
 #include <string>
 #include <set>
@@ -185,5 +189,9 @@ private:
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> digiToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> digiSimLinkToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoBToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomBToken_;
 };
 #endif

@@ -3,13 +3,7 @@
 
 /// default constructor
 TtFullHadHypothesis::TtFullHadHypothesis(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-      lightQ_(nullptr),
-      lightQBar_(nullptr),
-      b_(nullptr),
-      bBar_(nullptr),
-      lightP_(nullptr),
-      lightPBar_(nullptr) {
+    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
   getMatch_ = false;
   if (cfg.exists("match")) {
     getMatch_ = true;
@@ -20,22 +14,6 @@ TtFullHadHypothesis::TtFullHadHypothesis(const edm::ParameterSet& cfg)
   }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
-}
-
-/// default destructor
-TtFullHadHypothesis::~TtFullHadHypothesis() {
-  if (lightQ_)
-    delete lightQ_;
-  if (lightQBar_)
-    delete lightQBar_;
-  if (b_)
-    delete b_;
-  if (bBar_)
-    delete bBar_;
-  if (lightP_)
-    delete lightP_;
-  if (lightPBar_)
-    delete lightPBar_;
 }
 
 /// produce the event hypothesis as CompositeCandidate and Key
@@ -81,12 +59,12 @@ void TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 
 /// reset candidate pointers before hypo build process
 void TtFullHadHypothesis::resetCandidates() {
-  lightQ_ = nullptr;
-  lightQBar_ = nullptr;
-  b_ = nullptr;
-  bBar_ = nullptr;
-  lightP_ = nullptr;
-  lightPBar_ = nullptr;
+  lightQ_.reset();
+  lightQBar_.reset();
+  b_.reset();
+  bBar_.reset();
+  lightP_.reset();
+  lightPBar_.reset();
 }
 
 /// return event hypothesis
@@ -100,19 +78,19 @@ reco::CompositeCandidate TtFullHadHypothesis::hypo() {
 
   AddFourMomenta addFourMomenta;
   // build up the top bar branch
-  wBar.addDaughter(*lightP_, TtFullHadDaughter::LightP);
-  wBar.addDaughter(*lightPBar_, TtFullHadDaughter::LightPBar);
+  wBar.addDaughter(std::move(lightP_), TtFullHadDaughter::LightP);
+  wBar.addDaughter(std::move(lightPBar_), TtFullHadDaughter::LightPBar);
   addFourMomenta.set(wBar);
   topBar.addDaughter(wBar, TtFullHadDaughter::WMinus);
-  topBar.addDaughter(*bBar_, TtFullHadDaughter::BBar);
+  topBar.addDaughter(std::move(bBar_), TtFullHadDaughter::BBar);
   addFourMomenta.set(topBar);
 
   // build up the top branch that decays hadronically
-  w.addDaughter(*lightQ_, TtFullHadDaughter::LightQ);
-  w.addDaughter(*lightQBar_, TtFullHadDaughter::LightQBar);
+  w.addDaughter(std::move(lightQ_), TtFullHadDaughter::LightQ);
+  w.addDaughter(std::move(lightQBar_), TtFullHadDaughter::LightQBar);
   addFourMomenta.set(w);
   top.addDaughter(w, TtFullHadDaughter::WPlus);
-  top.addDaughter(*b_, TtFullHadDaughter::B);
+  top.addDaughter(std::move(b_), TtFullHadDaughter::B);
   addFourMomenta.set(top);
 
   // build ttbar hypotheses
@@ -136,7 +114,7 @@ std::string TtFullHadHypothesis::jetCorrectionLevel(const std::string& quarkType
 
   // combine correction level; start with a ':' even if
   // there is no flavor tag to be added, as it is needed
-  // by setCandidate to disentangle the correction tag
+  // by makeCandidate to disentangle the correction tag
   // from a potential flavor tag, which can be empty
   std::string level = jetCorrectionLevel_ + ":";
   if (level == "L5Flavor:" || level == "L6UE:" || level == "L7Parton:") {
@@ -159,10 +137,8 @@ std::string TtFullHadHypothesis::jetCorrectionLevel(const std::string& quarkType
 }
 
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-void TtFullHadHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
-                                       const int& idx,
-                                       reco::ShallowClonePtrCandidate*& clone,
-                                       const std::string& correctionLevel) {
+std::unique_ptr<reco::ShallowClonePtrCandidate> TtFullHadHypothesis::makeCandidate(
+    const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, const std::string& correctionLevel) {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
   // disentangle the correction from the potential flavor tag
   // by the separating ':'; the flavor tag can be empty though
@@ -173,5 +149,5 @@ void TtFullHadHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >
     corrFactor = 0.75 * ptr->jecFactor(step, "uds") + 0.25 * ptr->jecFactor(step, "charm");
   else
     corrFactor = ptr->jecFactor(step, flavor);
-  clone = new reco::ShallowClonePtrCandidate(ptr, ptr->charge(), ptr->p4() * corrFactor, ptr->vertex());
+  return std::make_unique<reco::ShallowClonePtrCandidate>(ptr, ptr->charge(), ptr->p4() * corrFactor, ptr->vertex());
 }

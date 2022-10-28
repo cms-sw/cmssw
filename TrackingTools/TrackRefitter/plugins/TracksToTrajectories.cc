@@ -75,9 +75,10 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet, con
   if (type == "Default")
     theTrackTransformer = std::make_unique<TrackTransformer>(trackTransformerParam, consumesCollector());
   else if (type == "GlobalCosmicMuonsForAlignment")
-    theTrackTransformer = std::make_unique<TrackTransformerForGlobalCosmicMuons>(trackTransformerParam);
+    theTrackTransformer =
+        std::make_unique<TrackTransformerForGlobalCosmicMuons>(trackTransformerParam, consumesCollector());
   else if (type == "CosmicMuonsForAlignment")
-    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(trackTransformerParam);
+    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(trackTransformerParam, consumesCollector());
   else {
     throw cms::Exception("TracksToTrajectories")
         << "The selected algorithm does not exist"

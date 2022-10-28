@@ -4,11 +4,7 @@
 //
 //--------------------------------------------
 
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -59,6 +55,9 @@ namespace edm {
     EBDigiCollectionDM_ = ps.getParameter<std::string>("EBDigiCollectionDM");
     EEDigiCollectionDM_ = ps.getParameter<std::string>("EEDigiCollectionDM");
     ESDigiCollectionDM_ = ps.getParameter<std::string>("ESDigiCollectionDM");
+
+    pedToken_ = iC.esConsumes<EcalPedestals, EcalPedestalsRcd>();
+    grToken_ = iC.esConsumes<EcalGainRatios, EcalGainRatiosRcd>();
   }
 
   // Virtual destructor needed.
@@ -530,8 +529,7 @@ namespace edm {
     std::vector<float> pedeStals(3);
 
     // get pedestals
-    edm::ESHandle<EcalPedestals> pedHandle;
-    ES.get<EcalPedestalsRcd>().get(pedHandle);
+    const auto &pedHandle = ES.getHandle(pedToken_);
 
     const EcalPedestalsMap &pedMap = pedHandle.product()->getMap();  // map of pedestals
     EcalPedestalsMapIterator pedIter;                                // pedestal iterator
@@ -556,8 +554,7 @@ namespace edm {
   const std::vector<float> DataMixingEMDigiWorker::GetGainRatios(const edm::EventSetup &ES, const DetId &detid) {
     std::vector<float> gainRatios(3);
     // get gain ratios
-    edm::ESHandle<EcalGainRatios> grHandle;
-    ES.get<EcalGainRatiosRcd>().get(grHandle);
+    const auto &grHandle = ES.getHandle(grToken_);
     EcalMGPAGainRatio theRatio = (*grHandle)[detid];
 
     gainRatios[0] = 1.;

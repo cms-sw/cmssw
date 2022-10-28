@@ -21,6 +21,7 @@ WValidation::WValidation(const edm::ParameterSet& iPSet)
       _flavor(iPSet.getParameter<int>("decaysTo")),
       _name(iPSet.getParameter<std::string>("name")) {
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 WValidation::~WValidation() {}
@@ -84,7 +85,7 @@ void WValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::Eve
   return;
 }
 
-void WValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) { c.getData(fPDGTable); }
+void WValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) { fPDGTable = c.getHandle(fPDGTableToken); }
 
 void WValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // we *DO NOT* rely on a Z entry in the particle listings!

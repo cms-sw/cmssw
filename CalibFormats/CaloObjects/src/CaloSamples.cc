@@ -49,18 +49,32 @@ CaloSamples &CaloSamples::operator+=(double value) {
 }
 
 CaloSamples &CaloSamples::operator+=(const CaloSamples &other) {
+  bool addHighFidelityPreMix = false;
   if (size_ != other.size_ || presamples_ != other.presamples_ || preciseSize_ != other.preciseSize_) {
-    edm::LogError("CaloHitResponse") << "Mismatched calo signals ";
+    if (presamples_ == other.presamples_ && preciseSize_ == other.size_) {
+      addHighFidelityPreMix = true;
+    } else {
+      edm::LogError("CaloHitResponse") << "Mismatched calo signals ";
+    }
   }
-  int i;
-  for (i = 0; i < size_; ++i) {
-    data_[i] += other.data_[i];
-  }
-  if (preciseData_.empty() && !other.preciseData_.empty())
-    resetPrecise();
-  if (!other.preciseData_.empty()) {
-    for (i = 0; i < preciseSize_; ++i) {
-      preciseData_[i] += other.preciseData_[i];
+  if (addHighFidelityPreMix) {
+    int sampleBin(0);
+    for (int i = 0; i < preciseSize_; ++i) {
+      sampleBin = floor(i * deltaTprecise_ / 25);
+      data_[sampleBin] += other.data_[i];
+      preciseData_[i] += other.data_[i];
+    }
+  } else {
+    int i;
+    for (i = 0; i < size_; ++i) {
+      data_[i] += other.data_[i];
+    }
+    if (preciseData_.empty() && !other.preciseData_.empty())
+      resetPrecise();
+    if (!other.preciseData_.empty()) {
+      for (i = 0; i < preciseSize_; ++i) {
+        preciseData_[i] += other.preciseData_[i];
+      }
     }
   }
   return *this;

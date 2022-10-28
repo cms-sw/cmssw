@@ -9,43 +9,37 @@ from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
 from RecoMET.METFilters.metFilters_cff import*
 
-HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(
-    taggingMode = cms.bool(True))
-CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(
-    taggingMode = cms.bool(True))
-CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(
-    taggingMode = cms.bool(True))
-eeBadScFilterDQM=eeBadScFilter.clone(
-    taggingMode = cms.bool(True))
-EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(
-    taggingMode = cms.bool(True))
-EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(
-    taggingMode = cms.bool(True)) 
+HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(taggingMode = True)
+CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(taggingMode = True)
+CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(taggingMode = True)
+eeBadScFilterDQM=eeBadScFilter.clone(taggingMode = True)
+EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(taggingMode = True)
+EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(taggingMode = True) 
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
-    jets = cms.InputTag("ak4PFJets"),
-    jec = cms.string("AK4PF"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jets = "ak4PFJets",
+    jec = "AK4PF",
+    applyJec = True,
+    inputIsCorrected = False
 )
 
 pileupJetIdEvaluatorDQM=pileupJetIdEvaluator.clone(
-    jets = cms.InputTag("ak4PFJets"),
-    jetids = cms.InputTag("pileupJetIdCalculatorDQM"),
-    jec = cms.string("AK4PF"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jets = "ak4PFJets",
+    jetids = "pileupJetIdCalculatorDQM",
+    jec = "AK4PF",
+    applyJec = True,
+    inputIsCorrected = False
 )
 
 pileupJetIdCalculatorCHSDQM=pileupJetIdCalculator.clone(
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False),
+    applyJec = True,
+    inputIsCorrected = False
 )
 
 pileupJetIdEvaluatorCHSDQM=pileupJetIdEvaluator.clone(
-    jetids = cms.InputTag("pileupJetIdCalculatorCHSDQM"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jetids = "pileupJetIdCalculatorCHSDQM",
+    applyJec = True,
+    inputIsCorrected = False
     )
 
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3ResidualCorrectorChain,ak4CaloL2L3ResidualCorrector,ak4CaloResidualCorrector,ak4CaloL2L3Corrector,ak4CaloL3AbsoluteCorrector,ak4CaloL2RelativeCorrector
@@ -106,8 +100,8 @@ from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPf
 dqmCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('dqmAk4PFCHSL1FastL2L3Corrector'),
                                        jetCorrLabelRes = cms.InputTag('dqmAk4PFCHSL1FastL2L3ResidualCorrector')
                                        )
-pfMETT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
-        cms.InputTag('dqmCorrPfMetType1', 'type1')
+pfMETT1=pfMetT1.clone(srcCorrections = (
+        'dqmCorrPfMetType1:type1',
         ))
 
 jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*

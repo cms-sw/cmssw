@@ -4,19 +4,18 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <stdexcept>
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <map>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
@@ -27,66 +26,67 @@ Toy EDProducers and EDProducts for testing purposes only.
 using namespace std;
 
 namespace edmtest {
-  class CSCReadChamberMapValuesAnalyzer : public edm::EDAnalyzer {
+  class CSCReadChamberMapValuesAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit CSCReadChamberMapValuesAnalyzer(edm::ParameterSet const& p) {}
-    explicit CSCReadChamberMapValuesAnalyzer(int i) {}
-    virtual ~CSCReadChamberMapValuesAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCReadChamberMapValuesAnalyzer(edm::ParameterSet const& p) : token_{esConsumes()} {}
+    ~CSCReadChamberMapValuesAnalyzer() override {}
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> token_;
   };
 
-  void CSCReadChamberMapValuesAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void CSCReadChamberMapValuesAnalyzer::analyze(edm::StreamID,
+                                                const edm::Event& e,
+                                                const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
-    // Context is not used.
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCChamberMap> pChMap;
-    context.get<CSCChamberMapRcd>().get(pChMap);
 
-    const CSCChamberMap* myChMap = pChMap.product();
+    edm::LogSystem log("CSCChamberMap");
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
+
+    const CSCChamberMap* myChMap = &context.getData(token_);
 
     std::map<int, CSCMapItem::MapItem>::const_iterator it;
 
     int count = 0;
     for (it = myChMap->ch_map.begin(); it != myChMap->ch_map.end(); ++it) {
       count = count + 1;
-      std::cout << "Key: chamber " << it->first << std::endl;
+      log << "Key: chamber " << it->first << std::endl;
 
-      std::cout << count << ") ";
-      std::cout << it->second.chamberLabel << "  ";
-      std::cout << it->second.chamberId << "  ";
-      std::cout << it->second.endcap << "  ";
-      std::cout << it->second.station << "  ";
-      std::cout << it->second.ring << "  ";
-      std::cout << it->second.chamber << "  ";
-      std::cout << it->second.cscIndex << "  ";
-      std::cout << it->second.layerIndex << "  ";
-      std::cout << it->second.stripIndex << "  ";
-      std::cout << it->second.anodeIndex << "  ";
-      std::cout << it->second.strips << "  ";
-      std::cout << it->second.anodes << "  ";
-      std::cout << it->second.crateLabel << "  ";
-      std::cout << it->second.crateid << "  ";
-      std::cout << it->second.sector << "  ";
-      std::cout << it->second.trig_sector << "  ";
-      std::cout << it->second.dmb << "  ";
-      std::cout << it->second.cscid << "  ";
-      std::cout << it->second.ddu << "  ";
-      std::cout << it->second.ddu_input << "  ";
-      std::cout << it->second.slink << "  ";
-      std::cout << it->second.fed_crate << "  "
-                << "  ";
-      std::cout << it->second.ddu_slot << "  "
-                << "  ";
-      std::cout << it->second.dcc_fifo << "  "
-                << "  ";
-      std::cout << it->second.fiber_crate << "  "
-                << "  ";
-      std::cout << it->second.fiber_pos << "  "
-                << "  ";
-      std::cout << it->second.fiber_socket << "  " << std::endl;
+      log << count << ") ";
+      log << it->second.chamberLabel << "  ";
+      log << it->second.chamberId << "  ";
+      log << it->second.endcap << "  ";
+      log << it->second.station << "  ";
+      log << it->second.ring << "  ";
+      log << it->second.chamber << "  ";
+      log << it->second.cscIndex << "  ";
+      log << it->second.layerIndex << "  ";
+      log << it->second.stripIndex << "  ";
+      log << it->second.anodeIndex << "  ";
+      log << it->second.strips << "  ";
+      log << it->second.anodes << "  ";
+      log << it->second.crateLabel << "  ";
+      log << it->second.crateid << "  ";
+      log << it->second.sector << "  ";
+      log << it->second.trig_sector << "  ";
+      log << it->second.dmb << "  ";
+      log << it->second.cscid << "  ";
+      log << it->second.ddu << "  ";
+      log << it->second.ddu_input << "  ";
+      log << it->second.slink << "  ";
+      log << it->second.fed_crate << "  "
+          << "  ";
+      log << it->second.ddu_slot << "  "
+          << "  ";
+      log << it->second.dcc_fifo << "  "
+          << "  ";
+      log << it->second.fiber_crate << "  "
+          << "  ";
+      log << it->second.fiber_pos << "  "
+          << "  ";
+      log << it->second.fiber_socket << "  " << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCReadChamberMapValuesAnalyzer);

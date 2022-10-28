@@ -1,11 +1,8 @@
 #include "SimGeneral/TrackingAnalysis/interface/TrackingParticleNumberOfLayers.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace {
   bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit *> &a,
@@ -47,12 +44,7 @@ std::tuple<std::unique_ptr<edm::ValueMap<unsigned int>>,
            std::unique_ptr<edm::ValueMap<unsigned int>>,
            std::unique_ptr<edm::ValueMap<unsigned int>>>
 TrackingParticleNumberOfLayers::calculate(const edm::Handle<TrackingParticleCollection> &htps,
-                                          const edm::EventSetup &iSetup) const {
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology &tTopo = *tTopoHandle;
-
+                                          const TrackerTopology &tTopo) const {
   const TrackingParticleCollection &tps = *htps;
   std::vector<unsigned int> valuesLayers(tps.size(), 0);
   std::vector<unsigned int> valuesPixelLayers(tps.size(), 0);

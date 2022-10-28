@@ -1,4 +1,4 @@
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWColorSelect.h"

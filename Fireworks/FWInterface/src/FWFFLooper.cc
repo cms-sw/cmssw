@@ -9,7 +9,7 @@
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
@@ -124,7 +124,10 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const& ps)
       m_ShowEvent(true),
       m_firstTime(true),
       m_pathsGUI(nullptr),
-      m_geomWatcher(this, &FWFFLooper::remakeGeometry) {
+      m_geomWatcher(this, &FWFFLooper::remakeGeometry),
+      m_recoGeomToken(esConsumes()),
+      m_runInfoToken(esConsumes()),
+      m_displayGeomToken(esConsumes()) {
   setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
   eiManager()->setContext(m_context.get());
@@ -280,9 +283,7 @@ void FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     if (m_context->getGeom() == nullptr) {
       try {
         guiManager()->updateStatus("Loading geometry...");
-        edm::ESHandle<FWRecoGeometry> geoh;
-        iSetup.get<FWRecoGeometryRecord>().get(geoh);
-        getGeom().initMap(geoh.product()->idToName);
+        getGeom().initMap(iSetup.getData(m_recoGeomToken).idToName);
         m_context->setGeom(&(getGeom()));
       } catch (const cms::Exception& exception) {
         setGeometryFilename("cmsGeom10.root");
@@ -315,11 +316,10 @@ void FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
       auto rec = iSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
       if (rec) {
-        edm::ESHandle<RunInfo> sum;
-        iSetup.get<RunInfoRcd>().get(sum);
+        RunInfo const& sum = iSetup.getData(m_runInfoToken);
 
-        current = sum->m_avg_current;
-        printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
+        current = sum.m_avg_current;
+        printf("Got current from RunInfoRcd %f\n", sum.m_avg_current);
       }
     }
   } catch (...) {
@@ -455,8 +455,6 @@ void FWFFLooper::requestChanges(const std::string& moduleLabel, const edm::Param
 void FWFFLooper::remakeGeometry(const DisplayGeomRecord& dgRec) {
   fwLog(fwlog::kInfo) << "FWFFLooper set TGeo geometry from DisplayGeomRecord.\n";
 
-  edm::ESHandle<TGeoManager> geom;
-  dgRec.get(geom);
-  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
+  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(&dgRec.get(m_displayGeomToken)));
   FWGeometryTableViewManager::setGeoManagerRuntime(gGeoManager);
 }

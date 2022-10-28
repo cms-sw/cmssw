@@ -6,7 +6,6 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/CondDB"/>
-<flags EDM_PLUGIN="1"/>
-<library file="BeamSpotOnlinePopConAnalyzer.cc" name="CondToolsBeamSpotOnlinePopConAnalyzer">
+<library file="*.cc" name="CondToolsBeamSpotPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

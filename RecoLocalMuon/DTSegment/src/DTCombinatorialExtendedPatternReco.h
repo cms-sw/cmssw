@@ -24,7 +24,10 @@ class DTSegmentCleaner;
 class DTHitPairForFit;
 class DTSegmentCand;
 class DTSegmentExtendedCand;
+class MuonGeometryRecord;
+
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 /* C++ Headers */
 #include <vector>
@@ -33,6 +36,7 @@ class DTSegmentExtendedCand;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
@@ -42,7 +46,7 @@ class DTSegmentExtendedCand;
 class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset);
+  DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialExtendedPatternReco() override;
@@ -106,6 +110,7 @@ private:
   DTSegmentCleaner* theCleaner;  // the cleaner
 
   edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 
 private:
   std::vector<std::vector<int>> theTriedPattern;

@@ -19,6 +19,8 @@ ElectronMcSignalValidator/h_ele_vertexY                     1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexZ                     1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexTIP                   1 1 1 0
 ElectronMcSignalValidator/h_ele_Et                          1 1 1 0
+ElectronMcSignalValidator/h_mc_Eta_matched                  1 1 0 0
+ElectronMcSignalValidator/h_mc_Eta_Extended_matched         1 1 1 0
 ElectronMcSignalValidator/h_ele_outerP_mode                 1 1 1 0
 ElectronMcSignalValidator/h_ele_outerPt_mode                1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPtVsEta_pfx           0 1 1 0
@@ -47,20 +49,24 @@ ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_etagap   1 1 0 0
 ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_phigap   1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_ebeegap_new         1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new         1 1 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
-ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_pfx         0 1 0 0
-ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_barrel_pfx  0 1 0 0
-ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_endcaps_pfx 0 1 1 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_Extended 1 1 1 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_pfx          0 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_barrel_pfx   0 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_endcaps_pfx  0 1 1 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_Extended_pfx 0 1 1 0
 ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue              1 1 0 0
 ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
 ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_Extended     1 1 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue                1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0
 ElectronMcSignalValidator/h_ele_PhiMnPhiTrue                1 1 0 0
 ElectronMcSignalValidator/h_ele_PhiMnPhiTrue_barrel         1 1 0 0
 ElectronMcSignalValidator/h_ele_PhiMnPhiTrue_endcaps        1 1 1 0
-ElectronMcSignalValidator/h_ele_PoPtrueVsEta_pfx            0 1 1 0
+ElectronMcSignalValidator/h_ele_PoPtrueVsEta_pfx            0 1 0 0
+ElectronMcSignalValidator/h_ele_PoPtrueVsEta_Extended_pfx   0 1 1 0
 ElectronMcSignalValidator/h_ele_PoPtrueVsPhi_pfx            0 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtruePfVsEg_pfy           0 1 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrueVsEta_pfx       0 1 1 0
@@ -89,6 +95,7 @@ ElectronMcSignalValidator/h_ele_dEtaEleCl_propOut_endcaps   1 1 1 0
 ElectronMcSignalValidator/h_ele_dEtaSc_propVtx              1 1 0 0
 ElectronMcSignalValidator/h_ele_dEtaSc_propVtx_barrel       1 1 0 0
 ElectronMcSignalValidator/h_ele_dEtaSc_propVtx_endcaps      1 1 1 0
+ElectronMcSignalValidator/h_ele_dEtaSc_propVtx_Extended     1 1 1 0
 ElectronMcSignalValidator/h_ele_dPhiCl_propOut              1 1 0 0
 ElectronMcSignalValidator/h_ele_dPhiCl_propOut_barrel       1 1 0 0
 ElectronMcSignalValidator/h_ele_dPhiCl_propOut_endcaps      1 1 1 0
@@ -98,7 +105,9 @@ ElectronMcSignalValidator/h_ele_dPhiEleCl_propOut_endcaps   1 1 1 0
 ElectronMcSignalValidator/h_ele_dPhiSc_propVtx              1 1 0 0
 ElectronMcSignalValidator/h_ele_dPhiSc_propVtx_barrel       1 1 0 0
 ElectronMcSignalValidator/h_ele_dPhiSc_propVtx_endcaps      1 1 1 0
-ElectronMcSignalValidator/h_ele_EoPVsEta_pfx                0 1 1 0
+ElectronMcSignalValidator/h_ele_dPhiSc_propVtx_Extended     1 1 1 0
+ElectronMcSignalValidator/h_ele_EoPVsEta_pfx                0 1 0 0
+ElectronMcSignalValidator/h_ele_EoPVsEta_Extended_pfx       0 1 1 0
 ElectronMcSignalValidator/h_ele_EoPoutVsEta_pfx             0 1 1 0
 ElectronMcSignalValidator/h_ele_EeleOPoutVsEta_pfx          0 1 1 1
 
@@ -107,6 +116,7 @@ Electron Cluster shapes
 ElectronMcSignalValidator/h_ele_HoE                         1 1 0 0
 ElectronMcSignalValidator/h_ele_HoE_barrel                  1 1 0 0
 ElectronMcSignalValidator/h_ele_HoE_endcaps                 1 1 1 0
+ElectronMcSignalValidator/h_ele_HoE_Extended                1 1 1 0
 ElectronMcSignalValidator/h_ele_HoE_bc                      1 1 0 0
 ElectronMcSignalValidator/h_ele_HoE_bc_barrel               1 1 0 0
 ElectronMcSignalValidator/h_ele_HoE_bc_endcaps              1 1 1 0
@@ -124,6 +134,7 @@ ElectronMcSignalValidator/h_scl_sigietaieta_endcaps         1 1 1 0
 ElectronMcSignalValidator/h_scl_full5x5_sigietaieta                 1 1 0 0
 ElectronMcSignalValidator/h_scl_full5x5_sigietaieta_barrel          1 1 0 0
 ElectronMcSignalValidator/h_scl_full5x5_sigietaieta_endcaps         1 1 1 0
+ElectronMcSignalValidator/h_scl_full5x5_sigietaieta_Extended        1 1 1 0
 ElectronMcSignalValidator/h_scl_E1x5                        1 1 0 0
 ElectronMcSignalValidator/h_scl_E1x5_barrel                 1 1 0 0
 ElectronMcSignalValidator/h_scl_E1x5_endcaps                1 1 1 0
@@ -150,7 +161,8 @@ ElectronMcSignalValidator/h_ele_lostHits_barrel             1 1 0 0
 ElectronMcSignalValidator/h_ele_lostHits_endcaps            1 1 1 0
 ElectronMcSignalValidator/h_ele_ambiguousTracks             1 1 1 0
 ElectronMcSignalValidator/h_ele_chi2VsEta_pfx               0 1 1 0
-ElectronMcSignalValidator/h_ele_foundHitsVsEta_pfx          0 1 1 0
+ElectronMcSignalValidator/h_ele_foundHitsVsEta_pfx          0 1 0 0
+ElectronMcSignalValidator/h_ele_foundHitsVsEta_Extended_pfx   0 1 1 0
 ElectronMcSignalValidator/h_ele_ambiguousTracksVsEta_pfx    0 1 1 1
 
 Electron seeds
@@ -179,6 +191,7 @@ ElectronMcSignalValidator/h_ele_PinMnPout_mode              1 1 1 0
 ElectronMcSignalValidator/h_ele_fbrem                       1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_barrel                1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_endcaps               1 1 1 0
+ElectronMcSignalValidator/h_ele_fbrem_Extended              1 1 1 0
 ElectronMcSignalValidator/h_ele_superclusterfbrem                               1 1 0 0
 ElectronMcSignalValidator/h_ele_superclusterfbrem_barrel                        1 1 0 0
 ElectronMcSignalValidator/h_ele_superclusterfbrem_endcaps                       1 1 1 0
@@ -203,30 +216,12 @@ ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth1_endcaps  1 1 1 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth2          1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth2_barrel   1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth2_endcaps  1 1 1 0
-ElectronMcSignalValidator/h_ele_tkSumPt_dr04                        1 1 0 0
-ElectronMcSignalValidator/h_ele_tkSumPt_dr04_barrel                 1 1 0 0
-ElectronMcSignalValidator/h_ele_tkSumPt_dr04_endcaps                1 1 1 0
-ElectronMcSignalValidator/h_ele_ecalRecHitSumEt_dr04                1 1 0 0
-ElectronMcSignalValidator/h_ele_ecalRecHitSumEt_dr04_barrel         1 1 0 0
-ElectronMcSignalValidator/h_ele_ecalRecHitSumEt_dr04_endcaps        1 1 1 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth1          1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth1_barrel   1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth1_endcaps  1 1 1 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth2          1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth2_barrel   1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth2_endcaps  1 1 1 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth1         1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth1_barrel  1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth1_endcaps 1 1 1 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth2         1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth2_barrel  1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth2_endcaps 1 1 1 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth1         1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth1_barrel  1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth1_endcaps 1 1 1 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2         1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_barrel  1 1 0 0
-ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_endcaps 1 1 1 1
+ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr03_depth2_endcaps 1 1 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
 
@@ -235,13 +230,13 @@ ElectronMcSignalValidator/h_ele_EseedOP_all         1 1 1 0
 ElectronMcSignalValidator/h_ele_EoPout_all          1 1 1 0
 ElectronMcSignalValidator/h_ele_EeleOPout_all       1 1 1 0
 ElectronMcSignalValidator/h_ele_TIP_all             1 1 1 0
-ElectronMcSignalValidator/h_ele_dEtaSc_propVtx_all  1 1 1 0
-ElectronMcSignalValidator/h_ele_dPhiSc_propVtx_all  1 1 1 0
+ElectronMcSignalValidator/h_ele_dEtaSc_propVtx_all  1 1 0 0
 ElectronMcSignalValidator/h_ele_dEtaCl_propOut_all  1 1 1 0
+ElectronMcSignalValidator/h_ele_dPhiSc_propVtx_all  1 1 0 0
 ElectronMcSignalValidator/h_ele_dPhiCl_propOut_all  1 1 1 0
-ElectronMcSignalValidator/h_ele_HoE_all             1 1 1 0
+ElectronMcSignalValidator/h_ele_HoE_all             1 1 0 0
 ElectronMcSignalValidator/h_ele_HoE_bc_all          1 1 1 0
-ElectronMcSignalValidator/h_ele_mee_all             1 1 1 0
+ElectronMcSignalValidator/h_ele_mee_all             1 1 0 0
 ElectronMcSignalValidator/h_ele_mee_os              1 1 1 1
 
 Charge mis-ID
@@ -257,6 +252,7 @@ Provenance
 ElectronMcSignalValidator/h_ele_provenance                  0 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_barrel           0 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_endcaps          0 1 1 0
+ElectronMcSignalValidator/h_ele_provenance_Extended         0 1 1 0
 ElectronMcSignalValidator/h_ele_mva                         1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_barrel                  1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_endcaps                 1 1 1 0
@@ -278,12 +274,15 @@ ElectronMcSignalValidator/h_ele_photonIso_endcaps          1 1 1 0
 ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso           1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso_barrel    1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso_Extended  1 1 1 0
 ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso           1 1 0 0
 ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso_barrel    1 1 0 0
 ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso_Extended  1 1 1 0
 ElectronMcSignalValidator/h_ele_photonRelativeIso           1 1 0 0
 ElectronMcSignalValidator/h_ele_photonRelativeIso_barrel    1 1 0 0
-ElectronMcSignalValidator/h_ele_photonRelativeIso_endcaps   1 1 1 1
+ElectronMcSignalValidator/h_ele_photonRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidator/h_ele_photonRelativeIso_Extended  1 1 1 1
 
 Conversion rejection information
 
@@ -298,8 +297,10 @@ ElectronMcSignalValidator/h_ele_convRadius_all  1 1 1 1
 
 Reconstruction efficiency
 
-ElectronMcSignalValidator/h_ele_absetaEff   0 1 1 0 0 ElectronMcSignalValidator/h_mc_AbsEta_matched ElectronMcSignalValidator/h_mc_AbsEta 
-ElectronMcSignalValidator/h_ele_etaEff      0 1 1 0 0 ElectronMcSignalValidator/h_mc_Eta_matched    ElectronMcSignalValidator/h_mc_Eta    
+ElectronMcSignalValidator/h_ele_absetaEff   0 1 0 0 0 ElectronMcSignalValidator/h_mc_AbsEta_matched ElectronMcSignalValidator/h_mc_AbsEta
+ElectronMcSignalValidator/h_ele_absetaEff_Extended   0 1 1 0 0 ElectronMcSignalValidator/h_mc_AbsEta_Extended_matched ElectronMcSignalValidator/h_mc_AbsEta_Extended
+ElectronMcSignalValidator/h_ele_etaEff      0 1 0 0 0 ElectronMcSignalValidator/h_mc_Eta_matched    ElectronMcSignalValidator/h_mc_Eta    
+ElectronMcSignalValidator/h_ele_etaEff_Extended      0 1 1 0 0 ElectronMcSignalValidator/h_mc_Eta_Extended_matched    ElectronMcSignalValidator/h_mc_Eta_Extended
 ElectronMcSignalValidator/h_ele_ptEff       0 1 1 0 0 ElectronMcSignalValidator/h_mc_Pt_matched     ElectronMcSignalValidator/h_mc_Pt     
 ElectronMcSignalValidator/h_ele_phiEff      0 1 1 0 0 ElectronMcSignalValidator/h_mc_Phi_matched    ElectronMcSignalValidator/h_mc_Phi    
 ElectronMcSignalValidator/h_ele_zEff        0 1 1 0 0 ElectronMcSignalValidator/h_mc_Z_matched      ElectronMcSignalValidator/h_mc_Z      

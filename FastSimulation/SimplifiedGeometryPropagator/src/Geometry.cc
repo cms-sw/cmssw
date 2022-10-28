@@ -1,16 +1,14 @@
 //Framework Headers
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometryFactory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/BarrelSimplifiedGeometry.h"
 
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Geometry.h"
 
 #include <iostream>
@@ -21,7 +19,7 @@ using namespace fastsim;
 
 Geometry::~Geometry() { ; }
 
-Geometry::Geometry(const edm::ParameterSet& cfg)
+Geometry::Geometry(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
     : cacheIdentifierTrackerRecoGeometry_(0),
       cacheIdentifierIdealMagneticField_(0),
       geometricSearchTracker_(nullptr),
@@ -45,7 +43,14 @@ Geometry::Geometry(const edm::ParameterSet& cfg)
       trackerForwardBoundaryCfg_(forwardBoundary_
                                      ? cfg.getParameter<edm::ParameterSet>("trackerForwardBoundary")
                                      : edm::ParameterSet())  // Hack to interface "old" calo to "new" tracking
-      {};
+{
+  if (useTrackerRecoGeometryRecord_) {
+    geometricSearchTrackerESToken_ = iC.esConsumes(edm::ESInputTag("", trackerAlignmentLabel_));
+  }
+  if (!useFixedMagneticFieldZ_) {
+    magneticFieldESToken_ = iC.esConsumes();
+  }
+}
 
 void Geometry::update(const edm::EventSetup& iSetup,
                       const std::map<std::string, fastsim::InteractionModel*>& interactionModelMap) {
@@ -59,9 +64,7 @@ void Geometry::update(const edm::EventSetup& iSetup,
   //----------------
   if (iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() != cacheIdentifierTrackerRecoGeometry_) {
     if (useTrackerRecoGeometryRecord_) {
-      edm::ESHandle<GeometricSearchTracker> geometricSearchTrackerHandle;
-      iSetup.get<TrackerRecoGeometryRecord>().get(trackerAlignmentLabel_, geometricSearchTrackerHandle);
-      geometricSearchTracker_ = &(*geometricSearchTrackerHandle);
+      geometricSearchTracker_ = &iSetup.getData(geometricSearchTrackerESToken_);
     }
   }
 
@@ -75,9 +78,7 @@ void Geometry::update(const edm::EventSetup& iSetup,
       magneticField_ = ownedMagneticField_.get();
     } else  // get magnetic field from EventSetup
     {
-      edm::ESHandle<MagneticField> magneticField;
-      iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-      magneticField_ = &(*magneticField);
+      magneticField_ = &iSetup.getData(magneticFieldESToken_);
     }
   }
 

@@ -2,7 +2,7 @@
 #define RegressionEnergyPatElectronProducer_h
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -10,13 +10,14 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyRegressionEvaluate.h"
-//#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-class RegressionEnergyPatElectronProducer : public edm::EDProducer {
+class CaloTopologyRecord;
+class CaloGeometryRecord;
+class RegressionEnergyPatElectronProducer : public edm::stream::EDProducer<> {
 public:
   explicit RegressionEnergyPatElectronProducer(const edm::ParameterSet &);
   ~RegressionEnergyPatElectronProducer() override;
@@ -31,6 +32,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEEToken_;
 
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> ecalTopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   //
   bool useReducedRecHits_;
 

@@ -87,12 +87,18 @@ using namespace gbl;
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : AlignmentAlgorithmBase(cfg, iC),
       topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      aliThrToken_(iC.esConsumes<AlignPCLThresholds, AlignPCLThresholdsRcd, edm::Transition::BeginRun>()),
+      aliThrToken_(iC.esConsumes<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd, edm::Transition::BeginRun>()),
+      geomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
       theAlignmentParameterStore(nullptr),
       theAlignables(),
+      theTrajectoryFactory(
+          TrajectoryFactoryPlugin::get()->create(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory")
+                                                     .getParameter<std::string>("TrajectoryFactoryName"),
+                                                 theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"),
+                                                 iC)),
       theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
       theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
       firstIOV_(cfg.getUntrackedParameter<AlignmentAlgorithmBase::RunNumber>("firstIOV")),
@@ -178,8 +184,13 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   //Retrieve the thresolds cuts from DB for the PCL
   if (runAtPCL_) {
     const auto &th = &setup.getData(aliThrToken_);
-    theThresholds = std::make_shared<AlignPCLThresholds>();
-    storeThresholds(th->getNrecords(), th->getThreshold_Map());
+    theThresholds = std::make_shared<AlignPCLThresholdsHG>();
+    storeThresholds(th->getNrecords(), th->getThreshold_Map(), th->getFloatMap());
+
+    //Retrieve tracker geometry
+    const TrackerGeometry *tGeom = &setup.getData(geomToken_);
+    //Retrieve PixelTopologyMap
+    pixelTopologyMap = std::make_shared<PixelTopologyMap>(tGeom, tTopo);
   }
 
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
@@ -273,9 +284,6 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
       theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
-    const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
-    const std::string fctName(fctCfg.getParameter<std::string>("TrajectoryFactoryName"));
-    theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create(fctName, fctCfg);
   }
 
   if (this->isMode(myPedeSteerBit)) {
@@ -299,8 +307,10 @@ bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCa
 
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::storeThresholds(const int &nRecords,
-                                                  const AlignPCLThresholds::threshold_map &thresholdMap) {
+                                                  const AlignPCLThresholdsHG::threshold_map &thresholdMap,
+                                                  const AlignPCLThresholdsHG::param_map &floatMap) {
   theThresholds->setAlignPCLThresholds(nRecords, thresholdMap);
+  theThresholds->setFloatMap(floatMap);
   return true;
 }
 
@@ -317,8 +327,10 @@ bool MillePedeAlignmentAlgorithm::processesEvents() {
 bool MillePedeAlignmentAlgorithm::storeAlignments() {
   if (isMode(myPedeReadBit)) {
     if (runAtPCL_) {
-      MillePedeFileReader mpReader(
-          theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"), thePedeLabels, theThresholds);
+      MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
+                                   thePedeLabels,
+                                   theThresholds,
+                                   pixelTopologyMap);
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
@@ -512,7 +524,7 @@ std::pair<unsigned int, unsigned int> MillePedeAlignmentAlgorithm::addReferenceT
              ++itPoint) {
           if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0)
             return hitResultXy;
-          if (itPoint->hasMeasurement() >= 1)
+          if (itPoint->numMeasurements() >= 1)
             ++numPointsWithMeas;
         }
       }

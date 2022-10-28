@@ -21,8 +21,6 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
 #include <iostream>
 
 // Making the class templated temporarily, until HLT sequence can be fixed (is using EBHltTask and EEHltTask currently)
@@ -55,6 +53,7 @@ private:
   edm::EDGetTokenT<EEDetIdCollection> eeGainSwitchErrorsToken_;
   edm::EDGetTokenT<EcalElectronicsIdCollection> towerIdErrorsToken_;
   edm::EDGetTokenT<EcalElectronicsIdCollection> blockSizeErrorsToken_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandle;
 
   std::vector<MonitorElement *> MEs_;
 };

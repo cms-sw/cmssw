@@ -51,6 +51,7 @@ private:
   double matchPr_;
 
   unsigned int verbosity_;
+  bool signalParticlesOnly_;
 
   MonitorElement *nEvt;
 

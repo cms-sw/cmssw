@@ -6,7 +6,7 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 
 namespace pixelCPEforGPU {
@@ -20,15 +20,17 @@ public:
 
   using hindex_type = uint32_t;  // if above is <=2^32
 
-  using PhiBinner = cms::cuda::HistoContainer<int16_t, 128, -1, 8 * sizeof(int16_t), hindex_type, 10>;
+  using PhiBinner = cms::cuda::
+      HistoContainer<int16_t, 256, -1, 8 * sizeof(int16_t), hindex_type, pixelTopology::maxLayers>;  //28 for phase2 geometry
 
-  using AverageGeometry = phase1PixelTopology::AverageGeometry;
+  using AverageGeometry = pixelTopology::AverageGeometry;
 
   template <typename>
   friend class TrackingRecHit2DHeterogeneous;
   friend class TrackingRecHit2DReduced;
 
   __device__ __forceinline__ uint32_t nHits() const { return m_nHits; }
+  __device__ __forceinline__ uint32_t nMaxModules() const { return m_nMaxModules; }
 
   __device__ __forceinline__ float& xLocal(int i) { return m_xl[i]; }
   __device__ __forceinline__ float xLocal(int i) const { return __ldg(m_xl + i); }
@@ -114,6 +116,7 @@ private:
   PhiBinner::index_type* m_phiBinnerStorage;
 
   uint32_t m_nHits;
+  uint32_t m_nMaxModules;
 };
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DSOAView_h

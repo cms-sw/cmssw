@@ -40,7 +40,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
 siStripUnbiasedClusterizerConditions = SiStripClusterizerConditionsESProducer.clone(QualityLabel="unbiased", Label="unbiased")
 calZeroBiasClusters = siStripClusters.clone()
-calZeroBiasClusters.Clusterizer.ConditionsLabel = 'unbiased'
+if hasattr(calZeroBiasClusters, "Clusterizer"): calZeroBiasClusters.Clusterizer.ConditionsLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *

@@ -1,5 +1,3 @@
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -18,10 +16,10 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
-#include "tbb/concurrent_unordered_set.h"
-#include "tbb/task.h"
-#include "tbb/task_scheduler_observer.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_scheduler_observer.h"
+#include "oneapi/tbb/global_control.h"
 #include <memory>
 
 #include <thread>
@@ -72,11 +70,11 @@ namespace edm {
       friend int cmssw_stacktrace(void*);
 
     public:
-      class ThreadTracker : public tbb::task_scheduler_observer {
+      class ThreadTracker : public oneapi::tbb::task_scheduler_observer {
       public:
-        typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
+        typedef oneapi::tbb::concurrent_unordered_set<pthread_t> Container_type;
 
-        ThreadTracker() : tbb::task_scheduler_observer() { observe(); }
+        ThreadTracker() : oneapi::tbb::task_scheduler_observer() { observe(); }
         ~ThreadTracker() override = default;
 
         void on_scheduler_entry(bool) override {
@@ -113,7 +111,7 @@ namespace edm {
       static std::atomic<std::size_t> nextModule_, doneModules_;
 
     private:
-      static char* const* getPstackArgv();
+      static char const* const* getPstackArgv();
       void enableWarnings_() override;
       void ignoreWarnings_(edm::RootHandlers::SeverityLevel level) override;
       void willBeUsingThreads() override;
@@ -121,9 +119,9 @@ namespace edm {
       void cachePidInfo();
       static void stacktraceHelperThread();
 
-      static const int pidStringLength_ = 200;
+      static constexpr int pidStringLength_ = 200;
       static char pidString_[pidStringLength_];
-      static char* const pstackArgv_[];
+      static char const* const pstackArgv_[];
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
@@ -140,6 +138,7 @@ namespace edm {
       std::shared_ptr<const void> sigIllHandler_;
       std::shared_ptr<const void> sigTermHandler_;
       std::shared_ptr<const void> sigAbrtHandler_;
+      std::shared_ptr<const void> sigFpeHandler_;
     };
 
     inline bool isProcessWideService(InitRootHandlers const*) { return true; }
@@ -156,7 +155,7 @@ namespace edm {
 namespace {
   thread_local edm::RootHandlers::SeverityLevel s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
 
-  bool s_ignoreEverything = false;
+  constexpr bool s_ignoreEverything = false;
 
   template <std::size_t SIZE>
   bool find_if_string(const std::string& search, const std::array<const char* const, SIZE>& substrs) {
@@ -175,7 +174,7 @@ namespace {
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1",
-       "tbb::global_control is limiting"}};
+       "oneapi::tbb::global_control is limiting"}};
 
   //Location generating messages which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 7> in_location{{"Fit",
@@ -327,6 +326,7 @@ namespace {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
     signal(SIGTERM, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
   }
 
@@ -521,6 +521,10 @@ namespace {
         signalname = "illegal instruction";
         break;
       }
+      case SIGFPE: {
+        signalname = "floating point exception";
+        break;
+      }
       case SIGTERM: {
         signalname = "external termination request";
         break;
@@ -599,9 +603,10 @@ namespace {
     full_cerr_write(signalname);
     full_cerr_write("\n");
 
-    // For these five known cases, re-raise the signal to get the correct
+    // For these known cases, re-raise the signal to get the correct
     // exit code.
-    if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM) || (sig == SIGABRT)) {
+    if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM) || (sig == SIGFPE) ||
+        (sig == SIGABRT)) {
       signal(sig, SIG_DFL);
       raise(sig);
     } else {
@@ -735,7 +740,7 @@ namespace edm {
     int cmssw_stacktrace(void* /*arg*/) {
       set_default_signals();
 
-      char* const* argv = edm::service::InitRootHandlers::getPstackArgv();
+      char const* const* argv = edm::service::InitRootHandlers::getPstackArgv();
       // NOTE: this is NOT async-signal-safe at CERN's lxplus service.
       // CERN uses LD_PRELOAD to replace execv with a function from libsnoopy which
       // calls dlsym.
@@ -748,10 +753,10 @@ namespace edm {
       return 1;
     }
 
-    static char pstackName[] = "(CMSSW stack trace helper)";
-    static char dashC[] = "-c";
+    static constexpr char pstackName[] = "(CMSSW stack trace helper)";
+    static constexpr char dashC[] = "-c";
     char InitRootHandlers::pidString_[InitRootHandlers::pidStringLength_] = {};
-    char* const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
+    char const* const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
@@ -798,6 +803,7 @@ namespace edm {
         gSystem->ResetSignal(kSigBus);
         gSystem->ResetSignal(kSigSegmentationViolation);
         gSystem->ResetSignal(kSigIllegalInstruction);
+        gSystem->ResetSignal(kSigFloatingException);
         installCustomHandler(SIGBUS, sig_dostack_then_abort);
         sigBusHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGBUS, sig_abort); });
         installCustomHandler(SIGSEGV, sig_dostack_then_abort);
@@ -806,6 +812,8 @@ namespace edm {
         sigIllHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGILL, sig_abort); });
         installCustomHandler(SIGTERM, sig_dostack_then_abort);
         sigTermHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGTERM, sig_abort); });
+        installCustomHandler(SIGFPE, sig_dostack_then_abort);
+        sigFpeHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGFPE, sig_abort); });
         installCustomHandler(SIGABRT, sig_dostack_then_abort);
         sigAbrtHandler_ = std::shared_ptr<const void>(nullptr, [](void*) {
           signal(SIGABRT, SIG_DFL);  // release SIGABRT to default
@@ -851,7 +859,8 @@ namespace edm {
       if (imt && not ROOT::IsImplicitMTEnabled()) {
         //cmsRun uses global_control to set the number of allowed threads to use
         // we need to tell ROOT the same value in order to avoid unnecessary warnings
-        ROOT::EnableImplicitMT(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
+        ROOT::EnableImplicitMT(
+            oneapi::tbb::global_control::active_value(oneapi::tbb::global_control::max_allowed_parallelism));
       }
     }
 
@@ -909,7 +918,7 @@ namespace edm {
       descriptions.add("InitRootHandlers", desc);
     }
 
-    char* const* InitRootHandlers::getPstackArgv() { return pstackArgv_; }
+    char const* const* InitRootHandlers::getPstackArgv() { return pstackArgv_; }
 
     void InitRootHandlers::enableWarnings_() { s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo; }
 
@@ -976,6 +985,8 @@ namespace edm {
 
   }  // end of namespace service
 }  // end of namespace edm
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::InitRootHandlers;
 typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers, InitRootHandlers> RootHandlersMaker;

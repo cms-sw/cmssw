@@ -27,7 +27,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "SimMuon/DTDigitizer/test/Histograms.h"
+#include "SimMuon/DTDigitizer/interface/Histograms.h"
 
 #include <vector>
 

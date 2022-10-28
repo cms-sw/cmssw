@@ -15,10 +15,6 @@
 namespace ecal {
   namespace raw {
 
-    constexpr auto empty_event_size = EMPTYEVENTSIZE;
-    constexpr uint32_t nfeds_max = 54;
-    constexpr uint32_t nbytes_per_fed_max = 10 * 1024;
-
     struct InputDataCPU {
       cms::cuda::host::unique_ptr<unsigned char[]> data;
       cms::cuda::host::unique_ptr<uint32_t[]> offsets;

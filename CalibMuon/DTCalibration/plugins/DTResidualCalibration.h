@@ -6,13 +6,15 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <string>
 #include <vector>
@@ -25,7 +27,7 @@ class DTGeometry;
 class DTSuperLayerId;
 class DTLayerId;
 
-class DTResidualCalibration : public edm::EDAnalyzer {
+class DTResidualCalibration : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTResidualCalibration(const edm::ParameterSet& pset);
@@ -35,6 +37,7 @@ public:
   void beginJob() override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 protected:
@@ -51,14 +54,16 @@ private:
   void fillHistos(DTLayerId slId, float distance, float residualOnDistance);
 
   DTSegmentSelector* select_;
-  double histRange_;
-  edm::InputTag segment4DLabel_;
-  std::string rootBaseDir_;
+  const double histRange_;
+  const edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
+  const std::string rootBaseDir_;
 
-  bool detailedAnalysis_;
+  const bool detailedAnalysis_;
   TFile* rootFile_;
   // Geometry
   const DTGeometry* dtGeom_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+
   // Histograms per super-layer
   std::map<DTSuperLayerId, TH1F*> histoMapTH1F_;
   std::map<DTSuperLayerId, TH2F*> histoMapTH2F_;

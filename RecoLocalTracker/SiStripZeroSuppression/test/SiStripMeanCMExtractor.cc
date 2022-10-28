@@ -56,11 +56,10 @@ public:
 private:
   void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   void init(const edm::EventSetup&);
 
-  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
+  const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
   const SiStripPedestals* pedestalHandle_;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
 
@@ -69,6 +68,8 @@ private:
   void CMExtractorFromPedestals(const edm::DetSetVector<SiStripRawDigi>&,
                                 std::vector<edm::DetSet<SiStripProcessedRawDigi>>&);
   edm::InputTag _inputTag;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi>> _inputCMToken;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> _inputToken;
   std::string _Algorithm;
   uint16_t _nEventsToUse;
   uint16_t _actualEvent;
@@ -79,6 +80,8 @@ private:
 SiStripMeanCMExtractor::SiStripMeanCMExtractor(const edm::ParameterSet& conf)
     : pedestalsToken_(esConsumes()),
       _inputTag(conf.getParameter<edm::InputTag>("CMCollection")),
+      _inputCMToken(consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(_inputTag)),
+      _inputToken(consumes<edm::DetSetVector<SiStripRawDigi>>(_inputTag)),
       _Algorithm(conf.getParameter<std::string>("Algorithm")),
       _nEventsToUse(conf.getParameter<uint32_t>("NEvents")) {
   if (_nEventsToUse < 1)
@@ -86,7 +89,7 @@ SiStripMeanCMExtractor::SiStripMeanCMExtractor(const edm::ParameterSet& conf)
   produces<edm::DetSetVector<SiStripProcessedRawDigi>>("MEANAPVCM");
 }
 
-SiStripMeanCMExtractor::~SiStripMeanCMExtractor() {}
+SiStripMeanCMExtractor::~SiStripMeanCMExtractor() = default;
 
 void SiStripMeanCMExtractor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -112,7 +115,7 @@ void SiStripMeanCMExtractor::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   if (_Algorithm == "StoredCM") {
     edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi>> inputCM;
-    iEvent.getByLabel(_inputTag, inputCM);
+    iEvent.getByToken(_inputCMToken, inputCM);
 
     this->StoreMean(*inputCM);
     this->ConvertMeanMapToDetSetVector(meancm);
@@ -121,7 +124,7 @@ void SiStripMeanCMExtractor::produce(edm::Event& iEvent, const edm::EventSetup& 
     this->init(iSetup);
 
     edm::Handle<edm::DetSetVector<SiStripRawDigi>> input;
-    iEvent.getByLabel(_inputTag, input);
+    iEvent.getByToken(_inputToken, input);
 
     this->CMExtractorFromPedestals(*input, meancm);
   }
@@ -203,7 +206,5 @@ void SiStripMeanCMExtractor::beginJob() {
 
   _cmMap.clear();
 }
-
-void SiStripMeanCMExtractor::endJob() {}
 
 DEFINE_FWK_MODULE(SiStripMeanCMExtractor);

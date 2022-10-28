@@ -60,6 +60,7 @@ SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig)
     summaryPlotName_[mapPSet.getParameter<std::string>("MapName")] = mapPSet.getParameter<std::string>("MapHist");
   }
   deadRocThresholds_ = conf_.getParameter<std::vector<double> >("DeadROCErrorThreshold");
+  deadRocWarnThresholds_ = conf_.getParameter<std::vector<double> >("DeadROCWarningThreshold");
 }
 
 SiPixelPhase1Summary::~SiPixelPhase1Summary() {
@@ -282,6 +283,8 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       nROCs = tempProfile->GetBinContent(i + 1);
     }
     deadROCSummary->setBinContent(xBin, yBin, nROCs / nRocsPerTrend[i]);
+    deadROCSummary->setBinContent(2, 3, -1);
+    deadROCSummary->setBinContent(2, 4, -1);
   }
 
   //Sum of non-negative bins for the reportSummary
@@ -325,20 +328,25 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       }
       for (int j = 0; j < 4; j++) {  // !??!?!? yAxisLabels_.size() ?!?!?!
         //Ignore the bins without detectors in them
-        if (i == 1 && j > 1)
-          continue;
-        summaryMap_["Grand"]->setBinContent(
-            i + 1,
-            j + 1,
-            1);  // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
-        if (deadROCSummary->getBinContent(i + 1, j + 1) > deadRocThresholds_[i * 4 + j])
-          summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0);
-        sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
+        if (i == 1 && j > 1) {
+          summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
+        } else {
+          if (deadROCSummary->getBinContent(i + 1, j + 1) < deadRocWarnThresholds_[i * 4 + j])
+            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 1);
+
+          else if (deadROCSummary->getBinContent(i + 1, j + 1) > deadRocWarnThresholds_[i * 4 + j] &&
+                   deadROCSummary->getBinContent(i + 1, j + 1) < deadRocThresholds_[i * 4 + j])
+            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0.8);
+
+          else
+            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0);
+
+          sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
+        }
       }
     }
   }
 }
-
 //------------------------------------------------------------------
 // Fill the trend plots
 //------------------------------------------------------------------

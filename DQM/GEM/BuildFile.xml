@@ -1,4 +1,5 @@
 <use name="boost"/>
+<use name="CondFormats/GEMObjects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>

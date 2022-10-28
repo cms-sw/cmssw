@@ -6,9 +6,9 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
-class DoubleProducer : public edm::EDProducer {
+class DoubleProducer : public edm::stream::EDProducer<> {
 public:
   DoubleProducer(const edm::ParameterSet& cfg);
 

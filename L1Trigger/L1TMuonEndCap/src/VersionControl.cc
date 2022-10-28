@@ -6,7 +6,8 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   useO2O_ = iConfig.getParameter<bool>("FWConfig");
   era_ = iConfig.getParameter<std::string>("Era");
   // Run 3 CCLUT
-  useRun3CCLUT_ = iConfig.getParameter<bool>("UseRun3CCLUT");
+  useRun3CCLUT_OTMB_ = iConfig.getParameter<bool>("UseRun3CCLUT_OTMB");
+  useRun3CCLUT_TMB_ = iConfig.getParameter<bool>("UseRun3CCLUT_TMB");
 
   useDT_ = iConfig.getParameter<bool>("DTEnable");
   useCSC_ = iConfig.getParameter<bool>("CSCEnable");

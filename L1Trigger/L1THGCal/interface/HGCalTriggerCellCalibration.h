@@ -9,7 +9,7 @@
 class HGCalTriggerCellCalibration {
 public:
   HGCalTriggerCellCalibration(const edm::ParameterSet& conf);
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
   void calibrateInMipT(l1t::HGCalTriggerCell&) const;
   void calibrateMipTinGeV(l1t::HGCalTriggerCell&) const;
   void calibrateInGeV(l1t::HGCalTriggerCell&) const;

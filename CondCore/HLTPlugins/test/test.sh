@@ -39,3 +39,16 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/plots/AlCaRecoTriggerBits_Compare.png
+
+getPayloadData.py \
+    --plugin pluginAlCaRecoTriggerBits_PayloadInspector \
+    --plot plot_AlCaRecoTriggerBits_CompareTwoTags \
+    --tag AlCaRecoTriggerBits_TrackerDQM_v2_prompt \
+    --tagtwo AlCaRecoTriggerBits_TrackerDQM_v6_offline \
+    --time_type Run \
+    --iovs '{"start_iov": "325492", "end_iov": "325492"}' \
+    --iovstwo '{"start_iov": "304738", "end_iov": "304738"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots/AlCaRecoTriggerBits_CompareTwoTags.png

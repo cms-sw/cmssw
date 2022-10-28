@@ -63,18 +63,17 @@ protected:
                          FWViewType::EType viewType,
                          const FWViewContext* vc) override;
 
-private:
+public:
   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&) = delete;  // stop default
 
   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
   // Add Tracks which passed quality cuts and
   // are inside a tracker signal cone around leading Track
   void addConstituentTracks(const reco::BaseTau& tau, class TEveElement* product);
   // Add leading Track
   void addLeadTrack(const reco::BaseTau& tau, class TEveElement* product);
-  std::vector<fireworks::scaleMarker> m_lines;
 };
 
 #endif

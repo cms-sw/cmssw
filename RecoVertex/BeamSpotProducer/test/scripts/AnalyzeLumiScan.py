@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #  AnalyzeLumiScan
@@ -17,7 +17,6 @@
 from __future__ import print_function
 from builtins import range
 import sys,os,re,string
-import commands
 
 ##dataset = "ExpressPhysics/BeamCommissioning09-Express-v2/FEVT"
 dataset = "/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO"

@@ -22,25 +22,25 @@ MixedLayerTriplets = seedingLayersEDProducer.clone(
                  'FPix1_neg+FPix2_neg+TEC1_neg', 
                  'FPix1_pos+FPix2_pos+TEC2_pos', 
                  'FPix1_neg+FPix2_neg+TEC2_neg'],
-    TEC = cms.PSet(
+    TEC = dict(
 	matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
 	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    TID = cms.PSet(
+    TID = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    BPix = cms.PSet(
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    TIB = cms.PSet(
+    TIB = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))

@@ -9,6 +9,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <vector>
 #include <tuple>
@@ -25,7 +27,11 @@ namespace ctfseeding {
   public:
     typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-    HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide side, int idLayer, float iminGoodCharge);
+    HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet,
+                     TrackerDetSide side,
+                     int idLayer,
+                     float iminGoodCharge,
+                     edm::ConsumesCollector& iC);
     ~HitExtractorSTRP() override {}
 
     HitExtractor::Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
@@ -93,6 +99,7 @@ namespace ctfseeding {
     edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
     edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
     edm::EDGetTokenT<VectorHitCollection> theVectorHits;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopo;
     bool hasMatchedHits;
     bool hasRPhiHits;
     bool hasStereoHits;

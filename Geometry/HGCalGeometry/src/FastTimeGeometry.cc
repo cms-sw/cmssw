@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -12,6 +13,8 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
+//#define EDM_ML_DEBUG
+
 FastTimeGeometry::FastTimeGeometry(const FastTimeTopology& topology_)
     : m_topology(topology_),
       m_cellVec(topology_.totalGeomModules()),
@@ -20,7 +23,7 @@ FastTimeGeometry::FastTimeGeometry(const FastTimeTopology& topology_)
       m_subdet(topology_.subDetector()) {
   m_validIds.reserve(topology().totalModules());
 #ifdef EDM_ML_DEBUG
-  std::cout << "Expected total # of Geometry Modules " << topology().totalGeomModules() << std::endl;
+  edm::LogVerbatim("FastTimeGeom") << "Expected total # of Geometry Modules " << topology().totalGeomModules();
 #endif
 }
 
@@ -61,13 +64,13 @@ void FastTimeGeometry::newCell(
   }
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeGeometry::newCell-> [" << cellIndex << "]"
-            << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/' << f2.y() << '/'
-            << f2.z() << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":" << m_cellVec[cellIndex].phiPos()
-            << " id:" << FastTimeDetId(detId) << " with valid DetId from " << nOld << " to " << m_validIds.size()
-            << std::endl;
-  std::cout << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() << ":" << m_validGeomIds[cellIndex].rawId()
-            << std::dec << std::endl;
+  edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometry::newCell-> [" << cellIndex << "] front:" << f1.x() << '/'
+                                   << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/' << f2.y() << '/' << f2.z()
+                                   << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
+                                   << m_cellVec[cellIndex].phiPos() << " id:" << FastTimeDetId(detId)
+                                   << " with valid DetId from " << nOld << " to " << m_validIds.size();
+  edm::LogVerbatim("FastTimeGeom") << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() << ":"
+                                   << m_validGeomIds[cellIndex].rawId() << std::dec;
 #endif
 }
 
@@ -119,8 +122,8 @@ DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
   }
   FastTimeDetId id = FastTimeDetId(m_Type, etaZPhi.first, etaZPhi.second, zside);
 #ifdef EDM_ML_DEBUG
-  std::cout << "getClosestCell: for (" << r.x() << ", " << r.y() << ", " << r.z() << ")  Id " << id.type() << ":"
-            << id.zside() << ":" << id.ieta() << ":" << id.iphi() << std::endl;
+  edm::LogVerbatim("FastTimeGeom") << "getClosestCell: for (" << r.x() << ", " << r.y() << ", " << r.z() << ")  Id "
+                                   << id.type() << ":" << id.zside() << ":" << id.ieta() << ":" << id.iphi();
 #endif
 
   return (topology().valid(id) ? DetId(id) : DetId());
@@ -146,8 +149,8 @@ unsigned int FastTimeGeometry::indexFor(const DetId& id) const {
     DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
     cellIndex = topology().detId2denseGeomId(geoId);
 #ifdef EDM_ML_DEBUG
-    std::cout << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId() << std::dec << " index " << cellIndex
-              << std::endl;
+    edm::LogVerbatim("FastTimeGeom") << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId() << std::dec
+                                     << " index " << cellIndex;
 #endif
   }
   return cellIndex;
@@ -179,7 +182,7 @@ std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t i
   auto cell = std::make_shared<FlatTrd>(m_cellVec[index]);
   cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
-//std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
+  edm::LogVerbatim("FastTimeGeomX") << "cellGeomPtr " << pos << ":" << cell;
 #endif
   if (nullptr == cell->param())
     return nullptr;

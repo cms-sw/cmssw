@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# ---------- trigger data ----------
-from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
-totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-
 # ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before TS2
     cms.PSet(
@@ -35,10 +32,17 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("311626:min - 999999999:max"),
+      validityRange = cms.EventRange("311626:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2018.xml"),
       maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2022.xml"),
+      maskFileNames = cms.vstring()
     )
+
   )
 )
 
@@ -55,6 +59,7 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before diamonds inserted in DAQ
     cms.PSet(
@@ -76,10 +81,17 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("310001:min - 999999999:max"),
+      validityRange = cms.EventRange("310001:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2018.xml"),
       maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
+      maskFileNames = cms.vstring()
     )
+
   )
 )
 
@@ -88,8 +100,9 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(10),
+  verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TotemTiming"),
+  sampicSubDetId = cms.uint32(5),
   configuration = cms.VPSet(
     # 2017, before detector inserted in DAQ
     cms.PSet(
@@ -99,8 +112,14 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("310001:min - 999999999:max"),
+      validityRange = cms.EventRange("310001:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_totem_timing_2018.xml"),
+      maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_totem_timing_2022.xml"),
       maskFileNames = cms.vstring()
     )
   )
@@ -109,16 +128,27 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
 from EventFilter.CTPPSRawToDigi.totemTimingRawToDigi_cfi import totemTimingRawToDigi
 totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+# ---------- Totem nT2 ----------
+from CalibPPS.ESProducers.totemT2DAQMapping_cff import totemDAQMappingESSourceXML as totemDAQMappingESSourceXML_TotemT2
+from EventFilter.CTPPSRawToDigi.totemT2Digis_cfi import totemT2Digis
+totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
+
 # ---------- pixels ----------
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector")
 
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsPixelDigis, isRun3 = False )
+(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemTiming, sampicSubDetId = 6)
+
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(
-  totemTriggerRawToDigi,
   totemRPRawToDigi,
   ctppsDiamondRawToDigi,
   totemTimingRawToDigi,
+  totemT2Digis,
   ctppsPixelDigis
 )
 ctppsRawToDigi = cms.Sequence(ctppsRawToDigiTask)

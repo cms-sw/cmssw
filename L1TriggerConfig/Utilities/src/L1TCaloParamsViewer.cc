@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +12,10 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include <iomanip>
 
-class L1TCaloParamsViewer : public edm::EDAnalyzer {
+class L1TCaloParamsViewer : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<l1t::CaloParams, L1TCaloStage2ParamsRcd> stage2ParamsToken_;
+  edm::ESGetToken<l1t::CaloParams, L1TCaloParamsRcd> paramsToken_;
   bool printPUSParams;
   bool printTauCalibLUT;
   bool printTauCompressLUT;
@@ -44,7 +46,7 @@ private:
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TCaloParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TCaloParamsViewer(const edm::ParameterSet& pset) {
     printPUSParams = pset.getUntrackedParameter<bool>("printPUSParams", false);
     printTauCalibLUT = pset.getUntrackedParameter<bool>("printTauCalibLUT", false);
     printTauCompressLUT = pset.getUntrackedParameter<bool>("printTauCompressLUT", false);
@@ -67,49 +69,60 @@ public:
     printEtSumEcalSumCalibrationLUT = pset.getUntrackedParameter<bool>("printEtSumEcalSumCalibrationLUT", false);
 
     useStage2Rcd = pset.getUntrackedParameter<bool>("useStage2Rcd", false);
+
+    if (useStage2Rcd)
+      stage2ParamsToken_ = esConsumes();
+    else
+      paramsToken_ = esConsumes();
   }
 
   ~L1TCaloParamsViewer(void) override {}
 };
 
-#include <openssl/sha.h>
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 #include <cmath>
 #include <iostream>
 using namespace std;
 
 std::string L1TCaloParamsViewer::hash(void* buf, size_t len) const {
-  char tmp[SHA_DIGEST_LENGTH * 2 + 1];
-  bzero(tmp, sizeof(tmp));
-  SHA_CTX ctx;
-  if (!SHA1_Init(&ctx))
+  cms::openssl_init();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+  const EVP_MD* md = EVP_get_digestbyname("SHA1");
+  if (!EVP_DigestInit_ex(mdctx, md, nullptr))
     throw cms::Exception("L1TCaloParamsViewer::hash") << "SHA1 initialization error";
 
-  if (!SHA1_Update(&ctx, buf, len))
+  if (!EVP_DigestUpdate(mdctx, buf, len))
     throw cms::Exception("L1TCaloParamsViewer::hash") << "SHA1 processing error";
 
-  unsigned char hash[SHA_DIGEST_LENGTH];
-  if (!SHA1_Final(hash, &ctx))
+  unsigned char hash[EVP_MAX_MD_SIZE];
+  unsigned int md_len = 0;
+  if (!EVP_DigestFinal_ex(mdctx, hash, &md_len))
     throw cms::Exception("L1TCaloParamsViewer::hash") << "SHA1 finalization error";
 
+  EVP_MD_CTX_free(mdctx);
+
   // re-write bytes in hex
-  for (unsigned int i = 0; i < 20; i++)
+  char tmp[EVP_MAX_MD_SIZE * 2 + 1];
+  if (md_len > 20)
+    md_len = 20;
+  for (unsigned int i = 0; i < md_len; i++)
     ::sprintf(&tmp[i * 2], "%02x", hash[i]);
 
-  tmp[20 * 2] = 0;
+  tmp[md_len * 2] = 0;
   return std::string(tmp);
 }
 
 void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<l1t::CaloParams> handle1;
   if (useStage2Rcd)
-    evSetup.get<L1TCaloStage2ParamsRcd>().get(handle1);
+    handle1 = evSetup.getHandle(stage2ParamsToken_);
   else
-    evSetup.get<L1TCaloParamsRcd>().get(handle1);
+    handle1 = evSetup.getHandle(paramsToken_);
 
-  std::shared_ptr<l1t::CaloParams> ptr(new l1t::CaloParams(*(handle1.product())));
+  l1t::CaloParams const& ptr = *handle1;
 
-  l1t::CaloParamsHelper* ptr1 = nullptr;
-  ptr1 = (l1t::CaloParamsHelper*)(&(*ptr));
+  l1t::CaloParamsHelper const* ptr1 = nullptr;
+  ptr1 = (l1t::CaloParamsHelper const*)(&(ptr));
 
   edm::LogInfo("") << "L1TCaloParamsViewer:";
 

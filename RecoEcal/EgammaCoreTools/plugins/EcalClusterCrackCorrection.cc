@@ -16,12 +16,15 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "TVector2.h"
 
 class EcalClusterCrackCorrection : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterCrackCorrection(const edm::ParameterSet &){};
+  EcalClusterCrackCorrection(const edm::ParameterSet &, edm::ConsumesCollector iC)
+      : paramsToken_(iC.esConsumes()), geomToken_(iC.esConsumes()) {}
 
   // get/set explicit methods for parameters
   const EcalClusterCrackCorrParameters *getParameters() const { return params_; }
@@ -38,15 +41,15 @@ public:
   void init(const edm::EventSetup &es) override;
 
 private:
-  edm::ESHandle<EcalClusterCrackCorrParameters> esParams_;
-  const EcalClusterCrackCorrParameters *params_;
-  const edm::EventSetup *es_;  //needed to access the ECAL geometry
+  const edm::ESGetToken<EcalClusterCrackCorrParameters, EcalClusterCrackCorrParametersRcd> paramsToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  const EcalClusterCrackCorrParameters *params_ = nullptr;
+  const CaloGeometry *caloGeom_ = nullptr;
 };
 
 void EcalClusterCrackCorrection::init(const edm::EventSetup &es) {
-  es.get<EcalClusterCrackCorrParametersRcd>().get(esParams_);
-  params_ = esParams_.product();
-  es_ = &es;  //needed to access the ECAL geometry
+  params_ = &es.getData(paramsToken_);
+  caloGeom_ = &es.getData(geomToken_);
 }
 
 void EcalClusterCrackCorrection::checkInit() const {
@@ -77,10 +80,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster &seedbclus) c
   if (std::abs(seedbclus.eta()) > 1.4442)
     return 1.;
 
-  edm::ESHandle<CaloGeometry> pG;
-  es_->get<CaloGeometryRecord>().get(pG);
-
-  const CaloSubdetectorGeometry *geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom = caloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
   const math::XYZPoint &position_ = seedbclus.position();
   double Theta = -position_.theta() + 0.5 * M_PI;

@@ -21,12 +21,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWBeamSpotOnlineProxyBuilder(const FWBeamSpotOnlineProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWBeamSpotOnlineProxyBuilder& operator=(const FWBeamSpotOnlineProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<BeamSpotOnline>::build;
   void build(const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

@@ -20,9 +20,9 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -58,13 +58,15 @@ namespace edm {
       EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       this->analyze(e.streamID(), e, c);
       return true;
     }
 
     void EDAnalyzerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       preallocStreams(iPrealloc.numberOfStreams());
+      preallocRuns(iPrealloc.numberOfRuns());
+      preallocRunsSummary(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
@@ -100,11 +102,8 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
     }
@@ -115,7 +114,7 @@ namespace edm {
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doEndRunSummary_(r, c);
       this->doEndRun_(cnstR, c);
     }
@@ -128,8 +127,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
     }
@@ -142,8 +140,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doEndLuminosityBlockSummary_(cnstLb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
     }
@@ -154,11 +151,8 @@ namespace edm {
       Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doStreamBeginRun_(id, r, c);
     }
     void EDAnalyzerBase::doStreamEndRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
@@ -166,7 +160,7 @@ namespace edm {
       r.setConsumer(this);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
@@ -179,8 +173,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doStreamBeginLuminosityBlock_(id, lb, c);
     }
 
@@ -193,13 +186,14 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doStreamEndLuminosityBlock_(id, lb, c);
       this->doStreamEndLuminosityBlockSummary_(id, lb, c);
     }
 
     void EDAnalyzerBase::preallocStreams(unsigned int) {}
+    void EDAnalyzerBase::preallocRuns(unsigned int) {}
+    void EDAnalyzerBase::preallocRunsSummary(unsigned int) {}
     void EDAnalyzerBase::preallocLumis(unsigned int) {}
     void EDAnalyzerBase::preallocLumisSummary(unsigned int) {}
     void EDAnalyzerBase::preallocate(PreallocationConfiguration const&) {}

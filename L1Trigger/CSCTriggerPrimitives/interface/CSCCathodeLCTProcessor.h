@@ -33,8 +33,8 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/ComparatorCodeLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
@@ -56,6 +56,8 @@ public:
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
 
   /** Clears the LCT containers. */
   void clear();
@@ -85,8 +87,13 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
 
   /* get special bits for high multiplicity triggers */
-  unsigned getInTimeHMT() const { return inTimeHMT_; }
-  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+  //unsigned getInTimeHMT() const { return inTimeHMT_; }
+  //unsigned getOutTimeHMT() const { return outTimeHMT_; }
+  /* get array of high multiplicity triggers */
+  std::vector<CSCShowerDigi> getAllShower() const;
+
+  /** Returns shower bits */
+  std::vector<CSCShowerDigi> readoutShower() const;
 
 protected:
   /** Best LCT in this chamber, as found by the processor. */
@@ -94,6 +101,9 @@ protected:
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+
+  CSCShowerDigi cathode_showers_[CSCConstants::MAX_CLCT_TBINS];
+  //CSCShowerDigi shower_;
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
@@ -181,15 +191,14 @@ protected:
   std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
-  unsigned inTimeHMT_;
-  unsigned outTimeHMT_;
+  void encodeHighMultiplicityBits();
   std::vector<unsigned> thresholds_;
-  unsigned showerMinInTBin_;
-  unsigned showerMaxInTBin_;
-  unsigned showerMinOutTBin_;
-  unsigned showerMaxOutTBin_;
+  unsigned showerNumTBins_;
+  unsigned minLayersCentralTBin_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
+  /** check the peak of total hits and single bx hits for cathode HMT */
+  bool peakCheck_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig;  // only for test beam mode.

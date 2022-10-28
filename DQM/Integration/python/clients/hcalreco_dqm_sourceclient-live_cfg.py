@@ -68,8 +68,9 @@ process.dqmSaverPB.tag = "HcalReco"
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
-if not useFileInput and not unitTest:
-	process.source.minEventsPerLumi = 5
+if not unitTest and not useFileInput:
+  if not options.BeamSplashRun :
+    process.source.minEventsPerLumi = 5
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -117,7 +118,6 @@ process.hcalDigis.InputLabel = rawTag
 #-------------------------------------
 process.load('DQM.HcalTasks.RecHitTask')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load('DQM.HcalTasks.DigiComparisonTask')
 
 #-------------------------------------
 #	To force using uTCA
@@ -196,4 +196,7 @@ process.options = cms.untracked.PSet(
 			"TooFewProducts"
 		)
 )
+
 process.options.wantSummary = True
+print("Final Source settings:", process.source)
+

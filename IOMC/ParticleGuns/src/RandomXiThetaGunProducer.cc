@@ -13,16 +13,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "HepPDT/ParticleDataTable.hh"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 using namespace edm;
 using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
 RandomXiThetaGunProducer::RandomXiThetaGunProducer(const edm::ParameterSet &iConfig)
-    : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
+    : tableToken_(esConsumes()),
+      verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
       particleId_(iConfig.getParameter<unsigned int>("particleId")),
       energy_(iConfig.getParameter<double>("energy")),
       xi_min_(iConfig.getParameter<double>("xi_min")),
@@ -44,8 +42,7 @@ void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup &es)
   edm::Service<edm::RandomNumberGenerator> rng;
   engine_ = &rng->getEngine(e.streamID());
 
-  ESHandle<HepPDT::ParticleDataTable> pdgTable;
-  es.getData(pdgTable);
+  auto const &pdgTable = es.getData(tableToken_);
 
   // prepare HepMC event
   HepMC::GenEvent *fEvt = new HepMC::GenEvent();
@@ -54,7 +51,7 @@ void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup &es)
   HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
   fEvt->add_vertex(vtx);
 
-  const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId_));
+  const HepPDT::ParticleData *pData = pdgTable.particle(HepPDT::ParticleID(particleId_));
   double mass = pData->mass().value();
 
   // generate particles

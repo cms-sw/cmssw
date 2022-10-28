@@ -106,8 +106,27 @@ private:
   const int useRaw_, verbosity_;
   const std::string theTrackQuality_, fileInCorr_;
   const bool ignoreHECorr_, isItPreRecHit_, writeRespCorr_;
+  const int maxDepth_;
+
+  const edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+
   bool mergedDepth_, useMyCorr_;
-  int maxDepth_, kount_;
+  int kount_;
   spr::trackSelectionParameters selectionParameter_;
 
   const HcalDDDRecConstants* hdc_;
@@ -119,23 +138,6 @@ private:
   const EcalSeverityLevelAlgo* sevlv_;
   const CaloTopology* caloTopology_;
   const HcalDbService* conditions_;
-
-  edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle_;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle_;
@@ -194,6 +196,22 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
       ignoreHECorr_(iConfig.getUntrackedParameter<bool>("ignoreHECorr", false)),
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 7)),
+      tok_Vtx_(consumes<reco::VertexCollection>(labelVtx_)),
+      tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
+      tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
+      tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
+      tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
+      tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_chan_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_topo_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       hdc_(nullptr),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr),
@@ -201,11 +219,6 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 7);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
 
   reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameter_.minPt = iConfig.getUntrackedParameter<double>("minTrackPt");
@@ -218,25 +231,9 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   selectionParameter_.maxInMiss = selectionParameter_.maxOutMiss = 2;
 
   mergedDepth_ = (!isItPreRecHit_) || (collapseDepth_);
-  tok_EB_ = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_ = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
-  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
-  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
   edm::LogVerbatim("HBHEMuon") << "Labels used: Track " << labelGenTrack_ << " Vtx " << labelVtx_ << " EB "
                                << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                << labelMuon_;
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -275,10 +272,10 @@ void HcalHBHEMuonHighEtaAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("etaMin", 2.0);
   desc.add<double>("emaxNearPThreshold", 10.0);
   desc.add<bool>("analyzeMuon", true);
-  desc.add<bool>("unCorrect", false);
+  desc.add<bool>("unCorrect", true);
   desc.add<bool>("collapseDepth", false);
   desc.add<bool>("isItPlan1", false);
-  desc.add<bool>("getCharge", false);
+  desc.add<bool>("getCharge", true);
   desc.add<int>("useRaw", 0);
   desc.add<int>("verbosity", 0);
   desc.addUntracked<std::string>("fileInCorr", "");
@@ -375,8 +372,7 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   conditions_ = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  edm::Handle<reco::VertexCollection> vtx;
-  iEvent.getByToken(tok_Vtx_, vtx);
+  const edm::Handle<reco::VertexCollection>& vtx = iEvent.getHandle(tok_Vtx_);
 
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle_);
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle_);
@@ -499,53 +495,51 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
 }
 
 bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XYZPoint& leadPV) {
-  edm::Handle<reco::MuonCollection> _Muon;
-  iEvent.getByToken(tok_Muon_, _Muon);
+  const edm::Handle<reco::MuonCollection>& _Muon = iEvent.getHandle(tok_Muon_);
   bool accept = false;
 
   if (_Muon.isValid()) {
     int nTrack(0);
     std::vector<spr::propagatedTrackID> trkCaloDets;
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
-      if (RecMuon->innerTrack().isNonnull()) {
-        const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+    for (const auto& RecMuon : (*(_Muon.product()))) {
+      if (RecMuon.innerTrack().isNonnull()) {
+        const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         if (std::abs(pTrack->eta()) > etaMin_) {
           if (analyzeTracks(pTrack, leadPV, nTrack, trkCaloDets, false)) {
             accept = true;
-            ptGlob_.emplace_back((RecMuon)->pt());
-            etaGlob_.emplace_back(RecMuon->eta());
-            phiGlob_.emplace_back(RecMuon->phi());
-            energyMuon_.push_back(RecMuon->energy());
-            pMuon_.emplace_back(RecMuon->p());
-            bool mediumMuon = (((RecMuon->isPFMuon()) && (RecMuon->isGlobalMuon() || RecMuon->isTrackerMuon())) &&
-                               (RecMuon->innerTrack()->validFraction() > 0.49));
+            ptGlob_.emplace_back(RecMuon.pt());
+            etaGlob_.emplace_back(RecMuon.eta());
+            phiGlob_.emplace_back(RecMuon.phi());
+            energyMuon_.push_back(RecMuon.energy());
+            pMuon_.emplace_back(RecMuon.p());
+            bool mediumMuon = (((RecMuon.isPFMuon()) && (RecMuon.isGlobalMuon() || RecMuon.isTrackerMuon())) &&
+                               (RecMuon.innerTrack()->validFraction() > 0.49));
             if (mediumMuon) {
-              double chiGlobal =
-                  ((RecMuon->globalTrack().isNonnull()) ? RecMuon->globalTrack()->normalizedChi2() : 999);
+              double chiGlobal = ((RecMuon.globalTrack().isNonnull()) ? RecMuon.globalTrack()->normalizedChi2() : 999);
               bool goodGlob =
-                  (RecMuon->isGlobalMuon() && chiGlobal < 3 && RecMuon->combinedQuality().chi2LocalPosition < 12 &&
-                   RecMuon->combinedQuality().trkKink < 20);
-              mediumMuon = muon::segmentCompatibility(*RecMuon) > (goodGlob ? 0.303 : 0.451);
+                  (RecMuon.isGlobalMuon() && chiGlobal < 3 && RecMuon.combinedQuality().chi2LocalPosition < 12 &&
+                   RecMuon.combinedQuality().trkKink < 20);
+              mediumMuon = muon::segmentCompatibility(RecMuon) > (goodGlob ? 0.303 : 0.451);
             }
             mediumMuon_.emplace_back(mediumMuon);
             bool isoR03 =
-                ((RecMuon->pfIsolationR03().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR03().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR03().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR03().sumPUPt))) /
+                 RecMuon.pt());
             bool isoR04 =
-                ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR04().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+                 RecMuon.pt());
             isolationR03_.emplace_back(isoR03);
             isolationR04_.emplace_back(isoR04);
 
-            ecalEnergy_.emplace_back(RecMuon->calEnergy().emS9);
-            hcalEnergy_.emplace_back(RecMuon->calEnergy().hadS9);
-            hoEnergy_.emplace_back(RecMuon->calEnergy().hoS9);
+            ecalEnergy_.emplace_back(RecMuon.calEnergy().emS9);
+            hcalEnergy_.emplace_back(RecMuon.calEnergy().hadS9);
+            hoEnergy_.emplace_back(RecMuon.calEnergy().hoS9);
 #ifdef EDM_ML_DEBUG
             if ((verbosity_ / 100) % 10 > 0)
               edm::LogVerbatim("HBHEMuon")
@@ -565,8 +559,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
 
 bool HcalHBHEMuonHighEtaAnalyzer::analyzeHadron(const edm::Event& iEvent, math::XYZPoint& leadPV) {
   //Get track collection
-  edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByToken(tok_genTrack_, trkCollection);
+  edm::Handle<reco::TrackCollection> trkCollection = iEvent.getHandle(tok_genTrack_);
   bool accept = false;
 
   if (!trkCollection.isValid()) {

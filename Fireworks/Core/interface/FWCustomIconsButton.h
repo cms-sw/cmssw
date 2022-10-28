@@ -58,14 +58,14 @@ public:
   const TGPicture* disabledIcon() const { return m_disabledIcon; }
   const TGPicture* bellowMouseIcon() const { return m_belowMouseIcon; }
 
-protected:
-  void DoRedraw() override;
-
-private:
   FWCustomIconsButton(const FWCustomIconsButton&) = delete;  // stop default
 
   const FWCustomIconsButton& operator=(const FWCustomIconsButton&) = delete;  // stop default
 
+protected:
+  void DoRedraw() override;
+
+private:
   // ---------- member data --------------------------------
   const TGPicture* m_upIcon;
   const TGPicture* m_downIcon;

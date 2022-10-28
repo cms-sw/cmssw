@@ -20,6 +20,7 @@
 
 XERCES_CPP_NAMESPACE_USE
 
+using namespace edm::storage;
 namespace lhef {
 
   StorageWrap::StorageWrap(std::unique_ptr<Storage> storage) : storage(std::move(storage)) {}

@@ -36,6 +36,10 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
+  <bin file="oneRadixSort_t.cu">
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+  </bin>
+
   <bin file="HistoContainer_t.cpp">
     <flags CXXFLAGS="-g"/>
   </bin>

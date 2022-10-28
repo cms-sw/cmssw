@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TTauOffline_cfi
-import six
 
 variables = {
     'tau': L1TTauOffline_cfi.tauEfficiencyThresholds,
@@ -19,7 +18,7 @@ plots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in six.iteritems(variables):
+for variable, thresholds in variables.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)

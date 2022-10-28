@@ -285,9 +285,11 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     id = -11;
 
   // assign the proper pdgId for tracks that are reconstructed as a muon
+  const reco::Muon* muon(nullptr);
   for (auto& mu : *muons) {
     if (reco::TrackRef(mu.innerTrack()) == trk) {
       id = -13 * trk->charge();
+      muon = &mu;
       break;
     }
   }
@@ -331,6 +333,9 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     }
   }
   cands.back().setAssociationQuality(pvAssocQuality);
+
+  if (muon)
+    cands.back().setMuonID(muon->isStandAloneMuon(), muon->isGlobalMuon());
 }
 
 std::pair<int, pat::PackedCandidate::PVAssociationQuality> pat::PATLostTracks::associateTrkToVtx(

@@ -11,58 +11,19 @@ inline T sqr(T t) {
 }
 
 #include "MSLayersKeeper.h"
-#include "MSLayersKeeperX0AtEta.h"
-#include "MSLayersKeeperX0Averaged.h"
-#include "MSLayersKeeperX0DetLayer.h"
 #include "MSLayersAtAngle.h"
-
-//#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-
-#include <iostream>
 
 using namespace std;
 
 const float MultipleScatteringParametrisation::x0ToSigma = 0.0136f;
 
-namespace {
-  struct Keepers {
-    MSLayersKeeperX0DetLayer x0DetLayer;
-    MSLayersKeeperX0AtEta x0AtEta;
-    MSLayersKeeperX0Averaged x0Averaged;
-    MSLayersKeeper *keepers[3];  // {&x0DetLayer,&x0AtEta,&x0Averaged};
-    bool isInitialised;          // =false;
-    MSLayersKeeper const *operator()(int i) const { return keepers[i]; }
-    void init(const edm::EventSetup &iSetup) {
-      if (isInitialised)
-        return;
-      for (auto x : keepers)
-        x->init(iSetup);
-      isInitialised = true;
-    }
-    Keepers() : keepers{&x0DetLayer, &x0AtEta, &x0Averaged}, isInitialised(false) {}
-  };
-
-  thread_local Keepers keepers;
-  //NOTE: This is being used to globally cache information from the EventSetup
-  // this should not be done so we need this code changed.
-  //NOTE; the thread_local only works in this case because MultipleScateringParametrisation
-  // instances are only ever created on the stack and not the heap.
-
-}  // namespace
-
-void MultipleScatteringParametrisation::initKeepers(const edm::EventSetup &iSetup) { keepers.init(iSetup); }
-
-//using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
-void MultipleScatteringParametrisation::init(const DetLayer *layer, const edm::EventSetup &iSetup, X0Source x0Source) {
-  theLayerKeeper = keepers(x0Source);
-
-  // FIXME not thread safe: move elsewhere...
-  initKeepers(iSetup);
-
-  if (!layer)
-    return;
-  theLayer = theLayerKeeper->layer(layer);
+MultipleScatteringParametrisation::MultipleScatteringParametrisation(const DetLayer *layer,
+                                                                     const MSLayersKeeper *layerKeeper)
+    : theLayerKeeper(layerKeeper) {
+  if (layer) {
+    theLayer = theLayerKeeper->layer(layer);
+  }
 }
 
 //----------------------------------------------------------------------

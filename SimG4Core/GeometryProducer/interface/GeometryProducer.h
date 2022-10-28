@@ -14,6 +14,14 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <memory>
 #include <unordered_map>
 
@@ -51,6 +59,8 @@ public:
 private:
   void updateMagneticField(edm::EventSetup const &es);
 
+  void makeGeom(const edm::EventSetup &c);
+
   G4RunManagerKernel *m_kernel;
   edm::ParameterSet m_pField;
   SimActivityRegistry m_registry;
@@ -70,6 +80,10 @@ private:
   bool m_pUseMagneticField;
   bool m_pUseSensitiveDetectors;
   bool m_pGeoFromDD4hep;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokMF_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> tokDDD_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tokDD4hep_;
 };
 
 #endif

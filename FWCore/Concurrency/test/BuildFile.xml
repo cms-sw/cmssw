@@ -20,3 +20,9 @@
 <bin name="testFWCoreConcurrencyTBB.cc" file="TestTBB.cc">
   <use name="tbb"/>
 </bin>
+
+<bin file="test_catch2_*.cc" name="testFWCoreConcurrencyCatch2">
+  <use name="catch2"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="tbb"/>
+</bin>

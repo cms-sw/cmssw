@@ -44,8 +44,9 @@ public:
 private:
   MuonServiceProxy *theMuonServiceProxy;
   MuonUpdatorAtVertex *theMuonUpdatorAtVertex;
-  bool m_vertexConstraint;
-  edm::InputTag m_beamSpot;
+  const bool m_vertexConstraint;
+  const edm::InputTag m_beamSpot;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
 
   TH1F *m_diMuon_Z;
   TH1F *m_diMuon_Zforward;
@@ -100,7 +101,8 @@ AlignmentMonitorTracksFromTrajectories::AlignmentMonitorTracksFromTrajectories(c
                                                                                edm::ConsumesCollector iC)
     : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorTracksFromTrajectories"),
       m_vertexConstraint(cfg.getParameter<bool>("vertexConstraint")),
-      m_beamSpot(cfg.getParameter<edm::InputTag>("beamSpot")) {
+      m_beamSpot(cfg.getParameter<edm::InputTag>("beamSpot")),
+      bsToken_(iC.consumes<reco::BeamSpot>(m_beamSpot)) {
   theMuonServiceProxy = new MuonServiceProxy(cfg.getParameter<edm::ParameterSet>("ServiceParameters"));
   theMuonUpdatorAtVertex = new MuonUpdatorAtVertex(cfg.getParameter<edm::ParameterSet>("MuonUpdatorAtVertexParameters"),
                                                    theMuonServiceProxy);
@@ -152,8 +154,7 @@ void AlignmentMonitorTracksFromTrajectories::event(const edm::Event &iEvent,
                                                    const ConstTrajTrackPairCollection &tracks) {
   theMuonServiceProxy->update(iSetup);
 
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(m_beamSpot, beamSpot);
+  const edm::Handle<reco::BeamSpot> &beamSpot = iEvent.getHandle(bsToken_);
 
   GlobalVector p1, p2;
   double e1 = 0.;

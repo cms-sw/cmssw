@@ -8,14 +8,17 @@
  *  \author A. Vilela Pereira
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class ParameterSet;
-}
+  class ConsumesCollector;
+}  // namespace edm
 namespace dtCalibration {
   class DTTTrigBaseCorrection;
 }
 
-typedef edmplugin::PluginFactory<dtCalibration::DTTTrigBaseCorrection *(const edm::ParameterSet &)>
+typedef edmplugin::PluginFactory<dtCalibration::DTTTrigBaseCorrection *(const edm::ParameterSet &,
+                                                                        edm::ConsumesCollector)>
     DTTTrigCorrectionFactory;
 #endif

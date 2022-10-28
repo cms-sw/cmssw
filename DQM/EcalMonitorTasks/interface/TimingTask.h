@@ -33,6 +33,7 @@ namespace ecaldqm {
     float energyThresholdEEFwd_;
     float timingVsBXThreshold_;
     float timeErrorThreshold_;
+    bool splashSwitch_;
 
     MESet* meTimeMapByLS;
   };

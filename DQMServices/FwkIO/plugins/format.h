@@ -32,6 +32,8 @@ enum TypeIndex {
   kTH3FIndex,
   kTProfileIndex,
   kTProfile2DIndex,
+  kTH1IIndex,
+  kTH2IIndex,
   kNIndicies,
   kNoTypesStored = 1000
 };
@@ -47,7 +49,9 @@ static const char* const kTypeNames[] = {"Ints",
                                          "TH2Ds",
                                          "TH3Fs",
                                          "TProfiles",
-                                         "TProfile2Ds"};
+                                         "TProfile2Ds",
+                                         "TH1Is",
+                                         "TH2Is"};
 
 //Branches for each TTree type
 static const char* const kFullNameBranch = "FullName";
@@ -64,6 +68,9 @@ static const char* const kEndTimeBranch = "EndTime";
 static const char* const kTypeBranch = "Type";
 static const char* const kFirstIndex = "FirstIndex";
 static const char* const kLastIndex = "LastIndex";
+
+//File GUID
+static const char* const kCmsGuid = "cms::edm::GUID";
 
 //Meta data info
 static const char* const kMetaDataDirectoryAbsolute = "/MetaData";

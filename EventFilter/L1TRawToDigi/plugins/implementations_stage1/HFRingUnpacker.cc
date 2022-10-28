@@ -65,10 +65,9 @@ namespace l1t {
         LogDebug("L1T") << "hfrs pT " << hfrs.hwPt();
         resHFRingSums_->push_back(bx, hfrs);
 
-        l1t::EtSum mht = l1t::EtSum();
+        l1t::EtSum mht{l1t::EtSum::kMissingHt};
         mht.setHwPt(htmiss);
         mht.setHwPhi(htmissphi);
-        mht.setType(l1t::EtSum::kMissingHt);
         int flaghtmiss = mht.hwQual();
         flaghtmiss |= overflowhtmiss;
         mht.setHwQual(flaghtmiss);

@@ -7,12 +7,11 @@ from PhysicsTools.NanoAOD.common_cff import *
 ################################################################################
 
 from RecoEgamma.EgammaTools.lowPtElectronModifier_cfi import lowPtElectronModifier
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
 modifiedLowPtElectrons = cms.EDProducer(
     "ModifiedElectronProducer",
     src = cms.InputTag("slimmedLowPtElectrons"),
     modifierConfig = cms.PSet(
-        modifications = cms.VPSet(lowPtElectronModifier,lowPtRegressionModifier)
+        modifications = cms.VPSet(lowPtElectronModifier)
     )
 )
 
@@ -26,16 +25,6 @@ updatedLowPtElectrons = cms.EDProducer(
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB,
     miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE,
-)
-
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
-lowPtPATElectronID = lowPtGsfElectronID.clone(
-    usePAT = True,
-    electrons = "updatedLowPtElectrons",
-    unbiased = "",
-    ModelWeights = [
-        'RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Nov28.root',
-    ],
 )
 
 isoForLowPtEle = cms.EDProducer(
@@ -52,7 +41,6 @@ updatedLowPtElectronsWithUserData = cms.EDProducer(
     "PATElectronUserDataEmbedder",
     src = cms.InputTag("updatedLowPtElectrons"),
     userFloats = cms.PSet(
-        ID = cms.InputTag("lowPtPATElectronID"),
         miniIsoChg = cms.InputTag("isoForLowPtEle:miniIsoChg"),
         miniIsoAll = cms.InputTag("isoForLowPtEle:miniIsoAll"),
     ),
@@ -64,7 +52,7 @@ updatedLowPtElectronsWithUserData = cms.EDProducer(
 finalLowPtElectrons = cms.EDFilter(
     "PATElectronRefSelector",
     src = cms.InputTag("updatedLowPtElectronsWithUserData"),
-    cut = cms.string("pt > 1. && userFloat('ID') > -0.25"),
+    cut = cms.string("pt > 1. && electronID('ID') > -0.25"),
 )
 
 ################################################################################
@@ -73,7 +61,7 @@ finalLowPtElectrons = cms.EDFilter(
 
 lowPtElectronTable = cms.EDProducer(
     "SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("finalLowPtElectrons"),
+    src = cms.InputTag("linkedObjects","lowPtElectrons"),
     cut = cms.string(""),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),
@@ -82,9 +70,10 @@ lowPtElectronTable = cms.EDProducer(
     variables = cms.PSet(
         # Basic variables
         CandVars,
+        # Overlaps with PF electron
+        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
         # BDT scores and WPs
-        embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-        ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"),
+        ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
         unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
         ptbiased = Var("electronID('ptbiased')",float,doc="ElectronSeed, pT- and dxy- dependent BDT (raw) score"),
         # Isolation
@@ -122,22 +111,13 @@ lowPtElectronTable = cms.EDProducer(
 # electronTable (MC)
 ################################################################################
 
-from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
-particleLevelForMatchingLowPt = particleLevel.clone(
-    lepMinPt = cms.double(1.),
-    phoMinPt = cms.double(1),
-)
-
-tautaggerForMatchingLowPt = cms.EDProducer(
-    "GenJetTauTaggerProducer",
-    src = cms.InputTag('particleLevelForMatchingLowPt:leptons')
-)
-
+# Depends on tautaggerForMatching being run in electrons_cff
 matchingLowPtElecPhoton = cms.EDProducer(
     "GenJetGenPartMerger",
-    srcJet =cms.InputTag("particleLevelForMatchingLowPt:leptons"),
-    srcPart=cms.InputTag("particleLevelForMatchingLowPt:photons"),
-    hasTauAnc=cms.InputTag("tautaggerForMatchingLowPt"),
+    srcJet =cms.InputTag("particleLevel:leptons"),
+    srcPart=cms.InputTag("particleLevel:photons"),
+    cut = cms.string(""),
+    hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 
 lowPtElectronsMCMatchForTableAlt = cms.EDProducer(
@@ -181,23 +161,22 @@ lowPtElectronMCTable = cms.EDProducer(
 )
 
 ################################################################################
-# Sequences
+# Tasks
 ################################################################################
 
-lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
-                                     +updatedLowPtElectrons
-                                     +lowPtPATElectronID
-                                     +isoForLowPtEle
-                                     +updatedLowPtElectronsWithUserData
-                                     +finalLowPtElectrons)
-lowPtElectronTables = cms.Sequence(lowPtElectronTable)
-lowPtElectronMC = cms.Sequence(
-    particleLevelForMatchingLowPt
-    +tautaggerForMatchingLowPt
-    +matchingLowPtElecPhoton
-    +lowPtElectronsMCMatchForTable
-    +lowPtElectronsMCMatchForTableAlt
-    +lowPtElectronMCTable)
+lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
+                             updatedLowPtElectrons,
+                             isoForLowPtEle,
+                             updatedLowPtElectronsWithUserData,
+                             finalLowPtElectrons)
+
+lowPtElectronTablesTask = cms.Task(lowPtElectronTable)
+
+lowPtElectronMCTask = cms.Task(
+    matchingLowPtElecPhoton,
+    lowPtElectronsMCMatchForTable,
+    lowPtElectronsMCMatchForTableAlt,
+    lowPtElectronMCTable)
 
 ################################################################################
 # Modifiers
@@ -209,6 +188,37 @@ _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_94X2016 |
                run2_nanoAOD_102Xv1 |
                run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronSequence,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronTables,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronMC,cms.Sequence())
+(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
+
+# To preserve "nano v9" functionality ...
+
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
+run2_nanoAOD_106Xv2.toModify(modifiedLowPtElectrons.modifierConfig,
+                             modifications = cms.VPSet(lowPtElectronModifier,
+                                                       lowPtRegressionModifier))
+
+run2_nanoAOD_106Xv2.toModify(updatedLowPtElectronsWithUserData.userFloats,
+                             ID = cms.InputTag("lowPtPATElectronID"))
+
+run2_nanoAOD_106Xv2.toModify(finalLowPtElectrons,
+                             cut = "pt > 1. && userFloat('ID') > -0.25")
+
+run2_nanoAOD_106Xv2.toModify(lowPtElectronTable.variables,
+                             embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
+                             ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"))
+
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
+lowPtPATElectronID = lowPtGsfElectronID.clone(
+    usePAT = True,
+    electrons = "updatedLowPtElectrons",
+    unbiased = "",
+    ModelWeights = [
+        'RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Nov28.root',
+    ],
+)
+
+_lowPtElectronTask = cms.Task(lowPtPATElectronID)
+_lowPtElectronTask.add(lowPtElectronTask.copy())
+run2_nanoAOD_106Xv2.toReplaceWith(lowPtElectronTask,_lowPtElectronTask)

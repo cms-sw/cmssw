@@ -46,7 +46,6 @@ public:
   using FWSimpleProxyBuilderTemplate<T>::build;
   void build(const T&, unsigned int, TEveElement&, const FWViewContext*) override;
 
-private:
   FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&) = delete;             //stop default
   const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&) = delete;  //stop default
 

@@ -7,7 +7,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
-#include "boost/lexical_cast.hpp"
 #include "TFile.h"
 #include "TProfile.h"
 
@@ -29,6 +28,7 @@ private:
   TFile* file_;
   const bool printOut_;
   const bool posOnly_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokTrackerGeometry_;
 
   mutable float maxerrU = 0.;
   mutable float maxerrUV = 0.;
@@ -38,7 +38,8 @@ ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg)
     : epsilon_(cfg.getParameter<double>("Epsilon")),
       file_(new TFile(cfg.getParameter<std::string>("FileName").c_str(), "RECREATE")),
       printOut_(cfg.getParameter<bool>("PrintOut")),
-      posOnly_(cfg.getParameter<bool>("PosOnly")) {
+      posOnly_(cfg.getParameter<bool>("PosOnly")),
+      tokTrackerGeometry_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
   std::cout << "I'm ALIVE" << std::endl;
 }
 
@@ -53,8 +54,7 @@ void ValidateRadial::analyze(const edm::Event& e, const edm::EventSetup& es) {
 std::vector<const TkRadialStripTopology*> ValidateRadial::get_list_of_radial_topologies(const edm::Event& e,
                                                                                         const edm::EventSetup& es) {
   std::vector<const TkRadialStripTopology*> topos;
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+  auto theTrackerGeometry = es.getHandle(tokTrackerGeometry_);
   const uint32_t radial_detids[] = {402666125,   //TID r1
                                     402668833,   //TID r2
                                     402673476,   //TID r3

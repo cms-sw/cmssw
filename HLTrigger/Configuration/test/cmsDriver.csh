@@ -11,39 +11,49 @@ rehash
 #
 
 #
-# gen sim input files for Monte-Carlo tests
-#   InputGenSimGRun0 = /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
+# GEN-SIM input files for Monte-Carlo tests
+#
+# DAS name: /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
 set InputGenSimGRun0 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06A6C86B-C634-E611-93A5-0CC47A74525A.root
-#   InputGenSimGRun1 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+# DAS name: /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
-#   InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+# DAS name: /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
-#   InputGenSimGRun3 = /store/relval/CMSSW_11_2_0_pre8/RelValTTbar_13/GEN-SIM/112X_mcRun3_2021_design_v10-v1/00000/3ee9ba1e-0ef8-4242-8343-cff886c9f7b3.root
-set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_11/3ee9ba1e-0ef8-4242-8343-cff886c9f7b3.root
-#   InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
+# DAS name: /store/relval/CMSSW_12_3_0_pre6/RelValTTbar_14TeV/GEN-SIM/123X_mcRun3_2021_realistic_v11-v1/10000/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
+set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_12/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
+# DAS name: /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/F8FC5F64-1657-E611-A57E-002590A887F0.root
-#   InputGenSimHIon3 = /store/relval/CMSSW_11_2_0_pre8/RelValZEE_14_HI_2021/GEN-SIM/112X_mcRun3_2021_realistic_HI_v11-v1/00000/65e018bc-2a25-4f53-b9cf-aba35a7b212d.root
-set InputGenSimHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_11/65e018bc-2a25-4f53-b9cf-aba35a7b212d.root
+# DAS name: /store/relval/CMSSW_12_3_0_pre6/RelValZEE_14_HI_2021/GEN-SIM/123X_mcRun3_2021_realistic_HI_v11-v2/10000/3c102f6f-4b70-4b09-b646-504bc104414d.root
+set InputGenSimHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_12/3c102f6f-4b70-4b09-b646-504bc104414d.root
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 set InputGenSimPIon3 = $InputGenSimGRun3
 set InputGenSimPRef3 = $InputGenSimGRun3
+
 #
-# lhc raw input files for Real-Data tests
-set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
-set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
-set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/data/Run2018D/EphemeralHLTPhysics1/RAW/v1/000/323/775/00000/2E066536-5CF2-B340-A73B-209640F29FF6.root
-set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
-#et InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/853DBE29-53BA-9A44-9FDD-58E4E9064EB1.root
-set InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/data/Run2018D/HIMinimumBias0/RAW/v1/000/325/112/00000/660F62BB-9932-D645-A4A4-0BBBDA3963E8.root
+# RAW input files for Real-Data tests
+#
+# DAS name: /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
+set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2012A_MuEG_run191718/14932935-E289-E111-830C-5404A6388697.root
+# DAS name: /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
+set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2015D_MuonEG_run256677/80950A90-745D-E511-92FD-02163E011C5D.root
+# DAS name: /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
+set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2016B_JetHT_run272762/C666CDE2-E013-E611-B15A-02163E011DBE.root
+# DAS name: /store/data/Run2022B/HLTPhysics0/RAW/v1/000/355/558/00000/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
+set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2022B_HLTPhysics0_run355558/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
+# DAS name: /store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW-RECO/HIRun2015_HIHardProbes_run263689/HighPtJet-PromptReco-v1/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+# DAS name: /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/853DBE29-53BA-9A44-9FDD-58E4E9064EB1.root
+set InputLHCRawHIon2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/HIRun2018A_HIHardProbes_run326479/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
+set InputLHCRawHIon3 = $InputLHCRawGRun3 #!! UPDATE once 2022 HIon RAW data is available
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
 set InputLHCRawPIon3 = $InputLHCRawGRun3
 set InputLHCRawPRef3 = $InputLHCRawGRun3
 
 #
-# global tags to be used
+# GlobalTags to be used
+#
 set BASE1MC  = auto:run1_mc
 set BASE1HLT = auto:run1_hlt
 set BASE1RD  = auto:run1_data
@@ -125,7 +135,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef 2022v14 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -135,7 +145,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( Fake Fake1 Fake2 )
+    set tables = ( 2022v14 )
   else
     set tables = ( $1 )
   endif
@@ -209,6 +219,19 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
+    else if ( $table == 2022v14 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:2022v14
+      set GTAG = ${BASE3}_2022v14
+      set RTAG = ${RECO3}_2022v14
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun3pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -221,7 +244,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun3HI
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-      set DIGI = DIGI:pdigi_hi
+      set DIGI = DIGI:pdigi_hi_nogen
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -253,27 +276,16 @@ foreach gtag ( MC DATA )
       continue
     endif
 
-    ## Force CTPPSRun2Geometry if running on Run-2 data using Run3 modifier
-    if ( $gtag == DATA && ( $Era == $EraRun3HI || $Era == $EraRun3pp) ) then
-      set Custom = "HLTrigger/Configuration/CustomConfigs.CTPPSRun2Geometry"
-    endif
-
     if ( $gtag == DATA ) then
 
     echo
     echo "Creating L1RePack $name"
 
     if ( $table == HIon ) then
-    cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks --customise_commands='from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag; massSearchReplaceAnyInputTag(process.SimL1Emulator,"rawDataCollector","rawDataRepacker",False,True)'
+    cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks #--customise_commands='from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag; massSearchReplaceAnyInputTag(process.SimL1Emulator,"rawDataCollector","rawDataRepacker",False,True)'
     else
     cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
     endif
-
-    cat >>RelVal_L1RePack_$name.py<<EOF
-if hasattr(process,'simMuonGEMPadTask'):
-   setattr(process,'simMuonGEMPadTask',cms.Task())
-EOF
-
 
     else
 
@@ -317,36 +329,27 @@ EOF
 
     echo
     echo "Creating HLT+L1Reco+RECO $name"
-    cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
+    cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --customise=HLTrigger/Configuration/CustomConfigs.HLTRECO --customise=HLTrigger/Configuration/CustomConfigs.customiseGlobalTagForOnlineBeamSpot $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
     if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,DQM"
     else
-      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,PAT,DQM"
     endif
-    set CustomCommand = "--customise_commands=process.valCscStage2Digis.GEMPadDigiClusterProducer='';process.valCscStage2Digis.commonParam=dict(runME11ILT=False)"
 
     echo
-    echo "Creating RECO+EI+PAT+DQM $name"
-    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'RECO,MINIAOD,DQMIO'             --eventcontent=RECO,MINIAOD,DQM        --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME   $CustomCommand
+    echo "Creating RECO+PAT+DQM $name"
+    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'RECO,MINIAOD,DQMIO'             --eventcontent=RECO,MINIAOD,DQM        --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
 
     else
-
-    if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
-      set CustomCommand = ""
-    else
-      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
-      set CustomCommand = "--customise_commands=process.CSCHaloData.HLTResultLabel=cms.InputTag('')"
-    endif
 
     echo
     echo "Creating HLT+L1Reco+RECO $name"
-    cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME   $CustomCommand
+    cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --customise=HLTrigger/Configuration/CustomConfigs.HLTRECO $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
     echo
-    echo "Creating RECO+EI+PAT+VALIDATION+DQM $name"
-    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-RECO,MINIAODSIM,DQMIO'  --eventcontent=RECOSIM,MINIAODSIM,DQM  --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
+    echo "Creating RECO+PAT+VALIDATION+DQM $name"
+    cmsDriver.py RelVal                 --step=RAW2DIGI,L1Reco,RECO,PAT,VALIDATION,DQM     --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-RECO,MINIAODSIM,DQMIO'  --eventcontent=RECOSIM,MINIAODSIM,DQM  --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
 
 
     endif

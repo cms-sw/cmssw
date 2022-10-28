@@ -8,9 +8,6 @@
 #include "SimG4CMS/Calo/interface/HFNoseSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
@@ -28,7 +25,7 @@
 //#define EDM_ML_DEBUG
 
 HFNoseSD::HFNoseSD(const std::string& name,
-                   const edm::EventSetup& es,
+                   const HGCalDDDConstants* hgc,
                    const SensitiveDetectorCatalog& clg,
                    edm::ParameterSet const& p,
                    const SimTrackManager* manager)
@@ -38,7 +35,7 @@ HFNoseSD::HFNoseSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HFNoseSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HFNoseSD").getParameter<bool>("IgnoreTrackID")),
-      hgcons_(nullptr),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT1_(99),
       levelT2_(99),
@@ -173,11 +170,7 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void HFNoseSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es->get<IdealGeometryRecord>().get(nameX_, hdc);
-  if (hdc.isValid()) {
-    hgcons_ = hdc.product();
+  if (hgcons_ != nullptr) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);

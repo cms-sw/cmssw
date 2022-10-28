@@ -8,7 +8,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "MagneticField/Layers/src/MagBinFinders.h"
+#include "MagneticField/Layers/interface/MagBinFinders.h"
 
 #include <vector>
 #include <atomic>

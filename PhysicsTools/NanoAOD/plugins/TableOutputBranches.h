@@ -27,7 +27,7 @@ public:
 private:
   edm::EDGetToken m_token;
   std::string m_baseName;
-  bool m_singleton;
+  bool m_singleton = false;
   enum { IsMain = 0, IsExtension = 1, DontKnowYetIfMainOrExtension = 2 } m_extension;
   std::string m_doc;
   UInt_t m_counter;
@@ -40,9 +40,10 @@ private:
                    TBranch *branchptr = nullptr)
         : name(aname), title(atitle), rootTypeCode(rootType), branch(branchptr) {}
   };
-  TBranch *m_counterBranch;
+  TBranch *m_counterBranch = nullptr;
   std::vector<NamedBranchPtr> m_floatBranches;
   std::vector<NamedBranchPtr> m_intBranches;
+  std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
   std::vector<NamedBranchPtr> m_uint32Branches;
   std::vector<NamedBranchPtr> m_doubleBranches;
@@ -53,7 +54,9 @@ private:
     int idx = tab.columnIndex(pair.name);
     if (idx == -1)
       throw cms::Exception("LogicError", "Missing column in input for " + m_baseName + "_" + pair.name);
-    pair.branch->SetAddress(const_cast<T *>(&tab.columnData<T>(idx).front()));  // SetAddress should take a const * !
+    pair.branch->SetAddress(
+        tab.size() == 0 ? static_cast<T *>(nullptr)
+                        : const_cast<T *>(&tab.columnData<T>(idx).front()));  // SetAddress should take a const * !
   }
 };
 

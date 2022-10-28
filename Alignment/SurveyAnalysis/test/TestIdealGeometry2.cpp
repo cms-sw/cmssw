@@ -18,7 +18,7 @@
 // #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,9 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -41,7 +39,7 @@
 // class declaration
 //
 
-class TestIdealGeometry2 : public edm::EDAnalyzer {
+class TestIdealGeometry2 : public edm::one::EDAnalyzer<> {
   typedef SurveyDataReader::MapType MapType;
   typedef SurveyDataReader::PairType PairType;
   typedef SurveyDataReader::MapTypeOr MapTypeOr;
@@ -55,6 +53,9 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+
   TTree* theTree;
   TFile* theFile;
   edm::ParameterSet theParameterSet;
@@ -71,7 +72,8 @@ private:
 //
 // constructors and destructor
 //
-TestIdealGeometry2::TestIdealGeometry2(const edm::ParameterSet& iConfig) : theParameterSet(iConfig) {
+TestIdealGeometry2::TestIdealGeometry2(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()), aliToken_(esConsumes()), theParameterSet(iConfig) {
   // Open root file and define tree
   std::string fileName = theParameterSet.getUntrackedParameter<std::string>("fileName", "testideal.root");
   theFile = new TFile(fileName.c_str(), "RECREATE");
@@ -99,10 +101,7 @@ TestIdealGeometry2::~TestIdealGeometry2() {
 
 void TestIdealGeometry2::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   //
@@ -136,10 +135,8 @@ void TestIdealGeometry2::analyze(const edm::Event& iEvent, const edm::EventSetup
   // iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
 
   // Retrieve alignment[Error]s from DBase
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+
   int countDet = 0;
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey

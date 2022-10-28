@@ -47,7 +47,7 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
                                 
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks = cms.bool(True),
+        bypassAllPVChecks = True,
         ),
 
     #for JPT and CaloJetID  
@@ -87,21 +87,21 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
 )
 
 jetDQMAnalyzerAk4CaloCleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
-    JetCleaningFlag   = cms.untracked.bool(True),
-    filljetHighLevel  = cms.bool(False),
+    JetCleaningFlag   = True,
+    filljetHighLevel  = False,
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks = cms.bool(True),
+        bypassAllPVChecks = True,
     ),
     jetAnalysis=jetDQMParameters.clone(
-        ptThreshold = cms.double(20.),
-        asymmetryThirdJetCut = cms.double(30),
-        balanceThirdJetCut   = cms.double(0.2), 
+        ptThreshold = 20.,
+        asymmetryThirdJetCut = 30,
+        balanceThirdJetCut   = 0.2, 
        )  
 )
 
 jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
-       bypassAllPVChecks  = cms.bool(False),
+       bypassAllPVChecks  = False,
     ),
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("TIGHT"),
@@ -122,79 +122,79 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
 
 
 jetDQMAnalyzerAk4PFCleaned=jetDQMAnalyzerAk4PFUncleaned.clone(
-    JetCleaningFlag = cms.untracked.bool(True),
-    filljetHighLevel = cms.bool(False),
+    JetCleaningFlag = True,
+    filljetHighLevel = False,
     jetAnalysis=jetDQMParameters.clone(
-        ptThreshold = cms.double(20.),
-        asymmetryThirdJetCut = cms.double(30),
-        balanceThirdJetCut = cms.double(0.2),
+        ptThreshold = 20.,
+        asymmetryThirdJetCut = 30,
+        balanceThirdJetCut = 0.2,
         ),
-    METCollectionLabel     = cms.InputTag("pfMet"),
+    METCollectionLabel     = "pfMet"
 )
 
 jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
-    filljetHighLevel =cms.bool(True),
-    JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
-    jetsrc = cms.InputTag("ak4PFJetsCHS"),
-    METCollectionLabel     = cms.InputTag("pfMETT1"),
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedId"),
-    fillCHShistos =cms.bool(True),
+    filljetHighLevel = True,
+    JetCorrections = "dqmAk4PFCHSL1FastL2L3ResidualCorrector",
+    jetsrc = "ak4PFJetsCHS",
+    METCollectionLabel     = "pfMETT1",
+    InputMVAPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:fullDiscriminant",
+    InputCutPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:cutbasedDiscriminant",
+    InputMVAPUIDValue = "pileupJetIdEvaluatorCHSDQM:fullId",
+    InputCutPUIDValue = "pileupJetIdEvaluatorCHSDQM:cutbasedId",
+    fillCHShistos = True
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
-    filljetHighLevel =cms.bool(True),
+    filljetHighLevel = True,
     CleaningParameters = cleaningParameters.clone(
-        vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
+        vertexCollection  =  "goodOfflinePrimaryVerticesDQMforMiniAOD" ,
         ),
-    JetType = cms.string('miniaod'),#pf, calo or jpt
-    jetsrc = cms.InputTag("slimmedJets"),
-    METCollectionLabel     = cms.InputTag("slimmedMETs"),
+    JetType = 'miniaod',#pf, calo or jpt
+    jetsrc = "slimmedJets",
+    METCollectionLabel     = "slimmedMETs"
 )
 
 jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
     CleaningParameters = cleaningParameters.clone(
-        vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
+        vertexCollection    =  "goodOfflinePrimaryVerticesDQMforMiniAOD" 
         ),
-    JetType = cms.string('miniaod'),#pf, calo or jpt
-    jetsrc = cms.InputTag("slimmedJets"),
+    JetType = 'miniaod',#pf, calo or jpt
+    jetsrc = "slimmedJets"
 )
 
 jetDQMAnalyzerAk8PFPUPPICleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
-    jetsrc = cms.InputTag("slimmedJetsAK8"),
+    jetsrc = "slimmedJetsAK8",
     #for PUPPI jets: TIGHT
-    JetIDQuality               = cms.string("TIGHT"),
+    JetIDQuality  = "TIGHT",
     #for PUPPI jets: RUN2ULPUPPI from 11_1_X onwards
-    JetIDVersion               = cms.string("RUN2ULPUPPI"),
-    fillsubstructure =cms.bool(True),
+    JetIDVersion  = "RUN2ULPUPPI",
+    fillsubstructure =True
 )
 
 jetDQMAnalyzerAk4PFCHSPuppiCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
-    JetType = cms.string('miniaod'),#pf, calo or jpt
-    jetsrc = cms.InputTag("slimmedJetsPuppi"),
+    JetType = 'miniaod',#pf, calo or jpt
+    jetsrc = "slimmedJetsPuppi",
     #for PUPPI jets: TIGHT
-    JetIDQuality               = cms.string("TIGHT"),
+    JetIDQuality  = "TIGHT",
     #for PUPPI jets: RUN2ULPUPPI from 11_1_X onwards
-    JetIDVersion               = cms.string("RUN2ULPUPPI"),
+    JetIDVersion  = "RUN2ULPUPPI"
 )
 
 jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
-    filljetHighLevel =cms.bool(True),
+    filljetHighLevel = True,
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks  = cms.bool(False),
-        vertexCollection = cms.InputTag( "hiSelectedVertex" ),
+        bypassAllPVChecks  = False,
+        vertexCollection =  "hiSelectedVertex",
         ),
-    JetType = cms.string('calo'),#pf, calo or jpt
-    JetCorrections = cms.InputTag(""),# no jet correction available yet?
-    jetsrc = cms.InputTag("iterativeConePu5CaloJets"),
-    JetCleaningFlag            = cms.untracked.bool(False),  
-    runcosmics                 = cms.untracked.bool(True),   
-    DCSFilterForJetMonitoring = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        #DebugOn = cms.untracked.bool(True),
-        alwaysPass = cms.untracked.bool(False)
+    JetType = 'calo',#pf, calo or jpt
+    JetCorrections = "",# no jet correction available yet?
+    jetsrc = "iterativeConePu5CaloJets",
+    JetCleaningFlag            = False,  
+    runcosmics                 = True,   
+    DCSFilterForJetMonitoring = dict(
+        DetectorTypes = "ecal:hbhe:hf:pixel:sistrip:es:muon",
+        #DebugOn = True,
+        alwaysPass = False
     )
 )
 
@@ -213,8 +213,8 @@ jetDQMAnalyzerAkPU3Calo = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          RThreshold = cms.double(0.3),
                                          reverseEnergyFractionThreshold = cms.double(0.5)
 )
-jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu4CaloJets"))
-jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu5CaloJets"))
+jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = "akPu4CaloJets")
+jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = "akPu5CaloJets")
  
 jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                        JetType = cms.untracked.string('pf'),
@@ -230,8 +230,8 @@ jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                        RThreshold = cms.double(0.3),
                                        reverseEnergyFractionThreshold = cms.double(0.5)
 )
-jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu4PFJets"))
-jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu5PFJets"))
+jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = "akPu4PFJets")
+jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = "akPu5PFJets")
 
 jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('pf'),
@@ -251,8 +251,8 @@ jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM')
 )
 
-jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJets"),
-						  CScands = cms.InputTag("akCs4PFJets","pfParticlesCs")
+jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = "akCs4PFJets",
+						  CScands = "akCs4PFJets:pfParticlesCs"
 )
 
 

@@ -16,11 +16,15 @@ using namespace std;
 HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescription const& desc)
     : edm::ProducerSourceFromFiles(pset, desc, true),
       m_quiet(pset.getUntrackedParameter<bool>("quiet", true)),
-      m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)) {
+      m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)),
+      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)) {
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
-  m_i = 0;
+  m_i = m_skip;
+
+  if (m_skip != 0)
+    edm::LogWarning("HcalTBSource") << "skipEvents != 0 works only for the first input file";
 
   unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams", std::vector<std::string>()));
   produces<FEDRawDataCollection>();
@@ -104,7 +108,8 @@ void HcalTBSource::openFile(const std::string& filename) {
       n_chunks++;
     }
   }
-  m_i = 0;
+  if (!((m_skip != 0) & (m_i == m_skip)))
+    m_i = 0;
 }
 
 bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {

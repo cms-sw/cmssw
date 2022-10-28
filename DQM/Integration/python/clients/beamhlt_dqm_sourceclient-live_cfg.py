@@ -9,18 +9,9 @@ BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
-#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-#process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
-from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
-
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-  BSOnlineTag = BSOnlineTag + 'Playback'
-  BSOnlineJobName = BSOnlineJobName + 'Playback'
-  BSOnlineOmsServiceUrl = ''
-  useLockRecords = False
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -48,8 +39,10 @@ if 'unitTest=True' in sys.argv:
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  # new stream label
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
@@ -82,6 +75,13 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
+
 #-----------------------------
 # BeamMonitor
 #-----------------------------
@@ -95,11 +95,11 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 # Change Beam Monitor variables
 process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
@@ -120,22 +120,64 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
+
+# Import raw to digi modules
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+
+# Set rawDataRepacker (HI and live) or hltFEDSelectorTCDS+hltFEDSelectorOnlineMetaData (for all the rest)
+if (process.runType.getRunType() == process.runType.hi_run and live):
+    rawDataInputTag = "rawDataRepacker"
+else:
+    # Use raw data from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
+    rawDataInputTag = "hltFEDSelectorTCDS"
+    onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
+
+process.onlineMetaDataDigis.onlineMetaDataInputLabel = onlineMetaDataInputTag
+process.scalersRawToDigi.scalersInputTag             = rawDataInputTag
+process.tcdsDigis.InputLabel                         = rawDataInputTag
+
+#-----------------------------------------------------------
+# Swap offline <-> online BeamSpot as in Express and HLT
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
+
 #--------------------------
 # Proton-Proton Stuff
 #--------------------------
 
 if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
-    process.runType.getRunType() == process.runType.cosmic_run or
-    process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run or
-    process.runType.getRunType() == process.runType.hi_run):
+    process.runType.getRunType() == process.runType.hi_run or
+    process.runType.getRunType() == process.runType.commissioning_run):
 
     print("[beamhlt_dqm_sourceclient-live_cfg]:: Running pp")
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'BeamMonitor'
+    process.dqmBeamMonitor.monitorName = 'BeamMonitorHLT'
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.recordName = BSOnlineRecordName
@@ -160,11 +202,12 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.PVFitter.errorScale = 0.95
 
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
-    #it will pick all triggers which has these strings in theri name
+    #it will pick all triggers which have these strings in their name
     process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
         "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
         "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
-        "HLT_HI")
+        "HLT_HI",
+        "HLT_PixelClusters")
 
     process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
@@ -182,7 +225,6 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
         runNumber = cms.untracked.uint64(options.runNumber),
         omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
@@ -207,8 +249,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
-        lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        lastLumiFile = cms.untracked.string('src/DQM/Integration/python/clients/last_lumi.txt'),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
@@ -223,7 +264,15 @@ if (process.runType.getRunType() == process.runType.pp_run or
     print("Configured frontierKey", options.runUniqueKey)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
+                        * process.tcdsDigis
+                        * process.scalersRawToDigi
+                        * process.onlineMetaDataDigis
+                        * process.pixelTrackerHVOn
+                        * process.stripTrackerHVOn
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
+
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)
 

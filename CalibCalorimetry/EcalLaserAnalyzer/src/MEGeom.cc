@@ -16,21 +16,21 @@ using namespace std;
 //  "Ecal Region", "Ecal Sector", "Laser Monitoring Region", "Laser Monitoring Module", "Super-Crystal", "Crystal"
 //};
 
-int MEGeom::_nbuf = 5;
-int MEGeom::_nbinx = 2 * (MEGeom::_nbuf + 100 + 85) + 1;
-float MEGeom::_xmin = -(0.5 + MEGeom::_nbuf + 100 + 85);
-float MEGeom::_xmax = 0.5 + MEGeom::_nbuf + 100 + 85;
-int MEGeom::_nbiny = 2 * (MEGeom::_nbuf + 180);
-float MEGeom::_ymin = 180.5 - (MEGeom::_nbuf + 180);
-float MEGeom::_ymax = 180.5 + (MEGeom::_nbuf + 180);
-TH2* MEGeom::_h = new TH2F("globalEcal",
-                           "Global representation of ECAL",
-                           MEGeom::_nbinx,
-                           MEGeom::_xmin,
-                           MEGeom::_xmax,
-                           MEGeom::_nbiny,
-                           MEGeom::_ymin,
-                           MEGeom::_ymax);
+const int MEGeom::_nbuf = 5;
+const int MEGeom::_nbinx = 2 * (MEGeom::_nbuf + 100 + 85) + 1;
+const float MEGeom::_xmin = -(0.5 + MEGeom::_nbuf + 100 + 85);
+const float MEGeom::_xmax = 0.5 + MEGeom::_nbuf + 100 + 85;
+const int MEGeom::_nbiny = 2 * (MEGeom::_nbuf + 180);
+const float MEGeom::_ymin = 180.5 - (MEGeom::_nbuf + 180);
+const float MEGeom::_ymax = 180.5 + (MEGeom::_nbuf + 180);
+const TH2* MEGeom::_h = new TH2F("globalEcal",
+                                 "Global representation of ECAL",
+                                 MEGeom::_nbinx,
+                                 MEGeom::_xmin,
+                                 MEGeom::_xmax,
+                                 MEGeom::_nbiny,
+                                 MEGeom::_ymin,
+                                 MEGeom::_ymax);
 
 //GHM ClassImp(MEGeom)
 

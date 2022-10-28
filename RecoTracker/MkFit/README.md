@@ -11,8 +11,17 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 ## Modifier for runTheMatrix workflows (offline reconstruction)
 
-* `Configuration.ProcessModifiers.trackingMkFit_cff.trackingMkFit`
-  * Replaces initialStep track building module with `mkFit`.
+* `Configuration/Eras/python/ModifierChain_trackingMkFitProd_cff.py`
+  * Replaces track building module with `mkFit` for 6 tracking iterations: 
+     * InitialStepPreSplitting
+     * InitialStep
+     * HighPtTripletStep
+     * DetachedQuadStep
+     * DetachedTripletStep
+     * PixelLessStep
+
+* `Configuration/ProcessModifiers/python/trackingMkFitDevel_cff.py`
+  * Replaces track building module with `mkFit` for all tracking iterations
 
 ## Customize functions for runTheMatrix workflows (offline reconstruction)
 
@@ -29,7 +38,7 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 These can be used with e.g.
 ```bash
-$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFit --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
+$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFitDevel --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
 ```
 
 ## Description of configuration parameters
@@ -38,9 +47,10 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
-* *m_require_quality_filter:* is additional post-processing required for result tracks
-* *m_require_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
+* *m_requires_quality_filter:* is additional post-processing required for result tracks
+* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
+* *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
 
 ### Iteration parameters [class IterationParams]
@@ -49,8 +59,8 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *maxCandsPerSeed:* maximum number of concurrent track candidates per given seed
 * *maxHolesPerCand:* maximum number of allowed holes on a candidate
 * *maxConsecHoles:*  maximum number of allowed consecutive holes on a candidate
-* *chi2Cut:*         chi2 cut for accepting a new hit
-* *chi2CutOverlap:*  chi2 cut for accepting an overlap hit
+* *chi2Cut_min:*     minimum chi2 cut for accepting a new hit
+* *chi2CutOverlap:*  chi2 cut for accepting an overlap hit (currently NOT used)
 * *pTCutOverlap:*    pT cut below which the overlap hits are not picked up
 
 #### Seed cleaning params (based on elliptical dR-dz cut)
@@ -81,3 +91,5 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *c_dp_sf:* additional scaling factor for dphi cut
 * *c_dq_[012]:* dr (endcap) / dz (barrel) selection window cut (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
 * *c_dq_sf:* additional scaling factor for dr (endcap) / dz (barrel) cut
+* *c_c2_[012]:* chi2 cut for accepting new hit (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
+* *c_c2_sf:* additional scaling factor for chi2 cut

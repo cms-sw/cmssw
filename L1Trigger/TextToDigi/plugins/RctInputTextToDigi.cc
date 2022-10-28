@@ -7,9 +7,10 @@
 RctInputTextToDigi::RctInputTextToDigi(const edm::ParameterSet &iConfig)
     : inputFile_(iConfig.getParameter<edm::FileInPath>("inputFile")),
       inputStream_(inputFile_.fullPath().c_str()),
+      lookupTables_(new L1RCTLookupTables),
+      paramsToken_(esConsumes()),
       nEvent_(0),
-      oldVersion_(false),
-      lookupTables_(new L1RCTLookupTables) {
+      oldVersion_(false) {
   // register your products
   /* Examples
      produces<ExampleData2>();
@@ -52,9 +53,7 @@ void RctInputTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   // L1Trigger/RegionalCaloTrigger/plugins/L1RCTProducer.cc rev. 1.6
   // Refresh configuration information every event
   // Hopefully doesn't take too much time
-  ESHandle<L1RCTParameters> rctParameters;
-  iSetup.get<L1RCTParametersRcd>().get(rctParameters);
-  const L1RCTParameters *r = rctParameters.product();
+  const L1RCTParameters *r = &iSetup.getData(paramsToken_);
   lookupTables_->setRCTParameters(r);
 
   std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPs(new EcalTrigPrimDigiCollection());

@@ -16,7 +16,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-class L1CaloInputScalesGenerator : public edm::EDAnalyzer {
+class L1CaloInputScalesGenerator : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CaloInputScalesGenerator(const edm::ParameterSet&);
   ~L1CaloInputScalesGenerator() override;

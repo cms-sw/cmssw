@@ -70,7 +70,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
       gainToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("Gain")))),
       noiseToken_(iC.esConsumes()),
       thresholdToken_(iC.esConsumes()),
-      pedestalToken_(iC.esConsumes()) {
+      pedestalToken_(iC.esConsumes()),
+      deadChannelToken_(iC.esConsumes()) {
   if (useConfFromDB) {
     detCablingToken_ = iC.esConsumes();
   }
@@ -214,20 +215,23 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
   pDD = &iSetup.getData(pDDToken_);
   pSetup = &iSetup.getData(pSetupToken_);
 
-  // FIX THIS! We only need to clear and (re)fill detectorUnits when the geometry type IOV changes.  Use ESWatcher to determine this.
-  bool changes = true;
-  if (changes) {  // Replace with ESWatcher
+  // We only need to clear and (re)fill detectorUnits when the geometry type IOV changes.
+  auto ddCache = iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+  auto deadChannelCache = iSetup.get<SiStripBadChannelRcd>().cacheIdentifier();
+  if (ddCache != ddCacheID_ or deadChannelCache != deadChannelCacheID_) {
+    ddCacheID_ = ddCache;
+    deadChannelCacheID_ = deadChannelCache;
     detectorUnits.clear();
-  }
-  for (const auto& iu : pDD->detUnits()) {
-    unsigned int detId = iu->geographicalId().rawId();
-    if (iu->type().isTrackerStrip()) {
-      auto stripdet = dynamic_cast<StripGeomDetUnit const*>(iu);
-      assert(stripdet != nullptr);
-      if (changes) {  // Replace with ESWatcher
+
+    auto const& deadChannel = iSetup.getData(deadChannelToken_);
+    for (const auto& iu : pDD->detUnits()) {
+      unsigned int detId = iu->geographicalId().rawId();
+      if (iu->type().isTrackerStrip()) {
+        auto stripdet = dynamic_cast<StripGeomDetUnit const*>(iu);
+        assert(stripdet != nullptr);
         detectorUnits.insert(std::make_pair(detId, stripdet));
+        theDigiAlgo->initializeDetUnit(stripdet, deadChannel);
       }
-      theDigiAlgo->initializeDetUnit(stripdet, iSetup);
     }
   }
 }

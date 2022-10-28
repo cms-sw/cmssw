@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+from Configuration.StandardSequences.Eras import eras
 
-process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D21_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process = cms.Process("Demo",eras.run3_GEM)
+
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

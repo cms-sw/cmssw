@@ -4,7 +4,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
@@ -23,16 +23,16 @@
 using namespace std;
 using namespace edm;
 
-class RPCReadOutMapBuilder : public edm::EDAnalyzer {
+class RPCReadOutMapBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCReadOutMapBuilder(const edm::ParameterSet&);
-  ~RPCReadOutMapBuilder();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  ~RPCReadOutMapBuilder() override = default;
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void beginJob() override;
+  void endJob() override;
 
 private:
-  RPCReadOutMapping* cabling;
+  RPCReadOutMapping cabling;
   string m_record;
 };
 
@@ -42,8 +42,6 @@ RPCReadOutMapBuilder::RPCReadOutMapBuilder(const edm::ParameterSet& iConfig)
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=test").c_str()));
 }
-
-RPCReadOutMapBuilder::~RPCReadOutMapBuilder() { cout << "DTOR called" << endl; }
 
 // ------------ method called to store map -------------------
 void RPCReadOutMapBuilder::endJob() {
@@ -58,10 +56,9 @@ void RPCReadOutMapBuilder::endJob() {
 
   try {
     if (mydbservice->isNewTagRequest(m_record)) {
-      mydbservice->createNewIOV<RPCReadOutMapping>(
-          cabling, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
+      mydbservice->createOneIOV(cabling, mydbservice->beginOfTime(), m_record);
     } else {
-      mydbservice->appendSinceTime<RPCReadOutMapping>(cabling, mydbservice->currentTime(), m_record);
+      mydbservice->appendOneIOV(cabling, mydbservice->currentTime(), m_record);
     }
   } catch (std::exception& e) {
     cout << "std::exception:  " << e.what();
@@ -75,7 +72,7 @@ void RPCReadOutMapBuilder::endJob() {
 void RPCReadOutMapBuilder::beginJob() {
   cout << "BeginJob method " << endl;
   cout << "Building RPC Cabling" << endl;
-  cabling = new RPCReadOutMapping("My map V-TEST");
+  RPCReadOutMapping cabling;
   {
     DccSpec dcc(790);
     for (int idtb = 1; idtb <= 68; idtb++) {
@@ -105,7 +102,7 @@ void RPCReadOutMapBuilder::beginJob() {
       }
       dcc.add(tb);
     }
-    cabling->add(dcc);
+    cabling.add(dcc);
   }
 }
 

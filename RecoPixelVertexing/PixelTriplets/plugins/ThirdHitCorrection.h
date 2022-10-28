@@ -1,17 +1,18 @@
 #ifndef RecoPixelVertexing_PixelTriplets_ThirdHitCorrection_H
 #define RecoPixelVertexing_PixelTriplets_ThirdHitCorrection_H
 
-namespace edm {
-  class EventSetup;
-}
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 class DetLayer;
+class MagneticField;
+class MultipleScatteringParametrisationMaker;
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
+
+#include <optional>
 
 class ThirdHitCorrection {
 public:
@@ -19,29 +20,32 @@ public:
 
   ThirdHitCorrection() {}
 
-  void init(const edm::EventSetup &es,
-            float pt,
+  void init(float pt,
             const DetLayer &layer1,
             const DetLayer &layer2,
             const DetLayer &layer3,
             bool useMultipleScattering,
-            bool useBendingCorrection);
+            const MultipleScatteringParametrisationMaker *msmaker,
+            bool useBendingCorrection,
+            const MagneticField *bfield);
 
-  void init(const edm::EventSetup &es,
-            float pt,
+  void init(float pt,
             const DetLayer &layer3,
             bool useMultipleScattering,
-            bool useBendingCorrection);
+            const MultipleScatteringParametrisationMaker *msmaker,
+            bool useBendingCorrection,
+            const MagneticField *bfield);
 
-  ThirdHitCorrection(const edm::EventSetup &es,
-                     float pt,
+  ThirdHitCorrection(float pt,
                      const DetLayer *layer,
                      const PixelRecoLineRZ &line,
                      const PixelRecoPointRZ &constraint,
                      int ol,
                      bool useMultipleScattering,
-                     bool useBendingCorrection) {
-    init(es, pt, *layer, useMultipleScattering, useBendingCorrection);
+                     const MultipleScatteringParametrisationMaker *msmaker,
+                     bool useBendingCorrection,
+                     const MagneticField *bfield) {
+    init(pt, *layer, useMultipleScattering, msmaker, useBendingCorrection, bfield);
     init(line, constraint, ol);
   }
 
@@ -66,7 +70,7 @@ private:
   float thePt;
 
   pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
-  MultipleScatteringParametrisation sigmaRPhi;
+  std::optional<MultipleScatteringParametrisation> sigmaRPhi;
 };
 
 #endif

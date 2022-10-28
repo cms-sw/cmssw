@@ -8,7 +8,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-ContainmentCorrectionAnalyzer::ContainmentCorrectionAnalyzer(const ParameterSet &ps) {
+ContainmentCorrectionAnalyzer::ContainmentCorrectionAnalyzer(const ParameterSet &ps) : pTopologyToken(esConsumes()) {
   BarrelSuperClusterCollection_ =
       consumes<reco::SuperClusterCollection>(ps.getParameter<InputTag>("BarrelSuperClusterCollection"));
   EndcapSuperClusterCollection_ =
@@ -111,10 +111,9 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
   }
 
   const CaloTopology *topology = nullptr;
-  ESHandle<CaloTopology> pTopology;
-  es.get<CaloTopologyRecord>().get(pTopology);
+  auto pTopology = es.getHandle(pTopologyToken);
   if (pTopology.isValid())
-    topology = pTopology.product();
+    topology = &es.getData(pTopologyToken);
 
   std::vector<EcalSimPhotonMCTruth> photons = findMcTruth(theSimTracks, theSimVertexes);
 

@@ -4,6 +4,7 @@
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
+ *   Christopher Misan (krzysztof.misan@cern.ch)
  *
  ****************************************************************************/
 
@@ -28,6 +29,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 
 #include "RecoPPS/Local/interface/TotemTimingRecHitProducerAlgorithm.h"
+#include "RecoPPS/Local/interface/TotemTimingConversions.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
@@ -67,22 +69,16 @@ void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetu
   std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut(new edm::DetSetVector<TotemTimingRecHit>);
 
   // get the digi collection
-  edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
-  iEvent.getByToken(digiToken_, digis);
+  const auto& digis = iEvent.get(digiToken_);
 
   // do not retrieve the calibration parameters if no digis were found
-  if (!digis->empty()) {
+  if (!digis.empty()) {
     // check for timing calibration parameters update
-    if (calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
-      algo_.setCalibration(*hTimingCalib);
-    }
-
-    // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
+    if (calibWatcher_.check(iSetup))
+      algo_.setCalibration(iSetup.getData(timingCalibrationToken_));
 
     // produce the rechits collection
-    algo_.build(*geometry, *digis, *pOut);
+    algo_.build(iSetup.getData(geometryToken_), digis, *pOut);
   }
 
   iEvent.put(std::move(pOut));
@@ -91,13 +87,17 @@ void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetu
 void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("applyCalibration", false);
+  desc.add<double>("timeSliceNs", 0.);
   desc.add<edm::InputTag>("digiTag", edm::InputTag("totemTimingRawToDigi", "TotemTiming"))
       ->setComment("input digis collection to retrieve");
   desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemTimingCalibration")
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<int>("baselinePoints", 8)->setComment("number of points to be used for the baseline");
-  desc.add<double>("saturationLimit", 0.85)
-      ->setComment("all signals with max > saturationLimit will be considered as saturated");
+  desc.add<double>("saturationLimit", 0.1)
+      ->setComment(
+          "all signals with max > saturationLimit will be considered as saturated for UFSD, similarly with "
+          "min<saturationLimit for a Diamond");
   desc.add<double>("cfdFraction", 0.3)->setComment("fraction of the CFD");
   desc.add<int>("smoothingPoints", 20)
       ->setComment("number of points to be used for the smoothing using sinc (lowpass)");
@@ -105,7 +105,8 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
       ->setComment("Frequency (in GHz) for CFD smoothing, 0 for disabling the filter");
   desc.add<double>("hysteresis", 5.e-3)->setComment("hysteresis of the discriminator");
   desc.add<bool>("mergeTimePeaks", true)->setComment("if time peaks schould be merged");
-
+  desc.add<double>("sampicOffset", 1.0)->setComment("offset of the flipped sampic signal");
+  desc.add<double>("sampicSamplingPeriodNs", 1. / 7.695)->setComment("sapic sampling period in ns");
   descr.add("totemTimingRecHits", desc);
 }
 

@@ -1,3 +1,8 @@
 <bin file="testSerializationPCLConfig.cpp">
   <use name="CondFormats/PCLConfig"/>
 </bin>
+
+<bin name="testReadWriteAlignPCLThresholds" file="testDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash CondFormats/PCLConfig/test testReadWriteAlignPCLThresholds.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>

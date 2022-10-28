@@ -65,7 +65,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 //
 // class declaration
@@ -97,6 +96,8 @@ private:
   double tsDelay1GeV_ = 0;
 
   bool calculateArrivalTime_;
+  int timeAlgo_;
+  float thEnergeticPulses_;
   float meanTime_;
   float timeSigmaHPD_;
   float timeSigmaSiPM_;
@@ -121,6 +122,7 @@ private:
   std::unique_ptr<MahiFit> mahi_;
 
   edm::EDGetTokenT<HBHEChannelInfoCollection> token_ChannelInfo_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> tokDelay_;
 
   const HcalTimeSlew* hcalTimeSlewDelay;
 
@@ -174,6 +176,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
       chiSqSwitch_(iConfig.getParameter<double>("chiSqSwitch")),
       applyTimeSlew_(iConfig.getParameter<bool>("applyTimeSlew")),
       calculateArrivalTime_(iConfig.getParameter<bool>("calculateArrivalTime")),
+      timeAlgo_(iConfig.getParameter<int>("timeAlgo")),
+      thEnergeticPulses_(iConfig.getParameter<double>("thEnergeticPulses")),
       meanTime_(iConfig.getParameter<double>("meanTime")),
       timeSigmaHPD_(iConfig.getParameter<double>("timeSigmaHPD")),
       timeSigmaSiPM_(iConfig.getParameter<double>("timeSigmaSiPM")),
@@ -181,7 +185,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
       nMaxItersMin_(iConfig.getParameter<int>("nMaxItersMin")),
       nMaxItersNNLS_(iConfig.getParameter<int>("nMaxItersNNLS")),
       deltaChiSqThresh_(iConfig.getParameter<double>("deltaChiSqThresh")),
-      nnlsThresh_(iConfig.getParameter<double>("nnlsThresh")) {
+      nnlsThresh_(iConfig.getParameter<double>("nnlsThresh")),
+      tokDelay_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"))) {
   usesResource("TFileService");
 
   mahi_ = std::make_unique<MahiFit>();
@@ -192,6 +197,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
                        applyTimeSlew_,
                        HcalTimeSlew::Medium,
                        calculateArrivalTime_,
+                       timeAlgo_,
+                       thEnergeticPulses_,
                        meanTime_,
                        timeSigmaHPD_,
                        timeSigmaSiPM_,
@@ -201,7 +208,7 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
                        deltaChiSqThresh_,
                        nnlsThresh_);
 
-  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(edm::InputTag("hbheprereco", ""));
+  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(iConfig.getParameter<edm::InputTag>("recoLabel"));
 }
 
 MahiDebugger::~MahiDebugger() {}
@@ -214,9 +221,7 @@ MahiDebugger::~MahiDebugger() {}
 void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<HcalTimeSlew> delay;
-  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlewDelay = &*delay;
+  hcalTimeSlewDelay = &iSetup.getData(tokDelay_);
 
   run = iEvent.id().run();
   evt = iEvent.id().event();
@@ -240,7 +245,7 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     const MahiFit* mahi = mahi_.get();
     mahi_->setPulseShapeTemplate(
-        hci.recoShape(), theHcalPulseShapes_, hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
+        hci.recoShape(), theHcalPulseShapes_, hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples(), hci.tsGain(0));
     MahiDebugInfo mdi;
     // initialize energies so that the values in the previous iteration are not stored
     mdi.mahiEnergy = 0;
@@ -356,8 +361,11 @@ void MahiDebugger::endJob() {}
 void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<edm::InputTag>("recoLabel");
   desc.add<bool>("dynamicPed");
   desc.add<bool>("calculateArrivalTime");
+  desc.add<int>("timeAlgo");
+  desc.add<double>("thEnergeticPulse");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
   desc.add<bool>("applyTimeSlew");

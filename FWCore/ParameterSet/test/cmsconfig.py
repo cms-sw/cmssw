@@ -25,7 +25,6 @@ from __future__ import print_function
 
 import io
 import types
-import six
 
 # TODO: Refactor pset_dict_to_string and class printable_parameter to
 # have a consistent view of the problem. Perhaps have a class
@@ -39,7 +38,7 @@ def pset_dict_to_string(psetDict):
     stream = io.StringIO()
     stream.write('\n{\n')
 
-    for name, value in six.iteritems(psetDict):
+    for name, value in psetDict.items():
         stream.write('%s' % printable_parameter(name, value))
         stream.write('\n')        
 
@@ -51,7 +50,7 @@ def secsource_dict_to_string(secSourceDict):
     """Make a string representing the secsource"""
     stream = io.StringIO()
     stream.write("%s\n{\n" %  secSourceDict["@classname"][2])
-    for name, value in six.iteritems(secSourceDict):
+    for name, value in secSourceDict.items():
         if name[0] != '@':
             stream.write('%s' % printable_parameter(name, value))
             stream.write('\n')
@@ -414,7 +413,7 @@ class cmsconfig:
         use any member data of the object, but I'm not sure we can
         rely on a new-enough version of Python to make use of static
         methods."""
-        for name, value in six.iteritems(moddict):
+        for name, value in moddict.items():
             if name[0] != '@':
                 fileobj.write('%s' % printable_parameter(name, value))
                 fileobj.write('\n')

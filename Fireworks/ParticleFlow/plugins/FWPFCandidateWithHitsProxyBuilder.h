@@ -21,10 +21,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFCandidateWithHitsProxyBuilder(const FWPFCandidateWithHitsProxyBuilder&) = delete;  // Stop default
   const FWPFCandidateWithHitsProxyBuilder& operator=(const FWPFCandidateWithHitsProxyBuilder&) = delete;  // Stop default
 
+private:
   void addHitsForCandidate(const reco::PFCandidate& c, TEveElement* holder, const FWViewContext* vc);
   void initPFRecHitsCollections();
   const reco::PFRecHit* getHitForDetId(unsigned detId);

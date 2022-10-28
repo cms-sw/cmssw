@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,7 +19,7 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 
-class TauSpinnerFilter : public edm::EDFilter {
+class TauSpinnerFilter : public edm::stream::EDFilter<> {
 public:
   TauSpinnerFilter(const edm::ParameterSet&);
   ~TauSpinnerFilter() override{};
@@ -28,10 +28,9 @@ public:
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
 
 private:
-  edm::InputTag src_;
+  const edm::EDGetTokenT<double> WTToken_;
   CLHEP::HepRandomEngine* fRandomEngine;
   double ntaus_;
-  edm::EDGetTokenT<double> WTToken_;
 };
 
 #endif

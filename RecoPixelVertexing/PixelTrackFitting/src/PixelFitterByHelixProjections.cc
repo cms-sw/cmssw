@@ -30,7 +30,6 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
 
@@ -88,20 +87,14 @@ namespace {
   }
 }  // namespace
 
-PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup* es,
+PixelFitterByHelixProjections::PixelFitterByHelixProjections(const TrackerTopology* ttopo,
                                                              const MagneticField* field,
                                                              bool scaleErrorsForBPix1,
                                                              float scaleFactor)
-    : theField(field), thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es->get<TrackerTopologyRcd>().get(tTopo);
-  theTopo = tTopo.product();
-}
+    : theTopo(ttopo), theField(field), thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor) {}
 
 std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(const std::vector<const TrackingRecHit*>& hits,
-                                                                const TrackingRegion& region,
-                                                                const edm::EventSetup& setup) const {
+                                                                const TrackingRegion& region) const {
   std::unique_ptr<reco::Track> ret;
 
   int nhits = hits.size();
@@ -127,8 +120,8 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(const std::vecto
   int iCharge = charge(points);
   float curvature = circle.curvature();
 
-  if ((curvature > 1.e-4) && (LIKELY(PixelRecoUtilities::fieldInInvGev(setup) > 0.01))) {
-    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), setup);
+  if ((curvature > 1.e-4) && (LIKELY(theField->inverseBzAtOriginInGeV()) > 0.01)) {
+    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), *theField);
     valPt = (invPt > 1.e-4f) ? 1.f / invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();
     valTip = iCharge * (center.mag() - 1.f / curvature);

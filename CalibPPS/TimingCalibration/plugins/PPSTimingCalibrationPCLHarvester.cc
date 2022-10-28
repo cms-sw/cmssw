@@ -25,7 +25,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-
+#include "TFitResult.h"
 //------------------------------------------------------------------------------
 
 class PPSTimingCalibrationPCLHarvester : public DQMEDHarvester {
@@ -42,6 +42,8 @@ private:
   const std::string dqmDir_;
   const std::string formula_;
   const unsigned int min_entries_;
+  static constexpr double resolution_ = 0.1;
+  static constexpr double offset_ = 0.;
   TF1 interp_;
 };
 
@@ -94,19 +96,23 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
-    hists.leadingTime[chid] = iGetter.get("t_" + ch_name);
+
+    calib_params[key] = {0, 0, 0, 0};
+    calib_time[key] = std::make_pair(offset_, resolution_);
+
+    hists.leadingTime[chid] = iGetter.get(dqmDir_ + "/t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time monitor for channel (" << detid << ").";
       continue;
     }
-    hists.toT[chid] = iGetter.get("tot_" + ch_name);
+    hists.toT[chid] = iGetter.get(dqmDir_ + "/tot_" + ch_name);
     if (hists.toT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve time over threshold monitor for channel (" << detid << ").";
       continue;
     }
-    hists.leadingTimeVsToT[chid] = iGetter.get("tvstot_" + ch_name);
+    hists.leadingTimeVsToT[chid] = iGetter.get(dqmDir_ + "/tvstot_" + ch_name);
     if (hists.leadingTimeVsToT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time vs. time over threshold monitor for channel (" << detid << ").";
@@ -120,17 +126,28 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     }
     const double upper_tot_range = hists.toT[chid]->getMean() + 2.5;
     {  // scope for x-profile
-      std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_prof_x", 1, -1));
+
+      std::string ch_name;
+      detid.channelName(ch_name);
+      auto profile = iBooker.bookProfile(ch_name + "_prof_x", ch_name + "_prof_x", 240, 0., 60., 450, -20., 25.);
+
+      std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2F()->ProfileX("_prof_x", 1, -1));
+      *(profile->getTProfile()) = *((TProfile*)prof->Clone());
+      profile->getTProfile()->SetTitle(ch_name.c_str());
+      profile->getTProfile()->SetName(ch_name.c_str());
+
       interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
                             hists.toT[chid]->getMean(),
                             0.8,
                             hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-      const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-      if ((bool)res) {
+      const auto& res = profile->getTProfile()->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+      if (!(bool)res) {
         calib_params[key] = {
             interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
-        calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
+        calib_time[key] =
+            std::make_pair(offset_, resolution_);  // hardcoded offset/resolution placeholder for the time being
         // can possibly do something with interp_.GetChiSquare() in the near future
+
       } else
         edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
             << "Fit did not converge for channel (" << detid << ").";
@@ -142,7 +159,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
 
   // write the object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->writeOne(&calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+  poolDbService->writeOneIOV(calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd_HPTDC");
 }
 
 //------------------------------------------------------------------------------

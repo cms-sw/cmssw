@@ -30,10 +30,10 @@ public:
   static constexpr double k_ScaleToDDD = 10.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
-  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
-  static constexpr double k_ScaleToDD4Hep = dd4hep::cm;
-  static constexpr double k_ScaleFromDD4HepToG4 = (1.0 / dd4hep::mm);
-  static constexpr double k_ScaleToDD4HepFromG4 = dd4hep::mm;
+  static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleToDD4hep = dd4hep::cm;
+  static constexpr double k_ScaleFromDD4hepToG4 = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleToDD4hepFromG4 = dd4hep::mm;
 
   HcalGeomParameters() = default;
 

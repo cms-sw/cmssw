@@ -3,21 +3,20 @@
 #include <iostream>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest {
-  class TestHistoryKeeping : public edm::EDAnalyzer {
+  class TestHistoryKeeping : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit TestHistoryKeeping(edm::ParameterSet const& pset);
-    virtual ~TestHistoryKeeping();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::Event const& e, edm::EventSetup const&) final;
 
-    virtual void beginRun(edm::Run const& r, edm::EventSetup const&);
-    virtual void endRun(edm::Run const& r, edm::EventSetup const&);
+    void beginRun(edm::Run const& r, edm::EventSetup const&) final;
+    void endRun(edm::Run const& r, edm::EventSetup const&) final;
 
   private:
     std::vector<std::string> expectedProcesses_;
@@ -35,8 +34,6 @@ namespace edmtest {
             pset.getParameter<int>("number_of_expected_HLT_processes_for_each_run")) {
     // Nothing to do.
   }
-
-  TestHistoryKeeping::~TestHistoryKeeping() {}
 
   void TestHistoryKeeping::beginRun(edm::Run const&, edm::EventSetup const&) {
     // At begin run, we're looking at, make sure we can get at the

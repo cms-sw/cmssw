@@ -69,8 +69,7 @@ void EcalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   if ((kount_ <= maxEvent_) || (maxEvent_ <= 0)) {
     for (unsigned int k = 0; k < toksCalo_.size(); ++k) {
-      edm::Handle<edm::PCaloHitContainer> hitsCalo;
-      e.getByToken(toksCalo_[k], hitsCalo);
+      const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(toksCalo_[k]);
       if (hitsCalo.isValid())
         edm::LogVerbatim("HitStudy") << "EcalSimHitDump: Input " << hitsCalo->size() << " hits of type " << types_[k];
       unsigned int i(0);

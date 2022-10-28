@@ -1,26 +1,27 @@
 #ifndef DQM_TrackingMonitorSource_TrackTypeMonitor_h
 #define DQM_TrackingMonitorSource_TrackTypeMonitor_h
 
+// system includes
 #include <string>
 #include <vector>
 #include <map>
 #include <set>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class TrackTypeMonitor : public DQMEDAnalyzer {
 public:

@@ -21,7 +21,6 @@
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - RPCBxTest
-- RPCChamberQuality
 - RPCClient
 - RPCClusterSizeTest
 - RPCDBHandler
@@ -72,7 +71,6 @@
 - SaveDQMFile
 - RPCDqmClient
 - RPCRecHitProbabilityClient
-- RPCChamberQuality
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

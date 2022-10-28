@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 import sys
 import os
 
-process = cms.Process("DTDQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DTDQM", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -70,7 +71,7 @@ process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #---- for offline DB: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
@@ -123,4 +124,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

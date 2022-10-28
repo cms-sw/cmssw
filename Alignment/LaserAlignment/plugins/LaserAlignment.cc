@@ -11,7 +11,9 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 ///
 ///
@@ -21,6 +23,7 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
       geomToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       gprToken_(esConsumes()),
       stripPedestalsToken_(esConsumes()),
       theEvents(0),
@@ -298,9 +301,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       // the AlignableTracker object is initialized with the ideal geometry
       const GeometricDet* theGeometricDet = &theSetup.getData(geomDetToken_);
       const PTrackerParameters* ptp = &theSetup.getData(ptpToken_);
+      const PTrackerAdditionalParametersPerDet* ptitp = &theSetup.getData(ptitpToken_);
 
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, &*ptitp, *ptp, tTopo);
 
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     } else {
@@ -890,8 +894,8 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
 
   // store the estimated alignment parameters into the DB
   // first get them
-  Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
+  Alignments alignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   if (theStoreToDB) {
     std::cout << " [LaserAlignment::endRun] -- Storing the calculated alignment parameters to the DataBase:"
@@ -905,20 +909,21 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
     // Store
 
     //     if ( poolDbService->isNewTagRequest(theAlignRecordName) ) {
-    //       poolDbService->createNewIOV<Alignments>( alignments, poolDbService->currentTime(), poolDbService->endOfTime(), theAlignRecordName );
+    //       poolDbService->createOneIOV<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
     //     }
     //     else {
-    //       poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
+    //       poolDbService->appendOneIOV<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
     //     }
-    poolDbService->writeOne<Alignments>(alignments, poolDbService->beginOfTime(), theAlignRecordName);
+    poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->beginOfTime(), theAlignRecordName);
 
     //     if ( poolDbService->isNewTagRequest(theErrorRecordName) ) {
-    //       poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
+    //       poolDbService->createOneIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
     //     }
     //     else {
-    //       poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
+    //       poolDbService->appendOneIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     //     }
-    poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
 
     std::cout << " [LaserAlignment::endRun] -- Storing done." << std::endl;
   }

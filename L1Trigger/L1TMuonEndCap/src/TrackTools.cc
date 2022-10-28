@@ -172,4 +172,13 @@ namespace emtf {
     return std::make_pair(max_pattern, max_quality);
   }
 
+  int get_csc_max_slope(int station, int ring, bool useRun3CCLUT_OTMB, bool useRun3CCLUT_TMB) {
+    int max_slope = 65536;  // Uninitialized slope can be 65536. This is expected when CCLUT is not running
+    if (useRun3CCLUT_OTMB and (ring == 1 or ring == 4))
+      max_slope = 16;
+    if (useRun3CCLUT_TMB and (ring == 2 or ring == 3))
+      max_slope = 16;
+    return max_slope;
+  }
+
 }  // namespace emtf

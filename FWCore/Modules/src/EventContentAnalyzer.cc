@@ -17,7 +17,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -256,7 +256,7 @@ namespace edm {
     }
   }  // namespace
 
-  class EventContentAnalyzer : public EDAnalyzer {
+  class EventContentAnalyzer : public one::EDAnalyzer<> {
   public:
     explicit EventContentAnalyzer(ParameterSet const&);
     ~EventContentAnalyzer() override;
@@ -436,11 +436,6 @@ namespace edm {
     for (nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
       LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
     }
-
-    // Test boost::lexical_cast  We don't need this right now so comment it out.
-    // int k = 137;
-    // std::string ktext = boost::lexical_cast<std::string>(k);
-    // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
   }
 
   void EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions& descriptions) {

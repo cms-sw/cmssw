@@ -32,7 +32,13 @@
 
 class MuonAlignmentInputXML : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel);
+  MuonAlignmentInputXML(const std::string &fileName,
+                        const DTGeometry *dtGeometry,
+                        const CSCGeometry *cscGeometry,
+                        const GEMGeometry *gemGeometry,
+                        const DTGeometry *dtGeometryIdeal,
+                        const CSCGeometry *cscGeometryIdeal,
+                        const GEMGeometry *gemGeometryIdeal);
   ~MuonAlignmentInputXML() override;
 
   // ---------- const member functions ---------------------
@@ -41,13 +47,13 @@ public:
 
   // ---------- member functions ---------------------------
 
-  AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+  AlignableMuon *newAlignableMuon() const override;
 
-private:
   MuonAlignmentInputXML(const MuonAlignmentInputXML &) = delete;  // stop default
 
   const MuonAlignmentInputXML &operator=(const MuonAlignmentInputXML &) = delete;  // stop default
 
+private:
   void recursiveGetId(std::map<unsigned int, Alignable *> &alignableNavigator,
                       const align::Alignables &alignables) const;
 
@@ -63,6 +69,10 @@ private:
                        const XERCES_CPP_NAMESPACE::DOMElement *node,
                        const AlignableObjectId &) const;
   Alignable *getCSCnode(align::StructureType structureType,
+                        std::map<unsigned int, Alignable *> &alignableNavigator,
+                        const XERCES_CPP_NAMESPACE::DOMElement *node,
+                        const AlignableObjectId &) const;
+  Alignable *getGEMnode(align::StructureType structureType,
                         std::map<unsigned int, Alignable *> &alignableNavigator,
                         const XERCES_CPP_NAMESPACE::DOMElement *node,
                         const AlignableObjectId &) const;
@@ -96,7 +106,14 @@ private:
                            std::map<Alignable *, Alignable *> &alitoideal) const;
 
   // ---------- member data --------------------------------
-  std::string m_fileName, idealGeometryLabel;
+  std::string m_fileName;
+
+  const DTGeometry *dtGeometry_;
+  const CSCGeometry *cscGeometry_;
+  const GEMGeometry *gemGeometry_;
+  const DTGeometry *dtGeometryIdeal_;
+  const CSCGeometry *cscGeometryIdeal_;
+  const GEMGeometry *gemGeometryIdeal_;
 
   XMLCh *str_operation;
   XMLCh *str_collection;
@@ -112,6 +129,12 @@ private:
   XMLCh *str_CSCRing;
   XMLCh *str_CSCChamber;
   XMLCh *str_CSCLayer;
+  XMLCh *str_GEMEndcap;
+  XMLCh *str_GEMStation;
+  XMLCh *str_GEMRing;
+  XMLCh *str_GEMSuperChamber;
+  XMLCh *str_GEMChamber;
+  XMLCh *str_GEMEtaPartition;
   XMLCh *str_setposition;
   XMLCh *str_setape;
   XMLCh *str_setsurveyerr;
@@ -130,6 +153,8 @@ private:
   XMLCh *str_endcap;
   XMLCh *str_ring;
   XMLCh *str_chamber;
+  XMLCh *str_superChamber;
+  XMLCh *str_etaPartition;
   XMLCh *str_axisx;
   XMLCh *str_axisy;
   XMLCh *str_axisz;

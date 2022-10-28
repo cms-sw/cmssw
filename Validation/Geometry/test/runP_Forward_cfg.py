@@ -6,8 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtendedReco_cff")
 
 #Magnetic Field
 #
@@ -21,21 +20,9 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True)
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.MaterialBudget=dict()
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),

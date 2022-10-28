@@ -4,7 +4,7 @@
 
 #include <DataFormats/DetId/interface/DetId.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include <Geometry/CSCGeometry/interface/CSCWireGroupPackage.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

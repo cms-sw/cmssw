@@ -31,12 +31,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.CaloMiscalibToolsMC = cms.ESSource("CaloMiscalibToolsMC",
-    fileNameBarrel = cms.untracked.string('inv_EcalIntercalibConstants_EB_startup.xml'),
-    fileNameEndcap = cms.untracked.string('inv_EcalIntercalibConstants_EE_startup.xml')
+    fileNameBarrel = cms.untracked.string('EcalIntercalibConstants_EB_startup.xml'),
+    fileNameEndcap = cms.untracked.string('EcalIntercalibConstants_EE_startup.xml')
 )
 
 process.prefer("CaloMiscalibToolsMC")
-process.WriteInDB = cms.EDFilter("WriteEcalMiscalibConstantsMC",
+process.WriteInDB = cms.EDAnalyzer("WriteEcalMiscalibConstantsMC",
     NewTagRequest = cms.string('EcalIntercalibConstantsMCRcd')
 )
 

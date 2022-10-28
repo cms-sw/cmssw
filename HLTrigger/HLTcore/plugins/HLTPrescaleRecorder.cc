@@ -231,19 +231,11 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
   if (condDB_) {
     /// Writing to CondDB (needs PoolDBOutputService)
     if (db_ != nullptr) {
-      auto product(new HLTPrescaleTableCond(hlt_));
-      const string rcdName("HLTPrescaleTableRcd");
-      if (db_->isNewTagRequest(rcdName)) {
-        db_->createNewIOV<HLTPrescaleTableCond>(product, db_->beginOfTime(), db_->endOfTime(), rcdName);
-      } else {
-        ::timeval tv;
-        gettimeofday(&tv, nullptr);
-        edm::Timestamp tstamp((unsigned long long)tv.tv_sec);
-        db_->appendSinceTime<HLTPrescaleTableCond>(product,
-                                                   //            db_->currentTime()
-                                                   tstamp.value(),
-                                                   rcdName);
-      }
+      HLTPrescaleTableCond product(hlt_);
+      ::timeval tv;
+      gettimeofday(&tv, nullptr);
+      edm::Timestamp tstamp((unsigned long long)tv.tv_sec);
+      db_->writeOneIOV(product, tstamp.value(), "HLTPrescaleTableRcd");
     } else {
       LogError("HLTPrescaleRecorder") << "PoolDBOutputService not available!";
     }

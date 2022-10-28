@@ -1,9 +1,11 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include <iostream>
+#include <sstream>
 
 class CaloSimParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
@@ -26,27 +28,29 @@ void CaloSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
   const auto& parS = iSetup.getData(simparToken_);
   const CaloSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {
-    std::cout << "\ncaloNames_: ";
+    std::ostringstream st1;
+    st1 << "\ncaloNames_: ";
     for (const auto& it : parsim->caloNames_)
-      std::cout << it << ", ";
-    std::cout << "\nlevels_: ";
+      st1 << it << ", ";
+    st1 << "\nlevels_: ";
     for (const auto& it : parsim->levels_)
-      std::cout << it << ", ";
-    std::cout << "\nneighbours_: ";
+      st1 << it << ", ";
+    st1 << "\nneighbours_: ";
     for (const auto& it : parsim->neighbours_)
-      std::cout << it << ", ";
-    std::cout << "\ninsideNames_: ";
+      st1 << it << ", ";
+    st1 << "\ninsideNames_: ";
     for (const auto& it : parsim->insideNames_)
-      std::cout << it << ", ";
-    std::cout << std::endl;
+      st1 << it << ", ";
+    edm::LogVerbatim("HCalGeom") << st1.str();
 
-    std::cout << "\nfCaloNames_: ";
+    std::ostringstream st2;
+    st2 << "\nfCaloNames_: ";
     for (const auto& it : parsim->fCaloNames_)
-      std::cout << it << ", ";
-    std::cout << "\nfLevels_: ";
+      st2 << it << ", ";
+    st2 << "\nfLevels_: ";
     for (const auto& it : parsim->fLevels_)
-      std::cout << it << ", ";
-    std::cout << std::endl;
+      st2 << it << ", ";
+    edm::LogVerbatim("HCalGeom") << st2.str();
   }
 }
 

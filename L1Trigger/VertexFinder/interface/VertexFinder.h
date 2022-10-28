@@ -2,18 +2,23 @@
 #define __L1Trigger_VertexFinder_VertexFinder_h__
 
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include <vector>
 
 namespace l1tVertexFinder {
+
+  // Returns the number of bits needed to represent and integer decimal
+  static constexpr unsigned BitsToRepresent(unsigned x) { return x < 2 ? 1 : 1 + BitsToRepresent(x >> 1); }
 
   typedef std::vector<L1Track> FitTrackCollection;
   typedef std::vector<RecoVertex<>> RecoVertexCollection;
@@ -40,20 +45,27 @@ namespace l1tVertexFinder {
 
     /// Accessors
 
+    /// Storage for tracks out of the L1 Track finder
+    const FitTrackCollection& fitTracks() const { return fitTracks_; }
     /// Number of iterations
-    unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
+    unsigned int iterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
     /// Storage for tracks out of the L1 Track finder
     unsigned int numInputTracks() const { return fitTracks_.size(); }
     /// Number of iterations
-    unsigned int NumIterations() const { return iterations_; }
+    unsigned int numIterations() const { return iterations_; }
     /// Number of reconstructed vertices
     unsigned int numVertices() const { return vertices_.size(); }
-    /// Reconstructed Primary Vertex
-    RecoVertex<> primaryVertex() const {
-      if (pv_index_ < vertices_.size())
+    /// Number of emulation vertices
+    unsigned int numVerticesEmulation() const { return verticesEmulation_.size(); }
+    /// Reconstructed primary vertex
+    template <typename T>
+    T PrimaryVertex() const {
+      if ((settings_->vx_precision() == Precision::Simulation) && (pv_index_ < vertices_.size()))
         return vertices_[pv_index_];
+      else if ((settings_->vx_precision() == Precision::Emulation) && (pv_index_ < vertices_.size()))
+        return verticesEmulation_[pv_index_];
       else {
-        edm::LogWarning("VertexFinder") << "PrimaryVertex::No Primary Vertex has been found.";
+        edm::LogWarning("VertexFinder") << "PrimaryVertex::No primary vertex has been found.";
         return RecoVertex<>();
       }
     }
@@ -61,8 +73,8 @@ namespace l1tVertexFinder {
     unsigned int primaryVertexId() const { return pv_index_; }
     /// Returns the z positions of the reconstructed primary vertices
     const std::vector<RecoVertex<>>& vertices() const { return vertices_; }
-    /// Storage for tracks out of the L1 Track finder
-    const FitTrackCollection& fitTracks() const { return fitTracks_; }
+    /// Returns the emulation primary vertices
+    const l1t::VertexWordCollection& verticesEmulation() const { return verticesEmulation_; }
 
     /// Find the primary vertex
     void findPrimaryVertex();
@@ -86,22 +98,23 @@ namespace l1tVertexFinder {
     void fastHistoLooseAssociation();
     /// Histogramming algorithm
     void fastHisto(const TrackerTopology* tTopo);
+    /// Histogramming algorithm (emulation)
+    void fastHistoEmulation();
+
     /// Sort vertices in pT
-    void SortVerticesInPt() {
-      std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
-        return (vertex0.pt() > vertex1.pt());
-      });
-    }
+    void sortVerticesInPt();
     /// Sort vertices in z
-    void SortVerticesInZ0() {
-      std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
-        return (vertex0.z0() < vertex1.z0());
-      });
-    }
-    /// Number of iterations
-    unsigned int numIterations() const { return iterations_; }
-    /// Number of iterations
-    unsigned int iterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
+    void sortVerticesInZ0();
+
+    /// Print an ASCII histogram
+    template <class data_type, typename stream_type = std::ostream>
+    void printHistogram(stream_type& stream,
+                        std::vector<data_type> data,
+                        int width = 80,
+                        int minimum = 0,
+                        int maximum = -1,
+                        std::string title = "",
+                        std::string color = "");
 
     template <typename ForwardIterator, typename T>
     void strided_iota(ForwardIterator first, ForwardIterator last, T value, T stride) {
@@ -113,38 +126,23 @@ namespace l1tVertexFinder {
 
     /// Vertexing algorithms
 
-    /// Adaptive Vertex Reconstruction algorithm
-    void AdaptiveVertexReconstruction();
-    /// Simple Merge Algorithm
-    void AgglomerativeHierarchicalClustering();
-    /// Find distance between centres of two clusters
-    float CentralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Compute the vertex parameters
     void computeAndSetVertexParameters(RecoVertex<>& vertex,
                                        const std::vector<float>& bin_centers,
                                        const std::vector<unsigned int>& counts);
     /// DBSCAN algorithm
     void DBSCAN();
-    /// TDR histogramming algorithmn
-    void FastHistoLooseAssociation();
-    /// Histogramming algorithm
-    void FastHisto(const TrackerTopology* tTopo);
     /// High pT Vertex Algorithm
     void HPV();
     /// Kmeans Algorithm
     void Kmeans();
     /// Find maximum distance in two clusters of tracks
-    float MaxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
-    /// Find minimum distance in two clusters of tracks
-    float MinDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
-    /// Find average distance in two clusters of tracks
-    float MeanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
-    /// Principal Vertex Reconstructor algorithm
     void PVR();
 
   private:
     const AlgoSettings* settings_;
-    std::vector<RecoVertex<>> vertices_;
+    RecoVertexCollection vertices_;
+    l1t::VertexWordCollection verticesEmulation_;
     unsigned int numMatchedVertices_;
     FitTrackCollection fitTracks_;
     unsigned int pv_index_;

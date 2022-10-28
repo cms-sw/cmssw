@@ -33,6 +33,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -71,8 +73,11 @@ private:
   const DTGeometry* dtGeom;
 
   edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeToken_;
-  const DTMtime* mTime;
-  const DTMtime* mTimeMap_;
+  const DTMtime* mTimeMap_;  // legacy DB object
+
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
 

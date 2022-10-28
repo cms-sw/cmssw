@@ -9,10 +9,12 @@
   <use name="FWCore/Framework"/>
 </library>
 
-<bin file="TestFWCoreServicesDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_mallocopts.sh test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<ifrelease name="!_ASAN_">
+  <bin file="TestFWCoreServicesDriver.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+</ifrelease>
 
 <bin file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
   <use name="catch2"/>

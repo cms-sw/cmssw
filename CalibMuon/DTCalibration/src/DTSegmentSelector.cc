@@ -22,6 +22,7 @@ DTSegmentSelector::DTSegmentSelector(edm::ParameterSet const& pset, edm::Consume
       maxAnglePhi_(pset.getParameter<double>("maxAnglePhi")),
       maxAngleZ_(pset.getParameter<double>("maxAngleZ")) {
   muonToken_ = iC.consumes<reco::MuonCollection>(muonTags_);
+  theStatusMapToken_ = iC.esConsumes();
 }
 
 bool DTSegmentSelector::operator()(DTRecSegment4D const& segment,
@@ -68,7 +69,7 @@ bool DTSegmentSelector::operator()(DTRecSegment4D const& segment,
 
   edm::ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels_)
-    setup.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = setup.getHandle(theStatusMapToken_);
 
   // Get the Phi 2D segment
   int nPhiHits = -1;

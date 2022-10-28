@@ -302,7 +302,7 @@ process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECOTkAlZMuMu_
 process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECOTkAlJpsiMuMu_noDrop.outputCommands)
 process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECOSiStripCalMinBias_noDrop.outputCommands)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)

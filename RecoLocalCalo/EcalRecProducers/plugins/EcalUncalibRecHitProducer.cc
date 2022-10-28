@@ -1,23 +1,38 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
-
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "FWCore/PluginManager/interface/PluginInfo.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/PluginManager/interface/PluginInfo.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
+
+class EcalUncalibRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalUncalibRecHitProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<EBDigiCollection> ebDigiCollectionToken_;
+  edm::EDGetTokenT<EEDigiCollection> eeDigiCollectionToken_;
+
+  std::string ebHitCollection_;
+  std::string eeHitCollection_;
+
+  std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> worker_;
+};
 
 EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps) {
   ebHitCollection_ = ps.getParameter<std::string>("EBhitCollection");
@@ -35,8 +50,6 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
   edm::ConsumesCollector c{consumesCollector()};
   worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, algoConf, c);
 }
-
-EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer() = default;
 
 void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get();

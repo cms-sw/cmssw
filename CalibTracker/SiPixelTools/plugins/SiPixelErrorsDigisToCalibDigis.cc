@@ -111,9 +111,6 @@ void SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm
   }  // end of the for loop that goes through all plaquettes
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelErrorsDigisToCalibDigis::beginJob() {}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void SiPixelErrorsDigisToCalibDigis::endJob() {
   if (!outputFilename_.empty() && createOutputFile_) {

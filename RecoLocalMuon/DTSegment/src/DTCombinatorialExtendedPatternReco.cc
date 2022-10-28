@@ -31,13 +31,16 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset)
-    : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialExtendedPatternReco") {
+DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset,
+                                                                       edm::ConsumesCollector cc)
+    : DTRecSegment2DBaseAlgo(pset),
+      theAlgoName("DTCombinatorialExtendedPatternReco"),
+      theDTGeometryToken(cc.esConsumes()) {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");                      //true;
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
   theCleaner = new DTSegmentCleaner(pset);
   string theHitAlgoName = pset.getParameter<string>("recAlgo");
   usePairs = !(theHitAlgoName == "DTNoDriftAlgo");
@@ -77,7 +80,7 @@ edm::OwnVector<DTSLRecSegment2D> DTCombinatorialExtendedPatternReco::reconstruct
 
 void DTCombinatorialExtendedPatternReco::setES(const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
 }
 

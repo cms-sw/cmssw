@@ -19,7 +19,7 @@
 #include <cmath>
 
 // Framework include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,22 +43,19 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetPileupEstimator : public edm::EDProducer {
+class FFTJetPileupEstimator : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetPileupEstimator(const edm::ParameterSet&);
+  FFTJetPileupEstimator() = delete;
+  FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
+  FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
   ~FFTJetPileupEstimator() override;
 
 protected:
   // methods
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
 private:
-  FFTJetPileupEstimator() = delete;
-  FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
-  FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
-
   std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(double uncalibrated) const;
 
   std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromDB(double uncalibrated, const edm::EventSetup& iSetup) const;
@@ -99,6 +96,8 @@ private:
   std::string calibrationCurveName;
   std::string uncertaintyCurveName;
   bool loadCalibFromDB;
+
+  FFTJetLookupTableSequenceLoader esLoader;
 };
 
 //
@@ -126,6 +125,8 @@ FFTJetPileupEstimator::FFTJetPileupEstimator(const edm::ParameterSet& ps)
   inputToken = consumes<reco::DiscretizedEnergyFlow>(inputLabel);
 
   produces<reco::FFTJetPileupSummary>(outputLabel);
+
+  esLoader.acquireToken(calibTableRecord, consumesCollector());
 }
 
 FFTJetPileupEstimator::~FFTJetPileupEstimator() {}
@@ -162,10 +163,6 @@ void FFTJetPileupEstimator::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(std::move(summary), outputLabel);
 }
 
-void FFTJetPileupEstimator::beginJob() {}
-
-void FFTJetPileupEstimator::endJob() {}
-
 std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromConfig(const double curve) const {
   const double pileupRho = ptToDensityFactor * (*calibrationCurve)(curve);
   const double rhoUncert = ptToDensityFactor * (*uncertaintyCurve)(curve);
@@ -196,8 +193,7 @@ std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromC
 
 std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromDB(const double curve,
                                                                                   const edm::EventSetup& iSetup) const {
-  edm::ESHandle<FFTJetLookupTableSequence> h;
-  StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, calibTableRecord, h);
+  edm::ESHandle<FFTJetLookupTableSequence> h = esLoader.load(calibTableRecord, iSetup);
   std::shared_ptr<npstat::StorableMultivariateFunctor> uz = (*h)[calibTableCategory][uncertaintyZonesName];
   std::shared_ptr<npstat::StorableMultivariateFunctor> cc = (*h)[calibTableCategory][calibrationCurveName];
   std::shared_ptr<npstat::StorableMultivariateFunctor> uc = (*h)[calibTableCategory][uncertaintyCurveName];

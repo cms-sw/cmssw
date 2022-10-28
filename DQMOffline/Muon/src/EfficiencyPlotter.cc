@@ -59,7 +59,8 @@ void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
   h_eff_inner_pt_ID = ibooker.book1D("Eff_inner_pt_" + ID_, ID_ + " Eff. vs pt", ptBin, ptMin, ptMax);
   h_eff_inner_eta_ID = ibooker.book1D("Eff_inner_eta_" + ID_, ID_ + " Eff. vs #eta", etaBin, etaMin, etaMax);
   h_eff_inner_phi_ID = ibooker.book1D("Eff_inner_phi_" + ID_, ID_ + " Eff. vs #phi", phiBin, phiMin, phiMax);
-  h_eff_hp_eta_ID = ibooker.book1D("Eff_hp_eta_" + ID_, "High Pt " + ID_ + " Eff. vs #eta", etaBin, etaMin, etaMax);
+  h_eff_hp_eta_ID =
+      ibooker.book1D("Eff_hp_eta_" + ID_, "High Pt (Pt>20)" + ID_ + " Eff. vs #eta", etaBin, etaMin, etaMax);
   h_eff_phi_ID = ibooker.book1D("Eff_phi_" + ID_, ID_ + " Eff. vs #phi", phiBin, phiMin, phiMax);
   h_eff_pt_ID = ibooker.book1D("Eff_pt_" + ID_, ID_ + " Eff. vs Pt", ptBin, ptMin, ptMax);
   h_eff_pt_EB_ID = ibooker.book1D("Eff_pt_EB_" + ID_, "Barrel: " + ID_ + " Eff. vs Pt", ptBin, ptMin, ptMax);

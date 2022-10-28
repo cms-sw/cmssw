@@ -12,7 +12,7 @@ photonAnalysis = DQMEDAnalyzer('PhotonAnalyzer',
 
     barrelRecHitProducer = cms.InputTag('reducedEcalRecHitsEB'),								
     endcapRecHitProducer = cms.InputTag('reducedEcalRecHitsEE'),
-
+    
     triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
     prescaleFactor = cms.untracked.int32(1),
 

@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
+#include "Fireworks/Calo/interface/FWFromSliceSelector.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 //

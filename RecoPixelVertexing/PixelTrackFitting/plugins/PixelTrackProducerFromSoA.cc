@@ -7,7 +7,6 @@
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -83,9 +82,12 @@ PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iC
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " not supported";
   }
-  produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>();
   produces<IndToEdm>();
 }
 
@@ -155,23 +157,29 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   auto const *quality = tsoa.qualityData();
   auto const &fit = tsoa.stateAtBS;
   auto const &hitIndices = tsoa.hitIndices;
-  auto maxTracks = tsoa.stride();
+  auto nTracks = tsoa.nTracks();
 
-  tracks.reserve(maxTracks);
+  tracks.reserve(nTracks);
 
   int32_t nt = 0;
 
-  for (int32_t it = 0; it < maxTracks; ++it) {
+  //sort index by pt
+  std::vector<int32_t> sortIdxs(nTracks);
+  std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
+  std::sort(
+      sortIdxs.begin(), sortIdxs.end(), [&](int32_t const i1, int32_t const i2) { return tsoa.pt(i1) > tsoa.pt(i2); });
+
+  //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
+  indToEdm.resize(sortIdxs.size(), -1);
+  for (const auto &it : sortIdxs) {
     auto nHits = tsoa.nHits(it);
-    if (nHits == 0)
-      break;  // this is a guard: maybe we need to move to nTracks...
-    indToEdm.push_back(-1);
+    assert(nHits >= 3);
     auto q = quality[it];
     if (q < minQuality_)
       continue;
     if (nHits < minNumberOfHits_)
       continue;
-    indToEdm.back() = nt;
+    indToEdm[it] = nt;
     ++nt;
 
     hits.resize(nHits);

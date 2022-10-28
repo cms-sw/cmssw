@@ -15,7 +15,6 @@ from os.path import join
 from urllib import quote
 from functools import reduce
 
-import six
 
 renaming = {
         'MessageLogger': 'Miscellanea', 'FourVector': 'Generic',
@@ -247,7 +246,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
     # Fetch stats
     summary_stats = dict()
     detailed_stats = dict()
-    for name, ranges in six.iteritems(cum_lvl3_dir_ranges):
+    for name, ranges in cum_lvl3_dir_ranges.items():
         successes, nulls, fails = get_stats(c, threshold, ranges)
         if name in detailed_stats:
             detailed_stats[name][0] += successes
@@ -265,13 +264,13 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     # Calculate ratio
     summary_ratios = []
-    for name, stats in six.iteritems(summary_stats):
+    for name, stats in summary_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)
             summary_ratios.append((name, ratio))
     detailed_ratios = []
-    for name, stats in six.iteritems(detailed_stats):
+    for name, stats in detailed_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)

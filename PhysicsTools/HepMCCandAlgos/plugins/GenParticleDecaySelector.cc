@@ -5,15 +5,20 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-class GenParticleDecaySelector : public edm::EDProducer {
+class GenParticleDecaySelector : public edm::stream::EDProducer<> {
 public:
   /// constructor
   GenParticleDecaySelector(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// process one event
@@ -22,6 +27,7 @@ private:
   /// source collection name
   edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
   /// particle type
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
   PdtEntry particle_;
   /// particle status
   int status_;
@@ -32,6 +38,8 @@ private:
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -43,14 +51,27 @@ using namespace std;
 GenParticleDecaySelector::GenParticleDecaySelector(const edm::ParameterSet& cfg)
     : firstEvent_(true),
       srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))),
+      tableToken_(esConsumes()),
       particle_(cfg.getParameter<PdtEntry>("particle")),
       status_(cfg.getParameter<int>("status")) {
   produces<GenParticleCollection>();
 }
 
+void GenParticleDecaySelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src");
+  desc.addNode(edm::ParameterDescription<int>("particle", true) xor
+               edm::ParameterDescription<std::string>("particle", true))
+      ->setComment("the PdtEntry can be specified as either an 'int' or via its name using a 'string'");
+  desc.add<int>("status");
+
+  descriptions.addDefault(desc);
+}
+
 void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (firstEvent_) {
-    particle_.setup(es);
+    auto const& pdt = es.getData(tableToken_);
+    particle_.setup(pdt);
     firstEvent_ = false;
   }
 

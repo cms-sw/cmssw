@@ -19,11 +19,10 @@ int main() {
 
   const EcalSimParameterMap parameterMap;
 
-  bool useDBShape =
-      false;  // for the purpose of testing the EcalShape class, doesn't need to (should not) fetch a shape from the DB but just to assume the testbeam one
-  const APDShape theAPDShape(useDBShape);
-  const EBShape theEBShape(useDBShape);
-  const EEShape theEEShape(useDBShape);
+  // for the purpose of testing the EcalShape class, doesn't need to (should not) fetch a shape from the DB but just to assume the testbeam one
+  const APDShape theAPDShape;
+  const EBShape theEBShape;
+  const EEShape theEEShape;
 
   const int nsamp = 500;  // phase I hardcoded ECAL shapes arrays
   const int tconv = 10;   // kNBinsPerNSec = 10

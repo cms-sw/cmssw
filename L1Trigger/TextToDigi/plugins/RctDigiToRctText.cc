@@ -39,7 +39,6 @@ RctDigiToRctText::~RctDigiToRctText() {
 
 void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   /// count bunch crossing
-  static int nevt = -1;
   nevt++;
 
   /// get the RCT data

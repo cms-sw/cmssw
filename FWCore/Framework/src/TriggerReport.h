@@ -26,6 +26,7 @@ namespace edm {
     int timesPassed = 0;
     int timesFailed = 0;
     int timesExcept = 0;
+    int bitPosition = 0;
 
     std::string moduleLabel;
   };

@@ -21,8 +21,10 @@ public:
   typedef typename Client::Input Input;
   typedef typename Client::Output Output;
   //constructor
-  SonicOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName, bool verbose = true)
-      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName), verbose_(verbose) {
+  SonicOneEDAnalyzer(edm::ParameterSet const& cfg, bool verbose = true)
+      : clientPset_(cfg.getParameterSet("Client")),
+        debugName_(cfg.getParameter<std::string>("@module_label")),
+        verbose_(clientPset_.getUntrackedParameter<bool>("verbose")) {
     //ExternalWork is not compatible with one modules, so Sync mode is enforced
     if (clientPset_.getParameter<std::string>("mode") != "Sync") {
       edm::LogWarning("ResetClientMode") << "Resetting client mode to Sync for SonicOneEDAnalyzer";

@@ -61,6 +61,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 {
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   allTrackerTracksToken = iC.consumes<reco::TrackCollection>(theTkTrackLabel);
+  thePrimaryVtxLabel = par.getParameter<edm::InputTag>("VertexCollectionLabel");
+  primaryVertexToken = iC.mayConsume<reco::VertexCollection>(thePrimaryVtxLabel);
+  selectHighPurity_ = par.getParameter<bool>("selectHighPurity");
 }
 
 //--------------
@@ -80,6 +83,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   // get tracker TrackCollection from Event
   event.getByToken(allTrackerTracksToken, allTrackerTracks);
   LogDebug(category) << " Found " << allTrackerTracks->size() << " tracker Tracks with label " << theTkTrackLabel;
+
+  // get primary vertex from Event
+  event.getByToken(primaryVertexToken, vertexCollection);
+  LogDebug(category) << " Found " << vertexCollection->size() << " tracker Tracks with label " << thePrimaryVtxLabel;
 }
 
 //
@@ -151,6 +158,11 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
   for (unsigned int position = 0; position != allTrackerTracks->size(); ++position) {
     reco::TrackRef tkTrackRef(allTrackerTracks, position);
     TrackCand tkCand = TrackCand((Trajectory*)nullptr, tkTrackRef);
+    if (selectHighPurity_ && !tkTrackRef->quality(reco::TrackBase::highPurity)) {
+      const reco::VertexCollection* recoVertices = vertexCollection.product();
+      if (!(*recoVertices)[0].isFake())
+        continue;
+    }
     tkTrackCands.push_back(tkCand);
   }
 

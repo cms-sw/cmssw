@@ -1,6 +1,0 @@
-<library file="*.cc" name="RecoRomanPotRecoFP420Plugins">
-  <use name="RecoRomanPot/RecoFP420"/>
-  <use name="gsl"/>
-  <use name="hector"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

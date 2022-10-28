@@ -2,8 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("BeamPixel", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -47,7 +47,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Use this to run locally (for testing purposes), choose the right GT
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run3_data", "")
 # Otherwise use this
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
@@ -107,7 +107,7 @@ process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
 #----------------------------
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or process.runType.getRunType() == process.runType.commissioning_run ):
     print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 
@@ -151,7 +151,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
@@ -204,7 +204,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
@@ -213,7 +213,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------------
 # File to save beamspot info
 #----------------------------
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
     process.pixelVertexDQM.fileName = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt"
 else:
     process.pixelVertexDQM.fileName = "/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"

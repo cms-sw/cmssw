@@ -10,7 +10,7 @@ using namespace std;
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 using namespace reco;
 
-BTagSkimMC::BTagSkimMC(const ParameterSet& p) : nEvents_(0), nAccepted_(0) {
+BTagSkimMC::BTagSkimMC(const ParameterSet& p, const BTagSkimMCCount::Counters* count) : nEvents_(0), nAccepted_(0) {
   verbose = p.getUntrackedParameter<bool>("verbose", false);
   pthatMin = p.getParameter<double>("pthat_min");
   pthatMax = p.getParameter<double>("pthat_max");
@@ -77,12 +77,18 @@ bool BTagSkimMC::filter(Event& evt, const EventSetup& es) {
   return false;
 }
 
-void BTagSkimMC::endJob() {
+void BTagSkimMC::endStream() {
+  globalCache()->nEvents_ += nEvents_;
+  globalCache()->nAccepted_ += nAccepted_;
+}
+
+void BTagSkimMC::globalEndJob(const BTagSkimMCCount::Counters* count) {
   edm::LogVerbatim("BTagSkimMC") << "=============================================================================\n"
-                                 << " Events read: " << nEvents_ << "\n Events accepted by BTagSkimMC: " << nAccepted_
-                                 << "\n Efficiency: " << (double)(nAccepted_) / (double)(nEvents_)
+                                 << " Events read: " << count->nEvents_
+                                 << "\n Events accepted by BTagSkimMC: " << count->nAccepted_
+                                 << "\n Efficiency: " << (double)(count->nAccepted_) / (double)(count->nEvents_)
                                  << "\n==========================================================================="
-                                 << endl;
+                                 << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -1,88 +1,98 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiTrackerPhase2.Phase2TrackerMonitorDigi_cfi import *
 
+pixDigiMon = digiMon.clone(
+    PixelPlotFillingFlag = True,
+    StandAloneClusteriserFlag = False,
+    TopFolderName = "TrackerPhase2ITDigi",
+    NumberOfDigisPerDetH = digiMon.NumberOfDigisPerDetH.clone(
+        Nbins = 500,
+        xmin = -0.5,
+        xmax = 999.5,
+        switch = True
+    ),
+    NumberOfClustersPerDetH = digiMon.NumberOfClustersPerDetH.clone(
+        Nbins = 200,
+        xmin = 0.0,
+        xmax = 2000.,
+        switch = True
+    ),
+    ChargeXYMapH = digiMon.ChargeXYMapH.clone(
+        Nxbins = 450,
+        xmin = 0.5,
+        xmax = 450.5,
+        Nybins = 1350,
+        ymin = 0.5,
+        ymax = 1350.5,
+        switch = False
+    ),
+    PositionOfDigisPH = digiMon.PositionOfDigisPH.clone(
+        Nxbins = 675,
+        xmin = 0.5,
+        xmax = 1350.5,
+        Nybins = 225,
+        ymin = 0.5,
+        ymax = 450.5,
+        switch = True
+    ),
+    XYPositionMapH = digiMon.XYPositionMapH.clone(
+        Nxbins = 340,
+        xmin = -170.,
+        xmax = 170.,
+        Nybins = 340,
+        ymin = -170.,
+        ymax = 170.,
+        switch = True
+    ),
+    RZPositionMapH = digiMon.RZPositionMapH.clone(
+        Nxbins = 600,
+        xmin = -3000.0,
+        xmax = 3000.,
+        Nybins = 280,
+        ymin = 0.,
+        ymax = 280.,
+        switch = True
+    ),
+    ClusterPositionPH = digiMon.ClusterPositionPH.clone(
+        Nxbins = 960,
+        xmin = 0.5,
+        xmax = 960.5,
+        Nybins = 32,
+        ymin = 0.5,
+        ymax = 32.5,
+        switch = True
+    )
+)
 
-pixDigiMon = digiMon.clone()
-pixDigiMon.PixelPlotFillingFlag = cms.bool(True)
-pixDigiMon.StandAloneClusteriserFlag = cms.bool(False)
-pixDigiMon.TopFolderName = cms.string("TrackerPhase2ITDigi")
-pixDigiMon.NumberOfDigisPerDetH = cms.PSet(
-    Nbins = cms.int32(500),
-    xmin = cms.double(-0.5),
-    xmax = cms.double(999.5),
-    switch = cms.bool(True))
-pixDigiMon.NumberOfClustersPerDetH = cms.PSet(
-    Nbins = cms.int32(200),
-    xmin = cms.double(0.0),
-    xmax = cms.double(2000.),
-    switch = cms.bool(True))
-pixDigiMon.ChargeXYMapH = cms.PSet(
-    Nxbins = cms.int32(450),
-    xmin   = cms.double(0.5),
-    xmax   = cms.double(450.5),
-    Nybins = cms.int32(1350),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(1350.5),
-    switch = cms.bool(False))
-pixDigiMon.PositionOfDigisPH = cms.PSet(
-    Nxbins = cms.int32(675),
-    xmin   = cms.double(0.5),
-    xmax   = cms.double(1350.5),
-    Nybins = cms.int32(225),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(450.5),
-    switch = cms.bool(True))
-pixDigiMon.XYPositionMapH = cms.PSet(
-    Nxbins = cms.int32(340),
-    xmin   = cms.double(-170.),
-    xmax   = cms.double(170.),
-    Nybins = cms.int32(340),
-    ymin   = cms.double(-170.),
-    ymax   = cms.double(170.),
-    switch = cms.bool(True))
-pixDigiMon.RZPositionMapH = cms.PSet(
-    Nxbins = cms.int32(600),
-    xmin   = cms.double(-3000.0),
-    xmax   = cms.double(3000.),
-    Nybins = cms.int32(280),
-    ymin   = cms.double(0.),
-    ymax   = cms.double(280.),
-    switch = cms.bool(True))
-pixDigiMon.ClusterPositionPH = cms.PSet(
-    Nxbins = cms.int32(960),
-    xmin   = cms.double(0.5),
-    xmax   = cms.double(960.5),
-    Nybins = cms.int32(32),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(32.5),
-    switch = cms.bool(True))
-
-
-otDigiMon = digiMon.clone()
-otDigiMon.PixelPlotFillingFlag = cms.bool(False)
-otDigiMon.StandAloneClusteriserFlag = cms.bool(False)
-otDigiMon.TopFolderName = cms.string("TrackerPhase2OTDigi")
-otDigiMon.XYPositionMapH = cms.PSet(
-    Nxbins = cms.int32(250),
-    xmin   = cms.double(-1250.),
-    xmax   = cms.double(1250.),
-    Nybins = cms.int32(250),
-    ymin   = cms.double(-1250.),
-    ymax   = cms.double(1250.),
-    switch = cms.bool(True))
-otDigiMon.RZPositionMapH = cms.PSet(
-    Nxbins = cms.int32(600),
-    xmin   = cms.double(-3000.),
-    xmax   = cms.double(3000.),
-    Nybins = cms.int32(250),
-    ymin   = cms.double(0.),
-    ymax   = cms.double(1250.),
-    switch = cms.bool(True))
-otDigiMon.PositionOfDigisSH = cms.PSet(
-    Nxbins = cms.int32(508),
-    xmin   = cms.double(0.5),
-    xmax   = cms.double(1016.5),
-    Nybins = cms.int32(2),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(2.5),
-    switch = cms.bool(True))
+otDigiMon = digiMon.clone(
+    PixelPlotFillingFlag = False,
+    StandAloneClusteriserFlag = False,
+    TopFolderName = "TrackerPhase2OTDigi",
+    XYPositionMapH = digiMon.XYPositionMapH.clone(
+        Nxbins = 250,
+        xmin = -1250.,
+        xmax = 1250.,
+        Nybins = 250,
+        ymin = -1250.,
+        ymax = 1250.,
+        switch = True
+    ),
+    RZPositionMapH = digiMon.RZPositionMapH.clone(
+        Nxbins = 600,
+        xmin = -3000.,
+        xmax = 3000.,
+        Nybins = 250,
+        ymin = 0.,
+        ymax = 1250.,
+        switch = True
+    ),
+    PositionOfDigisSH = digiMon.PositionOfDigisSH.clone(
+        Nxbins = 508,
+        xmin = 0.5,
+        xmax = 1016.5,
+        Nybins = 2,
+        ymin = 0.5,
+        ymax = 2.5,
+        switch = True
+    )
+)

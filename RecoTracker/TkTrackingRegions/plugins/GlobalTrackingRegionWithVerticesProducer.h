@@ -49,6 +49,10 @@ public:
     edm::InputTag pixelClustersForScaling = regionPSet.getParameter<edm::InputTag>("pixelClustersForScaling");
     if (theOriginRScaling || thePtMinScaling || theHalfLengthScaling)
       token_pc = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClustersForScaling);
+
+    if (theUseMS) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
   ~GlobalTrackingRegionWithVerticesProducer() override {}
@@ -86,7 +90,8 @@ public:
     descriptions.add("globalTrackingRegionWithVertices", descRegion);
   }
 
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup&) const override {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+                                                        const edm::EventSetup& es) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 
     GlobalPoint theOrigin;
@@ -99,6 +104,11 @@ public:
       theOrigin = GlobalPoint(bs.x0(), bs.y0(), bs.z0());
     } else {
       throw cms::Exception("Seeding") << "ERROR: input beamSpot is not valid in GlobalTrackingRegionWithVertices";
+    }
+
+    const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+    if (theUseMS) {
+      msmaker = &es.getData(token_msmaker);
     }
 
     if (theUseFoundVertices) {
@@ -152,14 +162,14 @@ public:
           //if region has 0 size, return 'result' empty, otherwise make a tracking region
           if (scaledOriginRadius != 0 && scaledHalfLength != 0) {
             result.push_back(std::make_unique<GlobalTrackingRegion>(
-                scaledPtMin, theOrigin_, scaledOriginRadius, scaledHalfLength, thePrecise, theUseMS));
+                scaledPtMin, theOrigin_, scaledOriginRadius, scaledHalfLength, thePrecise, theUseMS, msmaker));
           }
         }  //end of region scaling code, pp behavior below
 
         else {
           double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError()) * theSigmaZVertex);
           result.push_back(std::make_unique<GlobalTrackingRegion>(
-              thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS));
+              thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS, msmaker));
           if (theMaxNVertices >= 0 && result.size() >= static_cast<unsigned>(theMaxNVertices))
             break;
         }
@@ -167,11 +177,11 @@ public:
 
       if (result.empty() && !(theOriginRScaling || thePtMinScaling || theHalfLengthScaling)) {
         result.push_back(std::make_unique<GlobalTrackingRegion>(
-            thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS));
+            thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS, msmaker));
       }
     } else {
-      result.push_back(
-          std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS));
+      result.push_back(std::make_unique<GlobalTrackingRegion>(
+          thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS, msmaker));
     }
 
     return result;
@@ -194,6 +204,7 @@ private:
   bool theUseFixedError;
   edm::EDGetTokenT<reco::VertexCollection> token_vertex;
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
 
   //HI-related variables
   bool theOriginRScaling;

@@ -22,7 +22,7 @@ public:
 
      /param[in] config with the configuration values
   */
-  VertexHistory(const edm::ParameterSet &, edm::ConsumesCollector &&);
+  VertexHistory(const edm::ParameterSet &, edm::ConsumesCollector);
 
   //! Pre-process event information (for accessing reconstruction information)
   void newEvent(const edm::Event &, const edm::EventSetup &);

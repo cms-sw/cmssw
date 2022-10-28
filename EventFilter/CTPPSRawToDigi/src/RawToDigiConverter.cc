@@ -12,10 +12,12 @@
 #include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 #include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h"
+#include "EventFilter/CTPPSRawToDigi/interface/TotemT2VFATFrame.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 
 using namespace std;
 using namespace edm;
@@ -101,6 +103,7 @@ void RawToDigiConverter::runCommon(const VFATFrameCollection &input,
         stopProcessing = true;
       }
     }
+
     // check the id mismatch
     if (testID != tfNoTest && record.frame->isIDPresent() &&
         (record.frame->getChipID() & 0xFFF) != (record.info->hwID & 0xFFF)) {
@@ -331,11 +334,10 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
                                   eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
-
           const TotemDAQMapping::TotemTimingPlaneChannelPair SWpair =
               mapping.getTimingChannel(totemSampicFrame.getHardwareId());
           // for FW Version > 0 plane and channel are encoded in the dataframe
-          if (totemSampicFrame.getFWVersion() < 0x30)  // Mapping not present in HW, read from SW for FW versions < 3.0
+          if (totemSampicFrame.getFWVersion() == 0)  // Mapping not present in HW, read from SW for FW versions == 0
           {
             if (SWpair.plane == -1 || SWpair.channel == -1) {
               if (verbosity > 0)
@@ -345,7 +347,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
             } else {
               detId.setPlane(SWpair.plane % 4);
               detId.setChannel(SWpair.channel);
-              detId.setRP(SWpair.plane / 4);  // Top:0 or Bottom:1
             }
           } else  // Mapping read from HW, checked by SW
           {
@@ -368,7 +369,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
             }
             detId.setPlane(HWplane % 4);
             detId.setChannel(HWchannel);
-            detId.setRP(HWplane / 4);  // Top:0 or Bottom:1
           }
 
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
@@ -376,6 +376,43 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
         }
       }
     }
+  }
+}
+
+void RawToDigiConverter::run(const VFATFrameCollection &coll,
+                             const TotemDAQMapping &mapping,
+                             const TotemAnalysisMask &mask,
+                             edmNew::DetSetVector<TotemT2Digi> &digi,
+                             edm::DetSetVector<TotemVFATStatus> &status) {
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
+
+  // common processing - frame validation
+  runCommon(coll, mapping, records);
+
+  // second loop over data
+  for (auto &p : records) {
+    Record &record = p.second;
+
+    // calculate ids
+    TotemT2DetId detId(record.info->symbolicID.symbolicID);
+
+    if (record.status.isOK()) {
+      // update Event Counter in status
+      record.status.setEC(record.frame->getEC() & 0xFF);
+
+      // create the digi
+      edmNew::DetSetVector<TotemT2Digi>::FastFiller(digi, detId)
+          .emplace_back(totem::nt2::vfat::geoId(*record.frame),
+                        totem::nt2::vfat::channelId(*record.frame),
+                        totem::nt2::vfat::channelMarker(*record.frame),
+                        totem::nt2::vfat::leadingEdgeTime(*record.frame),
+                        totem::nt2::vfat::trailingEdgeTime(*record.frame));
+    }
+
+    // save status
+    DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
+    statusDetSet.push_back(record.status);
   }
 }
 

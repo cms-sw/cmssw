@@ -27,9 +27,17 @@
 #include <TFile.h>
 #include <TSelector.h>
 
-#include "TLorentzVector.h"
-#include "TClonesArray.h"
-#include "TRefArray.h"
+#include <TLorentzVector.h>
+#include <TClonesArray.h>
+#include <TRefArray.h>
+
+#include <TH2.h>
+#include <TStyle.h>
+#include <TFile.h>
+#include <TMatrixF.h>
+#include <TMatrixD.h>
+#include <TDecompSVD.h>
+#include <TDecompQRH.h>
 
 // needed to get cell coordinates
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -83,6 +91,32 @@ public:
 
   TBranch *b_tagJetP4;    //!
   TBranch *b_probeJetP4;  //!
+
+  UInt_t nEvents;
+
+  TFile *histoFile;
+
+  // sanity check histograms
+  TH1F *h1_trkP;
+  TH1F *h1_allTrkP;
+
+  TH1F *h1_selTrkP_iEta10;
+
+  TH1F *h1_rawSumE;
+  TH1F *h1_rawResp;
+  TH1F *h1_corResp;
+  TH1F *h1_rawRespBarrel;
+  TH1F *h1_corRespBarrel;
+  TH1F *h1_rawRespEndcap;
+  TH1F *h1_corRespEndcap;
+  TH1F *h1_numEventsTwrIEta;
+
+  TH2F *h2_dHitRefBarrel;
+  TH2F *h2_dHitRefEndcap;
+
+  // histograms based on iEta, iPhi of refPosition forthe cluster (at the moment: hottest tower)
+  // expect range |iEta|<=24 (to do: add flexibility for arbitrary range)
+  TH1F *h1_corRespIEta[48];
 
   hcalCalib(TTree * /*tree*/ = nullptr) {}
   ~hcalCalib() override {}
@@ -204,60 +238,3 @@ public:
 };
 
 #endif
-
-#ifdef hcalCalib_cxx
-inline void hcalCalib::Init(TTree *tree) {
-  // The Init() function is called when the selector needs to initialize
-  // a new tree or chain. Typically here the branch addresses and branch
-  // pointers of the tree will be set.
-  // It is normaly not necessary to make changes to the generated
-  // code, but the routine can be extended by the user if needed.
-  // Init() will be called many times when running on PROOF
-  // (once per file to be processed).
-
-  // Set object pointer
-  cells = nullptr;
-  tagJetP4 = nullptr;
-  probeJetP4 = nullptr;
-
-  // Set branch addresses and branch pointers
-  if (!tree)
-    return;
-  fChain = tree;
-
-  //      fChain->SetMakeClass(1);
-
-  fChain->SetBranchAddress("eventNumber", &eventNumber, &b_eventNumber);
-  fChain->SetBranchAddress("runNumber", &runNumber, &b_runNumber);
-  fChain->SetBranchAddress("iEtaHit", &iEtaHit, &b_iEtaHit);
-  fChain->SetBranchAddress("iPhiHit", &iPhiHit, &b_iPhiHit);
-  fChain->SetBranchAddress("cells", &cells, &b_cells);
-  fChain->SetBranchAddress("emEnergy", &emEnergy, &b_emEnergy);
-  fChain->SetBranchAddress("targetE", &targetE, &b_targetE);
-  fChain->SetBranchAddress("etVetoJet", &etVetoJet, &b_etVetoJet);
-
-  fChain->SetBranchAddress("xTrkHcal", &xTrkHcal, &b_xTrkHcal);
-  fChain->SetBranchAddress("yTrkHcal", &yTrkHcal, &b_yTrkHcal);
-  fChain->SetBranchAddress("zTrkHcal", &zTrkHcal, &b_zTrkHcal);
-  fChain->SetBranchAddress("xTrkEcal", &xTrkEcal, &b_xTrkEcal);
-  fChain->SetBranchAddress("yTrkEcal", &yTrkEcal, &b_yTrkEcal);
-  fChain->SetBranchAddress("zTrkEcal", &zTrkEcal, &b_zTrkEcal);
-
-  fChain->SetBranchAddress("tagJetEmFrac", &tagJetEmFrac, &b_tagJetEmFrac);
-  fChain->SetBranchAddress("probeJetEmFrac", &probeJetEmFrac, &b_probeJetEmFrac);
-
-  fChain->SetBranchAddress("tagJetP4", &tagJetP4, &b_tagJetP4);
-  fChain->SetBranchAddress("probeJetP4", &probeJetP4, &b_probeJetP4);
-}
-
-inline Bool_t hcalCalib::Notify() {
-  // The Notify() function is called when a new file is opened. This
-  // can be either for a new TTree in a TChain or when when a new TTree
-  // is started when using PROOF. It is normaly not necessary to make changes
-  // to the generated code, but the routine can be extended by the
-  // user if needed. The return value is currently not used.
-
-  return kTRUE;
-}
-
-#endif  // #ifdef hcalCalib_cxx

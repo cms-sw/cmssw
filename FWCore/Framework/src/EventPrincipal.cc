@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/branchIDToProductID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -18,7 +19,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -94,7 +95,8 @@ namespace edm {
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                           ProcessHistory const* processHistory,
                                           EventSelectionIDVector eventSelectionIDs,
-                                          BranchListIndexes branchListIndexes) {
+                                          BranchListIndexes branchListIndexes,
+                                          DelayedReader* reader) {
     eventSelectionIDs_ = std::move(eventSelectionIDs);
 
     if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
@@ -104,7 +106,7 @@ namespace edm {
       }
       updateBranchListIndexes(std::move(branchListIndexes));
     }
-    commonFillEventPrincipal(aux, processHistory, nullptr);
+    commonFillEventPrincipal(aux, processHistory, reader);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
@@ -148,13 +150,7 @@ namespace edm {
     branchListIndexToProcessIndex_.clear();
     // Fill in helper map for Branch to ProductID mapping
     if (not branchListIndexes_.empty()) {
-      ProcessIndex pix = 0;
-      branchListIndexToProcessIndex_.resize(1 + *std::max_element(branchListIndexes_.begin(), branchListIndexes_.end()),
-                                            std::numeric_limits<BranchListIndex>::max());
-      for (auto const& blindex : branchListIndexes_) {
-        branchListIndexToProcessIndex_[blindex] = pix;
-        ++pix;
-      }
+      branchListIndexToProcessIndex_ = makeBranchListIndexToProcessIndex(branchListIndexes_);
     }
 
     // Fill in the product ID's in the product holders.
@@ -234,27 +230,7 @@ namespace edm {
   }
 
   ProductID EventPrincipal::branchIDToProductID(BranchID const& bid) const {
-    if (!bid.isValid()) {
-      throw Exception(errors::NotFound, "InvalidID") << "branchIDToProductID: invalid BranchID supplied\n";
-    }
-    typedef BranchIDListHelper::BranchIDToIndexMap BIDToIndexMap;
-    typedef BIDToIndexMap::const_iterator Iter;
-    typedef std::pair<Iter, Iter> IndexRange;
-
-    IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
-    for (Iter it = range.first; it != range.second; ++it) {
-      BranchListIndex blix = it->second.first;
-      if (blix < branchListIndexToProcessIndex_.size()) {
-        auto v = branchListIndexToProcessIndex_[blix];
-        if (v != std::numeric_limits<BranchListIndex>::max()) {
-          ProductIndex productIndex = it->second.second;
-          ProcessIndex processIndex = v;
-          return ProductID(processIndex + 1, productIndex + 1);
-        }
-      }
-    }
-    // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
-    return ProductID();
+    return edm::branchIDToProductID(bid, *branchIDListHelper_, branchListIndexToProcessIndex_);
   }
 
   unsigned int EventPrincipal::processBlockIndex(std::string const& processName) const {

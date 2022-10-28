@@ -18,7 +18,7 @@ CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonCo
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
   maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
   theGenerator = std::make_unique<HitPairGeneratorFromLayerPairForPhotonConversion>(
-      0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator);
+      iC, 0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator);
 }
 
 const OrderedHitPairs& CombinedHitPairGeneratorForPhotonConversion::run(const ConversionRegion& convRegion,

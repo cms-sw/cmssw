@@ -12,7 +12,7 @@
 * 
 */
 
-#include "RecoTracker/FinalTrackSelectors/src/TrackCollectionCloner.cc"
+#include "RecoTracker/FinalTrackSelectors/interface/TrackCollectionCloner.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

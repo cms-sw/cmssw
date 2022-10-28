@@ -41,6 +41,7 @@ class TrackingRegion;
 class MuonServiceProxy;
 class TrajectoryStateUpdator;
 class TrackerTopology;
+class TrackerRecoGeometryRecord;
 
 class TSGForRoadSearch : public TrackerSeedGenerator {
 public:
@@ -88,8 +89,8 @@ private:
                           std::vector<TrajectorySeed> &result) const;
   edm::ParameterSet theConfig;
 
-  edm::ESHandle<MeasurementTracker> theMeasurementTracker;
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theGeometricSearchTrackerToken;
 
   edm::InputTag theMeasurementTrackerEventTag;
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
@@ -102,9 +103,7 @@ private:
   bool theCopyMuonRecHit;
   bool theManySeeds;
   std::string thePropagatorName;
-  edm::ESHandle<Propagator> theProp;
   std::string thePropagatorCompatibleName;
-  edm::ESHandle<Propagator> thePropCompatible;
   Chi2MeasurementEstimator *theChi2Estimator;
   std::string theCategory;
 

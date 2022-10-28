@@ -4,17 +4,15 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -39,21 +37,25 @@
 
 class SiStripHitAssociator;
 
-class myTrackAnalyzer : public edm::EDAnalyzer {
+class myTrackAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   typedef std::map<const TrackingRecHit*, int> sim_id_map;
   sim_id_map SimIdMap;
 
   explicit myTrackAnalyzer(const edm::ParameterSet& conf);
 
-  ~myTrackAnalyzer() override;
+  ~myTrackAnalyzer() override = default;
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  bool doPixel_, doStrip_;
-  edm::InputTag trackCollectionTag_;
+  const bool doPixel_, doStrip_;
+  const edm::InputTag trackCollectionTag_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokGeo_;
+  const edm::EDGetTokenT<reco::TrackCollection> tokTrack_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tokSimTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tokSimVtx_;
 };
 
 #endif

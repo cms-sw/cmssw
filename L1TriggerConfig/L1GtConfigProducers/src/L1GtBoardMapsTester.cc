@@ -31,43 +31,37 @@
 // forward declarations
 
 // constructor(s)
-L1GtBoardMapsTester::L1GtBoardMapsTester(const edm::ParameterSet& parSet) {
-  // empty
-}
-
-// destructor
-L1GtBoardMapsTester::~L1GtBoardMapsTester() {
+L1GtBoardMapsTester::L1GtBoardMapsTester(const edm::ParameterSet& parSet) : m_getToken(esConsumes()) {
   // empty
 }
 
 // loop over events
-void L1GtBoardMapsTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1GtBoardMaps> l1GtBM;
-  evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
+void L1GtBoardMapsTester::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& evSetup) const {
+  L1GtBoardMaps const& l1GtBM = evSetup.getData(m_getToken);
 
-  l1GtBM->print(std::cout);
+  l1GtBM.print(std::cout);
   std::cout << std::endl;
 
   // print for simplicity the individual maps
 
-  l1GtBM->printGtDaqRecordMap(std::cout);
+  l1GtBM.printGtDaqRecordMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtEvmRecordMap(std::cout);
+  l1GtBM.printGtEvmRecordMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtDaqActiveBoardsMap(std::cout);
+  l1GtBM.printGtDaqActiveBoardsMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtEvmActiveBoardsMap(std::cout);
+  l1GtBM.printGtEvmActiveBoardsMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtBoardSlotMap(std::cout);
+  l1GtBM.printGtBoardSlotMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtBoardHexNameMap(std::cout);
+  l1GtBM.printGtBoardHexNameMap(std::cout);
   std::cout << std::endl;
 
-  l1GtBM->printGtQuadToPsbMap(std::cout);
+  l1GtBM.printGtQuadToPsbMap(std::cout);
   std::cout << std::endl;
 }

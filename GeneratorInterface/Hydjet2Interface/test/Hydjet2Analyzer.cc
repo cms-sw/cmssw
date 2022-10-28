@@ -1,53 +1,59 @@
-// -*- C++ -*-
-//
-// Package: Hydjet2Analyzer
-// Class: Hydjet2Analyzer
-//
-/**\class HydjetAnalyzer HydjetAnalyzer.cc yetkin/HydjetAnalyzer/src/HydjetAnalyzer.cc
-   Description: <one line class summary>
-   Implementation:
-   <Notes on implementation>
+/**
+   \class Hydjet2Analyzer
+   \brief HepMC events analyzer
+   \version 2.2
+   \authors Yetkin Yilmaz, Andrey Belyaev
 */
-//
-// Original Author: Yetkin Yilmaz
-// Created: Tue Dec 18 09:44:41 EST 2007
-//
-//
+
 // system include files
 #include <cmath>
-#include <memory>
-#include <iostream>
-#include <string>
 #include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+
 // user include files
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
+
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 // root include file
 #include "TFile.h"
 #include "TNtuple.h"
+#include "TH1.h"
+#include "TH2.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+using namespace edm;
 using namespace std;
-static const int MAXPARTICLES = 5000000;
-static const int ETABINS = 3;  // Fix also in branch string
-//
-// class decleration
-//
+namespace {
+  static const int MAXPARTICLES = 5000000;
+  static const int ETABINS = 3;  // Fix also in branch string
+}  // namespace
 struct Hydjet2Event {
   int event;
   float b;
@@ -69,21 +75,21 @@ struct Hydjet2Event {
   float phi[MAXPARTICLES];
   int pdg[MAXPARTICLES];
   int chg[MAXPARTICLES];
+
   float vx;
   float vy;
   float vz;
   float vr;
 };
-class Hydjet2Analyzer : public edm::EDAnalyzer {
+class Hydjet2Analyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit Hydjet2Analyzer(const edm::ParameterSet &);
   ~Hydjet2Analyzer();
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() final;
+  void analyze(const edm::Event &, const edm::EventSetup &) final;
+  void endJob() final;
   // ----------member data ---------------------------
   std::ofstream out_b;
   std::string fBFileName;
@@ -95,6 +101,7 @@ private:
   Hydjet2Event hev_;
   TNtuple *nt;
   std::string output;  // Output filename
+  bool doTestEvent_;
   bool doAnalysis_;
   bool printLists_;
   bool doCF_;
@@ -144,28 +151,79 @@ private:
   double downTetaCut_ = -1.;
   const double pi = 3.14159265358979;
 
-  edm::InputTag src_;
+  edm::EDGetTokenT<edm::HepMCProduct> srcT_;
+  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> srcTmix_;
+
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESHandle<ParticleDataTable> pdt;
-  edm::Service<TFileService> f;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   //common
-  TH1D *dhpt;
-  TH1D *dhpt_ch;
 
   TH1D *dhphi;
-  TH1D *dhphi_ch;
 
-  TH1D *dhv2pt;
-  TH1D *dhv0pt;
+  TH1D *dhpdg;
 
-  TH1D *dhv2eta;
-  TH1D *dhv0eta;
-
+  TH1D *dhet_sum;
+  TH1D *dhet_barrel_sum;
+  TH1D *dhe_sum;
+  TH1D *dhe_barrel_sum;
   TH1D *dheta;
+  TH1D *dhpt;
+
+  TH1D *dhv2pt_cha;
+  TH1D *dhv0pt_cha;
+  TH1D *dhv2eta_cha;
+  TH1D *dhv0eta_cha;
+  TH1D *dhphi_cha;
+  TH1D *dhet_cha_sum;
+  TH1D *dhet_cha_barrel_sum;
+  TH1D *dheta_cha;
+  TH1D *dhpt_cha;
+
+  TH1D *dhv2pt_ch;
+  TH1D *dhv0pt_ch;
+  TH1D *dhv2eta_ch;
+  TH1D *dhv0eta_ch;
+  TH1D *dhphi_ch;
+  TH1D *dhet_ch_sum;
+  TH1D *dhet_ch_barrel_sum;
+  TH1D *dhe_ch_sum;
+  TH1D *dhe_ch_barrel_sum;
   TH1D *dheta_ch;
+  TH1D *dhpt_ch;
+
+  TH1D *dhet_ph_sum;
+  TH1D *dhet_ph_barrel_sum;
+  TH1D *dhe_ph_sum;
+  TH1D *dhe_ph_barrel_sum;
+  TH1D *dheta_ph;
+  TH1D *dhpt_ph;
+
+  TH1D *dhet_n_sum;
+  TH1D *dhet_n_barrel_sum;
+  TH1D *dhe_n_sum;
+  TH1D *dhe_n_barrel_sum;
+  TH1D *dheta_n;
+  TH1D *dhpt_n;
+
+  TH1D *dhet_p_sum;
+  TH1D *dhet_p_barrel_sum;
+  TH1D *dheta_p;
+  TH1D *dhpt_p;
+
+  TH1D *dhet_pi_sum;
+  TH1D *dhet_pi_barrel_sum;
+  TH1D *dheta_pi;
+  TH1D *dhpt_pi;
+
+  TH1D *dhet_K_sum;
+  TH1D *dhet_K_barrel_sum;
+  TH1D *dheta_K;
+  TH1D *dhpt_K;
+
+  TH2D *dhpdg_st;
 
   TH1D *hNev;
 
@@ -262,17 +320,8 @@ private:
   TH1D *uhv0etah_db;
   TH1D *uhv0etaj_db;
 };
-//
-// constants, enums and typedefs
-//
-//
-// static data member definitions
-//
-//
-// constructors and destructor
-//
+
 Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
-  //now do what ever initialization is needed
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -286,13 +335,19 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
+  srcT_ = mayConsume<HepMCProduct>(
+      iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")));
+  srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
+      iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));
+
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("heavyIon"));
+
+  if (useHepMCProduct_)
+    pdtToken_ = esConsumes();
+  doTestEvent_ = iConfig.getUntrackedParameter<bool>("doTestEvent", false);
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
-
   doHistos_ = iConfig.getUntrackedParameter<bool>("doHistos", false);
-
   if (doHistos_) {
     userHistos_ = iConfig.getUntrackedParameter<bool>("userHistos", false);
     if (userHistos_) {
@@ -302,11 +357,11 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
       uPDG_3 = iConfig.getUntrackedParameter<int>("uPDG_3", uPDG_1);
       upTetaCut_ = iConfig.getUntrackedParameter<double>("uPTetaCut", 0.8);
       downTetaCut_ = iConfig.getUntrackedParameter<double>("dPTetaCut", -1.);
-      uPtBins_ = iConfig.getUntrackedParameter<vector<double> >("PtBins");
-      uEtaBins_ = iConfig.getUntrackedParameter<vector<double> >("EtaBins");
-      uPhiBins_ = iConfig.getUntrackedParameter<vector<double> >("PhiBins");
-      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double> >("v2PtBins");
-      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double> >("v2EtaBins");
+      uPtBins_ = iConfig.getUntrackedParameter<vector<double>>("PtBins");
+      uEtaBins_ = iConfig.getUntrackedParameter<vector<double>>("EtaBins");
+      uPhiBins_ = iConfig.getUntrackedParameter<vector<double>>("PhiBins");
+      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double>>("v2PtBins");
+      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double>>("v2EtaBins");
 
       //Pt
       int PtSize = uPtBins_.size();
@@ -397,18 +452,12 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
           v2etaBins[k] = minV2eta + k * ((maxV2eta - minV2eta) / nintV2eta);
         }
       }
-
     }  //user histo
   }    //do histo
 }
-Hydjet2Analyzer::~Hydjet2Analyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-//
-// member functions
-//
-// ------------ method called to for each event ------------
+Hydjet2Analyzer::~Hydjet2Analyzer() {}
+
+// ------------ method called to for each event  ------------
 void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace HepMC;
@@ -436,18 +485,20 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   int sig = -1;
   int src = -1;
   if (useHepMCProduct_) {
-    //_______________________________________________________________________________________
+    edm::ESHandle<ParticleDataTable> pdt = iSetup.getHandle(pdtToken_);
+
     if (doCF_) {
-      Handle<CrossingFrame<HepMCProduct> > cf;
-      iEvent.getByLabel(InputTag("mix", "source"), cf);
+      Handle<CrossingFrame<HepMCProduct>> cf;
+      iEvent.getByToken(srcTmix_, cf);
       MixCollection<HepMCProduct> mix(cf.product());
       nmix = mix.size();
-      cout << "Mix Collection Size: " << mix << endl;
+      //cout << "Mix Collection Size: " << mix.size() <<", pileup size: " <<mix.sizePileup() << ", signal: "<<mix.sizeSignal()<< endl;
       MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
       MixCollection<HepMCProduct>::iterator mend = mix.end();
       for (MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit) {
         const GenEvent *subevt = (*mixit).GetEvent();
         int all = subevt->particles_size();
+        //cout << "Subevent size: " << all << " Subevent type (1-signal): "<< (mixit).getTrigger()<<" Source type (pileup=0, cosmics=1, beam halo+ =2, beam halo- =3): "<< (mixit).getSourceType()<<" Bunchcrossing number: "<< mixit.bunch()<<" Impact: " <<subevt->heavy_ion()->impact_parameter()<<endl;
         np += all;
         HepMC::GenEvent::particle_const_iterator begin = subevt->particles_begin();
         HepMC::GenEvent::particle_const_iterator end = subevt->particles_end();
@@ -464,6 +515,8 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
             hev_.phi[hev_.mult] = phi;
             hev_.pdg[hev_.mult] = pdg_id;
             hev_.chg[hev_.mult] = charge;
+
+            //cout << "Mix Particles: pt= " << pt<<" eta="<<eta<<" phi="<<phi<<" pdg="<< pdg_id<<" charge="<<charge << endl;
             eta = fabs(eta);
             int etabin = 0;
             if (eta > 0.5)
@@ -480,7 +533,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       }
     } else {  //not mixing
       Handle<HepMCProduct> mc;
-      iEvent.getByLabel(src_, mc);
+      iEvent.getByToken(srcT_, mc);
       evt = mc->GetEvent();
       scale = evt->event_scale();
       const HeavyIon *hi = evt->heavy_ion();
@@ -491,18 +544,32 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         ncoll = hi->Ncoll();
         nhard = hi->Ncoll_hard();
         phi0 = hi->event_plane_angle();
-        phi3 = 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
+        phi3 =
+            hi->eccentricity();  // 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
         if (printLists_) {
           out_b << b << endl;
           out_n << npart << endl;
         }
       }
+
       src = evt->particles_size();
+      if (doTestEvent_) {
+        std::cout << "Event size: " << src << std::endl;
+        mc->GetEvent()->print();
+      }
+
+      float et_sum = 0., et_barrel_sum = 0., e_sum = 0., e_barrel_sum = 0., et_cha_sum = 0., et_cha_barrel_sum = 0.,
+            et_ch_sum = 0., et_ch_barrel_sum = 0., e_ch_sum = 0., e_ch_barrel_sum = 0., et_ph_sum = 0.,
+            et_ph_barrel_sum = 0., e_ph_sum = 0., e_ph_barrel_sum = 0., et_n_sum = 0., et_n_barrel_sum = 0.,
+            et_p_sum = 0., et_p_barrel_sum = 0., et_pi_sum = 0., et_pi_barrel_sum = 0., et_K_sum = 0.,
+            et_K_barrel_sum = 0., e_n_sum = 0., e_n_barrel_sum = 0.;
+
       HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
       HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
       for (HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it) {
-        if (((*it)->status() > 0) && ((*it)->status() < 21)) {
+        if (((*it)->status() >= -1) && ((*it)->status() < 31)) {
           const ParticleData *part;
+          int st = (*it)->status();
           int pdg_id = (*it)->pdg_id();
           float eta = (*it)->momentum().eta();
           float phi = (*it)->momentum().phi();
@@ -514,22 +581,27 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           float e = (*it)->momentum().e();
           float pseudoRapidity = (*it)->momentum().pseudoRapidity();
           int charge = -1;
+          float mass = -1.;
           if ((pdt->particle(pdg_id))) {
             part = pdt->particle(pdg_id);
             charge = static_cast<int>(part->charge());
+            mass = (part->mass());
+          }
+          if (mass < 0) {
+            if ((abs(pdg_id) == 130) || (abs(pdg_id) == 310)) {
+              mass = 0.497611;
+            } else {
+              //cout<<"Error! Mass for "<< pdg_id <<" not found in PDT!!!"<<endl;
+              //return;
+            }
           }
 
-          /*
-          if(pdg_id==-130){ //there are not -130 in pdt
-	    part = pdt->particle(130);
-	  }else if(!(pdt->particle(pdg_id))){ //skip if not in PDT!!!
-	    cout<<" Out of PDT: "<< pdg_id<<endl;
-	    continue;
-          }else{
-	    part = pdt->particle(pdg_id);
-          }
-*/
-          //          int charge = static_cast<int>(part->charge());
+          float et = sqrt((pt * pt) + (mass * mass));
+
+          //if(std::abs(eta)>5) continue;
+
+          dhpdg_st->Fill(pdg_id, st);
+
           hev_.px[hev_.mult] = px;
           hev_.py[hev_.mult] = py;
           hev_.pz[hev_.mult] = pz;
@@ -560,25 +632,119 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
           if (doHistos_) {
             //common histos
-            if ((*it)->status() < 10) {  //status 1
+            if ((*it)->status() == 1) {
+              dhpdg->Fill(pdg_id);
               dheta->Fill(eta);
+
+              e_sum += e;
+              et_sum += et;
+              if (std::abs(eta) < 1.5) {
+                e_barrel_sum += e;
+                et_barrel_sum += et;
+              }
+
+              if (std::abs(pdg_id) == 22) {  //ph
+                e_ph_sum += e;
+                et_ph_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  e_ph_barrel_sum += e;
+                  et_ph_barrel_sum += et;
+                }
+                if (std::abs(eta) < 0.8) {  //ALICE
+                  dhpt_ph->Fill(pt);
+                }
+                dheta_ph->Fill(eta);
+              }
+
+              if (std::abs(pdg_id) == 2112) {  //n
+                e_n_sum += e;
+                et_n_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  e_n_barrel_sum += e;
+                  et_n_barrel_sum += et;
+                }
+                if (std::abs(eta) < 0.8) {
+                  dhpt_n->Fill(pt);
+                }
+                dheta_n->Fill(eta);
+              }
+
+              if (std::abs(pdg_id) == 2212) {  //p
+                et_p_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  et_p_barrel_sum += et;
+                }
+                if (std::abs(eta) < 0.8) {
+                  dhpt_p->Fill(pt);
+                }
+                dheta_p->Fill(eta);
+              }
+
+              if (std::abs(pdg_id) == 211) {  //pi
+                et_pi_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  et_pi_barrel_sum += et;
+                }
+                if (std::abs(eta) < 0.8) {
+                  dhpt_pi->Fill(pt);
+                }
+                dheta_pi->Fill(eta);
+              }
+
+              if (std::abs(pdg_id) == 321) {  //K
+                et_K_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  et_K_barrel_sum += et;
+                }
+                if (std::abs(eta) < 0.8) {
+                  dhpt_K->Fill(pt);
+                }
+                dheta_K->Fill(eta);
+              }
 
               if (std::abs(eta) < 0.8) {
                 dhpt->Fill(pt);
                 dhphi->Fill(phiTrue);
               }
 
+              if (charge == 1) {
+                et_cha_sum += et;
+                if (std::abs(eta) < 1.5) {
+                  et_cha_barrel_sum += et;
+                }
+
+                if (std::abs(eta) < 1.) {  //CMS
+                  dhv0pt_cha->Fill(pt, 1.);
+                  dhv2pt_cha->Fill(pt, v2);
+                }
+
+                if (std::abs(eta) < 0.8) {  //ALICE
+                  dhpt_cha->Fill(pt);
+                  dhphi_cha->Fill(phiTrue);
+                }
+                dhv0eta_cha->Fill(eta, 1.);
+                dhv2eta_cha->Fill(eta, v2);
+                dheta_cha->Fill(eta);
+              }
+
               if (std::abs(pdg_id) == 211 || std::abs(pdg_id) == 321 || std::abs(pdg_id) == 2212) {  //ch
+                et_ch_sum += et;
+                e_ch_sum += e;
+
+                if (std::abs(eta) < 1.5) {
+                  e_ch_barrel_sum += e;
+                  et_ch_barrel_sum += et;
+                }
 
                 if (std::abs(eta) < 0.8) {
-                  dhv0pt->Fill(pt, 1.);
-                  dhv2pt->Fill(pt, v2);
+                  dhv0pt_ch->Fill(pt, 1.);
+                  dhv2pt_ch->Fill(pt, v2);
                   dhpt_ch->Fill(pt);
                   dhphi_ch->Fill(phiTrue);
                 }
 
-                dhv0eta->Fill(eta, 1.);
-                dhv2eta->Fill(eta, v2);
+                dhv0eta_ch->Fill(eta, 1.);
+                dhv2eta_ch->Fill(eta, v2);
                 dheta_ch->Fill(eta);
               }  //ch
             }    //status 1
@@ -716,8 +882,38 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           }
           ++(hev_.mult);
         }
-      }
-    }
+      }  //particle iterator
+      dhet_sum->Fill(et_sum);
+      dhet_barrel_sum->Fill(et_barrel_sum);
+      dhe_sum->Fill(e_sum);
+      dhe_barrel_sum->Fill(e_barrel_sum);
+
+      dhet_cha_sum->Fill(et_cha_sum);
+      dhet_cha_barrel_sum->Fill(et_cha_barrel_sum);
+
+      dhet_ch_sum->Fill(et_ch_sum);
+      dhet_ch_barrel_sum->Fill(et_ch_barrel_sum);
+      dhe_ch_sum->Fill(e_ch_sum);
+      dhe_ch_barrel_sum->Fill(e_ch_barrel_sum);
+
+      dhet_ph_sum->Fill(et_ph_sum);
+      dhet_ph_barrel_sum->Fill(et_ph_barrel_sum);
+      dhe_ph_sum->Fill(e_ph_sum);
+      dhe_ph_barrel_sum->Fill(e_ph_barrel_sum);
+
+      dhet_n_sum->Fill(et_n_sum);
+      dhet_n_barrel_sum->Fill(et_n_barrel_sum);
+      dhe_n_sum->Fill(e_n_sum);
+      dhe_n_barrel_sum->Fill(e_n_barrel_sum);
+
+      dhet_p_sum->Fill(et_p_sum);
+      dhet_p_barrel_sum->Fill(et_p_barrel_sum);
+      dhet_pi_sum->Fill(et_pi_sum);
+      dhet_pi_barrel_sum->Fill(et_pi_barrel_sum);
+      dhet_K_sum->Fill(et_K_sum);
+      dhet_K_barrel_sum->Fill(et_K_barrel_sum);
+
+    }       //not mixing
   } else {  // not HepMC
     edm::Handle<reco::GenParticleCollection> parts;
     iEvent.getByLabel(genParticleSrc_, parts);
@@ -729,6 +925,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       hev_.pdg[hev_.mult] = p.pdgId();
       hev_.chg[hev_.mult] = p.charge();
       double eta = fabs(p.eta());
+
       int etabin = 0;
       if (eta > 0.5)
         etabin = 1;
@@ -745,12 +942,15 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       iEvent.getByLabel(genHIsrc_, higen);
     }
   }
+
   if (doVertex_) {
     edm::Handle<edm::SimVertexContainer> simVertices;
     iEvent.getByLabel<edm::SimVertexContainer>(simVerticesTag_, simVertices);
+
     if (!simVertices.isValid())
       throw cms::Exception("FatalError") << "No vertices found\n";
     int inum = 0;
+
     edm::SimVertexContainer::const_iterator it = simVertices->begin();
     SimVertex vertex = (*it);
     cout << " Vertex position " << inum << " " << vertex.position().rho() << " " << vertex.position().z() << endl;
@@ -759,9 +959,11 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     vz = vertex.position().z();
     vr = vertex.position().rho();
   }
+
   for (int i = 0; i < 3; ++i) {
     hev_.ptav[i] = hev_.ptav[i] / hev_.n[i];
   }
+
   hev_.b = b;
   hev_.scale = scale;
   hev_.npart = npart;
@@ -783,8 +985,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     hNev->Fill(1., 1);
   }
 }
-// ------------ method called once each job just before starting event loop ------------
-void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { iSetup.getData(pdt); }
+// ------------ method called once each job just before starting event loop  ------------
 void Hydjet2Analyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
@@ -800,11 +1001,6 @@ void Hydjet2Analyzer::beginJob() {
 
   if (doHistos_) {
     if (userHistos_) {
-      cout << "---------------------------------------------------------------INPUT------------------------------------"
-              "-------------------------------"
-           << endl;
-      cout << "etaCut for pT = " << downTetaCut_ << " - " << upTetaCut_ << endl;
-
       //pt
       uhpt = new TH1D("uhpt", "uhpt", nintPt, ptBins);
       uhptj = new TH1D("uhptj", "uhptj", nintPt, ptBins);
@@ -919,27 +1115,86 @@ void Hydjet2Analyzer::beginJob() {
       uhv6eta_db = new TH1D("uhv6eta_db", "uhv6eta_db", 200, -5, 5.);
     }
 
-    dhpt = new TH1D("dhpt", "dhpt", 1000, 0.0000000000001, 100.);
+    dhphi = new TH1D("dhphi", "dhphi", 1000, -3.14159265358979, 3.14159265358979);
+
+    dhpdg = new TH1D("dhpdg", "dhpdg", 20000001, -10000000.5, 10000000.5);
+    dhpdg_st = new TH2D("dhpdg_st", "dhpdg_st", 1001, -500.5, 500.5, 3, -0.5, 3.5);
+
+    dhet_sum = new TH1D("dhet_sum", "dhet_sum", 300, 0., 100000.);
+    dhet_barrel_sum = new TH1D("dhet_barrel_sum", "dhet_barrel_sum", 500, 0., 100000.);
+    dhe_sum = new TH1D("dhe_sum", "dhe_sum", 800, 0., 1000000.);
+    dhe_barrel_sum = new TH1D("dhe_barrel_sum", "dhe_barrel_sum", 300, 0., 100000.);
+    dheta = new TH1D("dheta", "dheta", 1000, -10., 10.);
+    dhpt = new TH1D("dhpt", "dhpt", 1000, 0.0000000000001, 200.);
+
+    //charged
+    dhphi_cha = new TH1D("dhphi_cha", "dhphi_cha", 1000, -3.14159265358979, 3.14159265358979);
+    dhet_cha_sum = new TH1D("dhet_cha_sum", "dhet_cha_sum", 200, 0., 20000.);
+    dhet_cha_barrel_sum = new TH1D("dhet_cha_barrel_sum", "dhet_cha_barrel_sum", 300, 0., 10000.);
+    dheta_cha = new TH1D("dheta_cha", "dheta_cha", 1000, -10., 10.);
+    dhpt_cha = new TH1D("dhpt_cha", "dhpt_cha", 1000, 0.0000000000001, 100.);
+
+    dhv2pt_cha = new TH1D("dhv2pt_cha", "dhv2pt_cha", 200, 0.0, 10.);
+    dhv0pt_cha = new TH1D("dhv0pt_cha", "dhv0pt_cha", 200, 0.0, 10.);
+    dhv2eta_cha = new TH1D("dhv2eta_cha", "dhv2eta_cha", 200, -5, 5.);
+    dhv0eta_cha = new TH1D("dhv0eta_cha", "dhv0eta_cha", 200, -5, 5.);
+
+    //charged hadrons
+    dhphi_ch = new TH1D("dhphi_ch", "dhphi_ch", 1000, -3.14159265358979, 3.14159265358979);
+    dhet_ch_sum = new TH1D("dhet_ch_sum", "dhet_ch_sum", 200, 0., 20000.);
+    dhet_ch_barrel_sum = new TH1D("dhet_ch_barrel_sum", "dhet_ch_barrel_sum", 300, 0., 10000.);
+    dhe_ch_sum = new TH1D("dhe_ch_sum", "dhe_ch_sum", 400, 0., 500000.);
+    dhe_ch_barrel_sum = new TH1D("dhe_ch_barrel_sum", "dhe_ch_barrel_sum", 150, 0., 10000.);
+    dheta_ch = new TH1D("dheta_ch", "dheta_ch", 1000, -10., 10.);
     dhpt_ch = new TH1D("dhpt_ch", "dhpt_ch", 1000, 0.0000000000001, 100.);
 
-    dhphi = new TH1D("dhphi", "dhphi", 1000, -3.14159265358979, 3.14159265358979);
-    dhphi_ch = new TH1D("dhphi_ch", "dhphi_ch", 1000, -3.14159265358979, 3.14159265358979);
+    dhv2pt_ch = new TH1D("dhv2pt_ch", "dhv2pt_ch", 200, 0.0, 10.);
+    dhv0pt_ch = new TH1D("dhv0pt_ch", "dhv0pt_ch", 200, 0.0, 10.);
+    dhv2eta_ch = new TH1D("dhv2eta_ch", "dhv2eta_ch", 200, -5, 5.);
+    dhv0eta_ch = new TH1D("dhv0eta_ch", "dhv0eta_ch", 200, -5, 5.);
 
-    dhv2pt = new TH1D("dhv2pt", "dhv2pt", 200, 0.0, 10.);
-    dhv0pt = new TH1D("dhv0pt", "dhv0pt", 200, 0.0, 10.);
+    //ph
+    dhet_ph_sum = new TH1D("dhet_ph_sum", "dhet_ph_sum", 150, 0., 8000.);
+    dhet_ph_barrel_sum = new TH1D("dhet_ph_barrel_sum", "dhet_ph_barrel_sum", 100, 0., 5000.);
+    dhe_ph_sum = new TH1D("dhe_ph_sum", "dhe_ph_sum", 1000, 0., 200000.);
+    dhe_ph_barrel_sum = new TH1D("dhe_ph_barrel_sum", "dhe_ph_barrel_sum", 100, 0., 5000.);
+    dheta_ph = new TH1D("dheta_ph", "dheta_ph", 1000, -10., 10.);
+    dhpt_ph = new TH1D("dhpt_ph", "dhpt_ph", 1000, 0.0000000000001, 100.);
 
-    dhv2eta = new TH1D("dhv2eta", "dhv2eta", 200, -5, 5.);
-    dhv0eta = new TH1D("dhv0eta", "dhv0eta", 200, -5, 5.);
+    //n
+    dhet_n_sum = new TH1D("dhet_n_sum", "dhet_n_sum", 150, 0., 3000.);
+    dhet_n_barrel_sum = new TH1D("dhet_n_barrel_sum", "dhet_n_barrel_sum", 100, 0., 1100.);
+    dhe_n_sum = new TH1D("dhe_n_sum", "dhe_n_sum", 600, 0., 200000.);
+    dhe_n_barrel_sum = new TH1D("dhe_n_barrel_sum", "dhe_n_barrel_sum", 100, 0., 1100.);
+    dheta_n = new TH1D("dheta_n", "dheta_n", 1000, -10., 10.);
+    dhpt_n = new TH1D("dhpt_n", "dhpt_n", 1000, 0.0000000000001, 100.);
 
-    dheta = new TH1D("dheta", "dheta", 1000, -10., 10.);
-    dheta_ch = new TH1D("dheta_ch", "dheta_ch", 1000, -10., 10.);
+    //p
+    dhet_p_sum = new TH1D("dhet_p_sum", "dhet_p_sum", 150, 0., 3000.);
+    dhet_p_barrel_sum = new TH1D("dhet_p_barrel_sum", "dhet_p_barrel_sum", 100, 0., 1100.);
+    dheta_p = new TH1D("dheta_p", "dheta_p", 1000, -10., 10.);
+    dhpt_p = new TH1D("dhpt_p", "dhpt_p", 1000, 0.0000000000001, 100.);
+
+    //pi
+    dhet_pi_sum = new TH1D("dhet_pi_sum", "dhet_pi_sum", 300, 6000., 18000.);
+    dhet_pi_barrel_sum = new TH1D("dhet_pi_barrel_sum", "dhet_pi_barrel_sum", 300, 1000., 7000.);
+    dheta_pi = new TH1D("dheta_pi", "dheta_pi", 1000, -10., 10.);
+    dhpt_pi = new TH1D("dhpt_pi", "dhpt_pi", 1000, 0.0000000000001, 100.);
+
+    //K
+    dhet_K_sum = new TH1D("dhet_K_sum", "dhet_K_sum", 150, 1500., 4500.);
+    dhet_K_barrel_sum = new TH1D("dhet_K_barrel_sum", "dhet_K_barrel_sum", 100, 500., 1600.);
+    dheta_K = new TH1D("dheta_K", "dheta_K", 1000, -10., 10.);
+    dhpt_K = new TH1D("dhpt_K", "dhpt_K", 1000, 0.0000000000001, 100.);
 
     hNev = new TH1D("hNev", "hNev", 1, 0., 2.);
   }
 
   if (doAnalysis_) {
+    usesResource(TFileService::kSharedResource);
+    edm::Service<TFileService> f;
     nt = f->make<TNtuple>("nt", "Mixing Analysis", "mix:np:src:sig");
-    hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet Events");
+    hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet2 Events");
     hydjetTree_->Branch("event", &hev_.event, "event/I");
     hydjetTree_->Branch("b", &hev_.b, "b/F");
     hydjetTree_->Branch("npart", &hev_.npart, "npart/F");
@@ -961,6 +1216,7 @@ void Hydjet2Analyzer::beginJob() {
       hydjetTree_->Branch("phi", hev_.phi, "phi[mult]/F");
       hydjetTree_->Branch("pdg", hev_.pdg, "pdg[mult]/I");
       hydjetTree_->Branch("chg", hev_.chg, "chg[mult]/I");
+
       hydjetTree_->Branch("vx", &hev_.vx, "vx/F");
       hydjetTree_->Branch("vy", &hev_.vy, "vy/F");
       hydjetTree_->Branch("vz", &hev_.vz, "vz/F");
@@ -968,19 +1224,71 @@ void Hydjet2Analyzer::beginJob() {
     }
   }
 }
-// ------------ method called once each job just after ending the event loop ------------
+// ------------ method called once each job just after ending the event loop  ------------
 void Hydjet2Analyzer::endJob() {
   if (doHistos_) {
+    dhphi->Write();
+    dhpdg->Write();
+    dhpdg_st->Write();
+
+    dhet_sum->Write();
+    dhet_barrel_sum->Write();
+    dhe_sum->Write();
+    dhe_barrel_sum->Write();
     dhpt->Write();
     dheta->Write();
-    dhphi->Write();
-    dhv0pt->Write();
-    dhv2pt->Write();
-    dhv0eta->Write();
-    dhv2eta->Write();
 
+    dhphi_ch->Write();
+    dhet_ch_sum->Write();
+    dhet_ch_barrel_sum->Write();
+    dhe_ch_sum->Write();
+    dhe_ch_barrel_sum->Write();
     dhpt_ch->Write();
     dheta_ch->Write();
+    dhv0pt_ch->Write();
+    dhv2pt_ch->Write();
+    dhv0eta_ch->Write();
+    dhv2eta_ch->Write();
+
+    dhphi_cha->Write();
+    dhet_cha_sum->Write();
+    dhet_cha_barrel_sum->Write();
+    dhpt_cha->Write();
+    dheta_cha->Write();
+    dhv0pt_cha->Write();
+    dhv2pt_cha->Write();
+    dhv0eta_cha->Write();
+    dhv2eta_cha->Write();
+
+    dhet_ph_sum->Write();
+    dhet_ph_barrel_sum->Write();
+    dhe_ph_sum->Write();
+    dhe_ph_barrel_sum->Write();
+    dhpt_ph->Write();
+    dheta_ph->Write();
+
+    dhet_n_sum->Write();
+    dhet_n_barrel_sum->Write();
+    dhe_n_sum->Write();
+    dhe_n_barrel_sum->Write();
+    dhpt_n->Write();
+    dheta_n->Write();
+
+    dhet_p_sum->Write();
+    dhet_p_barrel_sum->Write();
+    dhpt_p->Write();
+    dheta_p->Write();
+
+    dhet_pi_sum->Write();
+    dhet_pi_barrel_sum->Write();
+    dhpt_pi->Write();
+    dheta_pi->Write();
+
+    dhet_K_sum->Write();
+    dhet_K_barrel_sum->Write();
+    dhpt_K->Write();
+    dheta_K->Write();
+
     hNev->Write();
     if (userHistos_) {
       uhpt->Write();

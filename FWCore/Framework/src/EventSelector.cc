@@ -39,9 +39,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
-#include "boost/algorithm/string.hpp"
-
 #include <algorithm>
+#include <cctype>
 #include <cassert>
 
 namespace edm {
@@ -89,7 +88,10 @@ namespace edm {
   Strings EventSelector::initPathSpecs(Strings const& pathSpecs) {
     Strings trimmedPathSpecs(pathSpecs);
     for (auto& pathspecifier : trimmedPathSpecs) {
-      boost::erase_all(pathspecifier, " \t");  // whitespace eliminated
+      pathspecifier.erase(std::remove_if(pathspecifier.begin(),
+                                         pathspecifier.end(),
+                                         [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
+                          pathspecifier.end());  // whitespace eliminated
     }
     // Return value optimization should avoid another copy;
     return trimmedPathSpecs;

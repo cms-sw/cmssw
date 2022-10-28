@@ -41,10 +41,6 @@ private:
   std::string EEDigiCollectionDM_;  // secondary name to be given to collection of digis
   std::string ESDigiCollectionDM_;  // secondary name to be given to collection of digis
 
-  edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
-  edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
-  edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
-
   const double m_EBs25notCont;
   const double m_EEs25notCont;
   const double m_peToABarrel;
@@ -64,19 +60,16 @@ PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
     : EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
       EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
       ESPileInputTag_(ps.getParameter<edm::InputTag>("ESPileInputTag")),
-      tok_eb_(iC.consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_)),
-      tok_ee_(iC.consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_)),
-      tok_es_(iC.consumes<ESDigitizerTraits::DigiCollection>(ESPileInputTag_)),
       m_EBs25notCont(ps.getParameter<double>("EBs25notContainment")),
       m_EEs25notCont(ps.getParameter<double>("EEs25notContainment")),
       m_peToABarrel(ps.getParameter<double>("photoelectronsToAnalogBarrel")),
       m_peToAEndcap(ps.getParameter<double>("photoelectronsToAnalogEndcap")),
       m_timeDependent(ps.getParameter<bool>("timeDependent")),
       theEBSignalGenerator(
-          EBPileInputTag_, tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
+          iC, EBPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
       theEESignalGenerator(
-          EEPileInputTag_, tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
-      theESSignalGenerator(ESPileInputTag_, tok_es_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+          iC, EEPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
+      theESSignalGenerator(iC, ESPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
       myEcalDigitizer_(ps, iC) {
   EBDigiCollectionDM_ = ps.getParameter<std::string>("EBDigiCollectionDM");
   EEDigiCollectionDM_ = ps.getParameter<std::string>("EEDigiCollectionDM");

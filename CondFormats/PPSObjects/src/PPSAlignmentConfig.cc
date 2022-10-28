@@ -1,8 +1,6 @@
 /****************************************************************************
  *
- *  CondFormats/PPSObjects/interface/PPSAlignmentConfig.cc
- *
- *  Description : Class with alignment parameters
+ *  This class is obsolete! Use PPSAlignmentConfiguration instead.
  *
  *  Authors:
  *  - Jan Kašpar
@@ -10,10 +8,7 @@
  *
  ****************************************************************************/
 
-#include "FWCore/Utilities/interface/typelookup.h"
-
 #include "CondFormats/PPSObjects/interface/PPSAlignmentConfig.h"
-TYPELOOKUP_DATA_REG(PPSAlignmentConfig);
 
 #include <iostream>
 #include <cmath>

@@ -14,6 +14,8 @@
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <ctime>
 #include <sstream>
 

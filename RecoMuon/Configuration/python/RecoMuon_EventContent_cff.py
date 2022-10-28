@@ -36,6 +36,14 @@ RecoMuonAOD = cms.PSet(
                                            #'drop *_muons_muons1stStep2muonsMap_*',
                                            #'drop recoIsoDepositedmValueMap_muons_*_*', #not really used
                                            #'drop doubleedmValueMap_muons_muPFIso*_*', #already inside the muon
+                                           # displacedMuons collection
+                                           'keep recoMuons_displacedMuons_*_*',
+                                           'keep booledmValueMap_displacedMuons_*_*',
+                                           'keep doubleedmValueMap_displacedMuons_dispMuPFMean*_*',
+                                           'keep doubleedmValueMap_displacedMuons_dispMuPFSum*_*',
+                                           'keep recoMuonTimeExtraedmValueMap_displacedMuons_*_*',
+                                           'keep uintedmValueMap_displacedMuons_*_*',
+                                           'keep *_particleFlow_displacedMuons_*',
                                            # Tracks known by the Muon obj
                                            'keep recoTracks_standAloneMuons_*_*',
                                            'keep recoTrackExtras_standAloneMuons_*_*',
@@ -64,7 +72,8 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_displacedStandAloneMuons__*',
                                            'keep recoTrackExtras_displacedStandAloneMuons_*_*',
                                            'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*',
-                                           'keep *_muonReducedTrackExtras_*_*')
+                                           'keep *_muonReducedTrackExtras_*_*',
+                                           'keep *_displacedMuonReducedTrackExtras_*_*')
 )
 RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
 

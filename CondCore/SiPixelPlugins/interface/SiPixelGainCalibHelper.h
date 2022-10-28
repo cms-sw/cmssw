@@ -426,7 +426,7 @@ namespace gainCalibHelper {
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("SetLog");
       if (ip != paramValues.end()) {
-        auto answer = boost::lexical_cast<std::string>(ip->second);
+        auto answer = ip->second;
         if (!SiPixelPI::checkAnswerOK(answer, setLog)) {
           throw cms::Exception(label_)
               << "\nERROR: " << answer
@@ -590,7 +590,7 @@ namespace gainCalibHelper {
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("SetLog");
       if (ip != paramValues.end()) {
-        auto answer = boost::lexical_cast<std::string>(ip->second);
+        auto answer = ip->second;
         if (!SiPixelPI::checkAnswerOK(answer, setLog)) {
           throw cms::Exception(label_)
               << "\nERROR: " << answer

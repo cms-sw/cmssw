@@ -6,7 +6,9 @@ import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
-
+from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
+import JetMETCorrections.Type1MET.BadPFCandidateJetsEEnoiseProducer_cfi as _modbad
+import JetMETCorrections.Type1MET.UnclusteredBlobProducer_cfi as _modunc
 
 def isValidInputTag(input):
     input_str = input
@@ -99,7 +101,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'Puppi', False,
                           "Puppi algorithm (private)", Type=bool)
 
-
+        self.addParameter(self._defaultParameters, 'campaign', '', 'Production campaign', Type=str)
+        self.addParameter(self._defaultParameters, 'era', '', 'Era e.g. 2018, 2017B, ...', Type=str)
 
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -140,6 +143,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  fixEE2017               =None,
                  fixEE2017Params         =None,
                  extractDeepMETs         =None,
+                 campaign                =None,
+                 era                     =None,
                  postfix                 =None):
         electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
         photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
@@ -215,6 +220,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             fixEE2017Params = self._defaultParameters['fixEE2017Params'].value
         if extractDeepMETs is None :
             extractDeepMETs = self._defaultParameters['extractDeepMETs'].value
+        if campaign is None :
+            campaign = self._defaultParameters['campaign'].value
+        if era is None :
+            era = self._defaultParameters['era'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
@@ -249,6 +258,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('fixEE2017',fixEE2017),
         self.setParameter('fixEE2017Params',fixEE2017Params),
         self.setParameter('extractDeepMETs',extractDeepMETs),
+        self.setParameter('campaign',campaign),
+        self.setParameter('era',era),
 
         #if mva/puppi MET, autoswitch to std jets
         if metType == "MVA" or metType == "Puppi":
@@ -313,6 +324,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         fixEE2017               = self._parameters['fixEE2017'].value
         fixEE2017Params         = self._parameters['fixEE2017Params'].value
         extractDeepMETs         = self._parameters['extractDeepMETs'].value
+        campaign                = self._parameters['campaign'].value
+        era                     = self._parameters['era'].value
 
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
@@ -627,7 +640,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #Txy parameter tuning
         if "Txy" in correctionLevel:
-            self.tuneTxyParameters(process, corScheme, postfix)
+            datamc = "DATA" if self.getvalue("runOnData") else "MC"
+            self.tuneTxyParameters(process, corScheme, postfix, datamc, self.getvalue("campaign"), self.getvalue("era"))
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
             if self.getvalue("Puppi"):
                 getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
@@ -913,20 +927,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #---------------------------------------------------------------------
         # PFPhotons :
         #------------
-        if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value:
-            cutforpfNoPileUp = cms.string("")
-        else:
-            cutforpfNoPileUp = cms.string("fromPV > 1")
-
-        pfNoPileUp = cms.EDFilter("CandPtrSelector",
-                                  src = pfCandCollection,
-                                  cut = cutforpfNoPileUp
-                                  )
-        addToProcessAndTask("pfNoPileUp"+postfix, pfNoPileUp, process, task)
-        metUncSequence += getattr(process, "pfNoPileUp"+postfix)
-
         pfPhotons = cms.EDFilter("CandPtrSelector",
-                                 src = cms.InputTag("pfNoPileUp"+postfix),
+                                 src = pfCandCollection if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value else cms.InputTag("pfCHS"),
                                  cut = cms.string("abs(pdgId) = 22")
                                  )
         addToProcessAndTask("pfPhotons"+postfix, pfPhotons, process, task)
@@ -1082,33 +1084,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return baseName
 
 #====================================================================================================
-    def tuneTxyParameters(self, process, corScheme, postfix):
+    def tuneTxyParameters(self, process, corScheme, postfix, datamc="", campaign="", era="" ):
+        corSchemes = ["Txy", "T1Txy", "T0pcTxy", "T0pcT1Txy", "T1T2Txy", "T0pcT1T2Txy", "T1SmearTxy", "T1T2SmearTxy", "T0pcT1SmearTxy", "T0pcT1T2SmearTxy"]
         import PhysicsTools.PatUtils.patPFMETCorrections_cff as metCors
-        xyTags = {
-            "Txy_50ns":metCors.patMultPhiCorrParams_Txy_50ns,
-            "T1Txy_50ns":metCors.patMultPhiCorrParams_T1Txy_50ns,
-            "T0pcTxy_50ns":metCors.patMultPhiCorrParams_T0pcTxy_50ns,
-            "T0pcT1Txy_50ns":metCors.patMultPhiCorrParams_T0pcT1Txy_50ns,
-            "T1T2Txy_50ns":metCors.patMultPhiCorrParams_T1T2Txy_50ns,
-            "T0pcT1T2Txy_50ns":metCors.patMultPhiCorrParams_T0pcT1T2Txy_50ns,
-            "T1SmearTxy_50ns":metCors.patMultPhiCorrParams_T1SmearTxy_50ns,
-            "T1T2SmearTxy_50ns":metCors.patMultPhiCorrParams_T1T2SmearTxy_50ns,
-            "T0pcT1SmearTxy_50ns":metCors.patMultPhiCorrParams_T0pcT1SmearTxy_50ns,
-            "T0pcT1T2SmearTxy_50ns":metCors.patMultPhiCorrParams_T0pcT1T2SmearTxy_50ns,
+        xyTags = {}
+        for corScheme_ in corSchemes:
+            xyTags["{}_{}".format(corScheme_,"50ns")]=getattr(metCors,"{}_{}_{}".format("patMultPhiCorrParams",corScheme_,"50ns"))
+            xyTags["{}_{}".format(corScheme_,"25ns")]=getattr(metCors,"{}_{}_{}".format("patMultPhiCorrParams",corScheme_,"25ns"))
+            if datamc!="" and campaign!="" and era!="":
+                if not self.getvalue("Puppi"):
+                    xyTags["{}_{}_{}_{}".format(corScheme_,campaign,datamc,era)]=getattr(metCors,"{}_{}{}{}".format("patMultPhiCorrParams",campaign,datamc,era))
+                else:
+                    xyTags["{}_{}_{}_{}".format(corScheme_,campaign,datamc,era)]=getattr(metCors,"{}_{}{}{}".format("patMultPhiCorrParams_Puppi",campaign,datamc,era))
 
-            "Txy_25ns":metCors.patMultPhiCorrParams_Txy_25ns,
-            "T1Txy_25ns":metCors.patMultPhiCorrParams_T1Txy_25ns,
-            "T0pcTxy_25ns":metCors.patMultPhiCorrParams_T0pcTxy_25ns,
-            "T0pcT1Txy_25ns":metCors.patMultPhiCorrParams_T0pcT1Txy_25ns,
-            "T1T2Txy_25ns":metCors.patMultPhiCorrParams_T1T2Txy_25ns,
-            "T0pcT1T2Txy_25ns":metCors.patMultPhiCorrParams_T0pcT1T2Txy_25ns,
-            "T1SmearTxy_25ns":metCors.patMultPhiCorrParams_T1SmearTxy_25ns,
-            "T1T2SmearTxy_25ns":metCors.patMultPhiCorrParams_T1T2SmearTxy_25ns,
-            "T0pcT1SmearTxy_25ns":metCors.patMultPhiCorrParams_T0pcT1SmearTxy_25ns,
-            "T0pcT1T2SmearTxy_25ns":metCors.patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns
-            }
-
-        getattr(process, "patPFMetTxyCorr"+postfix).parameters = xyTags[corScheme+"_25ns"]
+        if datamc!="" and campaign!="" and era!="":
+            getattr(process, "patPFMetTxyCorr"+postfix).parameters = xyTags["{}_{}_{}_{}".format(corScheme,campaign,datamc,era)]
+        else:
+            getattr(process, "patPFMetTxyCorr"+postfix).parameters = xyTags[corScheme+"_25ns"]
 
 
 #====================================================================================================
@@ -1604,13 +1596,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if chs:
             CHSname="chs"
             jetColName="ak4PFJetsCHS"
-
-            pfCHS=None
-            if self._parameters["onMiniAOD"].value:
-                pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
-                pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
-                addToProcessAndTask("pfNoPileUpJME"+postfix, pfCHS, process, task)
-                patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
+            if self._parameters["onMiniAOD"].value: 
+                pfCandColl = cms.InputTag("pfCHS")
             else:
                 addToProcessAndTask("tmpPFCandCollPtr"+postfix,
                                     cms.EDProducer("PFCandidateFwdPtrProducer",
@@ -1710,10 +1697,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         ##adding the necessary chs and track met configuration
         task = getPatAlgosToolsTask(process)
 
-        pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
-        addToProcessAndTask("pfCHS", pfCHS, process, task)
+        from CommonTools.ParticleFlow.pfCHS_cff import pfCHS
+        addToProcessAndTask("pfCHS", pfCHS.clone(), process, task)
         from RecoMET.METProducers.pfMet_cfi import pfMet
-        pfMetCHS = pfMet.clone(src = 'pfCHS')
+        pfMetCHS = pfMet.clone(src = "pfCHS")
         addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)
 
         addMETCollection(process,
@@ -1727,8 +1714,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetModuleSequence += getattr(process, "pfCHS")
         patMetModuleSequence += getattr(process, "pfMetCHS")
         patMetModuleSequence += getattr(process, "patCHSMet")
-
-        pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
+        
+        pfTrk = chargedPackedCandsForTkMet.clone()
         addToProcessAndTask("pfTrk", pfTrk, process, task)
         pfMetTrk = pfMet.clone(src = 'pfTrk')
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
@@ -1909,12 +1896,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         task = getPatAlgosToolsTask(process)
 
-        pfCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
+        pfCandidateJetsWithEEnoise = _modbad.BadPFCandidateJetsEEnoiseProducer.clone(
             jetsrc = jets,
-            userawPt = cms.bool(params["userawPt"]),
-            ptThreshold = cms.double(params["ptThreshold"]),
-            minEtaThreshold = cms.double(params["minEtaThreshold"]),
-            maxEtaThreshold = cms.double(params["maxEtaThreshold"]),
+            userawPt = params["userawPt"],
+            ptThreshold = params["ptThreshold"],
+            minEtaThreshold = params["minEtaThreshold"],
+            maxEtaThreshold = params["maxEtaThreshold"],
         )
         addToProcessAndTask("pfCandidateJetsWithEEnoise"+postfix, pfCandidateJetsWithEEnoise, process, task)
         patMetModuleSequence += getattr(process,"pfCandidateJetsWithEEnoise"+postfix)
@@ -1935,8 +1922,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
         patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
-        blobUnclustered = cms.EDProducer("UnclusteredBlobProducer",
-            candsrc = cms.InputTag("badUnclustered"+postfix),
+        blobUnclustered = _modunc.UnclusteredBlobProducer.clone(
+            candsrc = "badUnclustered"+postfix,
         )
         addToProcessAndTask("blobUnclustered"+postfix, blobUnclustered, process, task)
         patMetModuleSequence += getattr(process,"blobUnclustered"+postfix)
@@ -2068,6 +2055,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                fixEE2017=False,
                                fixEE2017Params=None,
                                extractDeepMETs=False,
+                               campaign="",
+                               era="",
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -2102,6 +2091,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
                                       extractDeepMETs=extractDeepMETs,
+                                      campaign=campaign,
+                                      era=era,
                                       )
 
     #MET T1+Txy / Smear
@@ -2134,6 +2125,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
                                       extractDeepMETs=extractDeepMETs,
+                                      campaign=campaign,
+                                      era=era,
                                       )
     #MET T1+Smear + uncertainties
     runMETCorrectionsAndUncertainties(process, metType=metType,
@@ -2165,4 +2158,6 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
                                       extractDeepMETs=extractDeepMETs,
+                                      campaign=campaign,
+                                      era=era,
                                       )

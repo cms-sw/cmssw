@@ -22,7 +22,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          bMax = cms.double(0.0) ## max impact param (fm); valid only if cflag_!=0
                          )
 
-generator.embeddingMode = False
+generator.embeddingMode = 0
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.3 $'),

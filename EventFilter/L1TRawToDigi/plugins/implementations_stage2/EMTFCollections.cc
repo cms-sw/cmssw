@@ -39,10 +39,12 @@ namespace l1t {
       // }
 
       event_.put(std::move(regionalMuonCands_));
+      event_.put(std::move(regionalMuonShowers_));
       event_.put(std::move(EMTFDaqOuts_));
       event_.put(std::move(EMTFHits_ZS_));
       event_.put(std::move(EMTFTracks_));
       event_.put(std::move(EMTFLCTs_));
+      event_.put(std::move(EMTFCSCShowers_));
       event_.put(std::move(EMTFCPPFs_ZS_));
       event_.put(std::move(EMTFGEMPadClusters_));
       // event_.put(std::move(EMTFGEMPadClusters_ZS_));

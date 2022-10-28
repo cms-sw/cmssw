@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 
-#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
@@ -25,17 +25,17 @@
 namespace {
 
   template <typename F>
-  void async(edm::one::OutputModuleBase& iMod, tbb::task_group& iGroup, F&& iFunc) {
+  void async(edm::one::OutputModuleBase& iMod, oneapi::tbb::task_group& iGroup, F&& iFunc) {
     iMod.sharedResourcesAcquirer().serialQueueChain().push(iGroup, std::move(iFunc));
   }
 
   template <typename F>
-  void async(edm::limited::OutputModuleBase& iMod, tbb::task_group& iGroup, F&& iFunc) {
+  void async(edm::limited::OutputModuleBase& iMod, oneapi::tbb::task_group& iGroup, F&& iFunc) {
     iMod.queue().push(iGroup, std::move(iFunc));
   }
 
   template <typename F>
-  void async(edm::global::OutputModuleBase&, tbb::task_group& iGroup, F iFunc) {
+  void async(edm::global::OutputModuleBase&, oneapi::tbb::task_group& iGroup, F iFunc) {
     //NOTE, need the functor since group can not run a 'mutable' lambda
     auto t = edm::make_functor_task(iFunc);
     iGroup.run([t]() {

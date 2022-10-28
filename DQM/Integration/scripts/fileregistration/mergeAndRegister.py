@@ -7,7 +7,6 @@ from datetime import datetime
 import smtplib
 from email.MIMEText import MIMEText
 from ROOT import TFile
-import six
 
 def sendmail(EmailAddress,run):
     s=smtplib.SMTP("localhost")
@@ -68,7 +67,7 @@ print('Found %d new file(s).' % NFOUND)
 #### loop for runs
 newFiles = []
 allOldFiles = []
-for (run, files) in six.iteritems(NEW):
+for (run, files) in NEW.items():
     runnr = "%09d" % long(run)
     destdir = "%s/%s/%s/%s" % (FILEDIR, runnr[0:3], runnr[3:6], runnr[6:9])
     oldfiles = []

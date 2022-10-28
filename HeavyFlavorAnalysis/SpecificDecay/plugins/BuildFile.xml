@@ -1,5 +1,4 @@
 <use name="root"/>
-<use name="CommonTools/UtilAlgos"/>
 <use name="HeavyFlavorAnalysis/RecoDecay"/>
 <use name="HeavyFlavorAnalysis/SpecificDecay"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
@@ -9,6 +8,9 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TransientTrack"/>
 <library file="*.cc" name="HeavyFlavorSpecificDecaysPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

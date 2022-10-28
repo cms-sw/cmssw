@@ -17,15 +17,15 @@ def ProcessName(process):
 def Base(process):
 #   default modifications
 
-    process.options.wantSummary = cms.untracked.bool(True)
-    process.options.numberOfThreads = cms.untracked.uint32( 4 )
-    process.options.numberOfStreams = cms.untracked.uint32( 0 )
-    process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+    process.options.wantSummary = True
+    process.options.numberOfThreads = 4
+    process.options.numberOfStreams = 0
+    process.options.sizeOfStackForThreadsInKB = 10*1024
 
-    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
-    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
-    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
-    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
 
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
@@ -106,6 +106,57 @@ def L1THLT(process):
     return(process)
 
 
+def HLTRECO(process):
+    """Customisations for running HLT+RECO in the same job
+       - remove ESSources and ESProducers from Tasks (needed to run HLT+RECO tests on GPU)
+         - when Reconstruction_cff is loaded, it brings in Tasks that include
+           GPU-related ES modules with the same names as they have in HLT configs
+         - in TSG tests, these GPU-related RECO Tasks are not included in the Schedule
+           (because the "gpu" process-modifier is not used);
+           this causes the ES modules not to be executed, thus making them unavailable to HLT producers
+         - this workaround removes ES modules from Tasks, making their execution independent of the content of the Schedule;
+           with reference to https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAboutPythonConfigFile?rev=92#Behavior_when_an_ESProducer_ESSo,
+           this workaround avoids "Case 3" by reverting to "Case 2"
+         - this workaround only affects Tasks of non-HLT steps, as the addition of ES modules to Tasks is not supported in ConfDB
+           (none of the Tasks used in the HLT step can contain ES modules in the first place, modulo customisations outside ConfDB)
+    """
+    for taskName in process.tasks_():
+        task = process.tasks_()[taskName]
+        esModulesToRemove = set()
+        for modName in task.moduleNames():
+            module = getattr(process, modName)
+            if isinstance(module, cms.ESSource) or isinstance(module, cms.ESProducer):
+                esModulesToRemove.add(module)
+        for esModule in esModulesToRemove:
+            task.remove(esModule)
+
+    return process
+
+
+def customiseGlobalTagForOnlineBeamSpot(process):
+    """Customisation of GlobalTag for Online BeamSpot
+       - edits the GlobalTag ESSource to load the tags used to produce the HLT beamspot
+       - these tags are not available in the Offline GT, which is the GT presently used in HLT+RECO tests
+       - not loading these tags (i.e. not using this customisation) does not result in a runtime error,
+         but it leads to an HLT beamspot different to the one obtained when running HLT alone
+    """
+    if hasattr(process, 'GlobalTag'):
+      if not hasattr(process.GlobalTag, 'toGet'):
+        process.GlobalTag.toGet = cms.VPSet()
+      process.GlobalTag.toGet += [
+        cms.PSet(
+          record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
+          tag = cms.string('BeamSpotOnlineLegacy')
+        ),
+        cms.PSet(
+          record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
+          tag = cms.string('BeamSpotOnlineHLT')
+        )
+      ]
+
+    return process
+
+
 def HLTDropPrevious(process):
 #   drop on input the previous HLT results
     process.source.inputCommands = cms.untracked.vstring (
@@ -120,25 +171,28 @@ def HLTDropPrevious(process):
     return(process)
 
 
-def L1REPACK(process,sequence="Full"):
+def L1REPACK(process, sequence="Full"):
 
     from Configuration.Eras.Era_Run3_cff import Run3
-    l1repack = cms.Process('L1REPACK',Run3)
+    l1repack = cms.Process('L1REPACK', Run3)
     l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
-        if (not hasattr(process,module)):
-            setattr(process,module,getattr(l1repack,module))
+        if not hasattr(process, module):
+            setattr(process, module, getattr(l1repack, module))
     for module in l1repack.es_producers_():
-        if (not hasattr(process,module)):
-            setattr(process,module,getattr(l1repack,module))
+        if not hasattr(process, module):
+            setattr(process, module, getattr(l1repack, module))
 
     for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
-        setattr(process,module,getattr(l1repack,module))
-    for task in l1repack.tasks_():
-        setattr(process,task,getattr(l1repack,task))
-    for sequence in l1repack.sequences_():
-        setattr(process,sequence,getattr(l1repack,sequence))
+        setattr(process, module, getattr(l1repack, module))
+    for taskName, task in l1repack.tasks_().items():
+        if l1repack.SimL1Emulator.contains(task):
+            setattr(process, taskName, task)
+    for sequenceName, sequence in l1repack.sequences_().items():
+        if l1repack.SimL1Emulator.contains(sequence):
+            setattr(process, sequenceName, sequence)
+
     process.SimL1Emulator = l1repack.SimL1Emulator
 
     for path in process.paths_():
@@ -147,45 +201,14 @@ def L1REPACK(process,sequence="Full"):
         getattr(process,path).insert(0,process.SimL1Emulator)
 
     # special L1T cleanup
-    cleanupL1T = ('SimL1TCalorimeter'
-                  ,'SimL1TCalorimeterTask'
-                  ,'SimL1TMuonCommon'
-                  ,'SimL1TMuonCommonTask'
-                  ,'SimL1TMuon'
-                  ,'SimL1TMuonTask'
-                  ,'SimL1TechnicalTriggers'
-                  ,'SimL1TechnicalTriggersTask'
-                  ,'SimL1EmulatorCore'
-                  ,'SimL1EmulatorCoreTask'
-                  ,'ecalDigiSequence'
-                  ,'ecalDigiTask'
-                  ,'hcalDigiSequence'
-                  ,'hcalDigiTask'
-                  ,'calDigi'
-                  ,'calDigiTask'
-                  ,'me0TriggerPseudoDigis'
-                  ,'me0TriggerPseudoDigiTask'
-                  ,'simMuonGEMPadTask'
-                  ,'hgcalTriggerPrimitives'
-                  ,'hgcalTriggerPrimitivesTask'
-                  ,'hgcalVFE'
-                  ,'hgcalVFEProducer'
-                  ,'hgcalBackEndLayer2'
-                  ,'hgcalBackEndLayer2Producer'
-                  ,'hgcalTowerMap'
-                  ,'hgcalTowerMapProducer'
-                  ,'hgcalConcentrator'
-                  ,'hgcalConcentratorProducer'
-                  ,'hgcalBackEndLayer1'
-                  ,'hgcalBackEndLayer1Producer'
-                  ,'hgcalTower'
-                  ,'hgcalTowerProducer'
-                  ,'hgcalTriggerGeometryESProducer')
-    for obj in cleanupL1T:
-        if hasattr(process,obj):
-            delattr(process,obj)
+    for obj in [
+      'l1tHGCalTriggerGeometryESProducer',
+    ]:
+        if hasattr(process, obj):
+            delattr(process, obj)
 
     return process
+
 
 def L1XML(process,xmlFile=None):
 
@@ -200,8 +223,3 @@ def L1XML(process,xmlFile=None):
     process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","L1TriggerMenu")
 
     return process
-
-def CTPPSRun2Geometry(process):
-    if hasattr(process,'ctppsGeometryESModule'):
-        process.ctppsGeometryESModule.isRun2 = True
-    return(process)

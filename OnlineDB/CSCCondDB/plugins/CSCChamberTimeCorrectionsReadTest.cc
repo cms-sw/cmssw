@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCableRead.h"
 
-class CSCChamberTimeCorrectionsReadTest : public edm::EDAnalyzer {
+class CSCChamberTimeCorrectionsReadTest : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet &);
-  ~CSCChamberTimeCorrectionsReadTest() override;
+  ~CSCChamberTimeCorrectionsReadTest() override = default;
 
 private:
   void beginJob() override;
@@ -20,7 +20,6 @@ private:
 DEFINE_FWK_MODULE(CSCChamberTimeCorrectionsReadTest);
 
 CSCChamberTimeCorrectionsReadTest::CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet &) {}
-CSCChamberTimeCorrectionsReadTest::~CSCChamberTimeCorrectionsReadTest() {}
 
 void CSCChamberTimeCorrectionsReadTest::analyze(const edm::Event &, const edm::EventSetup &) {
   csccableread *cable = new csccableread();

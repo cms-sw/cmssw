@@ -5,7 +5,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,15 +20,14 @@
 // using namespace l1t;
 // using namespace edm;
 
-class L1TBasicDemo : public edm::EDAnalyzer {
+class L1TBasicDemo : public edm::global::EDAnalyzer<> {
 public:
   explicit L1TBasicDemo(const edm::ParameterSet&);
-  ~L1TBasicDemo() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
   // EDM tokens:
   edm::EDGetTokenT<l1t::EGammaBxCollection> egToken_;
@@ -49,9 +48,7 @@ L1TBasicDemo::L1TBasicDemo(const edm::ParameterSet& iConfig) {
   trigger_bx_only = iConfig.getParameter<bool>("UseTriggerBxOnly");
 }
 
-L1TBasicDemo::~L1TBasicDemo() {}
-
-void L1TBasicDemo::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+void L1TBasicDemo::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
   cout << "INFO:  dumping EGamma BX collection:\n";
   edm::Handle<l1t::EGammaBxCollection> eg;
   iEvent.getByToken(egToken_, eg);

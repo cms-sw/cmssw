@@ -5,5 +5,7 @@ dtVDriftMeanTimerWriter = cms.EDAnalyzer("DTVDriftWriter",
     vDriftAlgoConfig = cms.PSet(
         rootFileName = cms.string(''),
         debug = cms.untracked.bool(False)
-    )
+    ),
+    readLegacyVDriftDB = cms.bool(True),
+    writeLegacyVDriftDB = cms.bool(True)
 )

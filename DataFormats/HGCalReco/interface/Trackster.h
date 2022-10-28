@@ -20,7 +20,7 @@ namespace ticl {
   public:
     typedef math::XYZVector Vector;
 
-    enum IterationIndex { TRKEM = 0, EM, TRKHAD, HAD, MIP };
+    enum IterationIndex { TRKEM = 0, EM, TRKHAD, HAD, MIP, SIM, SIM_CP };
 
     // types considered by the particle identification
     enum class ParticleType {
@@ -37,7 +37,8 @@ namespace ticl {
     enum class PCAOrdering { ascending = 0, descending };
 
     Trackster()
-        : seedIndex_(0),
+        : iterationIndex_(0),
+          seedIndex_(-1),
           time_(0.f),
           timeError_(-1.f),
           regressed_energy_(0.f),
@@ -72,7 +73,6 @@ namespace ticl {
     inline void setRawPt(float value) { raw_pt_ = value; }
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
     inline void setBarycenter(Vector value) { barycenter_ = value; }
-    inline void setEigenValuesVectors();
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,
                                  Eigen::Vector3d &sigmas,

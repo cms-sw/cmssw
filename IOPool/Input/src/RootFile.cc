@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -155,6 +155,7 @@ namespace edm {
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
                      RunHelperBase* runHelper,
+                     bool noRunLumiSort,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
@@ -184,8 +185,9 @@ namespace edm {
         indexIntoFileSharedPtr_(new IndexIntoFile),
         indexIntoFile_(*indexIntoFileSharedPtr_),
         orderedProcessHistoryIDs_(orderedProcessHistoryIDs),
-        indexIntoFileBegin_(
-            indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder)),
+        indexIntoFileBegin_(indexIntoFile_.begin(
+            noRunLumiSort ? IndexIntoFile::entryOrder
+                          : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder))),
         indexIntoFileEnd_(indexIntoFileBegin_),
         indexIntoFileIter_(indexIntoFileBegin_),
         storedMergeableRunProductMetadata_((inputType == InputType::Primary) ? new StoredMergeableRunProductMetadata
@@ -194,6 +196,7 @@ namespace edm {
         eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
         savedRunAuxiliary_(),
         skipAnyEvents_(skipAnyEvents),
+        noRunLumiSort_(noRunLumiSort),
         noEventSort_(noEventSort),
         enforceGUIDInFileName_(enforceGUIDInFileName),
         whyNotFastClonable_(0),
@@ -367,10 +370,11 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
+    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr;  // must remain in scope through getEntry()
     if (inputType != InputType::SecondarySource) {
       fileThinnedAssociationsHelper_ =
           std::make_unique<ThinnedAssociationsHelper>();  // propagate_const<T> has no reset() function
-      ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
+      thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
       if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
         metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(),
                                        &thinnedAssociationsHelperPtr);
@@ -509,10 +513,12 @@ namespace edm {
     }
 
     initializeDuplicateChecker(indexesIntoFiles, currentIndexIntoFile);
-    indexIntoFileIter_ = indexIntoFileBegin_ =
-        indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
-    indexIntoFileEnd_ =
-        indexIntoFile_.end(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
+    indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(
+        noRunLumiSort ? IndexIntoFile::entryOrder
+                      : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
+    indexIntoFileEnd_ = indexIntoFile_.end(
+        noRunLumiSort ? IndexIntoFile::entryOrder
+                      : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
@@ -738,7 +744,8 @@ namespace edm {
 
     // From here on, record all reasons we can't fast clone.
     IndexIntoFile::SortOrder sortOrder =
-        (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
+        (noRunLumiSort_ ? IndexIntoFile::entryOrder
+                        : (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     if (!indexIntoFile_.iterationWillBeInEntryOrder(sortOrder)) {
       whyNotFastClonable_ += (noEventSort_ ? FileBlock::RunOrLumiNotContiguous : FileBlock::EventsToBeSorted);
     }
@@ -1496,6 +1503,9 @@ namespace edm {
     IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
     if (noEventSort_)
       sortOrder = IndexIntoFile::firstAppearanceOrder;
+    if (noRunLumiSort_) {
+      sortOrder = IndexIntoFile::entryOrder;
+    }
 
     IndexIntoFile::IndexIntoFileItr iter =
         indexIntoFile_.findPosition(sortOrder, eventID.run(), eventID.luminosityBlock(), eventID.event());
@@ -1706,14 +1716,18 @@ namespace edm {
     processBlockPrincipal.fillProcessBlockPrincipal(rootTree->processName(), rootTree->resetAndGetRootDelayedReader());
   }
 
-  void RootFile::readRun_(RunPrincipal& runPrincipal) {
+  bool RootFile::readRun_(RunPrincipal& runPrincipal) {
+    bool shouldProcessRun = indexIntoFileIter_.shouldProcessRun();
+
     MergeableRunProductMetadata* mergeableRunProductMetadata = nullptr;
-    if (inputType_ == InputType::Primary) {
-      mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
-      RootTree::EntryNumber const& entryNumber = runTree_.entryNumber();
-      assert(entryNumber >= 0);
-      mergeableRunProductMetadata->readRun(
-          entryNumber, *storedMergeableRunProductMetadata_, IndexIntoFileItrHolder(indexIntoFileIter_));
+    if (shouldProcessRun) {
+      if (inputType_ == InputType::Primary) {
+        mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+        RootTree::EntryNumber const& entryNumber = runTree_.entryNumber();
+        assert(entryNumber >= 0);
+        mergeableRunProductMetadata->readRun(
+            entryNumber, *storedMergeableRunProductMetadata_, IndexIntoFileItrHolder(indexIntoFileIter_));
+      }
     }
 
     if (!runHelper_->fakeNewRun()) {
@@ -1723,14 +1737,23 @@ namespace edm {
     }
     // Begin code for backward compatibility before the existence of run trees.
     if (!runTree_.isValid()) {
-      return;
+      return shouldProcessRun;
     }
     // End code for backward compatibility before the existence of run trees.
-    // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
-    runTree_.insertEntryForIndex(0);
-    runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
-    // Read in all the products now.
-    runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
+    if (shouldProcessRun) {
+      // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
+      runTree_.insertEntryForIndex(0);
+      runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
+      // Read in all the products now.
+      runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
+      runPrincipal.setShouldWriteRun(RunPrincipal::kYes);
+    } else {
+      runPrincipal.fillRunPrincipal(*processHistoryRegistry_, nullptr);
+      if (runPrincipal.shouldWriteRun() != RunPrincipal::kYes) {
+        runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
+      }
+    }
+    return shouldProcessRun;
   }
 
   std::shared_ptr<LuminosityBlockAuxiliary> RootFile::readLuminosityBlockAuxiliary_() {
@@ -1771,23 +1794,34 @@ namespace edm {
     return lumiAuxiliary;
   }
 
-  void RootFile::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+  bool RootFile::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+    bool shouldProcessLumi = indexIntoFileIter_.shouldProcessLumi();
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if (!lumiTree_.isValid()) {
       ++indexIntoFileIter_;
-      return;
+      return shouldProcessLumi;
     }
     // End code for backward compatibility before the existence of lumi trees.
-    lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
-    lumiTree_.insertEntryForIndex(0);
-    auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
-    lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
-    // Read in all the products now.
-    lumiPrincipal.readAllFromSourceAndMergeImmediately();
+    if (shouldProcessLumi) {
+      lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
+      // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
+      lumiTree_.insertEntryForIndex(0);
+      auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
+      lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
+      // Read in all the products now.
+      lumiPrincipal.readAllFromSourceAndMergeImmediately();
+      lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kYes);
+    } else {
+      auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
+      lumiPrincipal.fillLuminosityBlockPrincipal(history, nullptr);
+      if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kYes) {
+        lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kNo);
+      }
+    }
     ++indexIntoFileIter_;
+    return shouldProcessLumi;
   }
 
   bool RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
@@ -1864,7 +1898,11 @@ namespace edm {
     ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
     for (auto& product : pList) {
       BranchDescription& prod = product.second;
-      prod.init();
+      // Initialize BranchDescription from dictionary only if the
+      // branch is present. This allows a subsequent job to process
+      // data where a dictionary of a transient parent branch has been
+      // removed from the release after the file has been written.
+      prod.initBranchName();
       if (prod.branchType() == InProcess) {
         std::vector<std::string> const& processes = storedProcessBlockHelper.processesWithProcessBlockProducts();
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
@@ -1878,6 +1916,9 @@ namespace edm {
         }
       } else {
         treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
+      }
+      if (prod.present()) {
+        prod.initFromDictionary();
       }
     }
   }
@@ -2019,7 +2060,7 @@ namespace edm {
       TString tString;
       for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
-        if (prod.branchType() != InEvent && prod.branchType() != InProcess) {
+        if (prod.present() and prod.branchType() != InEvent and prod.branchType() != InProcess) {
           TClass* cp = prod.wrappedType().getClass();
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);

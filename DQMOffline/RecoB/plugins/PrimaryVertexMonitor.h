@@ -27,7 +27,7 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
 public:
   explicit PrimaryVertexMonitor(const edm::ParameterSet &pSet);
 
-  ~PrimaryVertexMonitor() override;
+  ~PrimaryVertexMonitor() override = default;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -53,6 +53,8 @@ private:
   bool useHPfoAlignmentPlots_;
   bool errorPrinted_;
 
+  static constexpr int cmToUm = 10000;
+
   // the histos
   MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2], *score[2];
   MonitorElement *tt[2];
@@ -65,6 +67,8 @@ private:
 
   MonitorElement *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
   MonitorElement *dxy, *dxy2, *dz, *dxyErr, *dzErr;
+  MonitorElement *phi_pt1, *eta_pt1;
+  MonitorElement *phi_pt10, *eta_pt10;
   MonitorElement *dxyVsPhi_pt1, *dzVsPhi_pt1;
   MonitorElement *dxyVsEta_pt1, *dzVsEta_pt1;
   MonitorElement *dxyVsEtaVsPhi_pt1, *dzVsEtaVsPhi_pt1;

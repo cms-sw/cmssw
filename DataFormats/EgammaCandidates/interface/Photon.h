@@ -29,7 +29,10 @@ namespace reco {
     struct SaturationInfo;
 
     /// default constructor
-    Photon() : RecoCandidate() { pixelSeed_ = false; }
+    Photon() : RecoCandidate() {
+      pixelSeed_ = false;
+      haloTaggerMVAVal_ = 99;
+    }
 
     /// copy constructor
     Photon(const Photon&);
@@ -556,30 +559,34 @@ namespace reco {
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables(const PflowIsolationVariables& pfisol) { pfIsolation_ = pfisol; }
 
+    static constexpr float mvaPlaceholder = -999999999.;
+
     struct PflowIDVariables {
       int nClusterOutsideMustache;
       float etOutsideMustache;
       float mva;
+      float dnn;
 
       PflowIDVariables()
-          :
-
-            nClusterOutsideMustache(-1),
-            etOutsideMustache(-999999999.),
-            mva(-999999999.)
-
-      {}
+          : nClusterOutsideMustache(-1), etOutsideMustache(mvaPlaceholder), mva(mvaPlaceholder), dnn(mvaPlaceholder) {}
     };
 
     // getters
     int nClusterOutsideMustache() const { return pfID_.nClusterOutsideMustache; }
     float etOutsideMustache() const { return pfID_.etOutsideMustache; }
     float pfMVA() const { return pfID_.mva; }
+    float pfDNN() const { return pfID_.dnn; }
     // setters
     void setPflowIDVariables(const PflowIDVariables& pfid) { pfID_ = pfid; }
 
     // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
     void hcalToRun2EffDepth();
+
+    ///MVA based beam halo tagger - trained for EE and for pT > 200 GeV
+    float haloTaggerMVAVal() const { return haloTaggerMVAVal_; }
+
+    ///set the haloTaggerMVAVal here
+    void setHaloTaggerMVAVal(float x) { haloTaggerMVAVal_ = x; }
 
   private:
     /// check overlap with another candidate
@@ -601,6 +608,7 @@ namespace reco {
     MIPVariables mipVariableBlock_;
     PflowIsolationVariables pfIsolation_;
     PflowIDVariables pfID_;
+    float haloTaggerMVAVal_;
   };
 
 }  // namespace reco

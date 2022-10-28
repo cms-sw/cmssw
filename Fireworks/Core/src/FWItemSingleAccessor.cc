@@ -16,7 +16,7 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
-#include "Fireworks/Core/src/FWItemSingleAccessor.h"
+#include "Fireworks/Core/interface/FWItemSingleAccessor.h"
 
 //
 // constants, enums and typedefs

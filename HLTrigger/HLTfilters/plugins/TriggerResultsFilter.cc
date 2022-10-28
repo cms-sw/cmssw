@@ -7,21 +7,21 @@
  *
  */
 
-#include <vector>
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <algorithm>
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
+
 #include "TriggerResultsFilter.h"
 
 //
@@ -29,24 +29,66 @@
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
     : m_expression(nullptr), m_eventCache(config, consumesCollector()) {
-  const std::vector<std::string>& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
+  std::vector<std::string> const& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
   parse(expressions);
-  if (m_eventCache.usePathStatus())
-    callWhenNewProductsRegistered([this](const edm::BranchDescription& branch) {
-      this->m_eventCache.setPathStatusToken(branch, consumesCollector());
+  if (m_expression and m_eventCache.usePathStatus()) {
+    // if the expression was successfully parsed, store the list of patterns,
+    // each in both std::string and std::regex format
+    // and with a flag for having valid matches
+    hltPathStatusPatterns_ = edm::vector_transform(m_expression->patterns(), [](std::string const& pattern) {
+      return PatternData(pattern, std::regex(edm::glob2reg(pattern), std::regex::extended));
     });
+
+    if (hltPathStatusPatterns_.empty()) {
+      return;
+    }
+
+    // consume all matching paths
+    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+      if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus") {
+        bool consumeBranch = true;
+        for (auto& pattern : hltPathStatusPatterns_) {
+          if (std::regex_match(branch.moduleLabel(), pattern.regex)) {
+            pattern.matched = true;
+            if (consumeBranch) {
+              consumeBranch = false;
+              m_eventCache.setPathStatusToken(branch, consumesCollector());
+            }
+          }
+        }
+      }
+    });
+  }
 }
 
-TriggerResultsFilter::~TriggerResultsFilter() { delete m_expression; }
+void TriggerResultsFilter::beginStream(edm::StreamID) {
+  // if throw=True, check if any of the input patterns had zero matches (and if so, throw an exception)
+  if (not hltPathStatusPatterns_.empty() and m_eventCache.shouldThrow()) {
+    auto unmatchedPatternsExist = std::any_of(
+        hltPathStatusPatterns_.cbegin(), hltPathStatusPatterns_.cend(), [](auto foo) { return (not foo.matched); });
+    if (unmatchedPatternsExist) {
+      cms::Exception excpt("UnmatchedPatterns");
+      excpt << "the parameter \"triggerConditions\" contains patterns with zero matches"
+            << " for the available edm::HLTPathStatus collections - invalid patterns are:";
+      for (auto const& pattern : hltPathStatusPatterns_)
+        if (not pattern.matched)
+          excpt << "\n\t" << pattern.str;
+      throw excpt;
+    }
+  }
+}
 
 void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // # use HLTPathStatus results
-  desc.add<bool>("usePathStatus", false);
-  // # HLT results   - set to empty to ignore HLT
-  desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults"));
+  desc.add<bool>("usePathStatus", false)
+      ->setComment("Read the HLT results from the TriggerResults (false) or from the current job's PathStatus (true).");
+  // # HLT results - set to empty to ignore HLT
+  desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults", "", "@skipCurrentProcess"))
+      ->setComment("HLT TriggerResults. Leave empty to ignore the HLT results. Ignored when usePathStatus is true.");
   // # L1 uGT results - set to empty to ignore L1T
-  desc.add<edm::InputTag>("l1tResults", edm::InputTag("hltGtStage2Digis"));
+  desc.add<edm::InputTag>("l1tResults", edm::InputTag("hltGtStage2Digis"))
+      ->setComment("uGT digi collection. Leave empty to ignore the L1T results.");
   // # use initial L1 decision, before masks and prescales
   desc.add<bool>("l1tIgnoreMaskAndPrescale", false);
   // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
@@ -82,11 +124,16 @@ void TriggerResultsFilter::parse(const std::vector<std::string>& expressions) {
 
 void TriggerResultsFilter::parse(const std::string& expression) {
   // parse the logical expressions into functionals
-  m_expression = triggerExpression::parse(expression);
+  m_expression.reset(triggerExpression::parse(expression));
 
   // check if the expressions were parsed correctly
-  if (not m_expression)
-    edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"";
+  if (not m_expression) {
+    if (m_eventCache.shouldThrow()) {
+      throw cms::Exception("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+    } else {
+      edm::LogWarning("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+    }
+  }
 }
 
 bool TriggerResultsFilter::filter(edm::Event& event, const edm::EventSetup& setup) {

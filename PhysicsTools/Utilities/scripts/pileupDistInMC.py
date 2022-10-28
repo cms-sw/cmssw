@@ -4,7 +4,6 @@ from __future__ import print_function
 import optparse
 import re
 from pprint import pprint
-import six
 
 commentRE = re.compile (r'#.*$')
 
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     print("normalized:")
 
     renormDict = {}
-    for key, count in six.iteritems(countDict):
+    for key, count in countDict.items():
         renormDict[key] = count / total
     pprint (renormDict)
     

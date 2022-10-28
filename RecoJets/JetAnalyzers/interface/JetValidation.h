@@ -12,9 +12,9 @@
 #include "TNamed.h"
 #include <vector>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-class JetValidation : public edm::EDAnalyzer {
+class JetValidation : public edm::one::EDAnalyzer<> {
 public:
   JetValidation(edm::ParameterSet const& cfg);
 

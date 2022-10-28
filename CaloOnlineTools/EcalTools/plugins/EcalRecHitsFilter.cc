@@ -17,7 +17,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,18 +36,15 @@ using namespace reco;
 //
 EcalRecHitsFilter::EcalRecHitsFilter(const edm::ParameterSet& iConfig)
     : NumBadXtalsThreshold_(iConfig.getUntrackedParameter<int>("NumberXtalsThreshold")),
-      EBRecHitCollection_(iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB"))
-
-{
-  EnergyCut = (iConfig.getUntrackedParameter<double>("energycut"));
-}
+      EBRecHitCollection_(
+          consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB"))),
+      EnergyCut(iConfig.getUntrackedParameter<double>("energycut")) {}
 
 EcalRecHitsFilter::~EcalRecHitsFilter() {}
 
 bool EcalRecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //int ievt = iEvent.id().event();
-  Handle<EcalRecHitCollection> EBhits;
-  iEvent.getByLabel(EBRecHitCollection_, EBhits);
+  const Handle<EcalRecHitCollection>& EBhits = iEvent.getHandle(EBRecHitCollection_);
 
   bool accepted = true;
   int nRecHitsGreater1GevPerEvent = 0;
@@ -77,7 +73,7 @@ void EcalRecHitsFilter::beginJob() {
 }
 
 void EcalRecHitsFilter::endJob() {
-  cout << "------EcalRecHitsFilter EndJob------>>>>>>>>>>" << endl;
+  edm::LogVerbatim("EcalTools") << "------EcalRecHitsFilter EndJob------>>>>>>>>>>";
   file = new TFile("RecHitFilter.root", "RECREATE");
   file->cd();
   nRecHitsGreater1GevPerEvent_hist_MAP->Write();

@@ -15,7 +15,7 @@ public:
              const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
              std::vector<l1t::HGCalTriggerSums>& trigSumsVecOutput) const;
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
 private:
   HGCalTriggerTools triggerTools_;

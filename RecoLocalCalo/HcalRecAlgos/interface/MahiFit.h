@@ -104,6 +104,8 @@ public:
                      bool iApplyTimeSlew,
                      HcalTimeSlew::BiasSetting slewFlavor,
                      bool iCalculateArrivalTime,
+                     int iTimeAlgo,
+                     double iThEnergeticPulses,
                      double iMeanTime,
                      double iTimeSigmaHPD,
                      double iTimeSigmaSiPM,
@@ -115,22 +117,27 @@ public:
 
   void phase1Apply(const HBHEChannelInfo& channelData,
                    float& reconstructedEnergy,
+                   float& soiPlusOneEnergy,
                    float& reconstructedTime,
                    bool& useTriple,
                    float& chi2) const;
 
   void phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const;
 
-  void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
+  void doFit(std::array<float, 4>& correctedOutput, const int nbx) const;
 
   void setPulseShapeTemplate(int pulseShapeId,
                              const HcalPulseShapes& ps,
                              bool hasTimeInfo,
                              const HcalTimeSlew* hcalTimeSlewDelay,
-                             unsigned int nSamples);
+                             unsigned int nSamples,
+                             const float gain);
 
   typedef BXVector::Index Index;
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
+
+  float thEnergeticPulses_;
+  float thEnergeticPulsesFC_;
 
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
@@ -139,6 +146,8 @@ private:
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
   void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);
+
+  float ccTime(const float itQ) const;
   void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,
@@ -164,6 +173,8 @@ private:
   static constexpr float timeLimit_ = 12.5f;
 
   // Python-configurables
+  int timeAlgo_;
+
   bool dynamicPed_;
   float ts4Thresh_;
   float chiSqSwitch_;

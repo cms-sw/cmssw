@@ -5,7 +5,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "G4ios.hh"
 #include "G4SystemOfUnits.hh"
+
+//#define EDM_ML_DEBUG
 
 const std::vector<double> *DDG4SolidConverter::par_ = nullptr;
 G4RotationMatrix *DDG4SolidConverter::rot = nullptr;
@@ -50,7 +53,7 @@ G4VSolid *DDG4SolidConverter::convert(const DDSolid &solid) {
   } else {
     throw cms::Exception("DetectorDescriptionFault")
         << "DDG4SolidConverter::convert: conversion failed for s=" << solid
-        << "\n solid.shape()=" << DDSolidShapesName::name(solid.shape()) << std::endl;
+        << "\n solid.shape()=" << DDSolidShapesName::name(solid.shape()) << G4endl;
   }
   return result;
 }
@@ -131,14 +134,13 @@ G4VSolid *DDG4SolidConverter::polycone_rz(const DDSolid &solid) {
     count++;
   }
   edm::LogVerbatim("SimG4CoreGeometry") << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg;
-  /*
-   std::cout << "### Polycone_RZ: " << "sp=" << (*par_)[0]/CLHEP::deg
-   << " ep=" << (*par_)[1]/CLHEP::deg
-   << " N= " << count << std::endl;
-   for(int i=0; i<count; ++i) {
-   std::cout << " R= " << r[i] << " Z= " << z[i] << std::endl;
-   }
-  */
+#ifdef EDM_ML_DEBUG
+  G4cout << "### Polycone_RZ: "
+         << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg << " N= " << count << G4endl;
+  for (int i = 0; i < count; ++i) {
+    G4cout << " R= " << r[i] << " Z= " << z[i] << G4endl;
+  }
+#endif
   return new G4Polycone(solid.name().name(),
                         (*par_)[0],
                         (*par_)[1],  // start,delta-phi
@@ -166,15 +168,13 @@ G4VSolid *DDG4SolidConverter::polycone_rrz(const DDSolid &solid) {
     count++;
   }
   edm::LogVerbatim("SimG4CoreGeometry") << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg;
-  /*
-    std::cout << "### Polycone_RRZ: " << "sp=" << (*par_)[0]/CLHEP::deg
-              << " ep=" << (*par_)[1]/CLHEP::deg
-              << " N= " << count << std::endl;
-    for(int i=0; i<count; ++i) {
-      std::cout << " R1= " << rmin_p[i] << " R1= " << rmax_p[i] << " Z= " <<
-    z_p[i] << std::endl;
-    }
-  */
+#ifdef EDM_ML_DEBUG
+  G4cout << "### Polycone_RRZ: "
+         << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg << " N= " << count << G4endl;
+  for (int i = 0; i < count; ++i) {
+    G4cout << " R1= " << rmin_p[i] << " R1= " << rmax_p[i] << " Z= " << z_p[i] << G4endl;
+  }
+#endif
   return new G4Polycone(solid.name().name(),
                         (*par_)[0],
                         (*par_)[1],  // start,delta-phi

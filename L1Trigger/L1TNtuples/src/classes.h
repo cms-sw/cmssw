@@ -20,6 +20,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1MenuDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeTfMuonDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeTfMuonShowerDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloTowerDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloClusterDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisBMTFInputsDataFormat.h"
@@ -28,3 +29,5 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTauDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoElectronDataFormat.h"
+
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1Upgrade.h"

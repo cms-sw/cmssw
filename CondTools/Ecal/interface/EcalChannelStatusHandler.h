@@ -125,6 +125,7 @@ namespace popcon {
     bool isEERef1[18][2];
     bool isEERef2[18][2];
 
+    EcalErrorMask ecalErrorMask_;
     EcalElectronicsMapping ecalElectronicsMap_;
 
     std::ofstream *ResFileEB;

@@ -19,7 +19,7 @@
  *  \author Nhan Tran
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
@@ -35,7 +35,7 @@ class MuonAlignment;
 class TGraph;
 class TH2F;
 
-class MuonGeometryArrange : public edm::EDAnalyzer {
+class MuonGeometryArrange : public edm::one::EDAnalyzer<> {
 public:
   typedef AlignTransform SurveyValue;
   typedef Alignments SurveyValues;
@@ -170,7 +170,23 @@ private:
 
   bool firstEvent_;
 
-  std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a;
+  std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a, geomIdeal;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken1_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken1_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken1_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken2_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken2_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken2_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken3_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken3_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken3_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomIdealToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomIdealToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomIdealToken_;
 };
 
 #endif

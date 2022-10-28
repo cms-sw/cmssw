@@ -50,6 +50,8 @@ public:
   XMLLUTLoader();
   XMLLUTLoader(XMLProcessor::loaderBaseConfig* config,
                std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template");
+  XMLLUTLoader(const XMLLUTLoader&) = delete;                   // stop default
+  const XMLLUTLoader& operator=(const XMLLUTLoader&) = delete;  // stop default
   ~XMLLUTLoader() override;
 
   int addLUT(lutDBConfig* config, std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template");
@@ -58,11 +60,6 @@ public:
                    std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template");
 
   int createLoader(const std::vector<int>& crate_number, const std::vector<std::string>& file_name);
-
-private:
-  XMLLUTLoader(const XMLLUTLoader&) = delete;  // stop default
-
-  const XMLLUTLoader& operator=(const XMLLUTLoader&) = delete;  // stop default
 };
 
 #endif

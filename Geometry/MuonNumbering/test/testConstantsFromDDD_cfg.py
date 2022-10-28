@@ -12,7 +12,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.muonGeometryConstants.fromDD4Hep = False
+process.muonGeometryConstants.fromDD4hep = False
 
 process.test = cms.EDAnalyzer("MuonGeometryConstantsTester")
 

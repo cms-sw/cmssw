@@ -1,6 +1,3 @@
-
-#include <memory>
-
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -33,11 +30,11 @@
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
                  const DDCompactView *cpvDDD,
-                 const cms::DDCompactView *cpvDD4Hep,
+                 const cms::DDCompactView *cpvDD4hep,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4Hep_(cpvDD4Hep) {
+    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4hep_(cpvDD4hep) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
@@ -123,7 +120,7 @@ uint32_t DreamSD::setDetUnitId(const G4Step *aStep) {
 void DreamSD::initMap(const std::string &sd) {
   if (dd4hep_) {
     const cms::DDFilter filter("ReadOutName", sd);
-    cms::DDFilteredView fv((*cpvDD4Hep_), filter);
+    cms::DDFilteredView fv((*cpvDD4hep_), filter);
     while (fv.firstChild()) {
       std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
       std::vector<double> paras(fv.parameters());
@@ -133,8 +130,8 @@ void DreamSD::initMap(const std::string &sd) {
 #endif
       // Set length to be the largest size, width the smallest
       std::sort(paras.begin(), paras.end());
-      double length = 2.0 * k_ScaleFromDD4HepToG4 * paras.back();
-      double width = 2.0 * k_ScaleFromDD4HepToG4 * paras.front();
+      double length = 2.0 * k_ScaleFromDD4hepToG4 * paras.back();
+      double width = 2.0 * k_ScaleFromDD4hepToG4 * paras.front();
       fillMap(name, length, width);
     }
   } else {
@@ -142,11 +139,10 @@ void DreamSD::initMap(const std::string &sd) {
     DDFilteredView fv((*cpvDDD_), filter);
     fv.firstChild();
     bool dodet = true;
-    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
     while (dodet) {
       const DDSolid &sol = fv.logicalPart().solid();
       std::vector<double> paras(sol.parameters());
-      G4String name = sol.name().name();
+      std::string name = static_cast<std::string>(sol.name().name());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape()
                                   << " Parameter 0 = " << paras[0];
@@ -155,16 +151,7 @@ void DreamSD::initMap(const std::string &sd) {
       std::sort(paras.begin(), paras.end());
       double length = 2.0 * k_ScaleFromDDDToG4 * paras.back();
       double width = 2.0 * k_ScaleFromDDDToG4 * paras.front();
-      G4LogicalVolume *lv = nullptr;
-      for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-        if ((*lvcite)->GetName() == name) {
-          lv = (*lvcite);
-          break;
-        }
-      xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "DreamSD " << name << ":" << lv << ":" << length << ":" << width;
-#endif
+      fillMap(name, length, width);
       dodet = fv.next();
     }
   }
@@ -191,7 +178,8 @@ void DreamSD::fillMap(const std::string &name, double length, double width) {
   G4LogicalVolume *lv = nullptr;
   for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     edm::LogVerbatim("EcalSim") << name << " vs " << (*lvcite)->GetName();
-    if ((*lvcite)->GetName() == static_cast<G4String>(name)) {
+    std::string namex = static_cast<std::string>((*lvcite)->GetName());
+    if (name == static_cast<std::string>(dd4hep::dd::noNamespace(namex))) {
       lv = (*lvcite);
       break;
     }
@@ -432,7 +420,8 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
 // Values from Ts42 detector construction
 bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
   std::string pbWO2Name("E_PbWO4");
-  if (pbWO2Name != aMaterial->GetName()) {  // Wrong material!
+  std::string name = static_cast<std::string>(aMaterial->GetName());
+  if (static_cast<std::string>(dd4hep::dd::noNamespace(name)) != pbWO2Name) {  // Wrong material!
     edm::LogWarning("EcalSim") << "This is not the right material: "
                                << "expecting " << pbWO2Name << ", got " << aMaterial->GetName();
     return false;

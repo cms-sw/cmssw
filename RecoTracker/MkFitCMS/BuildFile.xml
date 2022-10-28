@@ -1,0 +1,5 @@
+<use name="RecoTracker/MkFitCore"/>
+<flags CXXFLAGS="-fopenmp-simd"/>
+<export>
+  <lib name="RecoTrackerMkFitCMS"/>
+</export>

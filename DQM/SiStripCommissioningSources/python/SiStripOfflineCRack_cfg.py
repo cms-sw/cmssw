@@ -131,9 +131,10 @@ process.TrackProducer.alias=('') # can we drop this?
 process.load('DQM.SiStripCommissioningSources.SiStripFineDelayHit_cfi')
 
 # Commissioning source file production
-process.CommissioningHistosWithTracking = process.CommissioningHistos.clone()
-process.CommissioningHistosWithTracking.InputModuleLabel = cms.string('siStripFineDelayHit')
-process.CommissioningHistosWithTracking.SignalToNoiseCut = cms.double(3.0)
+process.CommissioningHistosWithTracking = process.CommissioningHistos.clone(
+    InputModuleLabel = 'siStripFineDelayHit',
+    SignalToNoiseCut = cms.double(3.0)
+)
 
 # the path to run for analysis with tracking
 process.p2 = cms.Path(

@@ -6,7 +6,6 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -89,7 +88,8 @@ defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
 defaultOptions.nStreams = '0'
 defaultOptions.nConcurrentLumis = '0'
-defaultOptions.nConcurrentIOVs = '1'
+defaultOptions.nConcurrentIOVs = '0'
+defaultOptions.accelerators = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -114,9 +114,11 @@ def filesFromList(fileName,s=None):
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
             prim.append(entry)
-    # remove any duplicates
-    prim = sorted(list(set(prim)))
-    sec = sorted(list(set(sec)))
+    # remove any duplicates but keep the order
+    file_seen = set()
+    prim = [f for f in prim if not (f in file_seen or file_seen.add(f))]
+    file_seen = set()
+    sec = [f for f in sec if not (f in file_seen or file_seen.add(f))]
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -230,7 +232,7 @@ class ConfigBuilder(object):
             stepParts = step.split(":")
             stepName = stepParts[0]
             if stepName not in stepList and not stepName.startswith('re'):
-                raise ValueError("Step "+stepName+" unknown")
+                raise ValueError("Step {} unknown. Available are {}".format( stepName , sorted(stepList)))
             if len(stepParts)==1:
                 self.stepMap[stepName]=""
             elif len(stepParts)==2:
@@ -238,10 +240,10 @@ class ConfigBuilder(object):
             elif len(stepParts)==3:
                 self.stepMap[stepName]=(stepParts[2].split('+'),stepParts[1])
             else:
-                raise ValueError("Step definition "+step+" invalid")
+                raise ValueError(f"Step definition {step} invalid")
             self.stepKeys.append(stepName)
 
-        #print "map of steps is:",self.stepMap
+        #print(f"map of steps is: {self.stepMap}")
 
         self.with_output = with_output
         self.process=process
@@ -253,6 +255,7 @@ class ConfigBuilder(object):
         self.create_process()
         self.define_Configs()
         self.schedule = list()
+        self.scheduleIndexOfFirstHLTPath = None
 
         # we are doing three things here:
         # creating a process to catch errors
@@ -303,8 +306,8 @@ class ConfigBuilder(object):
             profilerFormat = "%s___%s___%%I.gz" % (
                 self._options.evt_type.replace("_cfi", ""),
                 hashlib.md5(
-                    str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
-                    str(self._options.datatier) + str(self._options.profileTypeLabel)
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
                 ).hexdigest()
             )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
@@ -782,11 +785,11 @@ class ConfigBuilder(object):
                     self._options.inputEventContent='%s,%s'%(stepName.upper(),self._options.inputEventContent)
                 stepName=stepName[2:]
             if stepSpec=="":
-                getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
+                getattr(self,"prepare_"+stepName)(stepSpec = getattr(self,stepName+"DefaultSeq"))
             elif isinstance(stepSpec, list):
-                getattr(self,"prepare_"+stepName)(sequence = '+'.join(stepSpec))
+                getattr(self,"prepare_"+stepName)(stepSpec = '+'.join(stepSpec))
             elif isinstance(stepSpec, tuple):
-                getattr(self,"prepare_"+stepName)(sequence = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
+                getattr(self,"prepare_"+stepName)(stepSpec = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
             else:
                 raise ValueError("Invalid step definition")
 
@@ -966,7 +969,6 @@ class ConfigBuilder(object):
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
         self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
-        self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -1006,7 +1008,6 @@ class ConfigBuilder(object):
         else:
             self.RECODefaultSeq='reconstruction_fromRECO'
         self.RECOSIMDefaultSeq='recosim'
-        self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
@@ -1152,7 +1153,7 @@ class ConfigBuilder(object):
         self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
     # for alca, skims, etc
-    def addExtraStream(self,name,stream,workflow='full'):
+    def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
         if stream.selectEvents.parameters_().__len__()!=0:
@@ -1217,17 +1218,23 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
-        if ( len(sequence.split('.'))==1 ):
-            l=self.loadAndRemember(defaultCFF)
-        elif ( len(sequence.split('.'))==2 ):
-            l=self.loadAndRemember(sequence.split('.')[0])
-            sequence=sequence.split('.')[1]
+    def loadDefaultOrSpecifiedCFF(self, stepSpec, defaultCFF, defaultSEQ=''):
+        _dotsplit = stepSpec.split('.')
+        if ( len(_dotsplit)==1 ):
+            if '/' in _dotsplit[0]:
+                _sequence = defaultSEQ if defaultSEQ else stepSpec 
+                _cff = _dotsplit[0]
+            else:
+                _sequence = stepSpec
+                _cff = defaultCFF
+        elif ( len(_dotsplit)==2 ):
+            _cff,_sequence  = _dotsplit
         else:
             print("sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a")
-            print(sequence,"not recognized")
+            print(stepSpec,"not recognized")
             raise
-        return l
+        l=self.loadAndRemember(_cff)
+        return l,_sequence,_cff
 
     def scheduleSequence(self,seq,prefix,what='Path'):
         if '*' in seq:
@@ -1262,21 +1269,25 @@ class ConfigBuilder(object):
         self.scheduleSequence(seq,prefix,what='EndPath')
         return
 
-    def prepare_ALCAPRODUCER(self, sequence = None):
-        self.prepare_ALCA(sequence, workflow = "producers")
+    def prepare_ALCAPRODUCER(self, stepSpec = None):
+        self.prepare_ALCA(stepSpec, workflow = "producers")
 
-    def prepare_ALCAOUTPUT(self, sequence = None):
-        self.prepare_ALCA(sequence, workflow = "output")
+    def prepare_ALCAOUTPUT(self, stepSpec = None):
+        self.prepare_ALCA(stepSpec, workflow = "output")
 
-    def prepare_ALCA(self, sequence = None, workflow = 'full'):
+    def prepare_ALCA(self, stepSpec = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-        alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
-        sequence = sequence.split('.')[-1]
+        alcaConfig,sequence,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.ALCADefaultCFF)
 
+        MAXLEN=31 #the alca producer name should be shorter than 31 chars as per https://cms-talk.web.cern.ch/t/alcaprompt-datasets-not-loaded-in-dbs/11146/2
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
+        for alca in alcaList:
+            if (len(alca)>MAXLEN):
+                raise Exception("The following alca "+str(alca)+" name (with length "+str(len(alca))+" chars) cannot be accepted because it exceeds the DBS constraints on the length of the name of the ALCARECOs producers ("+str(MAXLEN)+")!")
+
         maxLevel=0
-        from Configuration.AlCa.autoAlca import autoAlca
+        from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
         self.expandMapping(alcaList,autoAlca)
         self.AlCaPaths=[]
@@ -1284,6 +1295,10 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
+                if shortName in AlCaNoConcurrentLumis:
+                    print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
+                    self._options.nConcurrentLumis = "1"
+                    self._options.nConcurrentIOVs = "1"
                 output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
@@ -1326,7 +1341,7 @@ class ConfigBuilder(object):
             #print "verify your configuration, ignoring for now"
             raise Exception("The following alcas could not be found "+str(alcaList))
 
-    def prepare_LHE(self, sequence = None):
+    def prepare_LHE(self, stepSpec = None):
             #load the fragment
             ##make it loadable
         loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','').replace('/','.')
@@ -1334,16 +1349,16 @@ class ConfigBuilder(object):
         __import__(loadFragment)
         self.process.load(loadFragment)
         ##inline the modules
-        self._options.inlineObjets+=','+sequence
+        self._options.inlineObjets+=','+stepSpec
 
-        getattr(self.process,sequence).nEvents = int(self._options.number)
+        getattr(self.process,stepSpec).nEvents = int(self._options.number)
 
         #schedule it
-        self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+        self.process.lhe_step = cms.Path( getattr( self.process,stepSpec)  )
         self.excludedPaths.append("lhe_step")
         self.schedule.append( self.process.lhe_step )
 
-    def prepare_GEN(self, sequence = None):
+    def prepare_GEN(self, stepSpec = None):
         """ load the fragment of generator configuration """
         loadFailure=False
         #remove trailing .py
@@ -1365,6 +1380,8 @@ class ConfigBuilder(object):
                 raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 
         if not loadFailure:
+            from Configuration.Generator.concurrentLumisDisable import noConcurrentLumiGenerators
+
             generatorModule=sys.modules[loadFragment]
             genModules=generatorModule.__dict__
             #remove lhe producer module since this should have been
@@ -1382,18 +1399,21 @@ class ConfigBuilder(object):
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
                         self._options.inlineObjets=name+','+self._options.inlineObjets
+                        if theObject.type_() in noConcurrentLumiGenerators:
+                            print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
+                            self._options.nConcurrentLumis = "1"
+                            self._options.nConcurrentIOVs = "1"
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjets+=','+name
 
-            if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+            if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
                     self.productionFilterSequence = 'ProductionFilterSequence'
                 elif 'generator' in genModules:
                     self.productionFilterSequence = 'generator'
 
         """ Enrich the schedule with the rest of the generation step """
-        self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
-        genSeqName=sequence.split('.')[-1]
+        _,_genSeqName,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.GENDefaultCFF)
 
         if True:
             try:
@@ -1411,7 +1431,7 @@ class ConfigBuilder(object):
                 else:
                     self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
 
-        self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
+        self.process.generation_step = cms.Path( getattr(self.process,_genSeqName) )
         self.schedule.append(self.process.generation_step)
 
         #register to the genstepfilter the name of the path (static right now, but might evolve)
@@ -1427,9 +1447,9 @@ class ConfigBuilder(object):
         self.scheduleSequenceAtEnd('genFilterSummary','genfiltersummary_step')
         return
 
-    def prepare_SIM(self, sequence = None):
+    def prepare_SIM(self, stepSpec = None):
         """ Enrich the schedule with the simulation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.SIMDefaultCFF)
+        _,_simSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SIMDefaultCFF)
         if not self._options.fast:
             if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
@@ -1440,36 +1460,36 @@ class ConfigBuilder(object):
             if self._options.magField=='0T':
                 self.executeAndRemember("process.fastSimProducer.detectorDefinition.magneticFieldZ = cms.untracked.double(0.)")
 
-        self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
+        self.scheduleSequence(_simSeq,'simulation_step')
         return
 
-    def prepare_DIGI(self, sequence = None):
+    def prepare_DIGI(self, stepSpec = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+        _,_digiSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DIGIDefaultCFF)
 
         if self._options.gflash==True:
             self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if sequence == 'pdigi_valid' or sequence == 'pdigi_hi':
+        if _digiSeq == 'pdigi_valid' or _digiSeq == 'pdigi_hi':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
-        if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and sequence != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource' and not self._options.filetype == "LHE":
+        if _digiSeq != 'pdigi_nogen' and _digiSeq != 'pdigi_valid_nogen' and _digiSeq != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource' and not self._options.filetype == "LHE":
             if self._options.inputEventContent=='':
                 self._options.inputEventContent='REGEN'
             else:
                 self._options.inputEventContent=self._options.inputEventContent+',REGEN'
 
 
-        self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        self.scheduleSequence(_digiSeq,'digitisation_step')
         return
 
-    def prepare_CFWRITER(self, sequence = None):
+    def prepare_CFWRITER(self, stepSpec = None):
         """ Enrich the schedule with the crossing frame writer step"""
         self.loadAndRemember(self.CFWRITERDefaultCFF)
         self.scheduleSequence('pcfw','cfwriter_step')
         return
 
-    def prepare_DATAMIX(self, sequence = None):
+    def prepare_DATAMIX(self, stepSpec = None):
         """ Enrich the schedule with the digitisation step"""
         self.loadAndRemember(self.DATAMIXDefaultCFF)
         self.scheduleSequence('pdatamix','datamixing_step')
@@ -1487,52 +1507,51 @@ class ConfigBuilder(object):
 
         return
 
-    def prepare_DIGI2RAW(self, sequence = None):
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
+    def prepare_DIGI2RAW(self, stepSpec = None):
+        _,_digi2rawSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DIGI2RAWDefaultCFF)
+        self.scheduleSequence(_digi2rawSeq,'digi2raw_step')
         return
 
-    def prepare_REPACK(self, sequence = None):
-        self.loadDefaultOrSpecifiedCFF(sequence,self.REPACKDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'digi2repack_step')
+    def prepare_REPACK(self, stepSpec = None):
+        _,_repackSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.REPACKDefaultCFF)
+        self.scheduleSequence(_repackSeq,'digi2repack_step')
         return
 
-    def prepare_L1(self, sequence = None):
+    def prepare_L1(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step"""
-        assert(sequence == None)
+        assert(stepSpec == None)
         self.loadAndRemember(self.L1EMDefaultCFF)
         self.scheduleSequence('SimL1Emulator','L1simulation_step')
         return
 
-    def prepare_L1REPACK(self, sequence = None):
+    def prepare_L1REPACK(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
         supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
-        if sequence in supported:
-            self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
+        if stepSpec in supported:
+            self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'% stepSpec)
             if self._options.scenario == 'HeavyIons':
                 self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
             self.scheduleSequence('SimL1Emulator','L1RePack_step')
         else:
-            print("L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported)
+            print("L1REPACK with '",stepSpec,"' is not supported! Supported choices are: ",supported)
             raise Exception('unsupported feature')
 
-
-    def prepare_HLT(self, sequence = None):
+    def prepare_HLT(self, stepSpec = None):
         """ Enrich the schedule with the HLT simulation step"""
-        if not sequence:
+        if not stepSpec:
             print("no specification of the hlt menu has been given, should never happen")
-            raise  Exception('no HLT sequence provided')
+            raise  Exception('no HLT specifications provided')
 
-        if '@' in sequence:
+        if '@' in stepSpec:
             # case where HLT:@something was provided
             from Configuration.HLT.autoHLT import autoHLT
-            key = sequence[1:]
+            key = stepSpec[1:]
             if key in autoHLT:
-                sequence = autoHLT[key]
+                stepSpec = autoHLT[key]
             else:
                 raise ValueError('no HLT mapping key "%s" found in autoHLT' % key)
 
-        if ',' in sequence:
+        if ',' in stepSpec:
             #case where HLT:something:something was provided
             self.executeAndRemember('import HLTrigger.Configuration.Utilities')
             optionsForHLT = {}
@@ -1540,18 +1559,18 @@ class ConfigBuilder(object):
                 optionsForHLT['type'] = 'HIon'
             else:
                 optionsForHLT['type'] = 'GRun'
-            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
-            if sequence == 'run,fromSource':
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
+            if stepSpec == 'run,fromSource':
                 if hasattr(self.process.source,'firstRun'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
                 elif hasattr(self.process.source,'setRunNumber'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.setRunNumber.value()),%s)'%(optionsForHLTConfig))
                 else:
-                    raise Exception('Cannot replace menu to load %s'%(sequence))
+                    raise Exception(f'Cannot replace menu to load {stepSpec}')
             else:
-                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(stepSpec.replace(',',':'),optionsForHLTConfig))
         else:
-            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
 
         if self._options.isMC:
             self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
@@ -1563,63 +1582,62 @@ class ConfigBuilder(object):
             from HLTrigger.Configuration.CustomConfigs import ProcessName
             self.process = ProcessName(self.process)
 
-        self.schedule.append(self.process.HLTSchedule)
-        [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
+        if self.process.schedule == None:
+            raise Exception('the HLT step did not attach a valid schedule to the process')
 
-        #this is a fake, to be removed with fastim migration and HLT menu dump
+        self.scheduleIndexOfFirstHLTPath = len(self.schedule)
+        [self.blacklist_paths.append(path) for path in self.process.schedule if isinstance(path,(cms.Path,cms.EndPath))]
+
+        # this is a fake, to be removed with fastim migration and HLT menu dump
         if self._options.fast:
             if not hasattr(self.process,'HLTEndSequence'):
                 self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
 
 
-    def prepare_RAW2RECO(self, sequence = None):
-        if ','in sequence:
-            seqReco=sequence.split(',')[1]
-            seqDigi=sequence.split(',')[0]
+    def prepare_RAW2RECO(self, stepSpec = None):
+        if ','in stepSpec:
+            seqReco,seqDigi=stepSpec.spli(',')
         else:
-            print("RAW2RECO requires two specifications",sequence,"insufficient")
+            print(f"RAW2RECO requires two specifications {stepSpec} insufficient")
 
         self.prepare_RAW2DIGI(seqDigi)
         self.prepare_RECO(seqReco)
         return
 
-    def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
-        self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
-        self.scheduleSequence(sequence,'raw2digi_step')
-         #          if self._options.isRepacked:
-        #self.renameInputTagsInSequence(sequence)
+    def prepare_RAW2DIGI(self, stepSpec = "RawToDigi"):
+        _,_raw2digiSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.RAW2DIGIDefaultCFF)
+        self.scheduleSequence(_raw2digiSeq,'raw2digi_step')
         return
 
-    def prepare_PATFILTER(self, sequence=None):
+    def prepare_PATFILTER(self, stepSpec = None):
         self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
         from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
         for filt in allMetFilterPaths:
             self.schedule.append(getattr(self.process,'Flag_'+filt))
 
-    def prepare_L1HwVal(self, sequence = 'L1HwVal'):
+    def prepare_L1HwVal(self, stepSpec = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
-        #self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
+        self.loadDefaultOrSpecifiedCFF(stepSpec,self.L1HwValDefaultCFF)
         print('\n\n\n DEPRECATED this has no action \n\n\n')
         return
 
-    def prepare_L1Reco(self, sequence = "L1Reco"):
+    def prepare_L1Reco(self, stepSpec = "L1Reco"):
         ''' Enrich the schedule with L1 reconstruction '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.L1RecoDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'L1Reco_step')
+        _,_l1recoSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.L1RecoDefaultCFF)
+        self.scheduleSequence(_l1recoSeq,'L1Reco_step')
         return
 
-    def prepare_L1TrackTrigger(self, sequence = "L1TrackTrigger"):
+    def prepare_L1TrackTrigger(self, stepSpec = "L1TrackTrigger"):
         ''' Enrich the schedule with L1 reconstruction '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.L1TrackTriggerDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'L1TrackTrigger_step')
+        _,_l1tracktriggerSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.L1TrackTriggerDefaultCFF)
+        self.scheduleSequence(_l1tracktriggerSeq,'L1TrackTrigger_step')
         return
 
-    def prepare_FILTER(self, sequence = None):
+    def prepare_FILTER(self, stepSpec = None):
         ''' Enrich the schedule with a user defined filter sequence '''
         ## load the relevant part
-        filterConfig=self.load(sequence.split('.')[0])
-        filterSeq=sequence.split('.')[-1]
+        filterConfig,filterSeq = stepSpec.split('.')
+        filterConfig=self.load(filterConfig)
         ## print it in the configuration
         class PrintAllModules(object):
             def __init__(self):
@@ -1647,31 +1665,31 @@ class ConfigBuilder(object):
 
         return
 
-    def prepare_RECO(self, sequence = "reconstruction"):
+    def prepare_RECO(self, stepSpec = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
+        _,_recoSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.RECODefaultCFF)
+        self.scheduleSequence(_recoSeq,'reconstruction_step')
         return
 
-    def prepare_RECOSIM(self, sequence = "recosim"):
+    def prepare_RECOSIM(self, stepSpec = "recosim"):
         ''' Enrich the schedule with reconstruction '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.RECOSIMDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'recosim_step')
+        _,_recosimSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.RECOSIMDefaultCFF)
+        self.scheduleSequence(_recosimSeq,'recosim_step')
         return
 
-    def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
+    def prepare_RECOBEFMIX(self, stepSpec = "reconstruction"):
         ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
         if not self._options.fast:
             print("ERROR: this step is only implemented for FastSim")
             sys.exit()
-        self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
+        _,_recobefmixSeq,_ = self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
+        self.scheduleSequence(_recobefmixSeq,'reconstruction_befmix_step')
         return
 
-    def prepare_PAT(self, sequence = "miniAOD"):
+    def prepare_PAT(self, stepSpec = "miniAOD"):
         ''' Enrich the schedule with PAT '''
         self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
         self.labelsToAssociate.append('patTask')
         if self._options.isData:
             self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
@@ -1692,53 +1710,41 @@ class ConfigBuilder(object):
 
         return
 
-    def prepare_PATGEN(self, sequence = "miniGEN"):
+    def prepare_PATGEN(self, stepSpec = "miniGEN"):
         ''' Enrich the schedule with PATGEN '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF) #this is unscheduled
+        self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATGENDefaultCFF) #this is unscheduled
         self.labelsToAssociate.append('patGENTask')
         if self._options.isData:
             raise Exception("PATGEN step can only run on MC")
         return
 
-    def prepare_NANO(self, sequence = "nanoAOD"):
+    def prepare_NANO(self, stepSpec = '' ):
+        print(f"in prepare_nano {stepSpec}")
         ''' Enrich the schedule with NANO '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.NANODefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
+        self.scheduleSequence(_nanoSeq,'nanoAOD_step')
         custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
-        self._options.customisation_file.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+        self._options.customisation_file.insert(0,'.'.join([_nanoCff,custom]))
         if self._options.hltProcess:
             if len(self._options.customise_commands) > 1:
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
-    def prepare_NANOGEN(self, sequence = "nanoAOD"):
+    def prepare_NANOGEN(self, stepSpec = "nanoAOD"):
         ''' Enrich the schedule with NANOGEN '''
         # TODO: Need to modify this based on the input file type
         fromGen = any([x in self.stepMap for x in ['LHE', 'GEN', 'AOD']])
-        self.loadDefaultOrSpecifiedCFF(sequence,self.NANOGENDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        _,_nanogenSeq,_nanogenCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANOGENDefaultCFF)
+        self.scheduleSequence(_nanogenSeq,'nanoAOD_step')
         custom = "customizeNanoGEN" if fromGen else "customizeNanoGENFromMini"
         if self._options.runUnscheduled:
-            self._options.customisation_file_unsch.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
+            self._options.customisation_file_unsch.insert(0, '.'.join([_nanogenCff, custom]))
         else:
-            self._options.customisation_file.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
+            self._options.customisation_file.insert(0, '.'.join([_nanogenCff, custom]))
 
-    def prepare_EI(self, sequence = None):
-        ''' Enrich the schedule with event interpretation '''
-        from Configuration.StandardSequences.EventInterpretation import EventInterpretation
-        if sequence in EventInterpretation:
-            self.EIDefaultCFF = EventInterpretation[sequence]
-            sequence = 'EIsequence'
-        else:
-            raise Exception('Cannot set %s event interpretation'%( sequence) )
-        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
-        return
-
-    def prepare_SKIM(self, sequence = "all"):
+    def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''
-        skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
-        sequence = sequence.split('.')[-1]
+        skimConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SKIMDefaultCFF)
 
         skimlist=sequence.split('+')
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
@@ -1779,25 +1785,24 @@ class ConfigBuilder(object):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
-    def prepare_USER(self, sequence = None):
+    def prepare_USER(self, stepSpec = None):
         ''' Enrich the schedule with a user defined sequence '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.USERDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'user_step')
+        _,_userSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.USERDefaultCFF)
+        self.scheduleSequence(_userSeq,'user_step')
         return
 
-    def prepare_POSTRECO(self, sequence = None):
+    def prepare_POSTRECO(self, stepSpec = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
         self.scheduleSequence('postreco_generator','postreco_step')
         return
 
 
-    def prepare_VALIDATION(self, sequence = 'validation'):
-        print(sequence,"in preparing validation")
-        self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
+    def prepare_VALIDATION(self, stepSpec = 'validation'):
+        print(f"{stepSpec} in preparing validation")
+        _,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.VALIDATIONDefaultCFF)
         from Validation.Configuration.autoValidation import autoValidation
         #in case VALIDATION:something:somethingelse -> something,somethingelse
-        sequence=sequence.split('.')[-1]
         if sequence.find(',')!=-1:
             prevalSeqName=sequence.split(',')[0].split('+')
             valSeqName=sequence.split(',')[1].split('+')
@@ -1849,7 +1854,7 @@ class ConfigBuilder(object):
             if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
                 self._options.restoreRNDSeeds=True
 
-        if not 'DIGI' in self.stepMap and not self._options.fast:
+        if not 'DIGI' in self.stepMap and not self._options.isData and not self._options.fast:
             self.executeAndRemember("process.mix.playback = True")
             self.executeAndRemember("process.mix.digitizers = cms.PSet()")
             self.executeAndRemember("for a in process.aliases: delattr(process, a)")
@@ -1965,14 +1970,13 @@ class ConfigBuilder(object):
         if level==maxLevel:
             raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
 
-    def prepare_DQM(self, sequence = 'DQMOffline'):
+    def prepare_DQM(self, stepSpec = 'DQMOffline'):
         # this one needs replacement
 
         # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
         self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
-        sequenceList=sequence.split('.')[-1].split('+')
-        postSequenceList=sequence.split('.')[-1].split('+')
+        _,_dqmSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DQMOFFLINEDefaultCFF)
+        sequenceList=postSequenceList=_dqmSeq.split('+')
         from DQMOffline.Configuration.autoDQM import autoDQM
         self.expandMapping(sequenceList,autoDQM,index=0)
         self.expandMapping(postSequenceList,autoDQM,index=1)
@@ -1982,14 +1986,14 @@ class ConfigBuilder(object):
             print("Duplicate entries for DQM:, using",sequenceList)
 
         pathName='dqmoffline_step'
-        for (i,sequence) in enumerate(sequenceList):
+        for (i,_sequence) in enumerate(sequenceList):
             if (i!=0):
                 pathName='dqmoffline_%d_step'%(i)
 
             if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
-                self.renameHLTprocessInSequence(sequence)
+                self.renameHLTprocessInSequence(_sequence)
 
-            setattr(self.process,pathName, cms.EndPath( getattr(self.process,sequence ) ) )
+            setattr(self.process,pathName, cms.EndPath( getattr(self.process,_sequence ) ) )
             self.schedule.append(getattr(self.process,pathName))
 
             if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
@@ -1998,23 +2002,22 @@ class ConfigBuilder(object):
 
 
         pathName='dqmofflineOnPAT_step'
-        for (i,sequence) in enumerate(postSequenceList):
+        for (i,_sequence) in enumerate(postSequenceList):
 	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
             if (sequenceList[i]==postSequenceList[i]):
                       continue
             if (i!=0):
                 pathName='dqmofflineOnPAT_%d_step'%(i)
 
-            setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
+            setattr(self.process,pathName, cms.EndPath( getattr(self.process, _sequence ) ) )
             self.schedule.append(getattr(self.process,pathName))
 
-    def prepare_HARVESTING(self, sequence = None):
+    def prepare_HARVESTING(self, stepSpec = None):
         """ Enrich the process with harvesting step """
         self.DQMSaverCFF='Configuration/StandardSequences/DQMSaver'+self._options.harvesting+'_cff'
         self.loadAndRemember(self.DQMSaverCFF)
 
-        harvestingConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.HARVESTINGDefaultCFF)
-        sequence = sequence.split('.')[-1]
+        harvestingConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.HARVESTINGDefaultCFF)
 
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
@@ -2046,10 +2049,10 @@ class ConfigBuilder(object):
         self.scheduleSequence('DQMSaver','dqmsave_step')
         return
 
-    def prepare_ALCAHARVEST(self, sequence = None):
+    def prepare_ALCAHARVEST(self, stepSpec = None):
         """ Enrich the process with AlCaHarvesting step """
         harvestingConfig = self.loadAndRemember(self.ALCAHARVESTDefaultCFF)
-        sequence=sequence.split(".")[-1]
+        sequence=stepSpec.split(".")[-1]
 
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
@@ -2081,9 +2084,9 @@ class ConfigBuilder(object):
 
 
 
-    def prepare_ENDJOB(self, sequence = 'endOfProcess'):
-        self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
-        self.scheduleSequenceAtEnd(sequence.split('.')[-1],'endjob_step')
+    def prepare_ENDJOB(self, stepSpec = 'endOfProcess'):
+        _,_endjobSeq,_=self.loadDefaultOrSpecifiedCFF(stepSpec,self.ENDJOBDefaultCFF)
+        self.scheduleSequenceAtEnd(_endjobSeq,'endjob_step')
         return
 
     def finalizeFastSimHLT(self):
@@ -2125,7 +2128,9 @@ class ConfigBuilder(object):
         if hasattr(self._options,"procModifiers") and self._options.procModifiers:
             import importlib
             thingsImported=[]
-            for pm in self._options.procModifiers.split(','):
+            for c in self._options.procModifiers:
+                thingsImported.extend(c.split(","))
+            for pm in thingsImported:
                 modifierStrings.append(pm)
                 modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
                 modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
@@ -2216,7 +2221,7 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +=dumpPython(self.process,object)
 
         if self._options.pileup=='HiMixEmbGEN':
-            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.bool(True)\n"
+            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.int32(1)\n"
 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
@@ -2230,27 +2235,29 @@ class ConfigBuilder(object):
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
-        result = "process.schedule = cms.Schedule("
 
         # handling of the schedule
-        self.process.schedule = cms.Schedule()
-        for item in self.schedule:
-            if not isinstance(item, cms.Schedule):
+        pathNames = ['process.'+p.label_() for p in self.schedule]
+        if self.process.schedule == None:
+            self.process.schedule = cms.Schedule()
+            for item in self.schedule:
                 self.process.schedule.append(item)
-            else:
-                self.process.schedule.extend(item)
-
-        if hasattr(self.process,"HLTSchedule"):
-            beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-            afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-            pathNames = ['process.'+p.label_() for p in beforeHLT]
-            result += ','.join(pathNames)+')\n'
-            result += 'process.schedule.extend(process.HLTSchedule)\n'
-            pathNames = ['process.'+p.label_() for p in afterHLT]
-            result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+            result = 'process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         else:
-            pathNames = ['process.'+p.label_() for p in self.schedule]
-            result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+            if not isinstance(self.scheduleIndexOfFirstHLTPath, int):
+                raise Exception('the schedule was imported from a cff in HLTrigger.Configuration, but the final index of the first HLT path is undefined')
+
+            for index, item in enumerate(self.schedule):
+                if index < self.scheduleIndexOfFirstHLTPath:
+                    self.process.schedule.insert(index, item)
+                else:
+                    self.process.schedule.append(item)
+
+            result = "# process.schedule imported from cff in HLTrigger.Configuration\n"
+            for index, item in enumerate(pathNames[:self.scheduleIndexOfFirstHLTPath]):
+                result += 'process.schedule.insert('+str(index)+', '+item+')\n'
+            if self.scheduleIndexOfFirstHLTPath < len(pathNames):
+                result += 'process.schedule.extend(['+','.join(pathNames[self.scheduleIndexOfFirstHLTPath:])+'])\n'
 
         self.pythonCfgCode += result
 
@@ -2263,19 +2270,34 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads != "1":
+        overrideThreads = (self._options.nThreads != "1")
+        overrideConcurrentLumis = (self._options.nConcurrentLumis != defaultOptions.nConcurrentLumis)
+        overrideConcurrentIOVs = (self._options.nConcurrentIOVs != defaultOptions.nConcurrentIOVs)
+
+        if overrideThreads or overrideConcurrentLumis or overrideConcurrentIOVs:
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
-            self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
-            self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
-            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
-            self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
-            if int(self._options.nConcurrentLumis) > 1:
-              self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
-            self.process.options.numberOfThreads = int(self._options.nThreads)
-            self.process.options.numberOfStreams = int(self._options.nStreams)
-            self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
-            self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+            if overrideThreads:
+                self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
+                self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
+                self.process.options.numberOfThreads = int(self._options.nThreads)
+                self.process.options.numberOfStreams = int(self._options.nStreams)
+            if overrideConcurrentLumis:
+                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
+                self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+            if overrideConcurrentIOVs:
+                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
+                self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+
+        if self._options.accelerators is not None:
+            accelerators = self._options.accelerators.split(',')
+            self.pythonCfgCode += "\n"
+            self.pythonCfgCode += "# Enable only these accelerator backends\n"
+            self.pythonCfgCode += "process.load('Configuration.StandardSequences.Accelerators_cff')\n"
+            self.pythonCfgCode += "process.options.accelerators = ['" + "', '".join(accelerators) + "']\n"
+            self.process.load('Configuration.StandardSequences.Accelerators_cff')
+            self.process.options.accelerators = accelerators
+
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"

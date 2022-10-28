@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,7 +43,7 @@
 // class declaration
 //
 
-class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
+class EcalBxOrbitNumberGrapher : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet&);
   ~EcalBxOrbitNumberGrapher() override;
@@ -56,7 +56,7 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string digiProducer_;
+  const edm::EDGetTokenT<EcalRawDataCollection> digiProducer_;
   int runNum_;
   std::string fileName_;
 

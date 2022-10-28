@@ -1,5 +1,8 @@
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -8,17 +11,29 @@
 #include <iostream>
 #include <sstream>
 
+/**
+   @class test_PedestalsBuilder 
+   @brief Simple class that analyzes Digis produced by RawToDigi unpacker
+*/
+class test_PedestalsBuilder : public edm::global::EDAnalyzer<> {
+public:
+  test_PedestalsBuilder(const edm::ParameterSet&) : pedToken_(esConsumes()) {}
+  virtual ~test_PedestalsBuilder() override = default;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedToken_;
+};
+
 using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-//
-void test_PedestalsBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void test_PedestalsBuilder::analyze(edm::StreamID, const edm::Event& event, const edm::EventSetup& setup) const {
   LogTrace(mlCabling_) << "[test_PedestalsBuilder::" << __func__ << "]"
                        << " Dumping all FED connections...";
 
-  edm::ESHandle<SiStripPedestals> peds;
-  setup.get<SiStripPedestalsRcd>().get(peds);
+  const SiStripPedestals* peds = &setup.getData(pedToken_);
 
   // Retrieve DetIds in Pedestals object
   vector<uint32_t> det_ids;
@@ -50,3 +65,6 @@ void test_PedestalsBuilder::analyze(const edm::Event& event, const edm::EventSet
     LogTrace(mlCabling_) << ss.str();
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(test_PedestalsBuilder);

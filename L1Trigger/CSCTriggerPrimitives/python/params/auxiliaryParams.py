@@ -28,9 +28,15 @@ commonParam = cms.PSet(
     runME11ILT = cms.bool(False),
     runME21ILT = cms.bool(False),
 
+    # Run-3 mode
+    run3 = cms.bool(False),
+
     # comparator-code algorithm to improve
     # CLCT position and bending resolution
-    runCCLUT = cms.bool(False),
+    # CCLUT for TMB is NOT planned for startup Run-3
+    runCCLUT_TMB = cms.bool(False),
+    # CCLUT for OTMB is planned for startup Run-3
+    runCCLUT_OTMB = cms.bool(False),
 
     ## Phase-2 version is not needed for Run-3
     enableAlctPhase2 = cms.bool(False)

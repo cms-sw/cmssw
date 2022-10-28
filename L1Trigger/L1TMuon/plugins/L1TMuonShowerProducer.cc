@@ -56,33 +56,35 @@ void L1TMuonShowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   /*
     Check each sector for a valid EMTF shower. A valid EMTF shower
-    can either be in-time or out-of-time. The minimal implementation
-    only considers the "at least 1-nominal shower" case.
+    for startup Run-3 can either be "one nominal shower" or "one tight shower".
+    The case  "two loose showers" is under consideration but needs more study.
+    Showers that arrive out-of-time are also under consideration, but are not
+    going be to enabled at startup Run-3. So all showers should be in-time.
    */
   bool isOneNominalInTime = false;
-  bool isOneNominalOutOfTime = false;
   bool isTwoLooseInTime = false;
-  bool isTwoLooseOutOfTime = false;
+  bool isOneTightInTime = false;
+
   for (size_t i = 0; i < emtfShowers->size(0); ++i) {
     auto shower = emtfShowers->at(0, i);
     if (shower.isValid()) {
       // nominal
       if (shower.isOneNominalInTime())
         isOneNominalInTime = true;
-      if (shower.isOneNominalOutOfTime())
-        isOneNominalOutOfTime = true;
       // two loose
       if (shower.isTwoLooseInTime())
         isTwoLooseInTime = true;
-      if (shower.isTwoLooseOutOfTime())
-        isTwoLooseOutOfTime = true;
+      // tight
+      if (shower.isOneTightInTime())
+        isOneTightInTime = true;
     }
   }
 
   // Check for at least one nominal shower
-  const bool acceptCondition(isOneNominalInTime or isOneNominalOutOfTime or isTwoLooseInTime or isTwoLooseOutOfTime);
+  const bool acceptCondition(isOneNominalInTime or isTwoLooseInTime or isOneTightInTime);
+
   if (acceptCondition) {
-    MuonShower outShower(isOneNominalInTime, isOneNominalOutOfTime, isTwoLooseInTime, isTwoLooseOutOfTime);
+    MuonShower outShower(isOneNominalInTime, false, isTwoLooseInTime, false, isOneTightInTime, false);
     outShowers->push_back(0, outShower);
   }
   iEvent.put(std::move(outShowers));
@@ -94,8 +96,6 @@ void L1TMuonShowerProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("showerInput", edm::InputTag("simEmtfShowers", "EMTF"));
   desc.add<int32_t>("bxMin", 0);
   desc.add<int32_t>("bxMax", 0);
-  desc.add<uint32_t>("minNominalShowers", 1);
-  desc.add<uint32_t>("minTwoLooseShowers", 0);
   descriptions.add("simGmtShowerDigisDef", desc);
 }
 

@@ -10,7 +10,7 @@
  * - C : Concrete candidate collection type
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
@@ -18,7 +18,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 template <typename C>
-class NtpProducer : public edm::EDProducer {
+class NtpProducer : public edm::stream::EDProducer<> {
 public:
   /// constructor from parameter set
   NtpProducer(const edm::ParameterSet&);

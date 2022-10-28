@@ -183,16 +183,14 @@ namespace edm {
         maxBunch_(globalConf->maxBunch_),
         mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
         mixProdStep2_(pset.getParameter<bool>("mixProdStep2")),
-        readDB_(false),
+        readDB_(globalConf->configFromDB_),
         playback_(globalConf->playback_) {
-    if (pset.exists("readDB"))
-      readDB_ = pset.getParameter<bool>("readDB");
-
     for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++) {
       if (globalConf->inputConfigs_[makeIdx]) {
         const edm::ParameterSet& psin =
             pset.getParameter<edm::ParameterSet>(globalConf->inputConfigs_[makeIdx]->sourcename_);
-        inputSources_.push_back(std::make_shared<PileUp>(psin, globalConf->inputConfigs_[makeIdx]));
+        inputSources_.push_back(
+            std::make_shared<PileUp>(psin, globalConf->inputConfigs_[makeIdx], consumesCollector(), readDB_));
         inputSources_.back()->input(makeIdx);
       } else {
         inputSources_.push_back(nullptr);
@@ -224,6 +222,9 @@ namespace edm {
       for (size_t makeIdx = 0; makeIdx < maxNbSources; makeIdx++) {
         inputConfigs_.push_back(maybeConfigPileUp(pset, sourceNames_[makeIdx], minBunch_, maxBunch_, playback_));
       }
+
+      if (pset.exists("readDB"))
+        configFromDB_ = pset.getParameter<bool>("readDB");
     }
   }  // namespace MixingCache
 
@@ -241,7 +242,6 @@ namespace edm {
   }
 
   void BMixingModule::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
-    update(setup);
     for (size_t endIdx = 0; endIdx < maxNbSources_; ++endIdx) {
       if (inputSources_[endIdx])
         inputSources_[endIdx]->beginRun(run, setup);

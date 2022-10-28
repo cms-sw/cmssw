@@ -12,6 +12,7 @@
 #endif
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2007.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -135,11 +136,88 @@ public:
   unsigned short int Promote2() const { return header2006.promote2; }
   unsigned short int LCTChipRead() const { return header2006.lctChipRead; }
   unsigned short int alctFirmwareVersion() const { return firmwareVersion; }
+  unsigned short int alctFirmwareRevision() const {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
+      case 2006:
+        return 0;
+      case 2007:
+        return header2007.firmwareVersion;
+      default:
+        edm::LogError("CSCALCTHeader|CSCRawToDigi")
+            << "trying to access ALCT firmware revision bits: ALCT firmware version is bad/not defined!";
+        return 0;
+    }
+  }
+
+  std::vector<CSCShowerDigi> alctShowerDigis() const {
+    std::vector<CSCShowerDigi> results;
+    results.clear();
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
+      case 2006:
+        return results;
+      case 2007:
+        // if (alctFirmwareRevision() >= 0) // TODO: Need ALCT Run3 firmware revision to properly detect presense of HMT bits in data format
+        // {
+        if ((!theALCTs.empty()) && (theALCTs.size() == unsigned(header2007.lctBins * 2))) {
+          for (unsigned bx = 0; bx < header2007.lctBins; bx++) {
+            //CSCID is set to be 0
+            //ALCTshower, showerType_= 1, wireNHits and ComparatorNHits are not available in data
+            results.push_back(
+                CSCShowerDigi(theALCTs[bx * 2].reserved & 0x3, 0, 0, bx, CSCShowerDigi::ShowerType::kALCTShower, 0, 0));
+          }
+          return results;
+        } else
+          return results;
+        // } else return results;
+      default:
+        edm::LogError("CSCALCTHeader|CSCRawToDigi")
+            << "trying to access ALCT HMT Shower Digis bits: ALCT firmware version is bad/not defined!";
+        return results;
+    }
+  }
+
+  std::vector<unsigned short int> alctHMTs() const {
+    std::vector<unsigned short int> results;
+    results.clear();
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
+      case 2006:
+        return results;
+      case 2007:
+        // if (alctFirmwareRevision() >= 0) // TODO: Need ALCT Run3 firmware revision to properly detect presense of HMT bits in data format
+        // {
+        if ((!theALCTs.empty()) && (theALCTs.size() == unsigned(header2007.lctBins * 2))) {
+          for (unsigned bx = 0; bx < header2007.lctBins; bx++) {
+            results.push_back(theALCTs[bx * 2].reserved & 0x3);
+          }
+          return results;
+        } else
+          return results;
+        // } else return results;
+      default:
+        edm::LogError("CSCALCTHeader|CSCRawToDigi")
+            << "trying to access ALCT HMT bits: ALCT firmware version is bad/not defined!";
+        return results;
+    }
+  }
+
   void setDAVForChannel(int wireGroup) {
     if (firmwareVersion == 2006) {
       header2006.setDAV((wireGroup - 1) / 16);
     }
   }
+
   CSCALCTHeader2007 alctHeader2007() const { return header2007; }
   CSCALCTHeader2006 alctHeader2006() const { return header2006; }
 
@@ -179,6 +257,8 @@ public:
   }
 
   void add(const std::vector<CSCALCTDigi> &digis);
+  /// Add Run3 ALCT HMT shower bits
+  void addShower(const std::vector<CSCShowerDigi> &digis);
 
   boost::dynamic_bitset<> pack();
 

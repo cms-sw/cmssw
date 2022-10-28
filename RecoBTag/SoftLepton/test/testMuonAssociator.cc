@@ -5,7 +5,7 @@
 #include <set>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@ namespace std {
   };
 }  // namespace std
 
-class testMuonAssociator : public edm::EDAnalyzer {
+class testMuonAssociator : public edm::one::EDAnalyzer<> {
 public:
   explicit testMuonAssociator(const edm::ParameterSet& iConfig);
   virtual ~testMuonAssociator();

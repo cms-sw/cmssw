@@ -12,7 +12,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -49,7 +48,11 @@ SeedForPhotonConversionFromQuadruplets::SeedForPhotonConversionFromQuadruplets(
     const edm::ParameterSet& SeedComparitorPSet,
     const std::string& propagator,
     double seedMomentumForBOFF)
-    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) {
+    : theBfieldToken(iC.esConsumes()),
+      theTTRHBuilderToken(iC.esConsumes(edm::ESInputTag("", "WithTrackAngle"))),  // FIXME: add to config
+      theTrackerToken(iC.esConsumes()),
+      thePropagatorToken(iC.esConsumes(edm::ESInputTag("", propagator))),
+      theBOFFMomentum(seedMomentumForBOFF) {
   std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
   if (comparitorName != "none") {
     theComparitor = SeedComparitorFactory::get()->create(comparitorName, SeedComparitorPSet, iC);
@@ -208,14 +211,13 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   if (applyDeltaPhiCuts) {
     kPI_ = std::atan(1.0) * 4;
 
-    edm::ESHandle<MagneticField> bfield;
-    es.get<IdealMagneticFieldRecord>().get(bfield);
+    const auto& bfield = es.getData(theBfieldToken);
     math::XYZVector QuadMean(0, 0, 0);
     QuadMean.SetXYZ((M1.x() + M2.x() + P1.x() + P2.x()) / 4.,
                     (M1.y() + M2.y() + P1.y() + P2.y()) / 4.,
                     (M1.z() + M2.z() + P1.z() + P2.z()) / 4.);
 
-    double fBField = bfield->inTesla(GlobalPoint(QuadMean.x(), QuadMean.y(), QuadMean.z())).z();
+    double fBField = bfield.inTesla(GlobalPoint(QuadMean.x(), QuadMean.y(), QuadMean.z())).z();
 
     double rMax = CleaningMinLegPt / (0.01 * 0.3 * fBField);
     double rMax_squared = rMax * rMax;
@@ -454,9 +456,8 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   // At this point implement cleaning cuts after building the seed
 
   //ClusterShapeFilter_knuenz:::
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
-  float nomField = bfield->nominalValue();
+  const auto& bfield = es.getData(theBfieldToken);
+  float nomField = bfield.nominalValue();
 
   if (ClusterShapeFiltering) {
     if (theComparitor)
@@ -475,9 +476,9 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
     float ptMinReg = 0.1;
     GlobalTrackingRegion region(ptMinReg, vertexPos, 0, 0, true);
 
-    FastHelix phelix(ptth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField, &*bfield, vertexPos);
+    FastHelix phelix(ptth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField, &bfield, vertexPos);
     pkine = phelix.stateAtVertex();
-    FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField, &*bfield, vertexPos);
+    FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField, &bfield, vertexPos);
     mkine = mhelix.stateAtVertex();
 
     if (theComparitor && !theComparitor->compatible(phits, pkine, phelix)) {
@@ -519,7 +520,7 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   //
   // Plus
   FastHelix helixPlus(
-      ptth2->globalPosition(), ptth1->globalPosition(), convVtxGlobalPoint, nomField, &*bfield, convVtxGlobalPoint);
+      ptth2->globalPosition(), ptth1->globalPosition(), convVtxGlobalPoint, nomField, &bfield, convVtxGlobalPoint);
   GlobalTrajectoryParameters kinePlus = helixPlus.stateAtVertex();
   kinePlus = GlobalTrajectoryParameters(
       convVtxGlobalPoint,
@@ -530,7 +531,7 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   //
   // Minus
   FastHelix helixMinus(
-      mtth2->globalPosition(), mtth1->globalPosition(), convVtxGlobalPoint, nomField, &*bfield, convVtxGlobalPoint);
+      mtth2->globalPosition(), mtth1->globalPosition(), convVtxGlobalPoint, nomField, &bfield, convVtxGlobalPoint);
   GlobalTrajectoryParameters kineMinus = helixMinus.stateAtVertex();
   kineMinus = GlobalTrajectoryParameters(
       convVtxGlobalPoint,
@@ -598,11 +599,8 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
             << "\n";
 #endif
 
-  // get cloner (FIXME: add to config)
-  auto TTRHBuilder = "WithTrackAngle";
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-  auto builder = (TkTransientTrackingRecHitBuilder const*)(builderH.product());
+  // get cloner
+  auto builder = static_cast<TkTransientTrackingRecHitBuilder const*>(&es.getData(theTTRHBuilderToken));
   cloner = (*builder).cloner();
 
   bool buildSeedBoolPos = buildSeedBool(seedCollection, phits, ftsPlus, es, applydzCAcut, region, dzcut);
@@ -625,12 +623,11 @@ GlobalTrajectoryParameters SeedForPhotonConversionFromQuadruplets::initialKinema
   SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
   SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
 
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
-  float nomField = bfield->nominalValue();
+  const auto& bfield = es.getData(theBfieldToken);
+  float nomField = bfield.nominalValue();
   bool isBOFF = (0 == nomField);
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &*bfield, vertexPos);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &bfield, vertexPos);
   kine = helix.stateAtVertex();
 
   //force the pz/pt equal to the measured one
@@ -662,7 +659,7 @@ GlobalTrajectoryParameters SeedForPhotonConversionFromQuadruplets::initialKinema
 
   if (isBOFF && (theBOFFMomentum > 0)) {
     kine =
-        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &bfield);
   }
   return kine;
 }
@@ -697,13 +694,10 @@ const TrajectorySeed* SeedForPhotonConversionFromQuadruplets::buildSeed(Trajecto
                                                                         bool apply_dzCut,
                                                                         const TrackingRegion& region) const {
   // get tracker
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  const auto& tracker = es.getData(theTrackerToken);
 
   // get propagator
-  edm::ESHandle<Propagator> propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator* propagator = &(*propagatorHandle);
+  const Propagator* propagator = &es.getData(thePropagatorToken);
 
   // get updator
   KFUpdator updator;
@@ -717,8 +711,8 @@ const TrajectorySeed* SeedForPhotonConversionFromQuadruplets::buildSeed(Trajecto
   for (unsigned int iHit = 0; iHit < hits.size() && iHit < 2; iHit++) {
     hit = hits[iHit];
     TrajectoryStateOnSurface state =
-        (iHit == 0) ? propagator->propagate(fts, tracker->idToDet(hit->geographicalId())->surface())
-                    : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+        (iHit == 0) ? propagator->propagate(fts, tracker.idToDet(hit->geographicalId())->surface())
+                    : propagator->propagate(updatedState, tracker.idToDet(hit->geographicalId())->surface());
 
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 
@@ -754,13 +748,10 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(TrajectorySeedCollect
                                                            const TrackingRegion& region,
                                                            double dzcut) const {
   // get tracker
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  const auto& tracker = es.getData(theTrackerToken);
 
   // get propagator
-  edm::ESHandle<Propagator> propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator* propagator = &(*propagatorHandle);
+  const Propagator* propagator = &es.getData(thePropagatorToken);
 
   // get updator
   KFUpdator updator;
@@ -774,8 +765,8 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(TrajectorySeedCollect
   for (unsigned int iHit = 0; iHit < hits.size() && iHit < 2; iHit++) {
     hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state =
-        (iHit == 0) ? propagator->propagate(fts, tracker->idToDet(hit->geographicalId())->surface())
-                    : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+        (iHit == 0) ? propagator->propagate(fts, tracker.idToDet(hit->geographicalId())->surface())
+                    : propagator->propagate(updatedState, tracker.idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) {
       return false;
     }
@@ -818,9 +809,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(TrajectorySeedCollect
     const GlobalVector EstMomGamGlobalVector(
         updatedState.globalMomentum().x(), updatedState.globalMomentum().y(), updatedState.globalMomentum().z());
 
-    edm::ESHandle<MagneticField> bfield;
-    es.get<IdealMagneticFieldRecord>().get(bfield);
-    const MagneticField* magField = bfield.product();
+    const MagneticField* magField = &es.getData(theBfieldToken);
     TrackCharge qCharge = 0;
 
     const GlobalTrajectoryParameters myGlobalTrajectoryParameter(

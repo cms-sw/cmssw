@@ -494,7 +494,7 @@ namespace reco {
         }
       }
 
-      return output.release();
+      return output;
     }
 
   }  // namespace tau

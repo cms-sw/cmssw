@@ -6,7 +6,6 @@
   <use name="CalibTracker/SiPixelESProducers"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/SiPixelObjects"/>
-  <use name="CondCore/DBOutputService"/>
   <use name="root"/>
   <use name="rootminuit"/>
   <use name="Geometry/Records"/>

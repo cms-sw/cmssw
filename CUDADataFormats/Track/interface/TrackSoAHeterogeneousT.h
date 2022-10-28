@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
@@ -42,7 +43,28 @@ public:
   // this is chi2/ndof as not necessarely all hits are used in the fit
   eigenSoA::ScalarSoA<float, S> chi2;
 
+  eigenSoA::ScalarSoA<int8_t, S> nLayers;
+
+  constexpr int nTracks() const { return nTracks_; }
+  constexpr void setNTracks(int n) { nTracks_ = n; }
+
   constexpr int nHits(int i) const { return detIndices.size(i); }
+
+  constexpr bool isTriplet(int i) const { return nLayers(i) == 3; }
+
+  constexpr int computeNumberOfLayers(int32_t i) const {
+    // layers are in order and we assume tracks are either forward or backward
+    auto pdet = detIndices.begin(i);
+    int nl = 1;
+    auto ol = phase1PixelTopology::getLayer(*pdet);
+    for (; pdet < detIndices.end(i); ++pdet) {
+      auto il = phase1PixelTopology::getLayer(*pdet);
+      if (il != ol)
+        ++nl;
+      ol = il;
+    }
+    return nl;
+  }
 
   // State at the Beam spot
   // phi,tip,1/pt,cotan(theta),zip
@@ -61,6 +83,9 @@ public:
 
   HitContainer hitIndices;
   HitContainer detIndices;
+
+private:
+  int nTracks_;
 };
 
 namespace pixelTrack {

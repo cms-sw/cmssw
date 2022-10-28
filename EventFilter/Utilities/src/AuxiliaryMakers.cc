@@ -12,7 +12,8 @@ namespace evf {
                                            bool isRealData,
                                            const edm::EventAuxiliary::ExperimentType& eventType,
                                            const std::string& processGUID,
-                                           bool verifyLumiSection) {
+                                           bool verifyLumiSection,
+                                           bool suppressWarning) {
       edm::EventID eventId(runNumber,  // check that runnumber from record is consistent
                            lumiSection,
                            tcds->header.eventNumber);
@@ -29,7 +30,7 @@ namespace evf {
       const uint64_t orbitnr = ((uint64_t)tcds->header.orbitHigh << 16) | tcds->header.orbitLow;
       const uint32_t recordLumiSection = tcds->header.lumiSection;
 
-      if (isRealData) {
+      if (isRealData && !suppressWarning) {
         //warnings are disabled for generated data
         if (verifyLumiSection && recordLumiSection != lumiSection)
           edm::LogWarning("AuxiliaryMakers")

@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
@@ -32,6 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -54,7 +56,9 @@ class GenericTriggerEventFlag {
   unsigned verbose_;
   bool andOrDcs_;
   edm::InputTag dcsInputTag_;
+  edm::InputTag dcsRecordInputTag_;
   edm::EDGetTokenT<DcsStatusCollection> dcsInputToken_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
   std::vector<int> dcsPartitions_;
   bool errorReplyDcs_;
   bool andOrGt_;
@@ -139,13 +143,18 @@ public:
 
   bool allHLTPathsAreValid() const;
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
 private:
   GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, bool stage1Valid);
   // Private methods
 
   // DCS
   bool acceptDcs(const edm::Event& event);
-  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection>& dcsStatus, int dcsPartition) const;
+  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection>& dcsStatus,
+                          const edm::Handle<DCSRecord>& dcsRecord,
+                          bool useDCSRecord,
+                          int dcsPartition) const;
 
   // GT status bits
   bool acceptGt(const edm::Event& event);

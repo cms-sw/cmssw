@@ -147,7 +147,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
     LogVerbatim(category()) << "[" << testName << "Test]: writeDB flag set to true. Producing peak position database."
                             << endl;
 
-    DTTPGParameters* delayMap = new DTTPGParameters();
+    DTTPGParameters delayMap;
     hwSource = "TM";
     std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
     std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
@@ -182,11 +182,11 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
           coarseDelay = wCoarse - coarseDelay;
         }
       }
-      delayMap->set(chId, coarseDelay, fineDelay, DTTimeUnits::ns);
+      delayMap.set(chId, coarseDelay, fineDelay, DTTimeUnits::ns);
     }
 
-    std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> >::const_iterator dbIt = delayMap->begin();
-    std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> >::const_iterator dbEnd = delayMap->end();
+    std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> >::const_iterator dbIt = delayMap.begin();
+    std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> >::const_iterator dbEnd = delayMap.end();
     for (; dbIt != dbEnd; ++dbIt) {
       LogVerbatim(category()) << "[" << testName << "Test]: DB entry for Wh " << (*dbIt).first.wheelId << " Sec "
                               << (*dbIt).first.sectorId << " St " << (*dbIt).first.stationId << " has coarse "

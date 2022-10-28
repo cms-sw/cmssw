@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MapWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

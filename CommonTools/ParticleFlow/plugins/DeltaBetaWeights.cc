@@ -1,5 +1,36 @@
-#include "CommonTools/ParticleFlow/plugins/DeltaBetaWeights.h"
+// Weight for neutral particles based on distance with charged
+//
+// Original Author:  Michail Bachtis,40 1-B08,+41227678176,
+//         Created:  Mon Dec  9 13:18:05 CET 2013
+//
+// edited by Pavel Jez
+//
+
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <memory>
+
+class DeltaBetaWeights : public edm::global::EDProducer<> {
+public:
+  explicit DeltaBetaWeights(const edm::ParameterSet&);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  // ----------member data ---------------------------
+  edm::InputTag src_;
+  edm::InputTag pfCharged_;
+  edm::InputTag pfPU_;
+
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCharged_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfPU_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > src_token;
+};
 
 DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig)
     : src_(iConfig.getParameter<edm::InputTag>("src")),
@@ -16,33 +47,24 @@ DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig)
   // src_token = consumes<reco::PFCandidateCollection>(src_);
 }
 
-DeltaBetaWeights::~DeltaBetaWeights() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DeltaBetaWeights);
 
 // ------------ method called to produce the data  ------------
-void DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DeltaBetaWeights::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::Handle<edm::View<reco::Candidate> > pfCharged;
-  edm::Handle<edm::View<reco::Candidate> > pfPU;
-  edm::Handle<edm::View<reco::Candidate> > src;
-
-  iEvent.getByToken(src_token, src);
-  iEvent.getByToken(pfCharged_token, pfCharged);
-  iEvent.getByToken(pfPU_token, pfPU);
+  edm::View<reco::Candidate> const pfCharged = iEvent.get(pfCharged_token);
+  edm::View<reco::Candidate> const& pfPU = iEvent.get(pfPU_token);
+  edm::View<reco::Candidate> const& src = iEvent.get(src_token);
 
   double sumNPU = .0;
   double sumPU = .0;
 
   std::unique_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection);
 
-  for (const reco::Candidate& cand : *src) {
+  out->reserve(src.size());
+  for (const reco::Candidate& cand : src) {
     if (cand.charge() != 0) {
       // this part of code should be executed only if input collection is not entirely composed of neutral candidates, i.e. never by default
       edm::LogWarning("DeltaBetaWeights")
@@ -56,14 +78,14 @@ void DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     sumPU = 1.0;
     double eta = cand.eta();
     double phi = cand.phi();
-    for (const reco::Candidate& chCand : *pfCharged) {
+    for (const reco::Candidate& chCand : pfCharged) {
       double sum = (chCand.pt() * chCand.pt()) / (deltaR2(eta, phi, chCand.eta(), chCand.phi()));
       if (sum > 1.0)
         sumNPU *= sum;
     }
     sumNPU = 0.5 * log(sumNPU);
 
-    for (const reco::Candidate& puCand : *pfPU) {
+    for (const reco::Candidate& puCand : pfPU) {
       double sum = (puCand.pt() * puCand.pt()) / (deltaR2(eta, phi, puCand.eta(), puCand.phi()));
       if (sum > 1.0)
         sumPU *= sum;

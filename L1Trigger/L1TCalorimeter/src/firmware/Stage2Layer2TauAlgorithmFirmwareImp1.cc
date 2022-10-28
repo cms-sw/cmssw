@@ -8,7 +8,6 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2TauAlgorithmFirmware.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 
@@ -172,9 +171,9 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() == (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) {
           // same E --> take 1
           if (mainCluster.hwEta() > 0)
-            secMaxN = secClusters.at(isNeigh4 - sites.begin()).get();
+            secMaxS = secClusters.at(isNeigh4 - sites.begin()).get();
           else
-            secMaxN = secClusters.at(isNeigh6 - sites.begin()).get();
+            secMaxS = secClusters.at(isNeigh6 - sites.begin()).get();
         }
 
         else {

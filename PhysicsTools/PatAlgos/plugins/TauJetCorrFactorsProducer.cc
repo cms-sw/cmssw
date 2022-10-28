@@ -30,6 +30,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace pat {
 
@@ -84,6 +85,9 @@ namespace pat {
     /// jec levels
     typedef std::vector<std::string> vstring;
     vstring levels_;
+
+    using CorrectionToken = edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord>;
+    std::unordered_map<std::string, CorrectionToken> payloadToTokens_;
   };
 }  // namespace pat
 
@@ -113,8 +117,13 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
       }
     }
 
-    if (!payloadMapping.decayModes_.empty())
+    if (!payloadMapping.decayModes_.empty()) {
       payloadMappings_.push_back(payloadMapping);
+      payloadToTokens_.emplace(payloadMapping.payload_, CorrectionToken());
+    }
+  }
+  for (auto& payloadToken : payloadToTokens_) {
+    payloadToken.second = esConsumes(edm::ESInputTag("", payloadToken.first));
   }
 
   produces<TauJetCorrFactorsMap>();
@@ -180,10 +189,9 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
     // retrieve JEC parameters from the DB and build a new corrector,
     // in case it does not exist already for current payload
     if (correctorMapping.find(payload) == correctorMapping.end()) {
-      edm::ESHandle<JetCorrectorParametersCollection> jecParameters;
-      es.get<JetCorrectionsRecord>().get(payload, jecParameters);
+      auto const& jecParameters = es.getData(payloadToTokens_[payload]);
 
-      correctorMapping[payload] = std::make_shared<FactorizedJetCorrector>(params(*jecParameters, levels_));
+      correctorMapping[payload] = std::make_shared<FactorizedJetCorrector>(params(jecParameters, levels_));
     }
     FactorizedJetCorrectorPtr& corrector = correctorMapping[payload];
 

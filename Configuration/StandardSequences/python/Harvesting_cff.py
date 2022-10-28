@@ -9,6 +9,7 @@ from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 from Validation.RecoHI.HarvestingHI_cff import *
 from Validation.RecoJets.JetPostProcessor_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
@@ -32,6 +33,9 @@ _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
 _validationHarvesting_fastsim.remove(hltpostvalidation)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealData)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealElectronsData)
+_validationHarvesting_fastsim.remove(efficienciesTauValidationMiniAODRealMuonsData)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
 
@@ -66,5 +70,5 @@ genHarvesting = cms.Path(postValidation_gen)
 alcaHarvesting = cms.Path()
 #alcaHarvesting = cms.Sequence()
 
-validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*postValidationMiniAOD)
+validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*bTagMiniValidationHarvesting*postValidationMiniAOD)
 #validationHarvestingMiniAOD = cms.Sequence(JetPostProcessor*METPostProcessorHarvesting*postValidationMiniAOD)

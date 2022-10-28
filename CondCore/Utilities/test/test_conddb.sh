@@ -35,15 +35,20 @@ conddb listGTsForTag SiPixelQuality_phase1_2021_v1  || die 'failed conddb listGT
 echo -ne '\n\n'
 
 echo "===========> testing conddb diff"
-conddb diff 120X_mcRun3_2021_realistic_v1 120X_mcRun3_2021_realistic_Candidate_2021_06_09_14_33_50  || die 'conddb diff' $?
+conddb diff 120X_mcRun3_2021_realistic_v1 120X_mcRun3_2021_realistic_conddb_unitTest  || die 'conddb diff' $?
 echo -ne '\n\n'
 
 echo "===========> testing conddb diffGlobalTagsAtRun"
-conddb diffGlobalTagsAtRun -R 120X_mcRun3_2021_realistic_v1 -T 120X_mcRun3_2021_realistic_Candidate_2021_06_09_14_33_50 --run 1 || die 'conddb diffGlobalTagsAtRun' $?
+conddb diffGlobalTagsAtRun -R 120X_mcRun3_2021_realistic_v1 -T 120X_mcRun3_2021_realistic_conddb_unitTest --run 1 || die 'conddb diffGlobalTagsAtRun' $?
 echo -ne '\n\n'
 
 echo "===========> testing conddb dump"
-conddb dump 4b97f78682aac6254bbcba54cedbde468202bf5b || die 'failed comparing metadata with reference' $?
+conddb dump 4b97f78682aac6254bbcba54cedbde468202bf5b || die 'failed conddb dump payload' $?
+conddb dump 4b97f78682aac6254bbcba54cedbde468202bf5b --destfile payload_dump.xml || die 'failed conddb dump payload to file' $?
+conddb dump SiPixelQuality_phase1_2021_v1 || die 'failed conddb dump tag' $?
+conddb dump SiPixelQuality_phase1_2021_v1 --destfile tag_dump.xml || die 'failed conddb dump tag to file' $?
+conddb dump Test_CMSSW_IB_unitTest_v1 || die 'failed conddb dump gt' $?
+conddb dump Test_CMSSW_IB_unitTest_v1 --destfile gt_dump.xml || die 'failed conddb dump gt to file' $?
 echo -ne '\n\n'
 
 #conddb showFCSR || die 'failed conddb showFCSR' $?  # the FCSR is not always a real run...

@@ -19,9 +19,9 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # PAT Layer 0+1

@@ -21,6 +21,7 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
+  class ConsumesCollector;
 }  // namespace edm
 
 class EcalClusterFunctionBaseClass {

@@ -24,7 +24,7 @@ lib.read_db()
 # create a list of eos ls entries containing files on eos binary store
 command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
 try:
-    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).decode().split('\n')
 except subprocess.CalledProcessError:
     eoslsoutput = ""
 
@@ -136,7 +136,7 @@ for i in range(len(lib.JOBID)):
                                                   "RemoteSysCpu",
                                                   "JobStatus",
                                                   "RemoveReason"],
-                                                 stderr = subprocess.STDOUT)
+                                                 stderr = subprocess.STDOUT).decode()
             condor_log = condor_log.split()
 
             cputime = int(round(float(condor_log[0])))
@@ -239,10 +239,11 @@ for i in range(len(lib.JOBID)):
             #$mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
             #$mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
             mOutSize = 0
+            #print(">>>eoslsoutput:", eoslsoutput, " \ttype(eoslsoutput):", type(eoslsoutput))
             for line in eoslsoutput:
                 if milleOut in line:
                     columns = line.split()
-                    mOutSize = columns[4] # 5th column = size
+                    mOutSize = int(columns[4]) # 5th column = size
             if not (mOutSize>0):
                 emptyDatErr = 1
 

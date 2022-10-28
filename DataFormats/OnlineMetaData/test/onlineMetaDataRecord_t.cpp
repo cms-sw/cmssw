@@ -17,6 +17,7 @@ class TestOnlineMetaDataRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestOnlineMetaDataRecord);
   CPPUNIT_TEST(testDCSRecord_v1);
   CPPUNIT_TEST(testDCSRecord_v2);
+  CPPUNIT_TEST(testDCSRecord_v3);
   CPPUNIT_TEST(testOnlineLuminosityRecord_v1);
   CPPUNIT_TEST(testOnlineLuminosityRecord_v2);
   CPPUNIT_TEST(testCTPPSRecord_v2);
@@ -28,6 +29,7 @@ public:
 
   void testDCSRecord_v1();
   void testDCSRecord_v2();
+  void testDCSRecord_v3();
   void testOnlineLuminosityRecord_v1();
   void testOnlineLuminosityRecord_v2();
   void testCTPPSRecord_v2();
@@ -107,6 +109,25 @@ void TestOnlineMetaDataRecord::testDCSRecord_v2() {
   CPPUNIT_ASSERT(!dcs.highVoltageReady(DCSRecord::Partition::BPIX));
   CPPUNIT_ASSERT(dcs.highVoltageReady(DCSRecord::Partition::TOB));
   CPPUNIT_ASSERT_EQUAL(castToFloat(0x3ccd2785), dcs.magnetCurrent());
+}
+
+void TestOnlineMetaDataRecord::testDCSRecord_v3() {
+  const unsigned char* payload = readPayload("dump_run000001_event1350583585_fed1022.txt");
+  const online::Data_v3* data_v3 = reinterpret_cast<online::Data_v3 const*>(payload + FEDHeader::length);
+  DCSRecord dcs(data_v3->dcs);
+
+  // DIP timestamp is in milliseconds
+  const uint64_t ts = dcs.timestamp().unixTime() * 1000UL + dcs.timestamp().microsecondOffset() / 1000;
+  CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(0x17d6fae1ad6), ts);
+  CPPUNIT_ASSERT(dcs.highVoltageValid(DCSRecord::Partition::CSCp));
+  CPPUNIT_ASSERT(!dcs.highVoltageReady(DCSRecord::Partition::CSCp));
+  CPPUNIT_ASSERT(dcs.highVoltageValid(DCSRecord::Partition::BPIX));
+  CPPUNIT_ASSERT(!dcs.highVoltageReady(DCSRecord::Partition::BPIX));
+  CPPUNIT_ASSERT(dcs.highVoltageValid(DCSRecord::Partition::TOB));
+  CPPUNIT_ASSERT(!dcs.highVoltageReady(DCSRecord::Partition::TOB));
+  CPPUNIT_ASSERT(!dcs.highVoltageValid(DCSRecord::Partition::ZDC));
+  CPPUNIT_ASSERT(!dcs.highVoltageValid(DCSRecord::Partition::CASTOR));
+  CPPUNIT_ASSERT_EQUAL(castToFloat(0x3D69F92E), dcs.magnetCurrent());
 }
 
 void TestOnlineMetaDataRecord::testOnlineLuminosityRecord_v1() {

@@ -1,10 +1,10 @@
-#include "DetectorDescription/Core/src/TruncTubs.h"
+#include "DetectorDescription/Core/interface/TruncTubs.h"
 
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 
 using namespace geant_units::operators;
 

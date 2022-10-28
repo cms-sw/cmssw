@@ -1,5 +1,7 @@
 #ifndef RecoMuon_TrackerSeedGenerator_L1MuonRegionProducer_H
 #define RecoMuon_TrackerSeedGenerator_L1MuonRegionProducer_H
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <vector>
@@ -7,18 +9,17 @@
 
 class TrackingRegion;
 class L1MuGMTCand;
-namespace edm {
-  class Event;
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
+class MagneticField;
+class IdealMagneticFieldRecord;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 
 class L1MuonRegionProducer {
 public:
-  L1MuonRegionProducer(const edm::ParameterSet& cfg);
-  ~L1MuonRegionProducer() {}
+  L1MuonRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector iC);
+  ~L1MuonRegionProducer() = default;
   void setL1Constraint(const L1MuGMTCand& muon);
-  std::vector<std::unique_ptr<TrackingRegion> > regions() const;
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::EventSetup& iSetup) const;
 
 private:
   // region configuration
@@ -28,6 +29,9 @@ private:
   // L1 constraint
   double thePtL1, thePhiL1, theEtaL1;
   int theChargeL1;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
 };
 
 #endif

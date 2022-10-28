@@ -60,8 +60,9 @@ L1MuBMSectorProcessor::L1MuBMSectorProcessor(const L1MuBMTrackFinder& tf,
       m_spid(id),
       m_SectorReceiver(new L1MuBMSectorReceiver(*this, std::move(iC))),
       m_DataBuffer(new L1MuBMDataBuffer(*this)),
-      m_EU(new L1MuBMExtrapolationUnit(*this)),
+      m_EU(new L1MuBMExtrapolationUnit(*this, iC)),
       m_TA(new L1MuBMTrackAssembler(*this)),
+      m_bmtfParamsToken(iC.esConsumes()),
       m_AUs(),
       m_TrackCands(),
       m_TracKCands() {
@@ -139,11 +140,13 @@ void L1MuBMSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
       m_TA->print();
   }
 
+  L1TMuonBarrelParams const& bmtfParams = c.getData(m_bmtfParamsToken);
+
   // assign pt, eta, phi and quality
   if (m_AUs[0] && !m_TA->isEmpty(0))
-    m_AUs[0]->run(c);
+    m_AUs[0]->run(bmtfParams);
   if (m_AUs[1] && !m_TA->isEmpty(1))
-    m_AUs[1]->run(c);
+    m_AUs[1]->run(bmtfParams);
 
   if (m_spid.wheel() == -1) {
     if (m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(2) > 3 &&

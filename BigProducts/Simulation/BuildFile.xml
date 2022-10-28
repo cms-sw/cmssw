@@ -24,7 +24,6 @@
 <use name="SimG4Core/SaveSimTrackAction"/>
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/TrackingVerbose"/>
-<use name="SimRomanPot/SimFP420"/>
 <use name="SimTracker/TrackerMaterialAnalysis"/>
 <use name="Validation/CheckOverlap"/>
 <use name="Validation/EcalHits"/>
@@ -33,8 +32,8 @@
 <use name="Validation/HGCalValidation"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>
-<!-- Hack needed to avoid undefined variable in CLHEP -->
-<flags REM_CXXFLAGS="-Werror=unused-variable"/>
-<!-- Disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.X -->
-<flags REM_BIGOBJ_CXXFLAGS="-flto"/>
-<flags BIGOBJ_CXXFLAGS="-fno-lto"/>
+<ifrelease name="!_LTO_">
+  <!-- Disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.X -->
+  <flags REM_BIGOBJ_CXXFLAGS="-flto"/>
+  <flags BIGOBJ_CXXFLAGS="-fno-lto"/>
+</ifrelease>

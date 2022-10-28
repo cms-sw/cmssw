@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,15 +47,14 @@
 #include <fstream>
 #include <iomanip>
 #include <libgen.h>
-#include <boost/lexical_cast.hpp>
 
 using namespace edm;
 using namespace Geom;
 using namespace std;
 
-class testMagneticField : public edm::EDAnalyzer {
+class testMagneticField : public edm::one::EDAnalyzer<> {
 public:
-  testMagneticField(const edm::ParameterSet& pset) {
+  testMagneticField(const edm::ParameterSet& pset) : fieldToken(esConsumes()) {
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
@@ -73,15 +72,12 @@ public:
     maxZ = pset.getUntrackedParameter<double>("maxZ", 2400);
   }
 
-  ~testMagneticField() {}
+  ~testMagneticField() override {}
 
   void go(GlobalPoint g) { std::cout << "At: " << g << " phi=" << g.phi() << " B= " << field->inTesla(g) << std::endl; }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
-    ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
-
-    field = magfield.product();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) final {
+    field = &setup.getData(fieldToken);
 
     std::cout << "Nominal Field " << field->nominalValue() << "\n" << std::endl;
 
@@ -132,6 +128,7 @@ public:
   void compareSectorTables(string file);
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken;
   const MagneticField* field;
   string inputFile;
   string inputFileType;
@@ -272,7 +269,6 @@ void testMagneticField::validate(string filename, string type) {
 void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
-  using boost::lexical_cast;
 
   char buf[512];
   strcpy(buf, filename.c_str());
@@ -286,11 +282,11 @@ void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& se
 
   // Find volume number
   string::size_type iext = table.rfind('.');  // last  occurence of "."
-  volNo = boost::lexical_cast<int>(table.substr(iend + 1, iext - iend - 1));
+  volNo = std::stoi(table.substr(iend + 1, iext - iend - 1));
 
   // Find sector number
   if (ssector[0] == 's') {
-    sector = boost::lexical_cast<int>(ssector.substr(1, 2));
+    sector = std::stoi(ssector.substr(1, 2));
   } else {
     cout << "Can not determine sector number, assuming 1" << endl;
     sector = 1;

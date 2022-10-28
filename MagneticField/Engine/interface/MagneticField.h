@@ -46,20 +46,19 @@ public:
   }
 
   /// The nominal field value for this map in kGauss
-  int nominalValue() const {
-    if (kSet == nominalValueCompiuted.load())
-      return theNominalValue;
-    return computeNominalValue();
-  }
+  int nominalValue() const { return theNominalValue; }
+
+  /// The inverse of field z component for this map in GeV
+  float inverseBzAtOriginInGeV() const { return theInverseBzAtOriginInGeV; }
+
+protected:
+  // need to be called from the constructor of the deriving classes
+  void setNominalValue();
 
 private:
-  //nominal field value
-  virtual int computeNominalValue() const;
-  mutable std::atomic<char> nominalValueCompiuted;
-  //  CMS_THREAD_GUARD(nominalValueCompiuted) mutable int theNominalValue;
-  //  PG temporary fix for clang 3.4 which is not parsing thread_guard correctly
-  CMS_THREAD_SAFE mutable int theNominalValue;
-  enum FooStates { kUnset, kSetting, kSet };
+  //nominal field values
+  int theNominalValue = 0;
+  float theInverseBzAtOriginInGeV = 0;
 };
 
 #endif

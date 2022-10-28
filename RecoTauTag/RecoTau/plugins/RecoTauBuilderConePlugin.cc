@@ -245,7 +245,7 @@ namespace reco {
       } else {
         // If there is no leading charged candidate at all, return nothing - the
         // producer class that owns the plugin will build a null tau if desired.
-        return output.release();
+        return output;
       }
 
       // Find the leading neutral candidate
@@ -419,7 +419,7 @@ namespace reco {
       setTauQuantities(*tauPtr, minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_);
 
       output.push_back(std::move(tauPtr));
-      return output.release();
+      return output;
     }
   }  // namespace tau
 }  // namespace reco

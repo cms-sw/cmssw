@@ -26,6 +26,19 @@ CSCHaloData::CSCHaloData() {
   // MLR
   nFlatHaloSegments = 0;
   // End MLR
+
+  nTriggers_PlusZ_TrkMuUnVeto = 0;
+  nTriggers_MinusZ_TrkMuUnVeto = 0;
+  HLTAccept = false;
+
+  segments_in_both_endcaps = false;
+  nFlatHaloSegments_TrkMuUnVeto = 0;
+  segments_in_both_endcaps_loose_TrkMuUnVeto = false;
+  segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto = false;
+  segmentiscalomatched = false;
+  segmentisHcalomatched = false;
+  segmentisEBcalomatched = false;
+  segmentisEEcalomatched = false;
 }
 
 int CSCHaloData::NumberOfHaloTriggers(HaloData::Endcap z) const {

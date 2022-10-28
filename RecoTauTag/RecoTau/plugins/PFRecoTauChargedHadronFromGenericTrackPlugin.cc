@@ -343,7 +343,7 @@ namespace reco {
         output.push_back(std::move(chargedHadron));
       }
 
-      return output.release();
+      return output;
     }
 
     typedef PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track> PFRecoTauChargedHadronFromTrackPlugin;

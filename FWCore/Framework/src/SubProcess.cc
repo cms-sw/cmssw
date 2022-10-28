@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/SubProcess.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -24,12 +24,12 @@
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/streamTransitionAsync.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
-#include "FWCore/Framework/src/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/streamTransitionAsync.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,6 +37,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "boost/range/adaptor/reversed.hpp"
@@ -74,7 +75,6 @@ namespace edm {
         principalCache_(),
         esp_(),
         schedule_(),
-        parentToChildPhID_(),
         subProcesses_(),
         processParameterSet_(),
         productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
@@ -171,11 +171,6 @@ namespace edm {
     subProcessParentageHelper_ = items.subProcessParentageHelper();
     subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
 
-    //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
-    // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
-    // another thread. We really need to change how this is done in the PrincipalCache.
-    principalCache_.setProcessHistoryRegistry(processHistoryRegistries_[historyRunOffset_]);
-
     processConfiguration_ = items.processConfiguration();
     processContext_.setProcessConfiguration(processConfiguration_.get());
     processContext_.setParentProcessContext(parentProcessContext);
@@ -192,6 +187,13 @@ namespace edm {
                                                  &*processBlockHelper_);
       principalCache_.insert(ep);
     }
+
+    for (unsigned int index = 0; index < preallocConfig.numberOfRuns(); ++index) {
+      auto rpp = std::make_unique<RunPrincipal>(
+          preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_ + index]), index, false);
+      principalCache_.insert(std::move(rpp));
+    }
+
     for (unsigned int index = 0; index < preallocConfig.numberOfLuminosityBlocks(); ++index) {
       auto lbpp = std::make_unique<LuminosityBlockPrincipal>(
           preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_ + index]), index, false);
@@ -206,6 +208,7 @@ namespace edm {
       principalCache_.insertForInput(std::move(pbForInput));
     }
 
+    inUseRunPrincipals_.resize(preallocConfig.numberOfRuns());
     inUseLumiPrincipals_.resize(preallocConfig.numberOfLuminosityBlocks());
 
     subProcesses_.reserve(subProcessVParameterSet.size());
@@ -440,33 +443,20 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(inUseLumiPrincipals_[principal.luminosityBlockPrincipal().index()].get());
     propagateProducts(InEvent, principal, ep);
 
-    WaitingTaskHolder finalizeEventTask(*iHolder.group(),
-                                        make_waiting_task([&ep, iHolder](std::exception_ptr const* iPtr) mutable {
-                                          ep.clearEventPrincipal();
-                                          if (iPtr) {
-                                            iHolder.doneWaiting(*iPtr);
-                                          } else {
-                                            iHolder.doneWaiting(std::exception_ptr());
-                                          }
-                                        }));
-    WaitingTaskHolder afterProcessTask;
-    if (subProcesses_.empty()) {
-      afterProcessTask = std::move(finalizeEventTask);
-    } else {
-      afterProcessTask = WaitingTaskHolder(
-          *iHolder.group(),
-          make_waiting_task([this, &ep, finalizeEventTask, iEventSetupImpls](std::exception_ptr const* iPtr) mutable {
-            if (not iPtr) {
-              for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-                subProcess.doEventAsync(finalizeEventTask, ep, iEventSetupImpls);
-              }
-            } else {
-              finalizeEventTask.doneWaiting(*iPtr);
-            }
-          }));
-    }
-    EventTransitionInfo info(ep, *((*iEventSetupImpls)[esp_->subProcessIndex()]));
-    schedule_->processOneEventAsync(std::move(afterProcessTask), ep.streamID().value(), info, serviceToken_);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      EventTransitionInfo info(ep, *((*iEventSetupImpls)[esp_->subProcessIndex()]));
+      schedule_->processOneEventAsync(std::move(nextTask), ep.streamID().value(), info, serviceToken_);
+    }) | chain::ifThen(not subProcesses_.empty(), [this, &ep, iEventSetupImpls](auto nextTask) {
+      for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
+        subProcess.doEventAsync(nextTask, ep, iEventSetupImpls);
+      }
+    }) | chain::then([&ep](std::exception_ptr const* iPtr, auto nextTask) {
+      ep.clearEventPrincipal();
+      if (iPtr) {
+        nextTask.doneWaiting(*iPtr);
+      }
+    }) | chain::runLast(std::move(iHolder));
   }
 
   template <>
@@ -510,48 +500,37 @@ namespace edm {
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
 
     if (parentProducedProductIsKept(parentPrincipal, processBlockPrincipal)) {
-      auto& taskGroup = *iHolder.group();
-      auto runEndProcessBlock =
-          make_waiting_task([this, iWait = std::move(iHolder), info = transitionInfo, cleaningUpAfterException](
-                                std::exception_ptr const* iPtr) mutable {
+      ProcessBlockPrincipal& inputProcessBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
+      inputProcessBlockPrincipal.fillProcessBlockPrincipal(parentPrincipal.processName(), parentPrincipal.reader());
+      propagateProducts(InProcess, parentPrincipal, inputProcessBlockPrincipal);
+      ProcessBlockTransitionInfo inputTransitionInfo(inputProcessBlockPrincipal);
+
+      using namespace edm::waiting_task;
+      chain::first([&](const std::exception_ptr*, auto nextTask) {
+        using TraitsInput = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
+        beginGlobalTransitionAsync<TraitsInput>(std::move(nextTask),
+                                                *schedule_,
+                                                inputTransitionInfo,
+                                                serviceToken_,
+                                                subProcesses_,
+                                                cleaningUpAfterException);
+      }) | chain::then([this](auto nextTask) { writeProcessBlockAsync(nextTask, ProcessBlockType::Input); }) |
+          chain::then([this, info = transitionInfo, cleaningUpAfterException](std::exception_ptr const* iPtr,
+                                                                              auto nextTask) mutable {
             ProcessBlockPrincipal& inputProcessBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
             inputProcessBlockPrincipal.clearPrincipal();
             for (auto& s : subProcesses_) {
               s.clearProcessBlockPrincipal(ProcessBlockType::Input);
             }
             if (iPtr) {
-              iWait.doneWaiting(*iPtr);
+              nextTask.doneWaiting(*iPtr);
             } else {
               using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
               endGlobalTransitionAsync<Traits>(
-                  std::move(iWait), *schedule_, info, serviceToken_, subProcesses_, cleaningUpAfterException);
+                  std::move(nextTask), *schedule_, info, serviceToken_, subProcesses_, cleaningUpAfterException);
             }
-          });
-      WaitingTaskHolder holder(taskGroup, runEndProcessBlock);
-
-      auto runWriteProcessBlock =
-          make_waiting_task([this, iWait = std::move(holder)](std::exception_ptr const* iPtr) mutable {
-            if (iPtr) {
-              iWait.doneWaiting(*iPtr);
-            } else {
-              writeProcessBlockAsync(iWait, ProcessBlockType::Input);
-            }
-          });
-      WaitingTaskHolder writeHolder(taskGroup, runWriteProcessBlock);
-
-      ProcessBlockPrincipal& inputProcessBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
-      inputProcessBlockPrincipal.fillProcessBlockPrincipal(parentPrincipal.processName(), parentPrincipal.reader());
-      propagateProducts(InProcess, parentPrincipal, inputProcessBlockPrincipal);
-      ProcessBlockTransitionInfo inputTransitionInfo(inputProcessBlockPrincipal);
-
-      using TraitsInput = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
-      beginGlobalTransitionAsync<TraitsInput>(std::move(writeHolder),
-                                              *schedule_,
-                                              inputTransitionInfo,
-                                              serviceToken_,
-                                              subProcesses_,
-                                              cleaningUpAfterException);
-
+          }) |
+          chain::runLast(std::move(iHolder));
     } else {
       using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
       endGlobalTransitionAsync<Traits>(
@@ -563,28 +542,20 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     RunPrincipal const& parentPrincipal = iTransitionInfo.principal();
-    auto aux = std::make_shared<RunAuxiliary>(parentPrincipal.aux());
-    aux->setProcessHistoryID(parentPrincipal.processHistoryID());
-    auto rpp = std::make_shared<RunPrincipal>(aux,
-                                              preg_,
-                                              *processConfiguration_,
-                                              &(historyAppenders_[historyRunOffset_ + parentPrincipal.index()]),
-                                              parentPrincipal.index(),
-                                              false);
+    auto aux = parentPrincipal.aux();
+    aux.setProcessHistoryID(parentPrincipal.processHistoryID());
+    auto rpp = principalCache_.getAvailableRunPrincipalPtr();
+    rpp->setAux(aux);
     auto& processHistoryRegistry = processHistoryRegistries_[historyRunOffset_ + parentPrincipal.index()];
+    inUseRunPrincipals_[parentPrincipal.index()] = rpp;
     processHistoryRegistry.registerProcessHistory(parentPrincipal.processHistory());
     rpp->fillRunPrincipal(processHistoryRegistry, parentPrincipal.reader());
-    principalCache_.insert(rpp);
 
-    ProcessHistoryID const& parentInputReducedPHID = parentPrincipal.reducedProcessHistoryID();
-    ProcessHistoryID const& inputReducedPHID = rpp->reducedProcessHistoryID();
-
-    parentToChildPhID_.insert(std::make_pair(parentInputReducedPHID, inputReducedPHID));
-
-    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    RunPrincipal& rp = *rpp;
     propagateProducts(InRun, parentPrincipal, rp);
 
-    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    RunTransitionInfo transitionInfo(rp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
     beginGlobalTransitionAsync<Traits>(std::move(iHolder), *schedule_, transitionInfo, serviceToken_, subProcesses_);
   }
@@ -593,68 +564,54 @@ namespace edm {
                                  RunTransitionInfo const& iTransitionInfo,
                                  bool cleaningUpAfterException) {
     RunPrincipal const& parentPrincipal = iTransitionInfo.principal();
-    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    RunPrincipal& rp = *inUseRunPrincipals_[parentPrincipal.index()];
     propagateProducts(InRun, parentPrincipal, rp);
 
-    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    RunTransitionInfo transitionInfo(rp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
     endGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
   }
 
   void SubProcess::writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType processBlockType) {
-    ServiceRegistry::Operate operate(serviceToken_);
-
-    auto subTasks = edm::make_waiting_task([this, task, processBlockType](std::exception_ptr const* iExcept) mutable {
-      if (iExcept) {
-        task.doneWaiting(*iExcept);
-      } else {
-        ServiceRegistry::Operate operate(serviceToken_);
-        for (auto& s : subProcesses_) {
-          s.writeProcessBlockAsync(task, processBlockType);
-        }
+    using namespace edm::waiting_task;
+    chain::first([&](std::exception_ptr const*, auto nextTask) {
+      ServiceRegistry::Operate operate(serviceToken_);
+      schedule_->writeProcessBlockAsync(
+          nextTask, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
+    }) | chain::ifThen(not subProcesses_.empty(), [this, processBlockType](auto nextTask) {
+      ServiceRegistry::Operate operate(serviceToken_);
+      for (auto& s : subProcesses_) {
+        s.writeProcessBlockAsync(nextTask, processBlockType);
       }
-    });
-    schedule_->writeProcessBlockAsync(WaitingTaskHolder(*task.group(), subTasks),
-                                      principalCache_.processBlockPrincipal(processBlockType),
-                                      &processContext_,
-                                      actReg_.get());
+    }) | chain::runLast(std::move(task));
   }
 
   void SubProcess::writeRunAsync(edm::WaitingTaskHolder task,
-                                 ProcessHistoryID const& parentPhID,
-                                 int runNumber,
+                                 RunPrincipal const& principal,
                                  MergeableRunProductMetadata const* mergeableRunProductMetadata) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
-    assert(it != parentToChildPhID_.end());
-    auto const& childPhID = it->second;
+    using namespace edm::waiting_task;
 
-    auto subTasks = edm::make_waiting_task(
-        [this, childPhID, runNumber, task, mergeableRunProductMetadata](std::exception_ptr const* iExcept) mutable {
-          if (iExcept) {
-            task.doneWaiting(*iExcept);
-          } else {
-            ServiceRegistry::Operate operateWriteRun(serviceToken_);
-            for (auto& s : subProcesses_) {
-              s.writeRunAsync(task, childPhID, runNumber, mergeableRunProductMetadata);
-            }
-          }
-        });
-    schedule_->writeRunAsync(WaitingTaskHolder(*task.group(), subTasks),
-                             principalCache_.runPrincipal(childPhID, runNumber),
-                             &processContext_,
-                             actReg_.get(),
-                             mergeableRunProductMetadata);
+    auto rp = inUseRunPrincipals_[principal.index()];
+    chain::first([&](std::exception_ptr const*, auto nextTask) {
+      ServiceRegistry::Operate operate(serviceToken_);
+      schedule_->writeRunAsync(nextTask, *rp, &processContext_, actReg_.get(), mergeableRunProductMetadata);
+    }) | chain::ifThen(not subProcesses_.empty(), [this, rp, mergeableRunProductMetadata](auto nextTask) {
+      ServiceRegistry::Operate operateWriteRun(serviceToken_);
+      for (auto& s : subProcesses_) {
+        s.writeRunAsync(nextTask, *rp, mergeableRunProductMetadata);
+      }
+    }) | chain::runLast(std::move(task));
   }
 
-  void SubProcess::deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber) {
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
-    assert(it != parentToChildPhID_.end());
-    auto const& childPhID = it->second;
-    principalCache_.deleteRun(childPhID, runNumber);
-    for_all(subProcesses_,
-            [&childPhID, runNumber](auto& subProcess) { subProcess.deleteRunFromCache(childPhID, runNumber); });
+  void SubProcess::clearRunPrincipal(RunPrincipal& parentPrincipal) {
+    //release from list but stay around till end of routine
+    auto rp = std::move(inUseRunPrincipals_[parentPrincipal.index()]);
+    for (auto& s : subProcesses_) {
+      s.clearRunPrincipal(*rp);
+    }
+    rp->clearPrincipal();
   }
 
   void SubProcess::clearProcessBlockPrincipal(ProcessBlockType processBlockType) {
@@ -677,7 +634,7 @@ namespace edm {
     inUseLumiPrincipals_[parentPrincipal.index()] = lbpp;
     processHistoryRegistry.registerProcessHistory(parentPrincipal.processHistory());
     lbpp->fillLuminosityBlockPrincipal(&parentPrincipal.processHistory(), parentPrincipal.reader());
-    lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
+    lbpp->setRunPrincipal(inUseRunPrincipals_[parentPrincipal.runPrincipal().index()]);
     LuminosityBlockPrincipal& lbp = *lbpp;
     propagateProducts(InLumi, parentPrincipal, lbp);
 
@@ -702,28 +659,27 @@ namespace edm {
   }
 
   void SubProcess::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& principal) {
-    ServiceRegistry::Operate operate(serviceToken_);
+    using namespace edm::waiting_task;
 
     auto l = inUseLumiPrincipals_[principal.index()];
-    auto subTasks = edm::make_waiting_task([this, l, task](std::exception_ptr const* iExcept) mutable {
-      if (iExcept) {
-        task.doneWaiting(*iExcept);
-      } else {
-        ServiceRegistry::Operate operateWriteLumi(serviceToken_);
-        for (auto& s : subProcesses_) {
-          s.writeLumiAsync(task, *l);
-        }
+    chain::first([&](std::exception_ptr const*, auto nextTask) {
+      ServiceRegistry::Operate operate(serviceToken_);
+      schedule_->writeLumiAsync(nextTask, *l, &processContext_, actReg_.get());
+    }) | chain::ifThen(not subProcesses_.empty(), [this, l](auto nextTask) {
+      ServiceRegistry::Operate operateWriteLumi(serviceToken_);
+      for (auto& s : subProcesses_) {
+        s.writeLumiAsync(nextTask, *l);
       }
-    });
-    schedule_->writeLumiAsync(WaitingTaskHolder(*task.group(), subTasks), *l, &processContext_, actReg_.get());
+    }) | chain::runLast(std::move(task));
   }
 
-  void SubProcess::deleteLumiFromCache(LuminosityBlockPrincipal& principal) {
+  void SubProcess::clearLumiPrincipal(LuminosityBlockPrincipal& principal) {
     //release from list but stay around till end of routine
     auto lb = std::move(inUseLumiPrincipals_[principal.index()]);
     for (auto& s : subProcesses_) {
-      s.deleteLumiFromCache(*lb);
+      s.clearLumiPrincipal(*lb);
     }
+    lb->setRunPrincipal(std::shared_ptr<RunPrincipal>());
     lb->clearPrincipal();
   }
 
@@ -739,24 +695,31 @@ namespace edm {
     for_all(subProcesses_, [iID](auto& subProcess) { subProcess.doEndStream(iID); });
   }
 
-  void SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int id, RunTransitionInfo const&) {
+  void SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,
+                                         unsigned int id,
+                                         RunTransitionInfo const& iTransitionInfo) {
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
-    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    RunPrincipal const& parentPrincipal = iTransitionInfo.principal();
+    RunPrincipal& rp = *inUseRunPrincipals_[parentPrincipal.index()];
 
-    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    RunTransitionInfo transitionInfo(rp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
     beginStreamTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_);
   }
 
   void SubProcess::doStreamEndRunAsync(WaitingTaskHolder iHolder,
                                        unsigned int id,
-                                       RunTransitionInfo const&,
+                                       RunTransitionInfo const& iTransitionInfo,
                                        bool cleaningUpAfterException) {
-    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
-    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    RunPrincipal const& parentPrincipal = iTransitionInfo.principal();
+    RunPrincipal& rp = *inUseRunPrincipals_[parentPrincipal.index()];
+
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    RunTransitionInfo transitionInfo(rp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
     endStreamTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
   }

@@ -7,7 +7,8 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- *
+ *\new features: Dragana Pilipovic
+ *                - updated for invariant mass over delta R condition*
  */
 
 // this class header
@@ -344,6 +345,43 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     phiBound = (int)((par.phiMax - par.phiMin) / par.phiStep) / 2;
   }
   LogDebug("L1TGlobal") << "Phi Bound = " << phiBound << std::endl;
+
+  //          BUILD THE 1/dR2 LUT BASED ON CONDITION
+  int iRSq = 0;
+  int jRSq = 0;
+  int iRSqmax = 227;
+  int jRSqmax = 145;
+  double tempRsq = 0.0;
+  double tempdiffeta = 0.0435;
+  double tempdiffphi = 0.02181661564992912;
+  double resolution = 1.0;
+  unsigned int precInvRsq = 0x5;
+  if (cond0Categ == CondMuon || cond1Categ == CondMuon) {
+    LogTrace("L1TGlobal") << "  Building 1/dR2 for Muon " << std::endl;
+    tempdiffeta = tempdiffeta / 2.0;
+    resolution = 0.5;
+  } else {
+    LogTrace("L1TGlobal") << "  Building 1/dR2 for Calo " << std::endl;
+    iRSqmax = 231;
+    jRSqmax = 73;
+    tempdiffphi = 0.04363323129985824;
+  }
+  long long InvDeltaRSqLUT[iRSqmax][jRSqmax];
+  double temp_InvDeltaRSq[iRSqmax][jRSqmax];
+  if (corrPar.corrCutType & 0x80) {  //Only build the 1/dR2 LUT if necessary
+    for (iRSq = 0; iRSq < iRSqmax; iRSq = iRSq + 1) {
+      for (jRSq = 0; jRSq < jRSqmax; jRSq = jRSq + 1) {
+        tempRsq = (tempdiffeta * iRSq) * (tempdiffeta * iRSq) + (tempdiffphi * jRSq) * (tempdiffphi * jRSq);
+        if (tempRsq > 0.0) {
+          temp_InvDeltaRSq[iRSq][jRSq] = 1.0 / tempRsq;
+          InvDeltaRSqLUT[iRSq][jRSq] = (long long)round(pow(10, precInvRsq) * temp_InvDeltaRSq[iRSq][jRSq]);
+        } else {
+          temp_InvDeltaRSq[iRSq][jRSq] = 0.0;
+          InvDeltaRSqLUT[iRSq][jRSq] = (long long)0;
+        }
+      }
+    }
+  }
 
   // Keep track of objects for LUTS
   std::string lutObj0 = "NULL";
@@ -1168,8 +1206,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         }
       }
 
-      if (corrPar.corrCutType & 0x8 || corrPar.corrCutType & 0x10 ||
-          corrPar.corrCutType & 0x40) {  // added 0x40 for massUpt
+      if (corrPar.corrCutType & 0x8 || corrPar.corrCutType & 0x10 || corrPar.corrCutType & 0x40 ||
+          corrPar.corrCutType & 0x80) {  // added 0x40 for massUpt; added 0x80 for mass/dR
         //invariant mass calculation based on
         // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
         // but we calculate (1/2)M^2
@@ -1244,18 +1282,59 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                               << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy)) << std::endl;
 
         //if(preShift>0) massSq /= pow(10,preShift);
-        if (massSq >= 0 && massSq >= (long long)(corrPar.minMassCutValue * pow(10, preShift)) &&
-            massSq <= (long long)(corrPar.maxMassCutValue * pow(10, preShift))) {
-          LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut ["
-                                << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
-        } else {
-          LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut ["
-                                << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
-                                << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
-          reqResult = false;
-        }
-      }
+        if (corrPar.corrCutType & 0x80) {  //deal with the Invariant Mass Over Delta R cut
+          // The following is the most precise indexing for 1/dr2 LUT iEta and jPhi - it is based on the physical VALUES for deta and dphi:
+          //             unsigned int inverseDeltaRIndexEta = int(round(abs(deltaEtaPhy / tempdiffeta)));
+          //             unsigned int inverseDeltaRIndexPhi = int(round(abs(deltaPhiPhy/ tempdiffphi)));
+          // To match the FW we instead must use these INDIVIDUAL indecies for eta and phi:
+          // (NOTE: The following treatment of delta eta and delta phi indecies matches the most precise case above):
+          int iEta0 = int(trunc(etaIndex0 * resolution));
+          int iEta1 = int(trunc(etaIndex1 * resolution));
+          unsigned int inverseDeltaRIndexEta = abs(iEta0 - iEta1);
+          int jPhi0 = int(trunc(phiIndex0 * resolution));
+          int jPhi1 = int(trunc(phiIndex1 * resolution));
+          unsigned int inverseDeltaRIndexPhi = abs(jPhi0 - jPhi1);
+          if (abs(phiIndex0 - phiIndex1) >= phiBound)
+            inverseDeltaRIndexPhi = int(trunc(2 * phiBound * resolution)) - inverseDeltaRIndexPhi;
+          unsigned int precInvDRSqLUT = 0x5;
+          long long LInverseDeltaRSqLUT = 0x0;
+          if (inverseDeltaRIndexEta + inverseDeltaRIndexPhi > 0)
+            LInverseDeltaRSqLUT = InvDeltaRSqLUT[inverseDeltaRIndexEta][inverseDeltaRIndexPhi];
+          long long massSqOverDeltaRSq =
+              (long long)massSq * LInverseDeltaRSqLUT;  // keep full precision, do not '/pow(10,precInvDRSqLUT);'
+          if ((inverseDeltaRIndexEta + inverseDeltaRIndexPhi == 0) ||
+              ((massSqOverDeltaRSq >= 0) &&
+               (massSqOverDeltaRSq >=
+                (long long)(corrPar.minMassCutValue * pow(10, preShift) *
+                            pow(10, precInvDRSqLUT))))) {  // only check for the minimum threshold in case of invMass/dR
+            LogDebug("L1TGlobal") << "    Passed Invariant Mass Over Delta R  Cut ["
+                                  << (long long)(corrPar.minMassCutValue * pow(10, preShift) * pow(10, precInvDRSqLUT))
+                                  << ","
+                                  << (long long)(corrPar.maxMassCutValue * pow(10, preShift) * pow(10, precInvDRSqLUT))
+                                  << "]     massSqOverDeltaRSq " << massSqOverDeltaRSq << std::endl;
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Invariant Mass OverDeltaR Cut ["
+                                  << (long long)(corrPar.minMassCutValue * pow(10, preShift) * pow(10, precInvDRSqLUT))
+                                  << ","
+                                  << (long long)(corrPar.maxMassCutValue * pow(10, preShift) * pow(10, precInvDRSqLUT))
+                                  << "]     massSqOverDeltaRSq " << massSqOverDeltaRSq << std::endl;
+            reqResult = false;
+          }
+          //Done with Invariant Mass Over Delta R vs Mass Cut choice
+        } else {  //do the InvMassCut choice
+          if (massSq >= 0 && massSq >= (long long)(corrPar.minMassCutValue * pow(10, preShift)) &&
+              massSq <= (long long)(corrPar.maxMassCutValue * pow(10, preShift))) {
+            LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut ["
+                                  << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
+          } else {
+            LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut ["
+                                  << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
+                                  << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
+            reqResult = false;
+          }  //Done with Invariant Mass Cut
+        }    //Done with choice of Invariant Mass Cut vs InvMass/dR
+      }      //Done with any type of Mass Cut
 
       // For Muon-Muon Correlation Check the Charge Correlation if requested
       bool chrgCorrel = true;

@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import sys,os,commands
+import sys,os,subprocess
 from CommonMethods import *
 
 class FileObj:
@@ -14,7 +14,7 @@ class FileObj:
 def main():
     payloadDir = "./archive_repro_13May/payloads/"
     aCommand  = "ls " + payloadDir + " | grep BeamSpotObjects_2009_LumiBased_ | grep txt"           
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     listOfFiles = output[1].split('\n')                                                                              
     print(listOfFiles)
     finalList = {}
@@ -39,7 +39,7 @@ def main():
     else:
         exit("Can't find reg exp")
 
-    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    uuid = subprocess.getstatusoutput('uuidgen -t')[1]
     final_sqlite_file_name = databaseTag + '@' + uuid
     megaNumber = "18446744073709551615"
     print(final_sqlite_file_name)
@@ -47,7 +47,7 @@ def main():
         appendSqliteFile(final_sqlite_file_name + ".db", payloadDir+finalList[run].fileName.replace(".txt",".db"), databaseTag, finalList[run].iovSince, megaNumber,payloadDir)
         print(finalList[run].fileName.replace(".txt",".db"))
     aCommand  = "cp " + payloadDir + finalList[sortedKeys[0]].fileName + " " + payloadDir + final_sqlite_file_name + ".txt"
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     dropbox = "/DropBox"
     print(sortedKeys[0])
     print(finalList[sortedKeys[0]].fileName)

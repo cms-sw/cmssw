@@ -18,6 +18,18 @@ HighPuritySelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cf
     trackQualities = ["highPurity"],
 )
 
+## Filter for cosmics tracks
+NoPuritySelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
+    applyBasicCuts = True,
+    filter = True,
+    src = 'ALCARECOTkAlMuonIsolated',
+    etaMin = -999.,
+    etaMax = 999.,
+)
+
+##
+## Filters for skims
+##
 genSimSkimSelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     applyBasicCuts = True,
     filter = True,

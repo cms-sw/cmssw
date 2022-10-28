@@ -1,0 +1,14 @@
+<bin file="test_catch2_HLTConfigData.cc" name="testHLTriggerHLTcoreHLTConfigDataCatch2">
+  <use name="FWCore/ParameterSet"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>
+
+<bin file="test_catch2_TriggerExpressionParser.cc" name="testHLTriggerHLTcoreTriggerExpressionParserCatch2">
+  <use name="FWCore/MessageLogger"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>
+
+<!-- test the HLTPrescaleExample plugin -->
+<test name="test_HLTPrescaleExample" command="cmsRun ${LOCALTOP}/src/HLTrigger/HLTcore/test/hltPrescaleExample_cfg.py"/>

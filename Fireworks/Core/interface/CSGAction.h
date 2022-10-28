@@ -97,13 +97,13 @@ public:
   Bool_t resizeMenuEntry();
   void activate() { activated.emit(); }
 
-  sigc::signal<void> activated;
+  sigc::signal<void()> activated;
 
-private:
   CSGAction(const CSGAction&) = delete;  // stop default
 
   const CSGAction& operator=(const CSGAction&) = delete;  // stop default
 
+private:
   void enableImp();
   void disableImp();
   // ---------- member data --------------------------------

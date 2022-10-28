@@ -74,7 +74,7 @@ void HelixFitOnGPU::launchRiemannKernels(HitsView const *hv,
                                                                     offset);
     cudaCheck(cudaGetLastError());
 
-    if (fit5as4_) {
+    if (fitNas4_) {
       // penta
       kernel_FastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);

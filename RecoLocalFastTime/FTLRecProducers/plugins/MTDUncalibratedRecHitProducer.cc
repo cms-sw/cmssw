@@ -65,16 +65,24 @@ void MTDUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSet
 
   edm::Handle<BTLDigiCollection> hBarrel;
   evt.getByToken(ftlbDigis_, hBarrel);
-  barrelRechits->reserve(hBarrel->size() / 2);
-  for (const auto& digi : *hBarrel) {
-    barrelRechits->emplace_back(barrel_->makeRecHit(digi));
+  if (hBarrel.isValid()) {
+    barrelRechits->reserve(hBarrel->size() / 2);
+    for (const auto& digi : *hBarrel) {
+      barrelRechits->emplace_back(barrel_->makeRecHit(digi));
+    }
+  } else {
+    edm::LogWarning("MTDReco") << "MTDUncalibratedRecHitProducer: Missing BTL Digi Collection";
   }
 
   edm::Handle<ETLDigiCollection> hEndcap;
   evt.getByToken(ftleDigis_, hEndcap);
-  endcapRechits->reserve(hEndcap->size() / 2);
-  for (const auto& digi : *hEndcap) {
-    endcapRechits->emplace_back(endcap_->makeRecHit(digi));
+  if (hEndcap.isValid()) {
+    endcapRechits->reserve(hEndcap->size() / 2);
+    for (const auto& digi : *hEndcap) {
+      endcapRechits->emplace_back(endcap_->makeRecHit(digi));
+    }
+  } else {
+    edm::LogWarning("MTDReco") << "MTDUncalibratedRecHitProducer: Missing ETL Digi Collection";
   }
 
   // put the collection of recunstructed hits in the event

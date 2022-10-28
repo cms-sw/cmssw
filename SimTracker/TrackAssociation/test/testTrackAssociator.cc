@@ -1,21 +1,42 @@
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include <iostream>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 
 // class TrackAssociator;
 class TrackAssociatorByHits;
 class TrackerHitAssociator;
+
+namespace reco {
+  class TrackToTrackingParticleAssociator;
+}
+
+class testTrackAssociator : public edm::one::EDAnalyzer<> {
+public:
+  testTrackAssociator(const edm::ParameterSet &conf);
+  ~testTrackAssociator() override = default;
+  void beginJob() override {}
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+private:
+  reco::TrackToTrackingParticleAssociator const *associatorByChi2;
+  reco::TrackToTrackingParticleAssociator const *associatorByHits;
+  edm::InputTag tracksTag, tpTag, simtracksTag, simvtxTag;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMF_;
+};
 
 using namespace reco;
 using namespace std;
@@ -26,13 +47,11 @@ testTrackAssociator::testTrackAssociator(edm::ParameterSet const &conf) {
   tpTag = conf.getParameter<edm::InputTag>("tpTag");
   simtracksTag = conf.getParameter<edm::InputTag>("simtracksTag");
   simvtxTag = conf.getParameter<edm::InputTag>("simvtxTag");
+  tokenMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
-testTrackAssociator::~testTrackAssociator() {}
-
 void testTrackAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  edm::ESHandle<MagneticField> theMF;
-  setup.get<IdealMagneticFieldRecord>().get(theMF);
+  //const auto &theMF = setup.getHandle(tokenMF_);
   edm::Handle<reco::TrackToTrackingParticleAssociator> theChiAssociator;
   event.getByLabel("trackAssociatorByChi2", theChiAssociator);
   associatorByChi2 = theChiAssociator.product();

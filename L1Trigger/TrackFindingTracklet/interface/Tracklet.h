@@ -157,6 +157,7 @@ namespace trklet {
       return FPGAWord(ichisqrphifit_.value() + ichisqrzfit_.value(), ichisqrphifit_.nbits());
     }
 
+    // Note floating & digitized helix params after track fit.
     void setFitPars(double rinvfit,
                     double phi0fit,
                     double d0fit,
@@ -185,6 +186,7 @@ namespace trklet {
     const std::string diskstubstr(const unsigned disk) const;
     std::string trackfitstr() const;
 
+    // Create a Track object from stubs & digitized track helix params
     Track makeTrack(const std::vector<const L1TStub*>& l1stubs);
 
     Track* getTrack() {

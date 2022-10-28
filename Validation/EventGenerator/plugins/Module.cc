@@ -45,3 +45,9 @@ DEFINE_FWK_MODULE(BPhysicsValidation);
 
 #include "Validation/EventGenerator/interface/BPhysicsSpectrum.h"
 DEFINE_FWK_MODULE(BPhysicsSpectrum);
+
+#include "Validation/EventGenerator/interface/GenWeightValidation.h"
+DEFINE_FWK_MODULE(GenWeightValidation);
+
+#include "Validation/EventGenerator/interface/LheWeightValidation.h"
+DEFINE_FWK_MODULE(LheWeightValidation);

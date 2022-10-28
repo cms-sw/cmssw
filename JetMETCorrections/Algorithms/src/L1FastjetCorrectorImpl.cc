@@ -28,7 +28,7 @@ using namespace std;
 
 L1FastjetCorrectorImplMaker::L1FastjetCorrectorImplMaker(edm::ParameterSet const& fConfig,
                                                          edm::ConsumesCollector fCollector)
-    : JetCorrectorImplMakerBase(fConfig),
+    : JetCorrectorImplMakerBase(fConfig, fCollector),
       rhoToken_(fCollector.consumes<double>(fConfig.getParameter<edm::InputTag>("srcRho"))) {}
 
 std::unique_ptr<reco::JetCorrectorImpl> L1FastjetCorrectorImplMaker::make(edm::Event const& fEvent,

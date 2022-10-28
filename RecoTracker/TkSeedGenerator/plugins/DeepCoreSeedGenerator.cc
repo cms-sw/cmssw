@@ -99,27 +99,24 @@ public:
   static constexpr int Npar = 5;      //Number of track parameter
 
 private:
-  void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob();
 
   // ----------member data ---------------------------
   std::string propagatorName_;
-  edm::ESHandle<MagneticField> magfield_;
-  edm::ESHandle<GlobalTrackingGeometry> geometry_;
-  edm::ESHandle<Propagator> propagator_;
+  const GlobalTrackingGeometry* geometry_ = nullptr;
 
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusters_;
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputPixelClusters_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> cores_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+  const edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> pixelCPEToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 
   double ptMin_;
   double deltaR_;
   double chargeFracMin_;
   double centralMIPCharge_;
-  std::string pixelCPE_;
   std::string weightfilename_;
   std::vector<std::string> inputTensorName_;
   std::vector<std::string> outputTensorName_;
@@ -166,12 +163,13 @@ DeepCoreSeedGenerator::DeepCoreSeedGenerator(const edm::ParameterSet& iConfig, c
       pixelClusters_(
           consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
       cores_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("cores"))),
+      geometryToken_(esConsumes()),
+      pixelCPEToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       ptMin_(iConfig.getParameter<double>("ptMin")),
       deltaR_(iConfig.getParameter<double>("deltaR")),
       chargeFracMin_(iConfig.getParameter<double>("chargeFractionMin")),
       centralMIPCharge_(iConfig.getParameter<double>("centralMIPCharge")),
-      pixelCPE_(iConfig.getParameter<std::string>("pixelCPE")),
       weightfilename_(iConfig.getParameter<edm::FileInPath>("weightFile").fullPath()),
       inputTensorName_(iConfig.getParameter<std::vector<std::string>>("inputTensorName")),
       outputTensorName_(iConfig.getParameter<std::vector<std::string>>("outputTensorName")),
@@ -199,18 +197,13 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
   using namespace edm;
   using namespace reco;
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
-  iSetup.get<TrackingComponentsRecord>().get("AnalyticalPropagator", propagator_);
+  geometry_ = &iSetup.getData(geometryToken_);
 
   const auto& inputPixelClusters_ = iEvent.get(pixelClusters_);
   const auto& vertices = iEvent.get(vertices_);
   const auto& cores = iEvent.get(cores_);
 
-  edm::ESHandle<PixelClusterParameterEstimator> pixelCPEhandle;
-  const PixelClusterParameterEstimator* pixelCPE;
-  iSetup.get<TkPixelCPERecord>().get(pixelCPE_, pixelCPEhandle);
-  pixelCPE = pixelCPEhandle.product();
+  const PixelClusterParameterEstimator* pixelCPE = &iSetup.getData(pixelCPEToken_);
 
   const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
   auto output = std::make_unique<edmNew::DetSetVector<SiPixelCluster>>();
@@ -218,7 +211,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
   for (const auto& jet : cores) {  // jet loop
 
     if (jet.pt() > ptMin_) {
-      std::set<long long int> ids;
+      std::set<unsigned long long int> ids;
       const reco::Vertex& jetVertex = vertices[0];
 
       std::vector<GlobalVector> splitClustDirSet =
@@ -336,8 +329,8 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
                 const GlobalVector globSeedDir(
                     GlobalVector::Polar(Geom::Theta<double>(track_theta), Geom::Phi<double>(track_phi), normdirR));
                 LocalVector localSeedDir = globDet->surface().toLocal(globSeedDir);
-                int64_t seedid = (int64_t(xx * 200.) << 0) + (int64_t(yy * 200.) << 16) +
-                                 (int64_t(track_eta * 400.) << 32) + (int64_t(track_phi * 400.) << 48);
+                uint64_t seedid = (uint64_t(xx * 200.) << 0) + (uint64_t(yy * 200.) << 16) +
+                                  (uint64_t(track_eta * 400.) << 32) + (uint64_t(track_phi * 400.) << 48);
                 if (ids.count(seedid) != 0) {
                   continue;
                 }
@@ -548,12 +541,6 @@ std::unique_ptr<DeepCoreCache> DeepCoreSeedGenerator::initializeGlobalCache(cons
 }
 
 void DeepCoreSeedGenerator::globalEndJob(DeepCoreCache* cache) { delete cache->graph_def; }
-
-// ------------ method called once each job just before starting event loop  ------------
-void DeepCoreSeedGenerator::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void DeepCoreSeedGenerator::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DeepCoreSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

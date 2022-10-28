@@ -1,18 +1,113 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerRecover.h"
+/** \class EcalRecHitWorkerRecover
+  *  Algorithms to recover dead channels
+  *
+  */
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
+
+#include <vector>
+
+class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
+public:
+  EcalRecHitWorkerRecover(const edm::ParameterSet&, edm::ConsumesCollector& c);
+
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection& result) override;
+
+protected:
+  void insertRecHit(const EcalRecHit& hit, EcalRecHitCollection& collection);
+  float recCheckCalib(float energy, int ieta);
+  bool alreadyInserted(const DetId& id);
+  float estimateEnergy(int ieta,
+                       EcalRecHitCollection* hits,
+                       const std::set<DetId>& sId,
+                       const std::vector<DetId>& vId,
+                       const EcalTPGScale& tpgscale);
+  bool checkChannelStatus(const DetId& id, const std::vector<int>& statusestoexclude);
+
+  edm::ESHandle<EcalLaserDbService> laser;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
+
+  // isolated dead channels
+  edm::ESHandle<CaloTopology> caloTopology_;
+  edm::ESHandle<CaloGeometry> caloGeometry_;
+  edm::ESHandle<EcalChannelStatus> chStatus_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusToken_;
+
+  double singleRecoveryThreshold_;
+  double sum8RecoveryThreshold_;
+  std::string singleRecoveryMethod_;
+  bool killDeadChannels_;
+
+  bool recoverEBIsolatedChannels_;
+  bool recoverEEIsolatedChannels_;
+  bool recoverEBVFE_;
+  bool recoverEEVFE_;
+  bool recoverEBFE_;
+  bool recoverEEFE_;
+
+  // list of channel statuses for which recovery in EE should
+  // not be attempted
+  std::vector<int> dbStatusToBeExcludedEE_;
+  std::vector<int> dbStatusToBeExcludedEB_;
+
+  const edm::EventSetup* eventSetup_ = nullptr;
+  // dead FE
+  EcalTPGScale::Tokens ecalScaleTokens_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiToken_;
+  edm::ESHandle<EcalElectronicsMapping> pEcalMapping_;
+  const EcalElectronicsMapping* ecalMapping_;
+  double logWarningEtThreshold_EB_FE_;
+  double logWarningEtThreshold_EE_FE_;
+
+  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
+
+  edm::ESHandle<CaloSubdetectorGeometry> pEBGeom_;
+  const CaloSubdetectorGeometry* ebGeom_;
+  const CaloGeometry* geo_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> pEcalMappingToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> pEBGeomToken_;
+  std::unique_ptr<EcalRecHitSimpleAlgo> rechitMaker_;
+
+  std::set<DetId> recoveredDetIds_EB_;
+  std::set<DetId> recoveredDetIds_EE_;
+
+  EcalTPGScale::Tokens tpgscaleTokens_;
+
+  EcalDeadChannelRecoveryAlgos<EBDetId> ebDeadChannelCorrector;
+  EcalDeadChannelRecoveryAlgos<EEDetId> eeDeadChannelCorrector;
+};
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
     : EcalRecHitWorkerBaseClass(ps, c), ecalScaleTokens_(c), tpgscaleTokens_(c) {

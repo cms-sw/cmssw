@@ -82,7 +82,7 @@ namespace TopDiLeptonOffline {
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = jetExtras.getParameter<std::string>("jetCorrector");
+        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -415,10 +415,10 @@ namespace TopDiLeptonOffline {
   */
 
     const JetCorrector* corrector = nullptr;
-    if (!jetCorrector_.empty()) {
+    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
       // check whether a jet correcto is in the event setup or not
       if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
-        corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+        corrector = &setup.getData(jetCorrector_);
       } else {
         edm::LogVerbatim("TopDiLeptonOfflineDQM") << "\n"
                                                   << "-----------------------------------------------------------------"

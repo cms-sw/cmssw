@@ -22,13 +22,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
@@ -37,17 +36,18 @@
 // class decleration
 //
 
-class HcalSevLvlAnalyzer : public edm::EDAnalyzer {
+class HcalSevLvlAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalSevLvlAnalyzer(const edm::ParameterSet&);
   ~HcalSevLvlAnalyzer();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> tokSev_;
 };
 
 //
@@ -61,9 +61,7 @@ private:
 //
 // constructors and destructor
 //
-HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig)
-
-{
+HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig) : tokSev_(esConsumes()) {
   //now do what ever initialization is needed
 
   // initialize the severity level code
@@ -80,22 +78,8 @@ HcalSevLvlAnalyzer::~HcalSevLvlAnalyzer() {
 
 // ------------ method called to for each event  ------------
 void HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-
   // here's how to access the severity level computer:
-  ESHandle<HcalSeverityLevelComputer> mycomputer;
-  iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
-  const HcalSeverityLevelComputer* myProd = mycomputer.product();
+  const HcalSeverityLevelComputer* myProd = &iSetup.getData(tokSev_);
 
   // create some example cases:
   std::cout << std::showbase;

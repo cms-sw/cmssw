@@ -6,7 +6,7 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -31,7 +31,7 @@ using edm::LogWarning;
 
 namespace sistrip {
 
-  const char* SpyEventMatcher::mlLabel_ = "SpyEventMatcher";
+  const char* const SpyEventMatcher::mlLabel_ = "SpyEventMatcher";
 
   SpyEventMatcher::EventKey::EventKey(const uint32_t eventId, const uint8_t apvAddress)
       : eventId_(eventId), apvAddress_(apvAddress) {}

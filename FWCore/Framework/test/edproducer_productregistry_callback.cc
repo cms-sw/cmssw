@@ -12,17 +12,17 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/MakeModuleParams.h"
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -52,23 +52,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 using namespace edm;
 
 namespace {
-  class TestMod : public EDProducer {
+  class TestMod : public global::EDProducer<> {
   public:
     explicit TestMod(ParameterSet const& p);
 
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const override;
 
     void listen(BranchDescription const&);
   };
 
   TestMod::TestMod(ParameterSet const&) { produces<int>(); }
 
-  void TestMod::produce(Event&, EventSetup const&) {}
+  void TestMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  class ListenMod : public EDProducer {
+  class ListenMod : public global::EDProducer<> {
   public:
     explicit ListenMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const override;
     void listen(BranchDescription const&);
   };
 
@@ -76,7 +76,7 @@ namespace {
     callWhenNewProductsRegistered(
         [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
   }
-  void ListenMod::produce(Event&, EventSetup const&) {}
+  void ListenMod::produce(StreamID, Event&, EventSetup const&) const {}
 
   void ListenMod::listen(BranchDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
@@ -87,10 +87,10 @@ namespace {
     }
   }
 
-  class ListenFloatMod : public EDProducer {
+  class ListenFloatMod : public global::EDProducer<> {
   public:
     explicit ListenFloatMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const;
     void listen(BranchDescription const&);
   };
 
@@ -98,7 +98,7 @@ namespace {
     callWhenNewProductsRegistered(
         [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
   }
-  void ListenFloatMod::produce(Event&, EventSetup const&) {}
+  void ListenFloatMod::produce(StreamID, Event&, EventSetup const&) const {}
 
   void ListenFloatMod::listen(BranchDescription const& iDesc) {
     edm::TypeID intType(typeid(int));

@@ -1,6 +1,7 @@
 #include "Validation/EventGenerator/interface/HepMCValidationHelper.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <limits>
 #include "TLorentzVector.h"
@@ -202,8 +203,9 @@ namespace HepMCValidationHelper {
       std::vector<const HepMC::GenParticle*> taudaughters;
       findDescendents(taus[i], taudaughters);
       if (taudaughters.empty()) {
-        edm::LogError("HepMCValidationHelper") << "Tau with no daughters. This is a bug. Fix it";
-        abort();
+        throw cms::Exception("NoTauDaugters")
+            << " HepMCValidationHelper found no daughters for Tau within index " << i << " and info \n"
+            << *taus[i] << "\n  This should not be able to happen and needs to be fixed.";
       }
       const HepMC::FourVector& taumom = taus[i]->momentum();
       //remove the daughters from the list of particles to compute isolation

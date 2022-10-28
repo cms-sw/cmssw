@@ -1,11 +1,11 @@
-#include "CommonTools/Utils/src/MethodSetter.h"
+#include "CommonTools/Utils/interface/MethodSetter.h"
 
 #include "CommonTools/Utils/interface/Exception.h"
 #include "CommonTools/Utils/src/ErrorCodes.h"
-#include "CommonTools/Utils/src/MethodInvoker.h"
+#include "CommonTools/Utils/interface/MethodInvoker.h"
 #include "CommonTools/Utils/src/findDataMember.h"
 #include "CommonTools/Utils/src/findMethod.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 
 #include <string>
 
@@ -120,10 +120,22 @@ bool MethodSetter::push(const string& name, const vector<AnyMethodArgument>& arg
   if (!bool(member)) {
     // Not a data member either, fatal error, throw.
     switch (error) {
-      case reco::parser::kNameDoesNotExist:
-        throw Exception(begin) << "no method or data member named \"" << name << "\" found for type \"" << type.name()
-                               << "\"";
-        break;
+      case reco::parser::kNameDoesNotExist: {
+        Exception ex(begin);
+        ex << "no method or data member named \"" << name << "\" found for type \"" << type.name() << "\"\n";
+        // The following information is for temporary debugging only, intended to be removed later
+        ex << "It has the following methods\n";
+        edm::TypeFunctionMembers functions(type);
+        for (auto const& f : functions) {
+          ex << " " << f->GetName() << "\n";
+        }
+        ex << "and the following data members\n";
+        edm::TypeDataMembers members(type);
+        for (auto const& m : members) {
+          ex << " " << m->GetName() << "\n";
+        }
+        throw ex;
+      } break;
       case reco::parser::kIsNotPublic:
         throw Exception(begin) << "data member named \"" << name << "\" for type \"" << type.name()
                                << "\" is not publically accessible.";

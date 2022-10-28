@@ -49,6 +49,8 @@ namespace edm {
       void* ptr_;
       int len_;
     };
+    // no copy
+    SingleConsumerQ(const SingleConsumerQ&) = delete;
 
     SingleConsumerQ(int max_event_size, int max_queue_depth);
     ~SingleConsumerQ();
@@ -101,9 +103,6 @@ namespace edm {
     int maxQueueDepth() const { return max_queue_depth_; }
 
   private:
-    // no copy
-    SingleConsumerQ(const SingleConsumerQ&) = delete;
-
     // the memory for the buffers
     typedef std::vector<char> ByteArray;
     // the pool of buffers

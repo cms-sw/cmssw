@@ -9,7 +9,6 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -44,6 +43,7 @@ private:
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 
   MonitorElement *nEvt;
   MonitorElement *Wmass, *WmassPeak, /* *WmT, *WmTPeak, */ *Wpt, *WptLog, *Wrap, *Wdaughters;

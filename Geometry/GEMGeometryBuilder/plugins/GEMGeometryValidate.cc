@@ -1,10 +1,10 @@
 /*
 //\class GEMGeometryValidate
 
- Description: GEM GeometryValidate from DD & DD4HEP
+ Description: GEM GeometryValidate from DD & DD4hep
  
  //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //          Created:  27 Jan 2020 
 */
 

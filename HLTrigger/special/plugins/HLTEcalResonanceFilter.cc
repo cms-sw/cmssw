@@ -108,7 +108,7 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig)
     mip_ = preshowerSelection.getParameter<double>("preshCalibMIP");
 
     // ES algo constructor:
-    presh_algo_ = new PreshowerClusterAlgo(preshStripECut, preshClustECut, preshSeededNst);
+    presh_algo_ = std::make_unique<PreshowerClusterAlgo>(preshStripECut, preshClustECut, preshSeededNst);
 
     ESHits_ = preshowerSelection.getParameter<std::string>("ESCollection");
     produces<ESRecHitCollection>(ESHits_);
@@ -117,11 +117,7 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig)
   debug_ = iConfig.getParameter<int>("debugLevel");
 }
 
-HLTEcalResonanceFilter::~HLTEcalResonanceFilter() {
-  if (storeRecHitES_) {
-    delete presh_algo_;
-  }
-}
+HLTEcalResonanceFilter::~HLTEcalResonanceFilter() {}
 
 void HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;

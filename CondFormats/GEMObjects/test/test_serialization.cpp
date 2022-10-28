@@ -16,6 +16,20 @@ int main() {
   testSerialization<GEMeMap::GEMStripMap>();
   testSerialization<std::vector<GEMeMap::GEMStripMap>>();
 
+  testSerialization<GEMChMap>();
+  testSerialization<GEMChMap::sectorEC>();
+  testSerialization<GEMChMap::chamEC>();
+  testSerialization<GEMChMap::chamDC>();
+  testSerialization<GEMChMap::vfatEC>();
+  testSerialization<GEMChMap::channelNum>();
+  testSerialization<GEMChMap::stripNum>();
+  testSerialization<std::vector<GEMChMap::sectorEC>>();
+  testSerialization<std::map<GEMChMap::chamEC, GEMChMap::chamDC>>();
+  testSerialization<std::map<int, std::vector<uint16_t>>>();
+  testSerialization<std::map<GEMChMap::vfatEC, std::vector<int>>>();
+  testSerialization<std::map<GEMChMap::channelNum, GEMChMap::stripNum>>();
+  testSerialization<std::map<GEMChMap::stripNum, GEMChMap::channelNum>>();
+
   testSerialization<GEMDeadStrips>();
   testSerialization<GEMDeadStrips::DeadItem>();
   testSerialization<GEMMaskedStrips>();

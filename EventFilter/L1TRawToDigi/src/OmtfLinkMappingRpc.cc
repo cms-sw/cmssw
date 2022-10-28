@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
@@ -15,7 +13,6 @@
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 
-#include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 
 namespace omtf {
@@ -75,10 +72,8 @@ namespace omtf {
     return pact2omtfs;
   }
 
-  void RpcLinkMap::init(const edm::EventSetup& es) {
-    edm::ESHandle<RPCAMCLinkMap> amcMapping;
-    es.get<RPCOMTFLinkMapRcd>().get(amcMapping);
-    const RPCAMCLinkMap::map_type& amcMap = amcMapping->getMap();
+  void RpcLinkMap::init(const RPCAMCLinkMap& amcMapping) {
+    const RPCAMCLinkMap::map_type& amcMap = amcMapping.getMap();
 
     for (const auto& item : amcMap) {
       unsigned int fedId = item.first.getFED();

@@ -13,12 +13,6 @@
 
 #include "L1TriggerConfig/DTTrackFinder/interface/DTPhiLutTester.h"
 
-DTPhiLutTester::DTPhiLutTester(const edm::ParameterSet& ps) {}
+DTPhiLutTester::DTPhiLutTester(const edm::ParameterSet& ps) : token_{esConsumes()} {}
 
-DTPhiLutTester::~DTPhiLutTester() {}
-
-void DTPhiLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
-  edm::ESHandle<L1MuDTPhiLut> philut;
-  c.get<L1MuDTPhiLutRcd>().get(philut);
-  philut->print();
-}
+void DTPhiLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) { c.getData(token_).print(); }

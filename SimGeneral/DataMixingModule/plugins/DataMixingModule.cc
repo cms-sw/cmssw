@@ -39,6 +39,7 @@ namespace edm {
         ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
         QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
         QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
+        tokDB_(esConsumes<HcalDbService, HcalDbRecord>()),
         label_(ps.getParameter<std::string>("Label")) {
     // prepare for data access in DataMixingHcalDigiWorkerProd
     tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
@@ -119,7 +120,7 @@ namespace edm {
       }
 
       if (MergeHcalDigisProd_)
-        HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
+        HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector(), tokDB_);
       else
         HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
 

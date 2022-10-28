@@ -132,11 +132,13 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     // Get the histos for FED integrity
     string fedIntegrityFolder = "DT/00-DataIntegrity/";
     MonitorElement* hFEDEntry = igetter.get(fedIntegrityFolder + "FEDEntries");
+    MonitorElement* hFEDFatal = igetter.get(fedIntegrityFolder + "FEDFatal");
 
-    if (hFEDEntry) {
+    if (hFEDEntry && hFEDFatal) {
       int offsetFED = 1368;
       // Check that the FED is in the ReadOut using the FEDIntegrity histos
-      bool fedNotReadout = (hFEDEntry->getBinContent(dduId - offsetFED)) == 0;
+      bool fedNotReadout =
+          (hFEDEntry->getBinContent(dduId - offsetFED) == 0 && hFEDFatal->getBinContent(dduId - offsetFED) == 0);
       int wheel = dduId - offsetFED - 2;
       if (FED_ROSSummary1 && FED_ROSSummary2 && FED_ROSStatus && FED_EvLength && !fedNotReadout) {
         TH2F* histoFEDSummary1 = FED_ROSSummary1->getTH2F();

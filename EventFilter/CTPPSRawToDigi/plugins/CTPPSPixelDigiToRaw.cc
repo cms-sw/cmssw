@@ -82,6 +82,7 @@ private:
   edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tCTPPSPixelDAQMapping_;
   std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
   CTPPSPixelFramePosition fPos_;
+  bool isRun3_;
 };
 
 //
@@ -99,6 +100,7 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
     : eventCounter_(0),
       allDigiCounter_(0),
       allWordCounter_(0),
+      debug_(false),
       mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")) {
   //register your products
   tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
@@ -106,6 +108,8 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
+
+  isRun3_ = iConfig.getParameter<bool>("isRun3");
 }
 
 CTPPSPixelDigiToRaw::~CTPPSPixelDigiToRaw() {}
@@ -134,13 +138,13 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   allDigiCounter_ += digiCounter;
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-  if (recordWatcher_.check(iSetup)) {
-    mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
-    for (const auto& p : mapping->ROCMapping)
-      v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
-          p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
-    fedIds_ = mapping->fedIds();
-  }
+
+  mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
+  for (const auto& p : mapping->ROCMapping)
+    v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
+        p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
+  fedIds_ = mapping->fedIds();
+
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   // create product (raw data)
@@ -149,7 +153,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::sort(v_iDdet2fed_.begin(), v_iDdet2fed_.end(), CTPPSPixelDataFormatter::compare);
 
   // convert data to raw
-  formatter.formatRawData(iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
+  formatter.formatRawData(isRun3_, iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
   for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
@@ -171,6 +175,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CTPPSPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("isRun3", true);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("RPixDetDigitizer"));
   desc.add<std::string>("mappingLabel", "RPix");
   descriptions.add("ctppsPixelRawData", desc);

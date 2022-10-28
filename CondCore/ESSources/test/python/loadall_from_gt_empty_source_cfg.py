@@ -4,7 +4,6 @@ import time
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.AlCa.autoCond import autoCond
-import six
 
 options = VarParsing.VarParsing()
 options.register('connectionString',
@@ -131,7 +130,7 @@ if options.pfnPostfix:
 
 process.source = cms.Source( "EmptySource",
                              firstRun = cms.untracked.uint32( options.runNumber ),
-                             firstTime = cms.untracked.uint64( ( long( time.time() ) - 24 * 3600 ) << 32 ), #24 hours ago in nanoseconds
+                             firstTime = cms.untracked.uint64( ( int( time.time() ) - 24 * 3600 ) << 32 ), #24 hours ago in nanoseconds
                              numberEventsInRun = cms.untracked.uint32( options.eventsPerLumi *  options.numberOfLumis ), # options.numberOfLumis lumi sections per run
                              numberEventsInLuminosityBlock = cms.untracked.uint32( options.eventsPerLumi )
                              )
@@ -157,7 +156,7 @@ process.esout = cms.EndPath( process.escontent + process.esretrieval )
 if process.schedule_() is not None:
     process.schedule_().append( process.esout )
 
-for name, module in six.iteritems(process.es_sources_()):
+for name, module in process.es_sources_().items():
     print("ESModules> provider:%s '%s'" % ( name, module.type_() ))
-for name, module in six.iteritems(process.es_producers_()):
+for name, module in process.es_producers_().items():
     print("ESModules> provider:%s '%s'" % ( name, module.type_() ))

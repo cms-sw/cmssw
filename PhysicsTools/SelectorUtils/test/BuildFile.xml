@@ -1,0 +1,4 @@
+<bin file="testPhysicsToolsSelectorUtilsPythonTestsDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash PhysicsTools/SelectorUtils/test runPythonTests.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>

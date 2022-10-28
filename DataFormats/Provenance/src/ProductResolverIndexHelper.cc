@@ -70,6 +70,32 @@ namespace edm {
       TypeID const wrappedTypeID = TypeID(wrappedType.typeInfo());
       return getContainedTypeFromWrapper(wrappedTypeID, className);
     }
+
+    bool typeIsViewCompatible(TypeID const& requestedViewType,
+                              TypeID const& wrappedtypeID,
+                              std::string const& className) {
+      auto elementType = getContainedTypeFromWrapper(wrappedtypeID, className);
+      if (elementType == TypeID(typeid(void)) or elementType == TypeID()) {
+        //the wrapped type is not a container
+        return false;
+      }
+      if (elementType == requestedViewType) {
+        return true;
+      }
+      //need to check for inheritance match
+      std::vector<std::string> missingDictionaries;
+      std::vector<TypeID> baseTypes;
+      if (!public_base_classes(missingDictionaries, elementType, baseTypes)) {
+        return false;
+      }
+      for (auto const& base : baseTypes) {
+        if (TypeID(base.typeInfo()) == requestedViewType) {
+          return true;
+        }
+      }
+      return false;
+    }
+
   }  // namespace productholderindexhelper
 
   ProductResolverIndexHelper::ProductResolverIndexHelper()
@@ -191,7 +217,7 @@ namespace edm {
                                                           char const* instance,
                                                           char const* process,
                                                           TypeID const& containedTypeID,
-                                                          std::vector<TypeWithDict>* baseTypesOfContainedType) {
+                                                          std::vector<TypeID>* baseTypesOfContainedType) {
     if (!items_) {
       throw Exception(errors::LogicError)
           << "ProductResolverIndexHelper::insert - Attempt to insert more elements after frozen.\n";
@@ -248,8 +274,7 @@ namespace edm {
 
       // Repeat this for all public base classes of the contained type
       if (baseTypesOfContainedType) {
-        for (TypeWithDict const& baseType : *baseTypesOfContainedType) {
-          TypeID baseTypeID(baseType.typeInfo());
+        for (TypeID const& baseTypeID : *baseTypesOfContainedType) {
           Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
           iter = items_->find(baseItem);
           if (iter != items_->end()) {
@@ -277,8 +302,8 @@ namespace edm {
                                                           char const* process) {
     TypeID containedTypeID = productholderindexhelper::getContainedType(typeID);
     bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
-    std::vector<TypeWithDict> baseTypes;
-    std::vector<TypeWithDict>* baseTypesOfContainedType = &baseTypes;
+    std::vector<TypeID> baseTypes;
+    std::vector<TypeID>* baseTypesOfContainedType = &baseTypes;
     if (hasContainedType) {
       std::vector<std::string> missingDictionaries;
       public_base_classes(missingDictionaries, containedTypeID, baseTypes);

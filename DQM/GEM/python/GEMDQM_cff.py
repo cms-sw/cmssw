@@ -11,3 +11,11 @@ GEMDQM = cms.Sequence(
   *GEMDAQStatusSource
   +GEMDQMHarvester
 )
+
+GEMDQMForRelval = cms.Sequence(
+  GEMDigiSource
+  *GEMRecHitSource
+)
+
+from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
+phase2_GEM.toModify(GEMDigiSource, digisInputLabel = "simMuonGEMDigis")

@@ -117,7 +117,7 @@ protected:
   std::vector<l1t::GlobalObject> m_objectType;
 
   /// the operator used for the condition (>=, =): true for >=
-  bool m_condGEq;
+  bool m_condGEq = false;
 
   /// condition is located on condition chip m_condChipNr
   int m_condChipNr;

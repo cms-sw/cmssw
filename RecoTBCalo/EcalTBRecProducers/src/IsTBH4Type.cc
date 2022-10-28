@@ -9,7 +9,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,17 +37,12 @@ IsTBH4Type::IsTBH4Type(const edm::ParameterSet& iConfig) {
   notFound_ = iConfig.getUntrackedParameter<bool>("ifHeaderNotFound", false);
 }
 
-IsTBH4Type::~IsTBH4Type() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-bool IsTBH4Type::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool IsTBH4Type::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   Handle<EcalTBEventHeader> pEventHeader;

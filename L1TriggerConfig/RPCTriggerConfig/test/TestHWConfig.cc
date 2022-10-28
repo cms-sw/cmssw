@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,17 +38,15 @@
 // class decleration
 //
 
-class TestHWConfig : public edm::EDAnalyzer {
+class TestHWConfig : public edm::global::EDAnalyzer<> {
 public:
   explicit TestHWConfig(const edm::ParameterSet&);
-  ~TestHWConfig();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<L1RPCHwConfig, L1RPCHwConfigRcd> getToken_;
 };
 
 //
@@ -63,14 +61,10 @@ private:
 // constructors and destructor
 //
 TestHWConfig::TestHWConfig(const edm::ParameterSet& iConfig)
+    : getToken_(esConsumes())
 
 {
   //now do what ever initialization is needed
-}
-
-TestHWConfig::~TestHWConfig() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -78,10 +72,9 @@ TestHWConfig::~TestHWConfig() {
 //
 
 // ------------ method called to for each event  ------------
-void TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TestHWConfig::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  edm::ESHandle<L1RPCHwConfig> hwConfig;
-  iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
+  L1RPCHwConfig const& hwConfig = iSetup.getData(getToken_);
 
   std::cout << "Checking crates " << std::endl;
 
@@ -89,7 +82,7 @@ void TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     std::set<int> enabledTowers;
 
     for (int tw = -16; tw < 17; ++tw) {
-      if (hwConfig->isActive(tw, crate, 0))
+      if (hwConfig.isActive(tw, crate, 0))
         enabledTowers.insert(tw);
     }
 
@@ -108,14 +101,8 @@ void TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //std::cout << "First BX: "<<hwConfig->getFirstBX()<<", last BX: "<<hwConfig->getLastBX()<<std::endl;
 
-  std::cout << " Done " << hwConfig->size() << std::endl;
+  std::cout << " Done " << hwConfig.size() << std::endl;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TestHWConfig::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TestHWConfig::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestHWConfig);

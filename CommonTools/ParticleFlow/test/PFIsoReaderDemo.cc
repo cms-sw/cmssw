@@ -13,6 +13,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 PFIsoReaderDemo::PFIsoReaderDemo(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   inputTagGsfElectrons_ = iConfig.getParameter<edm::InputTag>("Electrons");
   tokenGsfElectrons_ = consumes<reco::GsfElectronCollection>(inputTagGsfElectrons_);
   inputTagPhotons_ = iConfig.getParameter<edm::InputTag>("Photons");

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -71,7 +72,7 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/, const edm::EventS
 
   testClosestCells(geom, topology);
 
-  std::cout << "HcalGeometryTester::Test SLHC Hcal Geometry" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeometryTester::Test SLHC Hcal Geometry";
   std::vector<int> dins;
 
   testFlexiValidDetIds(geom, topology, DetId::Hcal, HcalBarrel, " BARREL ", dins);
@@ -88,7 +89,7 @@ void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
                                          int subdet,
                                          const std::string& label) {
   std::stringstream s;
-  s << label << " : " << std::endl;
+  s << label << " : \n";
   const std::vector<DetId>& idshb = caloGeom->getValidDetIds(det, subdet);
 
   int counter = 0;
@@ -100,7 +101,7 @@ void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
   }
 
   s << "=== Total " << counter << " cells in " << label << std::endl;
-  std::cout << s.str();
+  edm::LogVerbatim("HCalGeom") << s.str();
 }
 
 void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g, const HcalTopology& topology) {
@@ -151,21 +152,21 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g, const Hcal
 void HcalGeometryTester::testClosestCell(const HcalDetId& detId, CaloSubdetectorGeometry* geom) {
   auto cell = geom->getGeometry(detId);
   HcalDetId closest = geom->getClosestCell(cell->getPosition());
-  std::cout << "i/p " << detId << " position " << cell->getPosition() << " closest " << closest << std::endl;
+  edm::LogVerbatim("HCalGeom") << "i/p " << detId << " position " << cell->getPosition() << " closest " << closest;
 
   if (closest != detId) {
-    std::cout << "HcalGeometryTester::Mismatch.  Original HCAL cell is " << detId << " while nearest is " << closest
-              << " ***ERROR***" << std::endl;
+    edm::LogVerbatim("HCalGeom") << "HcalGeometryTester::Mismatch.  Original HCAL cell is " << detId
+                                 << " while nearest is " << closest << " ***ERROR***";
   }
 }
 
 void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   HcalTrigTowerGeometry trigTowers(&topology);
-  std::cout << "HCAL trigger tower eta bounds:" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HCAL trigger tower eta bounds:";
   for (int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
     trigTowers.towerEtaBounds(ieta, 0, eta1, eta2);
-    std::cout << "[" << ieta << "] " << eta1 << " " << eta2 << std::endl;
+    edm::LogVerbatim("HCalGeom") << "[" << ieta << "] " << eta1 << " " << eta2;
   }
 
   // now test some cell mappings
@@ -178,37 +179,37 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   using TowerDets = std::vector<HcalTrigTowerDetId>;
   if (topology.valid(barrelDet)) {
     TowerDets barrelTowers = trigTowers.towerIds(barrelDet);
-    std::cout << "Trigger Tower Size: Barrel " << barrelTowers.size() << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Trigger Tower Size: Barrel " << barrelTowers.size();
     assert(barrelTowers.size() == 1);
-    std::cout << "Tower[0] " << barrelTowers[0] << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Tower[0] " << barrelTowers[0];
   }
   if (topology.valid(endcapDet)) {
     TowerDets endcapTowers = trigTowers.towerIds(endcapDet);
-    std::cout << "Trigger Tower Size: Endcap " << endcapTowers.size() << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Trigger Tower Size: Endcap " << endcapTowers.size();
     assert(!endcapTowers.empty());
     for (unsigned int k = 0; k < endcapTowers.size(); ++k)
-      std::cout << "Tower[" << k << "] " << endcapTowers[k] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Tower[" << k << "] " << endcapTowers[k];
   }
   if (topology.valid(forwardDet1)) {
     TowerDets forwardTowers1 = trigTowers.towerIds(forwardDet1);
-    std::cout << "Trigger Tower Size: Forward1 " << forwardTowers1.size() << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Trigger Tower Size: Forward1 " << forwardTowers1.size();
     assert(!forwardTowers1.empty());
     for (unsigned int k = 0; k < forwardTowers1.size(); ++k)
-      std::cout << "Tower[" << k << "] " << forwardTowers1[k] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Tower[" << k << "] " << forwardTowers1[k];
   }
   if (topology.valid(forwardDet2)) {
     TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
-    std::cout << "Trigger Tower Size: Forward2 " << forwardTowers2.size() << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Trigger Tower Size: Forward2 " << forwardTowers2.size();
     assert(!forwardTowers2.empty());
     for (unsigned int k = 0; k < forwardTowers2.size(); ++k)
-      std::cout << "Tower[" << k << "] " << forwardTowers2[k] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Tower[" << k << "] " << forwardTowers2[k];
   }
   if (topology.valid(forwardDet3)) {
     TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
-    std::cout << "Trigger Tower Size: Forward3 " << forwardTowers3.size() << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Trigger Tower Size: Forward3 " << forwardTowers3.size();
     assert(!forwardTowers3.empty());
     for (unsigned int k = 0; k < forwardTowers3.size(); ++k)
-      std::cout << "Tower[" << k << "] " << forwardTowers3[k] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Tower[" << k << "] " << forwardTowers3[k];
   }
 }
 
@@ -241,7 +242,7 @@ void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
     HcalDetId ihid = (topology.denseId2detId(dins[counter]));
     s << counter << ": din " << (*i) << " :" << hid << " == " << ihid << std::endl;
   }
-  std::cout << s.str();
+  edm::LogVerbatim("HCalGeom") << s.str();
 }
 
 void HcalGeometryTester::testFlexiGeomHF(CaloSubdetectorGeometry* caloGeom) {
@@ -258,7 +259,7 @@ void HcalGeometryTester::testFlexiGeomHF(CaloSubdetectorGeometry* caloGeom) {
         << std::endl;
     }
   }
-  std::cout << s.str();
+  edm::LogVerbatim("HCalGeom") << s.str();
 }
 
 DEFINE_FWK_MODULE(HcalGeometryTester);

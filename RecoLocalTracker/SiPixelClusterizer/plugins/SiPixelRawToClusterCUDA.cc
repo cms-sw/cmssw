@@ -72,12 +72,12 @@ private:
   std::unique_ptr<PixelUnpackingRegions> regions_;
 
   pixelgpudetails::SiPixelRawToClusterGPUKernel gpuAlgo_;
-  std::unique_ptr<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender> wordFedAppender_;
   PixelDataFormatter::Errors errors_;
 
   const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
+  uint32_t nDigis_;
   const SiPixelClusterThresholds clusterThresholds_;
 };
 
@@ -102,11 +102,6 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
   if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
     regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
   }
-
-  edm::Service<CUDAService> cs;
-  if (cs->enabled()) {
-    wordFedAppender_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender>();
-  }
 }
 
 void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -114,6 +109,10 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
+  // Note: this parameter is obsolete: it is ignored and will have no effect.
+  // It is kept to avoid breaking older configurations, and will not be printed in the generated cfi.py file.
+  desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
   desc.add<int32_t>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
   desc.add<int32_t>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
@@ -177,13 +176,18 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   errors_.clear();
 
   // GPU specific: Data extraction for RawToDigi GPU
-  unsigned int wordCounterGPU = 0;
+  unsigned int wordCounter = 0;
   unsigned int fedCounter = 0;
   bool errorsInEvent = false;
 
+  std::vector<unsigned int> index(fedIds_.size(), 0);
+  std::vector<cms_uint32_t const*> start(fedIds_.size(), nullptr);
+  std::vector<ptrdiff_t> words(fedIds_.size(), 0);
+
   // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
   ErrorChecker errorcheck;
-  for (int fedId : fedIds_) {
+  for (uint32_t i = 0; i < fedIds_.size(); ++i) {
+    const int fedId = fedIds_[i];
     if (regions_ && !regions_->mayUnpackFED(fedId))
       continue;
 
@@ -231,19 +235,32 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
     const cms_uint32_t* ew = (const cms_uint32_t*)(trailer);
 
     assert(0 == (ew - bw) % 2);
-    wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew - bw));
-    wordCounterGPU += (ew - bw);
+    index[i] = wordCounter;
+    start[i] = bw;
+    words[i] = (ew - bw);
+    wordCounter += (ew - bw);
 
   }  // end of for loop
+
+  nDigis_ = wordCounter;
+
+  if (nDigis_ == 0)
+    return;
+
+  // copy the FED data to a single cpu buffer
+  pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender wordFedAppender(nDigis_, ctx.stream());
+  for (uint32_t i = 0; i < fedIds_.size(); ++i) {
+    wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
+  }
 
   gpuAlgo_.makeClustersAsync(isRun2_,
                              clusterThresholds_,
                              gpuMap,
                              gpuModulesToUnpack,
                              gpuGains,
-                             *wordFedAppender_,
+                             wordFedAppender,
                              std::move(errors_),
-                             wordCounterGPU,
+                             wordCounter,
                              fedCounter,
                              useQuality_,
                              includeErrors_,
@@ -253,6 +270,16 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 
 void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   cms::cuda::ScopedContextProduce ctx{ctxState_};
+
+  if (nDigis_ == 0) {
+    // default construct collections and place them in event
+    ctx.emplace(iEvent, digiPutToken_, SiPixelDigisCUDA{});
+    ctx.emplace(iEvent, clusterPutToken_, SiPixelClustersCUDA{});
+    if (includeErrors_) {
+      ctx.emplace(iEvent, digiErrorPutToken_, SiPixelDigiErrorsCUDA{});
+    }
+    return;
+  }
 
   auto tmp = gpuAlgo_.getResults();
   ctx.emplace(iEvent, digiPutToken_, std::move(tmp.first));

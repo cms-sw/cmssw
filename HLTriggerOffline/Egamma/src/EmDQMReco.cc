@@ -36,7 +36,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -205,7 +204,6 @@ void EmDQMReco::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 //       book DQM histograms                                                  //
 ////////////////////////////////////////////////////////////////////////////////
 void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup) {
-  // edm::Service<TFileService> fs;
   iBooker.setCurrentFolder(dirname_);
 
   ////////////////////////////////////////////////////////////

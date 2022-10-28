@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
+#include <atomic>
 
 namespace edm {
   namespace eventsetup {
@@ -12,6 +13,9 @@ namespace edm {
       description.label_ = iConfiguration.getParameter<std::string>("@module_label");
 
       description.pid_ = iConfiguration.id();
+      static std::atomic<unsigned int> s_id{0};
+      description.id_ = s_id++;
+
       return description;
     }
 

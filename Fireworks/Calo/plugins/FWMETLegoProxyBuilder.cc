@@ -18,10 +18,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWMETLegoProxyBuilder(const FWMETLegoProxyBuilder&) = delete;                   // stop default
   const FWMETLegoProxyBuilder& operator=(const FWMETLegoProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::MET>::build;
   void build(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <array>
 #include <cassert>
 
 // user include files
@@ -20,8 +21,9 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 //
@@ -47,6 +49,14 @@ namespace edm {
       }
     }
 
+    template <typename T>
+    void ProducingModuleAdaptorBase<T>::deleteModulesEarly() {
+      for (auto m : m_streamModules) {
+        delete m;
+      }
+      m_streamModules.clear();
+    }
+
     //
     // member functions
     //
@@ -55,6 +65,7 @@ namespace edm {
     void ProducingModuleAdaptorBase<T>::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       m_streamModules.resize(iPrealloc.numberOfStreams(), static_cast<T*>(nullptr));
       setupStreamModules();
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
@@ -173,6 +184,22 @@ namespace edm {
     }
 
     template <typename T>
+    ProductResolverIndex ProducingModuleAdaptorBase<T>::transformPrefetch_(size_t iTransformIndex) const {
+      return 0;
+    }
+    template <typename T>
+    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::BranchDescription const& iBranch) const {
+      return 0;
+    }
+    template <typename T>
+    void ProducingModuleAdaptorBase<T>::doTransformAsync(WaitingTaskHolder iTask,
+                                                         size_t iTransformIndex,
+                                                         EventPrincipal const& iEvent,
+                                                         ActivityRegistry*,
+                                                         ModuleCallingContext const* iMCC,
+                                                         ServiceWeakToken const&) {}
+
+    template <typename T>
     void ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {
       m_streamModules[id]->beginStream(id);
     }
@@ -192,11 +219,8 @@ namespace edm {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         mod->esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), parentC};
       mod->beginRun(r, c);
     }
 
@@ -208,11 +232,8 @@ namespace edm {
       Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(mod);
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::EndRun),
-                         mod->esGetTokenIndices(Transition::EndRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), parentC};
       mod->endRun(r, c);
       streamEndRunSummary(mod, r, c);
     }
@@ -231,8 +252,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       mod->beginLuminosityBlock(lb, c);
     }
 
@@ -247,8 +267,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          mod->esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod, lb, c);
     }

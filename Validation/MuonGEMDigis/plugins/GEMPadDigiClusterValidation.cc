@@ -21,17 +21,21 @@ GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet
 void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                  edm::Run const& Run,
                                                  edm::EventSetup const& setup) {
-  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
+  const auto& gemH = setup.getHandle(geomTokenBeginRun_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/ClusterSize");
+  booker.setCurrentFolder("GEM/PadCluster");
 
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
 
-  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
+  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0, 10);
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
@@ -45,7 +49,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
       if (detail_plot_) {
         me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "pad", "Pad Cluster");
         me_detail_pad_cluster_occ_det_[key2] =
-            bookDetectorOccupancy(booker, key2, station, "matched_pad", "Pad Cluster");
+            bookDetectorOccupancy(booker, key2, station, "sim_matched", "Pad Cluster");
       }
 
       const auto& superChamberVec = station->superChambers();
@@ -74,11 +78,11 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
         Int_t num_pads = etaPartitionVec.front()->npads();
 
         me_total_cluster_[key3] =
-            bookHist1D(booker, key3, "total_pad_cluster", "Number of pad digi cluster per event", 21, -0.5, 20.5);
+            bookHist1D(booker, key3, "total_pad_cluster", "Number of pad digi cluster per event", 20, 0, 20);
 
         me_pad_cluster_occ_eta_[key3] = bookHist1D(booker,
                                                    key3,
-                                                   "matched_pad_occ_eta",
+                                                   "sim_matched_occ_eta",
                                                    "Matched Pad Cluster Eta Occupancy",
                                                    16,
                                                    eta_range_[station_id * 2 + 0],
@@ -86,7 +90,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                    "#eta");
 
         me_pad_cluster_occ_phi_[key3] = bookHist1D(
-            booker, key3, "matched_pad_occ_phi", "Matched Pad Cluster Phi Occupancy", 36, -5, 355, "#phi [degrees]");
+            booker, key3, "sim_matched_occ_phi", "Matched Pad Cluster Phi Occupancy", 36, -5, 355, "#phi [degrees]");
 
         if (detail_plot_) {
           me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "pad", "Pad Cluster");
@@ -105,7 +109,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                     "Pad number");
 
           me_detail_occ_pad_[key3] =
-              bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0.5, num_pads + 0.5, "Pad number");
+              bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0, num_pads, "Pad number");
         }
       }  // end loop over layer ids
     }    // end loop over station ids
@@ -113,8 +117,6 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/BunchCrossing");
-
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
       for (const auto& station : region->stations()) {
@@ -136,7 +138,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3(region_id, station_id, layer_id);
           me_detail_bx_[key3] =
-              bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
+              bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2, 3, "Bunch crossing");
         }  // chamber loop
       }    // station loop
     }      // region loop
@@ -156,7 +158,12 @@ Bool_t GEMPadDigiClusterValidation::matchClusterAgainstSimHit(GEMPadDigiClusterC
 }
 
 void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = &setup.getData(geomToken_);
+  const auto& gemH = setup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
 
   edm::Handle<GEMPadDigiClusterCollection> collection;
   event.getByToken(pad_cluster_token_, collection);
@@ -204,10 +211,6 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     ME3IdsKey key3(region_id, station_id, layer_id);
 
     for (auto digi = range.first; digi != range.second; ++digi) {
-      // ignore 16-partition GE2/1 pads
-      if (gemid.isGE21() and digi->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
-        continue;
-
       const auto& padsVec = digi->pads();
       if (padsVec.empty()) {
         edm::LogError(kLogCategory_) << "Pads missing for digi from GEM ID = " << gemid;

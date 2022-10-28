@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TCDS"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/OnlineMetaData"/>

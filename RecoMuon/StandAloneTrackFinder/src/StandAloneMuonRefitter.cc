@@ -9,21 +9,21 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const MuonServiceProxy* service)
-    : theService(service) {
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
+                                               edm::ConsumesCollector col,
+                                               const MuonServiceProxy* service)
+    : theService(service), theFitterToken(col.esConsumes(edm::ESInputTag("", par.getParameter<string>("FitterName")))) {
   LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Constructor called." << endl;
 
-  theFitterName = par.getParameter<string>("FitterName");
   theNumberOfIterations = par.getParameter<unsigned int>("NumberOfIterations");
   isForceAllIterations = par.getParameter<bool>("ForceAllIterations");
   theMaxFractionOfLostHits = par.getParameter<double>("MaxFractionOfLostHits");
@@ -39,7 +39,7 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter() {
 
 /// Refit
 StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Trajectory& trajectory) {
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName, theFitter);
+  theFitter = theService->eventSetup().getHandle(theFitterToken);
 
   vector<Trajectory> refitted;
 

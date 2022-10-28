@@ -3,10 +3,9 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondTools/RPC/interface/RPCDBSimSetUp.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
@@ -16,7 +15,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-class CondReader : public edm::EDAnalyzer {
+class CondReader : public edm::one::EDAnalyzer<> {
 public:
   CondReader(const edm::ParameterSet& iConfig);
 
@@ -26,19 +25,20 @@ public:
 private:
   unsigned long long since;
   unsigned long long till;
+  edm::ESGetToken<RPCObImon, RPCObImonRcd> condRcd_token_;
 };
 
 CondReader::CondReader(const edm::ParameterSet& iConfig)
     : since(iConfig.getUntrackedParameter<unsigned long long>("since", 0)),
-      till(iConfig.getUntrackedParameter<unsigned long long>("till", 0)) {}
+      till(iConfig.getUntrackedParameter<unsigned long long>("till", 0)),
+      condRcd_token_(esConsumes()) {}
 
 CondReader::~CondReader() {}
 
 void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
-  edm::ESHandle<RPCObImon> condRcd;
-  evtSetup.get<RPCObImonRcd>().get(condRcd);
+  const RPCObImon* cond = &evtSetup.getData(condRcd_token_);
   edm::LogInfo("CondReader") << "[CondReader::analyze] End Reading Cond" << std::endl;
 
   std::cout << "Run start: " << since << " - Run stop: " << till << std::endl;
@@ -52,7 +52,6 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
   int ntimeT = (tTime.hour() * 10000) + (tTime.minute() * 100) + tTime.second();
   std::cout << "Run start: " << ndateS << " " << ntimeS << " - Run stop: " << ndateT << " " << ntimeT << std::endl;
 
-  const RPCObImon* cond = condRcd.product();
   std::vector<RPCObImon::I_Item> mycond = cond->ObImon_rpc;
   std::vector<RPCObImon::I_Item>::iterator icond;
 

@@ -3,10 +3,29 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <random>
+#include <string>
 
-#include "writeMultipleRecords.h"
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+// class decleration
+class writeMultipleRecords : public edm::one::EDAnalyzer<> {
+public:
+  explicit writeMultipleRecords(const edm::ParameterSet& iConfig);
+  ~writeMultipleRecords();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {}
+
+private:
+  std::string m_PedRecordName;
+  std::string m_StripRecordName;
+};
 
 typedef std::minstd_rand base_generator_type;
 writeMultipleRecords::writeMultipleRecords(const edm::ParameterSet& iConfig) {
@@ -30,7 +49,7 @@ void writeMultipleRecords::analyze(const edm::Event& evt, const edm::EventSetup&
     return;
   }
   try {
-    mySiStripNoises* me = new mySiStripNoises;
+    mySiStripNoises me;
     unsigned int detidseed = 1234;
     unsigned int bsize = 10;
     unsigned int nAPV = 2;
@@ -42,31 +61,27 @@ void writeMultipleRecords::analyze(const edm::Event& evt, const edm::EventSetup&
         std::cout << strip << std::endl;
         float noise = uni();
         ;
-        me->setData(noise, theSiStripVector);
+        me.setData(noise, theSiStripVector);
       }
-      me->put(detid, theSiStripVector);
+      me.put(detid, theSiStripVector);
     }
 
-    mydbservice->writeOne(me, mydbservice->currentTime(), m_StripRecordName);
+    mydbservice->writeOneIOV(me, mydbservice->currentTime(), m_StripRecordName);
 
-    Pedestals* myped = new Pedestals;
+    Pedestals myped;
     for (int ichannel = 1; ichannel <= 5; ++ichannel) {
       Pedestals::Item item;
       item.m_mean = 1.11 * ichannel;
       item.m_variance = 1.12 * ichannel;
-      myped->m_pedestals.push_back(item);
+      myped.m_pedestals.push_back(item);
     }
-    mydbservice->writeOne(myped, mydbservice->currentTime(), m_PedRecordName);
+    mydbservice->writeOneIOV(myped, mydbservice->currentTime(), m_PedRecordName);
   } catch (const cond::Exception& er) {
     throw cms::Exception("DBOutputServiceUnitTestFailure", "failed writeMultipleRecords", er);
     //std::cout<<er.what()<<std::endl;
   } catch (const cms::Exception& er) {
     throw cms::Exception("DBOutputServiceUnitTestFailure", "failed writeMultipleRecords", er);
-  } /*catch(const std::exception& er){
-    std::cout<<"caught std::exception "<<er.what()<<std::endl;
-  }catch(...){
-    std::cout<<"Funny error"<<std::endl;
-    }*/
+  }
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeMultipleRecords);

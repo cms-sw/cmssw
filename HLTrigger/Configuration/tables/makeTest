@@ -9,4 +9,4 @@ TARGET="/users/sdonato/tmp"         # directory where to store the sub-tables
 TABLES="GRun"                 # which sub-tables to create
 
 source subtables.sh
-createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v3/run3" "$MASTER" "$TARGET" "$TABLES"

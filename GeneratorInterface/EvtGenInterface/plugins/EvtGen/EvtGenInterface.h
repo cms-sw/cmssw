@@ -18,7 +18,6 @@
 #include "EvtGenBase/EvtParticle.hh"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"

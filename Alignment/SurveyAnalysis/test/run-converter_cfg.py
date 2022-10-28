@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DATACONVERTER")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'auto:phase1_2021_realistic'
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Alignment.SurveyAnalysis.SurveyInfoScenario_cff")

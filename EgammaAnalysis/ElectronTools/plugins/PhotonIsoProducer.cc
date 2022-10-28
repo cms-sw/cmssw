@@ -3,11 +3,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -22,7 +22,7 @@
 // class declaration
 //
 
-class PhotonIsoProducer : public edm::EDFilter {
+class PhotonIsoProducer : public edm::stream::EDFilter<> {
 public:
   explicit PhotonIsoProducer(const edm::ParameterSet&);
   ~PhotonIsoProducer() override;
@@ -117,15 +117,14 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     isolator.fGetIsolation(&*aPho, &thePfColl, myVtxRef, vertexCollection);
 
     if (verbose_) {
-      std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event "
-                << iEvent.id().event();
-      std::cout << " pt " << aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi() << " charge "
-                << aPho->charge() << " : " << std::endl;
-      ;
+      edm::LogPrint("PhotonIsoProducer") << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock()
+                                         << " event " << iEvent.id().event();
+      edm::LogPrint("PhotonIsoProducer") << " pt " << aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi()
+                                         << " charge " << aPho->charge() << " : ";
 
-      std::cout << " ChargedIso " << isolator.getIsolationCharged() << std::endl;
-      std::cout << " PhotonIso " << isolator.getIsolationPhoton() << std::endl;
-      std::cout << " NeutralHadron Iso " << isolator.getIsolationNeutral() << std::endl;
+      edm::LogPrint("PhotonIsoProducer") << " ChargedIso " << isolator.getIsolationCharged();
+      edm::LogPrint("PhotonIsoProducer") << " PhotonIso " << isolator.getIsolationPhoton();
+      edm::LogPrint("PhotonIsoProducer") << " NeutralHadron Iso " << isolator.getIsolationNeutral();
     }
 
     chIsoValues.push_back(isolator.getIsolationCharged());

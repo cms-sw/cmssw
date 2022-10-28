@@ -6,10 +6,8 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAnalyzer::MuonPathAnalyzer(const ParameterSet& pset, edm::ConsumesCollector& iC) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-}
+MuonPathAnalyzer::MuonPathAnalyzer(const ParameterSet& pset, edm::ConsumesCollector& iC)
+    : debug_(pset.getUntrackedParameter<bool>("debug")) {}
 
 MuonPathAnalyzer::~MuonPathAnalyzer() {}
 

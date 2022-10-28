@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from .SequenceTypes import *
 from .Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer, Service, ESProducer, ESSource, _Module
 from .Mixins import _Labelable
-import six
 
 # Use this on Tasks in the Schedule
 class ScheduleTaskValidator(object):
@@ -68,6 +67,36 @@ class EndPathValidator(object):
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
 
+# Use this on EndPaths
+class FinalPathValidator(object):
+    def __init__(self):
+        self.__label = ''
+        self._levelInTasks = 0
+        self.filtersOnFinalpaths = []
+        self.producersOnFinalpaths = []
+    def setLabel(self,label):
+        self.__label = "'"+label+"' "
+    def enter(self,visitee):
+        if visitee.isLeaf():
+            if isinstance(visitee, _Labelable):
+                if not visitee.hasLabel_():
+                    raise ValueError("FinalPath "+self.__label+"contains a module of type '"+visitee.type_()+"' which has\nno assigned label.")
+            elif isinstance(visitee, Service):
+                if not visitee._inProcess:
+                    raise ValueError("FinalPath "+self.__label+"contains a service of type '"+visitee.type_()+"' which is not attached to the process.\n")
+        if isinstance(visitee, Task):
+            self._levelInTasks += 1
+        if self._levelInTasks > 0:
+            return
+        if isinstance(visitee,EDFilter):
+            self.filtersOnFinalpaths.append(visitee.type_())
+        if isinstance(visitee,EDProducer):
+            self.producersOnFinalpaths.append(visitee.type_())
+    def leave(self,visitee):
+        if self._levelInTasks > 0:
+            if isinstance(visitee, Task):
+                self._levelInTasks -= 1
+
 class NodeVisitor(object):
     """Form sets of all modules, ESProducers, ESSources and Services in visited objects. Can be used
     to visit Paths, EndPaths, Sequences or Tasks. Includes in sets objects on sub-Sequences and sub-Tasks"""
@@ -91,26 +120,31 @@ class NodeVisitor(object):
 
 class CompositeVisitor(object):
     """ Combines 3 different visitor classes in 1 so we only have to visit all the paths and endpaths once"""
-    def __init__(self, validator, node, decorated):
+    def __init__(self, validator, node, decorated, optional=None):
         self._validator = validator
         self._node = node
         self._decorated = decorated
+        self._optional = optional
     def enter(self, visitee):
         self._validator.enter(visitee)
         self._node.enter(visitee)
         self._decorated.enter(visitee)
+        if self._optional:
+          self._optional.enter(visitee)
     def leave(self, visitee):
         self._validator.leave(visitee)
         # The node visitor leave function does nothing
         #self._node.leave(visitee)
         self._decorated.leave(visitee)
+        if self._optional:
+          self._optional.leave(visitee)
 
 class ModuleNamesFromGlobalsVisitor(object):
     """Fill a list with the names of Event module types in a sequence. The names are determined
     by using globals() to lookup the variable names assigned to the modules. This
     allows the determination of the labels before the modules have been attached to a Process."""
     def __init__(self,globals_,l):
-        self._moduleToName = { v[1]:v[0] for v in six.iteritems(globals_) if isinstance(v[1],_Module) }
+        self._moduleToName = { v[1]:v[0] for v in globals_.items() if isinstance(v[1],_Module) }
         self._names =l
     def enter(self,node):
         if isinstance(node,_Module):

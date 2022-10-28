@@ -7,12 +7,11 @@
 #include "DataFormats/Math/interface/FastMath.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "SimG4CMS/Calo/interface/HGCScintSD.h"
+#include "SimG4CMS/Calo/interface/CaloSimUtils.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
@@ -31,7 +30,7 @@
 //#define EDM_ML_DEBUG
 
 HGCScintSD::HGCScintSD(const std::string& name,
-                       const edm::EventSetup& es,
+                       const HGCalDDDConstants* hgc,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
@@ -41,10 +40,11 @@ HGCScintSD::HGCScintSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
-      hgcons_(nullptr),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT1_(99),
-      levelT2_(99) {
+      levelT2_(99),
+      firstLayer_(0) {
   numberingScheme_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCScintSD");
@@ -56,6 +56,7 @@ HGCScintSD::HGCScintSD(const std::string& name,
   birk2_ = m_HGC.getParameter<double>("BirkC2");
   birk3_ = m_HGC.getParameter<double>("BirkC3");
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
+  fileName_ = m_HGC.getUntrackedParameter<std::string>("TileFileName");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -82,12 +83,34 @@ HGCScintSD::HGCScintSD(const std::string& name,
                              << "**************************************************";
 #endif
   edm::LogVerbatim("HGCSim") << "HGCScintSD:: Threshold for storing hits: " << eminHit_ << " for " << nameX_
-                             << " detector " << mydet_;
+                             << " detector " << mydet_ << " File " << fileName_;
   edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits " << storeAllG4Hits_;
   edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
                              << "boundary " << fiducialCut_ << " at " << distanceFromEdge_;
   edm::LogVerbatim("HGCSim") << "Use of Birks law is set to      " << useBirk_
                              << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+
+  if (!fileName_.empty()) {
+    edm::FileInPath filetmp("SimG4CMS/Calo/data/" + fileName_);
+    std::string fileName = filetmp.fullPath();
+    std::ifstream fInput(fileName.c_str());
+    if (!fInput.good()) {
+      edm::LogVerbatim("HGCSim") << "Cannot open file " << fileName;
+    } else {
+      char buffer[80];
+      while (fInput.getline(buffer, 80)) {
+        std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
+        if (items.size() > 2) {
+          int layer = std::atoi(items[0].c_str());
+          int ring = std::atoi(items[1].c_str());
+          int phi = std::atoi(items[2].c_str());
+          tiles_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, phi));
+        }
+      }
+      edm::LogVerbatim("HGCSim") << "Reads in " << tiles_.size() << " tile information from " << fileName_;
+      fInput.close();
+    }
+  }
 }
 
 double HGCScintSD::getEnergyDeposit(const G4Step* aStep) {
@@ -137,7 +160,7 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
   int iz(globalZ > 0 ? 1 : -1);
 
   int layer(0), module(-1), cell(-1);
-  if (geom_mode_ == HGCalGeometryMode::TrapezoidModule) {
+  if ((geom_mode_ == HGCalGeometryMode::TrapezoidModule) || (geom_mode_ == HGCalGeometryMode::TrapezoidCassette)) {
     layer = touch->GetReplicaNumber(1);
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
@@ -172,6 +195,18 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
+  bool debug(false);
+  if (!tiles_.empty()) {
+    HGCScintillatorDetId hid(id);
+    int indx = HGCalTileIndex::tileIndex(firstLayer_ + hid.layer(), hid.ring(), hid.iphi());
+    if (std::find(tiles_.begin(), tiles_.end(), indx) != tiles_.end())
+      debug = true;
+  }
+  if (debug)
+    edm::LogVerbatim("HGCSim") << "Layer:module:cell:iz " << layer << ":" << module << ":" << cell << ":" << iz
+                               << "  Point (" << hitPoint.x() << ", " << hitPoint.y() << ", " << hitPoint.z() << ") "
+                               << HGCScintillatorDetId(id);
+
   if (!isItinFidVolume(hitPoint)) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec << " " << HGCScintillatorDetId(id)
@@ -183,21 +218,18 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void HGCScintSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es->get<IdealGeometryRecord>().get(nameX_, hdc);
-  if (hdc.isValid()) {
-    hgcons_ = hdc.product();
+  if (hgcons_ != nullptr) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    firstLayer_ = hgcons_->firstLayer() - 1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCScintSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                               << " top Level " << levelT1_ << ":" << levelT2_;
+                               << " top Level " << levelT1_ << ":" << levelT2_ << " FirstLayer " << firstLayer_;
 #endif
 
-    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, fileName_);
   } else {
     throw cms::Exception("Unknown", "HGCScintSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

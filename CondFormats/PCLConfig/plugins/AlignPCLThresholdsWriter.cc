@@ -15,6 +15,7 @@
 //
 
 // system include files
+#include <array>
 #include <memory>
 
 // user include files
@@ -26,6 +27,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -37,52 +39,95 @@ namespace DOFs {
   enum dof { X, Y, Z, thetaX, thetaY, thetaZ, extraDOF };
 }
 
+template <typename T>
 class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit AlignPCLThresholdsWriter(const edm::ParameterSet&);
-  ~AlignPCLThresholdsWriter() override;
+  ~AlignPCLThresholdsWriter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
   DOFs::dof mapOntoEnum(std::string coord);
+
+  void writePayload(T& myThresholds);
+  void storeHGthresholds(AlignPCLThresholdsHG& myThresholds, const std::vector<std::string>& alignables);
 
   // ----------member data ---------------------------
   const std::string m_record;
   const unsigned int m_minNrecords;
   const std::vector<edm::ParameterSet> m_parameters;
-  AlignPCLThresholds* myThresholds;
 };
 
 //
 // constructors and destructor
 //
-AlignPCLThresholdsWriter::AlignPCLThresholdsWriter(const edm::ParameterSet& iConfig)
+template <typename T>
+AlignPCLThresholdsWriter<T>::AlignPCLThresholdsWriter(const edm::ParameterSet& iConfig)
     : m_record(iConfig.getParameter<std::string>("record")),
       m_minNrecords(iConfig.getParameter<unsigned int>("minNRecords")),
-      m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds")) {
-  //now do what ever initialization is needed
-  myThresholds = new AlignPCLThresholds();
-}
-
-AlignPCLThresholdsWriter::~AlignPCLThresholdsWriter() { delete myThresholds; }
+      m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds")) {}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <typename T>
+void AlignPCLThresholdsWriter<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // detect if new payload is used
+  bool newClass = false;
+  for (auto& thePSet : m_parameters) {
+    if (thePSet.exists("fractionCut")) {
+      newClass = true;
+      break;
+    }
+  }
+
+  T myThresholds{};
+  if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+    if (newClass) {
+      this->writePayload(myThresholds);
+    } else {
+      throw cms::Exception("AlignPCLThresholdsWriter") << "mismatched configuration";
+    }
+  } else {
+    if (!newClass) {
+      this->writePayload(myThresholds);
+    } else {
+      throw cms::Exception("AlignPCLThresholdsWriter") << "mismatched configuration";
+    }
+  }
+}
+
+template <typename T>
+DOFs::dof AlignPCLThresholdsWriter<T>::mapOntoEnum(std::string coord) {
+  if (coord == "X") {
+    return DOFs::X;
+  } else if (coord == "Y") {
+    return DOFs::Y;
+  } else if (coord == "Z") {
+    return DOFs::Z;
+  } else if (coord == "thetaX") {
+    return DOFs::thetaX;
+  } else if (coord == "thetaY") {
+    return DOFs::thetaY;
+  } else if (coord == "thetaZ") {
+    return DOFs::thetaZ;
+  } else {
+    return DOFs::extraDOF;
+  }
+}
+
+// ------------ templated method to write the payload  ------------
+template <typename T>
+void AlignPCLThresholdsWriter<T>::writePayload(T& myThresholds) {
   using namespace edm;
 
-  edm::LogInfo("AlignPCLThresholdsWriter") << "Size of AlignPCLThresholds object " << myThresholds->size() << std::endl
-                                           << std::endl;
+  edm::LogInfo("AlignPCLThresholdsWriter") << "Size of AlignPCLThresholds object " << myThresholds.size() << std::endl;
 
   // loop on the PSet and insert the conditions
-
   std::array<std::string, 6> mandatories = {{"X", "Y", "Z", "thetaX", "thetaY", "thetaZ"}};
   std::vector<std::string> alignables;
 
@@ -149,14 +194,14 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
         }
 
         AlignPCLThreshold a(my_X, my_tX, my_Y, my_tY, my_Z, my_tZ, extraDOFs);
-        myThresholds->setAlignPCLThreshold(alignableId, a);
+        myThresholds.setAlignPCLThreshold(alignableId, a);
 
       }  // if alignable is found in the PSet
     }    // loop on the PSets
 
     // checks if all mandatories are present
     edm::LogInfo("AlignPCLThresholdsWriter")
-        << "Size of AlignPCLThresholds object  " << myThresholds->size() << std::endl;
+        << "Size of AlignPCLThresholds object  " << myThresholds.size() << std::endl;
     for (auto& mandatory : mandatories) {
       if (std::find(presentDOF.begin(), presentDOF.end(), mandatory) == presentDOF.end()) {
         edm::LogWarning("AlignPCLThresholdsWriter")
@@ -168,51 +213,80 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
   }  // ends loop on the alignable units
 
   // set the minimum number of records to be used in pede
-  myThresholds->setNRecords(m_minNrecords);
+  myThresholds.setNRecords(m_minNrecords);
   edm::LogInfo("AlignPCLThresholdsWriter") << "Content of AlignPCLThresholds " << std::endl;
 
-  // use buil-in method in the CondFormat
-  myThresholds->printAll();
+  // additional thresholds for AlignPCLThresholdsHG
+  if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+    storeHGthresholds(myThresholds, alignables);
+  }
+
+  // use built-in method in the CondFormat
+  myThresholds.printAll();
 
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myThresholds, valid_time, m_record);
+    poolDbService->writeOneIOV(myThresholds, valid_time, m_record);
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void AlignPCLThresholdsWriter::beginJob() {}
+// ------------ method to store additional HG thresholds ------------
+template <typename T>
+void AlignPCLThresholdsWriter<T>::storeHGthresholds(AlignPCLThresholdsHG& myThresholds,
+                                                    const std::vector<std::string>& alignables) {
+  edm::LogInfo("AlignPCLThresholdsWriter")
+      << "Found type AlignPCLThresholdsHG, additional thresholds are written" << std::endl;
 
-// ------------ method called once each job just after ending the event loop  ------------
-void AlignPCLThresholdsWriter::endJob() {}
+  for (auto& alignable : alignables) {
+    for (auto& thePSet : m_parameters) {
+      const std::string alignableId(thePSet.getParameter<std::string>("alignableId"));
+      const std::string DOF(thePSet.getParameter<std::string>("DOF"));
 
-DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(std::string coord) {
-  if (coord == "X") {
-    return DOFs::X;
-  } else if (coord == "Y") {
-    return DOFs::Y;
-  } else if (coord == "Z") {
-    return DOFs::Z;
-  } else if (coord == "thetaX") {
-    return DOFs::thetaX;
-  } else if (coord == "thetaY") {
-    return DOFs::thetaY;
-  } else if (coord == "thetaZ") {
-    return DOFs::thetaZ;
-  } else {
-    return DOFs::extraDOF;
+      // Get coordType from DOF
+      AlignPCLThresholds::coordType type = static_cast<AlignPCLThresholds::coordType>(mapOntoEnum(DOF));
+
+      if (alignableId == alignable) {
+        if (thePSet.exists("fractionCut")) {
+          const double fractionCut(thePSet.getParameter<double>("fractionCut"));
+          myThresholds.setFractionCut(alignableId, type, fractionCut);
+        }
+      }
+    }
   }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void AlignPCLThresholdsWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T>
+void AlignPCLThresholdsWriter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.setComment("Plugin to write payloads of type AlignPCLThresholds");
+  desc.add<unsigned int>("minNRecords", 25000);
+  edm::ParameterSetDescription desc_thresholds;
+
+  desc_thresholds.add<std::string>("alignableId");
+  desc_thresholds.add<std::string>("DOF");
+  desc_thresholds.add<double>("cut");
+  desc_thresholds.add<double>("sigCut");
+  desc_thresholds.add<double>("maxMoveCut");
+  desc_thresholds.add<double>("maxErrorCut");
+  if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+    desc.add<std::string>("record", "AlignPCLThresholdsHGRcd");
+    //optional thresholds from new payload version (not for all the alignables)
+    desc_thresholds.addOptional<double>("fractionCut");
+  } else {
+    desc.add<std::string>("record", "AlignPCLThresholdsRcd");
+  }
+
+  std::vector<edm::ParameterSet> default_thresholds(1);
+  desc.addVPSet("thresholds", desc_thresholds, default_thresholds);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(AlignPCLThresholdsWriter);
+typedef AlignPCLThresholdsWriter<AlignPCLThresholds> AlignPCLThresholdsLGWriter;
+typedef AlignPCLThresholdsWriter<AlignPCLThresholdsHG> AlignPCLThresholdsHGWriter;
+
+DEFINE_FWK_MODULE(AlignPCLThresholdsLGWriter);
+DEFINE_FWK_MODULE(AlignPCLThresholdsHGWriter);

@@ -52,11 +52,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "There are " << layers.size() << " blocks" << st1.str();
 #endif
   const auto& nCells = args.value<int>("NCells");
-  const auto& cellType = args.value<int>("CellType");
+  const auto& cellTypeX = args.value<int>("CellType");
   const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellType << " NameSpace "
-                                << ns.name() << " # of cells " << cellNames.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellTypeX
+                                << " NameSpace " << ns.name() << " # of cells " << cellNames.size();
   for (unsigned int k = 0; k < cellNames.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames[k];
   int counter(0);
@@ -135,15 +135,20 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     thickTot += layerThick[i];
 
     if (layerType[i] > 0) {
+      int n2 = nCells / 2;
+      double y0 = (cellTypeX >= 3) ? 0.5 : 0.0;
+      double x0 = (cellTypeX >= 3) ? 0.5 : 1.0;
+      int voff = (cellTypeX >= 3) ? 0 : 1;
+      int uoff = 1 - voff;
+      int cellType = (cellTypeX >= 3) ? (cellTypeX - 3) : cellTypeX;
       for (int u = 0; u < 2 * nCells; ++u) {
         for (int v = 0; v < 2 * nCells; ++v) {
-          if (((v - u) < nCells) && (u - v) <= nCells) {
+          if (((v - u) < (nCells + uoff)) && (u - v) < (nCells + voff)) {
 #ifdef EDM_ML_DEBUG
             counter++;
 #endif
-            int n2 = nCells / 2;
-            double yp = (u - 0.5 * v - n2) * 2 * r;
-            double xp = (1.5 * (v - nCells) + 1.0) * R;
+            double yp = (u - 0.5 * v - n2 + y0) * 2 * r;
+            double xp = (1.5 * (v - nCells) + x0) * R;
             int cell(0);
             if ((u == 0) && (v == 0))
               cell = 7;

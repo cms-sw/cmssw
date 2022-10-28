@@ -1,5 +1,32 @@
-#include "Basic2DGenericTopoClusterizer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
+
+class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
+  typedef Basic2DGenericTopoClusterizer B2DGT;
+
+public:
+  Basic2DGenericTopoClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc), _useCornerCells(conf.getParameter<bool>("useCornerCells")) {}
+  ~Basic2DGenericTopoClusterizer() override = default;
+  Basic2DGenericTopoClusterizer(const B2DGT&) = delete;
+  B2DGT& operator=(const B2DGT&) = delete;
+
+  void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
+                     const std::vector<bool>&,
+                     const std::vector<bool>&,
+                     reco::PFClusterCollection&) override;
+
+private:
+  const bool _useCornerCells;
+  void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
+                        const std::vector<bool>&,  // masked rechits
+                        unsigned int,              //present rechit
+                        std::vector<bool>&,        // hit usage state
+                        reco::PFCluster&);         // the topocluster
+};
+
+DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DGenericTopoClusterizer, "Basic2DGenericTopoClusterizer");
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)

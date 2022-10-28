@@ -11,7 +11,7 @@ class G4VPhysicalVolume;
 class CMSG4CheckOverlap {
 public:
   CMSG4CheckOverlap(edm::ParameterSet const& p, std::string& regFile, CustomUIsession*, G4VPhysicalVolume* world);
-  ~CMSG4CheckOverlap();
+  ~CMSG4CheckOverlap() = default;
 
 private:
   void makeReportForMaterials(std::ofstream& fout);

@@ -94,3 +94,6 @@ void CaloTowerCreatorForTauHLT::fillDescriptions(edm::ConfigurationDescriptions&
   desc.setComment("Produce tower collection around L1ExtraJetParticle seed.");
   desc.add("caloTowerMakerHLT", aDesc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CaloTowerCreatorForTauHLT);

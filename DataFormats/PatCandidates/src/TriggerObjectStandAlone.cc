@@ -1,4 +1,4 @@
-#include <tbb/concurrent_unordered_map.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include <boost/algorithm/string.hpp>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -413,12 +413,10 @@ std::vector<std::string> const *TriggerObjectStandAlone::allLabels(edm::Paramete
     const unsigned int n(triggerNames.size());
     std::set<std::string> saveTags;
     for (unsigned int i = 0; i != n; ++i) {
-      if (pset->existsAs<vector<string> >(triggerNames.triggerName(i), true)) {
-        auto modules = pset->getParameter<vector<string> >(triggerNames.triggerName(i));
-        for (size_t m = 0; m < modules.size(); m++) {
-          auto module = modules[m];
-          auto moduleStrip = module.front() != '-' ? module : module.substr(1);
-
+      if (pset->existsAs<vector<string>>(triggerNames.triggerName(i), true)) {
+        auto const &modules = pset->getParameter<vector<string>>(triggerNames.triggerName(i));
+        for (auto const &module : modules) {
+          auto const moduleStrip = module.front() != '-' and module.front() != '!' ? module : module.substr(1);
           if (pset->exists(moduleStrip)) {
             const auto &modulePSet = pset->getParameterSet(moduleStrip);
             if (modulePSet.existsAs<bool>("saveTags", true) and modulePSet.getParameter<bool>("saveTags")) {
@@ -430,7 +428,7 @@ std::vector<std::string> const *TriggerObjectStandAlone::allLabels(edm::Paramete
     }
     std::vector<std::string> allModules(saveTags.begin(), saveTags.end());
     std::pair<AllLabelsMap::iterator, bool> ret =
-        allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(psetid, allModules));
+        allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string>>(psetid, allModules));
     return &(ret.first->second);
   }
   return nullptr;

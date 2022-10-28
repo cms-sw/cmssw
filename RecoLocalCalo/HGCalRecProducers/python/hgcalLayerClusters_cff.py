@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cfi import hgcalLayerClusters as hgcalLayerClusters_
 
-from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX, HGCalRecHit
+from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import HGCalRecHit
 
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibRecHit
 
@@ -11,7 +11,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, HGCA
 hgcalLayerClusters = hgcalLayerClusters_.clone(
     timeOffset = hgceeDigitizer.tofDelay,
     plugin = dict(
-        dEdXweights = dEdX.weights.value(),
+        dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
         #we extend fcPerMip (along with noises below) so that it is guaranteed that they have 6 entries.
         fcPerMip = HGCalUncalibRecHit.HGCEEConfig.fCPerMIP.value() + HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP.value(),
@@ -30,7 +30,7 @@ hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     timeOffset = hfnoseDigitizer.tofDelay.value(),
     nHitsTime = 3,
     plugin = dict(
-        dEdXweights = dEdX.weightsNose.value(),
+        dEdXweights = HGCalRecHit.layerNoseWeights.value(),
         maxNumberOfThickIndices = 3,
         fcPerMip = HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP.value(),
         thicknessCorrection = HGCalRecHit.thicknessNoseCorrection.value(),

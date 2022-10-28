@@ -46,17 +46,17 @@ public:
   void changed(const FWEventItem*);
   void endChanges();
 
-  sigc::signal<void> changeSignalsAreComing_;
-  sigc::signal<void> changeSignalsAreDone_;
+  sigc::signal<void()> changeSignalsAreComing_;
+  sigc::signal<void()> changeSignalsAreDone_;
 
   void newItemSlot(FWEventItem*);
   void itemsGoingToBeClearedSlot(void);
 
-private:
   FWModelChangeManager(const FWModelChangeManager&) = delete;  // stop default
 
   const FWModelChangeManager& operator=(const FWModelChangeManager&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   unsigned int m_depth;
   std::vector<FWModelIds> m_changes;

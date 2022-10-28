@@ -106,6 +106,7 @@ The argument 'corners' controls the types of wafers the user wants: for instance
 }
 
 bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
+  // for V15 and V16
   bool good(false);
   int n2 = n / 2;
   int n4 = n / 4;
@@ -394,7 +395,76 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   return good;
 }
 
+bool HGCalWaferMask::goodCell(int u, int v, int waferType) {
+  // for V17
+  bool good(false);
+  switch (waferType) {
+    case (HGCalTypes::WaferFull): {  //WaferFull
+      good = true;
+      break;
+    }
+    case (HGCalTypes::WaferLDTop): {
+      good = (u * HGCalTypes::edgeWaferLDTop[0] + v * HGCalTypes::edgeWaferLDTop[1] <= HGCalTypes::edgeWaferLDTop[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDBottom): {
+      good = (u * HGCalTypes::edgeWaferLDBottom[0] + v * HGCalTypes::edgeWaferLDBottom[1] <=
+              HGCalTypes::edgeWaferLDBottom[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDLeft): {
+      good =
+          (u * HGCalTypes::edgeWaferLDLeft[0] + v * HGCalTypes::edgeWaferLDLeft[1] <= HGCalTypes::edgeWaferLDLeft[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDRight): {
+      good = (u * HGCalTypes::edgeWaferLDRight[0] + v * HGCalTypes::edgeWaferLDRight[1] <=
+              HGCalTypes::edgeWaferLDRight[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDFive): {
+      good =
+          (u * HGCalTypes::edgeWaferLDFive[0] + v * HGCalTypes::edgeWaferLDFive[1] <= HGCalTypes::edgeWaferLDFive[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDThree): {
+      good = (u * HGCalTypes::edgeWaferLDThree[0] + v * HGCalTypes::edgeWaferLDThree[1] <=
+              HGCalTypes::edgeWaferLDThree[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDTop): {
+      good = (u * HGCalTypes::edgeWaferHDTop[0] + v * HGCalTypes::edgeWaferHDTop[1] <= HGCalTypes::edgeWaferHDTop[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDBottom): {
+      good = (u * HGCalTypes::edgeWaferHDBottom[0] + v * HGCalTypes::edgeWaferHDBottom[1] <=
+              HGCalTypes::edgeWaferHDBottom[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDLeft): {
+      good =
+          (u * HGCalTypes::edgeWaferHDLeft[0] + v * HGCalTypes::edgeWaferHDLeft[1] <= HGCalTypes::edgeWaferHDLeft[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDRight): {
+      good = (u * HGCalTypes::edgeWaferHDRight[0] + v * HGCalTypes::edgeWaferHDRight[1] <=
+              HGCalTypes::edgeWaferHDRight[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDFive): {
+      good =
+          (u * HGCalTypes::edgeWaferHDFive[0] + v * HGCalTypes::edgeWaferHDFive[1] <= HGCalTypes::edgeWaferHDFive[2]);
+      break;
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " WaferType " << waferType << " good " << good;
+#endif
+  return good;
+}
+
 int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
+  // Needs extension for V17
   if (rotn >= HGCalTypes::WaferCornerMax)
     rotn = HGCalTypes::WaferCorner0;
   int newrotn(rotn);
@@ -441,6 +511,7 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const int& wType,
                                                 const int& mode,
                                                 bool debug) {
+  // No need to extend this for V17 -- use flat file information only
   int ncor(0), iok(0);
   int type(HGCalTypes::WaferFull), rotn(HGCalTypes::WaferCorner0);
 
@@ -675,11 +746,12 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
     edm::LogVerbatim("HGCalGeom") << "I/p " << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":"
                                   << rout << ":" << wType << ":" << mode << " o/p " << iok << ":" << ncor << ":" << type
                                   << ":" << rotn;
-  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalWaferMask::k_OffsetRotation)));
+  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalTypes::k_OffsetRotation)));
 }
 
 bool HGCalWaferMask::goodTypeMode(
     double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug) {
+  // Needs extension for V17
   if (part < 0 || part > HGCalTypes::WaferSizeMax)
     return false;
   if (rotn < 0 || rotn > HGCalTypes::WaferCornerMax)
@@ -1002,11 +1074,35 @@ bool HGCalWaferMask::goodTypeMode(
 
 std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
     int part, int ori, int zside, double delX, double delY, double xpos, double ypos) {
+  // Good for V15 and V16 versions
   std::vector<std::pair<double, double> > xy;
   int orient = getRotation(-zside, part, ori);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Part " << part << " zSide " << zside << " Orient " << ori << ":" << orient;
 #endif
+  /*
+    The exact contour of partial wafers are obtained by joining points on
+    the circumference of a full wafer.
+    Numbering the points along the edges of a hexagonal wafer, starting from
+    the bottom corner:
+
+                                   3
+                               15     18
+                             9           8
+                          19               14
+                        4                     2 
+                       16                    23
+                       10                     7
+                       20                    13
+                        5                     1
+                          17               22
+                            11           6
+                               21     12
+                                   0
+
+	Depending on the wafer type and orientation index, the corners
+	are chosen in the variable *np*
+  */
   double dx[24] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
                    HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
@@ -1144,6 +1240,273 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "I/p: " << part << ":" << ori << ":" << zside << ":" << delX << ":" << delY << ":"
                                 << xpos << ":" << ypos << " O/p having " << xy.size() << " points:";
+  std::ostringstream st1;
+  for (unsigned int i = 0; i < xy.size(); ++i)
+    st1 << " [" << i << "] " << xy[i].first << ":" << xy[i].second;
+  edm::LogVerbatim("HGCalGeom") << st1.str();
+#endif
+  return xy;
+}
+
+std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
+    int part, int place, double delX, double delY, double xpos, double ypos) {
+  std::vector<std::pair<double, double> > xy;
+  // Good for V17 version and uses partial wafer type & placement index
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Part " << part << " Placement Index " << place;
+#endif
+  /*
+    The exact contour of partial wafers are obtained by joining points on
+    the circumference of a full wafer.
+    Numbering the points along the edges of a hexagonal wafer, starting from
+    the bottom corner:
+
+                                   3
+                               15     18
+                             9           8
+                          19               14
+                        4                     2 
+                       16                    23
+                       10                     7
+                       20                    13
+                        5                     1
+                          17               22
+                            11           6
+                               21     12
+                                   0
+
+	Depending on the wafer type and placement index, the corners
+	are chosen in the variable *np*
+  */
+  double dx[24] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
+                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
+  double dy[24] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+                   HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
+                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
+                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
+                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
+                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
+  if (part == HGCalTypes::WaferFull) {
+    int np[7] = {0, 1, 2, 3, 4, 5, 0};
+    for (int k = 0; k < 7; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[k]]), (ypos + dy[np[k]])));
+  } else if (part == HGCalTypes::WaferLDTop) {
+    int np[12][5] = {{0, 1, 4, 5, 0},
+                     {1, 2, 5, 0, 1},
+                     {2, 3, 0, 1, 2},
+                     {3, 4, 1, 2, 3},
+                     {4, 5, 2, 3, 4},
+                     {5, 0, 3, 4, 5},
+                     {0, 1, 2, 5, 0},
+                     {5, 0, 1, 4, 5},
+                     {4, 5, 0, 3, 4},
+                     {3, 4, 5, 2, 3},
+                     {2, 3, 4, 1, 2},
+                     {1, 2, 3, 0, 1}};
+    for (int k = 0; k < 5; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferLDBottom) {
+    int np[12][5] = {{1, 2, 3, 4, 1},
+                     {2, 3, 4, 5, 2},
+                     {3, 4, 5, 0, 3},
+                     {4, 5, 0, 1, 4},
+                     {5, 0, 1, 2, 5},
+                     {0, 1, 2, 3, 0},
+                     {5, 2, 3, 4, 5},
+                     {4, 1, 2, 3, 4},
+                     {3, 0, 1, 2, 3},
+                     {2, 5, 0, 1, 2},
+                     {1, 4, 5, 0, 1},
+                     {0, 3, 4, 5, 0}};
+    for (int k = 0; k < 5; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferLDLeft) {
+    int np[12][6] = {{0, 1, 2, 8, 11, 0},
+                     {1, 2, 3, 9, 6, 1},
+                     {2, 3, 4, 10, 7, 2},
+                     {3, 4, 5, 11, 8, 3},
+                     {4, 5, 0, 6, 9, 4},
+                     {5, 0, 1, 7, 10, 5},
+                     {0, 6, 9, 4, 5, 0},
+                     {5, 11, 8, 3, 4, 5},
+                     {4, 10, 7, 2, 3, 4},
+                     {3, 9, 6, 1, 2, 3},
+                     {2, 8, 11, 0, 1, 2},
+                     {1, 7, 10, 5, 0, 1}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferLDRight) {
+    int np[12][6] = {{5, 11, 8, 3, 4, 5},
+                     {0, 6, 9, 4, 5, 0},
+                     {1, 7, 10, 5, 0, 1},
+                     {2, 8, 11, 0, 1, 2},
+                     {3, 9, 6, 1, 2, 3},
+                     {4, 10, 7, 2, 3, 4},
+                     {1, 2, 3, 9, 6, 1},
+                     {0, 1, 2, 8, 11, 0},
+                     {5, 0, 1, 7, 10, 5},
+                     {4, 5, 0, 6, 9, 4},
+                     {3, 4, 5, 11, 8, 3},
+                     {2, 3, 4, 10, 7, 2}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferLDFive) {
+    int np[12][6] = {{0, 1, 2, 3, 5, 0},
+                     {1, 2, 3, 4, 0, 1},
+                     {2, 3, 4, 5, 1, 2},
+                     {3, 4, 5, 0, 2, 3},
+                     {4, 5, 0, 1, 3, 4},
+                     {5, 0, 1, 2, 4, 5},
+                     {0, 1, 3, 4, 5, 0},
+                     {5, 0, 2, 3, 4, 5},
+                     {4, 5, 1, 2, 3, 4},
+                     {3, 4, 0, 1, 2, 3},
+                     {2, 3, 5, 0, 1, 2},
+                     {1, 2, 4, 5, 0, 1}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferLDThree) {
+    int np[12][4] = {{5, 3, 4, 5},
+                     {0, 4, 5, 0},
+                     {1, 5, 0, 1},
+                     {2, 0, 1, 2},
+                     {3, 1, 2, 3},
+                     {4, 2, 3, 4},
+                     {1, 2, 3, 1},
+                     {0, 1, 2, 0},
+                     {5, 0, 1, 5},
+                     {4, 5, 0, 4},
+                     {3, 4, 5, 3},
+                     {2, 3, 4, 2}};
+    for (int k = 0; k < 4; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferHDTop) {
+    int np[12][5] = {{0, 22, 16, 5, 0},
+                     {1, 23, 17, 0, 1},
+                     {2, 18, 12, 1, 2},
+                     {3, 19, 13, 2, 3},
+                     {4, 20, 14, 3, 4},
+                     {5, 21, 15, 4, 5},
+                     {0, 1, 23, 17, 0},
+                     {5, 0, 22, 16, 5},
+                     {4, 5, 21, 15, 4},
+                     {3, 4, 20, 14, 3},
+                     {2, 3, 19, 13, 2},
+                     {1, 2, 18, 12, 1}};
+    for (int k = 0; k < 5; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferHDBottom) {
+    int np[12][7] = {{1, 2, 3, 4, 16, 22, 1},
+                     {2, 3, 4, 5, 17, 23, 2},
+                     {3, 4, 5, 0, 12, 18, 3},
+                     {4, 5, 0, 1, 13, 19, 4},
+                     {5, 0, 1, 2, 14, 20, 5},
+                     {0, 1, 2, 3, 15, 21, 0},
+                     {5, 17, 23, 2, 3, 4, 5},
+                     {4, 16, 22, 1, 2, 3, 4},
+                     {3, 15, 21, 0, 1, 2, 3},
+                     {2, 14, 20, 5, 0, 1, 2},
+                     {1, 13, 19, 4, 5, 0, 1},
+                     {0, 12, 18, 3, 4, 5, 0}};
+    for (int k = 0; k < 7; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferHDLeft) {
+    int np[12][6] = {{0, 1, 2, 14, 21, 0},
+                     {1, 2, 3, 15, 22, 1},
+                     {2, 3, 4, 16, 23, 2},
+                     {3, 4, 5, 17, 18, 3},
+                     {4, 5, 0, 12, 19, 4},
+                     {5, 0, 1, 13, 20, 5},
+                     {0, 12, 19, 4, 5, 0},
+                     {5, 17, 18, 3, 4, 5},
+                     {4, 16, 23, 2, 3, 4},
+                     {3, 15, 22, 1, 2, 3},
+                     {2, 14, 21, 0, 1, 2},
+                     {1, 13, 20, 5, 0, 1}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferHDRight) {
+    int np[12][6] = {{5, 17, 18, 3, 4, 5},
+                     {0, 12, 19, 4, 5, 0},
+                     {1, 13, 20, 5, 0, 1},
+                     {2, 14, 21, 0, 1, 2},
+                     {3, 15, 22, 1, 2, 3},
+                     {4, 16, 23, 2, 3, 4},
+                     {1, 2, 3, 15, 22, 1},
+                     {0, 1, 2, 14, 21, 0},
+                     {5, 0, 1, 13, 20, 5},
+                     {4, 5, 0, 12, 19, 4},
+                     {3, 4, 5, 17, 18, 3},
+                     {2, 3, 4, 16, 23, 2}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  } else if (part == HGCalTypes::WaferHDFive) {
+    int np[12][6] = {{0, 1, 2, 18, 17, 0},
+                     {1, 2, 3, 19, 12, 1},
+                     {2, 3, 4, 20, 13, 2},
+                     {3, 4, 5, 21, 14, 3},
+                     {4, 5, 0, 22, 15, 4},
+                     {5, 0, 1, 23, 16, 5},
+                     {0, 22, 15, 4, 5, 0},
+                     {5, 21, 14, 3, 4, 5},
+                     {4, 20, 13, 2, 3, 4},
+                     {3, 19, 12, 1, 2, 3},
+                     {2, 18, 17, 0, 1, 2},
+                     {1, 23, 16, 5, 0, 1}};
+    for (int k = 0; k < 6; ++k) {
+      xy.push_back(std::make_pair((xpos + dx[np[place][k]]), (ypos + dy[np[place][k]])));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
+#endif
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "I/p: " << part << ":" << place << ":" << delX << ":" << delY << ":" << xpos << ":"
+                                << ypos << " O/p having " << xy.size() << " points:";
   std::ostringstream st1;
   for (unsigned int i = 0; i < xy.size(); ++i)
     st1 << " [" << i << "] " << xy[i].first << ":" << xy[i].second;

@@ -65,8 +65,9 @@ trackSelector = cms.EDFilter('TrackSelector',
 )
 
 ### highpurity definition: https://cmssdt.cern.ch/SDT/lxr/source/RecoTracker/FinalTrackSelectors/python/selectHighPurity_cfi.py
-highPurityPtRange0to1 = trackSelector.clone()
-highPurityPtRange0to1.cut = cms.string("quality('highPurity') & pt >= 0 & pt < 1 ")
+highPurityPtRange0to1 = trackSelector.clone(
+    cut = "quality('highPurity') & pt >= 0 & pt < 1 "
+)
 
 sequenceName    ['highPurityPtRange0to1'] = highPurityPtRange0to1
 allTrackProducer['highPurityPtRange0to1'] = 'generalTracks'
@@ -97,8 +98,9 @@ doEffFromHitPatternVsBX             ['highPurityPtRange0to1'] = cms.bool(False)
 doEffFromHitPatternVsLumi           ['highPurityPtRange0to1'] = cms.bool(False)
 doStopSource                        ['highPurityPtRange0to1'] = cms.bool(True)
 
-highPurityPtRange1to10 = trackSelector.clone()
-highPurityPtRange1to10.cut = cms.string("quality('highPurity') & pt >= 1 & pt < 10 ")
+highPurityPtRange1to10 = trackSelector.clone(
+    cut = "quality('highPurity') & pt >= 1 & pt < 10 "
+)
 
 sequenceName    ['highPurityPtRange1to10'] = highPurityPtRange1to10 
 allTrackProducer['highPurityPtRange1to10'] = 'generalTracks'
@@ -128,8 +130,9 @@ doEffFromHitPatternVsBX             ['highPurityPtRange1to10'] = cms.bool(False)
 doEffFromHitPatternVsLumi           ['highPurityPtRange1to10'] = cms.bool(False)
 doStopSource                        ['highPurityPtRange1to10'] = cms.bool(True)
 
-highPurityPt10 = trackSelector.clone()
-highPurityPt10.cut = cms.string("quality('highPurity') & pt >= 10")
+highPurityPt10 = trackSelector.clone(
+    cut = "quality('highPurity') & pt >= 10"
+)
 
 sequenceName    ['highPurityPt10'] = highPurityPt10 
 allTrackProducer['highPurityPt10'] = 'generalTracks'
@@ -160,8 +163,9 @@ doEffFromHitPatternVsLumi           ['highPurityPt10'] = cms.bool(False)
 doStopSource                        ['highPurityPt10'] = cms.bool(True)
 
 ###### old monitored track collections
-highPurityPt1 = trackSelector.clone()
-highPurityPt1.cut = cms.string("quality('highPurity') & pt >= 1")
+highPurityPt1 = trackSelector.clone(
+    cut = "quality('highPurity') & pt >= 1"
+)
 
 sequenceName    ['highPurityPt1'] = highPurityPt1
 allTrackProducer['highPurityPt1'] = 'generalTracks'
@@ -193,8 +197,9 @@ doEffFromHitPatternVsLumi           ['highPurityPt1'] = cms.bool(True)
 doStopSource                        ['highPurityPt1'] = cms.bool(True)
 
 ###### forward-only monitored track collections
-highPurityPt1Eta2p5to3p0 = trackSelector.clone()
-highPurityPt1Eta2p5to3p0.cut = cms.string("quality('highPurity') & pt >= 1 & abs(eta) > 2.5")
+highPurityPt1Eta2p5to3p0 = trackSelector.clone(
+    cut = "quality('highPurity') & pt >= 1 & abs(eta) > 2.5"
+)
 
 sequenceName    ['highPurityPt1Eta2p5to3p0'] = highPurityPt1Eta2p5to3p0
 allTrackProducer['highPurityPt1Eta2p5to3p0'] = 'generalTracks'
@@ -232,46 +237,49 @@ doStopSource                        ['highPurityPt1Eta2p5to3p0'] = cms.bool(True
 ###### association is dz<1mm 
 from CommonTools.RecoAlgos.TrackWithVertexSelector_cfi import *
 
-trackAssociated2pvSelector = trackWithVertexSelector.clone()
-# the track collection
-trackAssociated2pvSelector.src = cms.InputTag('generalTracks')
-# kinematic cuts  (pT in GeV)
-trackAssociated2pvSelector.etaMin = cms.double(0.0)
-trackAssociated2pvSelector.etaMax = cms.double(5.0)
-trackAssociated2pvSelector.ptMin = cms.double(0.0)
-trackAssociated2pvSelector.ptMax = cms.double(100000.0)
-# impact parameter cut (in cm)
-trackAssociated2pvSelector.d0Max = cms.double(999.)
-trackAssociated2pvSelector.dzMax = cms.double(999.)
-# quality cuts (valid hits, normalized chi2)
-trackAssociated2pvSelector.normalizedChi2         = cms.double(999999.)
-trackAssociated2pvSelector.numberOfValidHits      = cms.uint32(0)
-trackAssociated2pvSelector.numberOfLostHits       = cms.uint32(999) ## at most 999 lost hits
-trackAssociated2pvSelector.numberOfValidPixelHits = cms.uint32(0) ## at least <n> hits in the pixels
-trackAssociated2pvSelector.ptErrorCut             = cms.double(9999999.) ## [pTError/pT]*max(1,normChi2) <= ptErrorCut
-trackAssociated2pvSelector.quality = cms.string("highPurity") # quality cut as defined in reco::TrackBase
-# compatibility with a vertex ?
-trackAssociated2pvSelector.useVtx       = cms.bool(True)
-trackAssociated2pvSelector.vertexTag    = cms.InputTag('trackingDQMgoodOfflinePrimaryVertices')
-trackAssociated2pvSelector.timesTag     = cms.InputTag('')
-trackAssociated2pvSelector.timeResosTag = cms.InputTag('')
-trackAssociated2pvSelector.nVertices    = cms.uint32(1) ## how many vertices to look at before dropping the track
-trackAssociated2pvSelector.vtxFallback  = cms.bool(True) ## falback to beam spot if there are no vertices
-# uses vtx=(0,0,0) with deltaZeta=15.9, deltaRho = 0.2
-trackAssociated2pvSelector.zetaVtx        = cms.double(999.)
-#trackAssociated2pvSelector.rhoVtx         = cms.double(0.2) ## tags used by b-tagging folks
-trackAssociated2pvSelector.rhoVtx         = cms.double(999.) ## tags used by b-tagging folks
-trackAssociated2pvSelector.nSigmaDtVertex = cms.double(0)
-# should _not_ be used for the TrackWithVertexRefSelector
-trackAssociated2pvSelector.copyExtras       = cms.untracked.bool(False) ## copies also extras and rechits on RECO
-trackAssociated2pvSelector.copyTrajectories = cms.untracked.bool(False) # don't set this to true on AOD!
+trackAssociated2pvSelector = trackWithVertexSelector.clone(
+    # the track collection
+    src = 'generalTracks',
+    # kinematic cuts  (pT in GeV)
+    etaMin = 0.0,
+    etaMax = 5.0,
+    ptMin = 0.0,
+    ptMax = 100000.0,
+    # impact parameter cut (in cm)
+    d0Max = 999.,
+    dzMax = 999.,
+    # quality cuts (valid hits, normalized chi2)
+    normalizedChi2 = 999999.,
+    numberOfValidHits = 0,
+    numberOfLostHits = 999, ## at most 999 lost hits
+    numberOfValidPixelHits = 0, ## at least <n> hits in the pixels
+    ptErrorCut = 9999999., ## [pTError/pT]*max(1,normChi2) <= ptErrorCut
+    quality = "highPurity", # quality cut as defined in reco::TrackBase
+    # compatibility with a vertex ?
+    useVtx = True,
+    vertexTag = 'trackingDQMgoodOfflinePrimaryVertices',
+    timesTag = '',
+    timeResosTag = '',
+    nVertices = 1, ## how many vertices to look at before dropping the track
+    vtxFallback = True, ## falback to beam spot if there are no vertices
+    # uses vtx=(0,0,0) with deltaZeta=15.9, deltaRho = 0.2
+    zetaVtx = 999.,
+    #rhoVtx = 0.2, ## tags used by b-tagging folks
+    rhoVtx = 999., ## tags used by b-tagging folks
+    nSigmaDtVertex = 0.,
+    # should _not_ be used for the TrackWithVertexRefSelector
+    copyExtras = False, ## copies also extras and rechits on RECO
+    copyTrajectories = False # don't set this to true on AOD!
+)
 
-highPurityPV0p1 = trackAssociated2pvSelector.clone()
-highPurityPV0p1.zetaVtx = cms.double(0.1) # wrt PV
-#highPurityPV0p1.dzMax   = cms.double(0.1) # wrt BS
+highPurityPV0p1 = trackAssociated2pvSelector.clone(
+    zetaVtx = 0.1, # wrt PV
+    #dzMax = 0.1 # wrt BS
+)
 
-PV0p1 = highPurityPV0p1.clone()
-PV0p1.quality = cms.string("") # quality cut as defined in reco::TrackBase
+PV0p1 = highPurityPV0p1.clone(
+    quality = "" # quality cut as defined in reco::TrackBase
+)
 
 #sequenceName    ['highPurityPV0p1'] = highPurityPV0p1
 sequenceName    ['highPurityPV0p1'] = highPurityPV0p1+PV0p1
@@ -304,9 +312,10 @@ doEffFromHitPatternVsLumi           ['highPurityPV0p1'] = cms.bool(True)
 doStopSource                        ['highPurityPV0p1'] = cms.bool(True)
 
 #pixel tracks
-hiConformalPixelTracksQA = trackSelector.clone()
-hiConformalPixelTracksQA.src = cms.InputTag('hiConformalPixelTracks')
-hiConformalPixelTracksQA.cut = cms.string("chi2/ndof/hitPattern.trackerLayersWithMeasurement < 200")
+hiConformalPixelTracksQA = trackSelector.clone(
+    src = 'hiConformalPixelTracks',
+    cut = "chi2/ndof/hitPattern.trackerLayersWithMeasurement < 200"
+)
 
 sequenceName    ['hiConformalPixelTracksQA'] = hiConformalPixelTracksQA
 allTrackProducer['hiConformalPixelTracksQA'] = 'generalTracks'

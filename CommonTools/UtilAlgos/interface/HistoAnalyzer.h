@@ -10,7 +10,7 @@
  * - C : Concrete candidate collection type
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,7 +19,7 @@
 #include "CommonTools/UtilAlgos/interface/ExpressionHisto.h"
 
 template <typename C>
-class HistoAnalyzer : public edm::EDAnalyzer {
+class HistoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor from parameter set
   HistoAnalyzer(const edm::ParameterSet&);
@@ -47,6 +47,7 @@ HistoAnalyzer<C>::HistoAnalyzer(const edm::ParameterSet& par)
       usingWeights_(par.exists("weights")),
       weightsToken_(
           mayConsume<double>(par.template getUntrackedParameter<edm::InputTag>("weights", edm::InputTag("fake")))) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   std::vector<edm::ParameterSet> histograms = par.template getParameter<std::vector<edm::ParameterSet> >("histograms");
   std::vector<edm::ParameterSet>::const_iterator it = histograms.begin();

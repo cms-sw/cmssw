@@ -15,6 +15,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBBlockedCFEB.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCGEMData.h"
 #include <bitset>
 #include <boost/dynamic_bitset.hpp>
 #ifndef LOCAL_UNPACK
@@ -51,6 +52,8 @@ public:
   /// check this before using RPC
   bool hasRPC() const { return theRPCDataIsPresent; }
   CSCRPCData* rpcData() { return &theRPCData; }
+  bool hasGEM() const { return theGEMDataIsPresent; }
+  CSCGEMData* gemData();
 
   /// not const because it sets size int TMBTrailer
 
@@ -76,6 +79,7 @@ private:
   CSCTMBHeader theTMBHeader;
   CSCComparatorData theComparatorData;
   CSCRPCData theRPCData;
+  CSCGEMData theGEMData;
   /// The TMB scope is not present in most of data hence its dynamic
   bool theTMBScopeIsPresent;
   CSCTMBScope* theTMBScope;
@@ -97,6 +101,7 @@ private:
   unsigned short size_;
   unsigned short cWordCnt;
   bool theRPCDataIsPresent;
+  bool theGEMDataIsPresent;
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -132,13 +133,6 @@ uint16_t popcon::EcalDCSHandler::updateLV(RunDCSLVDat* lv, uint16_t dbStatus) co
     lv_nomi_on_dbstatus = 1;
   if (lv->getStatus() == RunDCSLVDat::LVOFF)
     lv_on_dbstatus = 1;
-
-  uint16_t lv_off_dbstatus = (dbStatus & (1 << EcalDCSTowerStatusHelper::LVSTATUS));
-  uint16_t lv_nomi_off_dbstatus = (dbStatus & (1 << EcalDCSTowerStatusHelper::LVNOMINALSTATUS));
-  if (lv_off_dbstatus > 0)
-    lv_off_dbstatus = 1;
-  if (lv_nomi_off_dbstatus > 0)
-    lv_nomi_off_dbstatus = 1;
 
   uint16_t temp = 0;
   for (int i = 0; i < 16; i++) {
@@ -272,6 +266,8 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
         ex_y[4] = 12;
         ex_x[5] = 6;
         ex_y[5] = 11;
+      } else {
+        throw cms::Exception("Invalid EcalLogicID") << "Unknown ECAL Endcap Dee number " << dee;
       }
 
       int modo = 1;
@@ -306,11 +302,11 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
               if (new_dbStatus != dbStatus) {
                 std::cout << "Dee/chan:" << dee << "/" << chan << " new db status =" << new_dbStatus << " old  "
                           << dbStatus << " HV: " << hv.getHV() << "/" << hv.getHVNominal() << std::endl;
-              }
-            }
-          }
-        }
-      }
+              }         // if (new_dbStatus != dbStatus)
+            }           // if (EcalScDetId::validDetId(ik, ip, iz))
+          }             // if (not_excluded)
+        }               // for (int ip = j1; ip <= j2; ip++)
+      }                 // for (int ik = i1; ik <= i2; ik++)
       if (chan == 1) {  // channel 1 has half a dee plus 6 more towers
         for (int l = 0; l < 6; l++) {
           int ik = ex_x[l];

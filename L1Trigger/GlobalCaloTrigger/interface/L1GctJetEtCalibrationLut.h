@@ -4,7 +4,7 @@
 #define JET_ET_CAL_LUT_ADD_BITS 11
 #define JET_ET_CAL_LUT_DAT_BITS 6
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctLut.h"
 
 class L1GctJetFinderParams;
 class L1CaloEtScale;

@@ -7,16 +7,15 @@
  *
 */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalCorrections/interface/EcalShowerContainmentCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalShowerContainmentCorrectionsRcd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -33,22 +32,21 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include <TFile.h>
-#include <TTree.h>
+#include "TFile.h"
+#include "TTree.h"
 
-#include <iostream>
 #include <vector>
 #include <map>
 
-class EcalShowerContainmentAnalyzer : public edm::EDAnalyzer {
+class EcalShowerContainmentAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
-  ~EcalShowerContainmentAnalyzer();
+  explicit EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
+  ~EcalShowerContainmentAnalyzer() override;
+
+  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup) override;
+  void endJob() override;
 
 protected:
-  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup);
-  void endJob();
-
   void readIntercalibrationConstants();
 
   std::vector<EBDetId> Xtals3x3(const edm::Event& iEvent, EBDetId centerXtal);
@@ -75,8 +73,20 @@ protected:
   // map of <xtal, amplitude>
   std::map<EBDetId, double> xtalmap_;
 
-  edm::InputTag inputTag_;
-  std::string intercalibrationCoeffFile_;
+  const edm::InputTag inputTag_;
+  const std::string intercalibrationCoeffFile_;
+
+  const std::string recHitProducer_;
+  const std::string ebRecHitCollection_;
+
+  const edm::EDGetTokenT<EcalTBEventHeader> tbEvtHeaderToken_;
+  const edm::EDGetTokenT<EcalTBHodoscopeRecInfo> tbHodoRecInfoToken_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> uncalibRecHitsToken_;
+  const edm::EDGetTokenT<EBRecHitCollection> ebRecHitsToken_;
+
+  const edm::ESGetToken<EcalShowerContainmentCorrections, EcalShowerContainmentCorrectionsRcd> showerContCorrToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> adcToGeVConstantToken_;
 
   struct Ntuple {
     int run;
@@ -101,12 +111,19 @@ protected:
 
 DEFINE_FWK_MODULE(EcalShowerContainmentAnalyzer);
 
-EcalShowerContainmentAnalyzer::EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps) {
+EcalShowerContainmentAnalyzer::EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps)
+    : inputTag_(ps.getUntrackedParameter<edm::InputTag>("EcalUnCalibratedRecHitsLabel")),
+      intercalibrationCoeffFile_(ps.getUntrackedParameter<std::string>("IntercalibFile")),
+      recHitProducer_("ecal2006TBRecHit"),
+      ebRecHitCollection_("EcalRecHitsEB"),
+      tbEvtHeaderToken_(consumes<EcalTBEventHeader>(edm::InputTag("ecalTBunpack"))),
+      tbHodoRecInfoToken_(consumes<EcalTBHodoscopeRecInfo>(
+          edm::InputTag("ecal2006TBHodoscopeReconstructor", "EcalTBHodoscopeRecInfo"))),
+      uncalibRecHitsToken_(consumes<EcalUncalibratedRecHitCollection>(inputTag_)),
+      ebRecHitsToken_(consumes<EBRecHitCollection>(edm::InputTag(recHitProducer_, ebRecHitCollection_))),
+      geometryToken_(esConsumes()),
+      adcToGeVConstantToken_(esConsumes()) {
   std::string outfilename = ps.getUntrackedParameter<std::string>("OutputFile", "testContCorrect.root");
-
-  inputTag_ = ps.getUntrackedParameter<edm::InputTag>("EcalUnCalibratedRecHitsLabel");
-
-  intercalibrationCoeffFile_ = ps.getUntrackedParameter<std::string>("IntercalibFile");
 
   file_ = new TFile(outfilename.c_str(), "recreate");
   tree_ = new TTree("test", "test");
@@ -128,7 +145,10 @@ EcalShowerContainmentAnalyzer::EcalShowerContainmentAnalyzer(const edm::Paramete
   readIntercalibrationConstants();
 }
 
-EcalShowerContainmentAnalyzer::~EcalShowerContainmentAnalyzer() {}
+EcalShowerContainmentAnalyzer::~EcalShowerContainmentAnalyzer() {
+  delete file_;
+  delete tree_;
+}
 
 void EcalShowerContainmentAnalyzer::endJob() {
   file_->cd();
@@ -142,19 +162,19 @@ void EcalShowerContainmentAnalyzer::analyze(edm::Event const& iEvent, const edm:
   fillxtalmap(iEvent);
 
   Handle<EcalTBEventHeader> pHeader;
-  iEvent.getByLabel("ecalTBunpack", pHeader);
+  iEvent.getByToken(tbEvtHeaderToken_, pHeader);
 
   ntuple_.run = pHeader->runNumber();
   ntuple_.event = pHeader->eventNumber();
 
   Handle<EcalTBHodoscopeRecInfo> pHodoscope;
-  iEvent.getByLabel("ecal2006TBHodoscopeReconstructor", "EcalTBHodoscopeRecInfo", pHodoscope);
+  iEvent.getByToken(tbHodoRecInfoToken_, pHodoscope);
 
   ntuple_.hodo_posx = pHodoscope->posX();
   ntuple_.hodo_posy = pHodoscope->posY();
 
   Handle<EcalUncalibratedRecHitCollection> pIn;
-  iEvent.getByLabel(inputTag_, pIn);
+  iEvent.getByToken(uncalibRecHitsToken_, pIn);
 
   // pick the hottest xtal
 
@@ -163,8 +183,6 @@ void EcalShowerContainmentAnalyzer::analyze(edm::Event const& iEvent, const edm:
   EBDetId maxid;
 
   for (iter = pIn->begin(); iter != pIn->end(); ++iter) {
-    //cout << "raw detid " << iter->id().rawId() << endl;
-
     EBDetId detid = iter->id();
 
     if (iter->amplitude() > maxampl) {
@@ -194,7 +212,7 @@ std::vector<EBDetId> EcalShowerContainmentAnalyzer::Xtals3x3(const edm::Event& i
   using namespace std;
 
   Handle<EcalUncalibratedRecHitCollection> pIn;
-  iEvent.getByLabel(inputTag_, pIn);
+  iEvent.getByToken(uncalibRecHitsToken_, pIn);
 
   // find the ids of the 3x3 matrix
   vector<EBDetId> Xtals3x3;
@@ -219,7 +237,7 @@ std::vector<EBDetId> EcalShowerContainmentAnalyzer::Xtals5x5(const edm::Event& i
   using namespace std;
 
   Handle<EcalUncalibratedRecHitCollection> pIn;
-  iEvent.getByLabel(inputTag_, pIn);
+  iEvent.getByToken(uncalibRecHitsToken_, pIn);
 
   // find the ids of the 3x3 matrix
   vector<EBDetId> Xtals5x5;
@@ -265,7 +283,7 @@ void EcalShowerContainmentAnalyzer::fillxtalmap(const edm::Event& iEvent) {
   using namespace edm;
 
   Handle<EcalUncalibratedRecHitCollection> pIn;
-  iEvent.getByLabel(inputTag_, pIn);
+  iEvent.getByToken(uncalibRecHitsToken_, pIn);
 
   EcalUncalibratedRecHitCollection::const_iterator iter;
 
@@ -284,17 +302,11 @@ std::pair<double, double> EcalShowerContainmentAnalyzer::contCorrection(const ed
   using namespace std;
   using namespace edm;
 
-  ESHandle<EcalShowerContainmentCorrections> pGapCorr;
-  iESetup.get<EcalShowerContainmentCorrectionsRcd>().get(pGapCorr);
+  const auto& gapCorr = iESetup.getData(showerContCorrToken_);
 
   Handle<EBRecHitCollection> pEBRecHits;
-  const EBRecHitCollection* EBRecHits = 0;
-
-  const std::string RecHitProducer_("ecal2006TBRecHit");
-  const std::string EBRecHitCollection_("EcalRecHitsEB");
-
-  iEvent.getByLabel(RecHitProducer_, EBRecHitCollection_, pEBRecHits);
-  EBRecHits = pEBRecHits.product();
+  iEvent.getByToken(ebRecHitsToken_, pEBRecHits);
+  const EBRecHitCollection* EBRecHits = pEBRecHits.product();
 
   map<string, double> posparam;
   posparam["LogWeighted"] = 1.0;
@@ -302,9 +314,7 @@ std::pair<double, double> EcalShowerContainmentAnalyzer::contCorrection(const ed
   posparam["T0"] = 6.2;
   posparam["W0"] = 4.0;
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iESetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
+  const auto& geometry = iESetup.getData(geometryToken_);
   const CaloSubdetectorGeometry* geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
   edm::FileInPath mapfile("Geometry/EcalTestBeam/data/BarrelSM1CrystalCenterElectron120GeV.dat");
@@ -324,18 +334,16 @@ std::pair<double, double> EcalShowerContainmentAnalyzer::contCorrection(const ed
 
   math::XYZPoint mathpoint(clusterPos.x(), clusterPos.y(), clusterPos.z());
 
-  double correction3x3 = pGapCorr->correction3x3(centerXtal, mathpoint);
-  double correction5x5 = pGapCorr->correction5x5(centerXtal, mathpoint);
+  double correction3x3 = gapCorr.correction3x3(centerXtal, mathpoint);
+  double correction5x5 = gapCorr.correction5x5(centerXtal, mathpoint);
 
   return std::make_pair(correction3x3, correction5x5);
 }
 
 // retrieve adctogev constant for xtalid from the database
 double EcalShowerContainmentAnalyzer::getAdcToGevConstant(const edm::EventSetup& eSetup) {
-  edm::ESHandle<EcalADCToGeVConstant> pIcal;
-  eSetup.get<EcalADCToGeVConstantRcd>().get(pIcal);
-  const EcalADCToGeVConstant* ical = pIcal.product();
-  return ical->getEBValue();
+  const auto& ical = eSetup.getData(adcToGeVConstantToken_);
+  return ical.getEBValue();
 }
 
 double EcalShowerContainmentAnalyzer::energy3x3(const edm::Event& iEvent, EBDetId centerXtal) {

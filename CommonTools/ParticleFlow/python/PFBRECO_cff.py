@@ -7,7 +7,7 @@ from CommonTools.ParticleFlow.pfPileUp_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
 pfPileUpIsoPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(pfPileUpIsoPFBRECO, Enable = False)
+pp_on_AA.toModify(pfPileUpIsoPFBRECO, enable = False)
 
 pfNoPileUpIsoPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpIsoPFBRECO',
                                          bottomCollection = 'particleFlowPtrs')

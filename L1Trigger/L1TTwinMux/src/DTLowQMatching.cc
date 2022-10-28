@@ -26,11 +26,7 @@ DTLowQMatching::DTLowQMatching(L1MuDTChambPhContainer const* inphiDTDigis, L1MuD
           // m_phiRPCDigis=inphiRPCDigis;
       };
 
-void DTLowQMatching::run(const edm::EventSetup& c) {
-  const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();
-  tmParamsRcd.get(tmParamsHandle);
-  const L1TTwinMuxParams& tmParams = *tmParamsHandle.product();
-
+void DTLowQMatching::run(const L1TTwinMuxParams& tmParams) {
   m_DphiWindow = tmParams.get_DphiWindowBxShift();
 
   Matching(0);

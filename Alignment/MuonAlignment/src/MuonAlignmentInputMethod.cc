@@ -33,8 +33,11 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputMethod::MuonAlignmentInputMethod() : idealGeometryLabel("idealForInputMethod") {}
-MuonAlignmentInputMethod::MuonAlignmentInputMethod(std::string idealLabel) : idealGeometryLabel(idealLabel) {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod() {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod(const DTGeometry* dtGeometry,
+                                                   const CSCGeometry* cscGeometry,
+                                                   const GEMGeometry* gemGeometry)
+    : dtGeometry_(dtGeometry), cscGeometry_(cscGeometry), gemGeometry_(gemGeometry) {}
 
 // MuonAlignmentInputMethod::MuonAlignmentInputMethod(const MuonAlignmentInputMethod& rhs)
 // {
@@ -59,14 +62,8 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 // member functions
 //
 
-AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-  return new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon() const {
+  return new AlignableMuon(&*dtGeometry_, &*cscGeometry_, &*gemGeometry_);
 }
 
 //

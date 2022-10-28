@@ -20,7 +20,7 @@
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -43,7 +43,7 @@
 // class decleration
 //
 
-class MuonGeometrySVGTemplate : public edm::EDAnalyzer {
+class MuonGeometrySVGTemplate : public edm::one::EDAnalyzer<> {
 public:
   explicit MuonGeometrySVGTemplate(const edm::ParameterSet &iConfig);
   ~MuonGeometrySVGTemplate() override;
@@ -59,21 +59,13 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 
 MuonGeometrySVGTemplate::MuonGeometrySVGTemplate(const edm::ParameterSet &iConfig)
     : m_wheelTemplateName(iConfig.getParameter<std::string>("wheelTemplateName")) {}
 
-MuonGeometrySVGTemplate::~MuonGeometrySVGTemplate() {}
+MuonGeometrySVGTemplate::~MuonGeometrySVGTemplate() = default;
 
 // ------------ method called to for each event  ------------
 void MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {

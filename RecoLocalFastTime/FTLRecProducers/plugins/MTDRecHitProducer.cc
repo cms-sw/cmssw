@@ -79,22 +79,30 @@ void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<FTLUncalibratedRecHitCollection> hBarrel;
   evt.getByToken(ftlbURecHits_, hBarrel);
-  barrelRechits->reserve(hBarrel->size() / 2);
-  for (const auto& uhit : *hBarrel) {
-    uint32_t flags = FTLRecHit::kGood;
-    auto rechit = barrel_->makeRecHit(uhit, flags);
-    if (flags == FTLRecHit::kGood)
-      barrelRechits->push_back(rechit);
+  if (hBarrel.isValid()) {
+    barrelRechits->reserve(hBarrel->size() / 2);
+    for (const auto& uhit : *hBarrel) {
+      uint32_t flags = FTLRecHit::kGood;
+      auto rechit = barrel_->makeRecHit(uhit, flags);
+      if (flags == FTLRecHit::kGood)
+        barrelRechits->push_back(rechit);
+    }
+  } else {
+    edm::LogWarning("MTDReco") << "MTDRecHitProducer: Missing Uncalibrated Barrel RecHit Collection";
   }
 
   edm::Handle<FTLUncalibratedRecHitCollection> hEndcap;
   evt.getByToken(ftleURecHits_, hEndcap);
-  endcapRechits->reserve(hEndcap->size() / 2);
-  for (const auto& uhit : *hEndcap) {
-    uint32_t flags = FTLRecHit::kGood;
-    auto rechit = endcap_->makeRecHit(uhit, flags);
-    if (flags == FTLRecHit::kGood)
-      endcapRechits->push_back(rechit);
+  if (hEndcap.isValid()) {
+    endcapRechits->reserve(hEndcap->size() / 2);
+    for (const auto& uhit : *hEndcap) {
+      uint32_t flags = FTLRecHit::kGood;
+      auto rechit = endcap_->makeRecHit(uhit, flags);
+      if (flags == FTLRecHit::kGood)
+        endcapRechits->push_back(rechit);
+    }
+  } else {
+    edm::LogWarning("MTDReco") << "MTDRecHitProducer: Missing Uncalibrated Endcap RecHit Collection";
   }
 
   // put the collection of recunstructed hits in the event

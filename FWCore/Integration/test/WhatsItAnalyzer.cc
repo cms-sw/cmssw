@@ -22,7 +22,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -39,7 +39,7 @@
 
 namespace edmtest {
 
-  class WhatsItAnalyzer : public edm::EDAnalyzer {
+  class WhatsItAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit WhatsItAnalyzer(const edm::ParameterSet&);
     ~WhatsItAnalyzer();
@@ -47,10 +47,14 @@ namespace edmtest {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
-    void getAndTest(GadgetRcd const& record, edm::ESHandle<WhatsIt>& handle, int expectedValue, const char* label);
+    void getAndTest(edm::EventSetup const&,
+                    edm::ESGetToken<WhatsIt, GadgetRcd> token,
+                    int expectedValue,
+                    const char* label);
 
     // ----------member data ---------------------------
     std::vector<int> expectedValues_;
+    std::vector<std::pair<edm::ESGetToken<WhatsIt, GadgetRcd>, const char*>> tokenAndLabel_;
     unsigned int index_;
   };
 
@@ -66,9 +70,15 @@ namespace edmtest {
   // constructors and destructor
   //
   WhatsItAnalyzer::WhatsItAnalyzer(const edm::ParameterSet& iConfig)
-      : expectedValues_(iConfig.getUntrackedParameter<std::vector<int> >("expectedValues", std::vector<int>())),
+      : expectedValues_(iConfig.getUntrackedParameter<std::vector<int>>("expectedValues", std::vector<int>())),
+        tokenAndLabel_(5),
         index_(0) {
     //now do what ever initialization is needed
+    int i = 0;
+    for (auto l : std::vector<const char*>({"", "A", "B", "C", "D"})) {
+      tokenAndLabel_[i].first = esConsumes(edm::ESInputTag("", l));
+      tokenAndLabel_[i++].second = l;
+    }
   }
 
   WhatsItAnalyzer::~WhatsItAnalyzer() {
@@ -82,27 +92,22 @@ namespace edmtest {
 
   // ------------ method called to produce the data  ------------
   void WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-    edm::ESHandle<WhatsIt> pSetup;
-    GadgetRcd const& gadgetRcd = iSetup.get<GadgetRcd>();
-
     if (index_ < expectedValues_.size()) {
       int expectedValue = expectedValues_.at(index_);
-      getAndTest(gadgetRcd, pSetup, expectedValue, "");
-      getAndTest(gadgetRcd, pSetup, expectedValue, "A");
-      getAndTest(gadgetRcd, pSetup, expectedValue, "B");
-      getAndTest(gadgetRcd, pSetup, expectedValue, "C");
-      getAndTest(gadgetRcd, pSetup, expectedValue, "D");
+      for (auto const& tl : tokenAndLabel_) {
+        getAndTest(iSetup, tl.first, expectedValue, tl.second);
+      }
       ++index_;
     }
   }
 
-  void WhatsItAnalyzer::getAndTest(GadgetRcd const& record,
-                                   edm::ESHandle<WhatsIt>& handle,
+  void WhatsItAnalyzer::getAndTest(const edm::EventSetup& iSetup,
+                                   edm::ESGetToken<WhatsIt, GadgetRcd> token,
                                    int expectedValue,
                                    const char* label) {
-    record.get(label, handle);
-    if (expectedValue != handle->a) {
-      throw cms::Exception("TestFail") << label << ": expected value " << expectedValue << " but got " << handle->a;
+    auto const& v = iSetup.getData(token);
+    if (expectedValue != v.a) {
+      throw cms::Exception("TestFail") << label << ": expected value " << expectedValue << " but got " << v.a;
     }
   }
 }  // namespace edmtest

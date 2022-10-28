@@ -28,8 +28,6 @@ namespace edmtest {
 
   DTT0Write::DTT0Write(int i) {}
 
-  DTT0Write::~DTT0Write() {}
-
   void DTT0Write::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
@@ -43,7 +41,7 @@ namespace edmtest {
       return;
     }
 
-    DTT0* t0 = new DTT0("cmssw_t0");
+    DTT0 t0("cmssw_t0");
 
     int status = 0;
     std::ifstream ifile("testT0.txt");
@@ -56,14 +54,14 @@ namespace edmtest {
     float t0m;
     float rms;
     while (ifile >> whe >> sta >> sec >> qua >> lay >> cel >> t0m >> rms) {
-      status = t0->set(whe, sta, sec, qua, lay, cel, t0m, rms, DTTimeUnits::counts);
+      status = t0.set(whe, sta, sec, qua, lay, cel, t0m, rms, DTTimeUnits::counts);
       std::cout << whe << " " << sta << " " << sec << " " << qua << " " << lay << " " << cel << " " << t0m << " " << rms
                 << "  -> ";
       std::cout << "insert status: " << status << std::endl;
     }
 
     if (dbservice->isNewTagRequest("DTT0Rcd")) {
-      dbservice->createNewIOV<DTT0>(t0, dbservice->beginOfTime(), dbservice->endOfTime(), "DTT0Rcd");
+      dbservice->createOneIOV<DTT0>(t0, dbservice->beginOfTime(), "DTT0Rcd");
     } else {
       std::cout << "already present tag" << std::endl;
       //      dbservice->appendSinceTime<DTT0>(

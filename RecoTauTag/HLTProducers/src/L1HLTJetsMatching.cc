@@ -22,7 +22,7 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig) {
 
 L1HLTJetsMatching::~L1HLTJetsMatching() {}
 
-void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void L1HLTJetsMatching::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -44,8 +44,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   iEvent.getByToken(tauTrigger, l1TriggeredTaus);
 
-  tauCandRefVec.clear();
-  jetCandRefVec.clear();
+  std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
 
   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet, tauCandRefVec);
   l1TriggeredTaus->getObjects(trigger::TriggerL1CenJet, jetCandRefVec);
@@ -91,3 +91,6 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
   iEvent.put(std::move(tauL2jets));
   // iEvent.put(std::move(tauL2LC));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1HLTJetsMatching);

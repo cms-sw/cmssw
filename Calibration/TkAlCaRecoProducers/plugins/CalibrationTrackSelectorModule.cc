@@ -1,5 +1,5 @@
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -17,7 +17,7 @@ struct SiStripCalTrackConfigSelector {
   typedef container::const_iterator const_iterator;
   typedef reco::TrackCollection collection;
 
-  SiStripCalTrackConfigSelector(const edm::ParameterSet &cfg, edm::ConsumesCollector &&iC) : theBaseSelector(cfg) {
+  SiStripCalTrackConfigSelector(const edm::ParameterSet &cfg, edm::ConsumesCollector &&iC) : theBaseSelector(cfg, iC) {
     // TODO Wrap the BaseSelector into its own PSet
     theBaseSwitch = cfg.getParameter<bool>("applyBasicCuts") || cfg.getParameter<bool>("minHitsPerSubDet") ||
                     cfg.getParameter<bool>("applyNHighestPt") || cfg.getParameter<bool>("applyMultiplicityFilter");
@@ -44,6 +44,6 @@ private:
   CalibrationTrackSelector theBaseSelector;
 };
 
-typedef ObjectSelectorStream<SiStripCalTrackConfigSelector> CalibrationTrackSelectorModule;
+typedef ObjectSelector<SiStripCalTrackConfigSelector> CalibrationTrackSelectorModule;
 
 DEFINE_FWK_MODULE(CalibrationTrackSelectorModule);

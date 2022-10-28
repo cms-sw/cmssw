@@ -13,6 +13,10 @@
 
 namespace dqm::implementation {
 
+  // list of acceptable characters for ME path names, in order to be able to upload to the CMS DQM GUI
+  // See https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+  static const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
+
   std::string NavigatorBase::pwd() {
     if (cwd_.empty()) {
       return "";
@@ -66,6 +70,19 @@ namespace dqm::implementation {
                                   bool forceReplace /* = false */) {
     MonitorElementData::Path path;
     std::string fullpath = cwd_ + std::string(name.View());
+
+    auto pathToCheck{fullpath};
+    std::string limiter{".root:/"};          // this indicates that all the substring before is a file name
+    size_t pos = pathToCheck.find(limiter);  //find location of limiter
+    //delete everything prior to location found as it might contain illegal chars
+    pathToCheck.erase(0, pos + limiter.size());
+
+    if (pathToCheck.find_first_not_of(s_safe) != std::string::npos) {
+      throw cms::Exception("BadMonitorElementPathName")
+          << " Monitor element path name: '" << pathToCheck.c_str() << "' uses unacceptable characters."
+          << "\n Acceptable characters are: " << s_safe.c_str();
+    }
+
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
 
     // We should check if there is a local ME for this module and name already.
@@ -338,7 +355,7 @@ namespace dqm::implementation {
       MonitorElement* oldme = *proto;
       assert(oldme->getScope() == key.scope_);
       prototypes.erase(proto);
-      auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      auto medata = oldme->release();  // destroy the ME, get its data.
       // in this situation, nobody should be filling the ME concurrently.
       medata->data_.key_.id_ = key.id_;
       // We reuse the ME object here, even if we don't have to. This ensures
@@ -408,7 +425,7 @@ namespace dqm::implementation {
           // reuse that.
           MonitorElement* oldme = *proto;
           prototypes.erase(proto);
-          auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+          auto medata = oldme->release();  // destroy the ME, get its data.
           // in this situation, nobody should be filling the ME concurrently.
           medata->data_.key_.id_ = edm::LuminosityBlockID(run, lumi);
           // We reuse the ME object here, even if we don't have to. This ensures
@@ -518,7 +535,7 @@ namespace dqm::implementation {
       if (me->isValid() && checkScope(me->getScope()) == true) {
         // if we left the scope, simply release the data.
         debugTrackME("leaveLumi (release)", me, nullptr);
-        me->release(/* expectOwned */ false);
+        me->release();
       }
     }
   }
@@ -576,7 +593,7 @@ namespace dqm::implementation {
     meset.clear();
 
     for (MonitorElement* me : torecycle) {
-      auto medata = me->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      auto medata = me->release();                        // destroy the ME, get its data.
       medata->data_.key_.id_ = edm::LuminosityBlockID();  // prototype
       // We reuse the ME object here, even if we don't have to. This ensures
       // that when running single-threaded without concurrent lumis/runs,
@@ -738,7 +755,7 @@ namespace dqm::implementation {
 
   DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
-    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
+    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", false);
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");

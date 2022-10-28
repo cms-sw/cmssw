@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -126,9 +127,12 @@ namespace edm {
 
       std::vector<ConsumesInfo> consumesInfo() const;
 
+      void deleteModulesEarly();
+
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}
 
       //For now this is a placeholder

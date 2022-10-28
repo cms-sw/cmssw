@@ -1,3 +1,9 @@
+<use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>
+<use name="SimDataFormats/EcalTestBeam"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimG4CMS/EcalTestBeam"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Watcher"/>
+<use name="TBDataFormats/EcalTBObjects"/>
 <flags EDM_PLUGIN="1"/>

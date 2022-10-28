@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFDTReceiver.h"
 #include "L1Trigger/CSCTrackFinder/src/CSCTFTrackBuilder.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"

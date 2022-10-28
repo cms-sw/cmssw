@@ -1,5 +1,5 @@
-#ifndef PFTrackTransformer_H
-#define PFTrackTransformer_H
+#ifndef RecoParticleFlow_PFTracking_PFTrackTransformer_H
+#define RecoParticleFlow_PFTracking_PFTrackTransformer_H
 
 #include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"

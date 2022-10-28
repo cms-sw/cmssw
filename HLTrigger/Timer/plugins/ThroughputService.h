@@ -8,7 +8,7 @@
 #include <string>
 
 // TBB headers
-#include <tbb/concurrent_vector.h>
+#include <oneapi/tbb/concurrent_vector.h>
 
 // ROOT headers
 #include <TH1F.h>

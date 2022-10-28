@@ -77,6 +77,7 @@ private:
                                          const char* name);
 
   const unsigned int verbosity_;
+  const bool buildMisalignedGeometry_;
   const bool isRun2_;
 
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
@@ -84,7 +85,9 @@ private:
   edm::ESGetToken<PDetGeomDesc, VeryForwardIdealGeometryRecord> dbToken_;
   const bool fromPreprocessedDB_, fromDD4hep_;
 
+  edm::ESGetToken<DetGeomDesc, IdealGeometryRecord> idealGDToken2_;
   edm::ESGetToken<DetGeomDesc, IdealGeometryRecord> idealGDToken_;
+  edm::ESGetToken<DetGeomDesc, VeryForwardIdealGeometryRecord> idealDBGDToken2_;
   edm::ESGetToken<DetGeomDesc, VeryForwardIdealGeometryRecord> idealDBGDToken_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> realAlignmentToken_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord> misAlignmentToken_;
@@ -95,6 +98,7 @@ private:
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
+      buildMisalignedGeometry_(iConfig.getParameter<bool>("buildMisalignedGeometry")),
       isRun2_(iConfig.getParameter<bool>("isRun2")),
       fromPreprocessedDB_(iConfig.getUntrackedParameter<bool>("fromPreprocessedDB", false)),
       fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)) {
@@ -106,9 +110,12 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     idealDBGDToken_ = c1.consumesFrom<DetGeomDesc, VeryForwardIdealGeometryRecord>(edm::ESInputTag());
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
-    auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB);
-    misAlignmentToken_ =
-        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    if (buildMisalignedGeometry_) {
+      auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB);
+      idealDBGDToken2_ = c2.consumesFrom<DetGeomDesc, VeryForwardIdealGeometryRecord>(edm::ESInputTag());
+      misAlignmentToken_ =
+          c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    }
   } else if (!fromDD4hep_) {
     auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
     ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
@@ -117,9 +124,12 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     idealGDToken_ = c1.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
-    auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
-    misAlignmentToken_ =
-        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    if (buildMisalignedGeometry_) {
+      auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
+      idealGDToken2_ = c2.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
+      misAlignmentToken_ =
+          c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    }
   } else {
     auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
     dd4hepToken_ =
@@ -129,21 +139,27 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     idealGDToken_ = c1.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
-    auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
-    misAlignmentToken_ =
-        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    if (buildMisalignedGeometry_) {
+      auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
+      idealGDToken2_ = c2.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
+      misAlignmentToken_ =
+          c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    }
   }
 
   auto c_RTG = setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG);
   dgdRealToken_ = c_RTG.consumes<DetGeomDesc>(edm::ESInputTag());
 
-  auto c_MTG = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG);
-  dgdMisToken_ = c_MTG.consumes<DetGeomDesc>(edm::ESInputTag());
+  if (buildMisalignedGeometry_) {
+    auto c_MTG = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG);
+    dgdMisToken_ = c_MTG.consumes<DetGeomDesc>(edm::ESInputTag());
+  }
 }
 
 void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
+  desc.add<bool>("buildMisalignedGeometry", false)->setComment("switch if misaligned geometry shall be built");
   desc.add<bool>("isRun2", false)->setComment("Switch to legacy (2017-18) definition of diamond geometry");
   desc.add<std::string>("dbTag", std::string());
   desc.add<std::string>("compactViewTag", std::string());
@@ -228,7 +244,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGDFromPrepr
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<VeryForwardIdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPMisalignedAlignmentRecord>(),
-                   idealDBGDToken_,
+                   idealDBGDToken2_,
                    misAlignmentToken_,
                    "CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB");
 }
@@ -249,7 +265,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD(
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<IdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPMisalignedAlignmentRecord>(),
-                   idealGDToken_,
+                   idealGDToken2_,
                    misAlignmentToken_,
                    "CTPPSGeometryESModule::produceMisalignedGD");
 }

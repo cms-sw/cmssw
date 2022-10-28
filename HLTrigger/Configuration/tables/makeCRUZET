@@ -8,4 +8,4 @@ TARGET="/users/sdonato/STORM/cosmics/FromMaster/CRUZET" # where to store the onl
 TABLES="cruzet"
 
 source subtables.sh
-createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v3/run3" "$MASTER" "$TARGET" "$TABLES"

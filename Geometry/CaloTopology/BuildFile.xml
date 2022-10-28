@@ -6,7 +6,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/HGCalCommonData"/>
-<use name="FWCore/Framework"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

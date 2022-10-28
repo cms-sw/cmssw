@@ -1,6 +1,6 @@
 // Test CSCIndexer 22.11.2012 ptc
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -20,10 +20,10 @@
 #include <string>
 #include <vector>
 
-class CSCIndexerAnalyzer2 : public edm::EDAnalyzer {
+class CSCIndexerAnalyzer2 : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCIndexerAnalyzer2(const edm::ParameterSet &);
-  ~CSCIndexerAnalyzer2();
+  ~CSCIndexerAnalyzer2() = default;
 
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
 
@@ -36,13 +36,18 @@ private:
   const std::string myName_;
 
   std::string algoName_;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> theCSCGeometryToken_;
+  const edm::ESGetToken<CSCIndexerBase, CSCIndexerRecord> theCSCIndexerToken_;
 };
 
 CSCIndexerAnalyzer2::CSCIndexerAnalyzer2(const edm::ParameterSet &iConfig)
     : dashedLineWidth_(146),
       dashedLine_(std::string(dashedLineWidth_, '-')),
       myName_("CSCIndexerAnalyzer2"),
-      algoName_("UNKNOWN") {
+      algoName_("UNKNOWN"),
+      theCSCGeometryToken_(esConsumes()),
+      theCSCIndexerToken_(esConsumes()) {
   std::cout << dashedLine_ << std::endl;
   std::cout << "Welcome to " << myName_ << std::endl;
   std::cout << dashedLine_ << std::endl;
@@ -74,8 +79,6 @@ CSCIndexerAnalyzer2::CSCIndexerAnalyzer2(const edm::ParameterSet &iConfig)
   std::cout << dashedLine_ << std::endl;
 }
 
-CSCIndexerAnalyzer2::~CSCIndexerAnalyzer2() {}
-
 void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   CSCDetId testCSCDetId;
 
@@ -86,8 +89,7 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetu
   std::cout << dashedLine_ << std::endl;
   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  auto const pDD = &iSetup.getData(theCSCGeometryToken_);
 
   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
@@ -97,10 +99,7 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetu
   std::cout << " I have " << pDD->chambers().size() << " chambers" << std::endl;
 
   // Get the CSCIndexer algorithm from EventSetup
-
-  edm::ESHandle<CSCIndexerBase> theIndexer;
-  iSetup.get<CSCIndexerRecord>().get(theIndexer);
-
+  const auto theIndexer = &iSetup.getData(theCSCIndexerToken_);
   algoName_ = theIndexer->name();
 
   std::cout << dashedLine_ << std::endl;

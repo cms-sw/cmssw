@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.PatAlgos.PATJetUpdater_cfi as _mod
 
-updatedPatJets = cms.EDProducer("PATJetUpdater",
+updatedPatJets = _mod.PATJetUpdater.clone(
     # input
-    jetSource = cms.InputTag("slimmedJets"),
+    jetSource = "slimmedJets",
     # add user data
-    userData = cms.PSet(
+    userData = dict(
       # add custom classes here
       userClasses = cms.PSet(
         src = cms.VInputTag('')
@@ -22,24 +23,22 @@ updatedPatJets = cms.EDProducer("PATJetUpdater",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(),
-      userFunctionLabels = cms.vstring()
+      userFunctions = [],
+      userFunctionLabels = []
     ),
     # sort
-    sort                 = cms.bool(True),
+    sort                 = True,
     # jet energy corrections
-    addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("updatedPatJetCorrFactors") ),
+    addJetCorrFactors    = True,
+    jetCorrFactorsSource = ["updatedPatJetCorrFactors"],
     # btag information
-    addBTagInfo          = cms.bool(True),   ## master switch
-    addDiscriminators    = cms.bool(True),   ## addition of btag discriminators
-    discriminatorSources = cms.VInputTag(),
+    addBTagInfo          = True,   ## master switch
+    addDiscriminators    = True,   ## addition of btag discriminators
+    discriminatorSources = [],
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos
     # are sufficient
-    addTagInfos     = cms.bool(False),
-    tagInfoSources  = cms.VInputTag(),
-    printWarning = cms.bool(True)
+    addTagInfos     = False,
+    tagInfoSources  = [],
+    printWarning    = True
 )
-
-

@@ -5,8 +5,7 @@ _baseOpticalFunctionsParameters = cms.PSet(
           ApplyZShift = cms.bool(True),
           lhcInfoLabel = cms.string(""),
           opticsLabel = cms.string(""),
-          produceHitsRelativeToBeam = cms.bool(True),
-          useEmpiricalApertures = cms.bool(True)
+          useEmpiricalApertures = cms.bool(False)
 )
 
 _config_2016_preTS2 = cms.PSet(
@@ -27,7 +26,7 @@ _config_2016_preTS2 = cms.PSet(
           empiricalAperture56_xi0_int = cms.double(0.138),
           empiricalAperture56_xi0_slp = cms.double(0.000E+00),
           empiricalAperture56_a_int = cms.double(191.6),
-          empiricalAperture56_a_slp = cms.double(-0.000),
+          empiricalAperture56_a_slp = cms.double(-0.000)
   )
 )
 
@@ -49,7 +48,7 @@ _config_2016_postTS2 = cms.PSet(
           empiricalAperture56_xi0_int = cms.double(0.110),
           empiricalAperture56_xi0_slp = cms.double(0.),
           empiricalAperture56_a_int = cms.double(150.0),
-          empiricalAperture56_a_slp = cms.double(0.),
+          empiricalAperture56_a_slp = cms.double(0.)
   )
 )
 
@@ -73,7 +72,7 @@ _config_2017_preTS2 = cms.PSet(
           empiricalAperture56_xi0_int = cms.double(0.062),
           empiricalAperture56_xi0_slp = cms.double(5.956E-04),
           empiricalAperture56_a_int = cms.double(-31.9),
-          empiricalAperture56_a_slp = cms.double(1.323),
+          empiricalAperture56_a_slp = cms.double(1.323)
   )
 )
 
@@ -97,7 +96,7 @@ _config_2017_postTS2 = cms.PSet(
           empiricalAperture56_xi0_int = cms.double(0.067),
           empiricalAperture56_xi0_slp = cms.double(6.868E-04),
           empiricalAperture56_a_int = cms.double(-50.2),
-          empiricalAperture56_a_slp = cms.double(1.740),
+          empiricalAperture56_a_slp = cms.double(1.740)
   )
 )
 
@@ -121,7 +120,7 @@ _config_2018 = cms.PSet(
           empiricalAperture56_xi0_int = cms.double(0.074),
           empiricalAperture56_xi0_slp = cms.double(6.604E-04),
           empiricalAperture56_a_int = cms.double(-22.7),
-          empiricalAperture56_a_slp = cms.double(1.600),
+          empiricalAperture56_a_slp = cms.double(1.600)
   )
 )
 
@@ -149,21 +148,25 @@ _config_2021 = cms.PSet(
 )
 
 _opticalfunctionsTransportSetup_2016_preTS2 =cms.PSet(
+                BeamEnergy=cms.double(6500),
                 opticalFunctionConfig = _config_2016_preTS2.opticalFunctionConfig,
                 optics_parameters =  cms.PSet(_baseOpticalFunctionsParameters,_config_2016_preTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2016_postTS2 =cms.PSet(
+                BeamEnergy=cms.double(6500),
                 opticalFunctionConfig = _config_2016_postTS2.opticalFunctionConfig,
                 optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2016_postTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2017_preTS2 =cms.PSet(
+                BeamEnergy=cms.double(6500),
                 opticalFunctionConfig = _config_2017_preTS2.opticalFunctionConfig,
                 optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2017_preTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2017_postTS2 =cms.PSet(
+                BeamEnergy=cms.double(6500),
                 opticalFunctionConfig = _config_2017_postTS2.opticalFunctionConfig,
                 optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2017_postTS2.optics_parameters)
 )
@@ -177,7 +180,8 @@ opticalfunctionsTransportSetup_2018 =cms.PSet(
 opticalfunctionsTransportSetup_2021 =cms.PSet(
                 _baseOpticalFunctionsParameters,
                 _config_2021.opticalFunctionConfig,
-                _config_2021.optics_parameters
+                _config_2021.optics_parameters,
+                BeamEnergy=cms.double(7000)
 )
 
 # Default setup

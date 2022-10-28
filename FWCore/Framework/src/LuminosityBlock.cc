@@ -2,8 +2,8 @@
 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -24,6 +24,8 @@ namespace edm {
       : provRecorder_(lbp, md, isAtEnd), aux_(lbp.aux()), run_(), moduleCallingContext_(moduleCallingContext) {}
 
   LuminosityBlock::~LuminosityBlock() {}
+
+  LuminosityBlockAuxiliary const& LuminosityBlock::luminosityBlockAuxiliary() const { return aux_; }
 
   LuminosityBlockIndex LuminosityBlock::index() const { return luminosityBlockPrincipal().index(); }
 

@@ -26,10 +26,14 @@ public:
                  int choice,
                  unsigned int cutValue,
                  double cutFracArea);
-  ~HGCalWaferType();
-  int getType(double xpos, double ypos, double zpos);
-  static int getType(int index, const std::vector<int>& indices, const std::vector<int>& types);
+  ~HGCalWaferType() = default;
+
+  static int getCassette(int index, const HGCalParameters::waferInfo_map& wafers);
+  static int getOrient(int index, const HGCalParameters::waferInfo_map& wafers);
+  static int getPartial(int index, const HGCalParameters::waferInfo_map& wafers);
   static int getType(int index, const HGCalParameters::waferInfo_map& wafers);
+  static int getType(int index, const std::vector<int>& indices, const std::vector<int>& types);
+  int getType(double xpos, double ypos, double zpos);
   std::pair<double, double> rLimits(double zpos);
 
 private:

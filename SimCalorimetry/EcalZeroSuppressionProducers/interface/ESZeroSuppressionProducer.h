@@ -26,14 +26,13 @@ public:
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
-  std::string digiProducer_;
-  std::string ESdigiCollection_;
-  std::string ESZSdigiCollection_;
+  const std::string digiProducer_;
+  const std::string ESdigiCollection_;
+  const std::string ESZSdigiCollection_;
 
-  edm::ESHandle<ESThresholds> esthresholds_;
-  edm::ESHandle<ESPedestals> espeds_;
-
-  edm::EDGetTokenT<ESDigiCollection> ES_token;
+  const edm::EDGetTokenT<ESDigiCollection> ES_token;
+  const edm::ESGetToken<ESThresholds, ESThresholdsRcd> esthresholdsToken_;
+  const edm::ESGetToken<ESPedestals, ESPedestalsRcd> espedsToken_;
 };
 
 #endif

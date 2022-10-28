@@ -30,7 +30,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,32 +52,17 @@
 class TrackerMapTool : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerMapTool(const edm::ParameterSet&);
-  ~TrackerMapTool() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+
+private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-TrackerMapTool::TrackerMapTool(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-}
-
-TrackerMapTool::~TrackerMapTool() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+TrackerMapTool::TrackerMapTool(const edm::ParameterSet& iConfig) : pDDToken_(esConsumes()) {}
 
 //
 // member functions
@@ -116,11 +100,10 @@ void TrackerMapTool::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //
   // get the TrackerGeom
   //
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("TrackerMapTool") << " Geometry node for TrackerGeom is  " << &(*pDD);
-  edm::LogInfo("TrackerMapTool") << " I have " << pDD->dets().size() << " detectors";
-  edm::LogInfo("TrackerMapTool") << " I have " << pDD->detTypes().size() << " types";
+  auto const& pDD = iSetup.getData(pDDToken_);
+  edm::LogInfo("TrackerMapTool") << " Geometry node for TrackerGeom is  " << &pDD;
+  edm::LogInfo("TrackerMapTool") << " I have " << pDD.dets().size() << " detectors";
+  edm::LogInfo("TrackerMapTool") << " I have " << pDD.detTypes().size() << " types";
   int spicchif[] = {24, 24, 40, 56, 40, 56, 80};
   int spicchib[] = {20, 32, 44, 30, 38, 46, 56, 42, 48, 54, 60, 66, 74};
 
@@ -140,8 +123,8 @@ void TrackerMapTool::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   float width, length, thickness, widthAtHalfLength;
   std::ofstream output("tracker.dat", std::ios::out);
 
-  auto begin = pDD->detUnits().begin();
-  auto end = pDD->detUnits().end();
+  auto begin = pDD.detUnits().begin();
+  auto end = pDD.detUnits().end();
 
   for (; begin != end; ++begin) {
     ntotmod++;

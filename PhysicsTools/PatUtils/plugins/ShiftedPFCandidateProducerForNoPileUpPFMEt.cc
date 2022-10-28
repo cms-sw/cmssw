@@ -1,9 +1,65 @@
-#include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerForNoPileUpPFMEt.h"
+/** \class ShiftedPFCandidateProducerForNoPileUpPFMEt
+ *
+ * Vary energy of PFCandidates which are (are not) within jets of Pt > 10 GeV
+ * by jet energy uncertainty (by 10% "unclustered" energy uncertainty)
+ *
+ * NOTE: Auxiliary class specific to estimating systematic uncertainty
+ *       on PFMET reconstructed by no-PU MET reconstruction algorithm
+ *      (implemented in JetMETCorrections/Type1MET/src/NoPileUpPFMETProducer.cc)
+ *
+ *       In case all PFCandidates not within jets of Pt > 30 GeV would be varied
+ *       by the 10% "unclustered" energy uncertainty, the systematic uncertainty
+ *       on the reconstructed no-PU MET would be overestimated significantly !!
+ *
+ * \author Christian Veelken, LLR
+ *
+ *
+ *
+ */
 
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
+#include <string>
+#include <vector>
+
+class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProducer<> {
+public:
+  explicit ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet&);
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> srcJetsToken_;
+
+  edm::FileInPath jetCorrInputFileName_;
+  std::string jetCorrPayloadName_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jetCorrPayloadToken_;
+  std::string jetCorrUncertaintyTag_;
+  std::unique_ptr<JetCorrectorParameters> jetCorrParameters_;
+  std::unique_ptr<JetCorrectionUncertainty> jecUncertainty_;
+
+  double minJetPt_;
+
+  double shiftBy_;
+
+  double unclEnUncertainty_;
+};
 
 ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet& cfg)
     : srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"))),
@@ -14,10 +70,12 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
     if (jetCorrInputFileName_.location() == edm::FileInPath::Unknown)
       throw cms::Exception("ShiftedJetProducerT")
           << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
-    jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
+    jetCorrParameters_ =
+        std::make_unique<JetCorrectorParameters>(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(*jetCorrParameters_);
   } else {
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
+    jetCorrPayloadToken_ = esConsumes(edm::ESInputTag("", jetCorrPayloadName_));
   }
 
   minJetPt_ = cfg.getParameter<double>("minJetPt");
@@ -27,10 +85,6 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
   unclEnUncertainty_ = cfg.getParameter<double>("unclEnUncertainty");
 
   produces<reco::PFCandidateCollection>();
-}
-
-ShiftedPFCandidateProducerForNoPileUpPFMEt::~ShiftedPFCandidateProducerForNoPileUpPFMEt() {
-  // nothing to be done yet...
 }
 
 void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -47,11 +101,9 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
   }
 
   if (!jetCorrPayloadName_.empty()) {
-    edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
-    es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
-    const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
-    delete jecUncertainty_;
-    jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
+    const JetCorrectorParametersCollection& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
+    const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(jetCorrParameters);
   }
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();

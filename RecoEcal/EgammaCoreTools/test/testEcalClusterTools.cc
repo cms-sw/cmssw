@@ -23,7 +23,6 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -36,16 +35,19 @@ Implementation:
 class testEcalClusterTools : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalClusterTools(const edm::ParameterSet&);
+  ~testEcalClusterTools() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-
   using ClusterTools = noZS::EcalClusterTools;  // alternatively just EcalClusterTools
 
   const edm::EDGetToken barrelClusterToken_;
   const edm::EDGetToken endcapClusterToken_;
   const edm::EDGetToken barrelRecHitToken_;
   const edm::EDGetToken endcapRecHitToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
 };
 
 testEcalClusterTools::testEcalClusterTools(const edm::ParameterSet& ps)
@@ -54,7 +56,9 @@ testEcalClusterTools::testEcalClusterTools(const edm::ParameterSet& ps)
       endcapClusterToken_(
           consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterCollection"))),
       barrelRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
-      endcapRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))) {}
+      endcapRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))),
+      geometryToken_(esConsumes()),
+      topologyToken_(esConsumes()) {}
 
 void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<EcalRecHitCollection> pEBRecHits;
@@ -73,13 +77,8 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
   ev.getByToken(endcapClusterToken_, pEEClusters);
   const reco::BasicClusterCollection* eeClusters = pEEClusters.product();
 
-  edm::ESHandle<CaloGeometry> pGeometry;
-  es.get<CaloGeometryRecord>().get(pGeometry);
-  const CaloGeometry* geometry = pGeometry.product();
-
-  edm::ESHandle<CaloTopology> pTopology;
-  es.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology* topology = pTopology.product();
+  const auto* geometry = &es.getData(geometryToken_);
+  const auto* topology = &es.getData(topologyToken_);
 
   std::cout << "========== BARREL ==========" << std::endl;
   for (auto const& clus : *ebClusters) {

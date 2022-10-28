@@ -40,6 +40,7 @@
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
@@ -624,6 +625,12 @@ bool SiPixelTemplate2D::getid(int id) {
 
 bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
   // Interpolate for a new set of track angles
+
+  //check for nan's
+  if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+    success_ = false;
+    return success_;
+  }
 
   // Local variables
 

@@ -1,10 +1,56 @@
-// -*- C++ -*-
+/**\class LaserAlignmentT0Producer LaserAlignmentT0Producer.cc NewAlignment/LaserAlignmentT0Producer/src/LaserAlignmentT0Producer.cc
+
+ Description: AlCaRECO producer (TkLAS data filter) running on T0
+
+ Implementation:
+     <Notes on implementation>
+*/
 //
-// Package:    LaserAlignmentT0Producer
-// Class:      LaserAlignmentT0Producer
+// Original Author:  Jan Olzem
+//         Created:  Wed Feb 13 17:30:40 CET 2008
+// $Id: LaserAlignmentT0Producer.h,v 1.2 2008/03/03 09:43:32 olzem Exp $
+//
 //
 
-#include "Alignment/LaserAlignment/plugins/LaserAlignmentT0Producer.h"
+// system include files
+#include <memory>
+#include <algorithm>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+
+//
+// class decleration
+//
+
+class LaserAlignmentT0Producer : public edm::global::EDProducer<> {
+public:
+  explicit LaserAlignmentT0Producer(const edm::ParameterSet&);
+  ~LaserAlignmentT0Producer() override;
+
+private:
+  void beginJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  //void produce(edm::Event&, const edm::EventSetup&) override;
+  void FillDetIds(void);
+
+  // container for cfg data
+  std::vector<edm::ParameterSet> digiProducerList;
+  std::string digiProducer;
+  std::string digiLabel;
+  std::string digiType;
+
+  // this one stores the det ids for all the 434 LAS modules
+  std::vector<unsigned int> theLasDetIds;
+};
 
 ///
 /// Loops all input SiStripDigi or SiStripRawDigi collections
@@ -18,12 +64,10 @@ LaserAlignmentT0Producer::LaserAlignmentT0Producer(const edm::ParameterSet& iCon
   digiProducerList = iConfig.getParameter<std::vector<edm::ParameterSet>>("DigiProducerList");
 
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin();
-       aDigiProducer != digiProducerList.end();
-       ++aDigiProducer) {
-    std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (const auto& aDigiProducer : digiProducerList) {
+    std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
 
     // check if raw/processed digis in this collection
     if (digiType == "Raw") {
@@ -40,7 +84,7 @@ LaserAlignmentT0Producer::LaserAlignmentT0Producer(const edm::ParameterSet& iCon
 ///
 ///
 ///
-LaserAlignmentT0Producer::~LaserAlignmentT0Producer() {}
+LaserAlignmentT0Producer::~LaserAlignmentT0Producer() = default;
 
 ///
 /// outline:
@@ -49,16 +93,15 @@ LaserAlignmentT0Producer::~LaserAlignmentT0Producer() {}
 /// * for each product: selects only LAS module DetSets
 ///   and copies them to new DetSetVector
 ///
-void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void LaserAlignmentT0Producer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  //void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin();
-       aDigiProducer != digiProducerList.end();
-       ++aDigiProducer) {
-    std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (const auto& aDigiProducer : digiProducerList) {
+    std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
 
     // now a distinction of cases: raw or processed digis?
 
@@ -114,7 +157,6 @@ void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup
           for (edm::DetSet<SiStripDigi>::const_iterator aDigi = aDetSet->begin(); aDigi != aDetSet->end(); ++aDigi) {
             outputDetSet.push_back(*aDigi);
           }
-
           theDigiVector.push_back(outputDetSet);
         }
       }
@@ -138,11 +180,6 @@ void LaserAlignmentT0Producer::beginJob() {
   // fill the vector with LAS det ids
   FillDetIds();
 }
-
-///
-///
-///
-void LaserAlignmentT0Producer::endJob() {}
 
 ///
 /// fill a vector with all the det ids of the 434

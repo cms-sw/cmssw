@@ -17,7 +17,7 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -31,12 +31,12 @@
 // class decleration
 //
 
-class L1GctTestAnalyzer : public edm::EDAnalyzer {
+class L1GctTestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1GctTestAnalyzer(const edm::ParameterSet&);
-  ~L1GctTestAnalyzer();
+  ~L1GctTestAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void doRctEM(const edm::Event&, edm::InputTag label);
   void doInternEM(const edm::Event&, edm::InputTag label);

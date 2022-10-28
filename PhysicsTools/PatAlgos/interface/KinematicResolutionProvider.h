@@ -21,16 +21,10 @@ namespace reco {
 namespace pat {
   class CandKinResolution;
 }
-namespace edm {
-  class ParameterSet;
-  class EventSetup;
-}  // namespace edm
 
 class KinematicResolutionProvider {
 public:
   virtual ~KinematicResolutionProvider() = default;
-  /// everything that needs to be done before the event loop
-  virtual void setup(const edm::EventSetup &iSetup) const {}
   /// get a CandKinResolution object from the service; this
   /// function needs to be implemented by any derived class
   virtual pat::CandKinResolution getResolution(const reco::Candidate &c) const = 0;

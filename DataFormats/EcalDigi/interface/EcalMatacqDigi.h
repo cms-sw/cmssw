@@ -270,6 +270,7 @@ public:
    * @param value new value
    */
   void laserPower(int value) { laserPower_ = value; }
+#endif
 
   void init() {
 #if (ECAL_MATACQ_DIGI_VERS >= 2)
@@ -285,10 +286,10 @@ public:
     emtcPhase_ = -1;
     attenuation_dB_ = -1;
     laserPower_ = -1;
+    tv_sec_ = 0;
+    tv_usec_ = 0;
 #endif
   }
-
-#endif
 
 private:
   /** Electronic channel id
@@ -298,10 +299,6 @@ private:
   /** ADC count of time samples
    */
   std::vector<Short_t> data_;
-
-  /** Frequency mode. 1->1GHz sampling, 2->2GHz sampling
-   */
-  int freq;
 
   /**Sampling period in seconds. In priniciple 1ns or 0.5ns
    */

@@ -9,11 +9,13 @@
 
 <!-- Please replace this text with a description of which tests have been performed to verify the correctness of the PR, including the eventual addition of new code for testing like unit tests, test configurations, additions or updates to the runTheMatrix test workflows -->
 
-#### if this PR is a backport please specify the original PR and why you need to backport that PR:
+#### If this PR is a backport please specify the original PR and why you need to backport that PR. If this PR will be backported please specify to which release cycle the backport is meant for:
 
-<!-- Please replace this text with any link to  -->
+<!-- Please replace this text with any link to the master PR, or the intended backport release cycle numbers -->
 
 Before submitting your pull requests, make sure you followed this checklist:
 - verify that the PR is really intended for the chosen branch
 - verify that changes follow [CMS Naming, Coding, And Style Rules](http://cms-sw.github.io/cms_coding_rules.html)
 - verify that the PR passes the basic test procedure suggested in the [CMSSW PR instructions](https://cms-sw.github.io/PRWorkflow.html)
+
+<!-- Please delete the text above after you verified all points of the checklist  -->

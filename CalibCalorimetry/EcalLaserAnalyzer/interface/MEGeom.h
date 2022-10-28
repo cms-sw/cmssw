@@ -1,5 +1,5 @@
-#ifndef MEGeom_hh
-#define MEGeom_hh
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_MEGeom_h
+#define CalibCalorimetry_EcalLaserAnalyzer_MEGeom_h
 
 //
 // Authors  : Gautier Hamel de Monchenault and Julie Malcles, Saclay
@@ -9,9 +9,9 @@
 #include "MEEBGeom.h"
 #include "MEEEGeom.h"
 
-#include <TH2.h>
-#include <TCanvas.h>
-#include <TGraph.h>
+#include "TH2.h"
+#include "TCanvas.h"
+#include "TGraph.h"
 
 class MEChannel;
 
@@ -32,14 +32,14 @@ public:
   virtual ~MEGeom() {}
 
 private:
-  static int _nbuf;  //
-  static int _nbinx;
-  static int _nbiny;
-  static float _xmin;
-  static float _xmax;
-  static float _ymin;
-  static float _ymax;
-  static TH2* _h;
+  static const int _nbuf;
+  static const int _nbinx;
+  static const int _nbiny;
+  static const float _xmin;
+  static const float _xmax;
+  static const float _ymin;
+  static const float _ymax;
+  static const TH2* _h;
 
   //GHM  ClassDef(MEGeom,0) // MEGeom -- Main geometry class
 };

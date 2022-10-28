@@ -1,9 +1,43 @@
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterTimeSelector.h"
-#include <memory>
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <memory>
+#include <vector>
+
+class PFClusterTimeSelector : public edm::stream::EDProducer<> {
+public:
+  explicit PFClusterTimeSelector(const edm::ParameterSet&);
+  ~PFClusterTimeSelector() override;
+
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+protected:
+  struct CutInfo {
+    double depth;
+    double minE;
+    double maxE;
+    double minTime;
+    double maxTime;
+    bool endcap;
+  };
+
+  // ----------access to event data
+  edm::EDGetTokenT<reco::PFClusterCollection> clusters_;
+  std::vector<CutInfo> cutInfo_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFClusterTimeSelector);
 
 using namespace std;
 using namespace edm;
