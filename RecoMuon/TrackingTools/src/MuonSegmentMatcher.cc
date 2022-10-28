@@ -12,7 +12,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
