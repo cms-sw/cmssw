@@ -78,7 +78,7 @@ private:
 // -----------------------------
 
 LumiMonitor::LumiMonitor(const edm::ParameterSet& config)
-    : folderName_(config.getParameter<std::string>("folderName")),
+    : folderName_(config.getParameter<std::string>("FolderName")),
       lumiScalersToken_(consumes(config.getParameter<edm::InputTag>("scalers"))),
       onlineMetaDataDigisToken_(consumes(config.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
       lumi_binning_(getHistoPSet(
@@ -263,7 +263,7 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("hltSiPixelClusters"));
   desc.add<edm::InputTag>("scalers", edm::InputTag("hltScalersRawToDigi"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("hltOnlineMetaDataDigis"));
-  desc.add<std::string>("folderName", "HLT/LumiMonitoring");
+  desc.add<std::string>("FolderName", "HLT/LumiMonitoring");
   desc.add<bool>("doPixelLumi", false);
   desc.add<bool>("useBPixLayer1", false);
   desc.add<int>("minNumberOfPixelsPerCluster", 2);  // from DQM/PixelLumi/python/PixelLumiDQM_cfi.py
