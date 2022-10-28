@@ -630,6 +630,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'HARVESTNano',
                 'Nano',
                 'ALCA',
+                'ALCAPhase2'
             ],
             PU = [],
             **kwargs)
