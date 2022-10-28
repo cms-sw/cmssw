@@ -127,7 +127,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
     if (CSCId.isME11() or (enable_me21_ge21_ and CSCId.isME21())) {
       edm::LogVerbatim("GEMCSCSegmentBuilder")
           << "[GEMCSCSegmentBuilder :: build] Found " << (CSCId.isME11() ? "ME1/1" : "ME2/1") << " Segment in "
-          << CSCId.rawId() << " = " << CSCId << std::endl;
+          << CSCId.rawId() << " = " << CSCId;
 
       // 1) Save the CSC Segment in CSC segment collection
       // -------------------------------------------------
@@ -220,7 +220,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
     // ===============================================================
     else {
       edm::LogVerbatim("GEMCSCSegmentBuilder")
-          << "[GEMCSCSegmentBuilder :: build] Found a Segment in " << CSCId.rawId() << " = " << CSCId << std::endl;
+          << "[GEMCSCSegmentBuilder :: build] Found a Segment in " << CSCId.rawId() << " = " << CSCId;
 
       // get CSC segment vector associated to this CSCDetId
       // if no vector is associated yet to this CSCDetId, create empty vector

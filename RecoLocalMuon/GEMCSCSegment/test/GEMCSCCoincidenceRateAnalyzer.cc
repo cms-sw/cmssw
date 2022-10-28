@@ -5,10 +5,8 @@
  * \author Seungjin Yang <seungjin.yang@cern.ch>
  */
 #include <algorithm>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -32,7 +30,7 @@
 class GEMCSCCoincidenceRateAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit GEMCSCCoincidenceRateAnalyzer(const edm::ParameterSet&);
-  ~GEMCSCCoincidenceRateAnalyzer() override;
+  ~GEMCSCCoincidenceRateAnalyzer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
@@ -111,8 +109,6 @@ GEMCSCCoincidenceRateAnalyzer::GEMCSCCoincidenceRateAnalyzer(const edm::Paramete
   tree_->Branch("gem_first_strip", &b_gem_first_strip_);
   tree_->Branch("gem_cls", &b_gem_cls_);
 }
-
-GEMCSCCoincidenceRateAnalyzer::~GEMCSCCoincidenceRateAnalyzer() {}
 
 void GEMCSCCoincidenceRateAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
