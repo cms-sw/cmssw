@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"   // definitions for declaring plug-in modules
 #include "FWCore/Framework/interface/Frameworkfwd.h"  // declaration of EDM types
-#include "FWCore/Framework/interface/EDAnalyzer.h"    // EDAnalyzer class
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"  // Parameters
 #include "FWCore/Utilities/interface/InputTag.h"
