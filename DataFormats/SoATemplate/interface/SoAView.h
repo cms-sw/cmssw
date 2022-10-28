@@ -388,12 +388,16 @@ namespace cms::soa {
 // clang-format off
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                                  \
   /* Column or scalar */                                                                                               \
-  SOA_HOST_DEVICE SOA_INLINE auto LOCAL_NAME() const {                                                                 \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                           \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                              \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
+            cms::soa::SoAAccessType::constAccess>::NoParamReturnType                                                   \
+  LOCAL_NAME() const {                                                                                                 \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::constAccess>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))();                            \
   }                                                                                                                    \
-  SOA_HOST_DEVICE SOA_INLINE auto LOCAL_NAME(size_type index) const {                                                  \
+  SOA_HOST_DEVICE SOA_INLINE auto const& LOCAL_NAME(size_type index) const {                                           \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::constAccess>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(index);                       \
