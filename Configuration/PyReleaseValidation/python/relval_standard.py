@@ -449,10 +449,10 @@ workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHL
 workflows[136.9] = ['', ['RunDoubleMuon2016C', 'RAWRECOTE16', 'RAWRECOLHECLEANTE16', 'EMBEDHADTE16']]
 
 ### run 2021 collisions ###
-workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2021','RECODR3_MinBiasOffline','HARVESTD2021MB']]
-workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2021','RECODR3_ZBOffline','HARVESTD2021ZB']]
-workflows[139.003] = ['',['RunHLTPhy2021','HLTDR3_2021','RECODR3_HLTPhysics_Offline','HARVESTD2021HLTPhy']]
-workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2021','RECODR3_AlCaTkCosmics_Offline','HARVESTDR3']]
+workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2022','RECODR3_reHLT_MinBiasOffline','HARVESTD2021MB']]
+workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2022','RECODR3_reHLT_ZBOffline','HARVESTD2021ZB']]
+workflows[139.003] = ['',['RunHLTPhy2021','HLTDR3_2022','RECODR3_reHLT_HLTPhysics_Offline','HARVESTD2021HLTPhy']]
+workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2022','RECODR3_reHLT_AlCaTkCosmics_Offline','HARVESTDR3']]
 workflows[139.005] = ['',['AlCaPhiSym2021','RECOALCAECALPHISYMDR3','ALCAECALPHISYM']]
 
 ### fastsim ###
