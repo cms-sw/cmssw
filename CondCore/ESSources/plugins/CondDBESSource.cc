@@ -25,7 +25,9 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <exception>
 
 #include <iomanip>
@@ -323,7 +325,39 @@ void CondDBESSource::fillList(const std::string& stringList,
 }
 
 CondDBESSource::~CondDBESSource() {
-  //dump info FIXME: find a more suitable place...
+  if (m_doDump) {
+    edm::Service<edm::JobReport> reportSvc;
+    ProxyMap::const_iterator b = m_proxies.begin();
+    ProxyMap::const_iterator e = m_proxies.end();
+    for (; b != e; b++) {
+      std::map<std::string, std::string> proxy_info;
+      const std::string& recName = (*b).first;
+      const auto& proxy = *(*b).second;
+      proxy_info["label"] = proxy.label();
+      proxy_info["connString"] = proxy.connString();
+      proxy_info["tag"] = proxy.tag();
+      const auto& pids = *proxy.requests();
+      for (const auto& id : pids) {
+        std::ostringstream ss;
+        ss << id.since << " - " << id.till;
+        proxy_info[id.payloadId] = ss.str();
+      }
+      reportSvc->reportAnalysisFile(recName, proxy_info);
+      reportSvc->reportPerformanceSummary(recName, proxy_info);
+    }
+
+    std::map<std::string, std::string> db_info;
+    db_info["DataProxy"] = m_stats.nData;
+    db_info["SetInterval"] = m_stats.nSet;
+    db_info["Runs"] = m_stats.nRun;
+    db_info["Lumis"] = m_stats.nLumi;
+    db_info["Refresh"] = m_stats.nRefresh;
+    db_info["ActualRefresh"] = m_stats.nActualRefresh;
+    db_info["Reconnect"] = m_stats.nReconnect;
+    db_info["ActualReconnect"] = m_stats.nActualReconnect;
+    reportSvc->reportPerformanceSummary("CondDBESSourceStats", db_info);
+  }
+
   if (m_doDump) {
     std::cout << "CondDBESSource Statistics" << std::endl
               << "DataProxy " << m_stats.nData << " setInterval " << m_stats.nSet << " Runs " << m_stats.nRun
