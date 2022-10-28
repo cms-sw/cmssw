@@ -7,13 +7,11 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/ScopedContext.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 
 #include "TestAlgo.h"
 
@@ -23,13 +21,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TestAlpakaProducer(edm::ParameterSet const& config)
         : deviceToken_{produces()}, size_{config.getParameter<int32_t>("size")} {}
-
-    void beginStream(edm::StreamID) override {
-      edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
-      if (not service->enabled()) {
-        throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
-      }
-    }
 
     void produce(edm::Event& event, edm::EventSetup const&) override {
       // create a context based on the EDM stream number
