@@ -1,16 +1,42 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCalTest_cfg.py type=V17
+#
+#   Options for type V16, V17, V17n
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17, V17n")
 
-process = cms.Process('SIM',Phase2C11M9)
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalTest",Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+outFile = "file:step1" + options.type + ".root"
+print("Geometry file: ", geomFile)
+print("Output file: ", outFile)
 
 # import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Geometry.HGCalCommonData.testHGCV17XML_cfi')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
 process.load('Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi')
@@ -87,7 +113,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1.root'),
+    fileName = cms.untracked.string(outFile),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
