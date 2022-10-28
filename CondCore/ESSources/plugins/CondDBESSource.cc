@@ -340,7 +340,7 @@ CondDBESSource::~CondDBESSource() {
       for (const auto& id : pids) {
         proxy_info[id.payloadId] = std::to_string(id.since) + " - " + std::to_string(id.till);
       }
-      reportSvc->reportAnalysisFile(recName, proxy_info);
+      //reportSvc->reportAnalysisFile(recName, proxy_info);
       reportSvc->reportPerformanceSummary(recName, proxy_info);
     }
 
