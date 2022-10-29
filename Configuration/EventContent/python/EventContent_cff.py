@@ -789,7 +789,7 @@ approxSiStripClusters.toModify(REPACKRAWEventContent,
                                outputCommands = REPACKRAWEventContent.outputCommands+[
                                    'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                    'drop FEDRawDataCollection_rawDataRepacker_*_*',
-                                   'keep *_rawPrimeDataRepacker_*_*'
+                                   'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*'
                                ])
 
 REPACKRAWSIMEventContent = cms.PSet(
