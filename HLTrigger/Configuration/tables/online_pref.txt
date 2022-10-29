@@ -153,7 +153,6 @@ HLT_HIAK8PFJetFwd60_v*	#	CMSHLT-1679
 HLT_HIAK8PFJetFwd80_v*	#	CMSHLT-1679
 HLT_HIAK8PFJetFwd140_v*	#	CMSHLT-1679
 HLT_HIDmesonPPTrackingGlobal_Dpt8_v*	#	CMSHLT-1674
-HLT_HIDmesonPPTrackingGlobal_Dpt15_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt30_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt40_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt50_v*	#	CMSHLT-1674
