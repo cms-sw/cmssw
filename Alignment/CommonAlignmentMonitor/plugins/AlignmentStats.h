@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -30,7 +31,9 @@
 class AlignmentStats : public edm::one::EDAnalyzer<> {
 public:
   AlignmentStats(const edm::ParameterSet &iConfig);
-  ~AlignmentStats() override;
+  ~AlignmentStats() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void beginJob() override;
   void endJob() override;
