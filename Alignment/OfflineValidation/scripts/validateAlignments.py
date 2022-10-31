@@ -12,6 +12,7 @@ import sys
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.GCP as GCP
 import Alignment.OfflineValidation.TkAlAllInOneTool.DMR as DMR
+import Alignment.OfflineValidation.TkAlAllInOneTool.PV as PV
 
 def parser():
     parser = argparse.ArgumentParser(description = "AllInOneTool for validation of the tracker alignment", formatter_class=argparse.RawTextHelpFormatter)
@@ -75,6 +76,9 @@ def main():
 
         elif validation == "DMR":
             jobs.extend(DMR.DMR(config, validationDir))
+
+        elif validation == "PV":
+            jobs.extend(PV.PV(config, validationDir))
 
         else:
             raise Exception("Unknown validation method: {}".format(validation)) 

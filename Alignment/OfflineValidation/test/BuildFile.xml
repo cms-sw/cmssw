@@ -7,6 +7,14 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_all.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
+  <bin file="testAlignmentOfflineValidation.cpp" name="DMRsingleAndmerge">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_DMRsingleAndmerge.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+  <bin file="testAlignmentOfflineValidation.cpp" name="PVsingleAndmerge">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_PVsingleAndmerge.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
   <bin file="testPVPlotting.cpp">
     <flags PRE_TEST="PVsingle"/>
     <use name="rootmath"/>

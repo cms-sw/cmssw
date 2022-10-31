@@ -1,4 +1,4 @@
-<flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17" />
+<flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17 -lASImage" />
 
 <use name="root" />
 <use name="rootgraphics"/>
@@ -9,4 +9,5 @@
 <use name="Alignment/OfflineValidation"/>
 <lib name="stdc++fs" />
 <bin name="DMRmerge" file="DMRmerge.cc,Options.cc" />
+<bin name="PVmerge" file="PVmerge.cc,Options.cc" />
 <bin name="DMRtrends" file="DMRtrends.cc" />

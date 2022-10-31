@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -19,15 +20,32 @@ options.parseArguments()
 valiMode = "StandAlone"
 
 ##Read in AllInOne config in JSON format
-with open(options.config, "r") as configFile:
-    config = json.load(configFile)
+if options.config == "":
+    config = {"validation": {},
+              "alignment": {}}
+else:
+    with open(options.config, "r") as configFile:
+        config = json.load(configFile)
 
-##Read filenames from given TXT file
+##Read filenames from given TXT file and define input source
 readFiles = []
 
-with open(config["validation"]["dataset"], "r") as datafiles:
-    for fileName in datafiles.readlines():
-        readFiles.append(fileName.replace("\n", ""))
+if "dataset" in config["validation"]:
+    with open(config["validation"]["dataset"], "r") as datafiles:
+        for fileName in datafiles.readlines():
+            readFiles.append(fileName.replace("\n", ""))
+
+    ##Define input source
+    process.source = cms.Source("PoolSource",
+                                fileNames = cms.untracked.vstring(readFiles),
+                                skipEvents = cms.untracked.uint32(0)
+                            )
+else:
+    print ">>>>>>>>>> DMR_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!"
+    process.source = cms.Source("PoolSource",
+                                fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                                skipEvents = cms.untracked.uint32(0)
+                            )
 
 ##Get good lumi section
 if "goodlumi" in config["validation"]:
@@ -41,15 +59,11 @@ if "goodlumi" in config["validation"]:
 else:
     goodLumiSecs = cms.untracked.VLuminosityBlockRange()
 
-##Define input source
-process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(readFiles),
-                            lumisToProcess = goodLumiSecs,
-                            skipEvents = cms.untracked.uint32(0)
-)
+process.source.lumisToProcess = goodLumiSecs
 
+##default set to 1 for unit tests
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(config["validation"].get("maxevents", 2000000))
+    input = cms.untracked.int32(config["validation"].get("maxevents", 1))
 )
 
 ##Bookeeping
@@ -60,9 +74,13 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.statistics.append('cout')
+process.MessageLogger = cms.Service("MessageLogger",
+       destinations   = cms.untracked.vstring('cerr'),
+       cerr       = cms.untracked.PSet(
+                    threshold = cms.untracked.string('ERROR')
+        )
+
+)
 
 ##Basic modules
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
@@ -72,14 +90,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ##Track fitting
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process, 
-                                                     config["validation"]["trackcollection"],
+process.seqTrackselRefit = trackselRefit.getSequence(process,
+                                                     config["validation"].get("trackcollection", "generalTracks"),
                                                      isPVValidation = False, 
                                                      TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
-                                                     usePixelQualityFlag = True,
+                                                     usePixelQualityFlag=config["validation"].get("usePixelQualityFlag", True),
                                                      openMassWindow = False,
                                                      cosmicsDecoMode = True,
-                                                     cosmicsZeroTesla = False,
+                                                     cosmicsZeroTesla=config["validation"].get("cosmicsZeroTesla", False),
                                                      momentumConstraint = None,
                                                      cosmicTrackSplitting = False,
                                                      use_d0cut = True,
@@ -88,7 +106,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process,
 #Global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "106X_dataRun2_v27"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2017_realistic"))
 
 ##Load conditions if wished
 if "conditions" in config["alignment"]:
@@ -110,14 +128,14 @@ if "conditions" in config["alignment"]:
 
 ##Filter good events
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag("offlinePrimaryVertices"),
+                                           src = cms.InputTag(config["validation"].get("vertexcollection", "offlinePrimaryVertices")),
                                            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
                                            filter = cms.bool(True),
 )
 process.FilterGoodEvents=cms.Sequence(process.oneGoodVertexFilter)
 
 process.noScraping= cms.EDFilter("FilterOutScraping",
-                                 src=cms.InputTag(config["validation"]["trackcollection"]),
+                                 src=cms.untracked.InputTag(config["validation"].get("trackcollection", "generalTracks")),
                                  applyfilter = cms.untracked.bool(True),
                                  debugOn = cms.untracked.bool(False),
                                  numtrack = cms.untracked.uint32(10),
@@ -139,7 +157,7 @@ process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
-    maxTracks                 = cms.uint64(config["validation"].get("maxtracks", 0)),
+    maxTracks                 = cms.uint64(config["validation"].get("maxtracks", 1)),
     chargeCut                 = cms.int32(config["validation"].get("chargecut", 0)),
     # Normalized X Residuals, normal local coordinates (Strip)
     TH1NormXResStripModules = cms.PSet(
@@ -217,7 +235,7 @@ if valiMode == "StandAlone":
     ##Output file
 
     process.TFileService = cms.Service("TFileService",
-            fileName = cms.string("{}/DMR.root".format(config["output"])),
+            fileName = cms.string("{}/DMR.root".format(config.get("output", os.getcwd()))),
             closeFileFast = cms.untracked.bool(True),
     )
 
