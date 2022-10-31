@@ -69,7 +69,7 @@ TkOfflineVariables::TkOfflineVariables(
     std::string fileName, std::string baseDir, std::string legName, int lColor, int lStyle) {
   lineColor = lColor;
   lineStyle = lStyle % 100;
-  if (legName == "") {
+  if (legName.empty()) {
     int start = 0;
     if (fileName.find('/'))
       start = fileName.find_last_of('/') + 1;
@@ -81,7 +81,7 @@ TkOfflineVariables::TkOfflineVariables(
 
   //fill the tree pointer
   file = TFile::Open(fileName.c_str());
-  TDirectoryFile* d = 0;
+  TDirectoryFile* d = nullptr;
   if (file->Get(baseDir.c_str())) {
     d = (TDirectoryFile*)file->Get(baseDir.c_str());
     if ((*d).Get("TkOffVal")) {
@@ -128,8 +128,8 @@ public:
   void plotChi2(const char* inputFile);
   // plotSurfaceShapes: options="split","layers"/"layer","subdet"
   void plotHitMaps();
-  void setOutputDir( std::string dir );
-  void setTreeBaseDir( std::string dir = "TrackerOfflineValidation");
+  void setOutputDir(std::string dir);
+  void setTreeBaseDir(std::string dir = "TrackerOfflineValidation");
 
   void residual_by_moduleID(unsigned int moduleid);
   int numberOfLayers(int phase, int subdetector);
@@ -138,7 +138,7 @@ public:
   THStack* addHists(
       const TString& selection,
       const TString& residType = "xPrime",
-      TLegend** myLegend = 0,
+      TLegend** myLegend = nullptr,
       bool printModuleIds = false,
       bool validforphase0 =
           false);  //add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
