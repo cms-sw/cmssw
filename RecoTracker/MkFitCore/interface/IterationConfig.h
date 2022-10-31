@@ -9,7 +9,7 @@
 
 namespace mkfit {
 
-  class BeamSpot;
+  struct BeamSpot;
   class EventOfHits;
   class TrackerInfo;
   class Track;
@@ -307,7 +307,7 @@ namespace mkfit {
 
   //==============================================================================
 
-  // IterationConfig instances are created in Geoms/CMS-2017.cc, Create_CMS_2017(),
+  // IterationConfig instances are created in Geoms/CMS-phase1.cc, Create_CMS_phase1(),
   // filling the IterationsInfo object passed in by reference.
 
   //==============================================================================

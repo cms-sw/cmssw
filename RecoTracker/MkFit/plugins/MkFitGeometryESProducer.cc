@@ -400,7 +400,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
         std::numeric_limits<float>::max(), 0, std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     li.reserve_modules(256);
   }
-  // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well.
+  // This is sort of CMS-phase1 specific ... but fireworks code uses it for PhaseII as well.
   addPixBGeometry(*trackerInfo);
   addPixEGeometry(*trackerInfo);
   addTIBGeometry(*trackerInfo);
