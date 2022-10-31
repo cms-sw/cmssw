@@ -85,7 +85,7 @@ Generator::Generator(const ParameterSet &p)
 
   Z_hector = theRDecLenCut * ((1 - exp(-2 * theEtaCutForHector)) / (2 * exp(-theEtaCutForHector)));
 
-  edm::LogWarning("SimG4CoreGenerator") << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut / cm
+  edm::LogVerbatim("SimG4CoreGenerator") << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut / cm
                                          << " cm;  Zdecaycut= " << theDecLenCut / cm << "Z_min= " << Z_lmin / cm
                                          << " cm; Z_max= " << Z_lmax << " cm;  Z_hector = " << Z_hector << " cm\n"
                                          << "                     ApplyCuts: " << fFiductialCuts
