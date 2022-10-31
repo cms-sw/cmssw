@@ -83,19 +83,36 @@ def main():
 
     with open("{}/DAG/dagFile".format(validationDir), "w") as dag:
         for job in jobs:
-            ##Create job dir and create symlink for executable
+            ##Create job dir, output dir
             subprocess.call(["mkdir", "-p", job["dir"]] + (["-v"] if args.verbose else []))
-            subprocess.call(["ln", "-sf", "{}/{}".format(exeDir, job["exe"]), job["dir"]] + (["-v"] if args.verbose else []))
+            subprocess.call(["mkdir", "-p", job["config"]["output"]] + (["-v"] if args.verbose else []))
+            subprocess.call(["ln", "-sf", job["config"]["output"], "{}/output".format(job["dir"])] + (["-v"] if args.verbose else []))
 
-            ##Write local config file
+            ##Create symlink for executable/python cms config if needed
+            subprocess.call(["ln", "-sf", "{}/{}".format(exeDir, job["exe"]), job["dir"]] + (["-v"] if args.verbose else []))
+            if "cms-config" in job:
+                subprocess.call(["ln", "-sf", job["cms-config"], "{}/validation_cfg.py".format(job["dir"])] + (["-v"] if args.verbose else []))
+
+            ##Write local config file 
             with open("{}/validation.json".format(job["dir"]), "w") as jsonFile:
                 if args.verbose:
                     print("Write local json config: '{}'".format("{}/validation.json".format(job["dir"])))           
 
                 json.dump(job["config"], jsonFile, indent=4)
 
+            with open("{}/validation.yaml".format(job["dir"]), "w") as yamlFile:
+                if args.verbose:
+                    print("Write local json config: '{}'".format("{}/validation.yaml".format(job["dir"])))           
+
+                yaml.dump(job["config"], yamlFile, default_flow_style=False, width=float("inf"), indent=4)
+
             ##Copy condor.sub into job directory
-            defaultSub = "{}/src/Alignment/OfflineValidation/bin/.default.sub".format(os.environ["CMSSW_BASE"])
+            if "cms-config" in job:
+                defaultSub = "{}/src/Alignment/OfflineValidation/bin/.defaultWithCMSRun.sub".format(os.environ["CMSSW_BASE"])
+
+            else:
+                defaultSub = "{}/src/Alignment/OfflineValidation/bin/.default.sub".format(os.environ["CMSSW_BASE"])            
+
             subprocess.call(["cp", "-f", defaultSub, "{}/condor.sub".format(job["dir"])] + (["-v"] if args.verbose else []))
 
             ##Write command in dag file
