@@ -571,6 +571,12 @@ HLT_HT430_DelayedJet40_SingleDelay0p5nsTrackless_v* # CMSHLT-2352
 HLT_HT430_DelayedJet40_SingleDelay1nsInclusive_v*   # CMSHLT-2352
 HLT_HT430_DelayedJet40_SingleDelay1p5nsInclusive_v* # CMSHLT-2352
 HLT_HT430_DelayedJet40_SingleDelay2nsInclusive_v*   # CMSHLT-2211
+HLT_L1Tau_DelayedJet40_DoubleDelay0p5nsTrackless_v*  # CMSHLT-2501
+HLT_L1Tau_DelayedJet40_DoubleDelay0p75nsInclusive_v* # CMSHLT-2501
+HLT_L1Tau_DelayedJet40_DoubleDelay1nsTrackless_v*    # CMSHLT-2501
+HLT_L1Tau_DelayedJet40_DoubleDelay1p25nsInclusive_v* # CMSHLT-2501
+HLT_L1Tau_DelayedJet40_SingleDelay2p5nsTrackless_v*  # CMSHLT-2501
+HLT_L1Tau_DelayedJet40_SingleDelay3p5nsInclusive_v*  # CMSHLT-2501
 HLT_L1Mu6HT240_v*                                                       # CMSHLT-2211
 HLT_Mu6HT240_DisplacedDijet30_Inclusive0PtrkShortSig5_v*                # CMSHLT-2211
 HLT_Mu6HT240_DisplacedDijet30_Inclusive1PtrkShortSig5_DisplacedLoose_v* # CMSHLT-2211
