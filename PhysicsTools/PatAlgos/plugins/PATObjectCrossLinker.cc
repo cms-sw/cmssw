@@ -205,47 +205,47 @@ void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
 
 void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  edm::Handle<edm::View<pat::Jet>> jetsIn;
-  iEvent.getByToken(jets_, jetsIn);
+  const auto& jetsIn = iEvent.get(jets_);
   auto jets = std::make_unique<std::vector<pat::Jet>>();
-  for (const auto& j : *jetsIn)
+  jets->reserve(jetsIn.size());
+  for (const auto& j : jetsIn)
     jets->push_back(j);
   auto jetRefProd = iEvent.getRefBeforePut<std::vector<pat::Jet>>("jets");
 
-  edm::Handle<edm::View<pat::Muon>> muonsIn;
-  iEvent.getByToken(muons_, muonsIn);
+  const auto& muonsIn = iEvent.get(muons_);
   auto muons = std::make_unique<std::vector<pat::Muon>>();
-  for (const auto& m : *muonsIn)
+  muons->reserve(muonsIn.size());
+  for (const auto& m : muonsIn)
     muons->push_back(m);
   auto muRefProd = iEvent.getRefBeforePut<std::vector<pat::Muon>>("muons");
 
-  edm::Handle<edm::View<pat::Electron>> electronsIn;
-  iEvent.getByToken(electrons_, electronsIn);
+  const auto& electronsIn = iEvent.get(electrons_);
   auto electrons = std::make_unique<std::vector<pat::Electron>>();
-  for (const auto& e : *electronsIn)
+  electrons->reserve(electronsIn.size());
+  for (const auto& e : electronsIn)
     electrons->push_back(e);
   auto eleRefProd = iEvent.getRefBeforePut<std::vector<pat::Electron>>("electrons");
 
-  edm::Handle<edm::View<pat::Electron>> lowPtElectronsIn;
   auto lowPtElectrons = std::make_unique<std::vector<pat::Electron>>();
   if (!lowPtElectronsTag_.label().empty()) {
-    iEvent.getByToken(lowPtElectrons_, lowPtElectronsIn);
+    auto lowPtElectronsIn = iEvent.getHandle(lowPtElectrons_);
+    lowPtElectrons->reserve(lowPtElectronsIn->size());
     for (const auto& e : *lowPtElectronsIn) {
       lowPtElectrons->push_back(e);
     }
   }
 
-  edm::Handle<edm::View<pat::Tau>> tausIn;
-  iEvent.getByToken(taus_, tausIn);
+  const auto& tausIn = iEvent.get(taus_);
   auto taus = std::make_unique<std::vector<pat::Tau>>();
-  for (const auto& t : *tausIn)
+  taus->reserve(tausIn.size());
+  for (const auto& t : tausIn)
     taus->push_back(t);
   auto tauRefProd = iEvent.getRefBeforePut<std::vector<pat::Tau>>("taus");
 
-  edm::Handle<edm::View<pat::Photon>> photonsIn;
-  iEvent.getByToken(photons_, photonsIn);
+  const auto& photonsIn = iEvent.get(photons_);
   auto photons = std::make_unique<std::vector<pat::Photon>>();
-  for (const auto& p : *photonsIn)
+  photons->reserve(photonsIn.size());
+  for (const auto& p : photonsIn)
     photons->push_back(p);
   auto phRefProd = iEvent.getRefBeforePut<std::vector<pat::Photon>>("photons");
 
