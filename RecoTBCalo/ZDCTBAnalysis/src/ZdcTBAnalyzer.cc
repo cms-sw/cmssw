@@ -1,7 +1,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <memory>
 
-class ZdcTBAnalyzer : public edm::EDAnalyzer {
+class ZdcTBAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit ZdcTBAnalyzer(const edm::ParameterSet&);
   ~ZdcTBAnalyzer() override;

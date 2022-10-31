@@ -1,6 +1,6 @@
 #ifndef RECOPARTICLEFLOW_PFSUPERCLUSTERREADER_H
 #define RECOPARTICLEFLOW_PFSUPERCLUSTERREADER_H
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -11,12 +11,10 @@
 #include <string>
 #include <map>
 
-class PFSuperClusterReader : public edm::EDAnalyzer {
+class PFSuperClusterReader : public edm::one::EDAnalyzer<> {
 public:
   explicit PFSuperClusterReader(const edm::ParameterSet&);
-  ~PFSuperClusterReader();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
   edm::InputTag inputTagGSFTracks_;
