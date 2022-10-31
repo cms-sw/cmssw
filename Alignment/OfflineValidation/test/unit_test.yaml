@@ -55,3 +55,19 @@ validations:
                 maxevents: 10
                 isda: true
                 ismc: true
+    SplitV:
+        merge:
+            testUnits:
+                singles:
+                - testUnits
+
+        single:
+            testUnits:
+                IOV:
+                - 1
+                alignments:
+                - unitTest
+                trackcollection: generalTracks
+                HLTSelection: False
+                triggerBits: HLT_*
+                maxevents: 10
