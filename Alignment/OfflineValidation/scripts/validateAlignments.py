@@ -3,17 +3,8 @@
 from __future__ import print_function
 from future.utils import lmap
 import subprocess
+import json
 import os
-import sys
-import optparse
-import datetime
-import shutil
-import fnmatch
-import fileinput
-import fileinput
-from abc import ABCMeta, abstractmethod
-import copy
-import itertools
 import pprint
 import re
 
@@ -461,25 +452,32 @@ class ValidationJobMultiIOV(ValidationBase):
 
         submitCommands = ["condor_submit_dag -no_submit -outfile_dir {} {}/validation.dagman".format(dagmanLog, outdir), "condor_submit {}/validation.dagman.condor.sub".format(outdir)]
 
-        for command in submitCommands:
-            subprocess.call(command.split(" "))
+import argparse
+import Alignment.OfflineValidation.TkAlAllInOneTool.GCP as GCP
+import Alignment.OfflineValidation.TkAlAllInOneTool.DMR as DMR
 
-    def getValidation( self ):
-        return [validation.getValidation() for validation in self.validations]
 
-    def needsproxy( self ):
-        return [validation.needsproxy() for validation in self.validations].join("and") and not self.preexisting and not self.commandLineOptions.dryRun
+def parser():
+    parser = argparse.ArgumentParser(description = "AllInOneTool for validation of the tracker alignment", formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("config", metavar='config.json', type=str, action="store", help="Global AllInOneTool json config")
 
-    def __iter__(self):
-        yield self
+    return parser.parse_args()
 
-    def __next__(self):
-        if self.start >= len(self.end):
-            raise StopIteration
-        else:
-            self.start += 1
-            return self.end[self.start-1]
+def main():
+    ##Read parser arguments
+    args = parser()
 
+    ##Create working directory
+    validationDir = "{}/src/Validation".format(os.environ["CMSSW_BASE"])
+    exeDir = "{}/executables".format(validationDir)
+
+    binDir = "{}/bin/{}".format(os.environ["CMSSW_BASE"], os.environ["SCRAM_ARCH"])
+    subprocess.call(["mkdir", "-p", validationDir])
+    subprocess.call(["mkdir", "-p", exeDir])
+
+    ##Read in AllInOne json config
+    with open(args.config, "r") as jsonFile:
+        config = json.load(jsonFile)
 
 ####################--- Functions ---############################
 def createMergeScript( path, validations, options ):
@@ -757,15 +755,46 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         pass
     else:
         ValidationJobMultiIOV.runCondorJobs(outPath)
+=======
+    ##List with all jobs
+    jobs = []
+>>>>>>> 546f76a90cc... Minimal working of new implementation of the AllInOneTool
 
+    ##Check in config for all validation and create jobs
+    for validation in config["validations"]:
+        if validation == "GCP":
+            jobs.extend(GCP.GCP(config, validationDir))
+            subprocess.call(["cp", "-f", "{}/GCP".format(binDir), exeDir])
+
+        if validation == "DMR":
+            jobs.extend(DMR.DMR(config, validationDir))
+            subprocess.call(["cp", "-f", "{}/DMRsingle".format(binDir), exeDir])
+            subprocess.call(["cp", "-f", "{}/DMRmerge".format(binDir), exeDir])
+
+     #  else:
+       #     raise Exception("Unkown validation method: {}".format(validation)) 
+            
+    ##Create dir for DAG file and loop over all jobs
+    subprocess.call(["mkdir", "-p", "{}/DAG/".format(validationDir)])
+
+    with open("{}/DAG/dagFile".format(validationDir), "w") as dag:
+        for job in jobs:
+            ##Create job dir and create symlink for executable
+            subprocess.call(["mkdir", "-p", job["dir"]])
+            subprocess.call(["ln", "-s", "{}/{}".format(exeDir, job["exe"]), job["dir"]])
+
+            ##Write local config file
+            with open("{}/validation.json".format(job["dir"]), "w") as jsonFile:
+                json.dump(job["config"], jsonFile, indent=4)
+
+            ##Copy condor.sub into job directory
+            defaultSub = "{}/src/Alignment/OfflineValidation/bin/.default.sub".format(os.environ["CMSSW_BASE"])
+            subprocess.call(["cp", "-f", defaultSub, "{}/condor.sub".format(job["dir"])])
+
+            ##Write command in dag file
+            dag.write("JOB {} condor.sub\n".format(job["name"]))
+            dag.write("DIR {} \n".format(job["dir"]))
+            dag.write('VARS {} exec="{}"\n\n'.format(job["name"], job["exe"]))
 
 if __name__ == "__main__":
-    # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
-    if "-d" in sys.argv[1:] or "--debug" in sys.argv[1:]:
-        main()
-    else:
-        try:
-            main()
-        except AllInOneError as e:
-            print("\nAll-In-One Tool:", str(e))
-            exit(1)
+    main()
