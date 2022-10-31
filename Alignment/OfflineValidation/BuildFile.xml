@@ -25,6 +25,7 @@
 <use name="CLHEP"/>
 <use name="rootmath"/>
 <use name="roothistmatrix"/>
+<use name="rootgraphics"/>
 <export>
   <lib name="1"/>
 </export>

@@ -1,19 +1,38 @@
 #ifndef PLOTALIGNNMENTVALIDATION_H_
 #define PLOTALIGNNMENTVALIDATION_H_
 
+#include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
+#include "Math/ProbFunc.h"
+
+#include "TAxis.h"
 #include "TCanvas.h"
 #include "TDirectory.h"
 #include "TDirectoryFile.h"
+#include "TF1.h"
 #include "TFile.h"
+#include "TGaxis.h"
+#include "TH2F.h"
 #include "THStack.h"
+#include "TKey.h"
+#include "TLatex.h"
 #include "TLegend.h"
+#include "TLegendEntry.h"
+#include "TPad.h"
+#include "TPaveStats.h"
+#include "TPaveText.h"
+#include "TProfile.h"
+#include "TRandom3.h"
+#include "TRegexp.h"
+#include "TROOT.h"
 #include "TString.h"
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TTree.h"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
@@ -23,6 +42,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+using namespace std;
 
 class TkOfflineVariables {
 public:
@@ -107,8 +128,9 @@ public:
   void plotChi2(const char* inputFile);
   // plotSurfaceShapes: options="split","layers"/"layer","subdet"
   void plotHitMaps();
-  void setOutputDir(std::string dir);
-  void setTreeBaseDir(std::string dir = "TrackerOfflineValidationStandalone");
+  void setOutputDir( std::string dir );
+  void setTreeBaseDir( std::string dir = "TrackerOfflineValidation");
+
   void residual_by_moduleID(unsigned int moduleid);
   int numberOfLayers(int phase, int subdetector);
   int maxNumberOfLayers(int subdetector);

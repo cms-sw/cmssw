@@ -1,41 +1,6 @@
-#include <string.h>
-#include <cstring>
-#include "TChain.h"
-#include "TFile.h"
-#include "TH1.h"
-#include "TTree.h"
-#include "TKey.h"
-#include "TMath.h"
-#include "Riostream.h"
-#include <vector>
-#include <sstream>
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "TROOT.h"
-#include "TPaveStats.h"
-#include "TObjArray.h"
-#include "TObjString.h"
-#include "TStyle.h"
-#include "TEnv.h"
+#include "Alignment/OfflineValidation/interface/CompareAlignments.h"
 
-#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
-
-
-TList *FileList;
-TList *LabelList;
-TFile *Target;
-std::vector< std::string > lowestlevels;
-std::vector< int > theColors;
-std::vector< int > theStyles;
-std::vector< int > phases;
-
-void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext );
-void nicePad(Int_t logx,Int_t logy);
-void SetMinMaxRange(TObjArray *hists);
-
-void ColourStatsBoxes(TObjArray *hists);
-
-void compareAlignments(TString namesandlabels="readFromFile", TString legendheader = "", TString lefttitle = "", TString righttitle = "", bool bigtext = false)
+void CompareAlignments::doComparison(TString namesandlabels, TString legendheader, TString lefttitle, TString righttitle, bool bigtext)
 {
   cout << "Comparing using: >"<<namesandlabels<<"<"<<endl;
 
@@ -44,7 +9,7 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
   gStyle->SetOptStat(111110);
   gStyle->SetOptTitle(0);
 
-  Target = TFile::Open( "result.root", "RECREATE" );
+  Target = TFile::Open((outPath + "/result.root").c_str(), "RECREATE" );
   FileList = new TList();
   LabelList = new TList();
 
@@ -58,9 +23,9 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
       TFile* currentFile = TFile::Open(aFileLegPair->At(0)->GetName());
       if( currentFile != NULL && !currentFile->IsZombie() ){
         FileList->Add( currentFile  );  // 2
-        if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1") ) {
+        if ( currentFile->Get("TrackerOfflineValidation/Pixel/P1PXBBarrel_1") ) {
           phases.push_back(1);
-        } else if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/TPBBarrel_1") ) {
+        } else if ( currentFile->Get("TrackerOfflineValidation/Pixel/TPBBarrel_1") ) {
           phases.push_back(0);
         } else {
           cout << "Unknown phase for file " << aFileLegPair->At(0)->GetName() << endl;
@@ -124,7 +89,7 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
 
 }
 
-void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext ) {
+void CompareAlignments::MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext ) {
 
   if( sourcelist->GetSize() == 0){
     std::cout<< "Cowardly refuse to merge empty SourceList! " <<std::endl;
@@ -222,7 +187,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, boo
         bool wrongphase = false;
         ++itphase;
 
-        if (firstfilephase != *itphase && path.Contains("TrackerOfflineValidationStandalone/Pixel")) {
+        if (firstfilephase != *itphase && path.Contains("TrackerOfflineValidation/Pixel")) {
           //skip this one
           key2 = 0;
           wrongphase = true;
@@ -316,7 +281,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, boo
 
 
 
-void nicePad(Int_t logx,Int_t logy)
+void CompareAlignments::nicePad(Int_t logx,Int_t logy)
 {
 /*
     gPad->SetBottomMargin(0.10);
@@ -345,7 +310,7 @@ void nicePad(Int_t logx,Int_t logy)
 }
 
 
-void ColourStatsBoxes(TObjArray *hists)
+void CompareAlignments::ColourStatsBoxes(TObjArray *hists)
 {
 
   Double_t fStatsX1 = 0.85, fStatsX2 = 1., fStatsY1 = 0.77, fStatsY2 = 0.92;
@@ -383,7 +348,7 @@ void ColourStatsBoxes(TObjArray *hists)
 }
 
 
-void SetMinMaxRange(TObjArray *hists)
+void CompareAlignments::SetMinMaxRange(TObjArray *hists)
 {
   Double_t min = 100000;
   Double_t max = -100000;
