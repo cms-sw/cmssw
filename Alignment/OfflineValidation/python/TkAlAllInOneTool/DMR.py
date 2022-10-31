@@ -72,7 +72,7 @@ def DMR(config, validationDir):
 
                 for alignment in config["alignments"]:
                     ##Deep copy necessary things from global config
-                    local.setdefault("alignments", {}).setdefault("files", {}).setdefault("DMR", {}).setdefault("single", [])
+                    local.setdefault("alignments", {})
                     local["alignments"][alignment] = copy.deepcopy(config["alignments"][alignment])
                     local["validation"] = copy.deepcopy(config["validations"]["DMR"][dmrType][mergeName])
                     local["output"] = "{}/{}/{}/{}/{}".format(config["LFS"], config["name"], dmrType, mergeName, IOV)
@@ -82,8 +82,8 @@ def DMR(config, validationDir):
                     ##Get single job info and append to merge job if requirements fullfilled
                     alignment, datasetName, singleIOV = singleJob["name"].split("_")[2:]    
 
-                    if singleIOV == IOV and datasetName in config["validations"]["DMR"][dmrType][mergeName]["singles"]:
-                        local["alignments"]["files"]["DMR"]["single"].append(singleJob["config"]["output"])
+                    if int(singleIOV) == IOV and datasetName in config["validations"]["DMR"][dmrType][mergeName]["singles"]:
+                        local["alignments"][alignment]["file"] = singleJob["config"]["output"]
                         job["dependencies"].append(singleJob["name"])
                         
                 mergeJobs.append(job)

@@ -1,41 +1,15 @@
 <flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17" />
 
-<bin name="DMRtrends" file="DMRtrends.cc">
-    <use name="root" />
-    <use name="rootgraphics"/>
-    <lib name="stdc++fs" />
-</bin>
-
-<bin name="validateAlignment" file="validateAlignment.cc,Options.cc,DAG.cc">
-    <use name="boost" />
-    <use name="boost_program_options"/>
-    <use name="boost_system"/>
-    <use name="boost_filesystem"/>
-</bin>
-
-<bin name="DMRsingle" file="DMRsingle.cc,Options.cc">
-    <use name="boost" />
-    <use name="boost_program_options"/>
-    <use name="boost_system"/>
-    <use name="boost_filesystem"/>
-</bin>
-
-<bin name="DMRmerge" file="DMRmerge.cc,Options.cc">
-    <use name="boost" />
-    <use name="boost_program_options"/>
-    <use name="boost_system"/>
-    <use name="boost_filesystem"/>
-</bin>
-
-<bin name="getINFO" file="getINFO.cc,Options.cc">
-    <use name="boost" />
-    <use name="boost_program_options"/>
-    <use name="boost_system"/>
-    <use name="boost_filesystem"/>
-</bin>
-
-<bin name="convertConfig" file="convertConfig.cc">
-    <use name="boost" />
-    <use name="boost_system"/>
-    <use name="boost_filesystem"/>
-</bin>
+<use name="root" />
+<use name="rootgraphics"/>
+<use name="boost" />
+<use name="boost_program_options"/>
+<use name="boost_system"/>
+<use name="boost_filesystem"/>
+<use name="Alignment/OfflineValidation"/>
+<lib name="stdc++fs" />
+<bin name="validateAlignment" file="validateAlignment.cc,Options.cc,DAG.cc" />
+<bin name="DMRsingle" file="DMRsingle.cc,Options.cc" />
+<bin name="DMRmerge" file="DMRmerge.cc,Options.cc" />
+<bin name="DMRtrends" file="DMRtrends.cc" />
+<bin name="getINFO" file="getINFO.cc,Options.cc" />
