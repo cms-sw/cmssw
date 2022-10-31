@@ -4,9 +4,9 @@ using namespace std;
 namespace fs = std::experimental::filesystem;
 namespace pt = boost::property_tree;
 
-PrepareDMRTrends::PrepareDMRTrends(TString outputdir, pt::ptree& json)
+PrepareDMRTrends::PrepareDMRTrends(const char *outputFileName, pt::ptree& json) :
+  outputFileName_(outputFileName)
 {
-  outputdir_ = outputdir;
   geometries.clear();
   for (const std::pair<std::string, pt::ptree>& childTree : json) {
     geometries.push_back(childTree.second.get<std::string>("title"));
@@ -32,33 +32,17 @@ TString PrepareDMRTrends::getName(TString structure, int layer, TString geometry
   return name;
 };
 
-/*! \fn numberOfLayers
- *  \brief Function used to retrieve a map containing the number of layers per subdetector
- */
-
-const map<TString, int> PrepareDMRTrends::numberOfLayers(TString Year) {
-  if (Year == "2016")
-    return {{"BPIX", 3}, {"FPIX", 2}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9}};
-  else
-    return {{"BPIX", 4}, {"FPIX", 3}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9}};
-}
-
-
 /*! \fn compileDMRTrends
  *  \brief  Create a file where the DMR trends are stored in the form of TGraph.
  */
 
 void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
                       TString Variable,
-                      vector<string> labels,
-                      TString Year,
 		      std::vector<std::string> inputFiles,
+		      vector<TString> structures,
+		      const map<TString, int> nlayers,
                       bool FORCE) {
   gROOT->SetBatch();
-
-  vector<TString> structures{"BPIX", "BPIX_y", "FPIX", "FPIX_y", "TIB", "TID", "TOB", "TEC"};
-
-  const map<TString, int> nlayers = numberOfLayers(Year);
 
   float ScaleFactor = DMRFactor;
   if (Variable == "DrmsNR")
@@ -119,16 +103,8 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
     }
     f->Close();
   }
-  TString outname = outputdir_ + "DMRtrends";
-  if (labels.size() != 0 ) {
-    for (const auto &label : labels) {
-      outname += "_";
-      outname += label;
-    }
-  }
-  outname += ".root";
-  cout << outname << endl;
-  TFile *fout = TFile::Open(outname, "RECREATE");
+
+  TFile *fout = TFile::Open(outputFileName_, "RECREATE");
   for (TString &structure : structures) {
     TString structname = structure;
     structname.ReplaceAll("_y", "");

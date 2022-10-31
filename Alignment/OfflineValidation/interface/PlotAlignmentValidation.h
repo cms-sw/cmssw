@@ -1,5 +1,5 @@
-#ifndef PLOTALIGNNMENTVALIDATION_H_
-#define PLOTALIGNNMENTVALIDATION_H_
+#ifndef ALIGNMENT_OFFLINEVALIDATION_PLOTALIGNNMENTVALIDATION_H_
+#define ALIGNMENT_OFFLINEVALIDATION_PLOTALIGNNMENTVALIDATION_H_
 
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
@@ -225,4 +225,4 @@ private:
   vector<TH1*> findmodule(TFile* f, unsigned int moduleid);
 };
 
-#endif  // PLOTALIGNNMENTVALIDATION_H_
+#endif  // ALIGNMENT_OFFLINEVALIDATION_PLOTALIGNNMENTVALIDATION_H_

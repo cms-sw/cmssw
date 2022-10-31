@@ -1,5 +1,5 @@
-#ifndef PREPAREPVTRENDS_H_
-#define PREPAREPVTRENDS_H_
+#ifndef ALIGNMENT_OFFLINEVALIDATION_PREPAREPVTRENDS_H_
+#define ALIGNMENT_OFFLINEVALIDATION_PREPAREPVTRENDS_H_
 
 #include "TArrow.h"
 #include "TAxis.h"
@@ -40,7 +40,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "Alignment/OfflineValidation/interface/outTrends.h"
+#include "Alignment/OfflineValidation/interface/OutPVtrends.h"
 
 /*!
  * \def some convenient I/O
@@ -53,12 +53,6 @@
  * \def boolean to decide if it is in debug mode
  */
 #define VERBOSE false
-
-
-/*!
- * \def number of workers
- */
-const size_t nWorkers = 20;
 
 namespace pv {
   enum view { dxyphi, dzphi, dxyeta, dzeta, pT, generic };
@@ -259,23 +253,25 @@ namespace pv {
 class PreparePVTrends {
  public:
 
-  PreparePVTrends(TString outputdir, boost::property_tree::ptree& json);
+  PreparePVTrends(const char *outputFileName, int nWorkers, boost::property_tree::ptree& json);
+  ~PreparePVTrends(){}
+
   void setDirsAndLabels(boost::property_tree::ptree& json);
 
-  void MultiRunPVValidation(std::vector<std::string> file_labels_to_add,
-			    bool useRMS = true,
-			    TString lumiInputFile = "",
+  void multiRunPVValidation(bool useRMS = true,
+                            TString lumiInputFile = "",
                             bool doUnitTest = false);
 
   static pv::biases getBiases(TH1F *hist);
   static unrolledHisto getUnrolledHisto(TH1F *hist);
-  static TH1F *DrawConstantWithErr(TH1F *hist, Int_t iter, Double_t theConst);
-  static outTrends processData(size_t iter,
+  static TH1F *drawConstantWithErr(TH1F *hist, Int_t iter, Double_t theConst);
+  static outPVtrends processData(size_t iter,
 				   std::vector<int> intersection,
 				   const Int_t nDirs_,
 				   const char *dirs[10],
 				   TString LegLabels[10],
 			           bool useRMS,
+				   const size_t nWorkers,
                                    bool doUnitTest);
   std::vector<int> list_files(const char *dirname = ".", const char *ext = ".root");
   void outputGraphs(const pv::wrappedTrends &allInputs,
@@ -294,10 +290,11 @@ class PreparePVTrends {
                   const TString &label);
 
  private:
-  TString outputdir_;
+  const char *outputFileName_;
+  const size_t nWorkers_; //def number of workers
   std::vector<std::string> DirList;
   std::vector<std::string> LabelList;
   
 };
 
-#endif  // PREPAREPVTRENDS_H_
+#endif  // ALIGNMENT_OFFLINEVALIDATION_PREPAREPVTRENDS_H_

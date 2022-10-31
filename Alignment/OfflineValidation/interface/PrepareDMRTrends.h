@@ -1,5 +1,5 @@
-#ifndef PREPAREDMRTRENDS_H_
-#define PREPAREDMRTRENDS_H_
+#ifndef ALIGNMENT_OFFLINEVALIDATION_PREPAREDMRTRENDS_H_
+#define ALIGNMENT_OFFLINEVALIDATION_PREPAREDMRTRENDS_H_
 
 #include <iostream>
 #include <string>
@@ -96,25 +96,25 @@ struct Point {
     return *this;
   }
 
-  float GetRun() const { return run; }
-  float GetMu() const { return scale * mu; }
-  float GetMuPlus() const { return scale * muplus; }
-  float GetMuMinus() const { return scale * muminus; }
-  float GetSigma() const { return scale * sigma; }
-  float GetSigmaPlus() const { return scale * sigmaplus; }
-  float GetSigmaMinus() const { return scale * sigmaminus; }
-  float GetDeltaMu() const {
+  inline float GetRun() const { return run; }
+  inline float GetMu() const { return scale * mu; }
+  inline float GetMuPlus() const { return scale * muplus; }
+  inline float GetMuMinus() const { return scale * muminus; }
+  inline float GetSigma() const { return scale * sigma; }
+  inline float GetSigmaPlus() const { return scale * sigmaplus; }
+  inline float GetSigmaMinus() const { return scale * sigmaminus; }
+  inline float GetDeltaMu() const {
     if (muplus == DUMMY && muminus == DUMMY)
       return DUMMY;
     else
       return scale * (muplus - muminus);
   }
-  float GetSigmaDeltaMu() const {
+  inline float GetSigmaDeltaMu() const {
     if (sigmaplus == DUMMY && sigmaminus == DUMMY)
       return DUMMY;
     else
       return scale * hypot(sigmaplus, sigmaminus);
-  };
+  }
 };
 
 /*! \class Geometry
@@ -147,39 +147,37 @@ public:
     points = geom.points;
     return *this;
   }
-  void SetTitle(TString Title) { title = Title; }
-  TString GetTitle() { return title; }
-  std::vector<float> Run() const { return GetQuantity(&Point::GetRun); }
-  std::vector<float> Mu() const { return GetQuantity(&Point::GetMu); }
-  std::vector<float> MuPlus() const { return GetQuantity(&Point::GetMuPlus); }
-  std::vector<float> MuMinus() const { return GetQuantity(&Point::GetMuMinus); }
-  std::vector<float> Sigma() const { return GetQuantity(&Point::GetSigma); }
-  std::vector<float> SigmaPlus() const { return GetQuantity(&Point::GetSigmaPlus); }
-  std::vector<float> SigmaMinus() const { return GetQuantity(&Point::GetSigmaMinus); }
-  std::vector<float> DeltaMu() const { return GetQuantity(&Point::GetDeltaMu); }
-  std::vector<float> SigmaDeltaMu() const { return GetQuantity(&Point::GetSigmaDeltaMu); }
-  //std::vector<float> Graph (std::string variable) const {
-  // };
+  inline void SetTitle(TString Title) { title = Title; }
+  inline TString GetTitle() { return title; }
+  inline std::vector<float> Run() const { return GetQuantity(&Point::GetRun); }
+  inline std::vector<float> Mu() const { return GetQuantity(&Point::GetMu); }
+  inline std::vector<float> MuPlus() const { return GetQuantity(&Point::GetMuPlus); }
+  inline std::vector<float> MuMinus() const { return GetQuantity(&Point::GetMuMinus); }
+  inline std::vector<float> Sigma() const { return GetQuantity(&Point::GetSigma); }
+  inline std::vector<float> SigmaPlus() const { return GetQuantity(&Point::GetSigmaPlus); }
+  inline std::vector<float> SigmaMinus() const { return GetQuantity(&Point::GetSigmaMinus); }
+  inline std::vector<float> DeltaMu() const { return GetQuantity(&Point::GetDeltaMu); }
+  inline std::vector<float> SigmaDeltaMu() const { return GetQuantity(&Point::GetSigmaDeltaMu); }
 };
 
 class PrepareDMRTrends {
  public:
 
-  PrepareDMRTrends(TString outputdir, boost::property_tree::ptree& json);
+  PrepareDMRTrends(const char *outputFileName, boost::property_tree::ptree& json);
+  ~PrepareDMRTrends(){}
 
   TString getName(TString structure, int layer, TString geometry);
-  const std::map<TString, int> numberOfLayers(TString Year);
   void compileDMRTrends(std::vector<int> IOVlist,
 			TString Variable,
-			std::vector<std::string> labels,
-			TString Year,
 			std::vector<std::string> inputFiles,
+			std::vector<TString> structures,
+			const std::map<TString, int> nlayers,
 			bool FORCE = false);
 
  private:
-  TString outputdir_;
+  const char *outputFileName_;
   std::vector<std::string> geometries;
 
 };
 
-#endif // PREPAREDMRTRENDS_H_
+#endif // ALIGNMENT_OFFLINEVALIDATION_PREPAREDMRTRENDS_H_

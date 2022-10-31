@@ -44,9 +44,9 @@ void comparisonScript(
   fs::create_directories(transDir.Data());
   fs::create_directories(rotDir.Data());
 
-  bool plotOnlyGlobal   = GCPoptions.get_child_optional("plotOnlyGlobal") ? GCPoptions.get<bool>("plotOnlyGlobal") : false;
-  bool plotPng          = GCPoptions.get_child_optional("plotPng") ? GCPoptions.get<bool>("plotPng") : false;
-  bool makeProfilePlots = GCPoptions.get_child_optional("makeProfilePlots") ? GCPoptions.get<bool>("makeProfilePlots") : true;
+  bool plotOnlyGlobal   = GCPoptions.count("plotOnlyGlobal") ? GCPoptions.get<bool>("plotOnlyGlobal") : false;
+  bool plotPng          = GCPoptions.count("plotPng") ? GCPoptions.get<bool>("plotPng") : false;
+  bool makeProfilePlots = GCPoptions.count("makeProfilePlots") ? GCPoptions.get<bool>("makeProfilePlots") : true;
 
   // Plot Translations
   GeometryComparisonPlotter* trans = new GeometryComparisonPlotter(
@@ -191,7 +191,7 @@ int GCP(int argc, char* argv[]) {
   pt::ptree GCPoptions = validation.get_child("GCP");
 
   // If useDefaultRange, update ranges if not defined in GCPoptions
-  bool useDefaultRange  = GCPoptions.get_child_optional("useDefaultRange") ? GCPoptions.get<bool>("useDefaultRange") : false;
+  bool useDefaultRange  = GCPoptions.count("useDefaultRange") ? GCPoptions.get<bool>("useDefaultRange") : false;
   if (useDefaultRange) {
       // Read default ranges
       pt::ptree default_range;

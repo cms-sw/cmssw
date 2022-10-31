@@ -138,8 +138,8 @@ def PV(config, validationDir):
             if "label" in config["validations"]["PV"][pvType][trendName]:
                 local["validation"]["label"] = copy.deepcopy(config["validations"]["PV"][pvType][trendName]["label"])
             local["output"] = "{}/{}/PV/{}/{}/".format(config["LFS"], config["name"], pvType, trendName)
-            if config["lines"]:
-                local["lines"] = copy.deepcopy(config["lines"])
+            if config["style"]:
+                local["style"] = copy.deepcopy(config["style"])
             else:
                 raise Exception("You want to create 'trends' jobs, but there are no 'lines' section in the config for pixel updates!")
 
