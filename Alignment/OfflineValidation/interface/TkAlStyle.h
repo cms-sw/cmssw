@@ -1,6 +1,6 @@
 // Common style file for TkAl public plots
 // --------------------------------------------------------------
-// 
+//
 // Defines a set of functions to define the plotting style and
 // provide commonly used style objects such as histogram title
 // and legends. Can be used in compiled code and uncompiled scripts.
@@ -25,9 +25,17 @@
 #include "TStyle.h"
 #include <iostream>
 
-
 // Publication status: determines what is plotted in title
-enum PublicationStatus { NO_STATUS, INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED, CUSTOM };
+enum PublicationStatus {
+  NO_STATUS,
+  INTERNAL,
+  INTERNAL_SIMULATION,
+  PRELIMINARY,
+  PUBLIC,
+  SIMULATION,
+  UNPUBLISHED,
+  CUSTOM
+};
 
 // Data era: determines labels of data-taking periods, e.g. CRUZET
 enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
@@ -35,7 +43,10 @@ enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
-  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "", const TString customRightTitle = "");
+  static void set(const PublicationStatus status,
+                  const Era era = NONE,
+                  const TString customTitle = "",
+                  const TString customRightTitle = "");
   static void set(const TString customTitle);
   static PublicationStatus status() { return publicationStatus_; }
 
@@ -49,27 +60,25 @@ public:
   //  UNPUBLISHED : show "CMS (unpublished)" label (intended for additional material on TWiki)
   // Note that this method does not allow for easy memory
   // handling. For that, use standardTitle().
-  static void drawStandardTitle() { standardTitle()->Draw("same"); standardRightTitle()->Draw("same"); }
-  static void drawStandardTitle(const Era era) { standardTitle()->Draw("same"); standardRightTitle(era)->Draw("same"); }
+  static void drawStandardTitle() {
+    standardTitle()->Draw("same");
+    standardRightTitle()->Draw("same");
+  }
+  static void drawStandardTitle(const Era era) {
+    standardTitle()->Draw("same");
+    standardRightTitle(era)->Draw("same");
+  }
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions.
   // It has the same text as described in drawStandardTitle().
   // The idea of this method is that one has control over the
   // TPaveText object and can do proper memory handling.
-  static TPaveText* standardTitle(PublicationStatus status) {
-    return title(header(status));
-  }
-  static TPaveText* standardTitle() {
-    return standardTitle(publicationStatus_);
-  }
+  static TPaveText* standardTitle(PublicationStatus status) { return title(header(status)); }
+  static TPaveText* standardTitle() { return standardTitle(publicationStatus_); }
 
-  static TPaveText* standardRightTitle(const Era era) {
-    return righttitle(rightheader(era));
-  }
-  static TPaveText* standardRightTitle() {
-    return standardRightTitle(era_);
-  }
+  static TPaveText* standardRightTitle(const Era era) { return righttitle(rightheader(era)); }
+  static TPaveText* standardRightTitle() { return standardRightTitle(era_); }
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions and displays the specified text txt.
@@ -83,92 +92,85 @@ public:
   // of the current pad. Its width, relative to the pad size (without
   // margins), can be specified. Its height is optimized for nEntries
   // entries.
-  static TLegend* legend(const int nEntries, const double relWidth=0.5) {
-    return legendTR(nEntries,relWidth);
-  }
-  static TLegend* legend(TString position, const int nEntries, const double relWidth=0.5) {
+  static TLegend* legend(const int nEntries, const double relWidth = 0.5) { return legendTR(nEntries, relWidth); }
+  static TLegend* legend(TString position, const int nEntries, const double relWidth = 0.5) {
     position.ToLower();
-    if( !( position.Contains("top") || position.Contains("bottom") ) )
+    if (!(position.Contains("top") || position.Contains("bottom")))
       position += "top";
-    if( !( position.Contains("left") || position.Contains("right") ) )
+    if (!(position.Contains("left") || position.Contains("right")))
       position += "right";
     TLegend* leg = nullptr;
-    if(        position.Contains("top")    && position.Contains("right") ) {
-      leg = legendTR(nEntries,relWidth);
-    } else if( position.Contains("top")    && position.Contains("left")  ) {
-      leg = legendTL(nEntries,relWidth);
-    } else if( position.Contains("bottom") && position.Contains("right") ) {
-      leg = legendBR(nEntries,relWidth);
-    } else if( position.Contains("bottom") && position.Contains("left")  ) {
-      leg = legendBL(nEntries,relWidth);
+    if (position.Contains("top") && position.Contains("right")) {
+      leg = legendTR(nEntries, relWidth);
+    } else if (position.Contains("top") && position.Contains("left")) {
+      leg = legendTL(nEntries, relWidth);
+    } else if (position.Contains("bottom") && position.Contains("right")) {
+      leg = legendBR(nEntries, relWidth);
+    } else if (position.Contains("bottom") && position.Contains("left")) {
+      leg = legendBL(nEntries, relWidth);
     } else {
-      leg = legendTR(nEntries,relWidth);
+      leg = legendTR(nEntries, relWidth);
     }
 
     return leg;
   }
   // Same but explicitly state position on pad
-  static TLegend* legendTL(const int nEntries, const double relWidth=0.5) {
-    return legend(nEntries,relWidth,true,true);
+  static TLegend* legendTL(const int nEntries, const double relWidth = 0.5) {
+    return legend(nEntries, relWidth, true, true);
   }
-  static TLegend* legendTR(const int nEntries, const double relWidth=0.5) {
-    return legend(nEntries,relWidth,false,true);
+  static TLegend* legendTR(const int nEntries, const double relWidth = 0.5) {
+    return legend(nEntries, relWidth, false, true);
   }
-  static TLegend* legendBL(const int nEntries, const double relWidth=0.5) {
-    return legend(nEntries,relWidth,true,false);
+  static TLegend* legendBL(const int nEntries, const double relWidth = 0.5) {
+    return legend(nEntries, relWidth, true, false);
   }
-  static TLegend* legendBR(const int nEntries, const double relWidth=0.5) {
-    return legend(nEntries,relWidth,false,false);
+  static TLegend* legendBR(const int nEntries, const double relWidth = 0.5) {
+    return legend(nEntries, relWidth, false, false);
   }
-
 
   // Returns a TPaveText object that fits into the top-right corner
   // of the current pad and that can be used for additional labels.
   // Its width, relative to the pad size (without margins), can be
   // specified. Its height is optimized for nEntries entries.
-  static TPaveText* label(const int nEntries, const double relWidth=0.5) {
-    return labelTR(nEntries,relWidth);
-  }
+  static TPaveText* label(const int nEntries, const double relWidth = 0.5) { return labelTR(nEntries, relWidth); }
 
-  static TPaveText* label(TString position, const int nEntries, const double relWidth=0.5) {
+  static TPaveText* label(TString position, const int nEntries, const double relWidth = 0.5) {
     position.ToLower();
-    if( !( position.Contains("top") || position.Contains("bottom") ) )
+    if (!(position.Contains("top") || position.Contains("bottom")))
       position += "top";
-    if( !( position.Contains("left") || position.Contains("right") ) )
+    if (!(position.Contains("left") || position.Contains("right")))
       position += "right";
     TPaveText* label = nullptr;
-    if(        position.Contains("top")    && position.Contains("right") ) {
-      label = labelTR(nEntries,relWidth);
-    } else if( position.Contains("top")    && position.Contains("left")  ) {
-      label = labelTL(nEntries,relWidth);
-    } else if( position.Contains("bottom") && position.Contains("right") ) {
-      label = labelBR(nEntries,relWidth);
-    } else if( position.Contains("bottom") && position.Contains("left")  ) {
-      label = labelBL(nEntries,relWidth);
+    if (position.Contains("top") && position.Contains("right")) {
+      label = labelTR(nEntries, relWidth);
+    } else if (position.Contains("top") && position.Contains("left")) {
+      label = labelTL(nEntries, relWidth);
+    } else if (position.Contains("bottom") && position.Contains("right")) {
+      label = labelBR(nEntries, relWidth);
+    } else if (position.Contains("bottom") && position.Contains("left")) {
+      label = labelBL(nEntries, relWidth);
     } else {
-      label = labelTR(nEntries,relWidth);
+      label = labelTR(nEntries, relWidth);
     }
 
     return label;
   }
 
   // Same but explicitly state position on pad
-  static TPaveText* labelTL(const int nEntries, const double relWidth=0.5) {
-    return label(nEntries,relWidth,true,true);
+  static TPaveText* labelTL(const int nEntries, const double relWidth = 0.5) {
+    return label(nEntries, relWidth, true, true);
   }
-  static TPaveText* labelTR(const int nEntries, const double relWidth=0.5) {
-    return label(nEntries,relWidth,false,true);
+  static TPaveText* labelTR(const int nEntries, const double relWidth = 0.5) {
+    return label(nEntries, relWidth, false, true);
   }
-  static TPaveText* labelBL(const int nEntries, const double relWidth=0.5) {
-    return label(nEntries,relWidth,true,false);
+  static TPaveText* labelBL(const int nEntries, const double relWidth = 0.5) {
+    return label(nEntries, relWidth, true, false);
   }
-  static TPaveText* labelBR(const int nEntries, const double relWidth=0.5) {
-    return label(nEntries,relWidth,false,false);
+  static TPaveText* labelBR(const int nEntries, const double relWidth = 0.5) {
+    return label(nEntries, relWidth, false, false);
   }
-
 
   static double lineHeight() { return lineHeight_; }
-
 
 private:
   static PublicationStatus publicationStatus_;
@@ -184,7 +186,7 @@ private:
   static TPaveText* righttitle(const TString& txt);
 
   // returns the standard-title (CMS label 2015) depending
-  // on the PublicationStatus 
+  // on the PublicationStatus
   static TString header(const PublicationStatus status);
   static TString rightheader(const Era era);
 

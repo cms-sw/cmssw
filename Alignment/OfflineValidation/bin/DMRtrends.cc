@@ -172,6 +172,7 @@ void DMRtrends(
     bool pixelupdate = false,
     vector<int> pixelupdateruns = {314881, 316758, 317527, 318228, 320377},
     bool showlumi = false,
+    TString lumifile = "/afs/cern.ch/work/a/acardini/Alignment/MultiIOV/CMSSW_10_5_0_pre2/src/Alignment/OfflineValidation/data/lumiperFullRun2.txt",
     bool FORCE = false);
 
 /*! \class Geometry
@@ -1038,14 +1039,16 @@ void PlotDMRTrends(vector<int> IOVlist,
 /*! \fn main
  *  \brief main function: if no arguments are specified a default list of arguments is used, otherwise a total of 9 arguments are required:
  * @param IOVlist:                 string containing the list of IOVs separated by a ","
+ * @param variables:               string containing the variables used for running, like median or DrmsNR
  * @param labels:                  string containing labels that must be part of the input files
- * @param Year:                    string containing the year of the studied runs (needed to retrieve the lumi-per-run file)
+ * @param Year:                    string containing the year of the studied runs (needed to retrieve the lumi-per-run file), use Run2 for the full Run-2 data-taking
  * @param pathtoDMRs:              string containing the path to the directory where the DMRs are stored
  * @param geometrieandcolours:     string containing the list of geometries and colors in the following way name1:color1,name2:color2 etc.
  * @param outputdirectory:         string containing the output directory for the plots
  * @param pixelupdatelist:         string containing the list of pixelupdates separated by a ","
  * @param showpixelupdate:         boolean that if set to true will allow to plot vertical lines in the canvas corresponding to the pixel updates
  * @param showlumi:                boolean, if set to false the trends will be presented in function of the run (IOV) number, if set to true the luminosity is used on the x axis
+ * @param lumifile:                string, contains the name of the lumi-per-run file to be used, by default the code will look in the Alignment/OfflineValidation/data folder as its location
  * @param FORCE:              //!< boolean, if set to true the plots will be made regardless of possible errors.
  *                                 Eventual errors while running the code will be ignored and just warnings will appear in the output.
  */
