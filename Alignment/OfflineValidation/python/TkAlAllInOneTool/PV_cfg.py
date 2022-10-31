@@ -4,9 +4,9 @@ from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIM
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
 import json
 import os
-
 
 ##Define process
 process = cms.Process("PrimaryVertexValidation")
@@ -23,7 +23,7 @@ if options.config == "":
               "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        config = json.load(configFile)
+        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
 
 isDA = config["validation"].get("isda", True)
 isMC = config["validation"].get("ismc", True)
@@ -88,12 +88,9 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-       destinations   = cms.untracked.vstring('cerr'),
-       cerr       = cms.untracked.PSet(
-                    threshold = cms.untracked.string('ERROR')
-        )
-
-)
+                                    destinations   = cms.untracked.vstring('cerr'),
+                                    cerr       = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
+                                   )
 
 ##Basic modules
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")

@@ -4,6 +4,8 @@ from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIM
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
+
 import json
 import os
 
@@ -25,7 +27,7 @@ if options.config == "":
               "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        config = json.load(configFile)
+        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
 
 ##Read filenames from given TXT file and define input source
 readFiles = []
