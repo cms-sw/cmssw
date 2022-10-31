@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_4_0/PIon/V145 (CMSSW_12_4_0)
+# /dev/CMSSW_12_4_0/PIon/V171 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V145')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V171')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4916,29 +4916,9 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
 )
 process.MessageLogger = cms.Service( "MessageLogger",
-    suppressWarning = cms.untracked.vstring( 'hltIterL3GlbdTksDisplacedMuons',
-      'hltIterL3GlbMuon',
-      'hltIterL3OIMuCtfWithMaterialTracks',
-      'hltIterL3OIMuCtfWithMaterialTracksNoVtx',
-      'hltIterL3OISeedsFromL2Muons',
-      'hltIterL3OITrackCandidates',
-      'hltIterL3OITrackCandidatesNoVtx',
-      'hltIterL3OITrackCandidatesOpenMu',
-      'hltL3GlbDisplacedMuonsIterL3OI',
-      'hltL3MuonsIOHit',
-      'hltL3MuonsIterL3OI',
-      'hltL3MuonsIterL3OINoVtx',
+    suppressWarning = cms.untracked.vstring( 'hltL3MuonsIOHit',
       'hltL3MuonsOIHit',
       'hltL3MuonsOIState',
-      'hltL3NoFiltersNoVtxMuonsOIHit',
-      'hltL3NoFiltersNoVtxMuonsOIState',
-      'hltL3NoFiltersTkTracksFromL2IOHitNoVtx',
-      'hltL3NoFiltersTkTracksFromL2OIHitNoVtx',
-      'hltL3NoFiltersTrackCandidateFromL2OIHitNoVtx',
-      'hltL3TkTracksFromL2OIStateNoVtx',
-      'hltL3TrackCandidateFromL2OIHit',
-      'hltL3TrackCandidateFromL2OIState',
-      'hltL3TrackCandidateFromL2OIStateNoVtx',
       'hltLightPFTracks',
       'hltOnlineBeamSpot',
       'hltPixelTracks',
