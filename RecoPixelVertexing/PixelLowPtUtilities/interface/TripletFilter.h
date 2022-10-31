@@ -6,9 +6,6 @@
 
 #include <vector>
 
-namespace edm {
-  class EventSetup;
-}
 class TrackingRecHit;
 class ClusterShapeHitFilter;
 class TrackerTopology;
@@ -16,16 +13,16 @@ class SiPixelClusterShapeCache;
 
 class TripletFilter {
 public:
-  TripletFilter(const edm::EventSetup& es);
-  ~TripletFilter();
+  explicit TripletFilter(const ClusterShapeHitFilter* iFilter) : theFilter(iFilter) {}
+  ~TripletFilter() = default;
   bool checkTrack(const std::vector<const TrackingRecHit*>& recHits,
                   const std::vector<LocalVector>& localDirs,
                   const TrackerTopology* tTopo,
-                  const SiPixelClusterShapeCache& clusterShapeCache);
+                  const SiPixelClusterShapeCache& clusterShapeCache) const;
   bool checkTrack(const std::vector<const TrackingRecHit*>& recHits,
                   const std::vector<GlobalVector>& globalDirs,
                   const TrackerTopology* tTopo,
-                  const SiPixelClusterShapeCache& clusterShapeCache);
+                  const SiPixelClusterShapeCache& clusterShapeCache) const;
 
 private:
   const ClusterShapeHitFilter* theFilter;

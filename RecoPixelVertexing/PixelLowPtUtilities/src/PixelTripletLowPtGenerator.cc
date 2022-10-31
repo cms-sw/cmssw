@@ -15,6 +15,7 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #undef Debug
 
@@ -28,6 +29,7 @@ PixelTripletLowPtGenerator::PixelTripletLowPtGenerator(const edm::ParameterSet& 
       m_magfieldToken(iC.esConsumes()),
       m_ttrhBuilderToken(iC.esConsumes(edm::ESInputTag("", cfg.getParameter<string>("TTRHBuilder")))),
       m_msmakerToken(iC.esConsumes()),
+      m_clusterFilterToken(iC.esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
       theTracker(nullptr),
       theClusterShapeCacheToken(
           iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc"))) {
@@ -51,7 +53,7 @@ void PixelTripletLowPtGenerator::getTracker(const edm::EventSetup& es) {
   }
 
   if (!theFilter) {
-    theFilter = std::make_unique<TripletFilter>(es);
+    theFilter = std::make_unique<TripletFilter>(&es.getData(m_clusterFilterToken));
   }
 }
 
