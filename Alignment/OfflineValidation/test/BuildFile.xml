@@ -1,26 +1,14 @@
 <environment>
-  <bin file="testAlignmentOfflineValidation.cpp" name="testAlignmentOfflineValidation">
-    <flags TEST_RUNNER_ARGS=" /bin/bash	Alignment/OfflineValidation/test test_all-in-one.sh"/>
+  <bin file="testAlignmentOfflineValidation.cpp" name="validateAlignments">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test validateAlignments.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="testPVValidation">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testPVValidation.sh"/>
+  <bin file="testAlignmentOfflineValidation.cpp" name="PVsingle">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_all.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="testMiscellanea">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testMiscellanea.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="testEoP">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testEoP.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="testSubmitters">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testSubmitters.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-  <bin file="testPVPlotting.cpp" name="testPVPlotting">
-    <flags PRE_TEST="testPVValidation"/>
+  <bin file="testPVPlotting.cpp">
+    <flags PRE_TEST="PVsingle"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>
