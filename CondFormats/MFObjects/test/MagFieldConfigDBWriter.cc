@@ -6,32 +6,31 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
-class MagFieldConfigDBWriter : public edm::EDAnalyzer {
+class MagFieldConfigDBWriter : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   MagFieldConfigDBWriter(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~MagFieldConfigDBWriter();
+  ~MagFieldConfigDBWriter() override;
 
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup){};
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
-
-  virtual void endJob();
+  void endJob() override;
 
 private:
   MagFieldConfig* conf;
 };
 
 MagFieldConfigDBWriter::MagFieldConfigDBWriter(const edm::ParameterSet& pset) {
+  usesResource("PoolDBOutputService");
   conf = new MagFieldConfig(pset, false);
 }
 
