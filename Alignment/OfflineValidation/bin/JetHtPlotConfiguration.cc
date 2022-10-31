@@ -257,7 +257,7 @@ JetHtPlotConfiguration::~JetHtPlotConfiguration() {}
 /*
  * Read the configuration from json file
  */
-void JetHtPlotConfiguration::ReadJsonFile(const std::string fileName) {
+void JetHtPlotConfiguration::readJsonFile(const std::string fileName) {
   // Read the file to property tree
   namespace pt = boost::property_tree;
   pt::ptree configuration;
@@ -278,7 +278,7 @@ void JetHtPlotConfiguration::ReadJsonFile(const std::string fileName) {
                       .get_value<std::string>();
 
       // From the file name, expand possible environment variables
-      AutoExpandEnvironmentVariables(thisValue);
+      autoExpandEnvironmentVariables(thisValue);
 
       // Expand CMSSW_BASE event without preceding $-sign
       boost::replace_all(thisValue, "CMSSW_BASE", getenv("CMSSW_BASE"));
@@ -1058,10 +1058,12 @@ void JetHtPlotConfiguration::ReadJsonFile(const std::string fileName) {
         configuration.get_child(Form("jethtplot.%s", fJsonLumiPerIovFile.c_str())).get_value<std::string>();
 
     // From the file name, expand environment variables
-    AutoExpandEnvironmentVariables(fLumiPerIovFile);
+    autoExpandEnvironmentVariables(fLumiPerIovFile);
 
-    // Expand CMSSW_BASE event without preceding $-sign
+    // Expand CMSSW_BASE even without preceding $-sign
     boost::replace_all(fLumiPerIovFile, "CMSSW_BASE", getenv("CMSSW_BASE"));
+
+    // If file doesn't exist search elsewhere
 
   } catch (const std::exception& e) {
     if (fDebugLevel > 0) {
@@ -1115,7 +1117,7 @@ void JetHtPlotConfiguration::ReadJsonFile(const std::string fileName) {
         configuration.get_child(Form("jethtplot.%s", fJsonIovListForSlides.c_str())).get_value<std::string>();
 
     // From the file name, expand environment variables
-    AutoExpandEnvironmentVariables(fIovListForSlides);
+    autoExpandEnvironmentVariables(fIovListForSlides);
 
     // Expand CMSSW_BASE event without preceding $-sign
     boost::replace_all(fIovListForSlides, "CMSSW_BASE", getenv("CMSSW_BASE"));
@@ -1131,7 +1133,7 @@ void JetHtPlotConfiguration::ReadJsonFile(const std::string fileName) {
 /*
  * Print the current configuration to console
  */
-void JetHtPlotConfiguration::PrintConfiguration() const {
+void JetHtPlotConfiguration::printConfiguration() const {
   // Print all input files
   std::cout << "Input files: " << std::endl;
   for (const std::string& fileName : fInputFileNames) {
@@ -1295,141 +1297,141 @@ void JetHtPlotConfiguration::PrintConfiguration() const {
 }
 
 // Getter for track QA histogram drawing flag
-bool JetHtPlotConfiguration::GetDrawTrackQA() const { return fDrawTrackQA; }
+bool JetHtPlotConfiguration::drawTrackQA() const { return fDrawTrackQA; }
 
 // Getter for dxy and dz histogram drawing flags
-bool JetHtPlotConfiguration::GetDrawHistogram(const int iHistogram) const { return fDrawHistogram[iHistogram]; }
+bool JetHtPlotConfiguration::drawHistogram(const int iHistogram) const { return fDrawHistogram[iHistogram]; }
 
 // Getter for profile drawing flags
-bool JetHtPlotConfiguration::GetDrawProfile(const int iProfile) const { return fDrawProfile[iProfile]; }
+bool JetHtPlotConfiguration::drawProfile(const int iProfile) const { return fDrawProfile[iProfile]; }
 
 // Getter for drawing reference profile
-bool JetHtPlotConfiguration::GetDrawReferenceProfile() const { return fDrawReferenceProfile; }
+bool JetHtPlotConfiguration::drawReferenceProfile() const { return fDrawReferenceProfile; }
 
 // Getter for drawing central eta histograms to the all runs summary plots
-bool JetHtPlotConfiguration::GetDrawCentralEtaSummaryProfile() const { return fDrawCentralEtaSummaryProfile; }
+bool JetHtPlotConfiguration::drawCentralEtaSummaryProfile() const { return fDrawCentralEtaSummaryProfile; }
 
 // Getter for total legend shift in x-direction for the profile plots
-double JetHtPlotConfiguration::GetProfileLegendShiftTotalX() const { return fProfileLegendShiftTotalX; }
+double JetHtPlotConfiguration::profileLegendShiftTotalX() const { return fProfileLegendShiftTotalX; }
 
 // Getter for total legend shift in x-direction for the profile plots
-double JetHtPlotConfiguration::GetProfileLegendShiftTotalY() const { return fProfileLegendShiftTotalY; }
+double JetHtPlotConfiguration::profileLegendShiftTotalY() const { return fProfileLegendShiftTotalY; }
 
 // Getter for columnwise legend shift in x-direction for iColumnth column in the profile plots
-double JetHtPlotConfiguration::GetProfileLegendShiftColumnX(const int iColumn) const {
+double JetHtPlotConfiguration::profileLegendShiftColumnX(const int iColumn) const {
   if (iColumn < 0 || iColumn >= kMaxLegendColumns)
     return 0;
   return fProfileLegendShiftColumnX[iColumn];
 }
 
 // Getter for columnwise legend shift in x-direction for iColumnth column in the profile plots
-double JetHtPlotConfiguration::GetProfileLegendShiftColumnY(const int iColumn) const {
+double JetHtPlotConfiguration::profileLegendShiftColumnY(const int iColumn) const {
   if (iColumn < 0 || iColumn >= kMaxLegendColumns)
     return 0;
   return fProfileLegendShiftColumnY[iColumn];
 }
 
 // Getter for text size in profile plots
-double JetHtPlotConfiguration::GetProfileLegendTextSize() const { return fProfileLegendTextSize; }
+double JetHtPlotConfiguration::profileLegendTextSize() const { return fProfileLegendTextSize; }
 
 // Getter for text font in profile plots
-int JetHtPlotConfiguration::GetProfileLegendTextFont() const { return fProfileLegendTextFont; }
+int JetHtPlotConfiguration::profileLegendTextFont() const { return fProfileLegendTextFont; }
 
 // Getter for text string used to describe all runs
-std::string JetHtPlotConfiguration::GetLegendTextForAllRuns() const { return fLegendTextForAllRuns; }
+std::string JetHtPlotConfiguration::legendTextForAllRuns() const { return fLegendTextForAllRuns; }
 
 // Getter for low end of profile axis zooms
-double JetHtPlotConfiguration::GetProfileZoomLow(const int iProfile) const { return fProfileZoomLow[iProfile]; }
+double JetHtPlotConfiguration::profileZoomLow(const int iProfile) const { return fProfileZoomLow[iProfile]; }
 
 // Getter for high end of profile axis zooms
-double JetHtPlotConfiguration::GetProfileZoomHigh(const int iProfile) const { return fProfileZoomHigh[iProfile]; }
+double JetHtPlotConfiguration::profileZoomHigh(const int iProfile) const { return fProfileZoomHigh[iProfile]; }
 
 // Getter for trend drawing flags
-bool JetHtPlotConfiguration::GetDrawTrend(const int iTrend) const { return fDrawTrend[iTrend]; }
+bool JetHtPlotConfiguration::drawTrend(const int iTrend) const { return fDrawTrend[iTrend]; }
 
 // Getter for total legend shift in x-direction for the trend plots
-double JetHtPlotConfiguration::GetTrendLegendShiftTotalX() const { return fTrendLegendShiftTotalX; }
+double JetHtPlotConfiguration::trendLegendShiftTotalX() const { return fTrendLegendShiftTotalX; }
 
 // Getter for total legend shift in x-direction for the trend plots
-double JetHtPlotConfiguration::GetTrendLegendShiftTotalY() const { return fTrendLegendShiftTotalY; }
+double JetHtPlotConfiguration::trendLegendShiftTotalY() const { return fTrendLegendShiftTotalY; }
 
 // Getter for text size in trend plots
-double JetHtPlotConfiguration::GetTrendLegendTextSize() const { return fTrendLegendTextSize; }
+double JetHtPlotConfiguration::trendLegendTextSize() const { return fTrendLegendTextSize; }
 
 // Getter for text font in trend plots
-int JetHtPlotConfiguration::GetTrendLegendTextFont() const { return fTrendLegendTextFont; }
+int JetHtPlotConfiguration::trendLegendTextFont() const { return fTrendLegendTextFont; }
 
 // Getter for drawing tags to the trend plots
-bool JetHtPlotConfiguration::GetDrawTrendTag() const { return fDrawTrendTag; }
+bool JetHtPlotConfiguration::drawTrendTag() const { return fDrawTrendTag; }
 
 // Getter for tag list for the trend plot
-std::vector<std::string> JetHtPlotConfiguration::GetTrendTagText() const { return fTrendTagText; }
+std::vector<std::string> JetHtPlotConfiguration::trendTagText() const { return fTrendTagText; }
 
 // Getter for x-positions of the tags in the trend plots
-std::vector<double> JetHtPlotConfiguration::GetTrendTagPositionX() const { return fTrendTagPositionX; }
+std::vector<double> JetHtPlotConfiguration::trendTagPositionX() const { return fTrendTagPositionX; }
 
 // Getter for y-positions of the tags in the trend plots
-std::vector<double> JetHtPlotConfiguration::GetTrendTagPositionY() const { return fTrendTagPositionY; }
+std::vector<double> JetHtPlotConfiguration::trendTagPositionY() const { return fTrendTagPositionY; }
 
 // Getter for text size in tags of trend plots
-double JetHtPlotConfiguration::GetTrendTagTextSize() const { return fTrendTagTextSize; }
+double JetHtPlotConfiguration::trendTagTextSize() const { return fTrendTagTextSize; }
 
 // Getter for text font in tags of trend plots
-int JetHtPlotConfiguration::GetTrendTagTextFont() const { return fTrendTagTextFont; }
+int JetHtPlotConfiguration::trendTagTextFont() const { return fTrendTagTextFont; }
 
 // Getter for trend plot canvas height
-int JetHtPlotConfiguration::GetTrendCanvasHeight() const { return fTrendCanvasHeight; }
+int JetHtPlotConfiguration::trendCanvasHeight() const { return fTrendCanvasHeight; }
 
 // Getter for trend plot canvas width
-int JetHtPlotConfiguration::GetTrendCanvasWidth() const { return fTrendCanvasWidth; }
+int JetHtPlotConfiguration::trendCanvasWidth() const { return fTrendCanvasWidth; }
 
 // Getter for the left margin in trend plots
-double JetHtPlotConfiguration::GetTrendMarginLeft() const { return fTrendMarginLeft; }
+double JetHtPlotConfiguration::trendMarginLeft() const { return fTrendMarginLeft; }
 
 // Getter for the right margin in trend plots
-double JetHtPlotConfiguration::GetTrendMarginRight() const { return fTrendMarginRight; }
+double JetHtPlotConfiguration::trendMarginRight() const { return fTrendMarginRight; }
 
 // Getter for the top margin in trend plots
-double JetHtPlotConfiguration::GetTrendMarginTop() const { return fTrendMarginTop; }
+double JetHtPlotConfiguration::trendMarginTop() const { return fTrendMarginTop; }
 
 // Getter for the bottom margin in trend plots
-double JetHtPlotConfiguration::GetTrendMarginBottom() const { return fTrendMarginBottom; }
+double JetHtPlotConfiguration::trendMarginBottom() const { return fTrendMarginBottom; }
 
 // Getter for the offset of the x-axis title in trend plots
-double JetHtPlotConfiguration::GetTrendTitleOffsetX() const { return fTrendTitleOffsetX; }
+double JetHtPlotConfiguration::trendTitleOffsetX() const { return fTrendTitleOffsetX; }
 
 // Getter for the offset of the y-axis title in trend plots
-double JetHtPlotConfiguration::GetTrendTitleOffsetY() const { return fTrendTitleOffsetY; }
+double JetHtPlotConfiguration::trendTitleOffsetY() const { return fTrendTitleOffsetY; }
 
 // Getter for the size of the x-axis title in trend plots
-double JetHtPlotConfiguration::GetTrendTitleSizeX() const { return fTrendTitleSizeX; }
+double JetHtPlotConfiguration::trendTitleSizeX() const { return fTrendTitleSizeX; }
 
 // Getter for the size of the y-axis title in trend plots
-double JetHtPlotConfiguration::GetTrendTitleSizeY() const { return fTrendTitleSizeY; }
+double JetHtPlotConfiguration::trendTitleSizeY() const { return fTrendTitleSizeY; }
 
 // Getter for the offset of the x-axis label in trend plots
-double JetHtPlotConfiguration::GetTrendLabelOffsetX() const { return fTrendLabelOffsetX; }
+double JetHtPlotConfiguration::trendLabelOffsetX() const { return fTrendLabelOffsetX; }
 
 // Getter for the offset of the y-axis label in trend plots
-double JetHtPlotConfiguration::GetTrendLabelOffsetY() const { return fTrendLabelOffsetY; }
+double JetHtPlotConfiguration::trendLabelOffsetY() const { return fTrendLabelOffsetY; }
 
 // Getter for the size of the x-axis label in trend plots
-double JetHtPlotConfiguration::GetTrendLabelSizeX() const { return fTrendLabelSizeX; }
+double JetHtPlotConfiguration::trendLabelSizeX() const { return fTrendLabelSizeX; }
 
 // Getter for the size of the y-axis label in trend plots
-double JetHtPlotConfiguration::GetTrendLabelSizeY() const { return fTrendLabelSizeY; }
+double JetHtPlotConfiguration::trendLabelSizeY() const { return fTrendLabelSizeY; }
 
 // Getter for low end of trend axis zooms
-double JetHtPlotConfiguration::GetTrendZoomLow(const int iTrend) const { return fTrendZoomLow[iTrend]; }
+double JetHtPlotConfiguration::trendZoomLow(const int iTrend) const { return fTrendZoomLow[iTrend]; }
 
 // Getter for high end of trend axis zooms
-double JetHtPlotConfiguration::GetTrendZoomHigh(const int iTrend) const { return fTrendZoomHigh[iTrend]; }
+double JetHtPlotConfiguration::trendZoomHigh(const int iTrend) const { return fTrendZoomHigh[iTrend]; }
 
 // Getter for number of input files
-int JetHtPlotConfiguration::GetNInputFiles() const { return fInputFileNames.size(); }
+int JetHtPlotConfiguration::nInputFiles() const { return fInputFileNames.size(); }
 
 // Getter for input file of index iFile
-std::string JetHtPlotConfiguration::GetInputFile(const int iFile) const {
+std::string JetHtPlotConfiguration::inputFile(const int iFile) const {
   const int inputFileCount = fInputFileNames.size();
   if (iFile < 0 || iFile >= inputFileCount)
     return "";
@@ -1437,10 +1439,10 @@ std::string JetHtPlotConfiguration::GetInputFile(const int iFile) const {
 }
 
 // Getter for input file vector
-std::vector<std::string> JetHtPlotConfiguration::GetInputFiles() const { return fInputFileNames; }
+std::vector<std::string> JetHtPlotConfiguration::inputFiles() const { return fInputFileNames; }
 
 // Getter for a comment added to the legend
-std::string JetHtPlotConfiguration::GetLegendComment(const int iComment) const {
+std::string JetHtPlotConfiguration::legendComment(const int iComment) const {
   const int commentCount = fLegendComments.size();
   if (iComment < 0 || iComment >= commentCount)
     return "";
@@ -1448,7 +1450,7 @@ std::string JetHtPlotConfiguration::GetLegendComment(const int iComment) const {
 }
 
 // Getter for the marker color related to an alignment
-int JetHtPlotConfiguration::GetMarkerColor(const int iFile) const {
+int JetHtPlotConfiguration::markerColor(const int iFile) const {
   if (iFile < 0)
     return kBlack;
   if (iFile > 10)
@@ -1460,7 +1462,7 @@ int JetHtPlotConfiguration::GetMarkerColor(const int iFile) const {
 }
 
 // Getter for the marker style related to an alignment
-int JetHtPlotConfiguration::GetMarkerStyle(const int iFile) const {
+int JetHtPlotConfiguration::markerStyle(const int iFile) const {
   const int markerStyleCount = fMarkerStyle.size();
   if (iFile < 0 || iFile >= markerStyleCount)
     return fDefaultStyle;
@@ -1468,7 +1470,7 @@ int JetHtPlotConfiguration::GetMarkerStyle(const int iFile) const {
 }
 
 // Getter for the marker size related to an alignment
-int JetHtPlotConfiguration::GetMarkerSize(const int iFile) const {
+int JetHtPlotConfiguration::markerSize(const int iFile) const {
   const int markerSizeCount = fMarkerSize.size();
   if (iFile < 0 || iFile >= markerSizeCount)
     return fDefaultMarkerSize;
@@ -1476,7 +1478,7 @@ int JetHtPlotConfiguration::GetMarkerSize(const int iFile) const {
 }
 
 // Getter for flags to copy error bar colors related to an alignment
-bool JetHtPlotConfiguration::GetCopyErrorColor(const int iFile) const {
+bool JetHtPlotConfiguration::copyErrorColor(const int iFile) const {
   const int errorCopyCount = fCopyErrorColor.size();
   if (iFile < 0 || iFile >= errorCopyCount)
     return false;
@@ -1484,55 +1486,55 @@ bool JetHtPlotConfiguration::GetCopyErrorColor(const int iFile) const {
 }
 
 // Getter for the luminosity per IOV file
-const char* JetHtPlotConfiguration::GetLumiPerIovFile() const { return fLumiPerIovFile.c_str(); }
+const char* JetHtPlotConfiguration::lumiPerIovFile() const { return fLumiPerIovFile.c_str(); }
 
 // Getter for the IOV list mode
-const char* JetHtPlotConfiguration::GetIovListMode() const { return fIovListMode.c_str(); }
+const char* JetHtPlotConfiguration::iovListMode() const { return fIovListMode.c_str(); }
 
 // Getter for the flag for drawing vertical lines to trend plots
-bool JetHtPlotConfiguration::GetDrawYearLines() const { return fDrawYearLines; }
+bool JetHtPlotConfiguration::drawYearLines() const { return fDrawYearLines; }
 
 // Getter for color of the vertical lines drawn to trend plots
-int JetHtPlotConfiguration::GetYearLineColor() const { return fYearLineColor; }
+int JetHtPlotConfiguration::yearLineColor() const { return fYearLineColor; }
 
 // Getter for color of the vertical lines drawn to trend plots
-int JetHtPlotConfiguration::GetYearLineWidth() const { return fYearLineWidth; }
+int JetHtPlotConfiguration::yearLineWidth() const { return fYearLineWidth; }
 
 // Getter for color of the vertical lines drawn to trend plots
-int JetHtPlotConfiguration::GetYearLineStyle() const { return fYearLineStyle; }
+int JetHtPlotConfiguration::yearLineStyle() const { return fYearLineStyle; }
 
 // Getter for the run positions to where vertical lines are drawn
-std::vector<int> JetHtPlotConfiguration::GetRunsForLines() const { return fRunsForLines; }
+std::vector<int> JetHtPlotConfiguration::runsForLines() const { return fRunsForLines; }
 
 // Getter for bin borders used in the wide pT binned histogram
-std::vector<double> JetHtPlotConfiguration::GetWidePtBinBorders() const { return fWidePtBinBorders; }
+std::vector<double> JetHtPlotConfiguration::widePtBinBorders() const { return fWidePtBinBorders; }
 
 // Getter for drawing plots for each IOV
-bool JetHtPlotConfiguration::GetDrawPlotsForEachIOV() const { return fDrawPlotsForEachIOV; }
+bool JetHtPlotConfiguration::drawPlotsForEachIOV() const { return fDrawPlotsForEachIOV; }
 
 // Getter for number of IOVs plotted in each figure
-int JetHtPlotConfiguration::GetNIovInOnePlot() const { return fNIovInOnePlot; }
+int JetHtPlotConfiguration::nIovInOnePlot() const { return fNIovInOnePlot; }
 
 // Getter for drawing trends as a function of luminosity
-bool JetHtPlotConfiguration::GetUseLuminosityForTrends() const { return fUseLuminosityForTrends; }
+bool JetHtPlotConfiguration::useLuminosityForTrends() const { return fUseLuminosityForTrends; }
 
 // Getter for skipping runs with no data in trend plots
-bool JetHtPlotConfiguration::GetSkipRunsWithNoData() const { return fSkipRunsWithNoData; }
+bool JetHtPlotConfiguration::skipRunsWithNoData() const { return fSkipRunsWithNoData; }
 
 // Getter for normalizing QA plots
-bool JetHtPlotConfiguration::GetNormalizeQAplots() const { return fNormalizeQAplots; }
+bool JetHtPlotConfiguration::normalizeQAplots() const { return fNormalizeQAplots; }
 
 // Getter for comment given to saved figures
-const char* JetHtPlotConfiguration::GetSaveComment() const { return fSaveComment.c_str(); }
+const char* JetHtPlotConfiguration::saveComment() const { return fSaveComment.c_str(); }
 
 // Getter for flag to produce IOV list for slides
-bool JetHtPlotConfiguration::GetMakeIovListForSlides() const { return fMakeIovListForSlides; }
+bool JetHtPlotConfiguration::makeIovListForSlides() const { return fMakeIovListForSlides; }
 
 // Getter for the name given to the IOV list for slides
-const char* JetHtPlotConfiguration::GetIovListForSlides() const { return fIovListForSlides.c_str(); }
+const char* JetHtPlotConfiguration::iovListForSlides() const { return fIovListForSlides.c_str(); }
 
 // Expand environmental variables updating the input string
-void JetHtPlotConfiguration::AutoExpandEnvironmentVariables(std::string& text) const {
+void JetHtPlotConfiguration::autoExpandEnvironmentVariables(std::string& text) const {
   static std::regex env("\\$\\{?([^}\\/]+)\\}?\\/");
   std::smatch match;
   while (std::regex_search(text, match, env)) {
@@ -1543,8 +1545,8 @@ void JetHtPlotConfiguration::AutoExpandEnvironmentVariables(std::string& text) c
 }
 
 // Expand environmental variables to a new string
-std::string JetHtPlotConfiguration::ExpandEnvironmentVariables(const std::string& input) const {
+std::string JetHtPlotConfiguration::expandEnvironmentVariables(const std::string& input) const {
   std::string text = input;
-  AutoExpandEnvironmentVariables(text);
+  autoExpandEnvironmentVariables(text);
   return text;
 }

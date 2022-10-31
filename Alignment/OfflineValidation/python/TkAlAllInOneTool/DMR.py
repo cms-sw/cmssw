@@ -47,7 +47,6 @@ def DMR(config, validationDir):
                     "exe": "cmsRun",
                     "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/DMR_cfg.py".format(os.environ["CMSSW_BASE"]),
                     "run-mode": "Condor",
-                    "flavour": "workday",
                     "dependencies": [],
                     "config": local, 
                 }
@@ -235,13 +234,11 @@ def DMR(config, validationDir):
                 if "lumiPerRun" in config["validations"]["DMR"][dmrType][avpName].keys(): 
                     for lumifile in config["validations"]["DMR"][dmrType][avpName]['lumiPerRun']:
                         if lumifile.split(".")[-1] in ["txt","csv"]:
-                            if "$CMSSW_BASE" in lumifile: lumiPerRun.append(lumifile.replace("$CMSSW_BASE",os.environ["CMSSW_BASE"]))
-                            elif "CMSSW_BASE" in lumifile: lumiPerRun.append(lumifile.replace("CMSSW_BASE",os.environ["CMSSW_BASE"]))
+                            lumiPerRun.append(lumifile)
                 if "lumiPerIoV" in config["validations"]["DMR"][dmrType][avpName].keys():
                     for lumifile in config["validations"]["DMR"][dmrType][avpName]['lumiPerIoV']:
                         if lumifile.split(".")[-1] in ["txt","csv"]:
-                            if "$CMSSW_BASE" in lumifile: lumiPerIoV.append(lumifile.replace("$CMSSW_BASE",os.environ["CMSSW_BASE"]))
-                            elif "CMSSW_BASE" in lumifile: lumiPerIoV.append(lumifile.replace("CMSSW_BASE",os.environ["CMSSW_BASE"]))               
+                            lumiPerIoV.append(lumifile)
                 if len(lumiPerRun) == 0 and len(lumiPerIoV) == 0: 
                     raise Exception("No lumi per run/IoV file found or not specified in .csv/.txt format.")
             if len(mergesMC) > 0: 

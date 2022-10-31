@@ -336,17 +336,12 @@ void JetHTAnalyzer::endJob() { mon.Write(); }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void JetHTAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-
-  //Specify that only 'tracks' is allowed
-  //To use, remove the default given above and uncomment below
-  //ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-  //descriptions.addDefault(desc);
+  desc.setComment("JetHT validation analyzer plugin.");
+  desc.add<edm::InputTag>("vtxCollection", edm::InputTag("offlinePrimaryVerticesFromRefittedTrks"));
+  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("trackCollection", edm::InputTag("TrackRefitter"));
+  descriptions.add("JetHTAnalyzer", desc);
 }
 
 //define this as a plug-in

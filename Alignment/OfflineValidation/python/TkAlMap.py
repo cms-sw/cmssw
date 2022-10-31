@@ -173,7 +173,6 @@ class TkAlMap:
         self.is_cleaned        = False
 
         # Internal parameters    
-        #self.data_path = 'Alignment-OfflineValidation/TkAlMap/'
         self.data_path = 'Alignment/OfflineValidation/data/TkAlMap/'
         self.cfg_path = 'Alignment/OfflineValidation/python/TkAlMap_cfg/'
 

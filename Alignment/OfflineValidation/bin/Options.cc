@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <iomanip>
-#include <boost/filesystem.hpp>
-#include <boost/version.hpp>
-#include <boost/program_options.hpp>
+#include "boost/filesystem.hpp"
+#include "boost/version.hpp"
+#include "boost/program_options.hpp"
 
 #include "Options.h"
 
@@ -57,26 +57,6 @@ namespace AllInOneConfig {
       hide.add_options()("key,k", po::value<string>(&key)->required(), "key");
       pos_hide.add("key", 1);
     }
-
-    //// get certain environment variables
-    //po::options_description desc_env;
-    //desc_env.add_options()
-    //    ("CMSSW_BASE"        , po::value<string>(&CMSSW_BASE        )->required())
-    //    ("CMSSW_RELEASE_BASE", po::value<string>(&CMSSW_RELEASE_BASE)->required())
-    //    ("SCRAM_ARCH"        , po::value<string>(&SCRAM_ARCH        )->required());
-
-    //// trick to reproduce behaviour of po::command_line_parser::allow_unregistered()
-    //// from https://stackoverflow.com/questions/53285248/boost-program-options-allow-undeclared-from-environment
-    //auto allow_unregistered = [&desc_env](const string& var) {
-    //    auto filter = [var](auto opt) { return var == opt->long_name(); };
-    //    bool condition = any_of( desc_env.options().cbegin(), desc_env.options().cend(), filter);
-    //    return condition ? var : string();
-    //};
-
-    //po::variables_map env;
-    //po::store(po::parse_environment(desc_env, allow_unregistered), env);
-    //po::notify(env);
-    //cout << CMSSW_BASE << '\t' << CMSSW_RELEASE_BASE << '\t' << SCRAM_ARCH << endl;
   }
 
   void Options::helper(int argc, char* argv[]) {

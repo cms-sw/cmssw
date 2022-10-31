@@ -6,11 +6,11 @@
 #include <fstream>
 #include <string>
 
-#include <TLine.h>
-#include <TLatex.h>
-#include <TString.h>
-#include <TGraphErrors.h>
-#include <TH1.h>
+#include "TLine.h"
+#include "TLatex.h"
+#include "TString.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
 
 #include "Alignment/OfflineValidation/plugins/ColorParser.C"
 #include "Alignment/OfflineValidation/plugins/StyleParser.C"

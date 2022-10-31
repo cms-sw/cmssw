@@ -37,8 +37,8 @@
 #include <map>
 #include <sstream>
 #include <vector>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 
 #include "Alignment/OfflineValidation/interface/OutPVtrends.h"
 

@@ -107,7 +107,7 @@
             "minZoomDxyTrend": 10,
             "maxZoomDxyTrend": 90
         },
-        "lumiPerIovFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
         "legendTextForAllRuns": "Run2",
         "drawPlotsForEachIOV": false,
         "normalizeQAplots": true,

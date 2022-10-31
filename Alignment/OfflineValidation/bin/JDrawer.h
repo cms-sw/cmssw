@@ -1,21 +1,21 @@
-#ifndef JDRAWER_H
-#define JDRAWER_H
+#ifndef ALIGNMENT_OFFLINEVALIDATION_JDRAWER_H
+#define ALIGNMENT_OFFLINEVALIDATION_JDRAWER_H
 
 // C++ includes
 #include <iostream>
 
 // Root includes
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TCanvas.h>
-#include <TPad.h>
-#include <TString.h>
-#include <TH1.h>
-#include <TF1.h>
-#include <TH2.h>
-#include <TAxis.h>
-#include <TGraph.h>
-#include <TLegend.h>
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TString.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TH2.h"
+#include "TAxis.h"
+#include "TGraph.h"
+#include "TLegend.h"
 
 /*
  * Class for drawing histograms and graphs in the standard style of the group

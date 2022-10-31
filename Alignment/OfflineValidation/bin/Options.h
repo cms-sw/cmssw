@@ -1,7 +1,7 @@
 #include <string>
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
+#include "boost/program_options/options_description.hpp"
+#include "boost/program_options/positional_options.hpp"
 
 namespace AllInOneConfig {
 
@@ -11,7 +11,6 @@ namespace AllInOneConfig {
 
   public:
     std::string config, key;
-    //std::string CMSSW_BASE, CMSSW_RELEASE_BASE, SCRAM_ARCH;
     bool dry;
 
     Options(bool getter = false);

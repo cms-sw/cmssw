@@ -209,9 +209,9 @@ validations:
                 - PaperMC2016
                 maxfiles: 700
                 lumiPerRun: 
-                - $CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperRun2016_delivered.csv
-                - $CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperRun2017_delivered.csv
-                - $CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
+                - Alignment/OfflineValidation/data/lumiperRun2016_delivered.csv
+                - Alignment/OfflineValidation/data/lumiperRun2017_delivered.csv
+                - Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
                 lumiMC:
                 - 1::PaperMC2018ideal::64482.432
                 - 2::PaperMC2018realistic::64482.432

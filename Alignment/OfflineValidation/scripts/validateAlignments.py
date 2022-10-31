@@ -10,6 +10,7 @@ import argparse
 import pprint
 import sys
 import shutil
+import Alignment.OfflineValidation.TkAlAllInOneTool.findAndChange as fnc
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.GCP as GCP
 import Alignment.OfflineValidation.TkAlAllInOneTool.DMR as DMR
@@ -28,37 +29,9 @@ def parser():
     parser.add_argument("-v", "--verbose", action = "store_true", help ="Enable standard output stream")
     parser.add_argument("-e", "--example", action = "store_true", help ="Print example of config in JSON format")
     parser.add_argument("-f", "--force", action = "store_true", help ="Force creation of enviroment, possible overwritten old configuration")
-    parser.add_argument("-j", "--job-flavour", action = "store", default = "longlunch", choices = ["espresso", "microcentury", "longlunch", "workday", "tomorrow", "testmatch", "nextweek"], help ="Job flavours for HTCondor at CERN, default is 'longlunch'")
+    parser.add_argument("-j", "--job-flavour", action = "store", default = "workday", choices = ["espresso", "microcentury", "longlunch", "workday", "tomorrow", "testmatch", "nextweek"], help ="Job flavours for HTCondor at CERN, default is 'workday'")
 
     return parser.parse_args()
-
-##############################################
-def digest_path(path):
-##############################################
-    """ Expand environment variables in the input string
-    Arguments:
-    - path: String from which environment variables are expanded
-    Return:
-    - the input string with environment variables expanded
-    """
-    # split path in folders
-    path_s = str(path).split(os.sep)
-
-    path_d_s = []
-    for part in path_s:
-        # Look for environment variables such as $CMSSW_BASE
-        if part.startswith('$'):
-            env_var = part[1:].replace('{', '').replace('}', '')
-            path_d_s.append(os.environ[env_var])
-        else: path_d_s.append(part)
-
-    # re join folders in to a path
-    path_d = os.path.join(*path_d_s)
-
-    # re add front / if needed
-    if path.startswith(os.sep): path_d = os.sep + path_d
-
-    return path_d
 
 ##############################################
 def check_proxy():
@@ -239,9 +212,11 @@ def main():
         else:
             raise Exception("Unknown config extension '{}'. Please use json/yaml format!".format(args.config.split(".")[-1])) 
 
-    ##Digest the LFS path
-    if 'LFS' in config: config['LFS'] = digest_path(config['LFS'])
-        
+    ##Check for all paths in configuration and attempt to "digest" them
+    for path in fnc.find_and_change(list(), config):
+        if args.verbose and ("." in str(path) or "/" in str(path)):
+            print("Digesting path: "+str(path))
+         
     ##Create working directory
     if os.path.isdir(config["name"]) and not args.force:
         raise Exception("Validation directory '{}' already exists! Please choose another name for your directory.".format(config["name"]))	
@@ -258,9 +233,9 @@ def main():
     subprocess.call(["cp", "-f", args.config, validationDir] + (["-v"] if args.verbose else []))
 
     ## Define the template files
-    crabTemplateFile = digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/crabTemplate.py")    
-    condorTemplateFile = digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/condorTemplate.submit")
-    executableTempleteFile = digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/executableTemplate.sh")
+    crabTemplateFile = fnc.digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/crabTemplate.py")    
+    condorTemplateFile = fnc.digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/condorTemplate.submit")
+    executableTempleteFile = fnc.digest_path("$CMSSW_BASE/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/templates/executableTemplate.sh")
     
 
     ##List with all jobs

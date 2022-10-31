@@ -8,16 +8,16 @@
 #include "toolbox.h"
 #include "Options.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/optional.hpp>
+#include "boost/filesystem.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/optional.hpp"
 
-#include <TString.h>
+#include "TString.h"
 
-#include <Alignment/OfflineValidation/interface/CompareAlignments.h>
-#include <Alignment/OfflineValidation/interface/PlotAlignmentValidation.h>
-#include <Alignment/OfflineValidation/interface/TkAlStyle.h>
+#include "Alignment/OfflineValidation/interface/CompareAlignments.h"
+#include "Alignment/OfflineValidation/interface/PlotAlignmentValidation.h"
+#include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
 using namespace std;
 using namespace AllInOneConfig;

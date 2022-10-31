@@ -27,13 +27,21 @@ options.register('lastRun',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "the run number to stop")
+options.register('unitTest',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is it a unit test?")
 
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = options.lumisPerRun*1000   # do not clog output with I/O
 
-numberOfRuns = options.lastRun - options.firstRun + 1
+if options.unitTest:
+    numberOfRuns = 10
+else:
+    numberOfRuns = options.lastRun - options.firstRun + 1
 print("number of Runs "+str(numberOfRuns))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.lumisPerRun*numberOfRuns) ) 

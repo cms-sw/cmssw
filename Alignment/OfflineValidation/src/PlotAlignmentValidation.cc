@@ -503,14 +503,6 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
 
   TRegexp layer_re("layer=[0-9]+");
   Ssiz_t index, len;
-  bool plotSplits = false;
-  if (plotSplits) {
-  }
-  if (options.find("split") != std::string::npos) {
-    plotSplits = true;
-  } else {
-    plotSplits = false;
-  }
   if (options.find("layers") != std::string::npos) {
     plotLayers = true;
   }
