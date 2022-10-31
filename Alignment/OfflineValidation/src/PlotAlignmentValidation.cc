@@ -499,7 +499,8 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
   bool plotLayers = false;  // overrides plotLayerN
   //  bool plotRings  = false;  // Todo: implement this?
   bool plotSplits = false;
-  if(plotSplits);
+  if (plotSplits)
+    ;
   int plotSubDetN = 0;  // if zero, plot all
 
   TRegexp layer_re("layer=[0-9]+");
