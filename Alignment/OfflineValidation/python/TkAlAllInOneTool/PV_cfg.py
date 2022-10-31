@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_MinBias2018B
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -43,9 +43,9 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                             )
 else:
-    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!")
+    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default dataset -> filesDefaultData_MinBias2018B!")
     process.source = cms.Source("PoolSource",
-                                fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                                fileNames = filesDefaultData_MinBias2018B,
                                 skipEvents = cms.untracked.uint32(0)
                             )
 
@@ -108,7 +108,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ####################################################################
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,
-                                                     config["validation"].get("trackcollection", "generalTracks"),
+                                                     config["validation"].get("trackcollection", "ALCARECOTkAlMinBias"),
                                                      isPVValidation=True,
                                                      TTRHBuilder=config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
                                                      usePixelQualityFlag=config["validation"].get("usePixelQualityFlag", True),
@@ -154,14 +154,14 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 
 process.noscraping = cms.EDFilter("FilterOutScraping",
                                   applyfilter = cms.untracked.bool(True),
-                                  src = cms.untracked.InputTag(config["validation"].get("trackcollection", "generalTracks")),
+                                  src = cms.untracked.InputTag(config["validation"].get("trackcollection", "ALCARECOTkAlMinBias")),
                                   debugOn = cms.untracked.bool(False),
                                   numtrack = cms.untracked.uint32(10),
                                   thresh = cms.untracked.double(0.25)
                                   )
 
 process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
-process.filterOutLowPt.src = cms.untracked.InputTag(config["validation"].get("trackcollection", "generalTracks"))
+process.filterOutLowPt.src = cms.untracked.InputTag(config["validation"].get("trackcollection", "ALCARECOTkAlMinBias"))
 process.filterOutLowPt.ptmin = cms.untracked.double(config["validation"].get("ptCut", 3.))
 process.filterOutLowPt.runControl = False
 if(isMultipleRuns):

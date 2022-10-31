@@ -2,7 +2,7 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_Realistic2022
 
 class RefitType(Enum):
      STANDARD = 1
@@ -21,7 +21,7 @@ process = cms.Process("Demo")
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                            fileNames = filesDefaultMC_Realistic2022,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 

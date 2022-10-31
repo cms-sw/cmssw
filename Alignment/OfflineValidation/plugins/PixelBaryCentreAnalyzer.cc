@@ -563,7 +563,7 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       // Get BeamSpot from EventSetup
       const BeamSpotObjects* mybeamspot = &iSetup.getData(bsTokens_[label]);
 
-      BS_ = GlobalPoint(mybeamspot->GetX(), mybeamspot->GetY(), mybeamspot->GetZ());
+      BS_ = GlobalPoint(mybeamspot->x(), mybeamspot->y(), mybeamspot->z());
       vBS_ = SimplePoint(BS_);
 
       bsTrees_[label]->Fill();
