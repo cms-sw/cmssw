@@ -30,6 +30,8 @@ def DMR(config, validationDir):
                 local["validation"] = copy.deepcopy(config["validations"]["DMR"][dmrType][datasetName])
                 local["validation"].pop("alignments")
                 local["validation"]["IOV"] = IOV
+                if "dataset" in local["validation"]:
+                    local["validation"]["dataset"] = local["validation"]["dataset"].format(IOV)
                 if "goodlumi" in local["validation"]:
                     local["validation"]["goodlumi"] = local["validation"]["goodlumi"].format(IOV)
 
