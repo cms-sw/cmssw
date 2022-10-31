@@ -27,6 +27,8 @@ class TrackerGeometry;
 class TransientTrackingRecHitBuilder;
 class TransientRecHitRecord;
 class TripletFilter;
+class ClusterShapeHitFilter;
+class CkfComponentsRecord;
 
 #include <vector>
 
@@ -56,6 +58,7 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_magfieldToken;
   edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_ttrhBuilderToken;
   edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> m_msmakerToken;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> m_clusterFilterToken;
 
   void getTracker(const edm::EventSetup& es);
   GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
