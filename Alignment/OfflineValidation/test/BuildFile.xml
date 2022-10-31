@@ -33,4 +33,9 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_SplitVsingleAndMerge.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
+  <bin file="testAlignmentOfflineValidation.cpp" name="GCPfull">
+    <flags PRE_TEST="validateAlignments"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_GCPfull.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
 </environment>

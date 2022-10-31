@@ -25,6 +25,8 @@
 #include <TLatex.h>
 #include <TList.h>
 
+#include <boost/property_tree/ptree.hpp>
+namespace pt = boost::property_tree;
 
 class GeometryComparisonPlotter
 {
@@ -94,14 +96,13 @@ public:
     // main methods
     void MakePlots (const std::vector<TString>,
                     const std::vector<TString>,
-                    const std::vector<float>,
-                    const std::vector<float>
+                    pt::ptree CFG
                     );
                     
     void MakeTables (const std::vector<TString>,
                     const std::vector<TString>,
-                    const std::vector<float>,
-                    const std::vector<float>);
+                    pt::ptree CFG
+                    );
                  
     void WriteTable (const std::vector<TString> x,
 					unsigned int nLevelsTimesSlices,

@@ -27,6 +27,27 @@ def parser():
 
     return parser.parse_args()
 
+def digest_path(path):
+    # split path in folders
+    path_s = str(path).split(os.sep)
+
+    path_d_s = []
+    for part in path_s:
+        # Look for environmental variables such as $CMSSW_BASE
+        if part.startswith('$'):
+            env_var = part[1:].replace('{', '').replace('}', '')
+            path_d_s.append(os.environ[env_var])
+        else: path_d_s.append(part)
+
+    # re join folders in to a path
+    path_d = os.path.join(*path_d_s)
+
+    # re add front / if needed
+    if path.startswith(os.sep): path_d = os.sep + path_d
+
+    return path_d
+
+
 def main():
     ##Read parser arguments
     args = parser()
@@ -51,6 +72,9 @@ def main():
 
         else:
             raise Exception("Unknown config extension '{}'. Please use json/yaml format!".format(args.config.split(".")[-1])) 
+
+    ##Digest the LFS path
+    if 'LFS' in config: config['LFS'] = digest_path(config['LFS'])
         
     ##Create working directory
     if os.path.isdir(config["name"]) and not args.force:

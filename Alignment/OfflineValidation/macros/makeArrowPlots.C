@@ -13,7 +13,7 @@
 double arrowSize = 0.0095;
 float y_,x_,z_,phi_,r_,dphi_,dr_,dx_,dz_,dy_;
 int level_,sublevel_;
-char outputDir_[192];
+char outputDir_[292];
 
 void Plot10Mu(const char* text,float X, float Y, float size)
 {
@@ -235,7 +235,10 @@ void makeArrowPlots(const char* filename, const char* outputDir)
   bool plotTID = true;
   bool plotTEC = true;
 
+  // Copies input file, now broken but do we still need this? 
+  //TString outputfile(outputDir);
   TString outputfile("OUTPUT_");
+  //outputfile.Append("/OUTPUT_");
   outputfile.Append(filename);
   TFile output(outputfile, "recreate");
 
