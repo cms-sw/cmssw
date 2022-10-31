@@ -13,6 +13,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,6 +36,7 @@ class AlignmentMonitorMuonSystemMap1D : public AlignmentMonitorBase {
 public:
   AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
   ~AlignmentMonitorMuonSystemMap1D() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void book() override;
 
@@ -186,6 +188,29 @@ AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::Para
     m_cscnt->Branch("re", &m_re.res, "res/F:slope:rho:phi:z");
     m_cscnt->Branch("run", &m_run, "run/i");
   }
+}
+
+void AlignmentMonitorMuonSystemMap1D::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muonCollectionTag", edm::InputTag(""));
+  desc.addUntracked<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<double>("minTrackPt", 100.);
+  desc.add<double>("maxTrackPt", 200.);
+  desc.add<double>("minTrackP", 0.);
+  desc.add<double>("maxTrackP", 99999.);
+  desc.add<double>("maxDxy", 100.);
+  desc.add<int>("minTrackerHits", 15);
+  desc.add<double>("maxTrackerRedChi2", 10.);
+  desc.add<bool>("allowTIDTEC", true);
+  desc.add<int>("minNCrossedChambers", 3);
+  desc.add<int>("minDT13Hits", 8);
+  desc.add<int>("minDT2Hits", 4);
+  desc.add<int>("minCSCHits", 6);
+  desc.add<bool>("doDT", true);
+  desc.add<bool>("doCSC", true);
+  desc.add<bool>("useStubPosition", false);
+  desc.add<bool>("createNtuple", false);
+  descriptions.add("alignmentMonitorMuonSystemMap1D", desc);
 }
 
 std::string AlignmentMonitorMuonSystemMap1D::num02d(int num) {
@@ -469,8 +494,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         m_CSCvsphi_me[id.endcap() - 1][id.station() - 1][ring - 1]->fill_x(charge, phi, residual, chi2, dof);
         m_CSCvsphi_me[id.endcap() - 1][id.station() - 1][ring - 1]->fill_dxdz(charge, phi, resslope, chi2, dof);
 
-        if (m_createNtuple && chi2 > 0.)  //  &&  TMath::Prob(chi2, dof) < 0.95)
-        {
+        if (m_createNtuple && chi2 > 0.) {  //  &&  TMath::Prob(chi2, dof) < 0.95)
           m_id.init(id);
           m_tr.q = charge;
           m_tr.pt = mrft.getTrack()->pt();
@@ -491,17 +515,17 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 }
 
 void AlignmentMonitorMuonSystemMap1D::afterAlignment() {
-  std::cout << "AlignmentMonitorMuonSystemMap1D counters:" << std::endl;
-  std::cout << " monitor m_counter_event      = " << m_counter_event << std::endl;
-  std::cout << " monitor m_counter_track      = " << m_counter_track << std::endl;
-  std::cout << " monitor m_counter_trackppt   = " << m_counter_trackmoment << std::endl;
-  std::cout << " monitor m_counter_trackdxy   = " << m_counter_trackdxy << std::endl;
-  std::cout << " monitor m_counter_trackokay  = " << m_counter_trackokay << std::endl;
-  std::cout << " monitor m_counter_dt         = " << m_counter_dt << std::endl;
-  std::cout << " monitor m_counter_13numhits  = " << m_counter_13numhits << std::endl;
-  std::cout << " monitor m_counter_2numhits   = " << m_counter_2numhits << std::endl;
-  std::cout << " monitor m_counter_csc        = " << m_counter_csc << std::endl;
-  std::cout << " monitor m_counter_cscnumhits = " << m_counter_cscnumhits << std::endl;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << "AlignmentMonitorMuonSystemMap1D counters:";
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_event      = " << m_counter_event;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_track      = " << m_counter_track;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_trackppt   = " << m_counter_trackmoment;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_trackdxy   = " << m_counter_trackdxy;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_trackokay  = " << m_counter_trackokay;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_dt         = " << m_counter_dt;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_13numhits  = " << m_counter_13numhits;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_2numhits   = " << m_counter_2numhits;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_csc        = " << m_counter_csc;
+  edm::LogVerbatim("AlignmentMuonSystemMap") << " monitor m_counter_cscnumhits = " << m_counter_cscnumhits;
 }
 
 AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(
