@@ -2168,7 +2168,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
 
