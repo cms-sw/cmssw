@@ -102,10 +102,11 @@ int trends(int argc, char* argv[]) {
 
   assert(fs::exists(pname));
 
+  float convertUnit = style.get_child("trends").count("convertUnit") ? style.get_child("trends").get<float>("convertUnit") : 1000.;
   int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
   int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
 
-  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun);
+  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun, convertUnit);
 
   vector<string> variables{"dxy_phi_vs_run",
                             "dxy_eta_vs_run",
@@ -152,16 +153,16 @@ int trends(int argc, char* argv[]) {
       assert(hRMS  != nullptr);
       
       TString gtitle = alignment.second.get<string>("title");
-      //gMean->SetTitle(gtitle); // for the legend
-      gMean->SetTitle(""); // for the legend
+      gMean->SetTitle(gtitle); // for the legend
+      //gMean->SetTitle(""); // for the legend
       gMean->SetMarkerSize(0.6);
       int color = alignment.second.get<int>("color");
-      int style = alignment.second.get<int>("style");
+      int style = floor (alignment.second.get<double>("style")/100.);
       gMean->SetMarkerColor(color);
       gMean->SetMarkerStyle(style);
   
-      //hRMS ->SetTitle(gtitle); // for the legend
-      hRMS ->SetTitle(""); // for the legend
+      hRMS ->SetTitle(gtitle); // for the legend
+      //hRMS ->SetTitle(""); // for the legend
       hRMS ->SetMarkerSize(0.6);
       hRMS ->SetMarkerColor(color);
       hRMS ->SetMarkerStyle(style);

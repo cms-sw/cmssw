@@ -116,10 +116,11 @@ int trends(int argc, char* argv[]) {
 
   assert(fs::exists(pname));
 
+  float convertUnit = style.get_child("trends").count("convertUnit") ? style.get_child("trends").get<float>("convertUnit") : 1000.;
   int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
   int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
   
-  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun);
+  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun, convertUnit);
   
   auto f = TFile::Open(pname.c_str());
 
@@ -219,10 +220,10 @@ int trends(int argc, char* argv[]) {
             gname.ReplaceAll(" ", "_");
             auto g = Get<TGraphErrors>(gname);
             assert(g != nullptr);
-            g->SetTitle(""); // for the legend
+            g->SetTitle(gtitle); // for the legend
             g->SetMarkerSize(0.6);
             int color = alignment.second.get<int>("color");
-            int style = alignment.second.get<int>("style");
+	    int style = floor (alignment.second.get<double>("style")/100.);
             g->SetFillColorAlpha(color, 0.2);
             g->SetMarkerColor(color);
             g->SetMarkerStyle(style);

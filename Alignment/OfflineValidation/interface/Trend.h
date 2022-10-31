@@ -24,6 +24,7 @@ struct Run2Lumi {
 
     const int firstRun, //!< first run, starting at lumi = 0 on the x-axis of the trend
               lastRun;  //!< last run (excluded!), starting at the max lumi on the x-axis of the trend
+    const float convertUnit;
 
 private:
     std::map<int, float> runs; //!< couples of run and corresponding luminosity
@@ -40,7 +41,8 @@ public:
     Run2Lumi
          (boost::filesystem::path file, //!< path to a 2-column file with 6-digit run number and lumi in /pb
          int first, //!< 6-digit run number (included)
-         int last //!< 6-digit run number (excluded)
+	 int last, //!< 6-digit run number (excluded)
+	 float convertUnit //!< default is from pb to fb
          );
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +83,7 @@ struct Trend {
 
     TString CMS = "#scale[1.1]{#bf{CMS}} #it{Internal}"; //!< top left label
     TString lumi = "#scale[0.8]{pp collisions (2016+2017+2018)}"; //!< top right label (not necessarily the lumi, just following the convention from `CMS_lumi.h`)
+    std::string plotUnit = "fb";
 
     float fontsize = 0.04;
 

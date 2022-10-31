@@ -20,8 +20,8 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace pt = boost::property_tree;
 
-Run2Lumi::Run2Lumi (fs::path file, int first, int last) :
-    firstRun(first), lastRun(last)
+Run2Lumi::Run2Lumi (fs::path file, int first, int last, float convertUnit) :
+    firstRun(first), lastRun(last), convertUnit(convertUnit)
 {
     cout << __func__ << endl;
     assert(first < last);
@@ -36,6 +36,7 @@ Run2Lumi::Run2Lumi (fs::path file, int first, int last) :
 }
 
 float Run2Lumi::operator() (int run1, int run2) const
+
 {
     float sum = 0.;
     for (auto& run: runs) {
@@ -43,7 +44,7 @@ float Run2Lumi::operator() (int run1, int run2) const
         if (run.first >= run2) break;
         sum += run.second;
     }
-    return sum/1000; // conversion from /pb to /fb
+    return sum/convertUnit; // conversion from e.g. /pb to /fb
 }
 
 float Run2Lumi::operator() (int run) const 
@@ -146,9 +147,12 @@ Trend::Trend (const char * name, const char * dir,
     if (JSON.count("CMSlabel"))
       CMS = Form("#scale[1.1]{#bf{CMS}} #it{%s}", JSON.get<string>("CMSlabel").data());
 
+    if(JSON.get_child("trends").count("TitleCanvas")) lumi = Form("#scale[0.8]{%s}", JSON.get_child("trends").get<string>("TitleCanvas").data());
+
     assert(ymin < ymax);
     float xmax = GetLumi(GetLumi.firstRun, GetLumi.lastRun);
-    const char * axistitles = Form(";%s luminosity  [fb^{-1} ];%s", lumiType, ytitle);
+    if(JSON.get_child("trends").count("plotUnit")) plotUnit = JSON.get_child("trends").get<string>("plotUnit");
+    const char * axistitles = Form(";%s luminosity  [%s^{-1} ];%s", lumiType, plotUnit.c_str(), ytitle);
     auto frame = c.DrawFrame(0., ymin, xmax, ymax, axistitles);
     frame->GetYaxis()->SetTitleOffset(0.8);
     frame->GetYaxis()->SetTickLength(0.01);

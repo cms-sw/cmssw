@@ -81,10 +81,15 @@ def PV(config, validationDir):
                     "config": local, 
                 }
 
-                for alignment in config["alignments"]:
+                alignmentList = []
+                for singleName in config["validations"]["PV"][pvType][mergeName]["singles"]:
                     ##Deep copy necessary things from global config
+                    for alignment in config["validations"]["PV"]["single"][singleName]["alignments"]:
+                        if alignment not in alignmentList:
+                            alignmentList.append(alignment)
+                for alignment in alignmentList:
                     local.setdefault("alignments", {})
-                    if alignment in config["validations"]["PV"]["single"][mergeName]["alignments"]:
+                    if alignment in config["alignments"]:
                         local["alignments"][alignment] = copy.deepcopy(config["alignments"][alignment])
 
                 local["validation"] = copy.deepcopy(config["validations"]["PV"][pvType][mergeName])
