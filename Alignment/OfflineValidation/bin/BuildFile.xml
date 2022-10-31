@@ -33,3 +33,9 @@
     <use name="boost_system"/>
     <use name="boost_filesystem"/>
 </bin>
+
+<bin name="convertConfig" file="convertConfig.cc">
+    <use name="boost" />
+    <use name="boost_system"/>
+    <use name="boost_filesystem"/>
+</bin>
