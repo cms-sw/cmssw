@@ -77,6 +77,7 @@ public:
   uint32_t vfatMask() const { return vfatMask_; }
   uint32_t zsMask() const { return zsMask_; }
   uint32_t existVFATs() const { return existVFATs_; }
+  int chamberType() const { return chamberType_; }
 
 private:
   int chamberType_;
