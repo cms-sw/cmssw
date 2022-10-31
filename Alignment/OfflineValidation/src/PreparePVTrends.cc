@@ -839,6 +839,14 @@ outPVtrends PreparePVTrends::processData(size_t iter,
 	  break;
 	}
       }
+      else {
+	if (numEvents == 0) {
+	  logWarning << "excluding run " << intersection[n] << " because it has 0 events" << std::endl;
+	  areAllFilesOK = false;
+	  lastOpen = j;
+	  break;
+	}
+      }
 
       dxyPhiMeanTrend[j] = (TH1F *)fins[j]->Get("PVValidation/MeanTrends/means_dxy_phi");
       dxyPhiWidthTrend[j] = (TH1F *)fins[j]->Get("PVValidation/WidthTrends/widths_dxy_phi");

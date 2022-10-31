@@ -23,7 +23,7 @@ if options.config == "":
               "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+        config = json.load(configFile)
 
 isDA = config["validation"].get("isda", True)
 isMC = config["validation"].get("ismc", True)
