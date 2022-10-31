@@ -277,11 +277,15 @@ void PATObjectCrossLinker::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("jets")->setComment("a jet collection derived from pat::Jet");
+  desc.add<edm::InputTag>("muons")->setComment("a muon collection derived from pat::Muon");
+  desc.add<edm::InputTag>("electrons")->setComment("an electron collection derived from pat::Electron");
+  desc.add<edm::InputTag>("lowPtElectrons")
+      ->setComment("an optional electron collection derived from pat::Electron, empty=>not used");
+  desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
+  desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
+  descriptions.add("patObjectCrossLinker", desc);
 }
 
 //define this as a plug-in
