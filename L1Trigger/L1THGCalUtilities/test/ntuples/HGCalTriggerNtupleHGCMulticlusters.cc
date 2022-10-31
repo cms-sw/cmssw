@@ -207,7 +207,7 @@ void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const HGCalTr
     cl3d_firstHcal5layers_.emplace_back(cl3d_itr->firstHcal5layers());
     cl3d_last1layers_.emplace_back(cl3d_itr->last1layers());
     cl3d_last3layers_.emplace_back(cl3d_itr->last3layers());
-    cl3d_last5layers_.emplace_back(cl3d_itr->first5layers());
+    cl3d_last5layers_.emplace_back(cl3d_itr->last5layers());
     cl3d_emax1layers_.emplace_back(cl3d_itr->emax1layers());
     cl3d_emax3layers_.emplace_back(cl3d_itr->emax3layers());
     cl3d_emax5layers_.emplace_back(cl3d_itr->emax5layers());

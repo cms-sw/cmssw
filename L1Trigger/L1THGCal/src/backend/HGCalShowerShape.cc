@@ -578,7 +578,7 @@ int HGCalShowerShape::bitmap(const l1t::HGCalMulticluster& c3d, int start, int e
     edm::LogWarning("TooMuchData") << " Specified bounds cannot fit into bitmap size, defaulting to 0.";
   } else {
     for (int i = start; i <= end; i++) {
-      bitmap += (layers[i - 1] >= threshold) << (end - (i));
+      bitmap += (layers[i - 1] > threshold) << (end - (i));
     }
   }
   return bitmap;
