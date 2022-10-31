@@ -3,10 +3,10 @@
 namespace ph = std::placeholders;  // for _1, _2, _3...
 namespace pt = boost::property_tree;
 
-PreparePVTrends::PreparePVTrends(TString outputdir, pt::ptree& json)
+PreparePVTrends::PreparePVTrends(const char *outputFileName, int nWorkers, pt::ptree& json) :
+  outputFileName_(outputFileName),
+  nWorkers_(nWorkers)
 {
-
-  outputdir_ = outputdir;
   setDirsAndLabels(json);
 }
 
@@ -21,7 +21,7 @@ void PreparePVTrends::setDirsAndLabels(pt::ptree& json)
   }
 }
 
-void PreparePVTrends::MultiRunPVValidation(std::vector<std::string> file_labels_to_add, bool useRMS, TString lumiInputFile, bool doUnitTest) {
+void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, bool doUnitTest) {
   TStopwatch timer;
   timer.Start();
 
@@ -123,19 +123,19 @@ void PreparePVTrends::MultiRunPVValidation(std::vector<std::string> file_labels_
   logInfo << " pre do-stuff: " << runs.size() << std::endl;
 
   //we should use std::bind to create a functor and then pass it to the procPool
-  auto f_processData = std::bind(processData, ph::_1, intersection, nDirs_, dirs, LegLabels, useRMS, doUnitTest);
+  auto f_processData = std::bind(processData, ph::_1, intersection, nDirs_, dirs, LegLabels, useRMS, nWorkers_, doUnitTest);
 
   //f_processData(0);
   //logInfo<<" post do-stuff: " <<  runs.size() << std::endl;
 
-  TProcPool procPool(std::min(nWorkers, intersection.size())); 
-  std::vector<size_t> range(std::min(nWorkers, intersection.size()));
+  TProcPool procPool(std::min(nWorkers_, intersection.size()));
+  std::vector<size_t> range(std::min(nWorkers_, intersection.size()));
   std::iota(range.begin(), range.end(), 0);
   //procPool.Map([&f_processData](size_t a) { f_processData(a); },{1,2,3});
   auto extracts = procPool.Map(f_processData, range);
 
   // sort the extracts according to the global index
-  std::sort(extracts.begin(), extracts.end(), [](const outTrends &a, const outTrends &b) -> bool {
+  std::sort(extracts.begin(), extracts.end(), [](const outPVtrends &a, const outPVtrends &b) -> bool {
     return a.m_index < b.m_index;
   });
 
@@ -301,16 +301,7 @@ void PreparePVTrends::MultiRunPVValidation(std::vector<std::string> file_labels_
       pv::bundle(nDirs_, theType, theTypeLabel, useRMS);
   theBundle.printAll();
 
-  TString outname = outputdir_ + "PVtrends";
-  if (file_labels_to_add.size() != 0 ) {
-    for (const auto &label : file_labels_to_add) {
-      outname += "_";
-      outname += label;
-    }
-  }
-  outname += ".root";
-  logInfo << outname << std::endl;
-  TFile *fout = TFile::Open(outname, "RECREATE");
+  TFile *fout = TFile::Open(outputFileName_, "RECREATE");
 
   for (Int_t j = 0; j < nDirs_; j++) {
     // check on the sanity
@@ -627,7 +618,7 @@ std::vector<int> PreparePVTrends::list_files(const char *dirname, const char *ex
  */
 
 /*--------------------------------------------------------------------*/
-TH1F *PreparePVTrends::DrawConstantWithErr(TH1F *hist, Int_t iter, Double_t theConst)
+TH1F *PreparePVTrends::drawConstantWithErr(TH1F *hist, Int_t iter, Double_t theConst)
 /*--------------------------------------------------------------------*/
 {
   Int_t nbins = hist->GetNbinsX();
@@ -719,7 +710,7 @@ pv::biases PreparePVTrends::getBiases(TH1F *hist)
   Double_t chi2 = f->GetChisquare();
   Int_t ndf = f->GetNDF();
 
-  TH1F *theZero = DrawConstantWithErr(hist, 1, 1.);
+  TH1F *theZero = drawConstantWithErr(hist, 1, 1.);
   TH1F *displaced = (TH1F *)hist->Clone("displaced");
   displaced->Add(theZero);
   Double_t ksScore = std::max(-20., TMath::Log10(displaced->KolmogorovTest(theZero)));
@@ -745,16 +736,17 @@ pv::biases PreparePVTrends::getBiases(TH1F *hist)
  */
 
 /*--------------------------------------------------------------------*/
-outTrends PreparePVTrends::processData(size_t iter,
+outPVtrends PreparePVTrends::processData(size_t iter,
                       std::vector<int> intersection,
                       const Int_t nDirs_,
                       const char *dirs[10],
                       TString LegLabels[10],
 		      bool useRMS,
+		      const size_t nWorkers,
 		      bool doUnitTest)
 /*--------------------------------------------------------------------*/
 {
-  outTrends ret;
+  outPVtrends ret;
 
   unsigned int effSize = std::min(nWorkers, intersection.size());
 

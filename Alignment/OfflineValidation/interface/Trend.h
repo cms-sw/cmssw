@@ -1,3 +1,6 @@
+#ifndef ALIGNMENT_OFFLINEVALIDATION_TREND_H
+#define ALIGNMENT_OFFLINEVALIDATION_TREND_H
+
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -76,10 +79,10 @@ public:
 /// The verticles lines (e.g. pixel templates) are given via a JSON file.
 struct Trend {
 
-    static TString CMS, //!< top loeft label
-                   lumi; //!< top right label (not necessarily the lumi, just following the convention from `CMS_lumi.h`)
+    TString CMS = "#scale[1.1]{#bf{CMS}} #it{Internal}"; //!< top left label
+    TString lumi = "#scale[0.8]{pp collisions (2016+2017+2018)}"; //!< top right label (not necessarily the lumi, just following the convention from `CMS_lumi.h`)
 
-    static float fontsize;
+    float fontsize = 0.04;
 
     TCanvas c;
     const char * outputDir; //directory for plots
@@ -87,6 +90,7 @@ struct Trend {
 
     const boost::property_tree::ptree JSON; //!< contains coordinate for vertical lines
     const Run2Lumi& GetLumi; //!< functor to get luminosity for given subrange
+    const char * lumiType; //specify whether luminosity is recorded or delivered
 
     Trend //!< constructor, prepares canvas and frame
         (const char * name, //!< TCanvas name, also used for output PDF
@@ -96,7 +100,8 @@ struct Trend {
          float ymin, //!< y-axis minimum
          float ymax, //!< y-axis maximum
          boost::property_tree::ptree& json, //!< vertical lines from JSON
-         const Run2Lumi& GetLumiFunctor //!< functor
+         const Run2Lumi& GetLumiFunctor, //!< functor
+         const char * lumiAxisType //specify whether luminosity is recorded or delivered
          );
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -116,3 +121,6 @@ struct Trend {
 };
 
 template<typename T, typename ... Args> inline T * Get (Args ... args) { return dynamic_cast<T*>(gDirectory->Get(Form(args...))); } 
+
+
+#endif // ALIGNMENT_OFFLINEVALIDATION_TREND_H

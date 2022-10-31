@@ -40,27 +40,27 @@ int merge(int argc, char* argv[]) {
   pt::ptree validation = main_tree.get_child("validation");
 
   //Read all configure variables and set default for missing keys
-  bool doMaps = validation.get_child_optional("doMaps") ? validation.get<bool>("doMaps") : false;
-  bool stdResiduals = validation.get_child_optional("stdResiduals") ? validation.get<bool>("stdResiduals") : true;
-  bool autoLimits = validation.get_child_optional("autoLimits") ? validation.get<bool>("autoLimits") : false;
+  bool doMaps = validation.count("doMaps") ? validation.get<bool>("doMaps") : false;
+  bool stdResiduals = validation.count("stdResiduals") ? validation.get<bool>("stdResiduals") : true;
+  bool autoLimits = validation.count("autoLimits") ? validation.get<bool>("autoLimits") : false;
 
-  int m_dxyPhiMax = validation.get_child_optional("m_dxyPhiMax") ? validation.get<int>("m_dxyPhiMax") : 40;
-  int m_dzPhiMax = validation.get_child_optional("m_dzPhiMax") ? validation.get<int>("m_dzPhiMax") : 40;
-  int m_dxyEtaMax = validation.get_child_optional("m_dxyEtaMax") ? validation.get<int>("m_dxyEtaMax") : 40;
-  int m_dzEtaMax = validation.get_child_optional("m_dzEtaMax") ? validation.get<int>("m_dzEtaMax") : 40;
-  int m_dxyPhiNormMax = validation.get_child_optional("m_dxyPhiNormMax") ? validation.get<int>("m_dxyPhiNormMax") : 0.5;
-  int m_dzPhiNormMax = validation.get_child_optional("m_dzPhiNormMax") ? validation.get<int>("m_dzPhiNormMax") : 0.5;
-  int m_dxyEtaNormMax = validation.get_child_optional("m_dxyEtaNormMax") ? validation.get<int>("m_dxyEtaNormMax") : 0.5;
-  int m_dzEtaNormMax = validation.get_child_optional("m_dzEtaNormMax") ? validation.get<int>("m_dzEtaNormMax") : 0.5;
-  int w_dxyPhiMax = validation.get_child_optional("w_dxyPhiMax") ? validation.get<int>("w_dxyPhiMax") : 150;
-  int w_dzPhiMax = validation.get_child_optional("w_dzPhiMax") ? validation.get<int>("w_dzPhiMax") : 150;
-  int w_dxyEtaMax = validation.get_child_optional("w_dxyEtaMax") ? validation.get<int>("w_dxyEtaMax") : 150;
-  int w_dzEtaMax = validation.get_child_optional("w_dzEtaMax") ? validation.get<int>("w_dzEtaMax") : 1000;
-  int w_dxyPhiNormMax = validation.get_child_optional("w_dxyPhiNormMax") ? validation.get<int>("w_dxyPhiNormMax") : 1.8;
-  int w_dzPhiNormMax = validation.get_child_optional("w_dzPhiNormMax") ? validation.get<int>("w_dzPhiNormMax") : 1.8;
-  int w_dxyEtaNormMax = validation.get_child_optional("w_dxyEtaNormMax") ? validation.get<int>("w_dxyEtaNormMax") : 1.8;
-  int w_dzEtaNormMax = validation.get_child_optional("w_dzEtaNormMax") ? validation.get<int>("w_dzEtaNormMax") : 1.8;
-  int iov = validation.get_child_optional("IOV") ? validation.get<int>("IOV") : 1;
+  int m_dxyPhiMax = validation.count("m_dxyPhiMax") ? validation.get<int>("m_dxyPhiMax") : 40;
+  int m_dzPhiMax = validation.count("m_dzPhiMax") ? validation.get<int>("m_dzPhiMax") : 40;
+  int m_dxyEtaMax = validation.count("m_dxyEtaMax") ? validation.get<int>("m_dxyEtaMax") : 40;
+  int m_dzEtaMax = validation.count("m_dzEtaMax") ? validation.get<int>("m_dzEtaMax") : 40;
+  int m_dxyPhiNormMax = validation.count("m_dxyPhiNormMax") ? validation.get<int>("m_dxyPhiNormMax") : 0.5;
+  int m_dzPhiNormMax = validation.count("m_dzPhiNormMax") ? validation.get<int>("m_dzPhiNormMax") : 0.5;
+  int m_dxyEtaNormMax = validation.count("m_dxyEtaNormMax") ? validation.get<int>("m_dxyEtaNormMax") : 0.5;
+  int m_dzEtaNormMax = validation.count("m_dzEtaNormMax") ? validation.get<int>("m_dzEtaNormMax") : 0.5;
+  int w_dxyPhiMax = validation.count("w_dxyPhiMax") ? validation.get<int>("w_dxyPhiMax") : 150;
+  int w_dzPhiMax = validation.count("w_dzPhiMax") ? validation.get<int>("w_dzPhiMax") : 150;
+  int w_dxyEtaMax = validation.count("w_dxyEtaMax") ? validation.get<int>("w_dxyEtaMax") : 150;
+  int w_dzEtaMax = validation.count("w_dzEtaMax") ? validation.get<int>("w_dzEtaMax") : 1000;
+  int w_dxyPhiNormMax = validation.count("w_dxyPhiNormMax") ? validation.get<int>("w_dxyPhiNormMax") : 1.8;
+  int w_dzPhiNormMax = validation.count("w_dzPhiNormMax") ? validation.get<int>("w_dzPhiNormMax") : 1.8;
+  int w_dxyEtaNormMax = validation.count("w_dxyEtaNormMax") ? validation.get<int>("w_dxyEtaNormMax") : 1.8;
+  int w_dzEtaNormMax = validation.count("w_dzEtaNormMax") ? validation.get<int>("w_dzEtaNormMax") : 1.8;
+  int iov = validation.count("IOV") ? validation.get<int>("IOV") : 1;
 
   //Create plots
   // initialize the plot y-axis ranges

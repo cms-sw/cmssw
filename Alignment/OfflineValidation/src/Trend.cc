@@ -134,17 +134,21 @@ TH1 * Run2Lumi::operator() (TH1 * hIn) const
 Trend::Trend (const char * name, const char * dir,
         const char * title, const char * ytitle,
         float ymin, float ymax,
-        pt::ptree& json, const Run2Lumi& GetLumiFunctor) :
+	pt::ptree& json, const Run2Lumi& GetLumiFunctor, const char * lumiAxisType) :
     c(name, title, 2000, 800),
     outputDir(Form("%s", dir)),
     lgd(0.7, 0.65, 0.97, 0.89, "", "NDC"),
-    JSON(json), GetLumi(GetLumiFunctor)
+    JSON(json), GetLumi(GetLumiFunctor),
+    lumiType(lumiAxisType)
 {
     cout << __func__ << endl;
 
+    if (JSON.count("CMSlabel"))
+      CMS = Form("#scale[1.1]{#bf{CMS}} #it{%s}", JSON.get<string>("CMSlabel").data());
+
     assert(ymin < ymax);
     float xmax = GetLumi(GetLumi.firstRun, GetLumi.lastRun);
-    const char * axistitles = Form(";Delivered luminosity  [fb^{-1} ];%s", ytitle);
+    const char * axistitles = Form(";%s luminosity  [fb^{-1} ];%s", lumiType, ytitle);
     auto frame = c.DrawFrame(0., ymin, xmax, ymax, axistitles);
     frame->GetYaxis()->SetTitleOffset(0.8);
     frame->GetYaxis()->SetTickLength(0.01);
@@ -170,7 +174,8 @@ Trend::Trend (const char * name, const char * dir,
     c.SetTopMargin(0.07);
 
     // plot vertical lines (typically pixel template transitions)
-    for (auto& type: JSON) {
+    pt::ptree lines = JSON.get_child("trends.lines");
+    for (auto& type: lines) {
 
         auto line = type.second.get_child_optional("line");
         auto runs = type.second.get_child_optional("runs");
@@ -269,7 +274,8 @@ Trend::~Trend ()
     auto totLumi = GetLumi();
     assert(totLumi > 0);
     auto posY = 0.88;
-    for (auto& type: JSON) {
+    pt::ptree lines = JSON.get_child("trends.lines");
+    for (auto& type: lines) {
 
         auto labels = type.second.get_child_optional("labels");
         auto runs = type.second.get_child_optional("runs");
@@ -296,9 +302,3 @@ Trend::~Trend ()
     c.SaveAs( Form("%s/%s.pdf"  ,outputDir, c.GetName ()) ,
             Form("Title:%s", c.GetTitle()) );
 }
-
-// these are the default values, they can be overwritten any macro
-TString Trend::CMS = "#scale[1.1]{#bf{CMS}} #it{Internal}", 
-        Trend::lumi = "#scale[0.8]{pp collisions (2016+2017+2018)}";
-float Trend::fontsize = 0.04;
-

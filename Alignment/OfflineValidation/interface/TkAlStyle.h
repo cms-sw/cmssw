@@ -14,8 +14,8 @@
 // make sure the style settings are used.
 // --------------------------------------------------------------
 
-#ifndef TKAL_STYLE_H
-#define TKAL_STYLE_H
+#ifndef ALIGNMENT_OFFLINEVALIDATION_TKAL_STYLE_H
+#define ALIGNMENT_OFFLINEVALIDATION_TKAL_STYLE_H
 
 #include "TColor.h"
 #include "TError.h"

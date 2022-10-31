@@ -1,5 +1,5 @@
-#ifndef JETHTANALYZER_SMARTSELECTIONMONITOR_H
-#define JETHTANALYZER_SMARTSELECTIONMONITOR_H
+#ifndef ALIGNMENT_OFFLINEVALIDATION_JETHTANALYZER_SMARTSELECTIONMONITOR_H
+#define ALIGNMENT_OFFLINEVALIDATION_JETHTANALYZER_SMARTSELECTIONMONITOR_H
 
 // system include files
 #include <iostream>
@@ -42,7 +42,7 @@ public:
   
     TH1* base = (*map)["all"];
     TString allName = base->GetName();
-    TString name = tag + "_" + allName;
+    TString name = tag + "_" + allName.Data();
     TH1* h = (TH1*) base->Clone(name);
     h->SetName(name);
     h->SetTitle(name);

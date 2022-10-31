@@ -125,8 +125,8 @@ def DMR(config, validationDir):
             local["validation"]["mergeFile"] = "{}/{}/DMR/{}/{}/{}".format(config["LFS"], config["name"], "merge", trendName, "{}")
             local["validation"]["IOV"] = IOVs
             local["output"] = "{}/{}/DMR/{}/{}/".format(config["LFS"], config["name"], dmrType, trendName)
-            if config["lines"]:
-                local["lines"] = copy.deepcopy(config["lines"])
+            if config["style"]:
+                local["style"] = copy.deepcopy(config["style"])
             else:
                 raise Exception("You want to create 'trends' jobs, but there are no 'lines' section in the config for pixel updates!")
 

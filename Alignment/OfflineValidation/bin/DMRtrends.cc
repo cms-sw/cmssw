@@ -47,31 +47,13 @@ int trends(int argc, char* argv[]) {
   
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
-  pt::ptree lines = main_tree.get_child("lines");
+  pt::ptree style = main_tree.get_child("style");
   
   //Read all configure variables and set default for missing keys
   string outputdir = main_tree.get<string>("output");
-  bool fullRange = validation.get_child_optional("fullRange") ? validation.get<bool>("fullRange") : false;
-  bool FORCE = validation.get_child_optional("FORCE") ? validation.get<bool>("FORCE") : false;
-  string Year = validation.get_child_optional("Year") ? validation.get<string>("Year") : "Run2";
-  TString lumiInputFile = validation.get_child_optional("lumiInputFile") ? validation.get<string>("lumiInputFile") : "lumiperFullRun2_delivered.txt";
-
-  vector<string> labels{};
-  if (validation.get_child_optional("labels")) {
-    labels.clear();
-    for (const pair<string, pt::ptree>& childTree : validation.get_child("labels")) {
-      labels.push_back(childTree.second.get_value<string>());
-    }
-  }
-  
-  vector<string> Variables;
-  if (validation.get_child_optional("Variables")) {
-    for (const pair<string, pt::ptree>& childTree : validation.get_child("Variables")) {
-      Variables.push_back(childTree.second.get_value<string>());
-    }
-  }
-  else
-    Variables.push_back("median");
+  bool FORCE = validation.count("FORCE") ? validation.get<bool>("FORCE") : false;
+  string year = validation.count("year") ? validation.get<string>("year") : "Run2";
+  TString lumiInputFile = style.count("lumiInputFile") ? style.get<string>("lumiInputFile") : "lumiPerRun_Run2.txt";
 
   TString LumiFile = getenv("CMSSW_BASE");
   if (lumiInputFile.BeginsWith("/"))
@@ -86,9 +68,20 @@ int trends(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  if(!LumiFile.Contains(year)){
+    cout << "ERROR: lumi-per-run file must contain (" << year.data() << ")!" << endl << "Please check!" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  string lumiAxisType = "recorded";
+  if(lumiInputFile.Contains("delivered"))
+    lumiAxisType ="delivered";
+
+  std::cout << Form("NOTE: using %s luminosity!", lumiAxisType.data()) << std::endl;
+
   vector<int> IOVlist;
   vector<string> inputFiles;
-  for (const pair<string, pt::ptree>& childTree : validation.get_child("IOV")) {
+  for (auto const &childTree : validation.get_child("IOV")) {
     int iov = childTree.second.get_value<int>();
     IOVlist.push_back(iov);
     TString mergeFile =  validation.get<string>("mergeFile");
@@ -96,37 +89,41 @@ int trends(int argc, char* argv[]) {
     inputFiles.push_back(input);
   }
 
-  PrepareDMRTrends prepareTrends(outputdir, alignments);
-  for (const auto &Variable : Variables) {
-    prepareTrends.compileDMRTrends(IOVlist, Variable, labels, Year, inputFiles, FORCE);
+  string labels_to_add = "";
+  if (validation.count("labels")) {
+    for (auto const &label : validation.get_child("labels")) {
+      labels_to_add += "_";
+      labels_to_add += label.second.get_value<string>();
+    }
   }
 
-  Trend::CMS = "#scale[1.1]{#bf{CMS}}";
+  fs::path pname = Form("%s/PVtrends%s.root", outputdir.data(), labels_to_add.data());
 
   vector<TString> structures{"BPIX", "BPIX_y", "FPIX", "FPIX_y", "TIB", "TID", "TOB", "TEC"};
 
   map<TString, int> nlayers{{"BPIX", 4}, {"FPIX", 3}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9}};
-  if (Year == "2016")
+  if (year == "2016")
     nlayers = {{"BPIX", 3}, {"FPIX", 2}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9}};
-  
-  int firstRun = validation.get_child_optional("firstRun") ? validation.get<int>("firstRun") : 272930;
-  int lastRun = validation.get_child_optional("lastRun") ? validation.get<int>("lastRun") : 325175;
-  
-  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun);
 
-  string labels_to_add = "";
-  if (labels.size() != 0 ) {
-    for (const auto &label : labels) {
-      labels_to_add += "_";
-      labels_to_add += label;
+  PrepareDMRTrends prepareTrends(pname.c_str(), alignments);
+  if (validation.count("Variables")) {
+    for (auto const &Variable : validation.get_child("Variables")) {
+      prepareTrends.compileDMRTrends(IOVlist, Variable.second.get_value<string>(), inputFiles, structures, nlayers, FORCE);
     }
   }
-  fs::path pname = Form("%s/DMRtrends%s.root", outputdir.data(), labels_to_add.data());
+  else
+    prepareTrends.compileDMRTrends(IOVlist, "median", inputFiles, structures, nlayers, FORCE);
+
   assert(fs::exists(pname));
+
+  int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
+  int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
+  
+  const Run2Lumi GetLumi(LumiFile.Data(), firstRun, lastRun);
   
   auto f = TFile::Open(pname.c_str());
 
-  for (auto Variable : Variables) {
+  for (auto const &Variable : validation.get_child("Variables")) {
 
     vector<tuple<TString, TString, float, float>> DMRs {
       {"mu", "#mu [#mum]", -6, 6},
@@ -143,7 +140,7 @@ int trends(int argc, char* argv[]) {
       {"deltamusigmadeltamu", "#Delta#mu [#mum]", -15, 15}
     };
 
-    if (Variable == "DrmsNR") {
+    if (Variable.second.get_value<string>() == "DrmsNR") {
       DMRs = {
 	{"mu", "RMS(x'_{pred}-x'_{hit} /#sigma)", -1.2, 1.2},
 	{"sigma", "#sigma_{RMS(x'_{pred}-x'_{hit} /#sigma)}", -6, 6},
@@ -160,7 +157,7 @@ int trends(int argc, char* argv[]) {
       };
     }
 
-    for (TString &structure : structures) {
+    for (auto structure : structures) {
       TString structname = structure;
       structname.ReplaceAll("_y", "");
       size_t layersnumber = nlayers.at(structname);
@@ -191,7 +188,7 @@ int trends(int argc, char* argv[]) {
 	  structandlayer += layer;
 	}
 	
-        for (auto DMR: DMRs) {
+        for (auto& DMR: DMRs) {
 	  
           auto name  = get<0>(DMR),
             ytitle = get<1>(DMR);
@@ -204,34 +201,34 @@ int trends(int argc, char* argv[]) {
           cout << bold << name << normal << endl;
           
           float ymin = get<2>(DMR), ymax = get<3>(DMR);
-          Trend trend(Form("%s_%s_%s", Variable.data(), structandlayer.Data(), name.Data()), outputdir.data(), ytitle, ytitle, ymin, ymax, lines, GetLumi);
+          Trend trend(Form("%s_%s_%s", Variable.second.get_value<string>().data(), structandlayer.Data(), name.Data()), outputdir.data(), ytitle, ytitle, ymin, ymax, style, GetLumi, lumiAxisType.data());
           trend.lgd.SetHeader(structtitle);
           
-          for (const pair<string, pt::ptree>& childTree : alignments) {
-            TString alignment = childTree.second.get<string>("title");
-            TString gname = Form("%s_%s_%s_%s", Variable.data(), alignment.Data(), structandlayer.Data(), name.Data());
+          for (auto const &alignment : alignments) {
+
+	    bool fullRange = true;
+	    if(style.get_child("trends").count("earlyStops")) {
+	      for(auto const &earlyStop : style.get_child("trends.earlyStops")) {
+		if (earlyStop.second.get_value<string>().c_str() == alignment.first)
+		  fullRange = false;
+	      }
+	    }
+
+            TString gtitle = alignment.second.get<string>("title");
+            TString gname = Form("%s_%s_%s_%s", Variable.second.get_value<string>().data(), gtitle.Data(), structandlayer.Data(), name.Data());
             gname.ReplaceAll(" ", "_");
             auto g = Get<TGraphErrors>(gname);
             assert(g != nullptr);
             g->SetTitle(""); // for the legend
             g->SetMarkerSize(0.6);
-            int color = childTree.second.get<int>("color");
-            int style = childTree.second.get<int>("style");
+            int color = alignment.second.get<int>("color");
+            int style = alignment.second.get<int>("style");
             g->SetFillColorAlpha(color, 0.2);
             g->SetMarkerColor(color);
             g->SetMarkerStyle(style);
             g->SetLineColor(kWhite);
             trend(g, "P2", "pf", fullRange);
             
-            // dirty trick to get bigger marker in the legend 
-            double x[] = {-99};
-            auto g2 = new TGraph(1,x,x);
-            g2->SetTitle(alignment);
-            g2->SetMarkerColor(color);
-            g2->SetFillColorAlpha(color, 0.2);
-            g2->SetLineColor(kWhite);
-            g2->SetMarkerStyle(style);
-            trend(g2, "P2", "pf", false);
           }
 	}
       }

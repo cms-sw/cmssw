@@ -49,23 +49,23 @@ int merge(int argc, char* argv[]) {
 
   //Read all configure variables and set default for missing keys
   std::string methods =
-      validation.get_child_optional("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
-  std::string curves = validation.get_child_optional("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
+      validation.count("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
+  std::string curves = validation.count("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
 
-  int minimum = validation.get_child_optional("minimum") ? validation.get<int>("minimum") : 15;
+  int minimum = validation.count("minimum") ? validation.get<int>("minimum") : 15;
 
-  bool useFit = validation.get_child_optional("usefit") ? validation.get<bool>("usefit") : false;
-  bool bigText = validation.get_child_optional("bigtext") ? validation.get<bool>("bigtext") : false;
+  bool useFit = validation.count("usefit") ? validation.get<bool>("usefit") : false;
+  bool bigText = validation.count("bigtext") ? validation.get<bool>("bigtext") : false;
 
   TkAlStyle::legendheader =
-      validation.get_child_optional("legendheader") ? validation.get<std::string>("legendheader") : "";
+      validation.count("legendheader") ? validation.get<std::string>("legendheader") : "";
   TkAlStyle::legendoptions =
-      validation.get_child_optional("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean rms";
+      validation.count("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean rms";
   TkAlStyle::set(INTERNAL, NONE, "", validation.get<std::string>("customrighttitle"));
 
   std::vector<int> moduleids;
 
-  if (validation.get_child_optional("moduleid")) {
+  if (validation.count("moduleid")) {
     for (const std::pair<std::string, pt::ptree>& childTree : validation.get_child("moduleid")) {
       moduleids.push_back(childTree.second.get_value<int>());
     }
