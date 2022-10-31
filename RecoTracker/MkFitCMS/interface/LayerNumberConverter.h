@@ -1,7 +1,7 @@
 #ifndef RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 #define RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 
-#include <exception>
+#include <stdexcept>
 
 namespace mkfit {
 

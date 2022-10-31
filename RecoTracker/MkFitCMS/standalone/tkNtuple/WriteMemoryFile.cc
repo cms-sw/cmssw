@@ -47,7 +47,7 @@ void printHelp(const char* av0) {
       "Options:\n"
       "  --input          <str>    input file\n"
       "  --output         <str>    output file\n"
-      "  --geo            <file>   binary TrackerInfo geometry (def: CMS-2017.bin)\n"
+      "  --geo            <file>   binary TrackerInfo geometry (def: CMS-phase1.bin)\n"
       "  --verbosity      <num>    print details (0 quiet, 1 print counts, 2 print all; def: 0)\n"
       "  --maxevt         <num>    maxevt events to write (-1 for everything in the file def: -1)\n"
       "  --clean-sim-tracks        apply sim track cleaning (def: no cleaning)\n"
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
   std::string inputFileName;
   bool haveOutput = false;
   std::string outputFileName;
-  std::string geoFileName("CMS-2017.bin");
+  std::string geoFileName("CMS-phase1.bin");
 
   bool cleanSimTracks = false;
   bool writeAllEvents = false;

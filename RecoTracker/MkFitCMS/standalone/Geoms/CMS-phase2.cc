@@ -1,7 +1,7 @@
 //-------------------
-// CMS 2029 geometry
+// CMS phase2 geometry
 //-------------------
 
 // Redirect to external geometry creator function.
 
-#include "mkfit-geom-cms-2029/CMS-2029.cc"
+#include "mkfit-geom-cms-phase2/CMS-phase2.cc"

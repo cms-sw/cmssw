@@ -42,12 +42,12 @@ case ${inputBin} in
         nevents=20000
         sample=10mu
         ;;
-"TTbar_Phase2")
+"TTbar_phase2")
         dir=/home/matevz/mic-dev
         subdir=
         file=ttbar-p2.bin
         nevents=100
-        extraargs="--geom CMS-2029"
+        extraargs="--geom CMS-phase2"
         numiters=1
         # Pass MIMI flag to ROOT plotting functions -- some will insert STD
         # that does not work with MIMI at this point.
@@ -121,7 +121,7 @@ SIMPLOTSEED10="SIMVALSEED iter10 0 10 0"
 SIMPLOT6="SIMVAL iter6 0 6 0"
 SIMPLOTSEED6="SIMVALSEED iter6 0 6 0"
 
-if [[ "${inputBin}" == "TTbar_Phase2" ]]
+if [[ "${inputBin}" == "TTbar_phase2" ]]
 then
     declare -a plots=(SIMPLOT4 SIMPLOTSEED4)
 else

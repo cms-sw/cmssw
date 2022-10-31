@@ -338,7 +338,7 @@ namespace mkfit {
 
     namespace {
       struct register_seed_cleaners {
-        register_seed_cleaners() { IterationConfig::register_seed_cleaner("2017:default", clean_cms_seedtracks_iter); }
+        register_seed_cleaners() { IterationConfig::register_seed_cleaner("phase1:default", clean_cms_seedtracks_iter); }
       } rsc_instance;
     }  // namespace
 
@@ -597,9 +597,9 @@ namespace mkfit {
     namespace {
       struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
-          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates", clean_duplicates);
-          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits", clean_duplicates_sharedhits);
-          IterationConfig::register_duplicate_cleaner("2017:clean_duplicates_sharedhits_pixelseed",
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates", clean_duplicates);
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits", clean_duplicates_sharedhits);
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits_pixelseed",
                                                       clean_duplicates_sharedhits_pixelseed);
         }
       } rdc_instance;
@@ -706,11 +706,11 @@ namespace mkfit {
     namespace {
       struct register_quality_filters {
         register_quality_filters() {
-          IterationConfig::register_candidate_filter("2017:qfilter_n_hits", qfilter_n_hits<TrackCand>);
-          IterationConfig::register_candidate_filter("2017:qfilter_n_hits_pixseed", qfilter_n_hits_pixseed<TrackCand>);
-          IterationConfig::register_candidate_filter("2017:qfilter_n_layers", qfilter_n_layers<TrackCand>);
-          IterationConfig::register_candidate_filter("2017:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
-          IterationConfig::register_candidate_filter("2017:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_hits", qfilter_n_hits<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_hits_pixseed", qfilter_n_hits_pixseed<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_layers", qfilter_n_layers<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
         }
       } rqf_instance;
     }  // namespace
