@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"

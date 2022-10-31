@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Centrality
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace edm;
