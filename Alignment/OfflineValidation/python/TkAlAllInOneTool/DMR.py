@@ -1,5 +1,5 @@
 import copy
-import pprint
+import os
 
 def DMR(config, validationDir):
     ##List with all jobs
@@ -30,12 +30,15 @@ def DMR(config, validationDir):
                 local["validation"] = copy.deepcopy(config["validations"]["DMR"][dmrType][datasetName])
                 local["validation"].pop("alignments")
                 local["validation"]["IOV"] = IOV
+                if "goodlumi" in local["validation"]:
+                    local["validation"]["goodlumi"] = local["validation"]["goodlumi"].format(IOV)
 
                 ##Write job info
                 job = {
                     "name": "DMR_{}_{}_{}_{}".format(dmrType, alignment, datasetName, IOV),
                     "dir": workDir,
-                    "exe": "DMRsingle",
+                    "exe": "cmsRun",
+                    "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/DMR_cfg.py".format(os.environ["CMSSW_BASE"]),
                     "run-mode": "Condor",
                     "dependencies": [],
                     "config": local, 
@@ -72,7 +75,7 @@ def DMR(config, validationDir):
                     local.setdefault("alignments", {}).setdefault("files", {}).setdefault("DMR", {}).setdefault("single", [])
                     local["alignments"][alignment] = copy.deepcopy(config["alignments"][alignment])
                     local["validation"] = copy.deepcopy(config["validations"]["DMR"][dmrType][mergeName])
-                    local["validation"]["output"] = "{}/{}/{}/{}/{}".format(config["LFS"], config["name"], dmrType, mergeName, IOV)
+                    local["output"] = "{}/{}/{}/{}/{}".format(config["LFS"], config["name"], dmrType, mergeName, IOV)
 
                 ##Loop over all single jobs
                 for singleJob in jobs:
