@@ -10,6 +10,7 @@ options.register('tags',	'', VarParsing.VarParsing.multiplicity.list, VarParsing
 options.register('gains',	'', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '') 
 options.register('respcorrs',	'', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '') 
 options.register('pedestals',	'', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '') 
+options.register('effpedestals','', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '')
 options.register('quality',	'', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '') 
 options.parseArguments()
 
@@ -30,6 +31,7 @@ process.plot  = cms.EDAnalyzer("HcalLutAnalyzer",
     gains     = cms.vstring(options.gains),
     respcorrs = cms.vstring(options.respcorrs),
     pedestals = cms.vstring(options.pedestals),
+    effpedestals = cms.vstring(options.effpedestals),                               
     quality   = cms.vstring(options.quality),
     Zmin      = cms.double(0),
     Zmax      = cms.double(10),
