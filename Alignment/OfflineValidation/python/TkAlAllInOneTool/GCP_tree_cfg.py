@@ -43,8 +43,11 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('detailedInfo', 
-        'cout')
+    #destinations = cms.untracked.vstring('detailedInfo', 'cout')
+    destinations = cms.untracked.vstring('warnings'),
+    warnings = cms.untracked.PSet(
+                       threshold  = cms.untracked.string('WARNING') 
+        )
 )
 
 process.source = cms.Source("EmptySource",
