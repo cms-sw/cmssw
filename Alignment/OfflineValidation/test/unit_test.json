@@ -1,0 +1,75 @@
+{    
+    "LFS": "/eos/cms/store/group/alca_trackeralign/AlignmentValidation/AlignmentValidation/CMSSW_test_units",
+    "name": "test_yaml_new",
+    "alignments": {
+        "unitTest": {
+           "color": "1",
+           "globaltag": "auto:phase1_2017_realistic",
+           "style": "2101",
+           "title": "unit test"
+        }
+    },
+    "validations": {
+        "DMR": {
+             "merge": {
+                 "testUnits": {
+                      "methods": ["mean", "rms"],
+                      "curves": ["plain"],
+                      "legendoptions": ["mean", "rms"],
+                      "singles": ["testUnits"],
+                      "usefit": "true",
+                      "minimum": "15",
+                      "customrighttitle": "IOV"
+                 }
+             },
+             "single": {
+                 "testUnits": {
+                      "IOV": ["317655"],
+                      "alignments": ["unitTest"],
+                      "trackcollection": "generalTracks",
+                      "vertexcollection": "offlinePrimaryVertices",
+                      "maxevents": "1",
+                      "maxtracks": "0"
+                 }
+             }
+        },
+        "PV": {
+	     "merge": {
+                 "testUnits": {
+                      "singles": ["testUnits"],
+                      "doMaps": "true",
+                      "stdResiduals": "true",
+                      "autoLimits": "false"
+                 }
+             },
+             "single": {
+                 "testUnits": {
+                      "IOV": ["317655"],
+                      "alignments": ["unitTest"],
+                      "trackcollection": "generalTracks",
+                      "vertexcollection": "offlinePrimaryVertices",
+                      "maxevents": "1",
+                      "isda": "true",
+                      "ismc": "false"
+                 }
+             }
+        }
+	"SplitV": {
+	    "merge": {
+                "testUnits": {
+                    "singles": ["testUnits"]
+                 }
+             },
+             "single": {
+                 "testUnits": {
+                     "IOV": ["1"],
+                     "alignments": ["unitTest"],
+                     "trackcollection": "generalTracks",
+		     "HLTSelection": "False",
+                     "triggerBits" : "HLT_*",
+                     "maxevents": "10"
+                 }
+             }
+        }
+    }
+}
