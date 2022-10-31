@@ -1,48 +1,44 @@
-#include <string>
-#include <sstream>
-#include <vector>
-#include <iomanip>
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <cassert>
-#include "TFile.h"
-#include "TPaveStats.h"
-#include "TROOT.h"
-#include "TList.h"
-#include "TNtuple.h"
-#include "TTree.h"
-#include "TError.h"
-#include "TH1.h"
 #include "TArrow.h"
-#include "TH2.h"
-#include "THStack.h"
-#include "TStyle.h"
-#include "TLegendEntry.h"
-#include "TPaveText.h"
-#include "TCut.h"
-#include "TLegend.h"
-#include "TGraphErrors.h"
-#include "TF1.h"
-#include "TMath.h"
-#include "TVectorD.h"
+#include "TAxis.h"
 #include "TCanvas.h"
 #include "TColor.h"
-#include "TAxis.h"
-#include "TGaxis.h"
-#include "TROOT.h"
-#include "TObjArray.h"
-#include "TGraphErrors.h"
+#include "TCut.h"
+#include "TDatime.h"
+#include "TError.h"
 #include "TF1.h"
-#include "TMinuit.h"
-#include "TString.h"
+#include "TFile.h"
+#include "TGaxis.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "THStack.h"
+#include "TLegend.h"
+#include "TLegendEntry.h"
+#include "TList.h"
 #include "TMath.h"
-#include <TDatime.h>
-#include <TSpectrum.h>
-#include <TSystem.h>
-#include <TTimeStamp.h>
-#include <TStopwatch.h>
-#include <TObjString.h>
+#include "TMinuit.h"
+#include "TNtuple.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+#include "TPaveStats.h"
+#include "TPaveText.h"
+#include "TROOT.h"
+#include "TSpectrum.h"
+#include "TStopwatch.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTimeStamp.h"
+#include "TTree.h"
+#include "TVectorD.h"
+#include <cassert>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger
@@ -437,7 +433,7 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
   setStyle();
 
   // check if the loader is empty
-  if (sourceList.size() != 0) {
+  if (!sourceList.empty()) {
     fromLoader = true;
   }
 
@@ -2404,7 +2400,7 @@ void arrangeCanvas(TCanvas *canv,
   lego->SetLineColor(10);
   lego->SetShadowColor(10);
 
-  TPaveText *ptDate = NULL;
+  TPaveText *ptDate = nullptr;
 
   canv->SetFillColor(10);
 
@@ -2817,7 +2813,7 @@ std::pair<params::measurement, params::measurement> fitStudentTResiduals(TH1 *hi
 {
   hist->SetMarkerStyle(21);
   hist->SetMarkerSize(0.8);
-  hist->SetStats(1);
+  hist->SetStats(true);
 
   double dx = hist->GetBinWidth(1);
   double nmax = hist->GetBinContent(hist->GetMaximumBin());
@@ -2934,9 +2930,9 @@ params::measurement getMedian(TH1F *histo)
   median = TMath::Median(nbins, x, y);
 
   delete[] x;
-  x = 0;
+  x = nullptr;
   delete[] y;
-  y = 0;
+  y = nullptr;
 
   params::measurement result;
   result = std::make_pair(median, median / TMath::Sqrt(histo->GetEntries()));
@@ -3301,7 +3297,7 @@ void FillTrendPlot(TH1F *trendPlot, TH1F *residualsPlot[100], params::estimator 
       MakeNicePlotStyle(residualsPlot[i]);
       residualsPlot[i]->SetMarkerStyle(20);
       residualsPlot[i]->SetMarkerSize(1.);
-      residualsPlot[i]->SetStats(0);
+      residualsPlot[i]->SetStats(false);
       //residualsPlot[i]->GetXaxis()->SetRangeUser(-3*(tmp1->GetParameter(1)),3*(tmp1->GetParameter(1)));
       residualsPlot[i]->Draw("e1");
       residualsPlot[i]->GetYaxis()->UnZoom();
@@ -3367,7 +3363,7 @@ void FillTrendPlot(TH1F *trendPlot, TH1F *residualsPlot[100], params::estimator 
         residualsPull[i]->GetListOfFunctions()->Remove(toDel);
       residualsPull[i]->SetMarkerStyle(20);
       residualsPull[i]->SetMarkerSize(1.);
-      residualsPull[i]->SetStats(0);
+      residualsPull[i]->SetStats(false);
 
       residualsPull[i]->GetYaxis()->SetTitle("(res-fit)/res");
       // residualsPull[i]->SetOptTitle(1);

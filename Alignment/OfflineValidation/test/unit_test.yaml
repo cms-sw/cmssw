@@ -85,7 +85,7 @@ validations:
                 - TestMergeMC
                 maxfiles: 700
                 lumiPerRun:
-                - $CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
+                - Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
                 lumiMC:
                 - 1::TestMergeMC::64482.432
 
@@ -155,7 +155,7 @@ validations:
                 - unitTestJetHT
                 trackCollection: ALCARECOTkAlMinBias
                 maxevents: 100
-                iovListFile: CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
+                iovListFile: Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
 
             testMC:
                 alignments:

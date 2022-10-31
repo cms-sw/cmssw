@@ -43,7 +43,7 @@
             "drawDzError": false,
             "drawDxyError": false
         },
-        "lumiPerIovFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
         "drawPlotsForEachIOV": false,
         "normalizeQAplots": true,
         "makeIovlistForSlides": false,

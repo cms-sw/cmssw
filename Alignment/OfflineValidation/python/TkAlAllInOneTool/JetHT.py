@@ -3,27 +3,7 @@ import os
 import math
 import re
 from datetime import date
-
-# Path digesting function copied from validateAlignments.py
-def digest_path(path):
-    # split path in folders
-    path_s = str(path).split(os.sep)
-
-    path_d_s = []
-    for part in path_s:
-        # Look for environment variables such as $CMSSW_BASE
-        if part.startswith('$'):
-            env_var = part[1:].replace('{', '').replace('}', '')
-            path_d_s.append(os.environ[env_var])
-        else: path_d_s.append(part)
-
-    # re join folders in to a path
-    path_d = os.path.join(*path_d_s)
-
-    # re add front / if needed
-    if path.startswith(os.sep): path_d = os.sep + path_d
-
-    return path_d
+import Alignment.OfflineValidation.TkAlAllInOneTool.findAndChange as fnc
 
 # Find number of files on a file list. If the list defines a run number before each file, find the number of unique runs instead and return a list of runs with the number
 def findNumberOfUnits(fileList):
@@ -67,11 +47,6 @@ def JetHT(config, validationDir):
         for alignment in config["validations"]["JetHT"][runType][datasetName]["alignments"]:
             # Work directory for each alignment
             workDir = "{}/JetHT/{}/{}/{}".format(validationDir, runType, datasetName, alignment)
-
-            # For all the strings in the configuration, expand environment variables
-            for key in config["validations"]["JetHT"][runType][datasetName]:
-                if isinstance(config["validations"]["JetHT"][runType][datasetName][key], str):
-                    config["validations"]["JetHT"][runType][datasetName][key] = digest_path(config["validations"]["JetHT"][runType][datasetName][key])
 
             # Write local config
             local = {}
@@ -209,11 +184,6 @@ def JetHT(config, validationDir):
         ##Loop over all merge jobs/IOVs which are wished
         for datasetName in config["validations"]["JetHT"][runType]:
 
-            # For all the strings in the configuration, expand environment variables
-            for key in config["validations"]["JetHT"][runType][datasetName]:
-                if isinstance(config["validations"]["JetHT"][runType][datasetName][key], str):
-                    config["validations"]["JetHT"][runType][datasetName][key] = digest_path(config["validations"]["JetHT"][runType][datasetName][key])
-
             #Work and output directories for each dataset
             workDir = "{}/JetHT/{}/{}".format(validationDir, runType, datasetName)
             outputDirectory = "{}/{}/JetHT/{}/{}".format(config["LFS"], config["name"], runType, datasetName)
@@ -251,7 +221,7 @@ def JetHT(config, validationDir):
 
             # Check that luminosity per IOV file is defined
             if not "lumiPerIovFile" in local["jethtplot"]:
-                local["jethtplot"]["lumiPerIovFile"] = "{}/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt".format(os.environ["CMSSW_BASE"])
+                local["jethtplot"]["lumiPerIovFile"] = fnc.digest_path("Alignment/OfflineValidation/data/lumiPerRun_Run2.txt")
 
             #Write job info
             job = {

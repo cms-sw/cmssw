@@ -8,4 +8,5 @@
   <class name="std::map<TString, std::vector<double> >"/>
   <class name="std::map<TString, std::vector<unrolledHisto> >"/>
   <class name="SmartSelectionMonitor"/>
+  <class name="EopElecVariables"/>
 </lcgdict>

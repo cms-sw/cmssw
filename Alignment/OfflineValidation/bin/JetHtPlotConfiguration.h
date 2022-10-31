@@ -1,13 +1,13 @@
 // Class for histograms needed in the dijet analysis
 
-#ifndef JETHTPLOTCONFIGURATION_H
-#define JETHTPLOTCONFIGURATION_H
+#ifndef ALIGNMENT_OFFLINEVALIDATION_JETHTPLOTCONFIGURATION_H
+#define ALIGNMENT_OFFLINEVALIDATION_JETHTPLOTCONFIGURATION_H
 
 // Boost libraries for reading JSON files
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS  // This suppresses some warning message. It is annoying so just not seeing it makes me happy.
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/algorithm/string/replace.hpp>
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/algorithm/string/replace.hpp"
 
 // C++ includes
 #include <cstdlib>
@@ -17,7 +17,7 @@
 #include <vector>
 
 // Root includes
-#include <TString.h>
+#include "TString.h"
 
 class JetHtPlotConfiguration {
 public:
@@ -50,93 +50,93 @@ public:
   JetHtPlotConfiguration& operator=(const JetHtPlotConfiguration& obj);  // Equal sign operator
 
   // Read a json configuration file
-  void ReadJsonFile(const std::string fileName);
+  void readJsonFile(const std::string fileName);
 
   // Getters for the configuration
-  bool GetDrawTrackQA() const;
-  bool GetDrawHistogram(const int iHistogram) const;
-  bool GetDrawProfile(const int iProfile) const;
-  bool GetDrawReferenceProfile() const;
-  bool GetDrawCentralEtaSummaryProfile() const;
-  double GetProfileZoomLow(const int iProfile) const;
-  double GetProfileZoomHigh(const int iProfile) const;
-  bool GetDrawTrend(const int iTrend) const;
-  double GetTrendZoomLow(const int iTrend) const;
-  double GetTrendZoomHigh(const int iTrend) const;
+  bool drawTrackQA() const;
+  bool drawHistogram(const int iHistogram) const;
+  bool drawProfile(const int iProfile) const;
+  bool drawReferenceProfile() const;
+  bool drawCentralEtaSummaryProfile() const;
+  double profileZoomLow(const int iProfile) const;
+  double profileZoomHigh(const int iProfile) const;
+  bool drawTrend(const int iTrend) const;
+  double trendZoomLow(const int iTrend) const;
+  double trendZoomHigh(const int iTrend) const;
 
-  double GetProfileLegendShiftTotalX() const;
-  double GetProfileLegendShiftTotalY() const;
-  double GetProfileLegendShiftColumnX(const int iColumn) const;
-  double GetProfileLegendShiftColumnY(const int iColumn) const;
-  double GetProfileLegendTextSize() const;
-  int GetProfileLegendTextFont() const;
+  double profileLegendShiftTotalX() const;
+  double profileLegendShiftTotalY() const;
+  double profileLegendShiftColumnX(const int iColumn) const;
+  double profileLegendShiftColumnY(const int iColumn) const;
+  double profileLegendTextSize() const;
+  int profileLegendTextFont() const;
 
-  double GetTrendLegendShiftTotalX() const;
-  double GetTrendLegendShiftTotalY() const;
-  double GetTrendLegendTextSize() const;
-  int GetTrendLegendTextFont() const;
+  double trendLegendShiftTotalX() const;
+  double trendLegendShiftTotalY() const;
+  double trendLegendTextSize() const;
+  int trendLegendTextFont() const;
 
-  bool GetDrawTrendTag() const;
-  std::vector<std::string> GetTrendTagText() const;
-  std::vector<double> GetTrendTagPositionX() const;
-  std::vector<double> GetTrendTagPositionY() const;
-  double GetTrendTagTextSize() const;
-  int GetTrendTagTextFont() const;
+  bool drawTrendTag() const;
+  std::vector<std::string> trendTagText() const;
+  std::vector<double> trendTagPositionX() const;
+  std::vector<double> trendTagPositionY() const;
+  double trendTagTextSize() const;
+  int trendTagTextFont() const;
 
-  int GetTrendCanvasHeight() const;
-  int GetTrendCanvasWidth() const;
-  double GetTrendMarginLeft() const;
-  double GetTrendMarginRight() const;
-  double GetTrendMarginTop() const;
-  double GetTrendMarginBottom() const;
-  double GetTrendTitleOffsetX() const;
-  double GetTrendTitleOffsetY() const;
-  double GetTrendTitleSizeX() const;
-  double GetTrendTitleSizeY() const;
-  double GetTrendLabelOffsetX() const;
-  double GetTrendLabelOffsetY() const;
-  double GetTrendLabelSizeX() const;
-  double GetTrendLabelSizeY() const;
+  int trendCanvasHeight() const;
+  int trendCanvasWidth() const;
+  double trendMarginLeft() const;
+  double trendMarginRight() const;
+  double trendMarginTop() const;
+  double trendMarginBottom() const;
+  double trendTitleOffsetX() const;
+  double trendTitleOffsetY() const;
+  double trendTitleSizeX() const;
+  double trendTitleSizeY() const;
+  double trendLabelOffsetX() const;
+  double trendLabelOffsetY() const;
+  double trendLabelSizeX() const;
+  double trendLabelSizeY() const;
 
-  int GetNInputFiles() const;
-  std::string GetInputFile(const int iFile) const;
-  std::vector<std::string> GetInputFiles() const;
+  int nInputFiles() const;
+  std::string inputFile(const int iFile) const;
+  std::vector<std::string> inputFiles() const;
 
-  std::string GetLegendComment(const int iComment) const;
-  int GetMarkerColor(const int iFile) const;
-  int GetMarkerStyle(const int iFile) const;
-  int GetMarkerSize(const int iFile) const;
-  bool GetCopyErrorColor(const int iFile) const;
+  std::string legendComment(const int iComment) const;
+  int markerColor(const int iFile) const;
+  int markerStyle(const int iFile) const;
+  int markerSize(const int iFile) const;
+  bool copyErrorColor(const int iFile) const;
 
-  const char* GetLumiPerIovFile() const;
-  const char* GetIovListMode() const;
-  bool GetDrawYearLines() const;
-  int GetYearLineColor() const;
-  int GetYearLineWidth() const;
-  int GetYearLineStyle() const;
-  std::vector<int> GetRunsForLines() const;
+  const char* lumiPerIovFile() const;
+  const char* iovListMode() const;
+  bool drawYearLines() const;
+  int yearLineColor() const;
+  int yearLineWidth() const;
+  int yearLineStyle() const;
+  std::vector<int> runsForLines() const;
 
-  std::vector<double> GetWidePtBinBorders() const;
+  std::vector<double> widePtBinBorders() const;
 
-  std::string GetLegendTextForAllRuns() const;
-  bool GetDrawPlotsForEachIOV() const;
-  int GetNIovInOnePlot() const;
-  bool GetUseLuminosityForTrends() const;
-  bool GetSkipRunsWithNoData() const;
-  bool GetNormalizeQAplots() const;
+  std::string legendTextForAllRuns() const;
+  bool drawPlotsForEachIOV() const;
+  int nIovInOnePlot() const;
+  bool useLuminosityForTrends() const;
+  bool skipRunsWithNoData() const;
+  bool normalizeQAplots() const;
 
-  const char* GetSaveComment() const;
+  const char* saveComment() const;
 
-  bool GetMakeIovListForSlides() const;
-  const char* GetIovListForSlides() const;
+  bool makeIovListForSlides() const;
+  const char* iovListForSlides() const;
 
   // Print the current configuration to console
-  void PrintConfiguration() const;
+  void printConfiguration() const;
 
 private:
   // Methods to expand environtental variables in the configuration
-  void AutoExpandEnvironmentVariables(std::string& text) const;
-  std::string ExpandEnvironmentVariables(const std::string& input) const;
+  void autoExpandEnvironmentVariables(std::string& text) const;
+  std::string expandEnvironmentVariables(const std::string& input) const;
 
   // Strings correcponding to configuration in the JSON file
   std::string fJsonTrackQAname = "drawTrackQA";

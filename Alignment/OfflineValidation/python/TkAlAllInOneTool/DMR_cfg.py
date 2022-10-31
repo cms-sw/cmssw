@@ -16,9 +16,6 @@ options.register("config", "", VarParsing.multiplicity.singleton, VarParsing.var
 
 options.parseArguments()
 
-##Set validation mode
-valiMode = "StandAlone"
-
 ##Read in AllInOne config in JSON format
 if options.config == "":
     config = {"validation": {},
@@ -146,17 +143,17 @@ process.noScraping= cms.EDFilter("FilterOutScraping",
 
 ##Offline validation analyzer
 process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
-    useInDqmMode              = cms.bool(True if valiMode == "DQM" else False), 
-    moduleDirectoryInOutput   = cms.string("Alignment/Tracker" if valiMode == "DQM" else ""), 
+    useInDqmMode              = cms.bool(False), 
+    moduleDirectoryInOutput   = cms.string(""), 
     Tracks                    = cms.InputTag("FinalTrackRefitter"),
     trajectoryInput           = cms.string('FinalTrackRefitter'),  # Only needed in DQM mode
     localCoorHistosOn         = cms.bool(False),
-    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", cms.bool(False if valiMode == "DQM" else False)), 
-    moduleLevelProfiles       = config["validation"].get("moduleLevelProfiles", cms.bool(False if valiMode == "DQM" else True)),
+    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", cms.bool(False)), 
+    moduleLevelProfiles       = config["validation"].get("moduleLevelProfiles", cms.bool(True)),
     localCoorProfilesOn       = cms.bool(False),
     stripYResiduals           = cms.bool(config["validation"].get("stripYResiduals", False)),
     useFwhm                   = cms.bool(True),
-    useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
+    useFit                    = cms.bool(False),
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
     maxTracks                 = cms.uint64(config["validation"].get("maxtracks", 1)),
@@ -232,61 +229,13 @@ process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     ),
 )
 
-##Define sequences depending on validation mode
-if valiMode == "StandAlone":
-    ##Output file
+##Output file
+process.TFileService = cms.Service("TFileService",
+        fileName = cms.string("{}/DMR.root".format(config.get("output", os.getcwd()))),
+        closeFileFast = cms.untracked.bool(True),
+)
 
-    process.TFileService = cms.Service("TFileService",
-            fileName = cms.string("{}/DMR.root".format(config.get("output", os.getcwd()))),
-            closeFileFast = cms.untracked.bool(True),
-    )
-
-    seqTrackerOfflineValidation = cms.Sequence(process.TrackerOfflineValidation)
-
-if valiMode == "DQM":
-    TrackerOfflineValidationSummary = cms.EDAnalyzer("TrackerOfflineValidationSummary",
-        moduleDirectoryInOutput = cms.string("Alignment/Tracker"),
-        useFit = cms.bool(False),
-        stripYDmrs = cms.bool(False),
-        minEntriesPerModuleForDmr = cms.uint32(100),
-   
-        # DMR (distribution of median of residuals per module) of X coordinate (Strip)
-        TH1DmrXprimeStripModules = cms.PSet(
-            Nbinx = cms.int32(50), xmin = cms.double(-0.005), xmax = cms.double(0.005)
-        ),
-   
-        # DMR (distribution of median of residuals per module) of Y coordinate (Strip)
-        TH1DmrYprimeStripModules = cms.PSet(
-            Nbinx = cms.int32(50), xmin = cms.double(-0.005), xmax = cms.double(0.005)
-        ),
-   
-        # DMR (distribution of median of residuals per module) of X coordinate (Pixel)
-        TH1DmrXprimePixelModules = cms.PSet(
-            Nbinx = cms.int32(50), xmin = cms.double(-0.005), xmax = cms.double(0.005)
-        ),
-   
-        # DMR (distribution of median of residuals per module) of Y coordinate (Pixel)
-        TH1DmrYprimePixelModules = cms.PSet(
-            Nbinx = cms.int32(50), xmin = cms.double(-0.005), xmax = cms.double(0.005)
-        )
-    )
-
-    ## DQM file saver
-    from DQMServices.Core.DQM_cfg import *
-    DqmSaverTkAl = cms.EDAnalyzer("DQMFileSaver",
-            convention=cms.untracked.string("Offline"),
-            workflow=cms.untracked.string("/Cosmics/TkAl09-AlignmentSpecification_R000100000_R000100050_ValSkim-v1/ALCARECO"), 
-            dirName=cms.untracked.string("."),
-            saveByRun=cms.untracked.int32(-1),
-            saveAtJobEnd=cms.untracked.bool(True),                        
-            forceRunNumber=cms.untracked.int32(100000)   # Current Convention: Take first processed run
-    )
-
-    seqTrackerOfflineValidation = cms.Sequence(
-                        TrackerOfflineValidation*
-                        TrackerOfflineValidationSummary*
-                        DqmSaverTkAl
-    )   
+seqTrackerOfflineValidation = cms.Sequence(process.TrackerOfflineValidation)
 
 ##Let all sequences run
 process.p = cms.Path(process.seqTrackselRefit*seqTrackerOfflineValidation)

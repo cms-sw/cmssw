@@ -2,31 +2,32 @@
 #include <iostream>
 #include <vector>
 
-#include <TString.h>
+#include "TString.h"
 
 #include "exceptions.h"
 #include "toolbox.h"
 #include "Options.h"
-//#include "assert.h"
 
-#include <boost/regex.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include "boost/regex.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/algorithm/string.hpp"
+#include "boost/container/vector.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 
-#include <Alignment/OfflineValidation/interface/GeometryComparisonPlotter.h>
-#include <Alignment/OfflineValidation/scripts/visualizationTracker.C>
-#include <Alignment/OfflineValidation/macros/makeArrowPlots.C>
-//#include "GeometryComparisonPlotter.h"
+#include "Alignment/OfflineValidation/interface/GeometryComparisonPlotter.h"
+#include "Alignment/OfflineValidation/scripts/visualizationTracker.C"
+#include "Alignment/OfflineValidation/macros/makeArrowPlots.C"
 
 // for debugging
-#include <TObject.h>
+#include "TObject.h"
 
 using namespace std;
 using namespace AllInOneConfig;
 
 namespace pt = boost::property_tree;
 namespace fs = boost::filesystem;
+namespace bc = boost::container;
 
 void comparisonScript(pt::ptree GCPoptions,
                       TString inFile,  //="mp1510_vs_mp1509.Comparison_commonTracker.root", // TODO: get ROOT file
@@ -190,8 +191,15 @@ int GCP(int argc, char* argv[]) {
   if (useDefaultRange) {
     // Read default ranges
     pt::ptree default_range;
-    fs::path default_range_path = std::getenv("CMSSW_BASE");
-    default_range_path /= "/src/Alignment/OfflineValidation/test/GCP_defaultRange.json";
+    bc::vector<fs::path> possible_base_paths;
+    boost::split(possible_base_paths, std::getenv("CMSSW_SEARCH_PATH"), boost::is_any_of(":"));
+    fs::path default_range_path = "";
+    fs::path default_range_file = "Alignment/OfflineValidation/data/GCP/GCP_defaultRange.json";
+    for (const fs::path& path : possible_base_paths) {
+      if (fs::exists(path / default_range_file)) {
+        default_range_path = path / default_range_file;
+      }
+    }
     assert((fs::exists(default_range_path)) &&
            "Check if 'Alignment/OfflineValidation/test/GCP_defaultRange.json' exists");
     pt::read_json(default_range_path.c_str(), default_range);

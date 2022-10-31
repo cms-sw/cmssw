@@ -30,7 +30,7 @@
                     "trackCollection": "ALCARECOTkAlMinBias",
                     "dataset": "$CMSSW_BASE/src/Alignment/OfflineValidation/test/examples/jetHtFilesForRun2018A_first100files.txt",
                     "filesPerJob": 1,
-                    "iovListFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+                    "iovListFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
                     "maxevents": 1000
                 }
             },
@@ -67,7 +67,7 @@
                             "minZoomDxyTrend": 10,
                             "maxZoomDxyTrend": 90
                         },
-                        "lumiPerIovFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
+                        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
                     }
                 }
             }

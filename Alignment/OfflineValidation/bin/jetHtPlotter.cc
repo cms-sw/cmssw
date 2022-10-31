@@ -3,16 +3,16 @@
 #include <vector>
 
 // Root includes
-#include <TFile.h>
-#include <TString.h>
-#include <TH1D.h>
-#include <TProfile.h>
-#include <TGraphErrors.h>
-#include <TLegend.h>
-#include <TLine.h>
-#include <TSystem.h>
-#include <TMath.h>
-#include <TLatex.h>
+#include "TFile.h"
+#include "TString.h"
+#include "TH1D.h"
+#include "TProfile.h"
+#include "TGraphErrors.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TLatex.h"
 
 // AllInOneTool includes
 #include "Options.h"
@@ -148,7 +148,7 @@ std::tuple<double, double> findHistogramYaxisRange(TH1D *histogram[kMaxFiles]) {
  *  return:
  *   Tuple containing list of runs, luminosities, and histogram names within the validation files
  */
-std::tuple<std::vector<std::string>, std::vector<int>> getPtHatFilesAndValues(const char *inputFile) {
+std::tuple<std::vector<std::string>, std::vector<int>> ptHatFilesAndValues(const char *inputFile) {
   // Create vectors for ptHat files and values
   std::vector<std::string> ptHatFileList;
   std::vector<int> ptHatList;
@@ -178,9 +178,7 @@ std::tuple<std::vector<std::string>, std::vector<int>> getPtHatFilesAndValues(co
 /*
  * Get a selected histogram combining different pThat bins
  */
-TH1 *getPtHatCombinedHistogram(std::vector<TFile *> ptHatFiles,
-                               std::vector<int> ptHatValues,
-                               const char *histogramName) {
+TH1 *ptHatCombinedHistogram(std::vector<TFile *> ptHatFiles, std::vector<int> ptHatValues, const char *histogramName) {
   // Weight for bins:       30to50     50to80      80to120    120to170    170to300    300to470    470to600
   double ptHatWeights[] = {
       138800000,
@@ -244,7 +242,7 @@ TH1 *getPtHatCombinedHistogram(std::vector<TFile *> ptHatFiles,
  *  return:
  *   Tuple containing list of runs, luminosities, histogram names and legend strings within the validation files
  */
-std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vector<TString>> getRunAndLumiLists(
+std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vector<TString>> runAndLumiLists(
     const char *inputFile, const char *iovListMode) {
   // Create vectors for each list
   std::vector<int> iovVector;
@@ -372,7 +370,7 @@ std::vector<double> scaleGraphByLuminosity(TGraphErrors *runGraph,
  *  std::vector<int> iovVector = Vector containing run information
  *  in runNumber = Run upto which the luminosity is calculated
  */
-double getLuminosityBeforeRun(std::vector<double> lumiPerIov, std::vector<int> iovVector, int runNumber) {
+double luminosityBeforeRun(std::vector<double> lumiPerIov, std::vector<int> iovVector, int runNumber) {
   double lumiFactor = 1000;  // Scale factor value to have luminosity expressed in fb^-1
 
   int nRuns = lumiPerIov.size();
@@ -397,8 +395,8 @@ void jetHtPlotter(std::string configurationFileName) {
   // ======================================================
 
   JetHtPlotConfiguration *configurationGiver = new JetHtPlotConfiguration();
-  configurationGiver->ReadJsonFile(configurationFileName);
-  //configurationGiver->PrintConfiguration();
+  configurationGiver->readJsonFile(configurationFileName);
+  //configurationGiver->printConfiguration();
 
   enum enumHistogramType { kDz, kDzError, kDxy, kDxyError, knHistogramTypes };
   TString histogramName[knHistogramTypes] = {"dz", "dzerr", "dxy", "dxyerr"};
@@ -432,93 +430,91 @@ void jetHtPlotter(std::string configurationFileName) {
   bool drawProfile[knProfileTypes];
   bool drawTrend[knTrendTypes];
 
-  bool drawTrackQA = configurationGiver->GetDrawTrackQA();                   // Draw track and vertex QA figures
-  drawHistogram[kDz] = configurationGiver->GetDrawHistogram(kDz);            // Draw the dz histograms
-  drawHistogram[kDzError] = configurationGiver->GetDrawHistogram(kDzError);  // Draw the dz error histograms
-  drawProfile[kDzErrorVsPt] =
-      configurationGiver->GetDrawProfile(kDzErrorVsPt);  // Draw mean dz error as a function of pT
+  bool drawTrackQA = configurationGiver->drawTrackQA();                       // Draw track and vertex QA figures
+  drawHistogram[kDz] = configurationGiver->drawHistogram(kDz);                // Draw the dz histograms
+  drawHistogram[kDzError] = configurationGiver->drawHistogram(kDzError);      // Draw the dz error histograms
+  drawProfile[kDzErrorVsPt] = configurationGiver->drawProfile(kDzErrorVsPt);  // Draw mean dz error as a function of pT
   drawProfile[kDzErrorVsPhi] =
-      configurationGiver->GetDrawProfile(kDzErrorVsPhi);  // Draw mean dz error as a function of phi
+      configurationGiver->drawProfile(kDzErrorVsPhi);  // Draw mean dz error as a function of phi
   drawProfile[kDzErrorVsEta] =
-      configurationGiver->GetDrawProfile(kDzErrorVsEta);  // Draw mean dz error as a function of eta
+      configurationGiver->drawProfile(kDzErrorVsEta);  // Draw mean dz error as a function of eta
   drawProfile[kDzErrorVsPtWide] =
-      configurationGiver->GetDrawProfile(kDzErrorVsPtWide);                    // Draw mean dz error in wide pT bins
-  drawHistogram[kDxy] = configurationGiver->GetDrawHistogram(kDxy);            // Draw the dxy histograms
-  drawHistogram[kDxyError] = configurationGiver->GetDrawHistogram(kDxyError);  // Draw the dxy error histograms
+      configurationGiver->drawProfile(kDzErrorVsPtWide);                    // Draw mean dz error in wide pT bins
+  drawHistogram[kDxy] = configurationGiver->drawHistogram(kDxy);            // Draw the dxy histograms
+  drawHistogram[kDxyError] = configurationGiver->drawHistogram(kDxyError);  // Draw the dxy error histograms
   drawProfile[kDxyErrorVsPt] =
-      configurationGiver->GetDrawProfile(kDxyErrorVsPt);  // Draw the dxy error as a function of pT
+      configurationGiver->drawProfile(kDxyErrorVsPt);  // Draw the dxy error as a function of pT
   drawProfile[kDxyErrorVsPhi] =
-      configurationGiver->GetDrawProfile(kDxyErrorVsPhi);  // Draw the dxy error as a function of phi
+      configurationGiver->drawProfile(kDxyErrorVsPhi);  // Draw the dxy error as a function of phi
   drawProfile[kDxyErrorVsEta] =
-      configurationGiver->GetDrawProfile(kDxyErrorVsEta);  // Draw the dxy error as a function of eta
+      configurationGiver->drawProfile(kDxyErrorVsEta);  // Draw the dxy error as a function of eta
   drawProfile[kDxyErrorVsPtWide] =
-      configurationGiver->GetDrawProfile(kDxyErrorVsPtWide);  // Draw mean dxy error in wide pT bins
-  bool drawReferenceProfile =
-      configurationGiver->GetDrawReferenceProfile();  // Draw reference profile to single IOV plots
+      configurationGiver->drawProfile(kDxyErrorVsPtWide);                  // Draw mean dxy error in wide pT bins
+  bool drawReferenceProfile = configurationGiver->drawReferenceProfile();  // Draw reference profile to single IOV plots
   bool drawCentralEtaSummaryProfile =
-      configurationGiver->GetDrawCentralEtaSummaryProfile();  // Draw central eta histograms to all runs summary profiles
-  drawTrend[kDzErrorTrend] = configurationGiver->GetDrawTrend(kDzErrorTrend);    // Draw the trend plots for dz errors
-  drawTrend[kDxyErrorTrend] = configurationGiver->GetDrawTrend(kDxyErrorTrend);  // Draw the trend plots for dxy errors
+      configurationGiver->drawCentralEtaSummaryProfile();  // Draw central eta histograms to all runs summary profiles
+  drawTrend[kDzErrorTrend] = configurationGiver->drawTrend(kDzErrorTrend);    // Draw the trend plots for dz errors
+  drawTrend[kDxyErrorTrend] = configurationGiver->drawTrend(kDxyErrorTrend);  // Draw the trend plots for dxy errors
 
   const int nMaxLegendColumns = 3;
   double profileLegendShiftTotalX =
-      configurationGiver->GetProfileLegendShiftTotalX();  // Total legend position shift in x-direction for profile plots
+      configurationGiver->profileLegendShiftTotalX();  // Total legend position shift in x-direction for profile plots
   double profileLegendShiftTotalY =
-      configurationGiver->GetProfileLegendShiftTotalY();  // Total legend position shift in y-direction for profile plots
+      configurationGiver->profileLegendShiftTotalY();  // Total legend position shift in y-direction for profile plots
   double profileLegendShiftColumnX[nMaxLegendColumns];
   double profileLegendShiftColumnY[nMaxLegendColumns];
   for (int iColumn = 0; iColumn < nMaxLegendColumns; iColumn++) {
-    profileLegendShiftColumnX[iColumn] = configurationGiver->GetProfileLegendShiftColumnX(
+    profileLegendShiftColumnX[iColumn] = configurationGiver->profileLegendShiftColumnX(
         iColumn);  // Columnwise legend position shift in x-direction for profile plots
-    profileLegendShiftColumnY[iColumn] = configurationGiver->GetProfileLegendShiftColumnY(
+    profileLegendShiftColumnY[iColumn] = configurationGiver->profileLegendShiftColumnY(
         iColumn);  // Columnwise legend position shift in x-direction for profile plots
   }
-  double profileLegendTextSize = configurationGiver->GetProfileLegendTextSize();  // Legend text size for profile plots
-  int profileLegendTextFont = configurationGiver->GetProfileLegendTextFont();     // Legend text font for profile plots
+  double profileLegendTextSize = configurationGiver->profileLegendTextSize();  // Legend text size for profile plots
+  int profileLegendTextFont = configurationGiver->profileLegendTextFont();     // Legend text font for profile plots
   TString legendTextForAllRuns =
-      configurationGiver->GetLegendTextForAllRuns();  // Legend text referring to all runs in the file
+      configurationGiver->legendTextForAllRuns();  // Legend text referring to all runs in the file
 
   double trendLegendShiftTotalX =
-      configurationGiver->GetTrendLegendShiftTotalX();  // Total legend position shift in x-direction for trend plots
+      configurationGiver->trendLegendShiftTotalX();  // Total legend position shift in x-direction for trend plots
   double trendLegendShiftTotalY =
-      configurationGiver->GetTrendLegendShiftTotalY();  // Total legend position shift in y-direction for trend plots
-  double trendLegendTextSize = configurationGiver->GetTrendLegendTextSize();  // Legend text size for trend plots
-  int trendLegendTextFont = configurationGiver->GetTrendLegendTextFont();     // Legend text font for trend plots
+      configurationGiver->trendLegendShiftTotalY();  // Total legend position shift in y-direction for trend plots
+  double trendLegendTextSize = configurationGiver->trendLegendTextSize();  // Legend text size for trend plots
+  int trendLegendTextFont = configurationGiver->trendLegendTextFont();     // Legend text font for trend plots
 
-  bool drawTrendTag = configurationGiver->GetDrawTrendTag();                      // Draw manual tags to the trend plots
-  std::vector<std::string> trendTagText = configurationGiver->GetTrendTagText();  // Drawn tag texts for trend plots
-  std::vector<double> trendTagPositionX = configurationGiver->GetTrendTagPositionX();  // Trend tag x-positions
-  std::vector<double> trendTagPositionY = configurationGiver->GetTrendTagPositionY();  // Trend tag y-positions
-  double trendTagTextSize = configurationGiver->GetTrendTagTextSize();                 // Tag text size for trend plots
-  int trendTagTextFont = configurationGiver->GetTrendTagTextFont();                    // Tag text font for trend plots
+  bool drawTrendTag = configurationGiver->drawTrendTag();                      // Draw manual tags to the trend plots
+  std::vector<std::string> trendTagText = configurationGiver->trendTagText();  // Drawn tag texts for trend plots
+  std::vector<double> trendTagPositionX = configurationGiver->trendTagPositionX();  // Trend tag x-positions
+  std::vector<double> trendTagPositionY = configurationGiver->trendTagPositionY();  // Trend tag y-positions
+  double trendTagTextSize = configurationGiver->trendTagTextSize();                 // Tag text size for trend plots
+  int trendTagTextFont = configurationGiver->trendTagTextFont();                    // Tag text font for trend plots
 
-  int trendCanvasHeight = configurationGiver->GetTrendCanvasHeight();     // Canvas height for trend plots
-  int trendCanvasWidth = configurationGiver->GetTrendCanvasWidth();       // Canvas width for trend plots
-  double trendMarginLeft = configurationGiver->GetTrendMarginLeft();      // Left margin in trend plots
-  double trendMarginRight = configurationGiver->GetTrendMarginRight();    // Right margin in trend plots
-  double trendMarginTop = configurationGiver->GetTrendMarginTop();        // Top margin in trend plots
-  double trendMarginBottom = configurationGiver->GetTrendMarginBottom();  // Bottom margin in trend plots
-  double trendTitleOffsetX = configurationGiver->GetTrendTitleOffsetX();  // x-axis title offset in trend plots
-  double trendTitleOffsetY = configurationGiver->GetTrendTitleOffsetY();  // y-axis title offset in trend plots
-  double trendTitleSizeX = configurationGiver->GetTrendTitleSizeX();      // x-axis title size in trend plots
-  double trendTitleSizeY = configurationGiver->GetTrendTitleSizeY();      // y-axis title size in trend plots
-  double trendLabelOffsetX = configurationGiver->GetTrendLabelOffsetX();  // x-axis label offset in trend plots
-  double trendLabelOffsetY = configurationGiver->GetTrendLabelOffsetY();  // y-axis label offset in trend plots
-  double trendLabelSizeX = configurationGiver->GetTrendLabelSizeX();      // x-axis label size in trend plots
-  double trendLabelSizeY = configurationGiver->GetTrendLabelSizeY();      // y-axis label size in trend plots
+  int trendCanvasHeight = configurationGiver->trendCanvasHeight();     // Canvas height for trend plots
+  int trendCanvasWidth = configurationGiver->trendCanvasWidth();       // Canvas width for trend plots
+  double trendMarginLeft = configurationGiver->trendMarginLeft();      // Left margin in trend plots
+  double trendMarginRight = configurationGiver->trendMarginRight();    // Right margin in trend plots
+  double trendMarginTop = configurationGiver->trendMarginTop();        // Top margin in trend plots
+  double trendMarginBottom = configurationGiver->trendMarginBottom();  // Bottom margin in trend plots
+  double trendTitleOffsetX = configurationGiver->trendTitleOffsetX();  // x-axis title offset in trend plots
+  double trendTitleOffsetY = configurationGiver->trendTitleOffsetY();  // y-axis title offset in trend plots
+  double trendTitleSizeX = configurationGiver->trendTitleSizeX();      // x-axis title size in trend plots
+  double trendTitleSizeY = configurationGiver->trendTitleSizeY();      // y-axis title size in trend plots
+  double trendLabelOffsetX = configurationGiver->trendLabelOffsetX();  // x-axis label offset in trend plots
+  double trendLabelOffsetY = configurationGiver->trendLabelOffsetY();  // y-axis label offset in trend plots
+  double trendLabelSizeX = configurationGiver->trendLabelSizeX();      // x-axis label size in trend plots
+  double trendLabelSizeY = configurationGiver->trendLabelSizeY();      // y-axis label size in trend plots
 
   bool drawPlotsForEachIOV =
       configurationGiver
-          ->GetDrawPlotsForEachIOV();  // True = Draw profile and histogram plots for every IOV. False = only draw average over all runs
+          ->drawPlotsForEachIOV();  // True = Draw profile and histogram plots for every IOV. False = only draw average over all runs
   bool useLuminosityForTrends =
       configurationGiver
-          ->GetUseLuminosityForTrends();  // True = Draw trends as a function of luminosity. False = Draw trends as a function of run index
+          ->useLuminosityForTrends();  // True = Draw trends as a function of luminosity. False = Draw trends as a function of run index
   bool skipRunsWithNoData =
       configurationGiver
-          ->GetSkipRunsWithNoData();  // True = Do not draw empty space if run in list is missing data. False = Draw empty space
+          ->skipRunsWithNoData();  // True = Do not draw empty space if run in list is missing data. False = Draw empty space
 
   int colors[] = {kBlue, kRed, kGreen + 2, kMagenta, kCyan, kViolet + 3, kOrange, kPink - 7, kSpring + 3, kAzure - 7};
-  int nIovInOnePlot = configurationGiver->GetNIovInOnePlot();  // Define how many iov:s are drawn to the same plot
+  int nIovInOnePlot = configurationGiver->nIovInOnePlot();  // Define how many iov:s are drawn to the same plot
 
   double profileZoomLow[knProfileTypes];
   double profileZoomHigh[knProfileTypes];
@@ -526,22 +522,22 @@ void jetHtPlotter(std::string configurationFileName) {
   double trendZoomHigh[knTrendTypes];
 
   for (int iProfile = 0; iProfile < knProfileTypes; iProfile++) {
-    profileZoomLow[iProfile] = configurationGiver->GetProfileZoomLow(iProfile);
-    profileZoomHigh[iProfile] = configurationGiver->GetProfileZoomHigh(iProfile);
+    profileZoomLow[iProfile] = configurationGiver->profileZoomLow(iProfile);
+    profileZoomHigh[iProfile] = configurationGiver->profileZoomHigh(iProfile);
   }
   for (int iTrend = 0; iTrend < knTrendTypes; iTrend++) {
-    trendZoomLow[iTrend] = configurationGiver->GetTrendZoomLow(iTrend);
-    trendZoomHigh[iTrend] = configurationGiver->GetTrendZoomHigh(iTrend);
+    trendZoomLow[iTrend] = configurationGiver->trendZoomLow(iTrend);
+    trendZoomHigh[iTrend] = configurationGiver->trendZoomHigh(iTrend);
   }
 
-  const std::vector<double> widePtBinBorders = configurationGiver->GetWidePtBinBorders();
+  const std::vector<double> widePtBinBorders = configurationGiver->widePtBinBorders();
   const int nWidePtBins = widePtBinBorders.size();
 
-  bool normalizeQAplots = configurationGiver->GetNormalizeQAplots();  // Divide in QA plot yield by its integral
+  bool normalizeQAplots = configurationGiver->normalizeQAplots();  // Divide in QA plot yield by its integral
   bool saveFigures = true;
-  const char *saveComment = configurationGiver->GetSaveComment();
+  const char *saveComment = configurationGiver->saveComment();
 
-  int compareFiles = configurationGiver->GetNInputFiles();
+  int compareFiles = configurationGiver->nInputFiles();
   if (compareFiles == 0)
     return;  // Cannot do plotting without files!
   if (compareFiles > kMaxFiles)
@@ -561,20 +557,20 @@ void jetHtPlotter(std::string configurationFileName) {
   bool copyErrorColor[kMaxFiles];
 
   for (int iFile = 0; iFile < kMaxFiles; iFile++) {
-    inputFileName[iFile] = configurationGiver->GetInputFile(iFile);
+    inputFileName[iFile] = configurationGiver->inputFile(iFile);
     if (inputFileName[iFile].EndsWith("txt"))
       loadFromList[iFile] = true;
-    legendComment[iFile] = configurationGiver->GetLegendComment(iFile);  // Text written to the legend for each file
-    fileColor[iFile] = configurationGiver->GetMarkerColor(iFile);        // Color of markers related to this file
-    fileMarkerStyle[iFile] = configurationGiver->GetMarkerStyle(iFile);  // Style for markers related to this file
-    fileMarkerSize[iFile] = configurationGiver->GetMarkerSize(iFile);    // Size for markers related to this file
+    legendComment[iFile] = configurationGiver->legendComment(iFile);  // Text written to the legend for each file
+    fileColor[iFile] = configurationGiver->markerColor(iFile);        // Color of markers related to this file
+    fileMarkerStyle[iFile] = configurationGiver->markerStyle(iFile);  // Style for markers related to this file
+    fileMarkerSize[iFile] = configurationGiver->markerSize(iFile);    // Size for markers related to this file
     copyErrorColor[iFile] =
-        configurationGiver->GetCopyErrorColor(iFile);  // Copy the marker color for error bars for this file
+        configurationGiver->copyErrorColor(iFile);  // Copy the marker color for error bars for this file
   }
 
   // Prepare an IOV list that can be used with the slide generation script
-  bool makeIovListForSlides = configurationGiver->GetMakeIovListForSlides();
-  const char *iovListForSlides = configurationGiver->GetIovListForSlides();
+  bool makeIovListForSlides = configurationGiver->makeIovListForSlides();
+  const char *iovListForSlides = configurationGiver->iovListForSlides();
 
   // Helper variable to ensure that each IOV is added exactly once to the list
   int profileIndexForIovList = 0;
@@ -588,11 +584,11 @@ void jetHtPlotter(std::string configurationFileName) {
   TString plotTitle = " ";  // Title given to the plot
 
   // Year boundary runs
-  bool drawYearLines = configurationGiver->GetDrawYearLines();            // Draw lines between data taking years
-  std::vector<int> linePosition = configurationGiver->GetRunsForLines();  // Positions of the above lines
-  int yearLineColor = configurationGiver->GetYearLineColor();             // Color of the above lines
-  int yearLineWidth = configurationGiver->GetYearLineWidth();             // Width of the above lines
-  int yearLineStyle = configurationGiver->GetYearLineStyle();             // Style of the above lines
+  bool drawYearLines = configurationGiver->drawYearLines();            // Draw lines between data taking years
+  std::vector<int> linePosition = configurationGiver->runsForLines();  // Positions of the above lines
+  int yearLineColor = configurationGiver->yearLineColor();             // Color of the above lines
+  int yearLineWidth = configurationGiver->yearLineWidth();             // Width of the above lines
+  int yearLineStyle = configurationGiver->yearLineStyle();             // Style of the above lines
 
   // ======================================================
   // ================ Configuration done ==================
@@ -621,7 +617,7 @@ void jetHtPlotter(std::string configurationFileName) {
 
   for (int iInput = 0; iInput < kMaxFiles; iInput++) {
     if (loadFromList[iInput]) {
-      std::tie(ptHatFileNameList[iInput], ptHatList[iInput]) = getPtHatFilesAndValues(inputFileName[iInput]);
+      std::tie(ptHatFileNameList[iInput], ptHatList[iInput]) = ptHatFilesAndValues(inputFileName[iInput]);
 
       // Open all files
       nFiles = ptHatFileNameList[iInput].size();
@@ -636,8 +632,8 @@ void jetHtPlotter(std::string configurationFileName) {
   // ===============================================
 
   // Luminosity per run file
-  const char *iovAndLumiFile = configurationGiver->GetLumiPerIovFile();
-  const char *iovListMode = configurationGiver->GetIovListMode();
+  const char *iovAndLumiFile = configurationGiver->lumiPerIovFile();
+  const char *iovListMode = configurationGiver->iovListMode();
 
   // Create a vector for a new iovList
   std::vector<int> iovVector;
@@ -646,7 +642,7 @@ void jetHtPlotter(std::string configurationFileName) {
   std::vector<TString> iovNames;
   std::vector<TString> iovLegend;
 
-  std::tie(iovVector, lumiPerIov, iovNames, iovLegend) = getRunAndLumiLists(iovAndLumiFile, iovListMode);
+  std::tie(iovVector, lumiPerIov, iovNames, iovLegend) = runAndLumiLists(iovAndLumiFile, iovListMode);
 
   // For the IOV legend, remove the two last entries and replace them with user defined names
   iovLegend.pop_back();
@@ -712,20 +708,19 @@ void jetHtPlotter(std::string configurationFileName) {
     if (loadFromList[iFile]) {
       // Alternative loading for ptHat combined values
 
-      hVertex[iFile] =
-          (TH1D *)getPtHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/all_nvtx");
+      hVertex[iFile] = (TH1D *)ptHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/all_nvtx");
       hTracksPerVertex[iFile] =
-          (TH1D *)getPtHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_ntrks");
+          (TH1D *)ptHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_ntrks");
       hTrackPt[iFile] =
-          (TH1D *)getPtHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probePt");
+          (TH1D *)ptHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probePt");
       hTrackEta[iFile] =
-          (TH1D *)getPtHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probeEta");
+          (TH1D *)ptHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probeEta");
       hTrackPhi[iFile] =
-          (TH1D *)getPtHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probePhi");
+          (TH1D *)ptHatCombinedHistogram(ptHatFileList[iFile], ptHatList[iFile], "jetHTAnalyzer/h_probePhi");
       for (int iIov = nIov - 2; iIov < nIov - 1; iIov++) {
         for (int iHistogramType = 0; iHistogramType < knHistogramTypes; iHistogramType++) {
           if (drawHistogram[iHistogramType]) {
-            jetHtHistograms[iFile][iHistogramType][iIov] = (TH1D *)getPtHatCombinedHistogram(
+            jetHtHistograms[iFile][iHistogramType][iIov] = (TH1D *)ptHatCombinedHistogram(
                 ptHatFileList[iFile],
                 ptHatList[iFile],
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), histogramName[iHistogramType].Data()));
@@ -734,7 +729,7 @@ void jetHtPlotter(std::string configurationFileName) {
         for (int iProfileType = 0; iProfileType < knProfileTypes; iProfileType++) {
           if (drawProfile[iProfileType] || (drawTrend[kDzErrorTrend] && iProfileType == kDzErrorVsPtWide) ||
               (drawTrend[kDxyErrorTrend] && iProfileType == kDxyErrorVsPtWide)) {
-            jetHtProfiles[iFile][iProfileType][iIov] = (TProfile *)getPtHatCombinedHistogram(
+            jetHtProfiles[iFile][iProfileType][iIov] = (TProfile *)ptHatCombinedHistogram(
                 ptHatFileList[iFile],
                 ptHatList[iFile],
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), profileName[iProfileType].Data()));
@@ -1312,7 +1307,7 @@ void jetHtPlotter(std::string configurationFileName) {
       // Draw lines for different data taking years
       if (drawYearLines) {
         for (int thisRun : linePosition) {
-          lumiX = getLuminosityBeforeRun(lumiPerIovWithSkips, iovVector, thisRun);
+          lumiX = luminosityBeforeRun(lumiPerIovWithSkips, iovVector, thisRun);
           lumiLine = new TLine(lumiX, trendZoomLow[iTrend], lumiX, trendZoomHigh[iTrend]);
           lumiLine->SetLineColor(yearLineColor);
           lumiLine->SetLineWidth(yearLineWidth);
