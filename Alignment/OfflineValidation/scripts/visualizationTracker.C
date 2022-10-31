@@ -42,7 +42,9 @@ float _sclfmodulesizey;
 float _sclfmodulesizez;
 int _subdetector1;
 int _subdetector2;
+string _outputDir;
 string _outputFileName;
+string _imagesDir;
 string _line1, _line2, _line3;
 float _piperadius;
 float _pipexcoord, _pipeycoord;
@@ -254,7 +256,7 @@ int visualizationTracker(float minZ, float maxZ, float minX, float maxX, float t
 
     string str = string("i") + to_string(_i) + string(".gif");
     c->SaveAs(TString(str));
-    gSystem->Exec(TString("mv "+str+" images/"+str));
+    gSystem->Exec(TString("mv "+str+" "+_imagesDir+"/"+str));
     delete c;
     cout << "Created image " << str << endl;
     return 0;
@@ -304,17 +306,17 @@ string getGifMergeCommand(int start, int breakspot1, int breakspot2, int end) {
     string str = "";
     str += "./gifmerge -192,192,192 -l0 -5 ";
     for (int i = start; i < breakspot1; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
     str += "-50 ";
     for (int i = breakspot1; i < breakspot2; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
     str += "-5 ";
     for (int i = breakspot2; i < end-1; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
-    str += "-100 images/i"+to_string(end-1)+".gif > "+_outputFileName+".gif";
+    str += "-100 "+_imagesDir+"/i"+to_string(end-1)+".gif > "+_outputFileName+".gif";
     return str;
 }
 
@@ -323,17 +325,17 @@ string getConvertCommand(int start, int breakspot1, int breakspot2, int end) {
     string str = "";
     str += "gm convert -loop 0 -delay 5 ";
     for (int i = start; i < breakspot1; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
     str += "-delay 50 ";
     for (int i = breakspot1; i < breakspot2; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
     str += "-delay 5 ";
     for (int i = breakspot2; i < end-1; i++) {
-        str += "images/i"+to_string(i)+".gif ";
+        str += _imagesDir+"/i"+to_string(i)+".gif ";
     }
-    str += "-delay 100 images/i"+to_string(end-1)+".gif   "+_outputFileName+".gif";
+    str += "-delay 100 "+_imagesDir+"/i"+to_string(end-1)+".gif   "+_outputFileName+".gif";
     return str;
 }
 
@@ -357,8 +359,11 @@ void runVisualizer(TString input,
 
 //------Tree Read In--------
     TString inputFileName = input;
+    //output dir name
+    _outputDir = output;
     //output file name
-    _outputFileName = output;
+    _outputFileName = output + "/visualization";
+    _imagesDir = output + "/images";
     //title
     _line1 = line1;
     _line2 = line2;
@@ -421,7 +426,7 @@ void runVisualizer(TString input,
     int numincrements;
     getMinMax(minZ, maxZ, minX, maxX);
     
-    gSystem->mkdir("images");
+    gSystem->mkdir(_imagesDir.c_str());
 
     _i = 0;
     for (int i = 0; i < 90; i+=1, _i++) {
