@@ -1,11 +1,11 @@
 import os
+import sys
 import ROOT
 import copy
 import math
 import time
 import ctypes
 from array import array
-import FWCore.ParameterSet.Config as cms
 from Alignment.OfflineValidation.DivergingColor import DivergingColor
 
 '''
@@ -507,7 +507,11 @@ class TkAlMap:
     def load_geometry(self):
         source_path = os.getenv('CMSSW_BASE') + '/src/' 
         var = {}
-        execfile(source_path + self.cfg_path + self.GEO_file, var)
+        if sys.version_info[0] == 2:
+            execfile(source_path + self.cfg_path + self.GEO_file, var)
+        elif sys.version_info[0] == 3:
+            _filename = source_path + self.cfg_path + self.GEO_file
+            exec(compile(open(_filename, "rb").read(), _filename, 'exec'), var)
 
         MapStructure = var['TkMap_GEO']
         
@@ -529,8 +533,8 @@ class TkAlMap:
                         continue
                     if 'latex' in MapStructure[det][sub][part]:
                         all_text[det+'_'+sub+'_'+part] = MapStructure[det][sub][part]['latex']
-                    #TPL_file = source_path + self.data_path +MapStructure[det][sub][part]['file']
-                    TPL_file = cms.FileInPath(self.data_path +MapStructure[det][sub][part]['file'])
+                    _filename = self.data_path +MapStructure[det][sub][part]['file']
+                    TPL_file = [os.path.join(dir,_filename) for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,_filename))][0]
                     TPL_dict = read_TPLfile(TPL_file)
                     for module in TPL_dict:
                         x_canv = []

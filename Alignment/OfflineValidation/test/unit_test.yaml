@@ -3,12 +3,17 @@ name: test_yaml
 alignments:
     unitTest:
         color: 1
-        globaltag: auto:phase1_2017_realistic
+        globaltag: auto:phase1_2018_realistic
         style: 2101
+        title: unit test
+    unitTestPV:
+        color: 1
+        globaltag: 110X_dataRun2_v10
+        style: 2001
         title: unit test
     prompt:
         color: 600
-        globaltag: auto:run3_data_promptlike
+        globaltag: auto:run3_data_PRef
         style: 2101
         title: prompt
     legacy:
@@ -29,65 +34,84 @@ alignments:
 
 validations:
     DMR:
-        trends:
-            testUnits:
-                singles:
-                - testUnits
-                Variables:
-                - median
+        single:
+            TestSingleMC:
+                IOV:
+                - 1
+                alignments:
+                - unitTest
+                trackcollection: generalTracks
+                vertexcollection: offlinePrimaryVertices
+                magneticfield: true
+                maxevents: 1
+                maxtracks: 1
 
         merge:
-            testUnits:
+            TestMergeMC:
                 methods:
-                - mean
-                - rms
+                - median
+                - rmsNorm
                 curves:
                 - plain
+                - split
+                customrighttitle: IOV
                 legendoptions:
                 - mean
                 - rms
                 singles:
-                - testUnits
+                - TestSingleMC
                 usefit: true
-                minimum: 15
-                customrighttitle: IOV
+                minimum: 15 
 
-        single:
-            testUnits:
-                IOV:
-                - 1
-                alignments:
-                - unitTest
-                trackcollection: generalTracks
-                vertexcollection: offlinePrimaryVertices
-                maxevents: 1
-                maxtracks: 1
-    PV:
         trends:
-            testUnits:
-                singles:
-                - testUnits
+            TestTrendMC:
+                merges:
+                - TestMergeMC
+                Variables:
+                - median
                 doUnitTest: true
 
+        averaged:
+            TestAveragedMC:
+                merges:
+                - TestMergeMC
+                maxfiles: 700
+                lumiPerRun:
+                - $CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv
+                lumiMC:
+                - 1::TestMergeMC::64482.432
+
+    PV:
+        single:
+            TestDATA:
+                IOV:
+                    - 317087
+                alignments:
+                    - unitTestPV
+                maxevents: 10
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: false                 
+
         merge:
-            testUnits:
+            TestDATA:
                 singles:
-                - testUnits
+                - TestDATA
                 doMaps: true
                 stdResiduals: true
                 autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50
 
-        single:
-            testUnits:
-                IOV:
-                - 1
-                alignments:
-                - unitTest
-                trackcollection: generalTracks
-                vertexcollection: offlinePrimaryVertices
-                maxevents: 10
-                isda: true
-                ismc: true
+        trends:
+            TestDATA:
+                singles:
+                - TestDATA
+                doUnitTest: true  
+
     SplitV:
         merge:
             testUnits:

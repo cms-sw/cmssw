@@ -2,7 +2,7 @@ import json
 import os
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_NoPU
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
 
@@ -26,7 +26,7 @@ if options.config == "":
               "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+        config = json.load(configFile)
 
 ###################################################################
 # Read filenames from given TXT file and define input source
@@ -43,9 +43,9 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                                )
 else:
-    print(">>>>>>>>>> SplitV_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!")
+    print(">>>>>>>>>> SplitV_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesDefaultMC_NoPU!")
     process.source = cms.Source("PoolSource",
-                                fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                                fileNames = filesDefaultMC_NoPU,
                                 skipEvents = cms.untracked.uint32(0)
                                ) 
 

@@ -161,7 +161,11 @@ def DMR(config, validationDir):
                 elif isDataMerged[mergeName] == 1:
                     mergesDATA.append(mergeName)
                 else:
-                    raise Exception("Trend jobs are not implemented for treating MC.")
+                    if "doUnitTest" in config["validations"]["DMR"][dmrType][trendName].keys() and config["validations"]["DMR"][dmrType][trendName]["doUnitTest"]:
+                        local.setdefault("alignments", {})
+                        continue
+                    else: 
+                        raise Exception("Trend jobs are not implemented for treating MC.")
 
             ###Loop over DATA singles included in merge steps
             trendIOVs = []
