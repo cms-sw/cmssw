@@ -43,7 +43,7 @@
 //                               no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
-//                               correction (-2)
+//                               correction (-8)
 //   flag (int)                = 7 digit integer (xmlthdo) with control
 //                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
@@ -243,7 +243,7 @@ public:
                const std::string &prefix = "",
                const char *corrFileName = "",
                const char *rcorFileName = "",
-               int puCorr = -2,
+               int puCorr = -8,
                int flag = 1031,
                int numb = 50,
                bool datMC = true,
