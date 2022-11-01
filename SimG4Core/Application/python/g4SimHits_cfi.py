@@ -180,7 +180,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
-        FinalStateRadiation = cms.bool(False),
+        FixOfFinalStateRadiation = cms.bool(False),
         Verbosity = cms.untracked.int32(0),
         PDGselection = cms.PSet(
             PDGfilterSel = cms.bool(False),        ## filter out unwanted particles
@@ -549,4 +549,4 @@ phase2_timing.toModify( g4SimHits.ECalSD,
 ## Enable handling of final state radiation for Run 2
 ##
 from Configuration.Eras.Modifier_run2_final_state_rad_cff import run2_final_state_rad
-run2_final_state_rad.toModify( g4SimHits, Generator = dict( FinalStateRadiation = True ) )
+run2_final_state_rad.toModify( g4SimHits, Generator = dict( FixOfFinalStateRadiation = True ) )

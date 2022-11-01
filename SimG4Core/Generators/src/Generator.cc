@@ -26,7 +26,7 @@ Generator::Generator(const ParameterSet &p)
       fPtransCut(p.getParameter<bool>("ApplyPtransCut")),
       fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")),
       fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
-      fFinalState(p.getParameter<bool>("FinalStateRadiation")),
+      fFinalState(p.getParameter<bool>("FixOfFinalStateRadiation")),
       theMinPhiCut(p.getParameter<double>("MinPhiCut")),  // in radians (CMS standard)
       theMaxPhiCut(p.getParameter<double>("MaxPhiCut")),
       theMinEtaCut(p.getParameter<double>("MinEtaCut")),
