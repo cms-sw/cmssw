@@ -524,7 +524,7 @@ namespace l1t::demo {
         if (strobedLinkMap.at(channel.first))
           file << std::setw(1) << channelData.at(i).strobe;
         file << std::setw(1) << channelData.at(i).startOfOrbit << channelData.at(i).startOfPacket
-             << channelData.at(i).endOfPacket;
+             << channelData.at(i).endOfPacket << channelData.at(i).valid;
         file << " " << std::setw(16) << std::hex << uint64_t(channelData.at(i).data);
       }
       file << std::endl << std::dec;
