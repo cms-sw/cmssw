@@ -112,6 +112,9 @@ steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',
 steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/HIRun2018A-v1/RAW',label='hi2018reduced',events=10000,location='STD',ls=Run2018HI)}
 steps['RunHI2018AOD']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-04Apr2019-v1/AOD',label='hi2018aod',events=10000,location='STD',ls=Run2018HI)}
 
+Run2022HI={360761: [[112,112]]}
+steps['RunHI2022']={'INPUT':InputInfo(dataSet='/EphemeralHLTPhysics0/Run2022F-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
+
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='2012A',run=Run2012A, events=100000,location='STD')}
@@ -1048,7 +1051,7 @@ hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp
 hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018'}
 hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 hiAlca2021_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'}
-hiAlca2021_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb', '--procModifiers':'approxSiStripClusters'}
+hiAlca2021_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -2064,6 +2067,7 @@ steps['RAWPRIMEHI18']={ '--scenario':'pp',
                         '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
                         '-n':'10',
                         '--procModifiers':'approxSiStripClusters',
+                        '--customise_commands':'\"process.rawPrimeDataRepacker.inputTag=\'rawDataRepacker\'\"',
                         '--repacked':'',
                         '--process':'REHLT'
 }
@@ -2102,6 +2106,28 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '--processName':'PAT',
                           '-n':'100'
 }
+
+steps['RAWPRIMEHI22']={ '--scenario':'pp',
+                        '--conditions':'auto:run3_data_prompt',
+                        '-s':'REPACK:DigiToApproxClusterRaw',
+                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
+                        '--eventcontent':'REPACKRAW',
+                        '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
+                        '-n':'10',
+                        '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\'\"',
+                        '--process':'REHLT'
+}
+
+steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
+                                          '--conditions':'auto:run3_data_prompt',
+                                          '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT',
+                                          '--datatier':'AOD,DQMIO',
+                                          '--eventcontent':'AOD,DQM',
+                                          '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
+                                          '--repacked':'',
+                                          '-n':'10'
+                                      },steps['RECOHID15']])
+
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
@@ -3304,6 +3330,10 @@ steps['HARVESTHI18MINIAOD']=merge([{'-s':'HARVESTING:@miniAODDQM',
                                     '--era' : 'Run2_2018_pp_on_AA',
                                     '--filetype':'DQM',
                                     '-n':100},hiDefaults2018_ppReco])
+
+steps['HARVESTDHI22']=merge([{ '--era':'Run3_pp_on_PbPb',
+                               '--scenario':'pp',
+                               '--conditions':'auto:run3_data'},steps['HARVESTDHI15']])
                                     
 steps['HARVESTDRUN3']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM',
                    '--conditions':'auto:run3_data',
