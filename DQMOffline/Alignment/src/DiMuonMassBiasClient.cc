@@ -77,15 +77,17 @@ void DiMuonMassBiasClient::bookMEs(DQMStore::IBooker& iBooker)
     const auto& title = ME->getTitle();
     const auto& xtitle = ME->getAxisTitle(1);
     const auto& ytitle = ME->getAxisTitle(2);
-    const auto& nbins = ME->getNbinsX();
+
+    const auto& nxbins = ME->getNbinsX();
     const auto& xmin = ME->getAxisMin(1);
     const auto& xmax = ME->getAxisMax(1);
+
     MonitorElement* meanToBook =
-        iBooker.book1D(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nbins, xmin, xmax);
+        iBooker.book1D(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nxbins, xmin, xmax);
     meanProfiles_.insert({key, meanToBook});
 
     MonitorElement* sigmaToBook =
-        iBooker.book1D(("Sigma" + key), (title + ";" + xtitle + ";" + "#sigma of " + ytitle), nbins, xmin, xmax);
+        iBooker.book1D(("Sigma" + key), (title + ";" + xtitle + ";" + "#sigma of " + ytitle), nxbins, xmin, xmax);
     widthProfiles_.insert({key, sigmaToBook});
   }
 }
@@ -127,6 +129,11 @@ void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
         edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << std::endl;
       TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
       diMuonMassBias::fitOutputs results = fitVoigt(Proj);
+
+      if (results.isInvalid()) {
+        edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
+        continue;
+      }
 
       // fill the mean profiles
       const Measurement1D& bias = results.getBias();
@@ -182,14 +189,14 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   RooVoigtian voigt("voigt", "voigt", InvMass, mean, width, sigma);
 
   // for the simple background fit
-  RooRealVar lambda("#lambda", "slope", 0., -10., 10.);
+  RooRealVar lambda("#lambda", "slope", 0., -50., 50.);
   RooExponential expo("expo", "expo", InvMass, lambda);
 
   // for the more refined background fit
-  RooRealVar exp_alpha("expa", "alpha", 40.0, 20.0, 160.0);
-  RooRealVar exp_beta("expb", "beta", 0.05, 0.0, 2.0);
-  RooRealVar exp_gamma("expg", "gamma", 0.02, 0.0, 0.1);
-  RooRealVar exp_peak("expp", "peak", meanConfig_[0]);
+  RooRealVar exp_alpha("#alpha", "alpha", 40.0, 20.0, 160.0);
+  RooRealVar exp_beta("#beta", "beta", 0.05, 0.0, 2.0);
+  RooRealVar exp_gamma("#gamma", "gamma", 0.02, 0.0, 0.1);
+  RooRealVar exp_peak("peak", "peak", meanConfig_[0]);
   RooCMSShape exp_pdf("exp_pdf", "bkg shape", InvMass, exp_alpha, exp_beta, exp_gamma, exp_peak);
 
   // define the signal and background fractions
@@ -199,14 +206,14 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   if (fitBackground_) {
     const auto& listPdf = useRooCMSShape_ ? RooArgList(voigt, exp_pdf) : RooArgList(voigt, expo);
     RooAddPdf fullModel("fullModel", "Signal + Background Model", listPdf, RooArgList(s, b));
-    fullModel.fitTo(datahist, RooFit::PrintLevel(-1), RooFit::Save(), RooFit::Range(xmin, xmax));
-    fullModel.plotOn(frame, RooFit::LineColor(kRed));
+    fullModel.fitTo(datahist, RooFit::PrintLevel(-1));
+    fullModel.plotOn(frame.get(), RooFit::LineColor(kRed));
     if (useRooCMSShape_) {
-      fullModel.plotOn(frame, RooFit::Components(exp_pdf), RooFit::LineStyle(kDashed));  //Other option
+      fullModel.plotOn(frame.get(), RooFit::Components(exp_pdf), RooFit::LineStyle(kDashed));  //Other option
     } else {
-      fullModel.plotOn(frame, RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
+      fullModel.plotOn(frame.get(), RooFit::Components(expo), RooFit::LineStyle(kDashed));  //Other option
     }
-    fullModel.paramOn(frame, RooFit::Layout(0.65, 0.90, 0.90));    
+    fullModel.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));
   } else {
     voigt.fitTo(datahist, RooFit::PrintLevel(-1));
     voigt.plotOn(frame.get(), RooFit::LineColor(kRed));            //this will show fit overlay on canvas
