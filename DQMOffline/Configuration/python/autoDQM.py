@@ -178,9 +178,9 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                              'PostDQMOffline',
                              '@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma'],
 
-            'rerecoCommon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
+            'rerecoCommon': ['@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                              'PostDQMOffline',
-                             '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
+                             '@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
             'rerecoSingleMuon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma+@ctpps',
                                  'PostDQMOffline',
