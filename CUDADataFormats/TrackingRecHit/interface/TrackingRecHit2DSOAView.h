@@ -128,38 +128,4 @@ private:
   uint32_t m_nHits;
 };
 
-template <>
-__device__ __forceinline__ bool TrackingRecHit2DSOAViewT<pixelTopology::Phase1>::clusterCut(int i,
-                                                                                            int o,
-                                                                                            bool debug) const {
-  auto mi = detectorIndex(i);
-  auto mo = detectorIndex(o);
-  bool innerB1 = mi < pixelTopology::Phase1::last_bpix1_detIndex;
-  bool outerFwd = (mo > pixelTopology::Phase1::last_barrel_detIndex);
-  auto mes = clusterSizeY(i);
-
-  if (debug) {
-    printf("%d %d %d %d %d %d\n",
-           mi,
-           mo,
-           mes,
-           pixelTopology::Phase1::last_bpix1_detIndex,
-           pixelTopology::Phase1::last_barrel_detIndex,
-           pixelTopology::Phase1::last_bpix2_detIndex);
-  }
-  if (!outerFwd)
-    return false;
-
-  if (innerB1 && outerFwd)  // B1 and F1
-    if (mes > 0 && mes < pixelTopology::Phase1::minYsizeB1)
-      return true;  // only long cluster  (5*8)
-  bool innerB2 = (mi >= pixelTopology::Phase1::last_bpix1_detIndex) &&
-                 (mi < pixelTopology::Phase1::last_bpix2_detIndex);  //FIXME number
-  if (innerB2 && outerFwd)                                           // B2 and F1
-    if (mes > 0 && mes < pixelTopology::Phase1::minYsizeB2)
-      return true;
-
-  return false;
-}
-
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DSOAView_h

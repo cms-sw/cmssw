@@ -168,6 +168,7 @@ template <>
 void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>::fillDescriptions(edm::ParameterSetDescription& desc) {
   fillDescriptionsCommon(desc);
 
+  desc.add<bool>("idealConditions", true);
   desc.add<bool>("includeJumpingForwardDoublets", false);
 
   edm::ParameterSetDescription trackQualityCuts;
@@ -193,6 +194,7 @@ template <>
 void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>::fillDescriptions(edm::ParameterSetDescription& desc) {
   fillDescriptionsCommon(desc);
 
+  desc.add<bool>("idealConditions", false);
   desc.add<bool>("includeFarForwards", true);
   desc.add<bool>("includeJumpingForwardDoublets", true);
 
@@ -212,7 +214,6 @@ void CAHitNtupletGeneratorOnGPU<TrackerTraits>::fillDescriptionsCommon(edm::Para
   // 87 cm/GeV = 1/(3.8T * 0.3)
   // take less than radius given by the hardPtCut and reject everything below
   // auto hardCurvCut = 1.f/(0.35 * 87.f);
-  desc.add<bool>("idealConditions", true);
   desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
   desc.add<double>("CAThetaCutBarrel", 0.002f)->setComment("Cut on RZ alignement for Barrel");
   desc.add<double>("CAThetaCutForward", 0.003f)->setComment("Cut on RZ alignment for Forward");
