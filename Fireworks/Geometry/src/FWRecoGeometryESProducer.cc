@@ -12,7 +12,6 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -114,10 +113,6 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset
   if (m_tracker or m_muon or m_gem) {
     m_trackingGeomToken = cc.consumes();
   }
-  if (m_timing) {
-    m_ftlBarrelGeomToken = cc.consumes(edm::ESInputTag{"", "FastTimeBarrel"});
-    m_ftlEndcapGeomToken = cc.consumes(edm::ESInputTag{"", "SFBX"});
-  }
   if (m_calo) {
     m_caloGeomToken = cc.consumes();
   }
@@ -157,12 +152,6 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
   if (m_calo) {
     m_caloGeom = &record.get(m_caloGeomToken);
     addCaloGeometry(*fwRecoGeometry);
-  }
-
-  if (m_timing) {
-    m_ftlBarrelGeom = &record.getRecord<CaloGeometryRecord>().get(m_ftlBarrelGeomToken);
-    m_ftlEndcapGeom = &record.getRecord<CaloGeometryRecord>().get(m_ftlEndcapGeomToken);
-    addFTLGeometry(*fwRecoGeometry);
   }
 
   fwRecoGeometry->idToName.resize(m_current + 1);
@@ -638,18 +627,8 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addFTLGeometry(FWRecoGeometry& fwRecoGeometry) {
-  // do the barrel
-  for (const auto& detid : m_ftlBarrelGeom->getValidDetIds()) {
-    unsigned int id = insert_id(detid.rawId(), fwRecoGeometry);
-    const auto& cor = m_ftlBarrelGeom->getCorners(detid);
-    fillPoints(id, cor.begin(), cor.end(), fwRecoGeometry);
-  }
-  // do the endcap
-  for (const auto& detid : m_ftlEndcapGeom->getValidDetIds()) {
-    unsigned int id = insert_id(detid.rawId(), fwRecoGeometry);
-    const auto& cor = m_ftlEndcapGeom->getCorners(detid);
-    fillPoints(id, cor.begin(), cor.end(), fwRecoGeometry);
-  }
+  // do the barrel (do for BTL)
+  // do the endcap (do for ETL)
 }
 
 unsigned int FWRecoGeometryESProducer::insert_id(unsigned int rawid, FWRecoGeometry& fwRecoGeometry) {
