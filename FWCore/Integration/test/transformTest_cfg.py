@@ -47,10 +47,12 @@ if args.noTransform:
     process.tester.valueMustMatch = 2
     process.t.checkTransformNotCalled = True
 
+process.nonConsumed = process.t.clone()
+
 if args.onPath:
-    process.p = cms.Path(process.t+process.tester, cms.Task(process.start))
+    process.p = cms.Path(process.t+process.tester, cms.Task(process.start, process.nonConsumed))
 else:
-    process.p = cms.Path(process.tester, cms.Task(process.start, process.t))
+    process.p = cms.Path(process.tester, cms.Task(process.start, process.t, process.nonConsumed))
 
 if args.addTracer:
     process.add_(cms.Service("Tracer"))
