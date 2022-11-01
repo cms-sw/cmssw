@@ -14,7 +14,7 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 from RecoLocalTracker.SiStripClusterizer.SiStripApprox2Clusters_cfi import SiStripApprox2Clusters
 SiStripApprox2Clusters.inputApproxClusters = 'SiStripClusters2ApproxClusters'
-approxSiStripClusters.toModify(SiStripApprox2Clusters, inputApproxClusters = 'SiStripClusters2ApproxClustersHLT')
+approxSiStripClusters.toModify(SiStripApprox2Clusters, inputApproxClusters = 'hltSiStripClusters2ApproxClusters')
 approxSiStripClusters.toReplaceWith(siStripClusters,SiStripApprox2Clusters)
 
 # The SiStripClusters are not used anymore in phase2 tracking
