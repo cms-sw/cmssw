@@ -78,7 +78,6 @@ namespace caHitNtupletGenerator {
   struct ParamsT : public AlgoParams {
     // one should define the params for its own pixelTopology
     // not defining anything here
-
     inline uint32_t nPairs() const { return 0; }
   };
 

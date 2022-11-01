@@ -443,8 +443,6 @@ namespace pixelgpudetails {
 
   }  // end of Raw to Digi kernel
 
-
-
   template <typename TrackerTraits>
   __global__ void fillHitsModuleStart(uint32_t const *__restrict__ clusInModule,
                                       uint32_t *__restrict__ moduleStart,

@@ -46,35 +46,48 @@ namespace gpuPixelDoublets {
     const bool idealConditions_;  //this is actually not used by phase2
 
     __device__ __forceinline__ bool zSizeCut(H const& hh, int i, int o) const {
-      auto dz = hh.zGlobal(i) - hh.zGlobal(o);
-      auto dr = hh.rGlobal(i) - hh.rGlobal(o);
-
       auto mi = hh.detectorIndex(i);
-      auto mo = hh.detectorIndex(o);
 
       bool innerB1 = mi < T::last_bpix1_detIndex;
       bool isOuterLadder = idealConditions_ ? true : 0 == (mi / 8) % 2;
       auto mes = (!innerB1) || isOuterLadder ? hh.clusterSizeY(i) : -1;
+
+      if (mes < 0)
+        return false;
+
+      auto mo = hh.detectorIndex(o);
       auto so = hh.clusterSizeY(o);
+
+      auto dz = hh.zGlobal(i) - hh.zGlobal(o);
+      auto dr = hh.rGlobal(i) - hh.rGlobal(o);
 
       auto innerBarrel = mi < T::last_barrel_detIndex;
       auto onlyBarrel = mo < T::last_barrel_detIndex;
+
+      if (not innerBarrel and not onlyBarrel)
+        return false;
       auto dy = innerB1 ? T::maxDYsize12 : T::maxDYsize;
 
-      return onlyBarrel
-                 ? mes > 0 && so > 0 && std::abs(so - mes) > dy
-                 : innerBarrel && mes > 0 && std::abs(mes - int(std::abs(dz / dr) * T::dzdrFact + 0.5f)) > T::maxDYPred;
+      return onlyBarrel ? so > 0 && std::abs(so - mes) > dy
+                        : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * T::dzdrFact + 0.5f)) > T::maxDYPred;
     }
 
     __device__ __forceinline__ bool clusterCut(H const& hh, int i, int o) const {
-      auto mi = hh.detectorIndex(i);
       auto mo = hh.detectorIndex(o);
-      bool innerB1 = mi < T::last_bpix1_detIndex;
       bool outerFwd = (mo >= T::last_barrel_detIndex);
-      auto mes = hh.clusterSizeY(i);
 
       if (!outerFwd)
         return false;
+
+      auto mi = hh.detectorIndex(i);
+      bool innerB1orB2 = mi < T::last_bpix2_detIndex;
+
+      if (!innerB1orB2)
+        return false;
+
+      bool innerB1 = mi < T::last_bpix1_detIndex;
+      bool isOuterLadder = idealConditions_ ? true : 0 == (mi / 8) % 2;
+      auto mes = (!innerB1) || isOuterLadder ? hh.clusterSizeY(i) : -1;
 
       if (innerB1 && outerFwd)  // B1 and F1
         if (mes > 0 && mes < T::minYsizeB1)
