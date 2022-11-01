@@ -5,6 +5,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 DiMuonMassBiasClient = DQMEDHarvester("DiMuonMassBiasClient",
                                       FolderName = cms.string('DiMuonMassBiasMonitor'),
                                       fitBackground = cms.bool(False),
+                                      useRooCMSShape = cms.bool(False),
                                       debugMode = cms.bool(False),
                                       fit_par = cms.PSet(
                                           mean_par = cms.vdouble(
