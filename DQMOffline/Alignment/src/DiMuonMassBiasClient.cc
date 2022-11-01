@@ -125,9 +125,16 @@ void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
       edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
     TH2F* bareHisto = ME->getTH2F();
     for (int bin = 1; bin <= ME->getNbinsX(); bin++) {
+      const auto& xaxis = bareHisto->GetXaxis();
+      const auto& low_edge = xaxis->GetBinLowEdge(bin);
+      const auto& high_edge = xaxis->GetBinUpEdge(bin);
+
       if (debugMode_)
-        edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << std::endl;
+        edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
+                                              << low_edge << "," << std::setprecision(2) << high_edge << ")";
       TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
+      Proj->SetTitle(Form("%s, bin: %i (%.2f,%.2f)", Proj->GetTitle(), bin, low_edge, high_edge));
+
       diMuonMassBias::fitOutputs results = fitVoigt(Proj);
 
       if (results.isInvalid()) {
