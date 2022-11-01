@@ -298,6 +298,7 @@ void DiMuonMassBiasMonitor::fillDescriptions(edm::ConfigurationDescriptions& des
     psDiMuMass.add<int>("NyBins", 50);
     psDiMuMass.add<double>("ymin", 65.);
     psDiMuMass.add<double>("ymax", 115.);
+    psDiMuMass.add<double>("maxDeltaEta", 3.7);
     desc.add<edm::ParameterSetDescription>("DiMuMassConfig", psDiMuMass);
   }
 
