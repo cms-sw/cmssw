@@ -26,6 +26,7 @@ Generator::Generator(const ParameterSet &p)
       fPtransCut(p.getParameter<bool>("ApplyPtransCut")),
       fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")),
       fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
+      fFinalState(p.getParameter<bool>("FixOfFinalStateRadiation")),
       theMinPhiCut(p.getParameter<double>("MinPhiCut")),  // in radians (CMS standard)
       theMaxPhiCut(p.getParameter<double>("MaxPhiCut")),
       theMinEtaCut(p.getParameter<double>("MinEtaCut")),
@@ -90,7 +91,7 @@ Generator::Generator(const ParameterSet &p)
                                          << "                     ApplyCuts: " << fFiductialCuts
                                          << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
                                          << "  EtaCut: " << fEtaCuts << "  PhiCut: " << fPhiCuts
-                                         << "  LumiMonitorCut: " << lumi;
+                                         << "  LumiMonitorCut: " << lumi << " FinalState: " << fFinalState;
   if (lumi) {
     fLumiFilter->Describe();
   }
@@ -450,8 +451,10 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
 
     if (verbose > 2)
       LogDebug("SimG4CoreGenerator") << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id();
-    
-    if (((*vpdec)->status() == 2 || ((*vpdec)->status() == 23 && std::abs(vp->pdg_id()) == 1000015)) &&
+
+    bool checkStatus = fFinalState ? (*vpdec)->status() > 3
+      : ((*vpdec)->status() == 23 && std::abs(vp->pdg_id()) == 1000015);   
+    if (((*vpdec)->status() == 2 || checkStatus) &&
         (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();
       double y2 = (*vpdec)->end_vertex()->position().y();
