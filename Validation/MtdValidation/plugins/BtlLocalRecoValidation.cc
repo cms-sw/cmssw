@@ -248,7 +248,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
       (simHitIt->second).time = simHit.tof();
 
-      auto hit_pos = simHit.entryPoint();
+      auto hit_pos = simHit.localPosition();
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
