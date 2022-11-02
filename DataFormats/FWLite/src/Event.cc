@@ -297,6 +297,15 @@ namespace fwlite {
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
   }
 
+  bool Event::getByTokenImp(edm::EDGetToken iToken, edm::WrapperBase const*& oData) const {
+    if (atEnd()) {
+      throw cms::Exception("OffEnd") << "You have requested data past the last event";
+    }
+    Long_t eventIndex = branchMap_.getEventEntry();
+    oData = dataHelper_.getByBranchID(edm::BranchID(iToken.index()), eventIndex);
+    return oData != nullptr;
+  }
+
   edm::EventAuxiliary const& Event::eventAuxiliary() const {
     Long_t eventIndex = branchMap_.getEventEntry();
     updateAux(eventIndex);
