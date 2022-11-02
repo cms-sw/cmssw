@@ -14,6 +14,7 @@ using namespace edm;
 FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
   LogDebug("FourVectorHLT") << "constructor....";
 
+  usesResource("DQMStore");
   dbe_ = Service<DQMStore>().operator->();
   if (!dbe_) {
     LogWarning("Status") << "unable to get DQMStore service?";
