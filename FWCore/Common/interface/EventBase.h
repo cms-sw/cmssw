@@ -31,6 +31,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 // system include files
 #include <typeinfo>
@@ -51,6 +52,9 @@ namespace edm {
     // ---------- const member functions ---------------------
     template <typename T>
     bool getByLabel(InputTag const&, Handle<T>&) const;
+
+    template <typename T>
+    bool getByToken(edm::EDGetTokenT<T> const& token, edm::Handle<T>& result) const;
 
     template <typename T>
     bool get(ProductID const&, Handle<T>&) const;
@@ -84,6 +88,7 @@ namespace edm {
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                        std::type_info const& iProductType,
                                        InputTag const& iTag) const = 0;
+    virtual BasicHandle getByTokenImpl(std::type_info const& iProductType, EDGetToken) const = 0;
     virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& iTag) const = 0;
     // ---------- member data --------------------------------
   };
@@ -93,6 +98,17 @@ namespace edm {
     result.clear();
     BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
     result = convert_handle<T>(std::move(bh));
+    if (result.failedToGet()) {
+      return false;
+    }
+    return true;
+  }
+
+  template <typename T>
+  bool EventBase::getByToken(edm::EDGetTokenT<T> const& token, edm::Handle<T>& result) const {
+    result.clear();
+    edm::BasicHandle bh = this->getByTokenImpl(typeid(T), token);
+    result = edm::convert_handle<T>(std::move(bh));
     if (result.failedToGet()) {
       return false;
     }

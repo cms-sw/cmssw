@@ -84,8 +84,14 @@ namespace fwlite {
   class HistoryGetterBase;
   class DataGetterHelper;
   class RunFactory;
+  class ChainEvent;
+  class MultiChainEvent;
+
   class Event : public EventBase {
   public:
+    friend class ChainEvent;
+    friend class MultiChainEvent;
+
     // NOTE: Does NOT take ownership so iFile must remain around
     // at least as long as Event.
     // useCache and baFunc (branch-access-function) are passed to
@@ -127,6 +133,15 @@ namespace fwlite {
                                        char const* iProductInstanceLabel,
                                        char const* iProcessName) const override;
 
+    template <typename T>
+    edm::EDGetTokenT<T> consumes(edm::InputTag const& iTag) const {
+      auto bid =
+          dataHelper_.getBranchIDFor(typeid(T), iTag.label().c_str(), iTag.instance().c_str(), iTag.process().c_str());
+      if (bid) {
+        return this->makeTokenUsing<T>(bid.value().id());
+      }
+      return {};
+    }
     using fwlite::EventBase::getByLabel;
     /// This function should only be called by fwlite::Handle<>
     bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
@@ -190,6 +205,7 @@ namespace fwlite {
     static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
   private:
+    bool getByTokenImp(edm::EDGetToken, edm::WrapperBase const*&) const override;
     friend class internal::ProductGetter;
     friend class ChainEvent;
     friend class EventHistoryGetter;

@@ -279,6 +279,7 @@ namespace edm {
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                std::type_info const& iProductType,
                                InputTag const& iTag) const override;
+    BasicHandle getByTokenImpl(std::type_info const& iProductType, EDGetToken iToken) const override;
 
     //override used by EventBase class
     BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
