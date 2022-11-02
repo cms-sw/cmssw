@@ -30,7 +30,6 @@ private:
   const bool quadraticEAflag_;
   std::vector<float> linearEffectiveAreaValues_;
   std::vector<float> quadraticEffectiveAreaValues_;
-
 };
 
 #endif

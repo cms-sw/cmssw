@@ -39,10 +39,10 @@ PhoGenericQuadraticRhoPtScaledCut::PhoGenericQuadraticRhoPtScaledCut(const edm::
       varFunc_(params.getParameter<std::string>("cutVariable")),
       lessThan_(params.getParameter<bool>("lessThan")),
       constTerm_(params, "constTerm"),
-      rhoEA_(params.getParameter<edm::FileInPath>("effAreasConfigFile").fullPath(), params.getParameter<bool>("quadEAflag")),
+      rhoEA_(params.getParameter<edm::FileInPath>("effAreasConfigFile").fullPath(),
+             params.getParameter<bool>("quadEAflag")),
       linearPtTerm_(params, "linearPtTerm"),
-      quadraticPtTerm_(params, "quadraticPtTerm")
-{
+      quadraticPtTerm_(params, "quadraticPtTerm") {
   edm::InputTag rhoTag = params.getParameter<edm::InputTag>("rho");
   contentTags_.emplace("rho", rhoTag);
 }
@@ -63,9 +63,9 @@ CutApplicatorBase::result_type PhoGenericQuadraticRhoPtScaledCut::operator()(con
 
   const float et = pho->et();
   const float absEta = std::abs(pho->superCluster()->eta());
-  const float cutValue = constTerm_(pho)
-          + rhoEA_.getLinearEA(absEta) * rho + rhoEA_.getQuadraticEA(absEta) * rho * rho
-          + linearPtTerm_(pho) * et + quadraticPtTerm_(pho) * et * et;
+  const float cutValue = constTerm_(pho) + rhoEA_.getLinearEA(absEta) * rho +
+                         rhoEA_.getQuadraticEA(absEta) * rho * rho + linearPtTerm_(pho) * et +
+                         quadraticPtTerm_(pho) * et * et;
   if (lessThan_)
     return var < cutValue;
   else
