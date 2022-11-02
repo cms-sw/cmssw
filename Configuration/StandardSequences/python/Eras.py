@@ -36,6 +36,7 @@ class Eras (object):
                  'Run3',
                  'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
+                 'Run3_pp_on_PbPb_approxSiStripClusters',
                  'Run3_dd4hep',
                  'Run3_DDD',
                  'Run3_FastSim',
