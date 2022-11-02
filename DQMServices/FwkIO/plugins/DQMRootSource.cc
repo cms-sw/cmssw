@@ -491,7 +491,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   m_openFiles.reserve(numFiles);
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
-    TFile* file;
+    TFile* file = nullptr;
     std::string pfn;
     std::string lfn;
     std::list<std::string> exInfo;
@@ -556,7 +556,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       }
     }  //end loop over names of the file
 
-    if (!isGoodFile && m_skipBadFiles)
+    if (!file || (!isGoodFile && m_skipBadFiles))
       continue;
 
     std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};
