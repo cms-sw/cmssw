@@ -14,6 +14,7 @@ namespace l1t::demo {
                                    const size_t maxFramesPerFile,
                                    const ChannelMap_t& channelSpecs)
       : fileFormat_(format),
+        boardDataFileID_("CMSSW"),
         filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + ".txt"; }),
         framesPerBX_(framesPerBX),
         boardTMUX_(tmux),
@@ -56,6 +57,10 @@ namespace l1t::demo {
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
                                    const std::map<std::string, ChannelSpec>& channelSpecs)
       : BoardDataWriter(format, path, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+
+  void BoardDataWriter::setBoardDataFileID(const std::string& aId) {
+    boardDataFileID_ = aId;
+  }
 
   void BoardDataWriter::addEvent(const EventData& eventData) {
     // Check that data is supplied for each channel
@@ -123,6 +128,9 @@ namespace l1t::demo {
         }
       }
     }
+
+    // Set ID field for board data files
+    boardData_.name(boardDataFileID_);
 
     // Write board data object to file
     const std::string filePath = filePathGen_(fileNames_.size());

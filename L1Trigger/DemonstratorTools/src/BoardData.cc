@@ -14,6 +14,8 @@ namespace l1t::demo {
 
   const std::string& BoardData::name() const { return name_; }
 
+  void BoardData::name(const std::string& aName) { name_ = aName; }
+
   std::map<size_t, BoardData::Channel>::const_iterator BoardData::begin() const { return data_.begin(); }
 
   std::map<size_t, BoardData::Channel>::iterator BoardData::begin() { return data_.begin(); }
