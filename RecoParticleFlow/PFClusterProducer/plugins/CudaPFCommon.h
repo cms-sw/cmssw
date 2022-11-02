@@ -28,33 +28,6 @@ namespace PFClustering {
       float threshHighE;
       float constantTerm2;
       float resHighE2;
-
-     // TimeResConsts()
-     //     : corrTermLowE(-1.0),
-     //       threshLowE(-1.0),
-     //       noiseTerm(-1.0),
-     //       constantTermLowE2(-1.0),
-     //       noiseTermLowE(-1.0),
-     //       threshHighE(-1.0),
-     //       constantTerm2(-1.0),
-     //       resHighE2(-1.0){};
-
-     // TimeResConsts(float _corrTermLowE,
-     //               float _threshLowE,
-     //               float _noiseTerm,
-     //               float _constantTermLowE2,
-     //               float _noiseTermLowE,
-     //               float _threshHighE,
-     //               float _constantTerm2)
-     //     : corrTermLowE(_corrTermLowE),
-     //       threshLowE(_threshLowE),
-     //       noiseTerm(_noiseTerm),
-     //       constantTermLowE2(_constantTermLowE2),
-     //       noiseTermLowE(_noiseTermLowE),
-     //       threshHighE(_threshHighE),
-     //       constantTerm2(_constantTerm2),
-     //       //resHighE2(std::pow((noiseTerm / threshHighE), 2) + constantTerm2){};
-     //       resHighE2(_constantTerm2){};
     };
 
     struct PosCalcConfig {
