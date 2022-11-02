@@ -115,7 +115,7 @@ void Phase2OTMonitorVectorHits::dqmBeginRun(const edm::Run& iRun, const edm::Eve
 // -- Analyze
 //
 void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // Get the VecHits 
+  // Get the VecHits
   const auto& vechits = iEvent.getHandle(tokenVecHitsOT_);
   if (!vechits.isValid())
     return;
@@ -129,7 +129,8 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
     unsigned int rawid(DSViter->detId());
     DetId detId(rawid);
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-    if(mType != TrackerGeometry::ModuleType::Ph2PSP && mType !=TrackerGeometry::ModuleType::Ph2SS)  continue;
+    if (mType != TrackerGeometry::ModuleType::Ph2PSP && mType != TrackerGeometry::ModuleType::Ph2SS)
+      continue;
     std::string key = phase2tkutil::getOTHistoId(detId, tTopo_);
     nTotvechitsinevt += DSViter->size();
     if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
@@ -146,7 +147,7 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
       }
     }
 
-    edmNew::DetSet<VectorHit>::const_iterator vechitIt;                                                              
+    edmNew::DetSet<VectorHit>::const_iterator vechitIt;
     for (vechitIt = DSViter->begin(); vechitIt != DSViter->end(); ++vechitIt) {
       const Global3DPoint globalPos = vechitIt->lowerGlobalPos();
       const LocalPoint lp = vechitIt->localPosition();
@@ -165,7 +166,8 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
         //layer wise histo
         layerMEs_[key].localPosXY_P->Fill(lp.x(), lp.y());
         layerMEs_[key].curvature_P->Fill(curvature);
-        if(curvature != 0.f) layerMEs_[key].curvErr_P->Fill(curverr/curvature);
+        if (curvature != 0.f)
+          layerMEs_[key].curvErr_P->Fill(curverr / curvature);
         layerMEs_[key].phi_P->Fill(phi);
         layerMEs_[key].eta_P->Fill(eta);
         layerMEs_[key].curvatureVsEta_P->Fill(eta, curvature);
@@ -175,7 +177,8 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
         //layer wise histo
         layerMEs_[key].localPosXY_S->Fill(lp.x(), lp.y());
         layerMEs_[key].curvature_S->Fill(curvature);
-        if(curvature != 0.f) layerMEs_[key].curvErr_S->Fill(curverr/curvature);
+        if (curvature != 0.f)
+          layerMEs_[key].curvErr_S->Fill(curverr / curvature);
         layerMEs_[key].phi_S->Fill(phi);
         layerMEs_[key].eta_S->Fill(eta);
         layerMEs_[key].curvatureVsEta_S->Fill(eta, curvature);
@@ -196,8 +199,8 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
 // -- Book Histograms
 //
 void Phase2OTMonitorVectorHits::bookHistograms(DQMStore::IBooker& ibooker,
-                                           edm::Run const& iRun,
-                                           edm::EventSetup const& iSetup) {
+                                               edm::Run const& iRun,
+                                               edm::EventSetup const& iSetup) {
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   //std::stringstream folder_name;
 
@@ -219,11 +222,12 @@ void Phase2OTMonitorVectorHits::bookHistograms(DQMStore::IBooker& ibooker,
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    for (auto const& det_u : tkGeom_->detUnits()) {			
+    for (auto const& det_u : tkGeom_->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
       //we only need the layerwise histos for the lower layer (?)
-      if(tkGeom_->getDetectorType(detId_raw) !=TrackerGeometry::ModuleType::Ph2PSP &&  
-	 tkGeom_->getDetectorType(detId_raw)!=TrackerGeometry::ModuleType::Ph2SS)  continue;
+      if (tkGeom_->getDetectorType(detId_raw) != TrackerGeometry::ModuleType::Ph2PSP &&
+          tkGeom_->getDetectorType(detId_raw) != TrackerGeometry::ModuleType::Ph2SS)
+        continue;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
@@ -245,32 +249,28 @@ void Phase2OTMonitorVectorHits::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NVecHitsLayer_P"), ibooker);
       local_histos.localPosXY_P =
           phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), ibooker);
-      local_histos.curvature_P = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Curvature"), ibooker);
-      local_histos.curvErr_P = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
-      local_histos.phi_P = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
-      local_histos.eta_P = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
-      local_histos.curvatureVsEta_P = 
-	phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_P"), ibooker);
-    }  else {
+      local_histos.curvature_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Curvature"), ibooker);
+      local_histos.curvErr_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
+      local_histos.phi_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
+      local_histos.eta_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
+      local_histos.curvatureVsEta_P =
+          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_P"), ibooker);
+    } else {
       ibooker.setCurrentFolder(subdir + "/" + key);
       local_histos.numberVecHits_S =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NVecHitsLayer_P"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NVecHitsLayer_P"), ibooker);
       local_histos.localPosXY_S =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
-      local_histos.curvature_S = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Curvature"), ibooker);
-      local_histos.curvErr_S = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
-      local_histos.phi_S = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
-      local_histos.eta_S = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
-      local_histos.curvatureVsEta_S = 
-	phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_S"), ibooker);
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
+      local_histos.curvature_S =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Curvature"), ibooker);
+      local_histos.curvErr_S =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
+      local_histos.phi_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
+      local_histos.eta_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
+      local_histos.curvatureVsEta_S =
+          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_S"), ibooker);
     }
     layerMEs_.insert(std::make_pair(key, local_histos));
   }
