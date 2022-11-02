@@ -11,7 +11,7 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -23,7 +23,8 @@
 // class declaration
 //
 class BeamSpotObjectsRcd;
-class BeamConditionsMonitor : public edm::EDAnalyzer {
+class BeamConditionsMonitor
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   BeamConditionsMonitor(const edm::ParameterSet&);
   ~BeamConditionsMonitor() override;

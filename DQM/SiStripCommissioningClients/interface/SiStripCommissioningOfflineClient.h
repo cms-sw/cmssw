@@ -6,7 +6,7 @@
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
 #include "DQM/SiStripCommissioningClients/interface/SummaryPlotXmlParser.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlot.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@ class TH1;
    histograms", analyzes the histograms to extract "monitorables", and
    creates summary histograms.
 */
-class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
+class SiStripCommissioningOfflineClient : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
@@ -35,6 +35,7 @@ public:
   ~SiStripCommissioningOfflineClient() override;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
