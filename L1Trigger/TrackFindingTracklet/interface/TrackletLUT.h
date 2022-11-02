@@ -83,6 +83,8 @@ namespace trklet {
 
     void initBendMatch(unsigned int layerdisk);
 
+    void initProjectionDiskRadius(int nrbits);
+
     enum VMRTableType { me, disk, inner, inneroverlap, innerthird };
 
     //region only used for name - should be removed

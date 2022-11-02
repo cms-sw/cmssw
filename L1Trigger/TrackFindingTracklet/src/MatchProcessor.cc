@@ -37,6 +37,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
       alphaouter_(settings),
       rSSinner_(settings),
       rSSouter_(settings),
+      diskRadius_(settings),
       fullmatches_(12),
       rinvbendlut_(settings),
       luttable_(settings),
@@ -63,6 +64,8 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
   nrbits_ = 5;
   nphiderbits_ = 6;
 
+  nrprojbits_ = 8;
+
   if (!barrel_) {
     rinvbendlut_.initProjectionBend(
         global->ITC_L1L2()->der_phiD_final.K(), layerdisk_ - N_LAYER, nrbits_, nphiderbits_);
@@ -85,6 +88,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     alphaouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphaouter, region);
     rSSinner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSinner, region);
     rSSouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSouter, region);
+    diskRadius_.initProjectionDiskRadius(nrprojbits_);
   }
 
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
@@ -396,12 +400,30 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
         }
         assert(projrinv >= 0);
 
-        unsigned int slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
-        bool second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
-
         unsigned int projfinephi =
             (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + NFINEPHIBITS))) & ((1 << NFINEPHIBITS) - 1);
-        int projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
+
+        unsigned int slot;
+        bool second;
+        int projfinerz;
+
+        if (barrel_) {
+          slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
+          second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
+          projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
+        } else {
+          //The -1 here is due to not using the full range of bits. Should be fixed.
+          unsigned int ir = proj->proj(layerdisk_).fpgarzproj().value() >>
+                            (proj->proj(layerdisk_).fpgarzproj().nbits() - nrprojbits_ - 1);
+          unsigned int word = diskRadius_.lookup(ir);
+
+          slot = (word >> 1) & ((1 << N_RZBITS) - 1);
+          if (proj->proj(layerdisk_).fpgarzprojder().value() < 0) {
+            slot += (1 << N_RZBITS);
+          }
+          second = word & 1;
+          projfinerz = word >> 4;
+        }
 
         bool isPSseed = proj->PSseed();
 

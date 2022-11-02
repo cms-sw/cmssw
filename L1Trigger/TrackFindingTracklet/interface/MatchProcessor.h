@@ -63,8 +63,13 @@ namespace trklet {
     TrackletLUT rSSinner_;
     TrackletLUT rSSouter_;
 
+    TrackletLUT diskRadius_;
+
     int nrbits_;
     int nphiderbits_;
+
+    //Number of r bits for the projection to use in LUT for disk
+    int nrprojbits_;
 
     AllStubsMemory* allstubs_;
     std::vector<VMStubsMEMemory*> vmstubs_;
