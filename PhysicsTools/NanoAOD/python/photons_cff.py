@@ -14,6 +14,7 @@ photon_id_modules_WorkingPoints_nanoAOD = cms.PSet(
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Winter22_122X_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
+        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_RunIIIWinter22_122X_V1_cff',
    ),
    WorkingPoints = cms.vstring(
     "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-loose",
@@ -28,6 +29,14 @@ photon_id_modules_WorkingPoints_nanoAOD_Spring16V2p2 = cms.PSet(
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium",
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
    )
+)
+photon_id_modules_WorkingPoints_nanoAOD_RunIII_Winter22_V1 = cms.PSet(
+    modules = photon_id_modules_WorkingPoints_nanoAOD.modules,
+    WorkingPoints = cms.vstring(
+      "egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-loose",
+      "egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-medium",
+      "egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-tight",
+      )
 )
 
 def make_bitmapVID_docstring(id_modules_working_points_pset):
@@ -44,6 +53,13 @@ def make_bitmapVID_docstring(id_modules_working_points_pset):
                     return 'VID compressed bitmap (%s), %d bits per cut'%(cut_names, n_bits_per_cut)
     raise ValueError("Something is wrong in the photon ID modules parameter set!")
 
+
+bitmapVIDForPhoRunIIIWinter22 = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
+    src = cms.InputTag("slimmedPhotons"),
+    srcForID = cms.InputTag("reducedEgamma","reducedGedPhotons"),
+    WorkingPoints = photon_id_modules_WorkingPoints_nanoAOD_RunIII_Winter22_V1.WorkingPoints,
+)
+
 bitmapVIDForPho = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedPhotons"),
     srcForID = cms.InputTag("reducedEgamma","reducedGedPhotons"),
@@ -58,13 +74,22 @@ bitmapVIDForPhoSpring16V2p2 = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
 isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
     src = cms.InputTag("slimmedPhotons"),
     relative = cms.bool(False),
+    doQuadratic = cms.bool(True),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
-    mapIsoChg = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
-    mapIsoNeu = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
-    mapIsoPho = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
     EAFile_PFIso_Chg = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfChargedHadrons_90percentBased_V2.txt"),
     EAFile_PFIso_Neu = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased_V2.txt"),
     EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfPhotons_90percentBased_V2.txt"),
+    QuadraticEAFile_PFIso_Chg  = cms.FileInPath("RecoEgamma/PhotonIdentification/data/RunIII_Winter22/effectiveArea_ChgHadronIso_95percentBased.txt"),
+    QuadraticEAFile_PFIso_ECal = cms.FileInPath("RecoEgamma/PhotonIdentification/data/RunIII_Winter22/effectiveArea_ECalClusterIso_95percentBased.txt"),
+    QuadraticEAFile_PFIso_HCal = cms.FileInPath("RecoEgamma/PhotonIdentification/data/RunIII_Winter22/effectiveArea_HCalClusterIso_95percentBased.txt"),
+)
+
+
+hOverEForPho = cms.EDProducer("PhoHoverEValueMapProducer",
+    src = cms.InputTag("slimmedPhotons"),
+    relative = cms.bool(False),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    QuadraticEAFile_HoverE = cms.FileInPath("RecoEgamma/PhotonIdentification/data/RunIII_Winter22/effectiveArea_coneBasedHoverE_95percentBased.txt"),
 )
 
 seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimmedPhotons"))
@@ -104,8 +129,14 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         mvaID_RunIIIWinter22V1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIIWinter22v1Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForPho:PFIsoAll"),
+        PFIsoChgQuadratic = cms.InputTag("isoForPho:PFIsoChgQuadratic"),
+        PFIsoAllQuadratic = cms.InputTag("isoForPho:PFIsoAllQuadratic"),
+        HoverEQuadratic = cms.InputTag("hOverEForPho:HoEForPhoEACorr"),
     ),
     userIntFromBools = cms.PSet(
+        cutBasedID_RunIIIWinter22_loose  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-loose"),
+        cutBasedID_RunIIIWinter22_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-medium"),
+        cutBasedID_RunIIIWinter22_tight  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-tight"),
         cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-loose"),
         cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-medium"),
         cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V2-tight"),
@@ -119,6 +150,7 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
+        VIDNestedWPBitmap_RunIIIWinter22 = cms.InputTag("bitmapVIDForPhoRunIIIWinter22"),
         seedGain = cms.InputTag("seedGainPho"),
     )
 )
@@ -157,6 +189,11 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         s4 = Var("full5x5_showerShapeVariables().e2x2/full5x5_showerShapeVariables().e5x5",float,doc="e2x2/e5x5 of the supercluster, calculated with full 5x5 region",precision=8),
         etaWidth = Var("superCluster().etaWidth()",float,doc="Width of the photon supercluster in eta", precision=8),
         phiWidth = Var("superCluster().phiWidth()",float,doc="Width of the photon supercluster in phi", precision=8),
+        cutBased_RunIIIWinter22 = Var(
+            "userInt('cutBasedID_RunIIIWinter22_loose')+userInt('cutBasedID_RunIIIWinter22_medium')+userInt('cutBasedID_RunIIIWinter22_tight')",
+            int,
+            doc="cut-based ID bitmap, RunIIIWinter22, (0:fail, 1:loose, 2:medium, 3:tight)",
+        ),
         cutBased = Var(
             "userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",
             int,
@@ -172,7 +209,11 @@ photonTable = simpleCandidateFlatTableProducer.clone(
             int,
             doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD),
         ),
-
+        vidNestedWPBitmap_RunIIIWinter22 = Var(
+            "userInt('VIDNestedWPBitmap_RunIIIWinter22')",
+            int,
+            doc="RunIIIWinter22V1 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD_RunIII_Winter22_V1),
+        ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
         mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Fall17V2",precision=10),
@@ -197,7 +238,7 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         # ES variables
         esEffSigmaRR = Var("full5x5_showerShapeVariables().effSigmaRR()", float, doc="preshower sigmaRR"),
         esEnergyOverRawE = Var("superCluster().preshowerEnergy()/superCluster().rawEnergy()", float, doc="ratio of preshower energy to raw supercluster energy"),
-         haloTaggerMVAVal = Var("haloTaggerMVAVal()",float,doc="Value of MVA based BDT based  beam halo tagger in the Ecal endcap (valid for pT > 200 GeV)",precision=8),
+        haloTaggerMVAVal = Var("haloTaggerMVAVal()",float,doc="Value of MVA based BDT based  beam halo tagger in the Ecal endcap (valid for pT > 200 GeV)",precision=8),
     )
 )
 
@@ -239,6 +280,21 @@ slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
     modifierConfig = cms.PSet( modifications = cms.VPSet(egamma9X105XUpdateModifier) )
 )
 
+
+#might as well fix 80X while we're at it although the differences are not so relavent for nano
+run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
+
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(bitmapVIDForPhoRunIIIWinter22, src = "slimmedPhotonsTo106X")
+    modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X")
+    modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(hOverEForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(calibratedPatPhotonsNano, src = "slimmedPhotonsTo106X")
+    modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
+    modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
+
+
 ##adding 4 most imp scale & smearing variables to table
 (run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
     photonTable.variables,
@@ -248,7 +304,7 @@ slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
     dEsigmaDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaDownNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
 )
 
-photonTask = cms.Task(bitmapVIDForPho, isoForPho, seedGainPho, calibratedPatPhotonsNano, slimmedPhotonsWithUserData, finalPhotons)
+photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRunIIIWinter22, isoForPho, hOverEForPho, seedGainPho, calibratedPatPhotonsNano, slimmedPhotonsWithUserData, finalPhotons)
 photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 
