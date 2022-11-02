@@ -68,6 +68,45 @@ class WorkingPoint_V2:
         self.absPFPhoIsoWithEACut_C1     = absPFPhoIsoWithEACut_C1    # photon isolation C1
         self.absPFPhoIsoWithEACut_C2     = absPFPhoIsoWithEACut_C2    # ........ C2
 
+
+class WorkingPoint_V3:
+    """
+    This is a container class to hold the numerical cut values for either
+    the barrel or endcap set of cuts.
+    The changes made in this version:
+    1) The charged hadron isolation and neutral hadron isolation are replaced
+    by ECal cluster isolation and HCal cluster isolation.
+    2) The isolation variables have pt-dependance: ECal cluster isolation has
+    linear dependance and HCal cluster isolation has quadratic dependance
+    3) Cone-based H/E (instead of tower-based, as done for Run2) is used, and
+    PU-correction is done for it as well.
+    """
+    def __init__(self,
+                 idName,
+                 full5x5_sigmaIEtaIEtaCut,
+                 hOverEwithEACut,
+                 absPFChgHadIsoWithEACut_C1,
+                 absPFChgHadIsoWithEACut_C2,
+                 absPFECalClusIsoWithEACut_C1,
+                 absPFECalClusIsoWithEACut_C2,
+                 absPFHCalClusIsoWithEACut_C1,
+                 absPFHCalClusIsoWithEACut_C2,
+                 absPFHCalClusIsoWithEACut_C3
+                 ):
+                     self.idName = idName
+
+                     self.full5x5_sigmaIEtaIEtaCut = full5x5_sigmaIEtaIEtaCut # sigmaIetaIeta
+                     self.hOverEwithEACut          = hOverEwithEACut          # H/E (cone-based)
+
+                     self.absPFChgHadIsoWithEACut_C1   = absPFChgHadIsoWithEACut_C1    # Charged hadron isolation (const. term)
+                     self.absPFChgHadIsoWithEACut_C2   = absPFChgHadIsoWithEACut_C2    # Charged hadron isolation (linear term)
+                     self.absPFECalClusIsoWithEACut_C1 = absPFECalClusIsoWithEACut_C1  # ECal Cluster isolation (const. term)
+                     self.absPFECalClusIsoWithEACut_C2 = absPFECalClusIsoWithEACut_C1  # ECal Cluster isolation (linear term)
+                     self.absPFHCalClusIsoWithEACut_C1 = absPFHCalClusIsoWithEACut_C1  # HCal Cluster isolation (const. term)
+                     self.absPFHCalClusIsoWithEACut_C2 = absPFHCalClusIsoWithEACut_C2  # HCal Cluster isolation (linear term)
+                     self.absPFHCalClusIsoWithEACut_C3 = absPFHCalClusIsoWithEACut_C3  # HCal Cluster isolation (quadratic term)
+
+
 class IsolationCutInputs:
     """
     A container class that holds the names of the isolation maps in the event record
@@ -87,6 +126,38 @@ class IsolationCutInputs:
                  self.neuHadIsolationEffAreas = neuHadIsolationEffAreas 
                  self.phoIsolationMapName     = phoIsolationMapName     
                  self.phoIsolationEffAreas    = phoIsolationEffAreas    
+
+class ClusterIsolationCutInputs:
+    """
+    A container class that holds the names of the cluster based isolation maps in the event record
+    and the names of the files with the effective area constants for pile-up corrections
+    """
+    def __init__(self,
+                 trkIsolationMapName,
+                 trkIsolationEffAreas,
+                 ecalClusIsolationMapName,
+                 ecalClusIsolationEffAreas,
+                 hcalClusIsolationMapName,
+                 hcalClusIsolationEffAreas
+                 ):
+                 self.trkIsolationMapName       = trkIsolationMapName
+                 self.trkIsolationEffAreas      = trkIsolationEffAreas
+                 self.ecalClusIsolationMapName  = ecalClusIsolationMapName
+                 self.ecalClusIsolationEffAreas = ecalClusIsolationEffAreas
+                 self.hcalClusIsolationMapName  = hcalClusIsolationMapName
+                 self.hcalClusIsolationEffAreas = hcalClusIsolationEffAreas
+
+
+class HoverECutInputs:
+    """
+    A container class that holds the name of the file with the effective area constants
+    for pile-up corrections
+    """
+    def __init__(self,
+                 hOverEEffAreas
+                 ):
+                 self.hOverEEffAreas = hOverEEffAreas
+
 
 # ==============================================================
 # Define individual cut configurations used by complete cut sets
@@ -311,7 +382,113 @@ def psetPhoIsoWithEALinScalingCut(wpEB, wpEE, isoInputs):
         effAreasConfigFile = cms.FileInPath( isoInputs.phoIsolationEffAreas )
         )
 
-    
+
+# Configure the cut on H/E (cone-based)
+def psetPhoHcalOverEcalWithEACut( wpEB, wpEE, hOverEInputs ):
+    """
+    Arguments: two containers of working point cut values of the type WorkingPoint_V3
+    Third argument contains the effective areas for pile-up corrections.
+    """
+    return cms.PSet(
+        cutName = cms.string('PhoGenericQuadraticRhoPtScaledCut'),
+        cutVariable = cms.string("hcalOverEcal"),
+        lessThan = cms.bool(True),
+        # cut
+        constTermEB = cms.double( wpEB.hOverEwithEACut ),
+        constTermEE = cms.double( wpEE.hOverEwithEACut ),
+        linearPtTermEB = cms.double( 0. ),
+        linearPtTermEE = cms.double( 0. ),
+        quadraticPtTermEB = cms.double( 0. ),
+        quadraticPtTermEE = cms.double( 0. ),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        quadEAflag = cms.bool(True),
+        effAreasConfigFile = cms.FileInPath( hOverEInputs.hOverEEffAreas )
+        )
+
+
+# Configure the cut on the charged hadron isolation that uses
+# the quadratic pt scaling for barrel and endcap
+def psetChgHadIsoWithEAQuadScalingCut(wpEB, wpEE, isoInputs):
+    """
+    Arguments: two containers of working point cut values of the type WorkingPoint_V3
+    The third argument contains data for isolation calculation.
+    The cut is (for lessThan==True), otherwise replace "<" with ">="
+          X < constTerm + linearPtTerm*pt + quadPtTerm* pt*pt + rho*EA
+    """
+    return cms.PSet(
+        cutName = cms.string('PhoGenericQuadraticRhoPtScaledCut'),
+        cutVariable = cms.string("chargedHadronIso"),
+        lessThan = cms.bool(True),
+        # cut
+        constTermEB = cms.double( wpEB.absPFChgHadIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFChgHadIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFChgHadIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFChgHadIsoWithEACut_C2 ),
+        quadraticPtTermEB = cms.double( 0. ),
+        quadraticPtTermEE = cms.double( 0. ),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        quadEAflag = cms.bool(True),
+        effAreasConfigFile = cms.FileInPath( isoInputs.chHadIsolationEffAreas )
+        )
+
+
+
+# Configure the cut on the ECal cluster isolation that uses
+# the quadratic pt scaling for barrel and endcap
+def psetECalClusIsoWithEAQuadScalingCut(wpEB, wpEE, clusterIsoInputs):
+    """
+    Arguments: two containers of working point cut values of the type WorkingPoint_V3
+    The third argument contains data for isolation calculation.
+    """
+    return cms.PSet(
+        cutName = cms.string('PhoGenericQuadraticRhoPtScaledCut'),
+        cutVariable = cms.string("ecalPFClusterIso"),
+        lessThan = cms.bool(True),
+        # cut
+        constTermEB = cms.double( wpEB.absPFECalClusIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFECalClusIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFECalClusIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFECalClusIsoWithEACut_C2 ),
+        quadraticPtTermEB = cms.double( 0. ),
+        quadraticPtTermEE = cms.double( 0. ),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        quadEAflag = cms.bool(True),
+        effAreasConfigFile = cms.FileInPath( clusterIsoInputs.ecalClusIsolationEffAreas )
+        )
+
+
+# Configure the cut on the HCal cluster isolation that uses
+# the quadratic polynomial pt scaling for both barrel and endcap
+def psetHCalClusIsoWithEAQuadScalingCut(wpEB, wpEE, clusterIsoInputs):
+    """
+    Arguments: two containers of working point cut values of the type WorkingPoint_V3
+    The third argument contains data for isolation calculation.
+    """
+    return cms.PSet(
+        cutName = cms.string('PhoGenericQuadraticRhoPtScaledCut'),
+        cutVariable = cms.string("hcalPFClusterIso"),
+        lessThan = cms.bool(True),
+        # cut
+        constTermEB = cms.double( wpEB.absPFHCalClusIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFHCalClusIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFHCalClusIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFHCalClusIsoWithEACut_C2 ),
+        quadraticPtTermEB = cms.double( wpEB.absPFHCalClusIsoWithEACut_C3 ),
+        quadraticPtTermEE = cms.double( wpEE.absPFHCalClusIsoWithEACut_C3 ),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        quadEAflag = cms.bool(True),
+        effAreasConfigFile = cms.FileInPath( clusterIsoInputs.hcalClusIsolationEffAreas )
+        )
+
+
 
 # ==============================================================
 # Define the complete cut sets
@@ -455,4 +632,42 @@ def configureVIDCutBasedPhoID_V5( wpEB, wpEE, isoInputs ):
         )
     #
     return parameterSet
+
+
+
+def configureVIDCutBasedPhoID_V6( wpEB, wpEE, isoInputs, clusterIsoInputs, hOverEInputs ):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: first object is of the type WorkingPoint_V3, second object
+    is of the type WorkingPoint_V3 as well, first containing the cuts for the
+    Barrel (EB) and the other one for the Endcap (EE).
+    The third argument contains data for isolation calculation.
+
+    The V6 with respect to V5 has following changes:
+        1) H/E is now cone-based instead of tower-based.
+        2) Neutral hadron isolation is replaced by HCal Cluster isolation
+        for both barrel and endcap (and uses quadratic polynomial scaling
+        as done before for neutral hadron isolation).
+        3) Photon isolation is replaced by ECal Cluster isolation for both
+        barrel and endcap (and uses linear polynomial scaling as done before
+        for photon isolation).
+    """
+
+    # print "VID: Configuring cut set %s" % wpEB.idName
+    parameterSet =  cms.PSet(
+        #
+        idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),                                           # pt cut
+            psetPhoSCEtaMultiRangeCut(),                              # eta cut
+            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
+            psetPhoHcalOverEcalWithEACut(wpEB,wpEE,hOverEInputs),     # H/E cut
+            psetChgHadIsoWithEAQuadScalingCut(wpEB,wpEE,isoInputs),          # charged hadron isolation cut
+            psetECalClusIsoWithEAQuadScalingCut(wpEB,wpEE,clusterIsoInputs), # ecal cluster isolation cut
+            psetHCalClusIsoWithEAQuadScalingCut(wpEB,wpEE,clusterIsoInputs)  # hcal cluster isolation cut
+            )
+        )
+    #
+    return parameterSet
+
 
