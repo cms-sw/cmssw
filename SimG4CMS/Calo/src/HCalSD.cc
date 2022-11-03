@@ -581,6 +581,10 @@ uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int 
       det = 5;
     } else if (!(hcalConstants_->isHE())) {
       det = 3;
+    } else {
+      double minR = minRoff_ + slopeHE_ * std::abs(pos.z());
+      double maxR = maxRoff_ + slopeHE_ * std::abs(pos.z());
+      det = ((pos.perp() > minR) && (pos.perp() < maxR)) ? 4 : 3;
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits " << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;

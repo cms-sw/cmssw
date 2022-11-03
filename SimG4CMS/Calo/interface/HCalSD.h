@@ -98,6 +98,9 @@ private:
   std::unique_ptr<HcalTestNS> m_HcalTestNS;
 
   static constexpr double maxZ_ = 10000.0;
+  static constexpr double minRoff_ = -1500.0;
+  static constexpr double maxRoff_ = 450.0;
+  static constexpr double slopeHE_ = 0.4;
   bool isHF;
   bool agingFlagHB, agingFlagHE;
   bool useBirk, useLayerWt, useFibreBundle, usePMTHit;
