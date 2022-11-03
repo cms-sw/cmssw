@@ -576,6 +576,16 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
 
 uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int lay = 1) {
   uint32_t id = 0;
+  if (det == 0) {
+    if (std::abs(pos.z()) > maxZ_) {
+      det = 5;
+    } else if (!(hcalConstants_->isHE())) {
+      det = 3;
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits " << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
+#endif
+  }
   if (numberingFromDDD.get()) {
     //get the ID's as eta, phi, depth, ... indices
     HcalNumberingFromDDD::HcalID tmp =
