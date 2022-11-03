@@ -114,8 +114,8 @@ elif (options.resonance == 'Jpsi'):
     _useRooCBShape = cms.bool(True)
     _useRooCMSShape = cms.bool(True)
     _fitPar =  cms.PSet(mean_par = cms.vdouble(3.09, 2.7, 3.4),
-                        width_par = cms.vdouble(0.001, 0.0, 5e-3),
-                        sigma_par = cms.vdouble(0.1, 0.0, 5.0))
+                        width_par = cms.vdouble(1.0, 0.0, 5.0),
+                        sigma_par = cms.vdouble(0.01, 0.0, 5.0))
 elif (options.resonance == 'Upsilon'):
     print('',30*"#",'\n # will harvest Upsilon file \n',30*"#")
     _folderName =  cms.string('AlCaReco/TkAlUpsilonMuMu')
