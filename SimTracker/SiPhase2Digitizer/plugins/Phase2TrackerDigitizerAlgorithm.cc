@@ -721,7 +721,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
 }
 void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& eng) {
   if (addNoise_ || addPixelInefficiency_ || fluctuateCharge_ || addThresholdSmearing_) {
-    gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theReadoutNoise_);
+    gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theNoiseInElectrons_);
   }
   // Threshold smearing with gaussian distribution:
   if (addThresholdSmearing_) {
@@ -891,8 +891,11 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
     add_noise(pixdet);  // generate noise
   if (addXtalk_)
     add_cross_talk(pixdet);
-  if (addNoisyPixels_)
-    add_noisy_cells(pixdet, theHIPThresholdInE / theElectronPerADC_);
+  if (addNoisyPixels_) {
+    float thresholdInNoiseUnits = 99.9;
+    if (theNoiseInElectrons_) thresholdInNoiseUnits = theThresholdInE / theNoiseInElectrons_;
+    add_noisy_cells(pixdet, thresholdInNoiseUnits);
+  }
 
   // Do only if needed
   if (addPixelInefficiency_ && !theSignal.empty()) {
