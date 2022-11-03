@@ -83,6 +83,10 @@ process.l1tTrackerEmuEtMiss.debug = options.debug
 
 if options.debug:
     process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000000000)
+    process.MessageLogger.suppressInfo = cms.untracked.vstring('CondDBESSource', 'PoolDBESSource')
+    process.MessageLogger.cerr.CondDBESSource = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    )
 
 process.GTTFileWriter.format = cms.untracked.string(options.format)
 # process.GTTFileWriter.outputFilename = cms.untracked.string("myOutputFile.txt")
