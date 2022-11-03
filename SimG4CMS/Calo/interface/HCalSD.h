@@ -97,6 +97,7 @@ private:
   std::unique_ptr<HFDarkening> m_HFDarkening;
   std::unique_ptr<HcalTestNS> m_HcalTestNS;
 
+  static constexpr double maxZ_ = 10000.0;
   bool isHF;
   bool agingFlagHB, agingFlagHE;
   bool useBirk, useLayerWt, useFibreBundle, usePMTHit;
