@@ -101,21 +101,27 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 if (options.resonance == 'Z'):
     print('',30*"#",'\n # will harvest Z file \n',30*"#")
     _folderName = cms.string('AlCaReco/TkAlDiMuonAndVertex')
-    _doBkgFit = cms.bool(False)
-    _fitPar =  cms.PSet(mean_par = cms.vdouble(90.,60.,120.),
-                        width_par = cms.vdouble(5.0,0.0,120.0),
-                        sigma_par = cms.vdouble(5.0,0.0,120.0))
+    _doBkgFit = cms.bool(True)
+    _useRooCBShape = cms.bool(False)
+    _useRooCMSShape = cms.bool(True)
+    _fitPar =  cms.PSet(mean_par = cms.vdouble(90.,80.,100.),
+                        width_par = cms.vdouble(2.49,2.48,2.50),
+                        sigma_par = cms.vdouble(1.5,0.,10.))
 elif (options.resonance == 'Jpsi'):
     print('',30*"#",'\n # will harvest J/psi file \n',30*"#")
     _folderName =  cms.string('AlCaReco/TkAlJpsiMuMu')
     _doBkgFit = cms.bool(True)
+    _useRooCBShape = cms.bool(True)
+    _useRooCMSShape = cms.bool(True)
     _fitPar =  cms.PSet(mean_par = cms.vdouble(3.09, 2.7, 3.4),
-                        width_par = cms.vdouble(1.0, 0.0, 5.0),
-                        sigma_par = cms.vdouble(1.0, 0.0, 5.0))
+                        width_par = cms.vdouble(0.001, 0.0, 5e-3),
+                        sigma_par = cms.vdouble(0.1, 0.0, 5.0))
 elif (options.resonance == 'Upsilon'):
     print('',30*"#",'\n # will harvest Upsilon file \n',30*"#")
     _folderName =  cms.string('AlCaReco/TkAlUpsilonMuMu')
     _doBkgFit = cms.bool(True)
+    _useRooCBShape = cms.bool(True)
+    _useRooCMSShape = cms.bool(False)
     _fitPar =  cms.PSet(mean_par = cms.vdouble(9.46, 8.9, 9.9),
                         width_par = cms.vdouble(1.0, 0.0, 5.0),
                         sigma_par = cms.vdouble(1.0, 0.0, 5.0))
@@ -126,6 +132,8 @@ process.DiMuonMassBiasClient = cms.EDProducer("DiMuonMassBiasClient",
                                               fitBackground = _doBkgFit,
                                               debugMode = cms.bool(True),
                                               fit_par = _fitPar,
+                                              useRooCBShape = _useRooCBShape,
+                                              useRooCMSShape = _useRooCMSShape,
                                               MEtoHarvest = cms.vstring(
                                                   'DiMuMassVsMuMuPhi',
                                                   'DiMuMassVsMuMuEta',
