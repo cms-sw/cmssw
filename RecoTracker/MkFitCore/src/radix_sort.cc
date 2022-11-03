@@ -25,8 +25,8 @@ namespace mkfit {
   template <typename V, typename R>
   void radix_sort<V, R>::histo_loop(const std::vector<V>& values, rank_t* histos) {
     // Create histograms (counters). Counters for all passes are created in one run.
-    ubyte_t* p = (ubyte_t*)values.data();
-    ubyte_t* pe = p + (values.size() * c_NBytes);
+    const ubyte_t* p = (const ubyte_t*)values.data();
+    const ubyte_t* pe = p + (values.size() * c_NBytes);
     std::array<rank_t*, c_NBytes> ha;
     for (rank_t j = 0; j < c_NBytes; ++j)
       ha[j] = &histos[j << 8];
@@ -51,7 +51,7 @@ namespace mkfit {
       rank_t* cur_count = &histos[j << 8];
 
       // Get first byte - if that byte's counter equals nb, all values are the same.
-      ubyte_t first_entry_val = *(((ubyte_t*)values.data()) + j);
+      const ubyte_t first_entry_val = *(((const ubyte_t*)values.data()) + j);
       if (cur_count[first_entry_val] != nb) {
         // Create offsets
         link[0] = ranks2.data();
