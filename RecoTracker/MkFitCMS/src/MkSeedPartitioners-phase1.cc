@@ -1,3 +1,4 @@
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 #include "RecoTracker/MkFitCore/interface/Track.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
@@ -345,7 +346,7 @@ namespace {
     }
   }
 
-  struct register_seed_partitioners {
+  CMS_SA_ALLOW struct register_seed_partitioners {
     register_seed_partitioners() {
       IterationConfig::register_seed_partitioner("phase1:0", partitionSeeds0);
       IterationConfig::register_seed_partitioner("phase1:1", partitionSeeds1);
