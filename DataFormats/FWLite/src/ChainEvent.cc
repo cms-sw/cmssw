@@ -217,6 +217,10 @@ namespace fwlite {
     return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
   }
 
+  bool ChainEvent::getByTokenImp(edm::EDGetToken iToken, edm::WrapperBase const*& iValue) const {
+    return event_->getByTokenImp(iToken, iValue);
+  }
+
   edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) const {
     return event_->getByProductID(iID);
   }
