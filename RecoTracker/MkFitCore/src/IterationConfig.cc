@@ -1,3 +1,4 @@
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/Track.h"
@@ -125,7 +126,7 @@ namespace mkfit {
     };
 
     FuncCatalog &get_catalog() {
-      static FuncCatalog func_catalog;
+      CMS_SA_ALLOW static FuncCatalog func_catalog;
       return func_catalog;
     }
   }  // namespace

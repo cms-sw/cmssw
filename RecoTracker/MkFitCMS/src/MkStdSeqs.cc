@@ -1,3 +1,4 @@
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 #include "RecoTracker/MkFitCMS/interface/MkStdSeqs.h"
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
@@ -337,7 +338,7 @@ namespace mkfit {
     }
 
     namespace {
-      struct register_seed_cleaners {
+      CMS_SA_ALLOW struct register_seed_cleaners {
         register_seed_cleaners() {
           IterationConfig::register_seed_cleaner("phase1:default", clean_cms_seedtracks_iter);
         }
@@ -597,7 +598,7 @@ namespace mkfit {
     }
 
     namespace {
-      struct register_duplicate_cleaners {
+      CMS_SA_ALLOW struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
           IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates", clean_duplicates);
           IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits",
@@ -707,7 +708,7 @@ namespace mkfit {
     }
 
     namespace {
-      struct register_quality_filters {
+      CMS_SA_ALLOW struct register_quality_filters {
         register_quality_filters() {
           IterationConfig::register_candidate_filter("phase1:qfilter_n_hits", qfilter_n_hits<TrackCand>);
           IterationConfig::register_candidate_filter("phase1:qfilter_n_hits_pixseed",
