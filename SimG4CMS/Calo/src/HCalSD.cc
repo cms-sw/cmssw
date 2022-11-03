@@ -587,7 +587,8 @@ uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int 
       det = ((pos.perp() > minR) && (pos.perp() < maxR)) ? 4 : 3;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits " << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
+    edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits "
+                                << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
 #endif
   }
   if (numberingFromDDD.get()) {
