@@ -14,11 +14,13 @@
 #include "RooPlot.h"
 #include "RooRealVar.h"
 #include "RooVoigtian.h"
+#include "RooCBShape.h"
 
 //-----------------------------------------------------------------------------------
 DiMuonMassBiasClient::DiMuonMassBiasClient(edm::ParameterSet const& iConfig)
     : TopFolder_(iConfig.getParameter<std::string>("FolderName")),
       fitBackground_(iConfig.getParameter<bool>("fitBackground")),
+      useRooCBShape_(iConfig.getParameter<bool>("useRooCBShape")),
       useRooCMSShape_(iConfig.getParameter<bool>("useRooCMSShape")),
       debugMode_(iConfig.getParameter<bool>("debugMode")),
       MEtoHarvest_(iConfig.getParameter<std::vector<std::string>>("MEtoHarvest"))
@@ -133,9 +135,9 @@ void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
         edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
                                               << low_edge << "," << std::setprecision(2) << high_edge << ")";
       TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
-      Proj->SetTitle(Form("%s, bin: %i (%.2f,%.2f)", Proj->GetTitle(), bin, low_edge, high_edge));
+      Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
 
-      diMuonMassBias::fitOutputs results = fitVoigt(Proj);
+      diMuonMassBias::fitOutputs results = fitLineShape(Proj);
 
       if (results.isInvalid()) {
         edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
@@ -156,7 +158,7 @@ void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
 }
 
 //-----------------------------------------------------------------------------------
-diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool& fitBackground) const
+diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitLineShape(TH1* hist, const bool& fitBackground) const
 //-----------------------------------------------------------------------------------
 {
   if (hist->GetEntries() < diMuonMassBias::minimumHits) {
@@ -189,11 +191,18 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   RooDataHist datahist("datahist", "datahist", InvMass, RooFit::Import(*hist));
   datahist.plotOn(frame.get());
 
-  // parmaeters of the Voigtian
+  // parameters of the Voigtian
   RooRealVar mean("#mu", "mean", meanConfig_[0], meanConfig_[1], meanConfig_[2]);          //90.0, 60.0, 120.0 (for Z)
   RooRealVar width("width", "width", widthConfig_[0], widthConfig_[1], widthConfig_[2]);   // 5.0,  0.0, 120.0 (for Z)
   RooRealVar sigma("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);  // 5.0,  0.0, 120.0 (for Z)
   RooVoigtian voigt("voigt", "voigt", InvMass, mean, width, sigma);
+
+  // parameters of the Crystal-ball
+  RooRealVar peakCB("peakCB", "peakCB", meanConfig_[0], meanConfig_[1], meanConfig_[2]);
+  RooRealVar sigmaCB("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);
+  RooRealVar alphaCB("#alpha", "alpha", 1., 0., 10.);
+  RooRealVar nCB("n", "n", 1., 0., 100.);
+  RooCBShape crystalball("crystalball", "crystalball", InvMass, peakCB, sigmaCB, alphaCB, nCB);
 
   // for the simple background fit
   RooRealVar lambda("#lambda", "slope", 0., -50., 50.);
@@ -211,7 +220,29 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   RooRealVar s("N_{s}", "Number of signal events", 0, hist->GetEntries());
 
   if (fitBackground_) {
-    const auto& listPdf = useRooCMSShape_ ? RooArgList(voigt, exp_pdf) : RooArgList(voigt, expo);
+    RooArgList listPdf;
+    if (useRooCBShape_) {
+      if (useRooCMSShape_) {
+        // crystal-ball + CMS-shape fit
+        listPdf.add(crystalball);
+        listPdf.add(exp_pdf);
+      } else {
+        // crystal-ball + exponential fit
+        listPdf.add(crystalball);
+        listPdf.add(expo);
+      }
+    } else {
+      if (useRooCMSShape_) {
+        // voigtian + CMS-shape fit
+        listPdf.add(voigt);
+        listPdf.add(exp_pdf);
+      } else {
+        // voigtian + exponential fit
+        listPdf.add(voigt);
+        listPdf.add(expo);
+      }
+    }
+
     RooAddPdf fullModel("fullModel", "Signal + Background Model", listPdf, RooArgList(s, b));
     fullModel.fitTo(datahist, RooFit::PrintLevel(-1));
     fullModel.plotOn(frame.get(), RooFit::LineColor(kRed));
@@ -222,9 +253,18 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
     }
     fullModel.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));
   } else {
-    voigt.fitTo(datahist, RooFit::PrintLevel(-1));
-    voigt.plotOn(frame.get(), RooFit::LineColor(kRed));            //this will show fit overlay on canvas
-    voigt.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));  //this will display the fit parameters on canvas
+    if (useRooCBShape_) {
+      // use crystal-ball for a fit-only signal
+      crystalball.fitTo(datahist, RooFit::PrintLevel(-1));
+      crystalball.plotOn(frame.get(), RooFit::LineColor(kRed));  //this will show fit overlay on canvas
+      crystalball.paramOn(frame.get(),
+                          RooFit::Layout(0.65, 0.90, 0.90));  //this will display the fit parameters on canvas
+    } else {
+      // use voigtian for a fit-only signal
+      voigt.fitTo(datahist, RooFit::PrintLevel(-1));
+      voigt.plotOn(frame.get(), RooFit::LineColor(kRed));            //this will show fit overlay on canvas
+      voigt.paramOn(frame.get(), RooFit::Layout(0.65, 0.90, 0.90));  //this will display the fit parameters on canvas
+    }
   }
 
   // Redraw data on top and print / store everything
@@ -240,11 +280,11 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitVoigt(TH1* hist, const bool&
   }
   delete c1;
 
-  float mass_mean = mean.getVal();
-  float mass_sigma = sigma.getVal();
+  float mass_mean = useRooCBShape_ ? peakCB.getVal() : mean.getVal();
+  float mass_sigma = useRooCBShape_ ? sigmaCB.getVal() : sigma.getVal();
 
-  float mass_mean_err = mean.getError();
-  float mass_sigma_err = sigma.getError();
+  float mass_mean_err = useRooCBShape_ ? peakCB.getError() : mean.getError();
+  float mass_sigma_err = useRooCBShape_ ? sigmaCB.getError() : sigma.getError();
 
   Measurement1D resultM(mass_mean, mass_mean_err);
   Measurement1D resultW(mass_sigma, mass_sigma_err);
@@ -260,6 +300,7 @@ void DiMuonMassBiasClient::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::string>("FolderName", "DiMuonMassBiasMonitor");
   desc.add<bool>("fitBackground", false);
   desc.add<bool>("useRooCMSShape", false);
+  desc.add<bool>("useRooCBShape", false);
   desc.add<bool>("debugMode", false);
 
   edm::ParameterSetDescription fit_par;

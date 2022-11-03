@@ -20,10 +20,11 @@ __selectionName = 'TkAlJpsiMuMu'
 ALCARECOTkAlJpsiMuMuMassBiasClient = diMuonMassBiasClient.clone(
     FolderName = "AlCaReco/"+__selectionName,
     fitBackground = True,
-    useRooCMSShape = False,
+    useRooCBShape = True, # crystal-ball fit
+    useRooCMSShape = True,
     fit_par = dict(mean_par = [3.09, 2.7, 3.4],   # parameters of the mass pole
                    width_par = [1.0, 0.0, 5.0],
-                   sigma_par = [1.0, 0.0, 5.0])
+                   sigma_par = [0.01, 0.0, 5.0])
 )
 
 alcaTkAlJpsiMuMuBiasClients = cms.Sequence(ALCARECOTkAlJpsiMuMuMassBiasClient)
@@ -33,7 +34,8 @@ __selectionName = 'TkAlUpsilonMuMu'
 ALCARECOTkAlUpsilonMuMuMassBiasClient = diMuonMassBiasClient.clone(
     FolderName = "AlCaReco/"+__selectionName,
     fitBackground = True,
-    useRooCMSShape = False,
+    useRooCBShape = True, # crystal-ball fit
+    useRooCMSShape = True,
     fit_par = dict(mean_par = [9.46, 8.9, 9.9],  # parameters of the mass pole
                    width_par = [1.0, 0.0, 5.0],
                    sigma_par = [1.0, 0.0, 5.0])
