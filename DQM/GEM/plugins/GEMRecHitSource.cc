@@ -173,10 +173,10 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
     for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
       std::string strLabel = std::string(Form("M%i", i));
       if (mapCLSAverage_.isOperating()) {
-        mapCLSAverage_.FindHist(key)->setBinLabel(i, strLabel.c_str(), 2);
+        mapCLSAverage_.FindHist(key)->setBinLabel(i, strLabel, 2);
       }
       if (mapCLSOver5_.isOperating()) {
-        mapCLSOver5_.FindHist(key)->setBinLabel(i, strLabel.c_str(), 2);
+        mapCLSOver5_.FindHist(key)->setBinLabel(i, strLabel, 2);
       }
     }
   }
@@ -206,7 +206,7 @@ int GEMRecHitSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey k
     for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
       std::string strLabel = std::string(Form("M%i", i));
       if (mapCLSPerCh_.isOperating()) {
-        mapCLSPerCh_.FindHist(key)->setBinLabel(i, strLabel.c_str(), 2);
+        mapCLSPerCh_.FindHist(key)->setBinLabel(i, strLabel, 2);
       }
     }
   }
@@ -241,7 +241,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
 
       Int_t nEtaModule = eId.ieta();
       if (gid.station() == 2) {
-        nEtaModule = getIdxModule(2, 24 - ( nEtaModule - 1 ) / 4);
+        nEtaModule = getIdxModule(2, 24 - (nEtaModule - 1) / 4);
       }
       ME4IdsKey key4IEtaMod{gid.region(), gid.station(), gid.layer(), nEtaModule};
 

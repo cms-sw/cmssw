@@ -82,7 +82,7 @@ int GEMDQMBase::loadChambers() {
 
       const int station_number = station->station();
       const int num_superchambers = (station_number == 1 ? 36 : 18);
-      const int num_mod  = getNumModule(station->station());
+      const int num_mod = getNumModule(station->station());
       const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
