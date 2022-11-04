@@ -305,7 +305,8 @@ void EcalTrigPrimFunctionalAlgo::fillMap(
     LogDebug("EcalTPG") << "Fill mapping, Collection size = " << col->size();
     for (unsigned int i = 0; i < col->size(); ++i) {
       Digi samples((*col)[i]);
-      EcalTrigTowerDetId coarser = (*eTTmap_).towerOf(samples.id());
+      EcalTrigTowerDetId coarser =
+          eTTmap_ ? (*eTTmap_).towerOf(samples.id()) : EcalTrigTowerConstituentsMap::barrelTowerOf(samples.id());
       int index = getIndex(col, coarser);
       int stripnr = findStripNr(samples.id());
 
