@@ -135,6 +135,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # Set rawDataRepacker (HI and live) or hltFEDSelectorTCDS+hltFEDSelectorOnlineMetaData (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
+    onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
 else:
     # Use raw data from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
     rawDataInputTag = "hltFEDSelectorTCDS"
