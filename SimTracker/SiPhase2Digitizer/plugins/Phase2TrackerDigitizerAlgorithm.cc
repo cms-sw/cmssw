@@ -893,7 +893,8 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
     add_cross_talk(pixdet);
   if (addNoisyPixels_) {
     float thresholdInNoiseUnits = 99.9;
-    if (theNoiseInElectrons_) thresholdInNoiseUnits = theThresholdInE / theNoiseInElectrons_;
+    if (theNoiseInElectrons_)
+      thresholdInNoiseUnits = theThresholdInE / theNoiseInElectrons_;
     add_noisy_cells(pixdet, thresholdInNoiseUnits);
   }
 
