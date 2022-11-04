@@ -5,7 +5,12 @@
 #include <iostream>
 
 GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& conf)
-    : region_(region), station_(station), chamber_(chamber) {
+    : region_(region),
+      station_(station),
+      chamber_(chamber),
+      hasGE21Geometry16Partitions_(false),
+      lookupTableME11ILT_(nullptr),
+      lookupTableME21ILT_(nullptr) {
   isEven_ = chamber_ % 2 == 0;
 
   const edm::ParameterSet aux(conf.getParameter<edm::ParameterSet>("commonParam"));
