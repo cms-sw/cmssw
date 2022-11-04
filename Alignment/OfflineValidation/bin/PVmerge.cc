@@ -60,21 +60,7 @@ int merge(int argc, char* argv[]) {
   int w_dzPhiNormMax = validation.get_child_optional("w_dzPhiNormMax") ? validation.get<int>("w_dzPhiNormMax") : 1.8;
   int w_dxyEtaNormMax = validation.get_child_optional("w_dxyEtaNormMax") ? validation.get<int>("w_dxyEtaNormMax") : 1.8;
   int w_dzEtaNormMax = validation.get_child_optional("w_dzEtaNormMax") ? validation.get<int>("w_dzEtaNormMax") : 1.8;
-
-  //Set configuration string for CompareAlignments class
-  TString filesAndLabels;
-
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
-    filesAndLabels += childTree.second.get<std::string>("file") + "/PV.root" +
-                      childTree.second.get<std::string>("title") + "|" + childTree.second.get<std::string>("color") +
-                      "|" + childTree.second.get<std::string>("style") + " , ";
-  }
-
-  filesAndLabels.Remove(filesAndLabels.Length() - 3);
-
-  //Do file comparisons
-  CompareAlignments comparer(main_tree.get<std::string>("output"));
-  comparer.doComparison(filesAndLabels);
+  int iov = validation.get_child_optional("IOV") ? validation.get<int>("IOV") : 1;
 
   //Create plots
   // initialize the plot y-axis ranges
@@ -96,10 +82,10 @@ int merge(int argc, char* argv[]) {
                       w_dzEtaNormMax    // width of dz  vs Eta (norm)
   );
 
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
-    loadFileList((childTree.second.get<std::string>("file") + "/PV.root").c_str(),
+  for (const pair<string, pt::ptree>& childTree : alignments) {
+    loadFileList((childTree.second.get<string>("file")+Form("/PVValidation_%s_%d.root", childTree.first.c_str(), iov)).c_str(),
                  "PVValidation",
-                 childTree.second.get<std::string>("title"),
+                 childTree.second.get<string>("title"),
                  childTree.second.get<int>("color"),
                  childTree.second.get<int>("style"));
   }
