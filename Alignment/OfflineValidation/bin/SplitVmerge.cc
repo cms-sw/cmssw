@@ -39,25 +39,10 @@ int merge(int argc, char* argv[]) {
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
 
-  //Set configuration string for CompareAlignments class
-  TString filesAndLabels;
-
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
-    filesAndLabels += childTree.second.get<std::string>("file") + "/SplitV.root" +
-                      childTree.second.get<std::string>("title") + "|" + childTree.second.get<std::string>("color") +
-                      "|" + childTree.second.get<std::string>("style") + " , ";
-  }
-
-  filesAndLabels.Remove(filesAndLabels.Length() - 3);
-
-  //Do file comparisons
-  CompareAlignments comparer(main_tree.get<std::string>("output"));
-  comparer.doComparison(filesAndLabels);
-
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
-    PVResolution::loadFileList((childTree.second.get<std::string>("file") + "/SplitV.root").c_str(),
+  for (const pair<string, pt::ptree>& childTree : alignments) {
+    PVResolution::loadFileList((childTree.second.get<string>("file") + "/SplitV.root").c_str(),
 			       "PrimaryVertexResolution",
-			       childTree.second.get<std::string>("title"),
+			       childTree.second.get<string>("title"),
 			       childTree.second.get<int>("color"),
 			       childTree.second.get<int>("style"));
   }

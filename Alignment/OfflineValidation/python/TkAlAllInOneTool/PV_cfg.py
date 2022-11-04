@@ -234,7 +234,7 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
-            fileName = cms.string("{}/PV.root".format(config.get("output", os.getcwd()))),
+            fileName = cms.string("{}/PVValidation_{}_{}.root".format(config.get("output", os.getcwd()), config["alignment"].get("name", ""), config["validation"].get("IOV", 1.))),
             closeFileFast = cms.untracked.bool(True),
     )
 

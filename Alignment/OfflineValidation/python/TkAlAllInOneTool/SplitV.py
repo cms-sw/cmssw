@@ -13,21 +13,21 @@ def SplitV(config, validationDir):
     if not SplitVType in config["validations"]["SplitV"]: 
         raise Exception("No 'single' key word in config for SplitV") 
 
-    for datasetName in config["validations"]["SplitV"][SplitVType]:
-        for IOV in config["validations"]["SplitV"][SplitVType][datasetName]["IOV"]:
+    for singleName in config["validations"]["SplitV"][SplitVType]:
+        for IOV in config["validations"]["SplitV"][SplitVType][singleName]["IOV"]:
             ##Save IOV to loop later for merge jobs
             if not IOV in IOVs:
                 IOVs.append(IOV)
 
-            for alignment in config["validations"]["SplitV"][SplitVType][datasetName]["alignments"]:
+            for alignment in config["validations"]["SplitV"][SplitVType][singleName]["alignments"]:
                 ##Work directory for each IOV
-                workDir = "{}/SplitV/{}/{}/{}/{}".format(validationDir, SplitVType, datasetName, alignment, IOV)
+                workDir = "{}/SplitV/{}/{}/{}/{}".format(validationDir, SplitVType, singleName, alignment, IOV)
 
                 ##Write local config
                 local = {}
-                local["output"] = "{}/{}/SplitV/{}/{}/{}/{}".format(config["LFS"], config["name"], SplitVType, alignment, datasetName, IOV)
+                local["output"] = "{}/{}/SplitV/{}/{}/{}/{}".format(config["LFS"], config["name"], SplitVType, alignment, singleName, IOV)
                 local["alignment"] = copy.deepcopy(config["alignments"][alignment])
-                local["validation"] = copy.deepcopy(config["validations"]["SplitV"][SplitVType][datasetName])
+                local["validation"] = copy.deepcopy(config["validations"]["SplitV"][SplitVType][singleName])
                 local["validation"].pop("alignments")
                 local["validation"]["IOV"] = IOV
                 if "dataset" in local["validation"]:
@@ -37,7 +37,7 @@ def SplitV(config, validationDir):
 
                 ##Write job info
                 job = {
-                    "name": "SplitV_{}_{}_{}_{}".format(SplitVType, alignment, datasetName, IOV),
+                    "name": "SplitV_{}_{}_{}_{}".format(SplitVType, alignment, singleName, IOV),
                     "dir": workDir,
                     "exe": "cmsRun",
                     "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/SplitV_cfg.py".format(os.environ["CMSSW_BASE"]),
@@ -75,16 +75,17 @@ def SplitV(config, validationDir):
                 for alignment in config["alignments"]:
                     ##Deep copy necessary things from global config
                     local.setdefault("alignments", {})
-                    local["alignments"][alignment] = copy.deepcopy(config["alignments"][alignment])
-                    local["validation"] = copy.deepcopy(config["validations"]["SplitV"][SplitVType][mergeName])
-                    local["output"] = "{}/{}/SplitV/{}/{}/{}".format(config["LFS"], config["name"], SplitVType, mergeName, IOV)
+                    if alignment in config["validations"]["SplitV"]["single"][mergeName]["alignments"]:
+                        local["alignments"][alignment] = copy.deepcopy(config["alignments"][alignment])
+                local["validation"] = copy.deepcopy(config["validations"]["SplitV"][SplitVType][mergeName])
+                local["output"] = "{}/{}/SplitV/{}/{}/{}".format(config["LFS"], config["name"], SplitVType, mergeName, IOV)
 
                 ##Loop over all single jobs
                 for singleJob in jobs:
                     ##Get single job info and append to merge job if requirements fullfilled
-                    alignment, datasetName, singleIOV = singleJob["name"].split("_")[2:]    
+                    alignment, singleName, singleIOV = singleJob["name"].split("_")[2:]
 
-                    if int(singleIOV) == IOV and datasetName in config["validations"]["SplitV"][SplitVType][mergeName]["singles"]:
+                    if int(singleIOV) == IOV and singleName in config["validations"]["SplitV"][SplitVType][mergeName]["singles"]:
                         local["alignments"][alignment]["file"] = singleJob["config"]["output"]
                         job["dependencies"].append(singleJob["name"])
                         

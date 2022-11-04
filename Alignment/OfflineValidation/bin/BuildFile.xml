@@ -1,5 +1,7 @@
-<flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17 -lASImage" />
+<flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17 -lASImage -lMultiProc" />
 
+<lib name="MultiProc" />
+<use name="rootcore" />
 <use name="root" />
 <use name="rootgraphics"/>
 <use name="boost" />
@@ -10,6 +12,7 @@
 <lib name="stdc++fs" />
 <bin name="DMRmerge" file="DMRmerge.cc,Options.cc" />
 <bin name="PVmerge" file="PVmerge.cc,Options.cc" />
-<bin name="DMRtrends" file="DMRtrends.cc" />
-<bin name="GCP" file="GCP.cc,Options.cc" />
+<bin name="DMRtrends" file="DMRtrends.cc,Options.cc" />
+<bin name="PVtrends" file="PVtrends.cc,Options.cc" />
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
+<bin name="GCP" file="GCP.cc,Options.cc" />
