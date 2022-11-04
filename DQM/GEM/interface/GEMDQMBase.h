@@ -349,8 +349,8 @@ public:
       if (histCurr == nullptr)
         return -999;
       for (Int_t i = 1; i <= nNumBin; i++) {
-        Int_t nIdxCh = ( nIdxStart + i - 2 ) / nNumModules + 1;
-        Int_t nIdxMod = ( nIdxStart + i - 2 ) % nNumModules + 1;
+        Int_t nIdxCh = (nIdxStart + i - 2) / nNumModules + 1;
+        Int_t nIdxMod = (nIdxStart + i - 2) % nNumModules + 1;
         if (nNumModules > 1) {
           histCurr->setBinLabel(i, Form("#splitline{%i}{M%i}", nIdxCh, nIdxMod), nAxis);
         } else {
@@ -381,7 +381,8 @@ public:
         if (nNumBin > nNumVFATPerModule) {
           for (Int_t i = 0; i < nNumBin; i++) {
             Int_t nIModule = i / nNumVFATPerModule + 1;
-            histCurr->setBinLabel(i + 1, Form(( nAxis == 1 ? "#splitline{%i}{M%i}" : "%i (M%i)" ), i % nNumVFATPerModule, nIModule), nAxis);
+            histCurr->setBinLabel(
+                i + 1, Form((nAxis == 1 ? "#splitline{%i}{M%i}" : "%i (M%i)"), i % nNumVFATPerModule, nIModule), nAxis);
           }
         } else {
           for (Int_t i = 0; i < nNumBin; i++) {
@@ -509,7 +510,7 @@ public:
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
               nNumChambers_ == other.nNumChambers_ && nNumModules_ == other.nNumModules_ &&
-              nNumEtaPartitions_ == other.nNumEtaPartitions_ && nMaxVFAT_ == other.nMaxVFAT_ && 
+              nNumEtaPartitions_ == other.nNumEtaPartitions_ && nMaxVFAT_ == other.nMaxVFAT_ &&
               nFirstStrip_ == other.nFirstStrip_ && nNumDigi_ == other.nNumDigi_);
     };
 
@@ -519,9 +520,9 @@ public:
     Int_t nNumChambers_;       // the number of chambers in the current station
     Int_t nNumModules_;        // the number of modules in each chamber
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
-    Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
+    Int_t nMaxVFAT_;     // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
     Int_t nFirstStrip_;  // the index of the first strip
-    Int_t nNumDigi_;  // the number of digis of each VFAT
+    Int_t nNumDigi_;     // the number of digis of each VFAT
 
     Int_t nMinIdxChamber_;
     Int_t nMaxIdxChamber_;

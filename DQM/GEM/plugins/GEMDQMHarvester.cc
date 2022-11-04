@@ -235,33 +235,34 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
       Int_t nNumModule = mapNumModule_[nIdxLayer];  // FIXME: Is this way to obtain the module number fully general?
       // Obtaining the bin indices of chambers from their labels
       for (Int_t i = 1; i <= h2SrcVFATOcc->getNbinsX(); i++) {
-          std::string strLabel = h2SrcVFATOcc->getTH2F()->GetXaxis()->GetBinLabel(i);
-          std::string strSrc = strLabel;
-          std::vector<int> listNumExtract;
-          
-          while (strSrc.size() > 0) {
-              auto nPosDigit = strSrc.find_first_of("0123456789");
-              if (nPosDigit == std::string::npos) break;
-              std::stringstream ss;
-              ss << strSrc.substr(nPosDigit);
-              Int_t nExtract;
-              ss >> nExtract;
-              if (!ss.eof()) {
-                  ss >> strSrc;
-              } else {
-                  strSrc = "";
-              }
-              listNumExtract.push_back(nExtract);
-          }
+        std::string strLabel = h2SrcVFATOcc->getTH2F()->GetXaxis()->GetBinLabel(i);
+        std::string strSrc = strLabel;
+        std::vector<int> listNumExtract;
 
-          if (listNumExtract.size() < 1) {  // Errneous case; but the job should not be dead
-              edm::LogError("GEMDQMHarvester") << "Error: Wrong label of GEM VFAT occupancy plot: " << strLabel;
-          } else if (listNumExtract.size() > 1 && nNumModule > 1) {
-              Int_t nCh = ( listNumExtract[0] - 1 ) * nNumModule + listNumExtract[1];
-              mapIdxToChamberInOcc_[nIdxLayer][nCh] = i;
+        while (!strSrc.empty()) {
+          auto nPosDigit = strSrc.find_first_of("0123456789");
+          if (nPosDigit == std::string::npos)
+            break;
+          std::stringstream ss;
+          ss << strSrc.substr(nPosDigit);
+          Int_t nExtract;
+          ss >> nExtract;
+          if (!ss.eof()) {
+            ss >> strSrc;
           } else {
-              mapIdxToChamberInOcc_[nIdxLayer][listNumExtract[0]] = i;
+            strSrc = "";
           }
+          listNumExtract.push_back(nExtract);
+        }
+
+        if (listNumExtract.empty()) {  // Errneous case; but the job should not be dead
+          edm::LogError("GEMDQMHarvester") << "Error: Wrong label of GEM VFAT occupancy plot: " << strLabel;
+        } else if (listNumExtract.size() > 1 && nNumModule > 1) {
+          Int_t nCh = (listNumExtract[0] - 1) * nNumModule + listNumExtract[1];
+          mapIdxToChamberInOcc_[nIdxLayer][nCh] = i;
+        } else {
+          mapIdxToChamberInOcc_[nIdxLayer][listNumExtract[0]] = i;
+        }
       }
     }
 
@@ -633,8 +634,8 @@ void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
       if (nNumModule <= 1) {
         h2Summary->setBinLabel(i, Form("%i", i), 2);
       } else {
-        Int_t nCh = ( i - 1 ) / nNumModule + 1;
-        Int_t nModule = ( i - 1 ) / nNumModule + 1;
+        Int_t nCh = (i - 1) / nNumModule + 1;
+        Int_t nModule = (i - 1) / nNumModule + 1;
         h2Summary->setBinLabel(i, Form("%i M%i", nCh, nModule), 2);
       }
     }

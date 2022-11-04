@@ -248,7 +248,7 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   MEStationInfo &stationInfo = mapStationInfo_[key];
 
   Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
-  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * ( stationInfo.nMinIdxChamber_ - 1 ) + 1;
+  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * (stationInfo.nMinIdxChamber_ - 1) + 1;
   Int_t nNewMaxIdxChamber = stationInfo.nNumModules_ * stationInfo.nMaxIdxChamber_;
 
   nNewNumCh *= stationInfo.nNumModules_;
@@ -263,15 +263,13 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
 
   Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
-  mapStatusWarnVFATPerLayer_.SetBinConfX(
-      nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
+  mapStatusWarnVFATPerLayer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
   mapStatusWarnVFATPerLayer_.SetBinConfY(nNumVFATPerModule, -0.5);
   mapStatusWarnVFATPerLayer_.bookND(bh, key);
   mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
   mapStatusWarnVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
-  mapStatusErrVFATPerLayer_.SetBinConfX(
-      nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
+  mapStatusErrVFATPerLayer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
   mapStatusErrVFATPerLayer_.SetBinConfY(nNumVFATPerModule, -0.5);
   mapStatusErrVFATPerLayer_.bookND(bh, key);
   mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
@@ -454,12 +452,12 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     GEMDetId gid = (*ohIt).first;
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), gid.chamber()};  // WARNING: Chamber, not iEta
-    MEStationInfo& stationInfo = mapStationInfo_[key3];
+    MEStationInfo &stationInfo = mapStationInfo_[key3];
 
     const GEMOHStatusCollection::Range &range = (*ohIt).second;
     for (auto OHStatus = range.first; OHStatus != range.second; ++OHStatus) {
       Int_t nIdxModule = getIdxModule(gid.station(), OHStatus->chamberType());
-      Int_t nCh = ( gid.chamber() - 1 ) * stationInfo.nNumModules_ + nIdxModule;
+      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
       ME4IdsKey key4Mod{gid.region(), gid.station(), gid.layer(), nCh};  // WARNING: Chamber+Module, not iEta
 
       GEMOHStatus::Warnings warnings{OHStatus->warnings()};
@@ -514,20 +512,20 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     GEMDetId gid = (*vfatIt).first;
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};  // WARNING: Chamber, not iEta
-    MEStationInfo& stationInfo = mapStationInfo_[key3];
+    MEStationInfo &stationInfo = mapStationInfo_[key3];
     Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
     const GEMVFATStatusCollection::Range &range = (*vfatIt).second;
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
       Int_t nIdxModule = getIdxModule(gid.station(), vfatStat->chamberType());
-      Int_t nCh = ( gid.chamber() - 1 ) * stationInfo.nNumModules_ + nIdxModule;
+      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
       ME4IdsKey key4Mod{gid.region(), gid.station(), gid.layer(), nCh};  // WARNING: Chamber+Module, not iEta
 
       Int_t nIdxVFAT = vfatStat->vfatPosition();
       Int_t nIdxVFATMod = nIdxVFAT;
       if (stationInfo.nNumModules_ > 1) {
-        nIdxVFATMod = nIdxVFAT + nNumVFATPerModule * ( nIdxModule - 1 );
+        nIdxVFATMod = nIdxVFAT + nNumVFATPerModule * (nIdxModule - 1);
       }
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};

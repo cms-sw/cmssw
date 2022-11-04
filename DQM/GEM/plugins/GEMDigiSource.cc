@@ -22,23 +22,26 @@ void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& description
   descriptions.add("GEMDigiSource", desc);
 }
 
-void GEMDigiSource::LoadROMap(edm::EventSetup const &iSetup) {
+void GEMDigiSource::LoadROMap(edm::EventSetup const& iSetup) {
   //if (useDBEMap_)
   if (true) {
-    const auto &chMap = iSetup.getData(gemChMapToken_);
+    const auto& chMap = iSetup.getData(gemChMapToken_);
     auto gemChMap = std::make_unique<GEMChMap>(chMap);
 
     std::map<int, bool> mapCheckedType;
-    for (auto const &p : gemChMap->chamberMap()) {
-      auto &dc = p.second;
+    for (auto const& p : gemChMap->chamberMap()) {
+      auto& dc = p.second;
       GEMDetId gemChId(dc.detId);
       for (Int_t ieta = 1; ieta <= 24; ieta++) {
-        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1)) continue;
+        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1))
+          continue;
         mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = dc.chamberType;
-        if (mapCheckedType[dc.chamberType]) continue;
+        if (mapCheckedType[dc.chamberType])
+          continue;
         for (Int_t strip = 0; strip <= 3 * 128; strip++) {
-          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip)) continue;
-          auto &stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
+          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip))
+            continue;
+          auto& stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
           mapStripToVFAT_[{dc.chamberType, ieta, strip}] = stripInfo.vfatAdd;
         }
       }
@@ -50,18 +53,21 @@ void GEMDigiSource::LoadROMap(edm::EventSetup const &iSetup) {
     gemChMap->setDummy();
 
     std::map<int, bool> mapCheckedType;
-    for (auto const &p : gemChMap->chamberMap()) {
-      auto &dc = p.second;
+    for (auto const& p : gemChMap->chamberMap()) {
+      auto& dc = p.second;
       GEMDetId gemChId(dc.detId);
-      
+
       for (Int_t ieta = 1; ieta <= 24; ieta++) {
-        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1)) continue;
+        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1))
+          continue;
         mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = dc.chamberType;
-        if (mapCheckedType[dc.chamberType]) continue;
+        if (mapCheckedType[dc.chamberType])
+          continue;
         mapCheckedType[dc.chamberType] = true;
         for (Int_t strip = 0; strip <= 3 * 128; strip++) {
-          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip)) continue;
-          auto &stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
+          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip))
+            continue;
+          auto& stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
           mapStripToVFAT_[{dc.chamberType, ieta, strip}] = stripInfo.vfatAdd;
         }
       }
@@ -154,7 +160,7 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
   Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
-  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * ( stationInfo.nMinIdxChamber_ - 1 ) + 1;
+  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * (stationInfo.nMinIdxChamber_ - 1) + 1;
   Int_t nNewMaxIdxChamber = stationInfo.nNumModules_ * stationInfo.nMaxIdxChamber_;
 
   nNewNumCh *= stationInfo.nNumModules_;
@@ -232,7 +238,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
       const auto& digis_in_det = gemDigis->get(eId);
       auto nChamberType = mapChamberType_[{gid.station(), gid.layer(), gid.chamber(), eId.ieta()}];
       Int_t nIdxModule = getIdxModule(gid.station(), nChamberType);
-      Int_t nCh = ( gid.chamber() - 1 ) * stationInfo.nNumModules_ + nIdxModule;
+      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
         Int_t nIdxVFAT = mapStripToVFAT_[{nChamberType, eId.ieta(), d->strip()}];

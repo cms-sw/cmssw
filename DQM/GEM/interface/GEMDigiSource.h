@@ -36,7 +36,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void LoadROMap(edm::EventSetup const &iSetup);
+  void LoadROMap(edm::EventSetup const& iSetup);
 
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override{};
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
