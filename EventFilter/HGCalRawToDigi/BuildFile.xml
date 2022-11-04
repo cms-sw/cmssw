@@ -1,3 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Common"/> <!--FIXME move to a SimDataFormats/XXX subpackage? -->
+<use name="DataFormats/FEDRawData"/>
+<use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
