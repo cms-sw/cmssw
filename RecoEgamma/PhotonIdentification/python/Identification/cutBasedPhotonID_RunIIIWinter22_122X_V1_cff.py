@@ -164,14 +164,14 @@ cutBasedPhotonID_RunIIIWinter22_122X_V1_tight  = configureVIDCutBasedPhoID_V6 ( 
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-#central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_loose.idName,
-#                             '57d3fe8d9a1bff37aca5d13887138607233af1b5')
-#central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_medium.idName,
-#                             '114b047ad28e2aae54869847420514d74f2540b8')
-#central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_tight.idName,
-#                             '2e56bbbca90e9bc089e5a716412cc51f3de47cb3')
+central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_loose.idName,
+                             '57d3fe8d9a1bff37aca5d13887138607233af1b5')
+central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_medium.idName,
+                             '114b047ad28e2aae54869847420514d74f2540b8')
+central_id_registry.register(cutBasedPhotonID_RunIIIWinter22_122X_V1_tight.idName,
+                             '2e56bbbca90e9bc089e5a716412cc51f3de47cb3')
 
-#cutBasedPhotonID_RunIIIWinter22_122X_V1_loose.isPOGApproved = cms.untracked.bool(True)
-#cutBasedPhotonID_RunIIIWinter22_122X_V1_medium.isPOGApproved = cms.untracked.bool(True)
-#cutBasedPhotonID_RunIIIWinter22_122X_V1_tight.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_RunIIIWinter22_122X_V1_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_RunIIIWinter22_122X_V1_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_RunIIIWinter22_122X_V1_tight.isPOGApproved = cms.untracked.bool(True)
 
