@@ -683,7 +683,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # Txy parameter tuning
         if "Txy" in correctionLevel:
             datamc = "DATA" if self.getvalue("runOnData") else "MC"
-            self.tuneTxyParameters(process, corScheme, postfix, datamc, self.getvalue("campaign"), self.getvalue("era"))
+            self.tuneTxyParameters(process, correctionScheme, postfix, datamc, self.getvalue("campaign"), self.getvalue("era"))
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
             if self.getvalue("Puppi"):
                 getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
