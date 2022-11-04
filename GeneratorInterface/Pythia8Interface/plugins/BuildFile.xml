@@ -41,3 +41,7 @@
 <library file="Suep*.cc" name="GeneratorInterfacePythia8SUEPHook">
 </library>
 
+<library file="JetMatchingEWK*.cc" name="GeneratorInterfacePythia8JetMatchingFxFxHook">
+</library>
+
+
