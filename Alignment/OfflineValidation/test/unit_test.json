@@ -1,16 +1,34 @@
 {    
-    "LFS": "/eos/cms/store/group/alca_trackeralign/AlignmentValidation/AlignmentValidation/CMSSW_test_units",
-    "name": "test_yaml_new",
+    "LFS": "$CMSSW_BASE/src/UnitTest",
+    "name": "test_json",
     "alignments": {
         "unitTest": {
            "color": "1",
            "globaltag": "auto:phase1_2017_realistic",
            "style": "2101",
            "title": "unit test"
+        },
+	"prompt": {
+           "color": "600",
+           "globaltag": "auto:run3_data_promptlike",
+           "style": "2101",
+           "title": "prompt"
+        },
+	"legacy": {
+           "color": "418",
+           "globaltag": "auto:run2_data",
+           "style": "2101",
+           "title": "legacy"
         }
     },
     "validations": {
         "DMR": {
+             "trends": {
+                 "testUnits": {
+                      "singles": ["testUnits"],
+                      "Variables": ["median"]
+                 }
+             },
              "merge": {
                  "testUnits": {
                       "methods": ["mean", "rms"],
@@ -24,16 +42,22 @@
              },
              "single": {
                  "testUnits": {
-                      "IOV": ["317655"],
+                      "IOV": ["1"],
                       "alignments": ["unitTest"],
                       "trackcollection": "generalTracks",
                       "vertexcollection": "offlinePrimaryVertices",
                       "maxevents": "1",
-                      "maxtracks": "0"
+                      "maxtracks": "1"
                  }
              }
         },
         "PV": {
+	    "trends": {
+                 "testUnits": {
+                      "singles": ["testUnits"],
+                      "doUnitTest": "true"
+                 }
+             },
 	     "merge": {
                  "testUnits": {
                       "singles": ["testUnits"],
@@ -44,32 +68,75 @@
              },
              "single": {
                  "testUnits": {
-                      "IOV": ["317655"],
+                      "IOV": ["1"],
                       "alignments": ["unitTest"],
                       "trackcollection": "generalTracks",
                       "vertexcollection": "offlinePrimaryVertices",
-                      "maxevents": "1",
+                      "maxevents": "10",
                       "isda": "true",
-                      "ismc": "false"
+                      "ismc": "true"
                  }
              }
         },
 	"SplitV": {
-	    "merge": {
-                "testUnits": {
-                    "singles": ["testUnits"]
+	     "merge": {
+                 "testUnits": {
+                      "singles": ["testUnits"]
                  }
              },
              "single": {
                  "testUnits": {
-                     "IOV": ["1"],
-                     "alignments": ["unitTest"],
-                     "trackcollection": "generalTracks",
-		     "HLTSelection": "False",
-                     "triggerBits" : "HLT_*",
-                     "maxevents": "10"
+                      "IOV": ["1"],
+                      "alignments": ["unitTest"],
+                      "trackcollection": "generalTracks",
+		      "HLTSelection": "False",
+                      "triggerBits" : "HLT_*",
+                      "maxevents": "10"
                  }
              }
+        },
+        "GCP": {
+             "GCPdetUnits": {
+                 "levels": "DetUnit",
+                 "plotPng": "true"
+             },
+             "compare": {
+                 "GCPdetUnits": {
+                      "legacyVSprompt": {
+                      "reference": "legacy",
+                      "compared": "prompt",
+                      "IOVpairs": ["274094", "274094"]
+                    }
+                 }
+             }
+        }
+    },
+    "lines": {
+        "pixel": {
+             "line": {
+                 "title": "Pixel calibration update",
+                 "style": "kDotted",
+                 "color": "kGray"
+             },
+             "runs": ["186500", "195360", "197749", "200961", "203368", "204601", "206446", "238341", "246866", "253914", "255655", "271866", "276315", "278271", "280928", "290543", "297281", "298653", "299443", "300389", "301046", "302131", "303790", "303998", "304911", "313041", "314881", "316758", "317475", "317485", "317527", "317661", "317664", "318227", "320377", "321831", "322510", "322603", "323232", "324245"]
+        },
+        "years": {
+             "line": {
+                 "style": "kSolid",
+                 "color": "kBlack",
+                 "width": "1"
+             },
+             "runs": ["272008", "290543", "313041"],
+             "labels": ["2016", "2017", "2018"]
+        },
+        "phases": {
+             "line": {
+                 "style": "kSolid",
+                 "color": "kBlack",
+                 "width": "2"
+             },
+             "runs": ["272008", "290543"],
+             "labels": ["Phase-0", "Phase-1"]
         }
     }
 }

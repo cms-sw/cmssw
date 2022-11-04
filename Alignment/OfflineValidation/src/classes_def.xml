@@ -3,5 +3,8 @@
   <class name="EopVariables"/>
   <class name="pvCand"/>
   <class name="pvEvent"/>
-  <class name="EopElecVariables"/>
+  <class name="outTrends"/>
+  <class name="unrolledHisto"/>
+  <class name="std::map<TString, std::vector<double> >"/>
+  <class name="std::map<TString, std::vector<unrolledHisto> >"/>
 </lcgdict>
