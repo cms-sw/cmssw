@@ -29,8 +29,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-using namespace std;
-using namespace edm;
+#include <algorithm>
 
 class SiPixelPhase1EfficiencyExtras : public DQMEDHarvester {
 public:
@@ -51,11 +50,11 @@ SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras(const edm::Paramete
     : effFolderName_(iConfig.getParameter<std::string>("EffFolderName")),
       vtxFolderName_(iConfig.getParameter<std::string>("VtxFolderName")),
       instLumiFolderName_(iConfig.getParameter<std::string>("InstLumiFolderName")) {
-  LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras: Hello!" << endl;
+  edm::LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras: Hello!";
 }
 
 SiPixelPhase1EfficiencyExtras::~SiPixelPhase1EfficiencyExtras() {
-  LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::~SiPixelPhase1EfficiencyExtras: Destructor" << endl;
+  edm::LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::~SiPixelPhase1EfficiencyExtras: Destructor";
 }
 
 void SiPixelPhase1EfficiencyExtras::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {}
@@ -84,22 +83,21 @@ void SiPixelPhase1EfficiencyExtras::dqmEndJob(DQMStore::IBooker& iBooker, DQMSto
   //check which of the MEs exist and respond appropriately
   if (!eff_v_lumi_forward) {
     edm::LogWarning("SiPixelPhase1EfficiencyExtras")
-        << "no hitefficiency_per_Lumisection_per_PXDisk_PXForward ME is available in " << effFolderName_ << std::endl;
+        << "no hitefficiency_per_Lumisection_per_PXDisk_PXForward ME is available in " << effFolderName_;
     return;
   }
   if (!eff_v_lumi_barrel) {
     edm::LogWarning("SiPixelPhase1EfficiencyExtras")
-        << "no hitefficiency_per_Lumisection_per_PXLayer_PXBarrel ME is available in " << effFolderName_ << std::endl;
+        << "no hitefficiency_per_Lumisection_per_PXLayer_PXBarrel ME is available in " << effFolderName_;
     return;
   }
   if (!vtx_v_lumi) {
     edm::LogWarning("SiPixelPhase1EfficiencyExtras")
-        << "no NumberOfGoodPVtxVsLS_GenTK ME is available in " << vtxFolderName_ << std::endl;
+        << "no NumberOfGoodPVtxVsLS_GenTK ME is available in " << vtxFolderName_;
     createNvtx = false;
   }
   if (!scalLumi_v_lumi) {
-    edm::LogWarning("SiPixelPhase1EfficiencyExtras")
-        << "no lumiVsLS ME is available in " << instLumiFolderName_ << std::endl;
+    edm::LogWarning("SiPixelPhase1EfficiencyExtras") << "no lumiVsLS ME is available in " << instLumiFolderName_;
     createInstLumi = false;
   }
 
@@ -107,6 +105,10 @@ void SiPixelPhase1EfficiencyExtras::dqmEndJob(DQMStore::IBooker& iBooker, DQMSto
   if (vtx_v_lumi && vtx_v_lumi->getEntries() == 0)
     createNvtx = false;
   if (scalLumi_v_lumi && scalLumi_v_lumi->getEntries() == 0)
+    createInstLumi = false;
+
+  // if the max mean lumi is not higher than zero, do not create profiles with respect to lumi
+  if (createInstLumi and scalLumi_v_lumi->getTProfile()->GetMaximum() <= 0.)
     createInstLumi = false;
 
   double eff = 0.0;
@@ -169,11 +171,11 @@ void SiPixelPhase1EfficiencyExtras::dqmEndJob(DQMStore::IBooker& iBooker, DQMSto
       }
     }
   }
-  // Will pass if InstLumi ME exists and is not empty
+  // Will pass if InstLumi ME exists, is not empty, and max mean lumi is larger than zero
   if (createInstLumi) {
-    //Get the max value of inst lumi for plot
-    int yMax2 = scalLumi_v_lumi->getTProfile()->GetMaximum();
-    yMax2 = yMax2 + yMax2 * .1;
+    //Get the max value of inst lumi for plot (ensuring yMax2 is larger than zero)
+    int yMax2 = std::max(1., scalLumi_v_lumi->getTProfile()->GetMaximum());
+    yMax2 *= 1.1;
 
     //Book new histos
     MonitorElement* eff_v_scalLumi_barrel =
@@ -207,7 +209,7 @@ void SiPixelPhase1EfficiencyExtras::dqmEndJob(DQMStore::IBooker& iBooker, DQMSto
       scalLumi = scalLumi_v_lumi->getBinContent(iLumi);
 
       //Filter out useless iterations
-      if (scalLumi != 0) {
+      if (scalLumi > 0) {
         //Grab the bin number for the inst lumi
         binNumScal = eff_v_scalLumi_barrel->getTH2F()->FindBin(scalLumi);
 
