@@ -6,16 +6,17 @@
 //   To make plot of various quantities which are created by CaloSimHitStudy
 //   from one or two different settings
 //
-//     makeHitStudyPlots(file1, tag1, file2, tag2, toDo, ratio, save, dirnm)
+//     makeHitStudyPlots(file1, tag1, file2, tag2, todomin, todomax, gtitle,
+//                       ratio, save, dirnm)
 //
 //   where
-//     file1   std::string   Name of the first ROOT file [analRun3Old.root]
-//     tag1    std::string   Tag for the first file [Old]
-//     file2   std::string   Name of the second ROOT file [analRun3New.root]
-//     tag2    std::string   Tag for the second file [New]
-//     todo    int           The plot type to be made [0]
-//                           if -1, 6 different types are plotted
-//                           (3, 5, 8, 9, 10, 11)
+//     file1   std::string   Name of the first ROOT file [old/analRun3.root]
+//     file2   std::string   Name of the second ROOT file [new/analRun3.root]
+//     tag1    std::string   Tag for the first file [Bug]
+//     tag2    std::string   Tag for the second file [Fix]
+//     gtitle  std::string   Overall Titile [""]
+//     todomin int           Minimum type # of histograms to be plotted [0]
+//     todomax int           Maximum type # of histograms to be plotted [0]
 //     ratio   bool          if the ratio to be plotted [true]
 //                           (works when both files are active)
 //     save    bool          If the canvas is to be saved as jpg file [false]
@@ -42,35 +43,39 @@
 #include <iostream>
 #include <fstream>
 
-void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
-                       std::string tag1 = "Old",
-                       std::string file2 = "analRun3New.root",
-                       std::string tag2 = "New",
-                       int toDo = 0,
+void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
+                       std::string file2 = "corr/analRun3.root",
+                       std::string tag1 = "Bug",
+                       std::string tag2 = "Fix",
+		       std::string gtitle = "",
+                       int todomin = 0,
+                       int todomax = 0,
                        bool ratio = true,
                        bool save = false,
                        std::string dirnm = "CaloSimHitStudy") {
-  std::string names[18] = {"Edep",
-                           "EdepEM",
-                           "EdepHad",
-                           "EdepTk",
-                           "Etot",
-                           "EtotG",
-                           "Hit",
-                           "HitHigh",
-                           "HitLow",
-                           "HitMu",
-                           "HitTk",
-                           "Time",
-                           "TimeAll",
-                           "TimeTk",
-                           "EneInc",
-                           "EtaInc",
-                           "PhiInc",
-                           "PtInc"};
-  int numb[18] = {9, 9, 9, 16, 9, 9, 9, 1, 1, 1, 16, 9, 9, 16, 1, 1, 1, 1};
-  int rebin[18] = {10, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1};
-  int todos[6] = {3, 5, 8, 9, 10, 11};
+  const int plots = 20;
+  std::string names[plots] = {"Etot",
+			      "Hit",
+			      "EtotG",
+			      "Time",
+			      "eta",
+			      "phi",
+			      "EdepEM",
+			      "EdepHad",
+			      "EdepTk",
+			      "Edep",
+			      "HitHigh",
+			      "HitLow",
+			      "HitMu",
+			      "HitTk",
+			      "TimeAll",
+			      "TimeTk",
+			      "EneInc",
+			      "EtaInc",
+			      "PhiInc",
+			      "PtInc"};
+  int numb[plots] = {9, 9, 9, 9, 9, 9, 9, 9, 16, 9, 1, 1, 1, 16, 9, 16, 1, 1, 1, 1};
+  int rebin[plots] = {10, 10, 10, 10, 2, 4, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1};
   bool debug(false);
 
   gStyle->SetCanvasBorderMode(0);
@@ -100,30 +105,34 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
       tag += tag2;
     }
   }
-  int todoMin = (toDo >= 0) ? 0 : 0;
-  int todoMax = (toDo >= 0) ? 0 : 5;
-  std::cout << "Use " << nfile << " files from " << file1 << " and " << file2 << " and look for " << todoMin << ":"
-            << todoMax << std::endl;
-  for (int i0 = todoMin; i0 <= todoMax; ++i0) {
-    int todo = (todoMax == 0) ? toDo : todos[i0];
+  if ((todomin < 0) || (todomin >= plots))
+    todomin = 0;
+  if (todomax < todomin) {
+    todomax = todomin;
+  } else if (todomax >= plots) {
+    todomax = plots - 1;
+  }
+  std::cout << "Use " << nfile << " files from " << file1 << " and " << file2 << " and look for " << todomin << ":"
+            << todomax << std::endl;
+  for (int todo = todomin; todo <= todomax; ++todo) {
     for (int i1 = 0; i1 < numb[todo]; ++i1) {
       double y1(0.90), dy(0.12);
       double y2 = y1 - dy * nfile - 0.01;
       TLegend* leg = (ratio) ? (new TLegend(0.10, 0.86, 0.90, 0.90)) : (new TLegend(0.65, y2 - nfile * 0.04, 0.90, y2));
       leg->SetBorderSize(1);
       leg->SetFillColor(10);
-      TCanvas* pad;
       TH1D* hist0[nfile];
       char name[100], namec[100];
+      if (numb[todo] == 1) {
+	sprintf(name, "%s", names[todo].c_str());
+	sprintf(namec, "c_%s%s%s", names[todo].c_str(), tag.c_str(), gtitle.c_str());
+      } else {
+	sprintf(name, "%s%d", names[todo].c_str(), i1);
+	sprintf(namec, "c_%s%d%s%s", names[todo].c_str(), i1, tag.c_str(), gtitle.c_str());
+      }
+      TCanvas* pad = new TCanvas(namec, namec, 500, 500);
       for (int ifile = 0; ifile < nfile; ++ifile) {
         TDirectory* dir = (TDirectory*)file[ifile]->FindObjectAny(dirnm.c_str());
-        if (numb[todo] == 1) {
-          sprintf(name, "%s", names[todo].c_str());
-          sprintf(namec, "%s%s", names[todo].c_str(), tag.c_str());
-        } else {
-          sprintf(name, "%s%d", names[todo].c_str(), i1);
-          sprintf(namec, "%s%d%s", names[todo].c_str(), i1, tag.c_str());
-        }
         hist0[ifile] = static_cast<TH1D*>(dir->FindObjectAny(name));
         if (debug)
           std::cout << name << " read out at " << hist0[ifile] << " for " << tags[ifile] << std::endl;
@@ -138,6 +147,7 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
             hist->GetYaxis()->SetTitleOffset(1.4);
             if (rebin[todo] > 1)
               hist->Rebin(rebin[todo]);
+	    hist->SetTitle(gtitle.c_str());
             if (first == 0) {
               pad = new TCanvas(namec, namec, 500, 500);
               pad->SetRightMargin(0.10);
@@ -165,7 +175,7 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
             leg->Draw("same");
             pad->Update();
             if (save) {
-              sprintf(name, "c_%s.pdf", pad->GetName());
+              sprintf(name, "%s.pdf", pad->GetName());
               pad->Print(name);
             }
           }
@@ -176,17 +186,17 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
           int nbinR = nbin / rebin[todo];
           double xlow = hist0[0]->GetXaxis()->GetBinLowEdge(1);
           double xhigh = hist0[0]->GetXaxis()->GetBinLowEdge(nbin) + hist0[0]->GetXaxis()->GetBinWidth(nbin);
-          ;
           if (numb[todo] == 1) {
             sprintf(name, "%sRatio", names[todo].c_str());
-            sprintf(namec, "%sRatio%s", names[todo].c_str(), tag.c_str());
+            sprintf(namec, "c_%sRatio%s%s", names[todo].c_str(), tag.c_str(), gtitle.c_str());
           } else {
             sprintf(name, "%s%dRatio", names[todo].c_str(), i1);
-            sprintf(namec, "%s%dRatio%s", names[todo].c_str(), i1, tag.c_str());
+            sprintf(namec, "c_%s%dRatio%s%s", names[todo].c_str(), i1, tag.c_str(), gtitle.c_str());
           }
           pad = new TCanvas(namec, namec, 500, 500);
           TH1D* histr = new TH1D(name, hist0[0]->GetTitle(), nbinR, xlow, xhigh);
           sprintf(name, "Ratio (%s/%s)", tags[0].c_str(), tags[1].c_str());
+	  histr->SetTitle(gtitle.c_str());
           histr->GetXaxis()->SetTitle(hist0[0]->GetXaxis()->GetTitle());
           histr->GetYaxis()->SetTitle(name);
           histr->GetXaxis()->SetLabelOffset(0.005);
@@ -235,6 +245,10 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
             sumDen = 0;
           std::cout << tag1 << " vs " << tag2 << " " << hist0[0]->GetXaxis()->GetTitle() << " Mean deviation " << sumNum
                     << " +- " << sumDen << " maximum " << maxDev << std::endl;
+	  if (save) {
+	    sprintf(name, "%s.pdf", pad->GetName());
+	    pad->Print(name);
+	  }
         }
       }
     }
