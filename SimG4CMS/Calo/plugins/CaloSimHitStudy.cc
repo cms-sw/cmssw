@@ -107,11 +107,11 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
       storeRL_(ps.getUntrackedParameter<bool>("StoreRL", false)),
       testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", true)),
       tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
-      toks_calo_{edm::vector_transform(hitLab_,
-                                       [this](const std::string& name) {
-                                         return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-                                       })} {
+      tok_evt_(consumes<edm::HepMCProduct>(
+          edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      toks_calo_{edm::vector_transform(hitLab_, [this](const std::string& name) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+      })} {
   usesResource(TFileService::kSharedResource);
 
   for (unsigned i = 0; i != muonLab_.size(); i++)
@@ -252,21 +252,21 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for general tracking hits";
 #endif
   std::string dett[nTrack_] = {"Pixel Barrel (High)",
-			       "Pixel Endcap (High)",
-			       "TEC (High)",
-			       "TIB (High)",
-			       "TID (High)",
-			       "TOB (High)",
-			       "Pixel Barrel (Low)",
-			       "Pixel Endcap (Low)",
-			       "TEC (Low)",
-			       "TIB (Low)",
-			       "TID (Low)",
-			       "TOB (Low)",
-			       "RPC",
-			       "CSC",
-			       "DT",
-			       "GEM"};
+                               "Pixel Endcap (High)",
+                               "TEC (High)",
+                               "TIB (High)",
+                               "TID (High)",
+                               "TOB (High)",
+                               "Pixel Barrel (Low)",
+                               "Pixel Endcap (Low)",
+                               "TEC (Low)",
+                               "TIB (Low)",
+                               "TID (Low)",
+                               "TOB (Low)",
+                               "RPC",
+                               "CSC",
+                               "DT",
+                               "GEM"};
   double nhtMax[nTrack_] = {
       500., 500., 1000., 1000., 500., 1000., 5000., 2000., 10000., 5000., 2000., 5000., 500., 1000., 1000., 500.};
   for (int i = 0; i < nTrack_; i++) {
@@ -549,8 +549,8 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       }
       if (idx > 0) {
         timeAll_[idx]->Fill(time);
-	eta_[idx]->Fill(point.eta());
-	phi_[idx]->Fill(point.phi());
+        eta_[idx]->Fill(point.eta());
+        phi_[idx]->Fill(point.phi());
       }
     }
   }
