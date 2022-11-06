@@ -15,7 +15,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -24,6 +27,11 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <TH1F.h>
 
@@ -57,11 +65,15 @@ private:
   const std::vector<std::string> hitLab_;
   const double maxEnergy_, tmax_, eMIP_;
   const bool storeRL_, testNumber_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> toks_calo_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> toks_calo_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> toks_track_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> toks_tkHigh_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> toks_tkLow_;
+
+  const CaloGeometry* caloGeometry_;
+  const HcalGeometry* hcalGeom_;
 
   const std::vector<std::string> muonLab_ = {"MuonRPCHits", "MuonCSCHits", "MuonDTHits", "MuonGEMHits"};
   const std::vector<std::string> tkHighLab_ = {"TrackerHitsPixelBarrelHighTof",
@@ -77,10 +89,13 @@ private:
                                               "TrackerHitsTIDLowTof",
                                               "TrackerHitsTOBLowTof"};
 
-  TH1F *hit_[9], *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
-  TH1F *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
-  TH1F *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
-  TH1F *hitTk_[16], *edepTk_[16], *tofTk_[16], *edepC_[9], *edepT_[9];
+  static constexpr int nCalo_ = 9;
+  static constexpr int nTrack_ = 16;
+  TH1F *hit_[nCalo_], *time_[nCalo_], *edepEM_[nCalo_], *edepHad_[nCalo_];
+  TH1F *edep_[nCalo_], *etot_[nCalo_], *etotg_[nCalo_], *timeAll_[nCalo_];
+  TH1F *edepC_[nCalo_], *edepT_[nCalo_], *eta_[nCalo_], *phi_[nCalo_];
+  TH1F *hitMu, *hitHigh, *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
+  TH1F *hitTk_[nTrack_], *edepTk_[nTrack_], *tofTk_[nTrack_];
 };
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
@@ -90,13 +105,15 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
       tmax_(ps.getUntrackedParameter<double>("TimeCut", 100.0)),
       eMIP_(ps.getUntrackedParameter<double>("MIPCut", 0.70)),
       storeRL_(ps.getUntrackedParameter<bool>("StoreRL", false)),
-      testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", true)) {
+      testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", true)),
+      tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      toks_calo_{edm::vector_transform(hitLab_,
+                                       [this](const std::string& name) {
+                                         return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+                                       })} {
   usesResource(TFileService::kSharedResource);
 
-  tok_evt_ =
-      consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")));
-  for (unsigned i = 0; i != hitLab_.size(); i++)
-    toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_[i])));
   for (unsigned i = 0; i != muonLab_.size(); i++)
     toks_track_.emplace_back(consumes<edm::PSimHitContainer>(edm::InputTag(g4Label_, muonLab_[i])));
   for (unsigned i = 0; i != tkHighLab_.size(); i++)
@@ -133,9 +150,9 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for incident particle";
 #endif
-  std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
-  double nhcMax[9] = {40000., 2000., 2000., 40000., 10000., 10000., 10000., 2000., 10000.};
-  for (int i = 0; i < 9; i++) {
+  std::string dets[nCalo_] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
+  double nhcMax[nCalo_] = {40000., 2000., 2000., 40000., 10000., 10000., 10000., 2000., 10000.};
+  for (int i = 0; i < nCalo_; i++) {
     sprintf(name, "Hit%d", i);
     sprintf(title, "Number of hits in %s", dets[i].c_str());
     hit_[i] = tfile->make<TH1F>(name, title, 1000, 0., nhcMax[i]);
@@ -181,6 +198,16 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
     etotg_[i] = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     etotg_[i]->GetXaxis()->SetTitle(title);
     etotg_[i]->GetYaxis()->SetTitle("Events");
+    sprintf(name, "eta%d", i);
+    sprintf(title, "#eta of hit point in %s", dets[i].c_str());
+    eta_[i] = tfile->make<TH1F>(name, title, 100, -5.0, 5.0);
+    eta_[i]->GetXaxis()->SetTitle(title);
+    eta_[i]->GetYaxis()->SetTitle("Hits");
+    sprintf(name, "phi%d", i);
+    sprintf(title, "#phi of hit point in %s", dets[i].c_str());
+    phi_[i] = tfile->make<TH1F>(name, title, 100, -M_PI, M_PI);
+    phi_[i]->GetXaxis()->SetTitle(title);
+    phi_[i]->GetYaxis()->SetTitle("Hits");
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for first level of Calorimeter";
@@ -224,25 +251,25 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for general tracking hits";
 #endif
-  std::string dett[16] = {"Pixel Barrel (High)",
-                          "Pixel Endcap (High)",
-                          "TEC (High)",
-                          "TIB (High)",
-                          "TID (High)",
-                          "TOB (High)",
-                          "Pixel Barrel (Low)",
-                          "Pixel Endcap (Low)",
-                          "TEC (Low)",
-                          "TIB (Low)",
-                          "TID (Low)",
-                          "TOB (Low)",
-                          "RPC",
-                          "CSC",
-                          "DT",
-                          "GEM"};
-  double nhtMax[16] = {
+  std::string dett[nTrack_] = {"Pixel Barrel (High)",
+			       "Pixel Endcap (High)",
+			       "TEC (High)",
+			       "TIB (High)",
+			       "TID (High)",
+			       "TOB (High)",
+			       "Pixel Barrel (Low)",
+			       "Pixel Endcap (Low)",
+			       "TEC (Low)",
+			       "TIB (Low)",
+			       "TID (Low)",
+			       "TOB (Low)",
+			       "RPC",
+			       "CSC",
+			       "DT",
+			       "GEM"};
+  double nhtMax[nTrack_] = {
       500., 500., 1000., 1000., 500., 1000., 5000., 2000., 10000., 5000., 2000., 5000., 500., 1000., 1000., 500.};
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < nTrack_; i++) {
     sprintf(name, "HitTk%d", i);
     sprintf(title, "Number of hits in %s", dett[i].c_str());
     hitTk_[i] = tfile->make<TH1F>(name, title, 1000, 0., nhtMax[i]);
@@ -279,8 +306,11 @@ void CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.add("CaloSimHitStudy", desc);
 }
 
-void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
+void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const& set) {
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy:Run = " << e.id().run() << " Event = " << e.id().event();
+
+  caloGeometry_ = &set.getData(tokGeom_);
+  hcalGeom_ = static_cast<const HcalGeometry*>(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   const edm::Handle<edm::HepMCProduct> EvtHandle = e.getHandle(tok_evt_);
   const HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
@@ -363,23 +393,23 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nBad(0);
 #endif
   std::map<unsigned int, double> hitMap;
-  std::vector<double> etot(9, 0), etotG(9, 0);
+  std::vector<double> etot(nCalo_, 0), etotG(nCalo_, 0);
   for (int i = 0; i < nHit; i++) {
     double edep = hits[i].energy();
     double time = hits[i].time();
-    unsigned int id_ = hits[i].id();
+    unsigned int id = hits[i].id();
     double edepEM = hits[i].energyEM();
     double edepHad = hits[i].energyHad();
     if (indx == 0) {
       int dep = (hits[i].depth()) & PCaloHit::kEcalDepthIdMask;
       if (dep == 1)
-        id_ |= 0x20000;
+        id |= 0x20000;
       else if (dep == 2)
-        id_ |= 0x40000;
+        id |= 0x40000;
     }
-    std::map<unsigned int, double>::const_iterator it = hitMap.find(id_);
+    std::map<unsigned int, double>::const_iterator it = hitMap.find(id);
     if (it == hitMap.end()) {
-      hitMap.insert(std::pair<unsigned int, double>(id_, time));
+      hitMap.insert(std::pair<unsigned int, double>(id, time));
     }
     int idx = -1;
     if (indx != 3) {
@@ -417,10 +447,9 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       int subdet(0);
       if (testNumber_) {
         int ieta(0), phi(0), z(0), lay(0), depth(0);
-        HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, ieta, phi, lay);
+        HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, ieta, phi, lay);
       } else {
-        HcalDetId id = HcalDetId(id_);
-        subdet = id.subdet();
+        subdet = HcalDetId(id).subdet();
       }
       if (subdet == static_cast<int>(HcalBarrel)) {
         idx = indx + 2;
@@ -483,13 +512,16 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   std::map<unsigned int, double>::const_iterator it = hitMap.begin();
   for (; it != hitMap.end(); it++) {
     double time = it->second;
-    unsigned int id_ = (it->first);
+    GlobalPoint point;
+    DetId id(it->first);
+    if (indx != 2)
+      point = caloGeometry_->getPosition(id);
     int idx = -1;
     if (indx < 3) {
       if (indx == 0) {
-        if ((id_ & 0x20000) != 0)
+        if ((id & 0x20000) != 0)
           idx = indx + 1;
-        else if ((id_ & 0x40000) != 0)
+        else if ((id & 0x40000) != 0)
           idx = indx + 1;
         else
           idx = indx;
@@ -502,10 +534,9 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       int idx(-1), subdet(0);
       if (testNumber_) {
         int ieta(0), phi(0), z(0), lay(0), depth(0);
-        HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, ieta, phi, lay);
+        HcalTestNumbering::unpackHcalIndex(id.rawId(), subdet, z, depth, ieta, phi, lay);
       } else {
-        HcalDetId id = HcalDetId(id_);
-        subdet = id.subdet();
+        subdet = HcalDetId(id).subdet();
       }
       if (subdet == static_cast<int>(HcalBarrel)) {
         idx = indx + 2;
@@ -518,6 +549,8 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       }
       if (idx > 0) {
         timeAll_[idx]->Fill(time);
+	eta_[idx]->Fill(point.eta());
+	phi_[idx]->Fill(point.phi());
       }
     }
   }
@@ -531,7 +564,7 @@ void CaloSimHitStudy::analyzeHits(const edm::Handle<edm::PSimHitContainer>& hits
     label = tkHighLab_[indx];
   else if (indx >= 6 && indx < 12)
     label = tkLowLab_[indx - 6];
-  else if (indx >= 12 && indx < 16)
+  else if (indx >= 12 && indx < nTrack_)
     label = muonLab_[indx - 12];
   for (ihit = hits->begin(); ihit != hits->end(); ihit++) {
     edepTk_[indx]->Fill(ihit->energyLoss());
