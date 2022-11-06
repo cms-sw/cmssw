@@ -47,33 +47,16 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
                        std::string file2 = "corr/analRun3.root",
                        std::string tag1 = "Bug",
                        std::string tag2 = "Fix",
-		       std::string gtitle = "",
+                       std::string gtitle = "",
                        int todomin = 0,
                        int todomax = 0,
                        bool ratio = true,
                        bool save = false,
                        std::string dirnm = "CaloSimHitStudy") {
   const int plots = 20;
-  std::string names[plots] = {"Etot",
-			      "Hit",
-			      "EtotG",
-			      "Time",
-			      "eta",
-			      "phi",
-			      "EdepEM",
-			      "EdepHad",
-			      "EdepTk",
-			      "Edep",
-			      "HitHigh",
-			      "HitLow",
-			      "HitMu",
-			      "HitTk",
-			      "TimeAll",
-			      "TimeTk",
-			      "EneInc",
-			      "EtaInc",
-			      "PhiInc",
-			      "PtInc"};
+  std::string names[plots] = {"Etot",    "Hit",    "EtotG",  "Time",    "eta",    "phi",   "EdepEM",
+                              "EdepHad", "EdepTk", "Edep",   "HitHigh", "HitLow", "HitMu", "HitTk",
+                              "TimeAll", "TimeTk", "EneInc", "EtaInc",  "PhiInc", "PtInc"};
   int numb[plots] = {9, 9, 9, 9, 9, 9, 9, 9, 16, 9, 1, 1, 1, 16, 9, 16, 1, 1, 1, 1};
   int rebin[plots] = {10, 10, 10, 10, 2, 4, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1};
   bool debug(false);
@@ -124,11 +107,11 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
       TH1D* hist0[nfile];
       char name[100], namec[100];
       if (numb[todo] == 1) {
-	sprintf(name, "%s", names[todo].c_str());
-	sprintf(namec, "c_%s%s%s", names[todo].c_str(), tag.c_str(), gtitle.c_str());
+        sprintf(name, "%s", names[todo].c_str());
+        sprintf(namec, "c_%s%s%s", names[todo].c_str(), tag.c_str(), gtitle.c_str());
       } else {
-	sprintf(name, "%s%d", names[todo].c_str(), i1);
-	sprintf(namec, "c_%s%d%s%s", names[todo].c_str(), i1, tag.c_str(), gtitle.c_str());
+        sprintf(name, "%s%d", names[todo].c_str(), i1);
+        sprintf(namec, "c_%s%d%s%s", names[todo].c_str(), i1, tag.c_str(), gtitle.c_str());
       }
       TCanvas* pad = new TCanvas(namec, namec, 500, 500);
       for (int ifile = 0; ifile < nfile; ++ifile) {
@@ -147,7 +130,7 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
             hist->GetYaxis()->SetTitleOffset(1.4);
             if (rebin[todo] > 1)
               hist->Rebin(rebin[todo]);
-	    hist->SetTitle(gtitle.c_str());
+            hist->SetTitle(gtitle.c_str());
             if (first == 0) {
               pad = new TCanvas(namec, namec, 500, 500);
               pad->SetRightMargin(0.10);
@@ -196,7 +179,7 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
           pad = new TCanvas(namec, namec, 500, 500);
           TH1D* histr = new TH1D(name, hist0[0]->GetTitle(), nbinR, xlow, xhigh);
           sprintf(name, "Ratio (%s/%s)", tags[0].c_str(), tags[1].c_str());
-	  histr->SetTitle(gtitle.c_str());
+          histr->SetTitle(gtitle.c_str());
           histr->GetXaxis()->SetTitle(hist0[0]->GetXaxis()->GetTitle());
           histr->GetYaxis()->SetTitle(name);
           histr->GetXaxis()->SetLabelOffset(0.005);
@@ -245,10 +228,10 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
             sumDen = 0;
           std::cout << tag1 << " vs " << tag2 << " " << hist0[0]->GetXaxis()->GetTitle() << " Mean deviation " << sumNum
                     << " +- " << sumDen << " maximum " << maxDev << std::endl;
-	  if (save) {
-	    sprintf(name, "%s.pdf", pad->GetName());
-	    pad->Print(name);
-	  }
+          if (save) {
+            sprintf(name, "%s.pdf", pad->GetName());
+            pad->Print(name);
+          }
         }
       }
     }
