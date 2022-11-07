@@ -1,8 +1,6 @@
-#! /bin/tcsh
+#!/bin/tcsh
 
-cmsenv
-
-rehash
+eval `scram runtime -csh`
 
 #
 # old files in castor: rfdir /castor/cern.ch/cms/store/...
