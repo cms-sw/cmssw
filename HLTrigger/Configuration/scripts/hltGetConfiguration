@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-
-from __future__ import print_function
-import sys, os
+import sys
+import os
 import argparse
-from HLTrigger.Configuration.extend_argparse import *
 
-import HLTrigger.Configuration.Tools.confdb  as confdb
+from HLTrigger.Configuration.extend_argparse import *
+import HLTrigger.Configuration.Tools.confdb as confdb
 import HLTrigger.Configuration.Tools.options as options
 
 # define an argparse parser to parse our options
@@ -243,8 +242,19 @@ parser.add_argument('--help',
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
 
-cmdArgs = sys.argv
-cmdArgs[0] = os.path.basename(sys.argv[0])
+# do not include db-proxy options in 1st-line comment
+cmdArgs, skipNext = [], False
+for cmdArg in sys.argv:
+  if skipNext:
+    skipNext = False
+    continue
+  if cmdArg.startswith('--dbproxy'):
+    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp'):
+      skipNext = '=' not in cmdArg
+    continue
+  cmdArgs += [cmdArg]
+cmdArgs[0] = os.path.basename(cmdArgs[0])
+
 cmdLine = ' '.join(cmdArgs)
 print('# ' + cmdLine)
 print()
