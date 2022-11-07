@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun dumpHGCalCellDDD_cfg.py type=V17
+#   cmsRun dumpHGCalDDD_cfg.py type=V17
 #
-#   Options for type V16, V17
+#   Options for type V16, V17, V17n
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17")
+                  "type of operations: V16, V17, V17n")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -28,8 +28,8 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('GeomDump',Phase2C17I13M9)
 
-geomFile = "Geometry.HGCalCommonData.testHGCalCell" + options.type + "XML_cfi"
-fileName = "hgcalCell" + options.type + "DDD.root"
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+fileName = "hgcal" + options.type + "DDD.root"
 
 print("Geometry file: ", geomFile)
 print("Output file:   ", fileName)
