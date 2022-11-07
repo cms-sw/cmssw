@@ -266,7 +266,7 @@ run2_nanoAOD_94X2016.toModify(photonTable.variables,
         pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-                      
+
     )
 
 (run2_nanoAOD_94X2016 | run2_miniAOD_80XLegacy).toModify(slimmedPhotonsWithUserData.userFloats,

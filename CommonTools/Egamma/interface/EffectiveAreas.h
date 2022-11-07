@@ -7,8 +7,8 @@
 class EffectiveAreas {
 public:
   // Constructor, destructor
-  EffectiveAreas(const std::string& filename);
-  EffectiveAreas(const std::string& filename, const bool quadraticEAflag);
+//  EffectiveAreas(const std::string& filename);
+  EffectiveAreas(const std::string& filename, const bool quadraticEAflag = false);
 
   // Accessors
   const float getEffectiveArea(float eta) const;
@@ -30,6 +30,7 @@ private:
   const bool quadraticEAflag_;
   std::vector<float> linearEffectiveAreaValues_;
   std::vector<float> quadraticEffectiveAreaValues_;
+
 };
 
 #endif
