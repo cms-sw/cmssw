@@ -18,68 +18,66 @@
 // class
 
 class JetMatchingEWKFxFx : public Pythia8::JetMatching {
-
-public: 
+public:
   // Constructor and destructor
   JetMatchingEWKFxFx(const edm::ParameterSet& iConfig);
-  ~JetMatchingEWKFxFx(){}
-  
-  // Method declaration
-  bool initAfterBeams();
-  
-  bool canVetoPartonLevelEarly(){return true;}
-  bool doVetoPartonLevelEarly(const Pythia8::Event& event);
+  ~JetMatchingEWKFxFx() override {}
 
-  bool canVetoProcessLevel(){return true;}
-  bool doVetoProcessLevel(Pythia8::Event& event);
-   
+  // Method declaration
+  bool initAfterBeams() override;
+
+  bool canVetoPartonLevelEarly() override { return true; }
+  bool doVetoPartonLevelEarly(const Pythia8::Event& event) override;
+
+  bool canVetoProcessLevel() override { return true; }
+  bool doVetoProcessLevel(Pythia8::Event& event) override;
+
   // Shower step vetoes (after the first emission, for Shower-kT scheme)
-  int  numberVetoStep() {return 1;}
-  bool canVetoStep() { return doShowerKt; }
-  bool doVetoStep(int,  int, int, const Pythia8::Event& );
+  int numberVetoStep() override { return 1; }
+  bool canVetoStep() override { return doShowerKt; }
+  bool doVetoStep(int, int, int, const Pythia8::Event&) override;
 
   Pythia8::SlowJet* slowJetDJR;
 
-  Pythia8::vector<double> getDJR() { return DJR;}
-  Pythia8::pair<int,int> nMEpartons() { return nMEpartonsSave;}
+  Pythia8::vector<double> getDJR() { return DJR; }
+  Pythia8::pair<int, int> nMEpartons() { return nMEpartonsSave; }
 
   Pythia8::Event getWorkEventJet() { return workEventJetSave; }
   Pythia8::Event getProcessSubset() { return processSubsetSave; }
-  bool  getExclusive() { return exclusive; }
+  bool getExclusive() { return exclusive; }
   double getPTfirst() { return pTfirstSave; }
 
-
   // Different steps of the matching algorithm.
-  void sortIncomingProcess(const Pythia8::Event &);
+  void sortIncomingProcess(const Pythia8::Event&) override;
 
-  void jetAlgorithmInput(const Pythia8::Event &, int);
-  void runJetAlgorithm();
-  bool matchPartonsToJets(int);
-  int  matchPartonsToJetsLight();
-  int  matchPartonsToJetsHeavy();
-  int  matchPartonsToJetsOther();
+  void jetAlgorithmInput(const Pythia8::Event&, int) override;
+  void runJetAlgorithm() override;
+  bool matchPartonsToJets(int) override;
+  int matchPartonsToJetsLight() override;
+  int matchPartonsToJetsHeavy() override;
+  int matchPartonsToJetsOther();
   bool doShowerKtVeto(double pTfirst);
 
   // Functions to clear and set the jet clustering scales.
-  void clearDJR() { DJR.resize(0);}
-  void setDJR( const Pythia8::Event& event);
+  void clearDJR() { DJR.resize(0); }
+  void setDJR(const Pythia8::Event& event);
   // Functions to clear and set the jet clustering scales.
-  void clear_nMEpartons() { nMEpartonsSave.first = nMEpartonsSave.second =-1;}
-  void set_nMEpartons( const int nOrig, const int nMatch) {
+  void clear_nMEpartons() { nMEpartonsSave.first = nMEpartonsSave.second = -1; }
+  void set_nMEpartons(const int nOrig, const int nMatch) {
     clear_nMEpartons();
-    nMEpartonsSave.first  = nOrig;
+    nMEpartonsSave.first = nOrig;
     nMEpartonsSave.second = nMatch;
   };
 
   // Function to get the current number of partons in the Born state, as
   // read from LHE.
   int npNLO();
-  
+
 private:
   Pythia8::Event processSubsetSave;
   Pythia8::Event workEventJetSave;
   double pTfirstSave;
-  
+
   bool performVeto;
 
   Pythia8::vector<int> origTypeIdx[3];
@@ -92,7 +90,6 @@ private:
   Pythia8::vector<double> DJR;
 
   Pythia8::pair<int, int> nMEpartonsSave;
-
 };
 
 // Register in the UserHook factory
