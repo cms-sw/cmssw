@@ -47,7 +47,6 @@ public:
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
         relative_(iConfig.getParameter<bool>("relative")),
         doQuadratic_(iConfig.getParameter<bool>("doQuadratic")) {
-
     if ((typeid(T) == typeid(pat::Muon)) || (typeid(T) == typeid(pat::Electron)) ||
         typeid(T) == typeid(pat::IsolatedTrack)) {
       produces<edm::ValueMap<float>>("miniIsoChg");
@@ -74,21 +73,18 @@ public:
           std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath());
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
 
-      if ( doQuadratic_ ) {
+      if (doQuadratic_) {
+        produces<edm::ValueMap<float>>("PFIsoChgQuadratic");
+        produces<edm::ValueMap<float>>("PFIsoAllQuadratic");
 
-          produces<edm::ValueMap<float>>("PFIsoChgQuadratic");
-          produces<edm::ValueMap<float>>("PFIsoAllQuadratic");
-
-          quadratic_ea_pfiso_chg_ =
-                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")).fullPath(), true);
-          quadratic_ea_pfiso_ecal_ =
-                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_ECal")).fullPath(), true);
-          quadratic_ea_pfiso_hcal_ =
-                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_HCal")).fullPath(), true);
+        quadratic_ea_pfiso_chg_ = std::make_unique<EffectiveAreas>(
+            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")).fullPath(), true);
+        quadratic_ea_pfiso_ecal_ = std::make_unique<EffectiveAreas>(
+            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_ECal")).fullPath(), true);
+        quadratic_ea_pfiso_hcal_ = std::make_unique<EffectiveAreas>(
+            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_HCal")).fullPath(), true);
       }
-
     }
-
   }
 
   ~IsoValueMapProducer() override {}
@@ -154,7 +150,7 @@ void IsoValueMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent,
   if ((typeid(T) == typeid(pat::Photon))) {
     doPFIsoPho(iEvent);
     if (doQuadratic_)
-        doPFIsoPhoQuadratic(iEvent);
+      doPFIsoPhoQuadratic(iEvent);
   }
 }
 
@@ -270,12 +266,10 @@ void IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
     auto ea_neu = ea_pfiso_neu_->getEffectiveArea(fabs(getEtaForEA(&obj)));
     auto ea_pho = ea_pfiso_pho_->getEffectiveArea(fabs(getEtaForEA(&obj)));
 
-
     float scale = relative_ ? 1.0 / obj.pt() : 1;
     PFIsoChg.push_back(scale * std::max(0.0, chg - rho * ea_chg));
     PFIsoAll.push_back(PFIsoChg.back() +
                        scale * (std::max(0.0, neu - rho * ea_neu) + std::max(0.0, pho - rho * ea_pho)));
-
   }
 
   auto PFIsoChgV = std::make_unique<edm::ValueMap<float>>();
@@ -287,12 +281,9 @@ void IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   fillerAll.insert(src, PFIsoAll.begin(), PFIsoAll.end());
   fillerAll.fill();
 
-
   iEvent.put(std::move(PFIsoChgV), "PFIsoChg");
   iEvent.put(std::move(PFIsoAllV), "PFIsoAll");
-
 }
-
 
 template <typename T>
 void IsoValueMapProducer<T>::doPFIsoPhoQuadratic(edm::Event& iEvent) const {}
@@ -315,37 +306,34 @@ void IsoValueMapProducer<pat::Photon>::doPFIsoPhoQuadratic(edm::Event& iEvent) c
     auto ecal = obj.ecalPFClusterIso();
     auto hcal = obj.hcalPFClusterIso();
 
-    auto quadratic_ea_chg    = quadratic_ea_pfiso_chg_->getQuadraticEA(fabs(getEtaForEA(&obj)));
-    auto linear_ea_chg       = quadratic_ea_pfiso_chg_->getLinearEA(fabs(getEtaForEA(&obj)));
-    auto quadratic_ea_ecal   = quadratic_ea_pfiso_ecal_->getQuadraticEA(fabs(getEtaForEA(&obj)));
-    auto linear_ea_ecal      = quadratic_ea_pfiso_ecal_->getLinearEA(fabs(getEtaForEA(&obj)));
-    auto quadratic_ea_hcal   = quadratic_ea_pfiso_hcal_->getQuadraticEA(fabs(getEtaForEA(&obj)));
-    auto linear_ea_hcal      = quadratic_ea_pfiso_hcal_->getLinearEA(fabs(getEtaForEA(&obj)));
+    auto quadratic_ea_chg = quadratic_ea_pfiso_chg_->getQuadraticEA(fabs(getEtaForEA(&obj)));
+    auto linear_ea_chg = quadratic_ea_pfiso_chg_->getLinearEA(fabs(getEtaForEA(&obj)));
+    auto quadratic_ea_ecal = quadratic_ea_pfiso_ecal_->getQuadraticEA(fabs(getEtaForEA(&obj)));
+    auto linear_ea_ecal = quadratic_ea_pfiso_ecal_->getLinearEA(fabs(getEtaForEA(&obj)));
+    auto quadratic_ea_hcal = quadratic_ea_pfiso_hcal_->getQuadraticEA(fabs(getEtaForEA(&obj)));
+    auto linear_ea_hcal = quadratic_ea_pfiso_hcal_->getLinearEA(fabs(getEtaForEA(&obj)));
 
     float scale = relative_ ? 1.0 / obj.pt() : 1;
 
-    PFIsoChgQuadratic.push_back(scale * std::max(0.0, chg - ( quadratic_ea_chg * rho * rho + linear_ea_chg * rho )) );
+    PFIsoChgQuadratic.push_back(scale * std::max(0.0, chg - (quadratic_ea_chg * rho * rho + linear_ea_chg * rho)));
     PFIsoAllQuadratic.push_back(PFIsoChgQuadratic.back() +
-                                 scale * ( std::max(0.0, ecal - ( quadratic_ea_ecal * rho * rho + linear_ea_ecal * rho )) +
-                                           std::max(0.0, hcal - ( quadratic_ea_hcal * rho * rho + linear_ea_hcal * rho )) ) );
-
+                                scale * (std::max(0.0, ecal - (quadratic_ea_ecal * rho * rho + linear_ea_ecal * rho)) +
+                                         std::max(0.0, hcal - (quadratic_ea_hcal * rho * rho + linear_ea_hcal * rho))));
   }
 
   auto PFIsoChgQuadraticV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerChgQuadratic(*PFIsoChgQuadraticV);
-  fillerChgQuadratic.insert( src, PFIsoChgQuadratic.begin(), PFIsoChgQuadratic.end() );
+  fillerChgQuadratic.insert(src, PFIsoChgQuadratic.begin(), PFIsoChgQuadratic.end());
   fillerChgQuadratic.fill();
 
   auto PFIsoAllQuadraticV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerAllQuadratic(*PFIsoAllQuadraticV);
-  fillerAllQuadratic.insert( src, PFIsoAllQuadratic.begin(), PFIsoAllQuadratic.end() );
+  fillerAllQuadratic.insert(src, PFIsoAllQuadratic.begin(), PFIsoAllQuadratic.end());
   fillerAllQuadratic.fill();
-
 
   iEvent.put(std::move(PFIsoChgQuadraticV), "PFIsoChgQuadratic");
   iEvent.put(std::move(PFIsoAllQuadraticV), "PFIsoAllQuadratic");
 }
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename T>
@@ -386,19 +374,21 @@ void IsoValueMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& de
     desc.add<edm::InputTag>("rho_PFIso")
         ->setComment("rho to be used for effective-area based PF-isolation pileup subtraction for photons");
 
-
     desc.addOptional<edm::InputTag>("mapIsoEcal")->setComment("input ecal PF isolation calculated in VID for photons");
     desc.addOptional<edm::InputTag>("mapIsoHcal")->setComment("input hcal PF isolation calculated in VID for photons");
 
     desc.addOptional<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")
-            ->setComment(
-                "txt file containing quadratic effective areas to be used for charged PF-isolation pileup subtraction for photons");
+        ->setComment(
+            "txt file containing quadratic effective areas to be used for charged PF-isolation pileup subtraction for "
+            "photons");
     desc.addOptional<edm::FileInPath>("QuadraticEAFile_PFIso_ECal")
-            ->setComment(
-                "txt file containing quadratic effective areas to be used for ecal PF-isolation pileup subtraction for photons");
+        ->setComment(
+            "txt file containing quadratic effective areas to be used for ecal PF-isolation pileup subtraction for "
+            "photons");
     desc.addOptional<edm::FileInPath>("QuadraticEAFile_PFIso_HCal")
-            ->setComment(
-                "txt file containing quadratic effective areas to be used for hcal PF-isolation pileup subtraction for photons");
+        ->setComment(
+            "txt file containing quadratic effective areas to be used for hcal PF-isolation pileup subtraction for "
+            "photons");
   }
 
   std::string modname;
