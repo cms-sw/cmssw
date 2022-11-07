@@ -209,6 +209,7 @@ private:
   MonitorElement* mPt_1;
   MonitorElement* mPt_2;
   MonitorElement* mPt_3;
+  MonitorElement* mPt_log;
   MonitorElement* mEta;
   MonitorElement* mPhi;
   MonitorElement* mPt_uncor;
