@@ -3,19 +3,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include <iostream>
 
-class GEDValueMapAnalyzer : public edm::EDAnalyzer {
+class GEDValueMapAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   GEDValueMapAnalyzer(const edm::ParameterSet&);
-  ~GEDValueMapAnalyzer();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
 
 private:
   edm::InputTag inputTagValueMapElectrons_;
@@ -26,10 +24,6 @@ GEDValueMapAnalyzer::GEDValueMapAnalyzer(const edm::ParameterSet& iConfig) {
   inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidates");
   inputTagValueMapElectrons_ = iConfig.getParameter<edm::InputTag>("ElectronValueMap");
 }
-
-GEDValueMapAnalyzer::~GEDValueMapAnalyzer() { ; }
-
-void GEDValueMapAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) { ; }
 
 void GEDValueMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   edm::Handle<reco::PFCandidateCollection> pfCandidatesH;

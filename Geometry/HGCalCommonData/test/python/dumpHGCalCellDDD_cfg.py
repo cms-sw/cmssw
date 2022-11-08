@@ -1,7 +1,40 @@
+###############################################################################
+# Way to use this:
+#   cmsRun dumpHGCalCellDDD_cfg.py type=V17
+#
+#   Options for type V16, V17
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testHGCalCellXML_cfi")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('GeomDump',Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCalCell" + options.type + "XML_cfi"
+fileName = "hgcalCell" + options.type + "DDD.root"
+
+print("Geometry file: ", geomFile)
+print("Output file:   ", fileName)
+
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -21,6 +54,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('hgcalcellDDD.root'))
+                              outputFileName = cms.untracked.string(fileName))
 
 process.p = cms.Path(process.dump)

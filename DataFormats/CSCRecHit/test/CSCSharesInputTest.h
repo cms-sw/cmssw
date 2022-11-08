@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@
 
 #include "TNtuple.h"
 
-class CSCSharesInputTest : public edm::EDAnalyzer {
+class CSCSharesInputTest : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
 

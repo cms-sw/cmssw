@@ -27,6 +27,10 @@ The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used t
 // user include files
 
 // forward declarations
+namespace fwlite {
+  class EventBase;
+}
+
 namespace edm {
   class EDConsumerBase;
   template <typename T>
@@ -66,6 +70,7 @@ namespace edm {
   class EDGetTokenT {
     friend class EDConsumerBase;
     friend class EDGetToken;
+    friend class ::fwlite::EventBase;
 
   public:
     constexpr EDGetTokenT() : m_value{s_uninitializedValue} {}

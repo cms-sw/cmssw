@@ -167,11 +167,9 @@ void PileupJetIDVarProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("srcJet")->setComment("jet input collection");
-  desc.add<edm::InputTag>("srcPileupJetId")->setComment("StoredPileupJetIdentifier name");
-  std::string modname;
-  modname += "PileupJetIDVarProducer";
-  descriptions.add(modname, desc);
+  desc.add<edm::InputTag>("srcJet")->setComment("pat::Jet input collection");
+  desc.add<edm::InputTag>("srcPileupJetId")->setComment("StoredPileupJetIdentifier ValueMap input collection");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

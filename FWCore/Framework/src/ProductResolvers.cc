@@ -499,7 +499,11 @@ namespace edm {
   void TransformingProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
-    index_ = worker_->transformIndex(branchDescription());
+    // worker can be missing if the corresponding module is
+    // unscheduled and none of its products are consumed
+    if (worker_) {
+      index_ = worker_->transformIndex(branchDescription());
+    }
   }
 
   ProductResolverBase::Resolution TransformingProductResolver::resolveProduct_(Principal const&,

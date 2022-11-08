@@ -12,7 +12,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
@@ -31,7 +31,7 @@ class SiStripEventSummary;
 /**
    @class SiStripCommissioningSource
 */
-class SiStripCommissioningSource : public edm::EDAnalyzer {
+class SiStripCommissioningSource : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:  // ---------- Public interface ----------
   /** Map of task objects, identified through FedChanelId */
   typedef std::map<unsigned int, CommissioningTask*> TaskMap;
@@ -48,6 +48,7 @@ public:  // ---------- Public interface ----------
   ~SiStripCommissioningSource() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, const edm::EventSetup&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 

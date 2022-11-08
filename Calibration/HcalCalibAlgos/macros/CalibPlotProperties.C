@@ -36,7 +36,7 @@
 //                               correction  (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
-//                               correction (-2)
+//                               correction (-8)
 //   flag (int)                = 6 digit integer (mlthdo) with control
 //                               information (m=0/1 for controlling creation
 //                               of depth depedendent histograms;
@@ -241,7 +241,7 @@ public:
                       const std::string &prefix = "",
                       const char *corrFileName = "",
                       const char *rcorFileName = "",
-                      int puCorr = -1,
+                      int puCorr = -8,
                       int flag = 101111,
                       bool dataMC = true,
                       int truncateFlag = 0,

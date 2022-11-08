@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SpecParSection label="regions.xml" eval="true">
+    <SpecPar name="hcalProdCutsPar">
+      <PartSelector path="//CALO"/>
+      <PartSelector path="//MBAT"/>
+      <PartSelector path="//MBBT.*"/>
+      <PartSelector path="//VCAL"/>
+      <Parameter name="CMSCutsRegion" value="HcalRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="1*mm"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

@@ -45,6 +45,8 @@ upgradeKeys[2026] = [
     '2026D95PU',
     '2026D96',
     '2026D96PU',
+    '2026D97',
+    '2026D97PU',
 ]
 
 # pre-generation of WF numbers
@@ -335,6 +337,8 @@ upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
 class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        # skip ALCA step as products might not be available
+        elif 'ALCA' in step: stepDict[stepName][k] = None
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return ('2017' in key or '2018' in key or '2021' in key or '2026' in key) and ('FS' not in key)
@@ -348,6 +352,8 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
         'HARVESTNano',
         'RecoFakeHLT',
         'HARVESTFakeHLT',
+        'ALCA',
+        'ALCAPhase2'
     ],
     suffix = '_pixelTrackingOnly',
     offset = 0.5,
@@ -630,6 +636,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'HARVESTNano',
                 'Nano',
                 'ALCA',
+                'ALCAPhase2'
             ],
             PU = [],
             **kwargs)
@@ -1294,6 +1301,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'HARVESTNano',
         'MiniAOD',
         'ALCA',
+        'ALCAPhase2',
         'Nano',
     ],
     PU = [
@@ -1308,6 +1316,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'HARVESTNano',
         'MiniAOD',
         'ALCA',
+        'ALCAPhase2',
         'Nano',
     ],
     suffix = '_ProdLike',
@@ -2151,6 +2160,13 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D96',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D97' : {
+        'Geom' : 'Extended2026D97',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },

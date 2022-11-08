@@ -23,10 +23,6 @@ PFSuperClusterReader::PFSuperClusterReader(const edm::ParameterSet& iConfig) {
   inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidate");
 }
 
-PFSuperClusterReader::~PFSuperClusterReader() { ; }
-
-void PFSuperClusterReader::beginRun(edm::Run const&, edm::EventSetup const&) { ; }
-
 void PFSuperClusterReader::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   edm::Handle<reco::GsfTrackCollection> gsfTracksH;
   bool found = iEvent.getByLabel(inputTagGSFTracks_, gsfTracksH);
