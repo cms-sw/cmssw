@@ -97,7 +97,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     },
@@ -134,7 +134,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     },
@@ -171,7 +171,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     },
@@ -207,7 +207,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, phase2_3DPixels, trackingPhase2PU140",
     },
@@ -243,7 +243,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, phase2_squarePixels, trackingPhase2PU140",
     },
@@ -279,7 +279,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     }, 
@@ -316,7 +316,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
+            'trackerGeometry.applyAlignment = False',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     }
@@ -1060,7 +1060,7 @@ timingDict = {
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
+            'mtdGeometry.applyAlignment = False'
         ],
         "era" : "phase2_timing, phase2_timing_layer",
     },
@@ -1088,7 +1088,7 @@ timingDict = {
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
+            'mtdGeometry.applyAlignment = False'
         ],
         "era" : "phase2_timing, phase2_timing_layer",
     },
@@ -1116,7 +1116,7 @@ timingDict = {
            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-           'mtdGeometry.applyAlignment = cms.bool(False)'
+           'mtdGeometry.applyAlignment = False'
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
@@ -1144,7 +1144,7 @@ timingDict = {
            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-           'mtdGeometry.applyAlignment = cms.bool(False)'
+           'mtdGeometry.applyAlignment = False'
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
@@ -1172,7 +1172,7 @@ timingDict = {
            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-           'mtdGeometry.applyAlignment = cms.bool(False)'
+           'mtdGeometry.applyAlignment = False'
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
@@ -1200,7 +1200,7 @@ timingDict = {
            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-           'mtdGeometry.applyAlignment = cms.bool(False)'
+           'mtdGeometry.applyAlignment = False'
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
