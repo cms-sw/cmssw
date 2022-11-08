@@ -66,10 +66,11 @@ LocalPoint MTDCPEBase::localPosition(DetParam const& dp, ClusterParam& cp) const
 }
 
 LocalError MTDCPEBase::localError(DetParam const& dp, ClusterParam& cp) const {
-  constexpr double one_over_twelve = 1. / 12.;
   MeasurementPoint pos(cp.theCluster->x(), cp.theCluster->y());
-  MeasurementError simpleRect(one_over_twelve, 0, one_over_twelve);
-  return dp.theTopol->localError(pos, simpleRect);
+  float sigma2 = cp.theCluster->positionError(sigma_flat);
+  sigma2 *= sigma2;
+  MeasurementError posErr(sigma2, 0, sigma2);
+  return dp.theTopol->localError(pos, posErr);
 }
 
 MTDCPEBase::TimeValue MTDCPEBase::clusterTime(DetParam const& dp, ClusterParam& cp) const {
