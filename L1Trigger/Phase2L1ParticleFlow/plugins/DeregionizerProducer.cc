@@ -17,12 +17,17 @@ class DeregionizerProducer : public edm::stream::EDProducer<> {
 public:
   explicit DeregionizerProducer(const edm::ParameterSet &);
   ~DeregionizerProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ParameterSet config_;
   edm::EDGetTokenT<l1t::PFCandidateRegionalOutput> token_;
+  std::vector<edm::ParameterSet> linkConfigs_;
+  const unsigned int nInputFramesPerBX_;
   l1ct::DeregionizerEmulator emulator_;
+  l1ct::DeregionizerInput input_;
+  std::vector<uint32_t> boardOrder_, nOutputFramesPerBX_, nPuppiFramesPerRegion_, nLinksPuppi_, nPuppiPerRegion_;
+  std::vector<std::vector<uint32_t>> outputRegions_;
+  const unsigned int tmuxFactor_ = 6;  // not really configurable in current architecture
 
   std::unordered_map<const l1t::PFCandidate *, l1t::PFClusterRef> clusterRefMap_;
   std::unordered_map<const l1t::PFCandidate *, l1t::PFTrackRef> trackRefMap_;
@@ -36,7 +41,10 @@ private:
 DeregionizerProducer::DeregionizerProducer(const edm::ParameterSet &iConfig)
     : config_(iConfig),
       token_(consumes<l1t::PFCandidateRegionalOutput>(iConfig.getParameter<edm::InputTag>("RegionalPuppiCands"))),
-      emulator_(iConfig) {
+      linkConfigs_(iConfig.getParameter<std::vector<edm::ParameterSet>>("linkConfigs")),
+      nInputFramesPerBX_(iConfig.getParameter<uint32_t>("nInputFramesPerBX")),
+      emulator_(iConfig),
+      input_(linkConfigs_) {
   produces<l1t::PFCandidateCollection>("Puppi");
   produces<l1t::PFCandidateCollection>("TruncatedPuppi");
 }
@@ -55,7 +63,6 @@ void DeregionizerProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
 
   iEvent.getByToken(token_, src);
 
-  std::vector<float> regionEtas, regionPhis;
   std::vector<l1ct::OutputRegion> outputRegions;
   std::vector<l1ct::PuppiObjEmu> hwOut;
   std::vector<l1t::PFCandidate> edmOut;
@@ -86,16 +93,12 @@ void DeregionizerProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
                                        << "] = " << tempOutputRegion.puppi.back().floatEta() << ", phi[" << i
                                        << "] = " << tempOutputRegion.puppi.back().floatPhi();
     }
-    if (!tempOutputRegion.puppi.empty()) {
-      regionEtas.push_back(eta);
-      regionPhis.push_back(phi);
-      outputRegions.push_back(tempOutputRegion);
-    }
+    outputRegions.push_back(tempOutputRegion);
   }
 
-  l1ct::DeregionizerInput in = l1ct::DeregionizerInput(regionEtas, regionPhis, outputRegions);
+  std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> layer2In = input_.orderInputs(outputRegions);
 
-  emulator_.run(in, hwOut, hwTruncOut);
+  emulator_.run(layer2In, hwOut, hwTruncOut);
 
   DeregionizerProducer::hwToEdm_(hwOut, edmOut);
   DeregionizerProducer::hwToEdm_(hwTruncOut, edmTruncOut);
@@ -168,20 +171,6 @@ void DeregionizerProducer::setRefs_(l1t::PFCandidate &pf, const l1ct::PuppiObjEm
     }
     pf.setMuon(match->second);
   }
-}
-
-void DeregionizerProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  // DeregionizerProducer
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("RegionalPuppiCands", edm::InputTag("l1tLayer1", "PuppiRegional"));
-  desc.add<unsigned int>("nPuppiFinalBuffer", 128);
-  desc.add<unsigned int>("nPuppiPerClk", 6);
-  desc.add<unsigned int>("nPuppiFirstBuffers", 12);
-  desc.add<unsigned int>("nPuppiSecondBuffers", 32);
-  desc.add<unsigned int>("nPuppiThirdBuffers", 64);
-  descriptions.add("DeregionizerProducer", desc);
-  // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
