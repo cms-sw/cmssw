@@ -127,6 +127,18 @@ public:
     return weighted_mean(this->theHitENERGY, y_pos);
   }
 
+  inline float positionError(const float sigmaPos) const {
+    float sumW2(0.f), sumW(0.f);
+    for (const auto& hitW : theHitENERGY) {
+      sumW2 += hitW * hitW;
+      sumW += hitW;
+    }
+    if (sumW > 0)
+      return sigmaPos * std::sqrt(sumW2) / sumW;
+    else
+      return -999.f;
+  }
+
   inline float time() const {
     auto t = [this](unsigned int i) { return this->theHitTIME[i]; };
     return weighted_mean(this->theHitENERGY, t);
