@@ -96,6 +96,30 @@ private:
   const static int min_valid_pixel_hits_;
 
   std::map<reco::CandidatePtr::key_type, float> puppi_wgt_cache;
+
+  const static std::vector<std::string> particle_features_scouting_;
+  const bool use_scouting_features_;
+  edm::EDGetTokenT<edm::ValueMap<float>> normchi2_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> dz_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> dxy_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> dzsig_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> dxysig_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<int>> lostInnerHits_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<int>> quality_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> trkPt_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> trkEta_value_map_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> trkPhi_value_map_token_;
+
+  edm::Handle<edm::ValueMap<float>> normchi2_value_map_;
+  edm::Handle<edm::ValueMap<float>> dz_value_map_;
+  edm::Handle<edm::ValueMap<float>> dxy_value_map_;
+  edm::Handle<edm::ValueMap<float>> dzsig_value_map_;
+  edm::Handle<edm::ValueMap<float>> dxysig_value_map_;
+  edm::Handle<edm::ValueMap<int>> lostInnerHits_value_map_;
+  edm::Handle<edm::ValueMap<int>> quality_value_map_;
+  edm::Handle<edm::ValueMap<float>> trkPt_value_map_;
+  edm::Handle<edm::ValueMap<float>> trkEta_value_map_;
+  edm::Handle<edm::ValueMap<float>> trkPhi_value_map_;
 };
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_{
@@ -138,6 +162,15 @@ const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_
                                                                                      "jet_pfcand_trackjet_decayL",
                                                                                      "jet_pfcand_puppiw",
                                                                                      "pfcand_mask"};
+
+const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_scouting_{
+    "pfcand_quality",       "pfcand_charge",  "pfcand_isEl",           "pfcand_isMu",
+    "pfcand_isChargedHad",  "pfcand_isGamma", "pfcand_isNeutralHad",   "pfcand_phirel",
+    "pfcand_etarel",        "pfcand_deltaR",  "pfcand_abseta",         "pfcand_ptrel_log",
+    "pfcand_erel_log",      "pfcand_pt_log",  "pfcand_normchi2",       "pfcand_dz",
+    "pfcand_dxy",           "pfcand_dxysig",  "pfcand_btagEtaRel",     "pfcand_btagPtRatio",
+    "pfcand_btagPParRatio", "pfcand_mask",    "pfcand_pt_log_nopuppi", "pfcand_dzsig",
+    "pfcand_e_log_nopuppi", "pfcand_ptrel",   "pfcand_erel",           "pfcand_lostInnerHits"};
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_{"sv_mask",
                                                                            "sv_ptrel",
@@ -195,7 +228,8 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
       use_puppi_value_map_(false),
       use_pvasq_value_map_(false),
       track_builder_token_(
-          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      use_scouting_features_(iConfig.getParameter<bool>("use_scouting_features")) {
   const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
@@ -210,6 +244,56 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
     pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
     pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
     use_pvasq_value_map_ = true;
+  }
+
+  const auto &normchi2_value_map_tag = iConfig.getParameter<edm::InputTag>("normchi2_value_map");
+  if (!normchi2_value_map_tag.label().empty()) {
+    normchi2_value_map_token_ = consumes<edm::ValueMap<float>>(normchi2_value_map_tag);
+  }
+
+  const auto &dz_value_map_tag = iConfig.getParameter<edm::InputTag>("dz_value_map");
+  if (!dz_value_map_tag.label().empty()) {
+    dz_value_map_token_ = consumes<edm::ValueMap<float>>(dz_value_map_tag);
+  }
+
+  const auto &dxy_value_map_tag = iConfig.getParameter<edm::InputTag>("dxy_value_map");
+  if (!dxy_value_map_tag.label().empty()) {
+    dxy_value_map_token_ = consumes<edm::ValueMap<float>>(dxy_value_map_tag);
+  }
+
+  const auto &dzsig_value_map_tag = iConfig.getParameter<edm::InputTag>("dzsig_value_map");
+  if (!dzsig_value_map_tag.label().empty()) {
+    dzsig_value_map_token_ = consumes<edm::ValueMap<float>>(dzsig_value_map_tag);
+  }
+
+  const auto &dxysig_value_map_tag = iConfig.getParameter<edm::InputTag>("dxysig_value_map");
+  if (!dxysig_value_map_tag.label().empty()) {
+    dxysig_value_map_token_ = consumes<edm::ValueMap<float>>(dxysig_value_map_tag);
+  }
+
+  const auto &lostInnerHits_value_map_tag = iConfig.getParameter<edm::InputTag>("lostInnerHits_value_map");
+  if (!lostInnerHits_value_map_tag.label().empty()) {
+    lostInnerHits_value_map_token_ = consumes<edm::ValueMap<int>>(lostInnerHits_value_map_tag);
+  }
+
+  const auto &quality_value_map_tag = iConfig.getParameter<edm::InputTag>("quality_value_map");
+  if (!quality_value_map_tag.label().empty()) {
+    quality_value_map_token_ = consumes<edm::ValueMap<int>>(quality_value_map_tag);
+  }
+
+  const auto &trkPt_value_map_tag = iConfig.getParameter<edm::InputTag>("trkPt_value_map");
+  if (!trkPt_value_map_tag.label().empty()) {
+    trkPt_value_map_token_ = consumes<edm::ValueMap<float>>(trkPt_value_map_tag);
+  }
+
+  const auto &trkEta_value_map_tag = iConfig.getParameter<edm::InputTag>("trkEta_value_map");
+  if (!trkEta_value_map_tag.label().empty()) {
+    trkEta_value_map_token_ = consumes<edm::ValueMap<float>>(trkEta_value_map_tag);
+  }
+
+  const auto &trkPhi_value_map_tag = iConfig.getParameter<edm::InputTag>("trkPhi_value_map");
+  if (!trkPhi_value_map_tag.label().empty()) {
+    trkPhi_value_map_token_ = consumes<edm::ValueMap<float>>(trkPhi_value_map_tag);
   }
 
   produces<DeepBoostedJetTagInfoCollection>();
@@ -238,6 +322,17 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
+  desc.add<bool>("use_scouting_features", false);
+  desc.add<edm::InputTag>("normchi2_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("dz_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("dxy_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("dzsig_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("dxysig_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("lostInnerHits_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("quality_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("trkPt_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("trkEta_value_map", edm::InputTag(""));
+  desc.add<edm::InputTag>("trkPhi_value_map", edm::InputTag(""));
   descriptions.add("pfDeepBoostedJetTagInfos", desc);
 }
 
@@ -247,23 +342,25 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
   // Input jets
   auto jets = iEvent.getHandle(jet_token_);
   // Primary vertexes
-  iEvent.getByToken(vtx_token_, vtxs_);
-  if (vtxs_->empty()) {
-    // produce empty TagInfos in case no primary vertex
-    iEvent.put(std::move(output_tag_infos));
-    return;  // exit event
+  if (!use_scouting_features_) {
+    iEvent.getByToken(vtx_token_, vtxs_);
+    if (vtxs_->empty()) {
+      // produce empty TagInfos in case no primary vertex
+      iEvent.put(std::move(output_tag_infos));
+      return;  // exit event
+    }
+    // Leading vertex
+    pv_ = &vtxs_->at(0);
+    // Secondary vertexs
+    iEvent.getByToken(sv_token_, svs_);
+    // Track builder
+    track_builder_ = iSetup.getHandle(track_builder_token_);
   }
-  // Leading vertex
-  pv_ = &vtxs_->at(0);
-  // Secondary vertexs
-  iEvent.getByToken(sv_token_, svs_);
   // PF candidates
   iEvent.getByToken(pfcand_token_, pfcands_);
   is_packed_pf_candidate_collection_ = false;
   if (dynamic_cast<const pat::PackedCandidateCollection *>(pfcands_.product()))
     is_packed_pf_candidate_collection_ = true;
-  // Track builder
-  track_builder_ = iSetup.getHandle(track_builder_token_);
   // Puppi weight value map
   if (use_puppi_value_map_)
     iEvent.getByToken(puppi_value_map_token_, puppi_value_map_);
@@ -271,6 +368,18 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
   if (use_pvasq_value_map_) {
     iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map_);
     iEvent.getByToken(pvas_token_, pvas_);
+  }
+  if (use_scouting_features_) {
+    iEvent.getByToken(normchi2_value_map_token_, normchi2_value_map_);
+    iEvent.getByToken(dz_value_map_token_, dz_value_map_);
+    iEvent.getByToken(dxy_value_map_token_, dxy_value_map_);
+    iEvent.getByToken(dzsig_value_map_token_, dzsig_value_map_);
+    iEvent.getByToken(dxysig_value_map_token_, dxysig_value_map_);
+    iEvent.getByToken(lostInnerHits_value_map_token_, lostInnerHits_value_map_);
+    iEvent.getByToken(quality_value_map_token_, quality_value_map_);
+    iEvent.getByToken(trkPt_value_map_token_, trkPt_value_map_);
+    iEvent.getByToken(trkEta_value_map_token_, trkEta_value_map_);
+    iEvent.getByToken(trkPhi_value_map_token_, trkPhi_value_map_);
   }
 
   // Loop over jet
@@ -280,14 +389,7 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
 
     // create jet features
     DeepBoostedJetFeatures features;
-    if (not use_hlt_features_) {
-      for (const auto &name : particle_features_) {
-        features.add(name);
-      }
-      for (const auto &name : sv_features_) {
-        features.add(name);
-      }
-    } else {
+    if (use_hlt_features_) {
       // declare all the feature variables (init as empty vector)
       for (const auto &name : particle_features_hlt_) {
         features.add(name);
@@ -295,22 +397,39 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
       for (const auto &name : sv_features_hlt_) {
         features.add(name);
       }
+    } else if (use_scouting_features_) {
+      for (const auto &name : particle_features_scouting_) {
+        features.add(name);
+      }
+    } else {
+      for (const auto &name : particle_features_) {
+        features.add(name);
+      }
+      for (const auto &name : sv_features_) {
+        features.add(name);
+      }
     }
 
     // fill values only if above pt threshold and has daughters, otherwise left
     bool fill_vars = true;
-    if (jet.pt() < min_jet_pt_ or std::abs(jet.eta()) > max_jet_eta_)
+    if (jet.pt() < min_jet_pt_ or std::abs(jet.eta()) > max_jet_eta_) {
       fill_vars = false;
-    if (jet.numberOfDaughters() == 0)
+    }
+    if (jet.numberOfDaughters() == 0 and !use_scouting_features_) {
       fill_vars = false;
+    }
 
     // fill features
     if (fill_vars) {
       fillParticleFeatures(features, jet);
-      fillSVFeatures(features, jet);
+      if (!use_scouting_features_) {
+        fillSVFeatures(features, jet);
+      }
       if (use_hlt_features_) {
         features.check_consistency(particle_features_hlt_);
         features.check_consistency(sv_features_hlt_);
+      } else if (use_scouting_features_) {
+        features.check_consistency(particle_features_scouting_);
       } else {
         features.check_consistency(particle_features_);
         features.check_consistency(sv_features_);
@@ -356,10 +475,14 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   TVector3 jet_direction(jet.momentum().Unit().x(), jet.momentum().Unit().y(), jet.momentum().Unit().z());
   GlobalVector jet_ref_track_dir(jet.px(), jet.py(), jet.pz());
   const float etasign = jet.eta() > 0 ? 1 : -1;
-  // vertexes
-  reco::VertexRefProd PVRefProd(vtxs_);
-  // track builder
-  TrackInfoBuilder trackinfo(track_builder_);
+  std::unique_ptr<reco::VertexRefProd> PVRefProd;
+  std::unique_ptr<TrackInfoBuilder> trackinfo;
+  if (not use_scouting_features_) {
+    // vertexes
+    PVRefProd = std::make_unique<reco::VertexRefProd>(vtxs_);
+    // track builder
+    trackinfo = std::make_unique<TrackInfoBuilder>(track_builder_);
+  }
 
   // make list of pf-candidates to be considered
   std::vector<reco::CandidatePtr> daughters;
@@ -378,8 +501,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       continue;
     // only when computing the nagative tagger: remove charged candidates with high sip3d
     if (flip_ip_sign_ and cand->charge()) {
-      trackinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
-      if (trackinfo.getTrackSip3dSig() > max_sip3dsig_)
+      (*trackinfo).buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
+      if ((*trackinfo).getTrackSip3dSig() > max_sip3dsig_)
         continue;
     }
     // filling daughters
@@ -391,9 +514,9 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   if (sort_by_sip2dsig_) {
     // sort charged pf candidates by 2d impact parameter significance
     for (const auto &cand : daughters) {
-      trackinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
+      (*trackinfo).buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
       c_sorted.emplace_back(cand,
-                            trackinfo.getTrackSip2dSig(),
+                            (*trackinfo).getTrackSip2dSig(),
                             -btagbtvdeep::mindrsvpfcand(*svs_, &(*cand), jet_radius_),
                             cand->pt() / jet.pt());
     }
@@ -418,6 +541,9 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   if (use_hlt_features_) {
     for (const auto &name : particle_features_hlt_)
       fts.reserve(name, daughters.size());
+  } else if (use_scouting_features_) {
+    for (const auto &name : particle_features_scouting_)
+      fts.reserve(name, daughters.size());
   } else {
     for (const auto &name : particle_features_)
       fts.reserve(name, daughters.size());
@@ -426,17 +552,19 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   // build white list of candidates i.e. particles and tracks belonging to SV. Needed when input particles are not packed PF candidates
   std::vector<unsigned int> whiteListSV;
   std::vector<reco::TrackRef> whiteListTk;
-  if (not is_packed_pf_candidate_collection_) {
-    for (size_t isv = 0; isv < svs_->size(); isv++) {
-      for (size_t icand = 0; icand < svs_->at(isv).numberOfSourceCandidatePtrs(); icand++) {
-        const edm::Ptr<reco::Candidate> &cand = svs_->at(isv).sourceCandidatePtr(icand);
-        if (cand.id() == pfcands_.id())
-          whiteListSV.push_back(cand.key());
-      }
-      for (auto cand = svs_->at(isv).begin(); cand != svs_->at(isv).end(); cand++) {
-        const reco::RecoChargedCandidate *chCand = dynamic_cast<const reco::RecoChargedCandidate *>(&(*cand));
-        if (chCand != nullptr) {
-          whiteListTk.push_back(chCand->track());
+  if (!use_scouting_features_) {
+    if (not is_packed_pf_candidate_collection_) {
+      for (size_t isv = 0; isv < svs_->size(); isv++) {
+        for (size_t icand = 0; icand < svs_->at(isv).numberOfSourceCandidatePtrs(); icand++) {
+          const edm::Ptr<reco::Candidate> &cand = svs_->at(isv).sourceCandidatePtr(icand);
+          if (cand.id() == pfcands_.id())
+            whiteListSV.push_back(cand.key());
+        }
+        for (auto cand = svs_->at(isv).begin(); cand != svs_->at(isv).end(); cand++) {
+          const reco::RecoChargedCandidate *chCand = dynamic_cast<const reco::RecoChargedCandidate *>(&(*cand));
+          if (chCand != nullptr) {
+            whiteListTk.push_back(chCand->track());
+          }
         }
       }
     }
@@ -464,279 +592,337 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->p4() : cand->p4();
     auto candP3 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->momentum() : cand->momentum();
 
-    // candidate track
-    const reco::Track *track = nullptr;
-    if (packed_cand)
-      track = packed_cand->bestTrack();
-    else if (reco_cand and useTrackProperties(reco_cand))
-      track = reco_cand->bestTrack();
-
-    // reco-vertex association
-    int pv_ass_quality = 0;
-    reco::VertexRef pv_ass;
-    float vtx_ass = 0;
-    if (reco_cand) {
-      if (use_pvasq_value_map_) {
-        pv_ass_quality = (*pvasq_value_map_)[cand];
-        pv_ass = (*pvas_)[cand];
-        vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass);
-      } else
-        throw edm::Exception(edm::errors::InvalidReference) << "Vertex association missing";
-    }
-
-    // Building offline features
-    if (not use_hlt_features_) {
-      // in case of packed candidate
-      if (packed_cand) {
-        float hcal_fraction = 0.;
-        if (packed_cand->pdgId() == 1 or packed_cand->pdgId() == 130)
-          hcal_fraction = packed_cand->hcalFraction();
-        else if (packed_cand->isIsolatedChargedHadron())
-          hcal_fraction = packed_cand->rawHcalFraction();
-
-        fts.fill("pfcand_hcalFrac", hcal_fraction);
-        fts.fill("pfcand_VTX_ass", packed_cand->pvAssociationQuality());
-        fts.fill("pfcand_lostInnerHits", packed_cand->lostInnerHits());
-        fts.fill("pfcand_quality", track ? track->qualityMask() : 0);
-        fts.fill("pfcand_charge", packed_cand->charge());
-        fts.fill("pfcand_isEl", std::abs(packed_cand->pdgId()) == 11);
-        fts.fill("pfcand_isMu", std::abs(packed_cand->pdgId()) == 13);
-        fts.fill("pfcand_isChargedHad", std::abs(packed_cand->pdgId()) == 211);
-        fts.fill("pfcand_isGamma", std::abs(packed_cand->pdgId()) == 22);
-        fts.fill("pfcand_isNeutralHad", std::abs(packed_cand->pdgId()) == 130);
-        fts.fill("pfcand_dz", ip_sign * packed_cand->dz());
-        fts.fill("pfcand_dxy", ip_sign * packed_cand->dxy());
-        fts.fill("pfcand_dzsig", track ? ip_sign * packed_cand->dz() / packed_cand->dzError() : 0);
-        fts.fill("pfcand_dxysig", track ? ip_sign * packed_cand->dxy() / packed_cand->dxyError() : 0);
-
-      }
-      // in the case of reco candidate
-      else if (reco_cand) {
-        fts.fill("pfcand_hcalFrac", reco_cand->hcalEnergy() / (reco_cand->ecalEnergy() + reco_cand->hcalEnergy()));
-        fts.fill("pfcand_VTX_ass", vtx_ass);
-        fts.fill("pfcand_lostInnerHits", useTrackProperties(reco_cand) ? lost_inner_hits_from_pfcand(*reco_cand) : 0);
-        fts.fill("pfcand_quality", useTrackProperties(reco_cand) ? quality_from_pfcand(*reco_cand) : 0);
-        fts.fill("pfcand_charge", reco_cand->charge());
-        fts.fill("pfcand_isEl", std::abs(reco_cand->pdgId()) == 11);
-        fts.fill("pfcand_isMu", std::abs(reco_cand->pdgId()) == 13);
-        fts.fill("pfcand_isChargedHad", std::abs(reco_cand->pdgId()) == 211);
-        fts.fill("pfcand_isGamma", std::abs(reco_cand->pdgId()) == 22);
-        fts.fill("pfcand_isNeutralHad", std::abs(reco_cand->pdgId()) == 130);
-        fts.fill("pfcand_dz", track ? ip_sign * track->dz(pv_->position()) : 0);
-        fts.fill("pfcand_dzsig", track ? ip_sign * track->dz(pv_->position()) / track->dzError() : 0);
-        fts.fill("pfcand_dxy", track ? ip_sign * track->dxy(pv_->position()) : 0);
-        fts.fill("pfcand_dxysig", track ? ip_sign * track->dxy(pv_->position()) / track->dxyError() : 0);
-      }
-
-      // generic candidate observables
-      fts.fill("pfcand_puppiw", puppi_wgt_cache.at(cand.key()));
+    if (use_scouting_features_) {
+      fts.fill("pfcand_charge", reco_cand->charge());
+      fts.fill("pfcand_isEl", std::abs(reco_cand->pdgId()) == 11);
+      fts.fill("pfcand_isMu", std::abs(reco_cand->pdgId()) == 13);
+      fts.fill("pfcand_isChargedHad", std::abs(reco_cand->pdgId()) == 211);
+      fts.fill("pfcand_isGamma", std::abs(reco_cand->pdgId()) == 22);
+      fts.fill("pfcand_isNeutralHad", std::abs(reco_cand->pdgId()) == 130);
       fts.fill("pfcand_phirel", reco::deltaPhi(candP4, jet));
       fts.fill("pfcand_etarel", etasign * (candP4.eta() - jet.eta()));
       fts.fill("pfcand_deltaR", reco::deltaR(candP4, jet));
       fts.fill("pfcand_abseta", std::abs(candP4.eta()));
-
       fts.fill("pfcand_ptrel_log", std::log(candP4.pt() / jet.pt()));
       fts.fill("pfcand_ptrel", candP4.pt() / jet.pt());
       fts.fill("pfcand_erel_log", std::log(candP4.energy() / jet.energy()));
       fts.fill("pfcand_erel", candP4.energy() / jet.energy());
       fts.fill("pfcand_pt_log", std::log(candP4.pt()));
-
       fts.fill("pfcand_mask", 1);
       fts.fill("pfcand_pt_log_nopuppi", std::log(cand->pt()));
       fts.fill("pfcand_e_log_nopuppi", std::log(cand->energy()));
 
-      float drminpfcandsv = btagbtvdeep::mindrsvpfcand(*svs_, &(*cand), std::numeric_limits<float>::infinity());
-      fts.fill("pfcand_drminsv", drminpfcandsv);
-
-      if (track) {
-        auto cov = [&](unsigned i, unsigned j) { return track->covariance(i, j); };
-        fts.fill("pfcand_dptdpt", cov(0, 0));
-        fts.fill("pfcand_detadeta", cov(1, 1));
-        fts.fill("pfcand_dphidphi", cov(2, 2));
-        fts.fill("pfcand_dxydxy", cov(3, 3));
-        fts.fill("pfcand_dzdz", cov(4, 4));
-        fts.fill("pfcand_dxydz", cov(3, 4));
-        fts.fill("pfcand_dphidxy", cov(2, 3));
-        fts.fill("pfcand_dlambdadz", cov(1, 4));
-
-        fts.fill("pfcand_normchi2", std::floor(track->normalizedChi2()));
-
-        trackinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
-        fts.fill("pfcand_btagEtaRel", trackinfo.getTrackEtaRel());
-        fts.fill("pfcand_btagPtRatio", trackinfo.getTrackPtRatio());
-        fts.fill("pfcand_btagPParRatio", trackinfo.getTrackPParRatio());
-        fts.fill("pfcand_btagSip2dVal", ip_sign * trackinfo.getTrackSip2dVal());
-        fts.fill("pfcand_btagSip2dSig", ip_sign * trackinfo.getTrackSip2dSig());
-        fts.fill("pfcand_btagSip3dVal", ip_sign * trackinfo.getTrackSip3dVal());
-        fts.fill("pfcand_btagSip3dSig", ip_sign * trackinfo.getTrackSip3dSig());
-        fts.fill("pfcand_btagJetDistVal", trackinfo.getTrackJetDistVal());
-      } else {
-        fts.fill("pfcand_normchi2", 999);
-        fts.fill("pfcand_dptdpt", 0);
-        fts.fill("pfcand_detadeta", 0);
-        fts.fill("pfcand_dphidphi", 0);
-        fts.fill("pfcand_dxydxy", 0);
-        fts.fill("pfcand_dzdz", 0);
-        fts.fill("pfcand_dxydz", 0);
-        fts.fill("pfcand_dphidxy", 0);
-        fts.fill("pfcand_dlambdadz", 0);
+      // if normchi2 is 999.f then the pfcand has no "best track" and therefore no track variables
+      if ((*normchi2_value_map_)[cand] > 900) {
+        fts.fill("pfcand_normchi2", 0);
+        fts.fill("pfcand_lostInnerHits", 0);
+        fts.fill("pfcand_quality", 0);
+        fts.fill("pfcand_dz", 0);
+        fts.fill("pfcand_dzsig", 0);
+        fts.fill("pfcand_dxy", 0);
+        fts.fill("pfcand_dxysig", 0);
         fts.fill("pfcand_btagEtaRel", 0);
         fts.fill("pfcand_btagPtRatio", 0);
         fts.fill("pfcand_btagPParRatio", 0);
-        fts.fill("pfcand_btagSip2dVal", 0);
-        fts.fill("pfcand_btagSip2dSig", 0);
-        fts.fill("pfcand_btagSip3dVal", 0);
-        fts.fill("pfcand_btagSip3dSig", 0);
-        fts.fill("pfcand_btagJetDistVal", 0);
+      } else {
+        fts.fill("pfcand_normchi2", (*normchi2_value_map_)[cand]);
+        fts.fill("pfcand_lostInnerHits", (*lostInnerHits_value_map_)[cand]);
+        fts.fill("pfcand_quality", (*quality_value_map_)[cand]);
+        fts.fill("pfcand_dz", (*dz_value_map_)[cand]);
+        fts.fill("pfcand_dzsig", (*dzsig_value_map_)[cand]);
+        fts.fill("pfcand_dxy", (*dxy_value_map_)[cand]);
+        fts.fill("pfcand_dxysig", (*dxysig_value_map_)[cand]);
+        float trk_px = (*trkPt_value_map_)[cand] * std::cos((*trkPhi_value_map_)[cand]);
+        float trk_py = (*trkPt_value_map_)[cand] * std::sin((*trkPhi_value_map_)[cand]);
+        float trk_pz = (*trkPt_value_map_)[cand] * std::sinh((*trkEta_value_map_)[cand]);
+        math::XYZVector track_mom(trk_px, trk_py, trk_pz);
+        TVector3 track_direction(trk_px, trk_py, trk_pz);
+        double track_mag = sqrt(trk_px * trk_px + trk_py * trk_py + trk_pz * trk_pz);
+        fts.fill("pfcand_btagEtaRel", reco::btau::etaRel(jet_dir, track_mom));
+        fts.fill("pfcand_btagPtRatio", track_direction.Perp(jet_direction) / track_mag);
+        fts.fill("pfcand_btagPParRatio", jet_dir.Dot(track_mom) / track_mag);
+      }
+    } else {
+      // candidate track
+      const reco::Track *track = nullptr;
+      if (packed_cand)
+        track = packed_cand->bestTrack();
+      else if (reco_cand and useTrackProperties(reco_cand))
+        track = reco_cand->bestTrack();
+
+      // reco-vertex association
+      int pv_ass_quality = 0;
+      reco::VertexRef pv_ass;
+      float vtx_ass = 0;
+      if (reco_cand) {
+        if (use_pvasq_value_map_) {
+          pv_ass_quality = (*pvasq_value_map_)[cand];
+          pv_ass = (*pvas_)[cand];
+          vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass);
+        } else
+          throw edm::Exception(edm::errors::InvalidReference) << "Vertex association missing";
       }
 
-      // subjets only if the incomming jets is a PAT one
-      const auto *patJet = dynamic_cast<const pat::Jet *>(&jet);
-      if (patJet and patJet->nSubjetCollections() > 0) {
-        auto subjets = patJet->subjets();
-        std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
-          return p1->pt() > p2->pt();
-        });
-        fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
-        fts.fill("pfcand_drsubjet2", subjets.size() > 1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
-      } else {
-        fts.fill("pfcand_drsubjet1", -1);
-        fts.fill("pfcand_drsubjet2", -1);
+      // Building offline features
+      if (not use_hlt_features_) {
+        // in case of packed candidate
+        if (packed_cand) {
+          float hcal_fraction = 0.;
+          if (packed_cand->pdgId() == 1 or packed_cand->pdgId() == 130)
+            hcal_fraction = packed_cand->hcalFraction();
+          else if (packed_cand->isIsolatedChargedHadron())
+            hcal_fraction = packed_cand->rawHcalFraction();
+
+          fts.fill("pfcand_hcalFrac", hcal_fraction);
+          fts.fill("pfcand_VTX_ass", packed_cand->pvAssociationQuality());
+          fts.fill("pfcand_lostInnerHits", packed_cand->lostInnerHits());
+          fts.fill("pfcand_quality", track ? track->qualityMask() : 0);
+          fts.fill("pfcand_charge", packed_cand->charge());
+          fts.fill("pfcand_isEl", std::abs(packed_cand->pdgId()) == 11);
+          fts.fill("pfcand_isMu", std::abs(packed_cand->pdgId()) == 13);
+          fts.fill("pfcand_isChargedHad", std::abs(packed_cand->pdgId()) == 211);
+          fts.fill("pfcand_isGamma", std::abs(packed_cand->pdgId()) == 22);
+          fts.fill("pfcand_isNeutralHad", std::abs(packed_cand->pdgId()) == 130);
+          fts.fill("pfcand_dz", ip_sign * packed_cand->dz());
+          fts.fill("pfcand_dxy", ip_sign * packed_cand->dxy());
+          fts.fill("pfcand_dzsig", track ? ip_sign * packed_cand->dz() / packed_cand->dzError() : 0);
+          fts.fill("pfcand_dxysig", track ? ip_sign * packed_cand->dxy() / packed_cand->dxyError() : 0);
+
+        }
+        // in the case of reco candidate
+        else if (reco_cand) {
+          fts.fill("pfcand_hcalFrac", reco_cand->hcalEnergy() / (reco_cand->ecalEnergy() + reco_cand->hcalEnergy()));
+          fts.fill("pfcand_VTX_ass", vtx_ass);
+          fts.fill("pfcand_lostInnerHits", useTrackProperties(reco_cand) ? lost_inner_hits_from_pfcand(*reco_cand) : 0);
+          fts.fill("pfcand_quality", useTrackProperties(reco_cand) ? quality_from_pfcand(*reco_cand) : 0);
+          fts.fill("pfcand_charge", reco_cand->charge());
+          fts.fill("pfcand_isEl", std::abs(reco_cand->pdgId()) == 11);
+          fts.fill("pfcand_isMu", std::abs(reco_cand->pdgId()) == 13);
+          fts.fill("pfcand_isChargedHad", std::abs(reco_cand->pdgId()) == 211);
+          fts.fill("pfcand_isGamma", std::abs(reco_cand->pdgId()) == 22);
+          fts.fill("pfcand_isNeutralHad", std::abs(reco_cand->pdgId()) == 130);
+          fts.fill("pfcand_dz", track ? ip_sign * track->dz(pv_->position()) : 0);
+          fts.fill("pfcand_dzsig", track ? ip_sign * track->dz(pv_->position()) / track->dzError() : 0);
+          fts.fill("pfcand_dxy", track ? ip_sign * track->dxy(pv_->position()) : 0);
+          fts.fill("pfcand_dxysig", track ? ip_sign * track->dxy(pv_->position()) / track->dxyError() : 0);
+        }
+
+        // generic candidate observables
+        fts.fill("pfcand_puppiw", puppi_wgt_cache.at(cand.key()));
+        fts.fill("pfcand_phirel", reco::deltaPhi(candP4, jet));
+        fts.fill("pfcand_etarel", etasign * (candP4.eta() - jet.eta()));
+        fts.fill("pfcand_deltaR", reco::deltaR(candP4, jet));
+        fts.fill("pfcand_abseta", std::abs(candP4.eta()));
+
+        fts.fill("pfcand_ptrel_log", std::log(candP4.pt() / jet.pt()));
+        fts.fill("pfcand_ptrel", candP4.pt() / jet.pt());
+        fts.fill("pfcand_erel_log", std::log(candP4.energy() / jet.energy()));
+        fts.fill("pfcand_erel", candP4.energy() / jet.energy());
+        fts.fill("pfcand_pt_log", std::log(candP4.pt()));
+
+        fts.fill("pfcand_mask", 1);
+        fts.fill("pfcand_pt_log_nopuppi", std::log(cand->pt()));
+        fts.fill("pfcand_e_log_nopuppi", std::log(cand->energy()));
+
+        float drminpfcandsv = btagbtvdeep::mindrsvpfcand(*svs_, &(*cand), std::numeric_limits<float>::infinity());
+        fts.fill("pfcand_drminsv", drminpfcandsv);
+
+        if (track) {
+          auto cov = [&](unsigned i, unsigned j) { return track->covariance(i, j); };
+          fts.fill("pfcand_dptdpt", cov(0, 0));
+          fts.fill("pfcand_detadeta", cov(1, 1));
+          fts.fill("pfcand_dphidphi", cov(2, 2));
+          fts.fill("pfcand_dxydxy", cov(3, 3));
+          fts.fill("pfcand_dzdz", cov(4, 4));
+          fts.fill("pfcand_dxydz", cov(3, 4));
+          fts.fill("pfcand_dphidxy", cov(2, 3));
+          fts.fill("pfcand_dlambdadz", cov(1, 4));
+
+          fts.fill("pfcand_normchi2", std::floor(track->normalizedChi2()));
+
+          (*trackinfo).buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
+          fts.fill("pfcand_btagEtaRel", (*trackinfo).getTrackEtaRel());
+          fts.fill("pfcand_btagPtRatio", (*trackinfo).getTrackPtRatio());
+          fts.fill("pfcand_btagPParRatio", (*trackinfo).getTrackPParRatio());
+          fts.fill("pfcand_btagSip2dVal", ip_sign * (*trackinfo).getTrackSip2dVal());
+          fts.fill("pfcand_btagSip2dSig", ip_sign * (*trackinfo).getTrackSip2dSig());
+          fts.fill("pfcand_btagSip3dVal", ip_sign * (*trackinfo).getTrackSip3dVal());
+          fts.fill("pfcand_btagSip3dSig", ip_sign * (*trackinfo).getTrackSip3dSig());
+          fts.fill("pfcand_btagJetDistVal", (*trackinfo).getTrackJetDistVal());
+        } else {
+          fts.fill("pfcand_normchi2", 999);
+          fts.fill("pfcand_dptdpt", 0);
+          fts.fill("pfcand_detadeta", 0);
+          fts.fill("pfcand_dphidphi", 0);
+          fts.fill("pfcand_dxydxy", 0);
+          fts.fill("pfcand_dzdz", 0);
+          fts.fill("pfcand_dxydz", 0);
+          fts.fill("pfcand_dphidxy", 0);
+          fts.fill("pfcand_dlambdadz", 0);
+          fts.fill("pfcand_btagEtaRel", 0);
+          fts.fill("pfcand_btagPtRatio", 0);
+          fts.fill("pfcand_btagPParRatio", 0);
+          fts.fill("pfcand_btagSip2dVal", 0);
+          fts.fill("pfcand_btagSip2dSig", 0);
+          fts.fill("pfcand_btagSip3dVal", 0);
+          fts.fill("pfcand_btagSip3dSig", 0);
+          fts.fill("pfcand_btagJetDistVal", 0);
+        }
+
+        // subjets only if the incomming jets is a PAT one
+        const auto *patJet = dynamic_cast<const pat::Jet *>(&jet);
+        if (patJet and patJet->nSubjetCollections() > 0) {
+          auto subjets = patJet->subjets();
+          std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
+            return p1->pt() > p2->pt();
+          });
+          fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
+          fts.fill("pfcand_drsubjet2", subjets.size() > 1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
+        } else {
+          fts.fill("pfcand_drsubjet1", -1);
+          fts.fill("pfcand_drsubjet2", -1);
+        }
       }
-    }
-    // using HLT features
-    else {
-      pat::PackedCandidate candidate;
-      math::XYZPoint pv_ass_pos;
-      // In case input is a packed candidate (evaluate HLT network on offline)
-      if (packed_cand) {
-        candidate = *packed_cand;
-        pv_ass = reco::VertexRef(vtxs_, 0);
-        pv_ass_pos = pv_ass->position();
-      }
-      // In case input is a reco::PFCandidate
-      else if (reco_cand) {
-        // follow what is done in PhysicsTools/PatAlgos/plugins/PATPackedCandidateProducer.cc to minimize differences between HLT and RECO choices of input observables
-        // no reference to vertex, take closest in dz or position 0
-        if (not pv_ass.isNonnull()) {
+      // using HLT features
+      else {
+        pat::PackedCandidate candidate;
+        math::XYZPoint pv_ass_pos;
+        // In case input is a packed candidate (evaluate HLT network on offline)
+        if (packed_cand) {
+          candidate = *packed_cand;
+          pv_ass = reco::VertexRef(vtxs_, 0);
+          pv_ass_pos = pv_ass->position();
+        }
+        // In case input is a reco::PFCandidate
+        else if (reco_cand) {
+          // follow what is done in PhysicsTools/PatAlgos/plugins/PATPackedCandidateProducer.cc to minimize differences between HLT and RECO choices of input observables
+          // no reference to vertex, take closest in dz or position 0
+          if (not pv_ass.isNonnull()) {
+            if (track) {
+              float z_dist = 99999;
+              int pv_pos = -1;
+              for (size_t iv = 0; iv < vtxs_->size(); iv++) {
+                float dz = std::abs(track->dz(((*vtxs_)[iv]).position()));
+                if (dz < z_dist) {
+                  z_dist = dz;
+                  pv_pos = iv;
+                }
+              }
+              pv_ass = reco::VertexRef(vtxs_, pv_pos);
+            } else
+              pv_ass = reco::VertexRef(vtxs_, 0);
+          }
+          pv_ass_pos = pv_ass->position();
+
+          // create a transient packed candidate
           if (track) {
-            float z_dist = 99999;
-            int pv_pos = -1;
-            for (size_t iv = 0; iv < vtxs_->size(); iv++) {
-              float dz = std::abs(track->dz(((*vtxs_)[iv]).position()));
-              if (dz < z_dist) {
-                z_dist = dz;
-                pv_pos = iv;
+            candidate = pat::PackedCandidate(cand->polarP4(),
+                                             track->referencePoint(),
+                                             track->pt(),
+                                             track->eta(),
+                                             track->phi(),
+                                             cand->pdgId(),
+                                             (*PVRefProd),
+                                             pv_ass.key());
+            candidate.setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(
+                btagbtvdeep::vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass)));
+            candidate.setCovarianceVersion(0);
+            pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+            int nlost = track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+            if (nlost == 0) {
+              if (track->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
+                lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+            } else
+              lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+            candidate.setLostInnerHits(lostHits);
+            candidate.setTrkAlgo(static_cast<uint8_t>(track->algo()), static_cast<uint8_t>(track->originalAlgo()));
+
+            if (useTrackProperties(reco_cand) or
+                std::find(whiteListSV.begin(), whiteListSV.end(), icand) != whiteListSV.end() or
+                std::find(whiteListTk.begin(), whiteListTk.end(), reco_cand->trackRef()) != whiteListTk.end()) {
+              candidate.setFirstHit(track->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
+              if (abs(cand->pdgId()) == 22)
+                candidate.setTrackProperties(*track, 0, 0);
+              else {
+                if (track->hitPattern().numberOfValidPixelHits() > min_valid_pixel_hits_)
+                  candidate.setTrackProperties(*track, 8, 0);
+                else
+                  candidate.setTrackProperties(*track, 264, 0);
+              }
+            } else {
+              if (candidate.pt() > min_track_pt_property_) {
+                if (track->hitPattern().numberOfValidPixelHits() > 0)
+                  candidate.setTrackProperties(*track, 520, 0);
+                else
+                  candidate.setTrackProperties(*track, 776, 0);
               }
             }
-            pv_ass = reco::VertexRef(vtxs_, pv_pos);
-          } else
-            pv_ass = reco::VertexRef(vtxs_, 0);
-        }
-        pv_ass_pos = pv_ass->position();
-
-        // create a transient packed candidate
-        if (track) {
-          candidate = pat::PackedCandidate(cand->polarP4(),
-                                           track->referencePoint(),
-                                           track->pt(),
-                                           track->eta(),
-                                           track->phi(),
-                                           cand->pdgId(),
-                                           PVRefProd,
-                                           pv_ass.key());
-          candidate.setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(
-              btagbtvdeep::vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass)));
-          candidate.setCovarianceVersion(0);
-          pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
-          int nlost = track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-          if (nlost == 0) {
-            if (track->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
-              lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
-          } else
-            lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
-          candidate.setLostInnerHits(lostHits);
-          candidate.setTrkAlgo(static_cast<uint8_t>(track->algo()), static_cast<uint8_t>(track->originalAlgo()));
-
-          if (useTrackProperties(reco_cand) or
-              std::find(whiteListSV.begin(), whiteListSV.end(), icand) != whiteListSV.end() or
-              std::find(whiteListTk.begin(), whiteListTk.end(), reco_cand->trackRef()) != whiteListTk.end()) {
-            candidate.setFirstHit(track->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
-            if (abs(cand->pdgId()) == 22)
-              candidate.setTrackProperties(*track, 0, 0);
-            else {
-              if (track->hitPattern().numberOfValidPixelHits() > min_valid_pixel_hits_)
-                candidate.setTrackProperties(*track, 8, 0);
-              else
-                candidate.setTrackProperties(*track, 264, 0);
-            }
+            candidate.setTrackHighPurity(reco_cand->trackRef().isNonnull() and
+                                         reco_cand->trackRef()->quality(reco::Track::highPurity));
           } else {
-            if (candidate.pt() > min_track_pt_property_) {
-              if (track->hitPattern().numberOfValidPixelHits() > 0)
-                candidate.setTrackProperties(*track, 520, 0);
-              else
-                candidate.setTrackProperties(*track, 776, 0);
-            }
+            candidate = pat::PackedCandidate(cand->polarP4(),
+                                             pv_ass_pos,
+                                             cand->pt(),
+                                             cand->eta(),
+                                             cand->phi(),
+                                             cand->pdgId(),
+                                             (*PVRefProd),
+                                             pv_ass.key());
+            candidate.setAssociationQuality(
+                pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
           }
-          candidate.setTrackHighPurity(reco_cand->trackRef().isNonnull() and
-                                       reco_cand->trackRef()->quality(reco::Track::highPurity));
-        } else {
-          candidate = pat::PackedCandidate(
-              cand->polarP4(), pv_ass_pos, cand->pt(), cand->eta(), cand->phi(), cand->pdgId(), PVRefProd, pv_ass.key());
-          candidate.setAssociationQuality(
-              pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
+          /// override track
+          track = candidate.bestTrack();
         }
-        /// override track
-        track = candidate.bestTrack();
-      }
 
-      TVector3 cand_direction(candP3.x(), candP3.y(), candP3.z());
+        TVector3 cand_direction(candP3.x(), candP3.y(), candP3.z());
 
-      fts.fill("jet_pfcand_pt_log", std::log(candP4.pt()));
-      fts.fill("jet_pfcand_energy_log", std::log(candP4.energy()));
-      fts.fill("jet_pfcand_eta", candP4.eta());
-      fts.fill("jet_pfcand_deta", jet_direction.Eta() - cand_direction.Eta());
-      fts.fill("jet_pfcand_dphi", jet_direction.DeltaPhi(cand_direction));
-      fts.fill("jet_pfcand_charge", cand->charge());
-      fts.fill("jet_pfcand_etarel", reco::btau::etaRel(jet_dir, candP3));
-      fts.fill("jet_pfcand_pperp_ratio", jet_direction.Perp(cand_direction) / cand_direction.Mag());
-      fts.fill("jet_pfcand_ppara_ratio", jet_direction.Dot(cand_direction) / cand_direction.Mag());
-      fts.fill("jet_pfcand_frompv", candidate.fromPV());
-      fts.fill("jet_pfcand_dz", candidate.dz(pv_ass_pos));
-      fts.fill("jet_pfcand_dxy", candidate.dxy(pv_ass_pos));
-      fts.fill("jet_pfcand_puppiw", puppi_wgt_cache.at(cand.key()));
-      fts.fill("jet_pfcand_nlostinnerhits", candidate.lostInnerHits());
-      fts.fill("jet_pfcand_nhits", candidate.numberOfHits());
-      fts.fill("jet_pfcand_npixhits", candidate.numberOfPixelHits());
-      fts.fill("jet_pfcand_nstriphits", candidate.stripLayersWithMeasurement());
-      fts.fill("pfcand_mask", 1);
+        fts.fill("jet_pfcand_pt_log", std::log(candP4.pt()));
+        fts.fill("jet_pfcand_energy_log", std::log(candP4.energy()));
+        fts.fill("jet_pfcand_eta", candP4.eta());
+        fts.fill("jet_pfcand_deta", jet_direction.Eta() - cand_direction.Eta());
+        fts.fill("jet_pfcand_dphi", jet_direction.DeltaPhi(cand_direction));
+        fts.fill("jet_pfcand_charge", cand->charge());
+        fts.fill("jet_pfcand_etarel", reco::btau::etaRel(jet_dir, candP3));
+        fts.fill("jet_pfcand_pperp_ratio", jet_direction.Perp(cand_direction) / cand_direction.Mag());
+        fts.fill("jet_pfcand_ppara_ratio", jet_direction.Dot(cand_direction) / cand_direction.Mag());
+        fts.fill("jet_pfcand_frompv", candidate.fromPV());
+        fts.fill("jet_pfcand_dz", candidate.dz(pv_ass_pos));
+        fts.fill("jet_pfcand_dxy", candidate.dxy(pv_ass_pos));
+        fts.fill("jet_pfcand_puppiw", puppi_wgt_cache.at(cand.key()));
+        fts.fill("jet_pfcand_nlostinnerhits", candidate.lostInnerHits());
+        fts.fill("jet_pfcand_nhits", candidate.numberOfHits());
+        fts.fill("jet_pfcand_npixhits", candidate.numberOfPixelHits());
+        fts.fill("jet_pfcand_nstriphits", candidate.stripLayersWithMeasurement());
+        fts.fill("pfcand_mask", 1);
 
-      if (track) {
-        fts.fill("jet_pfcand_dzsig", fabs(candidate.dz(pv_ass_pos)) / candidate.dzError());
-        fts.fill("jet_pfcand_dxysig", fabs(candidate.dxy(pv_ass_pos)) / candidate.dxyError());
-        fts.fill("jet_pfcand_track_chi2", track->normalizedChi2());
-        fts.fill("jet_pfcand_track_qual", track->qualityMask());
+        if (track) {
+          fts.fill("jet_pfcand_dzsig", fabs(candidate.dz(pv_ass_pos)) / candidate.dzError());
+          fts.fill("jet_pfcand_dxysig", fabs(candidate.dxy(pv_ass_pos)) / candidate.dxyError());
+          fts.fill("jet_pfcand_track_chi2", track->normalizedChi2());
+          fts.fill("jet_pfcand_track_qual", track->qualityMask());
 
-        reco::TransientTrack transientTrack = track_builder_->build(*track);
-        Measurement1D meas_ip2d =
-            IPTools::signedTransverseImpactParameter(transientTrack, jet_ref_track_dir, *pv_).second;
-        Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, jet_ref_track_dir, *pv_).second;
-        Measurement1D meas_jetdist = IPTools::jetTrackDistance(transientTrack, jet_ref_track_dir, *pv_).second;
-        Measurement1D meas_decayl = IPTools::signedDecayLength3D(transientTrack, jet_ref_track_dir, *pv_).second;
+          reco::TransientTrack transientTrack = track_builder_->build(*track);
+          Measurement1D meas_ip2d =
+              IPTools::signedTransverseImpactParameter(transientTrack, jet_ref_track_dir, *pv_).second;
+          Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, jet_ref_track_dir, *pv_).second;
+          Measurement1D meas_jetdist = IPTools::jetTrackDistance(transientTrack, jet_ref_track_dir, *pv_).second;
+          Measurement1D meas_decayl = IPTools::signedDecayLength3D(transientTrack, jet_ref_track_dir, *pv_).second;
 
-        fts.fill("jet_pfcand_trackjet_d3d", meas_ip3d.value());
-        fts.fill("jet_pfcand_trackjet_d3dsig", fabs(meas_ip3d.significance()));
-        fts.fill("jet_pfcand_trackjet_dist", -meas_jetdist.value());
-        fts.fill("jet_pfcand_trackjet_decayL", meas_decayl.value());
-      } else {
-        fts.fill("jet_pfcand_dzsig", 0);
-        fts.fill("jet_pfcand_dxysig", 0);
-        fts.fill("jet_pfcand_track_chi2", 0);
-        fts.fill("jet_pfcand_track_qual", 0);
-        fts.fill("jet_pfcand_trackjet_d3d", 0);
-        fts.fill("jet_pfcand_trackjet_d3dsig", 0);
-        fts.fill("jet_pfcand_trackjet_dist", 0);
-        fts.fill("jet_pfcand_trackjet_decayL", 0);
+          fts.fill("jet_pfcand_trackjet_d3d", meas_ip3d.value());
+          fts.fill("jet_pfcand_trackjet_d3dsig", fabs(meas_ip3d.significance()));
+          fts.fill("jet_pfcand_trackjet_dist", -meas_jetdist.value());
+          fts.fill("jet_pfcand_trackjet_decayL", meas_decayl.value());
+        } else {
+          fts.fill("jet_pfcand_dzsig", 0);
+          fts.fill("jet_pfcand_dxysig", 0);
+          fts.fill("jet_pfcand_track_chi2", 0);
+          fts.fill("jet_pfcand_track_qual", 0);
+          fts.fill("jet_pfcand_trackjet_d3d", 0);
+          fts.fill("jet_pfcand_trackjet_d3dsig", 0);
+          fts.fill("jet_pfcand_trackjet_dist", 0);
+          fts.fill("jet_pfcand_trackjet_decayL", 0);
+        }
       }
     }
     icand++;

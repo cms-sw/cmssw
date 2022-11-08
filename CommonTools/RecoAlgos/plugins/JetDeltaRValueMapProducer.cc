@@ -27,10 +27,12 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-template <class T, class C = T>
+template <class T, class C = T, typename TN = float>
 class JetDeltaRValueMapProducer : public edm::stream::EDProducer<> {
 public:
-  typedef edm::ValueMap<float> JetValueMap;
+  typedef TN value_type;
+  typedef edm::ValueMap<value_type> JetValueMap;
+  typedef std::vector<value_type> ValueVector;
 
   JetDeltaRValueMapProducer(edm::ParameterSet const& params)
       : srcToken_(consumes<typename edm::View<T> >(params.getParameter<edm::InputTag>("src"))),
@@ -46,8 +48,10 @@ public:
         lazyParser_(params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false),
         multiValue_(false) {
     if (!value_.empty()) {
-      evaluationMap_.insert(std::make_pair(
-          value_, std::unique_ptr<StringObjectFunction<C> >(new StringObjectFunction<C>(value_, lazyParser_))));
+      if (value_ != "index") {
+        evaluationMap_.insert(std::make_pair(
+            value_, std::unique_ptr<StringObjectFunction<C> >(new StringObjectFunction<C>(value_, lazyParser_))));
+      }
       produces<JetValueMap>();
     }
 
@@ -75,7 +79,8 @@ private:
     edm::Handle<typename edm::View<C> > h_jets2;
     iEvent.getByToken(matchedToken_, h_jets2);
 
-    std::vector<float> values(h_jets1->size(), -99999);
+    ValueVector values(h_jets1->size(), -99999);
+
     std::map<std::string, std::vector<float> > valuesMap;
     if (multiValue_) {
       for (size_t i = 0; i < valueLabels_.size(); ++i)
@@ -88,19 +93,20 @@ private:
          ++ijet) {
       float matched_dR2 = 1e9;
       int matched_index = -1;
+      int iindex = ijet - ibegin;
 
       for (typename edm::View<T>::const_iterator jbegin = h_jets1->begin(), jend = h_jets1->end(), jjet = jbegin;
            jjet != jend;
            ++jjet) {
-        int index = jjet - jbegin;
+        int jindex = jjet - jbegin;
 
-        if (jets1_locks.at(index))
+        if (jets1_locks.at(jindex))
           continue;  // skip jets that have already been matched
 
         float temp_dR2 = reco::deltaR2(ijet->eta(), ijet->phi(), jjet->eta(), jjet->phi());
         if (temp_dR2 < matched_dR2) {
           matched_dR2 = temp_dR2;
-          matched_index = index;
+          matched_index = jindex;
         }
       }  // end loop over src jets
 
@@ -109,8 +115,13 @@ private:
           edm::LogInfo("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
         else {
           jets1_locks.at(matched_index) = true;
-          if (!value_.empty())
-            values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
+          if (!value_.empty()) {
+            if (value_ == "index") {
+              values.at(matched_index) = iindex;
+            } else {
+              values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
+            }
+          }
           if (multiValue_) {
             for (size_t i = 0; i < valueLabels_.size(); ++i)
               valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
@@ -122,7 +133,7 @@ private:
     if (!value_.empty()) {
       std::unique_ptr<JetValueMap> jetValueMap(new JetValueMap());
 
-      JetValueMap::Filler filler(*jetValueMap);
+      typename JetValueMap::Filler filler(*jetValueMap);
       filler.insert(h_jets1, values.begin(), values.end());
       filler.fill();
 
@@ -133,7 +144,7 @@ private:
       for (size_t i = 0; i < valueLabels_.size(); ++i) {
         std::unique_ptr<JetValueMap> jetValueMap(new JetValueMap());
 
-        JetValueMap::Filler filler(*jetValueMap);
+        typename JetValueMap::Filler filler(*jetValueMap);
         filler.insert(h_jets1, valuesMap.at(valueLabels_[i]).begin(), valuesMap.at(valueLabels_[i]).end());
         filler.fill();
 
@@ -157,7 +168,9 @@ private:
 typedef JetDeltaRValueMapProducer<reco::Jet> RecoJetDeltaRValueMapProducer;
 typedef JetDeltaRValueMapProducer<reco::Jet, pat::Jet> RecoJetToPatJetDeltaRValueMapProducer;
 typedef JetDeltaRValueMapProducer<pat::Jet> PatJetDeltaRValueMapProducer;
+typedef JetDeltaRValueMapProducer<reco::Jet, reco::GenJet, int> RecoJetToGenJetDeltaRValueMapProducer;
 
 DEFINE_FWK_MODULE(RecoJetDeltaRValueMapProducer);
 DEFINE_FWK_MODULE(RecoJetToPatJetDeltaRValueMapProducer);
 DEFINE_FWK_MODULE(PatJetDeltaRValueMapProducer);
+DEFINE_FWK_MODULE(RecoJetToGenJetDeltaRValueMapProducer);

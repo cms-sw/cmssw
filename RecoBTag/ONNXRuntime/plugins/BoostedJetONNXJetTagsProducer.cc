@@ -45,21 +45,29 @@ private:
   void make_inputs(const reco::DeepBoostedJetTagInfo &taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
-  std::vector<std::string> flav_names_;             // names of the output scores
-  std::vector<std::string> input_names_;            // names of each input group - the ordering is important!
-  std::vector<std::vector<int64_t>> input_shapes_;  // shapes of each input group (-1 for dynamic axis)
-  std::vector<unsigned> input_sizes_;               // total length of each input vector
+  std::vector<std::string> flav_names_;               // names of the output scores
+  edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;  // jets if function produces a ValueMap
+  std::vector<std::string> input_names_;              // names of each input group - the ordering is important!
+  std::vector<std::vector<int64_t>> input_shapes_;    // shapes of each input group (-1 for dynamic axis)
+  std::vector<unsigned> input_sizes_;                 // total length of each input vector
   std::unordered_map<std::string, PreprocessParams> prep_info_map_;  // preprocessing info for each input group
 
   FloatArrays data_;
 
   bool debug_ = false;
+  bool produceValueMap_;
+  edm::Handle<edm::View<reco::Jet>> jets;
 };
 
 BoostedJetONNXJetTagsProducer::BoostedJetONNXJetTagsProducer(const edm::ParameterSet &iConfig, const ONNXRuntime *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
-      debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
+      debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)),
+      produceValueMap_(iConfig.getUntrackedParameter<bool>("produceValueMap", false)) {
+  if (produceValueMap_) {
+    jet_token_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+  }
+
   ParticleNetConstructor(iConfig, true, input_names_, prep_info_map_, input_shapes_, input_sizes_, &data_);
 
   if (debug_) {
@@ -87,7 +95,11 @@ BoostedJetONNXJetTagsProducer::BoostedJetONNXJetTagsProducer(const edm::Paramete
 
   // get output names from flav_names
   for (const auto &flav_name : flav_names_) {
-    produces<JetTagCollection>(flav_name);
+    if (!produceValueMap_) {
+      produces<JetTagCollection>(flav_name);
+    } else {
+      produces<edm::ValueMap<float>>(flav_name);
+    }
   }
 }
 
@@ -125,6 +137,8 @@ void BoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescripti
                                          "probQCDc",
                                          "probQCDothers",
                                      });
+  desc.add<edm::InputTag>("jets", edm::InputTag(""));
+  desc.addOptionalUntracked<bool>("produceValueMap", false);
   desc.addOptionalUntracked<bool>("debugMode", false);
 
   descriptions.addWithDefaultLabel(desc);
@@ -139,9 +153,13 @@ void BoostedJetONNXJetTagsProducer::globalEndJob(const ONNXRuntime *cache) {}
 void BoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
+  if (produceValueMap_) {
+    jets = iEvent.getHandle(jet_token_);
+  }
 
   // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
+  std::vector<std::vector<float>> output_scores(flav_names_.size(), std::vector<float>(tag_infos->size(), -1.0));
   if (!tag_infos->empty()) {
     auto jet_ref = tag_infos->begin()->jet();
     auto ref2prod = edm::makeRefToBaseProdFrom(jet_ref, iEvent);
@@ -169,6 +187,7 @@ void BoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::Event
     const auto &jet_ref = tag_infos->at(jet_n).jet();
     for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
       (*(output_tags[flav_n]))[jet_ref] = outputs[flav_n];
+      output_scores[flav_n][jet_n] = outputs[flav_n];
     }
   }
 
@@ -181,18 +200,31 @@ void BoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::Event
       LogDebug("produce") << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta()
                           << ", phi=" << jet_ref->phi() << std::endl;
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
-        LogDebug("produce") << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref]
-                            << std::endl;
+        if (!produceValueMap_) {
+          LogDebug("produce") << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref]
+                              << std::endl;
+        } else {
+          LogDebug("produce") << "    " << flav_names_.at(flav_n) << " = " << output_scores[flav_n][jet_n] << std::endl;
+        }
       }
     }
   }
 
   // put into the event
-  for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
-    iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
+  if (!produceValueMap_) {
+    for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
+      iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
+    }
+  } else {
+    for (size_t k = 0; k < output_scores.size(); k++) {
+      std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
+      edm::ValueMap<float>::Filler filler(*VM);
+      filler.insert(jets, output_scores.at(k).begin(), output_scores.at(k).end());
+      filler.fill();
+      iEvent.put(std::move(VM), flav_names_[k]);
+    }
   }
 }
-
 void BoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
