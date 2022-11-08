@@ -1,5 +1,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
 #include <vector>
@@ -16,11 +18,17 @@ public:
 
   ~NativeArrayTableProducer() override {}
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
-    edm::Handle<TIn> src;
-    iEvent.getByToken(src_, src);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("name")->setComment("name of the branch in the flat table output");
+    desc.addOptional<std::string>("doc")->setComment("few words description of the branch content");
+    desc.add<edm::InputTag>("src")->setComment("input collection for the branch");
 
-    const auto& in = *src;
+    descriptions.addWithDefaultLabel(desc);
+  }
+
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    const auto& in = iEvent.get(src_);
     auto out = std::make_unique<nanoaod::FlatTable>(in.size(), name_, false, false);
     out->setDoc(doc_);
     (*out).template addColumn<TCol>(this->name_, in, this->doc_);

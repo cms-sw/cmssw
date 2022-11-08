@@ -6,8 +6,6 @@ from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 
-from PhysicsTools.NanoAOD.nano_eras_cff import *
-
 ### MVAIso 2017v2
 ## DBoldDM
 # Raw
@@ -291,11 +289,6 @@ _patTauDiscriminationByElectronRejection2015Task = cms.Task(
     patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionTask = _patTauDiscriminationByElectronRejection2015Task.copy()
-for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
-            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
-    era.toReplaceWith(patTauDiscriminationByElectronRejectionTask,
-                      _patTauDiscriminationByElectronRejection2018Task)
-
 
 ### put all new MVA tau-Id stuff to one Sequence
 _patTauMVAIDsTask2017v2 = cms.Task(
@@ -309,8 +302,6 @@ patTauMVAIDsTask.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Task)
 
 _patTauMVAIDsTaskWith2017v1 = _patTauMVAIDsTask2017v2.copy()
 _patTauMVAIDsTaskWith2017v1.add(patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Task)
-for era in [run2_nanoAOD_94XMiniAODv1,]:
-    era.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWith2017v1)
 
 # embed new MVA tau-Ids into new tau collection
 def tauIDMVAinputs(module, wp):
@@ -377,11 +368,6 @@ _tauIDSourcesWith2015 = cms.PSet(
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWith2015
 
-for era in [run2_nanoAOD_94XMiniAODv1,]:
-    era.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWith2017v1
-    )
-
 _antiETauIDSources2018 = cms.PSet(
     againstElectronMVA6Raw2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "raw"),
     againstElectronMVA6category2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "category"),
@@ -409,11 +395,6 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
-            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
-    era.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWithAntiE2018
-    )
 
 ## anti-electron in dead-ECal regions
 from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronDeadECAL_cfi import patTauDiscriminationAgainstElectronDeadECAL
@@ -430,12 +411,6 @@ _tauIDSourcesWithAntiEdeadECal = cms.PSet(
         workingPointIndex = cms.int32(-99)
     )
 )
-
-_modifers = (run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)
-_modifers.toReplaceWith(patTauMVAIDsTask,_patTauMVAIDsTaskWithAntiEdeadECal)
-_modifers.toModify(slimmedTausUpdated,
-                 tauIDSources = _tauIDSourcesWithAntiEdeadECal
-    )
 
 patTauMVAIDsTask.add(slimmedTausUpdated)
 

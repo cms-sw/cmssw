@@ -70,8 +70,7 @@ public:
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.setUnknown();
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcinfoToken_;
 };

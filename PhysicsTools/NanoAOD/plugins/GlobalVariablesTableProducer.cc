@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -40,6 +43,26 @@ public:
 
   ~GlobalVariablesTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addOptional<std::string>("name")->setComment("name of the branch in the flat table output");
+    desc.addOptional<bool>("extension", false)->setComment("whether or not to extend an existing same table");
+    edm::ParameterSetDescription variable;
+    variable.ifValue(edm::ParameterDescription<std::string>(
+                         "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                     edm::allowedValues<std::string>(
+                         "int", "float", "double", "bool", "candidatescalarsum", "candidatesize", "candidatesummass"));
+    variable.add<edm::InputTag>("src")->setComment("input collection for the branch");
+    variable.add<std::string>("doc")->setComment("few words description of the branch content");
+    variable.addOptional<int>("precision")->setComment("precision to store the information [NOT USED IN THE CODE]");
+    edm::ParameterSetDescription variables;
+    variables.setComment("a parameters set to define variable to fill the flat table");
+    variables.addNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, variable));
+    desc.add<edm::ParameterSetDescription>("variables", variables);
+
+    descriptions.addWithDefaultLabel(desc);
+  }
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
 

@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
 # this below is used only in some eras
@@ -14,7 +16,6 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
     recomputeMuonBasicSelectors = cms.bool(False),
 )
-run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True, recomputeMuonBasicSelectors = True )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuonsUpdated"),
@@ -22,8 +23,6 @@ isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-run2_miniAOD_80XLegacy.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
-run2_nanoAOD_94X2016.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
     srcJet = cms.InputTag("updatedJetsPuppi"),
@@ -83,17 +82,15 @@ muonMVALowPt = muonMVATTH.clone(
     name = cms.string("muonMVALowPt"),
 )
 
-run2_muon_2016.toModify(muonMVATTH,
-        weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
-    )
+run2_muon_2016.toModify(
+    muonMVATTH,
+    weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
+)
 
-muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+muonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","muons"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Muon"),
     doc  = cms.string("slimmedMuons after basic selection (" + finalMuons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(CandVars,
         ptErr   = Var("bestTrack().ptError()", float, doc = "ptError of the muon track", precision=6),
         tunepRelPt = Var("tunePMuonBestTrack().pt/pt",float,doc="TuneP relative pt, tunePpt/pt",precision=6),
@@ -137,7 +134,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         miniIsoId = Var("passed('MiniIsoLoose')+passed('MiniIsoMedium')+passed('MiniIsoTight')+passed('MiniIsoVeryTight')","uint8",doc="MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)"),
         multiIsoId = Var("?passed('MultiIsoMedium')?2:passed('MultiIsoLoose')","uint8",doc="MultiIsoId from miniAOD selector (1=MultiIsoLoose, 2=MultiIsoMedium)"),
         puppiIsoId = Var("passed('PuppiIsoLoose')+passed('PuppiIsoMedium')+passed('PuppiIsoTight')", "uint8", doc="PuppiIsoId from miniAOD selector (1=Loose, 2=Medium, 3=Tight)"),
-        triggerIdLoose = Var("passed('TriggerIdLoose')",bool,doc="TriggerIdLoose ID"), 
+        triggerIdLoose = Var("passed('TriggerIdLoose')",bool,doc="TriggerIdLoose ID"),
         inTimeMuon = Var("passed('InTimeMuon')",bool,doc="inTimeMuon ID"),
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
         ),
@@ -149,13 +146,10 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 
-for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(muonTable.variables, puppiIsoId = None, softMva = None)
-
-run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
-
 # Revert back to AK4 CHS jets for Run 2
-run2_nanoAOD_ANY.toModify(ptRatioRelForMu,srcJet="updatedJets")
+run2_nanoAOD_ANY.toModify(
+    ptRatioRelForMu,srcJet="updatedJets"
+)
 
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
