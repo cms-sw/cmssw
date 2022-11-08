@@ -1,0 +1,76 @@
+{    
+    "LFS": "$CMSSW_BASE/src/JetHtExample",
+    "name": "example_json_jetHT",
+
+    "alignments": {
+	"prompt": {
+           "color": "600",
+           "globaltag": "110X_dataRun3_Prompt_v3",
+           "style": "20",
+           "title": "Prompt"
+        },
+	"rereco": {
+           "color": "632",
+           "globaltag": "106X_dataRun2_v10",
+           "style": "20",
+           "title": "ReReco"
+        },
+        "ultralegacy": {
+           "color": "418",
+           "globaltag": "111X_dataRun2_v3",
+           "style": "20",
+           "title": "UltraLegacy"
+        }
+    },
+    "validations": {
+        "JetHT": {
+            "single": {
+                "fullExample": {
+                    "alignments": ["prompt", "rereco", "ultralegacy"],
+                    "trackCollection": "ALCARECOTkAlMinBias",
+                    "dataset": "$CMSSW_BASE/src/Alignment/OfflineValidation/test/examples/jetHtFilesForRun2018A_first100files.txt",
+                    "filesPerJob": 1,
+                    "iovListFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+                    "maxevents": 1000
+                }
+            },
+            "merge": {
+                "fullExample": {
+                    "singles": ["fullExample"],
+                    "alignments": ["prompt", "rereco", "ultralegacy"]
+                }
+            },
+            "plot": {
+                "fullExample": {
+                    "merges": ["fullExample"],
+                    "alignments": ["prompt", "rereco", "ultralegacy"],
+                    "jethtplot":{
+                        "drawProfiles": {
+                            "drawDzErrorVsPt": true,
+                            "drawDxyErrorVsPt": true,
+                            "nIovInOnePlot": 1
+                        },
+                        "drawHistograms": {
+                            "drawDz": true,
+                            "drawDxy": true
+                        },
+                        "drawTrends": {
+                            "drawDzError": true,
+                            "drawDxyError": true,
+                            "useLuminosityAxis": true,
+                            "drawYearLines": true,
+                            "runsForLines": [290543,314881]
+                        },
+                        "trendZoom": {
+                            "minZoomDzTrend": 20,
+                            "maxZoomDzTrend": 95,
+                            "minZoomDxyTrend": 10,
+                            "maxZoomDxyTrend": 90
+                        },
+                        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
+                    }
+                }
+            }
+        }
+    }
+}
