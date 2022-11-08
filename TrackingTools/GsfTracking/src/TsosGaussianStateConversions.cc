@@ -50,6 +50,8 @@ namespace GaussianStateConversions {
                                 side);
       }
     }
-    return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
+    return components.empty()
+               ? TrajectoryStateOnSurface()
+               : TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
   }
 }  // namespace GaussianStateConversions
