@@ -155,6 +155,28 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
+##13.X INPUT
+steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+
+steps['NANO_dataRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff',
+                         '--conditions':'auto:run3_data',
+                         '-n':'10',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD'}])
+
+steps['NANO_mcRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff.nanoSequenceMC',
+                         '--conditions':'auto:phase1_2022_realistic',
+                         '-n':'10',
+                         '--mc':'',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD',
+                         '--filein':'/store/mc/Run3Summer22MiniAODv3/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/MINIAODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/f9cdd76c-faac-4f24-bf0c-2496c8fffe54.root',
+                         '--secondfilein':'/store/mc/Run3Summer22DRPremix/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/AODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/ab09fc5d-859c-407f-b7ce-74b0bae9bb96.root'}])
+
 _wfn=WFN(2500)
 ################
 #10.6 input
@@ -191,3 +213,12 @@ _wfn.next()
 ################
 #13.2 workflows
 workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO_mc']]
+
+_wfn.next()
+################
+#13.X workflows
+workflows[_wfn()] = ['ScoutingNanodata13X',['RunScoutingPFRun32022D13.X', 'NANO_dataRun3ScoutingPF13.X']]
+_wfn.subnext()
+workflows[_wfn()] = ['ScoutingNanomc13X',['NANO_mcRun3ScoutingPF13.X']]
+
+################
