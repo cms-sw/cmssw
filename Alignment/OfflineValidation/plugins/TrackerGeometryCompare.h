@@ -130,6 +130,7 @@ private:
 
   //root configuration
   std::string filename_;
+  std::string surfdir_;
   TFile* theFile_;
   TTree* alignTree_;
   TFile* inputRootFile1_;
