@@ -18,7 +18,8 @@ TrackerGeometryCompare = cms.EDAnalyzer("TrackerGeometryCompare",
     treeNameDeform = cms.untracked.string('alignTreeDeformations'),
     inputROOTFile1 = cms.untracked.string('IDEAL'),
     inputROOTFile2 = cms.untracked.string('idealtracker2.root'),
-    moduleList = cms.untracked.string('moduleList.txt')
+    moduleList = cms.untracked.string('moduleList.txt'),
+    surfDir = cms.untracked.string('.')
 )
 
 
