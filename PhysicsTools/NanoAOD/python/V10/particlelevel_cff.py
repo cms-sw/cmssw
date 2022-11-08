@@ -146,10 +146,8 @@ rivetMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
     src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
-    cut = cms.string(""),
     name = cms.string("HTXS"),
     doc = cms.string("HTXS classification"),
-    singleton = cms.bool(True),
     extension = cms.bool(False),
     variables=cms.PSet(
         stage_0 = Var("stage0_cat",int, doc="HTXS stage-0 category"),
