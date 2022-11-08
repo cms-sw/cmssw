@@ -54,7 +54,7 @@ public:
                          "int", "float", "double", "bool", "candidatescalarsum", "candidatesize", "candidatesummass"));
     variable.add<edm::InputTag>("src")->setComment("input collection for the branch");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
-    variable.addOptional<int>("precision")->setComment("precision to store the information [NOT USED IN THE CODE]");
+    variable.addOptional<int>("precision")->setComment("precision to store the information");
     edm::ParameterSetDescription variables;
     variables.setComment("a parameters set to define variable to fill the flat table");
     variables.addNode(
