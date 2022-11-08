@@ -114,8 +114,8 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
     MonitorElement* me;
     TH1F* h_resp;
-    TH1F *h_genjet_pt, *h_genjet_matched_pt = NULL;  // *h_genjet_unmatched_pt;
-    TH1F *h_recojet_pt = NULL, *h_recojet_matched_pt = NULL, *h_recojet_unmatched_pt = NULL;
+    TH1F *h_genjet_pt, *h_genjet_matched_pt = nullptr;  // *h_genjet_unmatched_pt;
+    TH1F *h_recojet_pt = nullptr, *h_recojet_matched_pt = nullptr, *h_recojet_unmatched_pt = nullptr;
 
     stitle = offsetDir + "mu";
     std::vector<std::string>::const_iterator it = std::find(sME_offset.begin(), sME_offset.end(), stitle);
