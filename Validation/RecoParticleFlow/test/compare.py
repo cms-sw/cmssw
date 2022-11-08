@@ -224,6 +224,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
 		for h in histograms:
 			plots = [PlotGroup(h, [Plot(h, **opts)])]
 		for plot in plots:
+                        plot.setProperties(ncols=1)
 			plot.setProperties(legendDw=-0.5)
 			plot.setProperties(legendDh=0.01)
 			plot.setProperties(legendDy=0.24)
@@ -236,6 +237,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
 			else:
 				plots = [PlotGroup(h, [Plot(h, **opts)])]
 		for plot in plots:
+                        plot.setProperties(ncols=1)
 			plot.setProperties(legendDw=-0.5)
 			plot.setProperties(legendDh=0.01)
 			plot.setProperties(legendDy=0.24)
@@ -256,15 +258,15 @@ def main():
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
 
     styledict_rate = {"xlog": True, "xgrid":False, "ygrid":False,
-        "xtitle":"RecoJet pT (GeV)", "ytitle":"PU Jet rate (#PUJets/event)", "stat": True,
+        "xtitle":"RecoJet pT (GeV)", "ytitle":"PU Jet rate (#PUJets/event)",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
 
     styledict_efficiency = {"xlog": True, "xgrid":False, "ygrid":False,
-        "xtitle":"GenJet pT (GeV)", "ytitle":"Efficiency", "stat": True,
+        "xtitle":"GenJet pT (GeV)", "ytitle":"Efficiency",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
 
     styledict_purity = {"xlog": True, "xgrid":False, "ygrid":False,
-        "xtitle":"RecoJet pT (GeV)", "ytitle":"Purity", "stat": True,
+        "xtitle":"RecoJet pT (GeV)", "ytitle":"Purity",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
 
     plot_opts = {
@@ -310,6 +312,7 @@ def main():
     plotterDrawArgs = dict(
         separate=False, # Set to true if you want each plot in it's own canvas
     #    ratio=False,   # Uncomment to disable ratio pad
+        saveFormat=".png", #save the plots in png format, can be changed to ".pdf" 
     )
 
 
