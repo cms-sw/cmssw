@@ -227,8 +227,7 @@ void CompareAlignments::MergeRootfile(TDirectory *target, TList *sourcelist, TLi
         } else if (wrongphase) {
           //nothing
         } else {
-          std::cerr << "Histogram " << key2->GetTitle() << " is not present in file " << nextsource->GetName()
-                    << std::endl;
+          std::cerr << "Histogram " << path << " is not present in file " << nextsource->GetName() << std::endl;
         }
 
         nextsource = (TFile *)sourcelist->After(nextsource);
