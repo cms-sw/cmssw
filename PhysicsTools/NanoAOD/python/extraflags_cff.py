@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariablesTableProducer
 
 # Bad/clone muon filters - tagging mode to keep the event
 from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTaggerMAOD, cloneGlobalMuonTaggerMAOD
@@ -29,7 +29,7 @@ BadChargedCandidateTagger = BadChargedCandidateFilter.clone(
     taggingMode = True,
 )
 
-extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
+extraFlagsTable = globalVariablesTableProducer.clone(
     variables = cms.PSet(
         Flag_BadGlobalMuon = ExtVar(cms.InputTag("badGlobalMuonTagger:notBadEvent"), bool, doc = "Bad muon flag"),
         Flag_CloneGlobalMuon = ExtVar(cms.InputTag("cloneGlobalMuonTagger:notBadEvent"), bool, doc = "Clone muon flag"),
@@ -43,22 +43,7 @@ ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
     taggingMode = cms.bool(True)
 )
 
-# modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toModify(extraFlagsTable, variables= cms.PSet())
-    modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updatedxtal list)")))
-
 
 # empty task as default
 extraFlagsProducersTask = cms.Task()
 extraFlagsTableTask = cms.Task()
-
-## those need to be added only for some specific eras
-extraFlagsProducersTask_80x = cms.Task(badGlobalMuonTagger,cloneGlobalMuonTagger,BadPFMuonTagger,BadChargedCandidateTagger)
-extraFlagsProducersTask_102x = cms.Task(ecalBadCalibFilterNanoTagger)
-
-run2_miniAOD_80XLegacy.toReplaceWith(extraFlagsProducersTask, extraFlagsProducersTask_80x)
-run2_miniAOD_80XLegacy.toReplaceWith(extraFlagsTableTask, cms.Task(extraFlagsTable))
-
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(extraFlagsProducersTask, extraFlagsProducersTask_102x)
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(extraFlagsTableTask, cms.Task(extraFlagsTable))

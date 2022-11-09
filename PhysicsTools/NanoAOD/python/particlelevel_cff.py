@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-
-
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleHTXSFlatTableProducer_cfi import simpleHTXSFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -25,23 +26,23 @@ genParticles2HepMCHiggsVtx = cms.EDProducer("GenParticles2HepMCConverter",
 
 particleLevel = cms.EDProducer("ParticleLevelProducer",
     src = cms.InputTag("genParticles2HepMC:unsmeared"),
-    
+
     doJetClustering = cms.bool(False), # Not needed as Rivet jets aren't used currently
     usePromptFinalStates = cms.bool(True), # for leptons, photons, neutrinos
     excludePromptLeptonsFromJetClustering = cms.bool(False),
     excludeNeutrinosFromJetClustering = cms.bool(True),
-    
+
     particleMinPt  = cms.double(0.),
     particleMaxEta = cms.double(5.), # HF range. Maximum 6.0 on MiniAOD
-    
+
     lepConeSize = cms.double(0.1), # for photon dressing
     lepMinPt    = cms.double(1.),
     lepMaxEta   = cms.double(2.5),
-    
+
     jetConeSize = cms.double(0.4),
     jetMinPt    = cms.double(10.),
     jetMaxEta   = cms.double(999.),
-    
+
     fatJetConeSize = cms.double(0.8),
     fatJetMinPt    = cms.double(170.),
     fatJetMaxEta   = cms.double(999.),
@@ -60,29 +61,25 @@ rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
 
 
 ##################### Tables for final output and docs ##########################
-rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+rivetLeptonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("particleLevel:leptons"),
     cut = cms.string("pt > 15"),
     name= cms.string("GenDressedLepton"),
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table
     externalVariables = cms.PSet(
         hasTauAnc = ExtVar(cms.InputTag("tautagger"),bool, doc="true if Dressed lepton has a tau as ancestor"),
         ),
     variables = cms.PSet(
         P4Vars,
-        pdgId = Var("pdgId", int, doc="PDG id"), 
+        pdgId = Var("pdgId", int, doc="PDG id"),
     )
 )
 
-rivetPhotonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+rivetPhotonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("particleLevel:photons"),
     cut = cms.string("pt > 10"),
     name= cms.string("GenIsolatedPhoton"),
     doc = cms.string("Isolated photons from Rivet-based ParticleLevelProducer"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table
     variables = cms.PSet(
         P4Vars
     )
@@ -92,65 +89,21 @@ tautagger = cms.EDProducer("GenJetTauTaggerProducer",
     src = rivetLeptonTable.src,
 )
 
-#rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-#    src = cms.InputTag("particleLevel:jets"),
-#    cut = cms.string(""),
-#    name= cms.string("RivetJet"),
-#    doc = cms.string("AK4 jets from Rivet-based ParticleLevelProducer"),
-#    singleton = cms.bool(False), # the number of entries is variable
-#    extension = cms.bool(False),
-#    variables = cms.PSet(
-#        # Identical to GenJets, so we just extend their flavor information
-#        P4Vars,
-#        hadronFlavour = Var("pdgId", int, doc="PDG id"),
-#    )
-#)
-
-#rivetFatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-#    src = cms.InputTag("particleLevel:fatjets"),
-#    cut = cms.string(""),
-#    name= cms.string("GenFatJet"),
-#    doc = cms.string("AK8 jets from Rivet-based ParticleLevelProducer"),
-#    singleton = cms.bool(False), # the number of entries is variable
-#    extension = cms.bool(False), # this is the main table
-#    variables = cms.PSet(
-#        P4Vars,
-#        hadronFlavour = Var("pdgId", int, doc="PDG id"), 
-#    )
-#)
-
-#rivetTagTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-#    src = cms.InputTag("particleLevel:tags"),
-#    cut = cms.string(""),
-#    name= cms.string("RivetTag"),
-#    doc = cms.string("Tag particles from Rivet-based ParticleLevelProducer, momenta scaled down by 10e-20"),
-#    singleton = cms.bool(False), # the number of entries is variable
-#    extension = cms.bool(False), # this is the main table
-#    variables = cms.PSet(
-#        P4Vars,
-#        pdgId = Var("pdgId", int, doc="PDG id"), 
-#    )
-#)
-
-rivetMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+rivetMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     src = cms.InputTag("particleLevel:mets"),
     name = cms.string("MET"),
     doc = cms.string("MET from Rivet-based ParticleLevelProducer in fiducial volume abs(eta)<5"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(True), # this is the main table
+    extension = cms.bool(True),
     variables = cms.PSet(
        fiducialGenPt  = Var("pt",  float, precision=10),
        fiducialGenPhi = Var("phi", float, precision=10),
     ),
 )
 
-HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
+HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
     src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
-    cut = cms.string(""),
     name = cms.string("HTXS"),
     doc = cms.string("HTXS classification"),
-    singleton = cms.bool(True),
-    extension = cms.bool(False),
     variables=cms.PSet(
         stage_0 = Var("stage0_cat",int, doc="HTXS stage-0 category"),
         stage_1_pTjet30 = Var("stage1_cat_pTjet30GeV",int, doc="HTXS stage-1 category (jet pt>30 GeV)"),

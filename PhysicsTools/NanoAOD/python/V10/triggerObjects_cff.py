@@ -8,12 +8,7 @@ unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     triggerResults              = cms.InputTag('TriggerResults::HLT'),
     unpackFilterLabels = cms.bool(True)
 )
-# ERA-dependent configuration
-run2_miniAOD_80XLegacy.toModify(
-  unpackedPatTrigger,
-  patTriggerObjectsStandAlone = "selectedPatTrigger",
-  unpackFilterLabels = False 
-)
+
 
 triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
     name= cms.string("TrigObj"),
@@ -292,13 +287,6 @@ run2_jme_2017.toModify( prefiringweight, DataEraECAL = cms.string("UL2017BtoF"),
 #Next line is for UL2018 maps 
 run2_muon_2018.toModify( prefiringweight, DataEraECAL = cms.string("None"), DataEraMuon = cms.string("20172018"))
 
-#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify( prefiringweight, DataEraECAL = cms.string("2017BtoF"), DataEraMuon = cms.string("20172018"))
-    modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
-#For pre-UL 2016 reprocessing, same thing
-run2_nanoAOD_94X2016.toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"), DataEraMuon = cms.string("2016") )
-run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     name = cms.string("L1PreFiringWeight"),
@@ -328,5 +316,3 @@ triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits
 _triggerObjectTablesTask_withL1PreFiring = triggerObjectTablesTask.copy()
 _triggerObjectTablesTask_withL1PreFiring.add(prefiringweight,l1PreFiringEventWeightTable)
 (run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTablesTask,_triggerObjectTablesTask_withL1PreFiring)
-
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(l1bits, storeUnprefireableBit=False)

@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.NanoAOD.nano_eras_cff import *
-from  PhysicsTools.NanoAOD.common_cff import *
-
-
+from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariablesTableProducer
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 
 chsForSATkJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && pvAssociationQuality()>=5 && vertexRef().key()==0'))
@@ -14,14 +13,11 @@ softActivityJets2 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("softActi
 
 
 ##### Soft Activity tables
-saJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+saJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("softActivityJets"),
-    cut = cms.string(""),
     maxLen = cms.uint32(6),
     name = cms.string("SoftActivityJet"),
     doc  = cms.string("jets clustered from charged candidates compatible with primary vertex (" + chsForSATkJets.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P3Vars,
   )
 )
@@ -30,7 +26,7 @@ saJetTable.variables.pt.precision=10
 saJetTable.variables.eta.precision=8
 saJetTable.variables.phi.precision=8
 
-saTable = cms.EDProducer("GlobalVariablesTableProducer",
+saTable = globalVariablesTableProducer.clone(
     variables = cms.PSet(
         SoftActivityJetHT = ExtVar( cms.InputTag("softActivityJets"), "candidatescalarsum", doc = "scalar sum of soft activity jet pt, pt>1" ),
         SoftActivityJetHT10 = ExtVar( cms.InputTag("softActivityJets10"), "candidatescalarsum", doc = "scalar sum of soft activity jet pt , pt >10"  ),

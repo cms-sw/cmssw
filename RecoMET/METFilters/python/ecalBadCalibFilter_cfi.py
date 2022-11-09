@@ -34,8 +34,3 @@ run2_common.toModify(ecalBadCalibFilter, baddetEcal = [872439604,872422825,87242
                                                        872422564,872421566,872421695,872421955,
                                                        872421567,872437184,872421951,872421694,
                                                        872437056,872437057,872437313])
-
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(ecalBadCalibFilter, EcalRecHitSource = 'reducedEgamma:reducedEERecHits')

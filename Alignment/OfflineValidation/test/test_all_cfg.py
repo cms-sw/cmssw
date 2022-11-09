@@ -2,7 +2,7 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_Realistic2022
 
 class RefitType(Enum):
      STANDARD = 1
@@ -21,13 +21,13 @@ process = cms.Process("Demo")
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                            fileNames = filesDefaultMC_Realistic2022,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2600) )
 
 ###################################################################
 # JSON Filtering
