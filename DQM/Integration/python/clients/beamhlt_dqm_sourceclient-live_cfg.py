@@ -10,8 +10,13 @@ BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:li
 useLockRecords = True
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("BeamMonitor", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("BeamMonitor", Run3)
+
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -130,6 +135,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # Set rawDataRepacker (HI and live) or hltFEDSelectorTCDS+hltFEDSelectorOnlineMetaData (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
+    onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
 else:
     # Use raw data from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
     rawDataInputTag = "hltFEDSelectorTCDS"
