@@ -3,6 +3,11 @@
 // This class writes out the variuos look up tables
 // for all modules.
 //////////////////////////////////////////////////////////////////
+//
+// This class has methods to build the LUT (LookUp Tables) used by the track finding
+// It also provides a method to write out the file for use by the firmware implementation
+//
+//
 #ifndef L1Trigger_TrackFindingTracklet_interface_TrackletLUT_h
 #define L1Trigger_TrackFindingTracklet_interface_TrackletLUT_h
 
@@ -49,6 +54,8 @@ namespace trklet {
     //region only used for name - should be removed
     void initmatchcut(unsigned int layerdisk, MatchType type, unsigned int region);
 
+    //Builds LUT that for each TP returns if the phi differences between inner and outer
+    //stub is consistent with the pT cut and the stub pair should be kept.
     void initTPlut(bool fillInner,
                    unsigned int iSeed,
                    unsigned int layerdisk1,
@@ -56,6 +63,9 @@ namespace trklet {
                    unsigned int nbitsfinephidiff,
                    unsigned int iTP);
 
+    //Builds a lut for the TP ro decide if the region should be used. This is used in the
+    //first stage of the TP to decide which regions in the outer layer an inner stub needs
+    //to be combined with
     void initTPregionlut(unsigned int iSeed,
                          unsigned int layerdisk1,
                          unsigned int layerdisk2,
@@ -65,6 +75,7 @@ namespace trklet {
                          const TrackletLUT& tplutinner,
                          unsigned int iTP);
 
+    //Stub pt consistency for tracklet engine
     void initteptlut(bool fillInner,
                      bool fillTEMem,
                      unsigned int iSeed,
@@ -79,21 +90,28 @@ namespace trklet {
                      const std::string& innermem,
                      const std::string& outermem);
 
+    //This LUT uses the phi derivative known in the projection to calculate the corresponding bend
     void initProjectionBend(double k_phider, unsigned int idisk, unsigned int nrbits, unsigned int nphiderbits);
 
+    //This LUT implements consistence check for match engine to check that stub bend is consistent with projection
     void initBendMatch(unsigned int layerdisk);
 
     void initProjectionDiskRadius(int nrbits);
 
     enum VMRTableType { me, disk, inner, inneroverlap, innerthird };
 
+    //In the VMR we used the position of the stub (r, z) to calculate the bin and fine rz position the stub has
     //region only used for name - should be removed
     void initVMRTable(unsigned int layerdisk, VMRTableType type, int region = -1);
 
+    //Used in barrel to calculate the phi position of a stub at the nominal radis of the layer based on the stub radial
+    //psotion and bend
     void initPhiCorrTable(unsigned int layerdisk, unsigned int rbits);
 
+    //writes out the LUT in standared format for firmware
     void writeTable() const;
 
+    //Evaluate the LUT
     int lookup(unsigned int index) const;
 
     unsigned int size() const { return table_.size(); }

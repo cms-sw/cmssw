@@ -187,7 +187,7 @@ std::vector<std::array<double, 2>> TrackletLUT::getBendCut(unsigned int layerdis
 void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned int region) {
   char cregion = 'A' + region;
 
-  for (unsigned int iSeed = 0; iSeed < 12; iSeed++) {
+  for (unsigned int iSeed = 0; iSeed < N_SEED; iSeed++) {
     if (type == barrelphi) {
       table_.push_back(settings_.rphimatchcut(iSeed, layerdisk) / (settings_.kphi1() * settings_.rmean(layerdisk)));
     }
@@ -318,8 +318,10 @@ void TrackletLUT::initTPlut(bool fillInner,
       iphidiff = iphibin - nbinsfinephidiff;
     }
     //min and max dphi
-    dphi[0] = (iphidiff - 1.5) * dfinephi;
-    dphi[1] = (iphidiff + 1.5) * dfinephi;
+    //ramge of dphi to consider due to resolution
+    double deltaphi = 1.5;
+    dphi[0] = (iphidiff - deltaphi) * dfinephi;
+    dphi[1] = (iphidiff + deltaphi) * dfinephi;
     for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
       if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
         router[0] =
@@ -467,6 +469,8 @@ void TrackletLUT::initTPlut(bool fillInner,
       }
     }
   }
+
+  nbits_ = 8;
 
   positive_ = false;
   char cTP = 'A' + iTP;
@@ -1023,7 +1027,9 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
         }
       }
 
-      if (layerdisk >= N_LAYER && irbin < 10)  //special case for the tabulated radii in 2S disks
+      unsigned int NRING =
+          5;  //number of 2S rings in disks. This is multiplied below by two since we have two halfs of a module
+      if (layerdisk >= N_LAYER && irbin < 2 * NRING)  //special case for the tabulated radii in 2S disks
         r = (layerdisk < N_LAYER + 2) ? settings_.rDSSinner(irbin) : settings_.rDSSouter(irbin);
 
       int bin;
@@ -1155,7 +1161,8 @@ int TrackletLUT::getVMRLookup(unsigned int layerdisk, double z, double r, double
   double z0cut = settings_.z0cut();
 
   if (layerdisk < N_LAYER) {
-    if (iseed == Seed::L2L3 && std::abs(z) < 52.0)
+    double zcutL2L3 = 52.0;  //Stubs closer to IP in z will not be used for L2L3 seeds
+    if (iseed == Seed::L2L3 && std::abs(z) < zcutL2L3)
       return -1;
 
     double rmean = settings_.rmean(layerdisk);
@@ -1355,7 +1362,8 @@ int TrackletLUT::getphiCorrValue(
   double Delta = (irbin + 0.5) * dr - drmax;
 
   //calculate the phi correction - this is a somewhat approximate formula
-  double dphi = (Delta / 0.18) * bend * settings_.stripPitch(psmodule) / rmean;
+  double drnom = 0.18;  //This is the nominal module separation for which bend is referenced
+  double dphi = (Delta / drnom) * bend * settings_.stripPitch(psmodule) / rmean;
 
   double kphi = psmodule ? settings_.kphi() : settings_.kphi1();
 
@@ -1392,6 +1400,29 @@ void TrackletLUT::writeTable() const {
     out << itable;
   }
   out << endl << "};" << endl;
+  out.close();
+
+  string name = name_;
+
+  name[name_.size() - 3] = 'd';
+  name[name_.size() - 2] = 'a';
+  name[name_.size() - 1] = 't';
+
+  out = openfile(settings_.tablePath(), name, __FILE__, __LINE__);
+
+  int width = (nbits_ + 3) / 4;
+
+  for (unsigned int i = 0; i < table_.size(); i++) {
+    int itable = table_[i];
+    if (positive_) {
+      if (table_[i] < 0) {
+        itable = (1 << nbits_) - 1;
+      }
+    }
+
+    out << uppercase << setfill('0') << setw(width) << hex << itable << dec << endl;
+  }
+
   out.close();
 }
 
