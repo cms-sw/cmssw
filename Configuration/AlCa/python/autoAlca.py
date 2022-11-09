@@ -6,7 +6,7 @@ AlCaRecoMatrix = {
                   "AlCaP0"                      : "",
                   "ALCAPPSExpress"              : "PPSCalMaxTracks", # Express producer
                   "AlCaPPSPrompt"               : "PPSCalMaxTracks", # Prompt  producer
-                  "Commissioning"               : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
+                  "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias",
                   "Cosmics"                     : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
                   "EGamma"                      : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
                   "Express"                     : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
@@ -23,7 +23,7 @@ AlCaRecoMatrix = {
                   # These (TestEnablesTracker, TestEnablesEcalHcal) are in the AlCaRecoMatrix, but no RelVals are produced
                   # 'TestEnablesTracker'        : 'TkAlLAS'
                   # 'TestEnablesEcalHcal'       : 'HcalCalPedestal'
-                  "ZeroBias"                    : "SiStripCalZeroBias+TkAlMinBias+SiStripCalMinBias",
+                  "ZeroBias"                    : "HcalCalIsolatedBunchSelector+SiStripCalZeroBias+TkAlMinBias+SiStripCalMinBias",
                   }
 
 
