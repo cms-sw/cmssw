@@ -48,6 +48,7 @@ namespace trackerTFP {
     ss << header(numChannel + voidChannel);
     int nFrame(0);
     // create one packet per region
+    bool first = true;
     for (int region = 0; region < numRegions_; region++) {
       const int offset = region * numChannel;
       // start with emp 6 frame gap
@@ -57,11 +58,12 @@ namespace trackerTFP {
         ss << this->frame(nFrame);
         for (int channel = 0; channel < numChannel; channel++) {
           const vector<Frame>& bvs = bits[offset + channel];
-          ss << (frame < (int)bvs.size() ? hex(bvs[frame], frame == 0) : hex(Frame(), frame == 0));
+          ss << (frame < (int)bvs.size() ? hex(bvs[frame], first) : hex(Frame(), first));
         }
         for (int channel = 0; channel < voidChannel; channel++)
           ss << "  0000 " << string(TTBV::S_ / 4, '0');
         ss << endl;
+        first = false;
       }
     }
   }
