@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_JetHTRun2022A
+
 options = VarParsing.VarParsing("analysis")
 
 options.register ('GlobalTag',
-                  'auto:run2_data',
+                  'auto:run3_data',
                   VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
@@ -28,12 +30,7 @@ process.MessageLogger.TrackRefitter=dict()
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
 # define input files
-process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/1B7906DB-A233-0143-ACF0-BB29D9FCFB24.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/441F40BB-325E-5D46-9F1D-3C8BBAB8AE58.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/B624B687-53C9-1C49-A19E-25FC808C9D88.root'))
+process.source = cms.Source("PoolSource", fileNames = filesDefaultData_JetHTRun2022A)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -100,7 +97,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 # configure alignment track selector
 ####################################################################
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = cms.InputTag('TkAlIsoProdFilter') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
+process.AlignmentTrackSelector.src = cms.InputTag('ALCARECOTkAlMinBias') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
 process.AlignmentTrackSelector.ptMin = 1.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -113,8 +110,8 @@ process.AlignmentTrackSelector.chi2nMax = 100.
 # configure track refitter
 ####################################################################
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
-process.MeasurementTrackerEvent.pixelClusterProducer = "TkAlIsoProdFilter"
-process.MeasurementTrackerEvent.stripClusterProducer = "TkAlIsoProdFilter"
+process.MeasurementTrackerEvent.pixelClusterProducer = "ALCARECOTkAlMinBias"
+process.MeasurementTrackerEvent.stripClusterProducer = "ALCARECOTkAlMinBias"
 #process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag([''])
 #process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag([''])
 

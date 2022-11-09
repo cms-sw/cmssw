@@ -1,5 +1,5 @@
-#ifndef TrackerTrackerValidationVariables_h
-#define TrackerTrackerValidationVariables_h
+#ifndef Alignment_OfflineValidation_TrackerTrackerValidationVariables_h
+#define Alignment_OfflineValidation_TrackerTrackerValidationVariables_h
 
 // system include files
 #include <vector>

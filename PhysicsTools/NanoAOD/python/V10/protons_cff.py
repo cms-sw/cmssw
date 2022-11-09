@@ -67,7 +67,3 @@ genProtonTable = _genproton.clone(
 )
 
 genProtonTablesTask = cms.Task(genProtonTable)
-
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toReplaceWith(protonTablesTask, cms.Task())
-# input GEN-level PU protons collection only introduced for UL and 12_X_Y
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toReplaceWith(genProtonTablesTask, cms.Task())

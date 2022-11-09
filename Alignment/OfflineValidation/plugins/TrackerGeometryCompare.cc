@@ -94,6 +94,8 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 
   //output file
   filename_ = cfg.getUntrackedParameter<std::string>("outputFile");
+  //output dir for surface deformations
+  surfdir_ = cfg.getUntrackedParameter<std::string>("surfDir");
 
   weightBy_ = cfg.getUntrackedParameter<std::string>("weightBy");
   setCommonTrackerSystem_ = cfg.getUntrackedParameter<std::string>("setCommonTrackerSystem");
@@ -207,11 +209,11 @@ void TrackerGeometryCompare::endJob() {
   int iname(0);
   for (std::vector<TrackerMap>::iterator it = m_vtkmap_.begin(); it != m_vtkmap_.end(); ++it) {
     std::stringstream mapname;
-    mapname << "TkMap_SurfDeform" << iname << ".png";
+    mapname << surfdir_ << "/TkMap_SurfDeform" << iname << ".png";
     it->save(true, 0, 0, mapname.str());
     mapname.str(std::string());
     mapname.clear();
-    mapname << "TkMap_SurfDeform" << iname << ".pdf";
+    mapname << surfdir_ << "/TkMap_SurfDeform" << iname << ".pdf";
     it->save(true, 0, 0, mapname.str());
     ++iname;
   }
