@@ -13,13 +13,7 @@ trackerphase2DQMSource = cms.Sequence( pixDigiMon
 )
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
-trackerphase2DQMSource_wVhits = cms.Sequence( pixDigiMon
-                                       + otDigiMon
-                                       +rechitMonitorIT
-                                       + clusterMonitorIT
-                                       + clusterMonitorOT
-                                       + acceptedVecHitsmon
-                                       + rejectedVecHitsmon
-)
+trackerphase2DQMSource_wVhits = trackerphase2DQMSource.copy()
+trackerphase2DQMSource_wVhits += cms.Sequence(acceptedVecHitsmon + rejectedVecHitsmon)
 
 vectorHits.toReplaceWith(trackerphase2DQMSource, trackerphase2DQMSource_wVhits)
