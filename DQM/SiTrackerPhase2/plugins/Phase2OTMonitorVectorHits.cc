@@ -29,9 +29,10 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -57,9 +58,11 @@ private:
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
+  const MagneticField* magField_ = nullptr;
 
   MonitorElement* numberVecHits_ = nullptr;
   MonitorElement* globalXY_P_ = nullptr;
@@ -81,6 +84,10 @@ private:
     MonitorElement* phi_S = nullptr;
     MonitorElement* eta_P = nullptr;
     MonitorElement* eta_S = nullptr;
+    MonitorElement* pt_P = nullptr;
+    MonitorElement* pt_S = nullptr;
+    MonitorElement* chi2_P = nullptr;
+    MonitorElement* chi2_S = nullptr;
   };
   std::map<std::string, VecHitME> layerMEs_;
 };
@@ -92,7 +99,8 @@ Phase2OTMonitorVectorHits::Phase2OTMonitorVectorHits(const edm::ParameterSet& iC
     : config_(iConfig),
       tokenVecHitsOT_(consumes<VectorHitCollection>(config_.getParameter<edm::InputTag>("vechitsSrc"))),
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()) {
   edm::LogInfo("Phase2OTMonitorVectorHits") << ">>> Construct Phase2OTMonitorVectorHits ";
 }
 
@@ -109,6 +117,7 @@ Phase2OTMonitorVectorHits::~Phase2OTMonitorVectorHits() {
 void Phase2OTMonitorVectorHits::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
+  magField_ = &iSetup.getData(magFieldToken_);
 }
 
 //
@@ -160,6 +169,8 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
       const float curverr = vechitIt->curvatureError();
       const float eta = globalVec.eta();
       const float phi = globalVec.phi();
+      float QOverPT = vechitIt->transverseMomentum(magField_->inTesla(GlobalPoint(0., 0., 0.)).z());
+      const int sign = QOverPT > 0. ? 1. : -1.;
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         globalXY_P_->Fill(gx, gy);
         globalRZ_P_->Fill(gz, gr);
@@ -168,8 +179,12 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
         layerMEs_[key].curvature_P->Fill(curvature);
         if (curvature != 0.f)
           layerMEs_[key].curvErr_P->Fill(curverr / curvature);
+        else
+          edm::LogError("Phase2OTMonitorVectorHits") << "VectorHit with curvature zero found";
         layerMEs_[key].phi_P->Fill(phi);
         layerMEs_[key].eta_P->Fill(eta);
+        layerMEs_[key].pt_P->Fill(sign * QOverPT);
+        layerMEs_[key].chi2_P->Fill(vechitIt->chi2());
         layerMEs_[key].curvatureVsEta_P->Fill(eta, curvature);
       } else if (mType == TrackerGeometry::ModuleType::Ph2SS) {
         globalXY_S_->Fill(gx, gy);
@@ -179,8 +194,12 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
         layerMEs_[key].curvature_S->Fill(curvature);
         if (curvature != 0.f)
           layerMEs_[key].curvErr_S->Fill(curverr / curvature);
+        else
+          edm::LogError("Phase2OTMonitorVectorHits") << "VectorHit with curvature zero found";
         layerMEs_[key].phi_S->Fill(phi);
         layerMEs_[key].eta_S->Fill(eta);
+        layerMEs_[key].pt_S->Fill(sign * QOverPT);
+        layerMEs_[key].chi2_S->Fill(vechitIt->chi2());
         layerMEs_[key].curvatureVsEta_S->Fill(eta, curvature);
       }
     }
@@ -255,6 +274,8 @@ void Phase2OTMonitorVectorHits::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
       local_histos.phi_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
       local_histos.eta_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
+      local_histos.pt_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pt"), ibooker);
+      local_histos.chi2_P = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Chi2"), ibooker);
       local_histos.curvatureVsEta_P =
           phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_P"), ibooker);
     } else {
@@ -269,6 +290,8 @@ void Phase2OTMonitorVectorHits::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvErr"), ibooker);
       local_histos.phi_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Phi"), ibooker);
       local_histos.eta_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Eta"), ibooker);
+      local_histos.pt_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pt"), ibooker);
+      local_histos.chi2_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Chi2"), ibooker);
       local_histos.curvatureVsEta_S =
           phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("CurvatureVsEta_S"), ibooker);
     }
@@ -432,6 +455,26 @@ void Phase2OTMonitorVectorHits::fillDescriptions(edm::ConfigurationDescriptions&
     psd0.add<double>("xmax", 5.);
     psd0.add<int>("NxBins", 50);
     desc.add<edm::ParameterSetDescription>("Eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "PtOfVecHits");
+    psd0.add<std::string>("title", "VectorHit p_T;p_T ;");
+    psd0.add<int>("NxBins", 100);
+    psd0.add<double>("xmin", 0.);
+    psd0.add<double>("xmax", 200.0);
+    psd0.add<bool>("switch", true);
+    desc.add<edm::ParameterSetDescription>("Pt", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Chi2OfVecHits");
+    psd0.add<std::string>("title", "VectorHit chi squared; #chi^2;");
+    psd0.add<int>("NxBins", 100);
+    psd0.add<double>("xmin", 0.);
+    psd0.add<double>("xmax", 0.000001);
+    psd0.add<bool>("switch", true);
+    desc.add<edm::ParameterSetDescription>("Chi2", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
