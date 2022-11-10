@@ -198,6 +198,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
   float time = itr->time();
   float timeError = itr->timeError();
   float position = itr->position();
+  float xpos = 0.f;
   // position is the longitudinal offset that should be added into local x for bars in phi geometry
   LocalError local_error(0, 0, 0);
   GlobalPoint global_point(0, 0, 0);
@@ -208,14 +209,13 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
     const auto& det = geom->idToDet(geoId);
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det->topology());
     const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
-    MeasurementPoint mp(row, col);
-    LocalPoint lp_ctr = topol.localPosition(mp);
-    LocalPoint lp(lp_ctr.x() + position + topol.pitch().first * 0.5f, lp_ctr.y(), lp_ctr.z());
-    // local coordinates of BTL module locates RecHits on the left edge of the bar (-9.2, -3.067, 3.067)
-    // (position + topol.pitch().first/2.0) is the distance from the left edge to the Hit point
-    global_point = det->toGlobal(lp);
-    BTLRecHitsErrorEstimatorIM btlError(det, lp);
+
+    LocalPoint lp_pixel(position, 0, 0);
+    LocalPoint lp_module = topol.pixelToModuleLocalPoint(lp_pixel, row, col);
+    global_point = det->toGlobal(lp_module);
+    BTLRecHitsErrorEstimatorIM btlError(det, lp_module);
     local_error = btlError.localError();
+    xpos = lp_module.x();
   } else if (mtdId.mtdSubDetector() == MTDDetId::ETL) {
     subDet = GeomDetEnumerators::endcap;
     ETLDetId id = itr->id();
@@ -224,14 +224,18 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det->topology());
     const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    MeasurementPoint mp(row, col);
-    LocalPoint lp = topol.localPosition(mp);
-    global_point = det->toGlobal(lp);
+    LocalPoint lp_pixel(0, 0, 0);
+    LocalPoint lp_module = topol.pixelToModuleLocalPoint(lp_pixel, row, col);
+    global_point = det->toGlobal(lp_module);
   }
 
-  LogDebug("MTDThresholdClusterizer") << "ROW " << row << " COL " << col << " ENERGY " << energy << " TIME " << time;
+  LogDebug("MTDThresholdClusterizer") << "DetId " << mtdId.rawId() << " subd " << mtdId.mtdSubDetector() << " row/col "
+                                      << row << " / " << col << " energy " << energy << " time " << time
+                                      << " time error " << timeError << " global_point " << global_point.x() << " "
+                                      << global_point.y() << " " << global_point.z() << " local error "
+                                      << local_error.xx() << " " << local_error.yy() << " xpos " << xpos;
   if (energy > theHitThreshold) {
-    theBuffer.set(row, col, subDet, energy, time, timeError, local_error, global_point);
+    theBuffer.set(row, col, subDet, energy, time, timeError, local_error, global_point, xpos);
     if (energy > theSeedThreshold)
       theSeeds.push_back(FTLCluster::FTLHitPos(row, col));
     //sort seeds?
@@ -255,6 +259,14 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
 
   AccretionCluster acluster;
   acluster.add(hit, seed_energy, seed_time, seed_time_error);
+
+  // for BTL position along crystals add auxiliary vectors
+  std::array<float, AccretionCluster::MAXSIZE> pixel_x{{-99999.}};
+  std::array<float, AccretionCluster::MAXSIZE> pixel_errx2{{-99999.}};
+  if (seed_subdet == GeomDetEnumerators::barrel) {
+    pixel_x[acluster.top()] = theBuffer.xpos(hit.row(), hit.col());
+    pixel_errx2[acluster.top()] = seed_error_xx;
+  }
 
   bool stopClus = false;
   //Here we search all hits adjacent to all hits in the cluster.
@@ -288,6 +300,10 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
             stopClus = true;
             break;
           }
+          if (theBuffer.subDet(r, c) == GeomDetEnumerators::barrel) {
+            pixel_x[curInd] = theBuffer.xpos(r, c);
+            pixel_errx2[curInd] = theBuffer.local_error(r, c).xx();
+          }
           theBuffer.clear(newhit);
         }
       }
@@ -303,5 +319,19 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
                      acluster.y.data(),
                      acluster.xmin,
                      acluster.ymin);
+
+  // For BTL compute the optimal position along crystal and uncertainty on it in absolute length units
+
+  if (seed_subdet == GeomDetEnumerators::barrel) {
+    float sumW(0.f), sumXW(0.f), sumXW2(0.f);
+    for (unsigned int index = 0; index < acluster.top(); index++) {
+      sumW += acluster.energy[index];
+      sumXW += acluster.energy[index] * pixel_x[index];
+      sumXW2 += acluster.energy[index] * acluster.energy[index] * pixel_errx2[index];
+    }
+    cluster.setClusterPosX(sumXW / sumW);
+    cluster.setClusterErrorX(std::sqrt(sumXW2 / sumW / sumW));
+  }
+
   return cluster;
 }
