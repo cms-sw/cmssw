@@ -583,7 +583,7 @@ uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int 
 #ifdef printDebug
       double eta = std::abs(pos.eta());
       if (eta < 2.868)
-	++detNull_[2];
+        ++detNull_[2];
 #endif
     } else if (!(hcalConstants_->isHE())) {
       det = 3;
@@ -603,11 +603,11 @@ uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int 
                                 << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
 #endif
 #ifdef printDebug
-    } else {
-      ++detNull_[3];
+  } else {
+    ++detNull_[3];
 #endif
-    }
-   
+  }
+
   if (numberingFromDDD.get()) {
     //get the ID's as eta, phi, depth, ... indices
     HcalNumberingFromDDD::HcalID tmp =
@@ -1092,6 +1092,7 @@ void HCalSD::endEvent() {
 #ifdef printDebug
   int sum = detNull_[0] + detNull_[1] + detNull_[2];
   if (sum > 0)
-    edm::LogVerbatim("HcalSim") << "NullDets " << detNull_[0] << " " << detNull_[1] << " " << detNull_[2] << " " << detNull_[3] << " " << (static_cast<float>(sum) / (sum + detNull_[3]));
+    edm::LogVerbatim("HcalSim") << "NullDets " << detNull_[0] << " " << detNull_[1] << " " << detNull_[2] << " "
+                                << detNull_[3] << " " << (static_cast<float>(sum) / (sum + detNull_[3]));
 #endif
 }
