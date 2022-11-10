@@ -57,6 +57,8 @@ protected:
   void update(const BeginOfJob*) override;
   void initRun() override;
   bool filterHit(CaloG4Hit*, double) override;
+  void initEvent(const BeginOfEvent*) override;
+  void endEvent() override;
 
 private:
   void fillLogVolumeVector(const std::string&, const std::vector<std::string>&, std::vector<const G4LogicalVolume*>&);
@@ -120,6 +122,7 @@ private:
   std::vector<const G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t, double> layerWeights;
   TH1F *hit_[9], *time_[9], *dist_[9], *hzvem, *hzvhad;
+  std::vector<int> detNull_;
 };
 
 #endif  // HCalSD_h
