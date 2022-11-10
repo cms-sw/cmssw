@@ -5,6 +5,7 @@
 <use name="FWCore/Framework"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
+<use name="PhysicsTools/TagAndProbe"/>
 <use name="RecoVertex/KalmanVertexFit"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
