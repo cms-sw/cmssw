@@ -230,20 +230,12 @@ TEST_CASE("Configuration with different branches", s_tag) {
   const std::string baseConfig1 = makeConfig(true, test1, test2);
   const std::string baseConfig2 = makeConfig(false, test1, test2);
 
-  SECTION("Different branches are not allowed") {
+  SECTION("Different branches are allowed") {
     edm::test::TestProcessor::Config config1{baseConfig1};
-    REQUIRE_THROWS_WITH(
-        edm::test::TestProcessor(config1),
-        Catch::Contains("that does not produce a product") && Catch::Contains("that is produced by the chosen case") &&
-            Catch::Contains("Products for case s@test1") && Catch::Contains("Products for case s@test2") &&
-            Catch::Contains("edmtestIntProduct \n") && Catch::Contains("edmtestIntProduct foo"));
+    edm::test::TestProcessor testProcessor1(config1);
 
     edm::test::TestProcessor::Config config2{baseConfig2};
-    REQUIRE_THROWS_WITH(
-        edm::test::TestProcessor(config2),
-        Catch::Contains("with a product") && Catch::Contains("that is not produced by the chosen case") &&
-            Catch::Contains("Products for case s@test1") && Catch::Contains("Products for case s@test2") &&
-            Catch::Contains("edmtestIntProduct \n") && Catch::Contains("edmtestIntProduct foo"));
+    edm::test::TestProcessor testProcessor2(config2);
   }
 }
 
@@ -261,20 +253,12 @@ TEST_CASE("Configuration with different branches with EDAlias", s_tag) {
   const std::string baseConfig1 = makeConfig(true, test1, test2, otherprod, othername);
   const std::string baseConfig2 = makeConfig(false, test1, test2, otherprod, othername);
 
-  SECTION("Different branches are not allowed") {
+  SECTION("Different branches are allowed") {
     edm::test::TestProcessor::Config config1{baseConfig1};
-    REQUIRE_THROWS_WITH(
-        edm::test::TestProcessor(config1),
-        Catch::Contains("that does not produce a product") && Catch::Contains("that is produced by the chosen case") &&
-            Catch::Contains("Products for case s@test1") && Catch::Contains("Products for case s@test2") &&
-            Catch::Contains("edmtestIntProduct \n") && Catch::Contains("edmtestIntProduct foo"));
+    edm::test::TestProcessor testProcessor1(config1);
 
     edm::test::TestProcessor::Config config2{baseConfig2};
-    REQUIRE_THROWS_WITH(
-        edm::test::TestProcessor(config2),
-        Catch::Contains("with a product") && Catch::Contains("that is not produced by the chosen case") &&
-            Catch::Contains("Products for case s@test1") && Catch::Contains("Products for case s@test2") &&
-            Catch::Contains("edmtestIntProduct \n") && Catch::Contains("edmtestIntProduct foo"));
+    edm::test::TestProcessor testProcessor2(config2);
   }
 }
 

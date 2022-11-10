@@ -7,7 +7,8 @@ class SwitchProducerTest(cms.SwitchProducer):
         super(SwitchProducerTest,self).__init__(
             dict(
                 test1 = lambda accelerators: (True, -10),
-                test2 = lambda accelerators: (enableTest2, -9)
+                test2 = lambda accelerators: (enableTest2, -9),
+                test3 = lambda accelerators: (True, -11)
             ), **kargs)
 
 process = cms.Process("PROD1")
@@ -48,9 +49,11 @@ process.intProducer = SwitchProducerTest(
     test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
 )
 # Test also existence of another SwitchProducer here
+# Note that test3 exists only to show it is allowed for different cases to have different products
 process.intProducerOther = SwitchProducerTest(
     test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
-    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2")),
+    test3 = cms.EDProducer("ToyDoubleProducer", dvalue = cms.double(1.0))
 )
 # SwitchProducer with an alias
 process.intProducerAlias = SwitchProducerTest(
