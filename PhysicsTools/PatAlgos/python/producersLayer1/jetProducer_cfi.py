@@ -99,6 +99,47 @@ _patJets = _mod.PATJetProducer.clone(
     resolutions     = dict()
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(_patJets,
+              jetSource = "ak4PFJetsCHS",
+              genJetMatch = "patJetGenJetMatch",
+              genPartonMatch = "patJetPartonMatch",
+              JetFlavourInfoSource = "patJetFlavourAssociation",
+              JetPartonMapSource = "patJetFlavourAssociationLegacy",
+              jetCorrFactorsSource = ["patJetCorrFactors"],
+              addBTagInfo          = True,   ## master switch
+              addDiscriminators    = True,   ## addition btag disc.
+              discriminatorSources = ["pfJetBProbabilityBJetTags",
+                                      "pfJetProbabilityBJetTags",
+                                      "pfTrackCountingHighEffBJetTags",
+                                      # DeepFlavour
+                                      'pfDeepCSVJetTags:probb',
+                                      'pfDeepCSVJetTags:probc',
+                                      'pfDeepCSVJetTags:probudsg',
+                                      'pfDeepCSVJetTags:probbb',
+                                      # New DeepFlavour (commented until available in RelVals)
+                                      #'pfDeepFlavourJetTags:probb',
+                                      #'pfDeepFlavourJetTags:probbb',
+                                      #'pfDeepFlavourJetTags:problepb',
+                                      #'pfDeepFlavourJetTags:probc',
+                                      #'pfDeepFlavourJetTags:probuds',
+                                      #'pfDeepFlavourJetTags:probg'
+                                      #'pfDeepFlavourJetTags:probuds',
+                                      #'pfDeepFlavourJetTags:probg'
+                                     ],
+              addTagInfos     = False,
+              tagInfoSources  = [],
+              # track association
+              addAssociatedTracks    = True,
+              trackAssociationSource = "ak4JetTracksAssociatorAtVertexPF",
+              # jet charge
+              addJetCharge    = True,
+              jetChargeSource = "patJetCharge",
+
+              addJetID = False,
+              jetIDMap = "ak4JetID",
+)
+
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(_patJets, 
                        jetSource = "akCs4PFJets",
