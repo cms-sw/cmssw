@@ -30,6 +30,9 @@ namespace diMuonMassBias {
     // getters
     const Measurement1D getBias() { return m_bias; }
     const Measurement1D getWidth() { return m_width; }
+    const bool isInvalid() {
+      return (m_bias.value() == 0.f && m_bias.error() == 0.f && m_width.value() == 0.f && m_width.error() == 0.f);
+    }
 
   private:
     Measurement1D m_bias;
@@ -77,11 +80,13 @@ private:
   /// book MEs
   void bookMEs(DQMStore::IBooker& ibooker);
   void getMEsToHarvest(DQMStore::IGetter& igetter);
-  diMuonMassBias::fitOutputs fitVoigt(TH1* hist, const bool& fitBackground = false) const;
+  diMuonMassBias::fitOutputs fitLineShape(TH1* hist, const bool& fitBackground = false) const;
 
   // data members
   const std::string TopFolder_;
   const bool fitBackground_;
+  const bool useRooCBShape_;
+  const bool useRooCMSShape_;
   const bool debugMode_;
 
   float meanConfig_[3];  /* parmaeters for the fit: mean */
