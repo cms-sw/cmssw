@@ -211,28 +211,6 @@ def customiseForOffline(process):
     return process
 
 
-# Reduce the ECAL and HCAL GPU memory usage (#39579)
-# Remove the obsolete configuration parameters
-def customizeHLTfor39579(process):
-    for producer in producers_by_type(process, "EcalUncalibRecHitProducerGPU"):
-        if hasattr(producer, "maxNumberHitsEB"):
-            delattr(producer, "maxNumberHitsEB")
-        if hasattr(producer, "maxNumberHitsEE"):
-            delattr(producer, "maxNumberHitsEE")
-
-    for producer in producers_by_type(process, "EcalRecHitProducerGPU"):
-        if hasattr(producer, "maxNumberHitsEB"):
-            delattr(producer, "maxNumberHitsEB")
-        if hasattr(producer, "maxNumberHitsEE"):
-            delattr(producer, "maxNumberHitsEE")
-
-    for producer in producers_by_type(process, "HBHERecHitProducerGPU"):
-        if hasattr(producer, "maxChannels"):
-            delattr(producer, "maxChannels")
-
-    return process
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -240,6 +218,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor39579(process)
 
     return process
