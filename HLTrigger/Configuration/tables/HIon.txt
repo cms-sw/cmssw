@@ -18,6 +18,8 @@ AlCa_EcalPi0EBonlyForHI_v*
 AlCa_EcalPi0EEonlyForHI_v*
 AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
+AlCa_LumiPixelsCounts_Random_v*   # CMSHLT-2114, CMSHLT-2565
+AlCa_LumiPixelsCounts_ZeroBias_v* # CMSHLT-2114, CMSHLT-2565
 HLT_HICentralityVeto_v*
 HLT_HICentralityVeto_Beamspot_v*
 HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*
@@ -254,8 +256,9 @@ HLT_HIMinimumBias_v* # CMSHLT-2251
 
 HLT_HIOnlineMonitorGroup_v* # CMSHLT-2245
 
-DQM_HIEcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
-DQM_HIHcalReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403, CMSHLT-2565
 
 HLTriggerFinalPath
 
@@ -272,6 +275,8 @@ EcalCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
+ALCALumiPixelsCountsExpressOutput # CMSHLT-2114, CMSHLT-2324, CMSHLT-2565
+ALCALumiPixelsCountsPromptOutput  # CMSHLT-2114, CMSHLT-2324, CMSHLT-2565
 HIExpressOutput
 HIExpressAlignmentOutput
 NanoDSTOutput
