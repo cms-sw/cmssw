@@ -9,7 +9,7 @@ from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, 
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
 from PhysicsTools.NanoAOD.jets_cff   import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger, hfJetShowerShapeforNanoAOD
-from PhysicsTools.NanoAOD.jets_cff   import genJetTable, genJetFlavourAssociation, genJetFlavourTable
+from PhysicsTools.NanoAOD.jets_cff   import genJetTable, genJetFlavourAssociation, genJetFlavourTable, patJetPartons
 
 from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetAdder
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
@@ -1100,6 +1100,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   return process
 
 def PrepJMECustomNanoAOD_MC(process):
+  Modifier_run2_JMENanoHerwig7.toModify(patJetPartons , CheckHerwig7Flag = True )
   PrepJMECustomNanoAOD(process,runOnMC=True)
   return process
 
