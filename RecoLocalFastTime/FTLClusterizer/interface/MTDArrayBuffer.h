@@ -41,6 +41,9 @@ public:
   inline GlobalPoint global_point(uint row, uint col) const;
   inline GlobalPoint global_point(const FTLCluster::FTLHitPos&) const;
 
+  inline float xpos(uint row, uint col) const;
+  inline float xpos(const FTLCluster::FTLHitPos&) const;
+
   inline uint rows() const { return nrows; }
   inline uint columns() const { return ncols; }
 
@@ -55,6 +58,7 @@ public:
     set_time_error(row, col, 0.);
     set_local_error(row, col, le_n);
     set_global_point(row, col, gp_n);
+    set_xpos(row, col, 0.);
   }
   inline void clear(const FTLCluster::FTLHitPos& pos) { clear(pos.row(), pos.col()); }
 
@@ -65,14 +69,16 @@ public:
                   float time,
                   float time_error,
                   const LocalError& local_error,
-                  const GlobalPoint& global_point);
+                  const GlobalPoint& global_point,
+                  float xpos);
   inline void set(const FTLCluster::FTLHitPos&,
                   GeomDetEnumerators::Location subDet,
                   float energy,
                   float time,
                   float time_error,
                   const LocalError& local_error,
-                  const GlobalPoint& global_point);
+                  const GlobalPoint& global_point,
+                  float xpos);
 
   inline void set_subDet(uint row, uint col, GeomDetEnumerators::Location subDet);
   inline void set_subDet(const FTLCluster::FTLHitPos&, GeomDetEnumerators::Location subDet);
@@ -93,6 +99,9 @@ public:
   inline void set_local_error(uint row, uint col, const LocalError& le);
   inline void set_local_error(const FTLCluster::FTLHitPos&, const LocalError& le);
 
+  inline void set_xpos(uint row, uint col, float xpos);
+  inline void set_xpos(const FTLCluster::FTLHitPos&, float xpos);
+
   uint size() const { return hitEnergy_vec.size(); }
 
   /// Definition of indexing within the buffer.
@@ -106,6 +115,7 @@ private:
   std::vector<float> hitTimeError_vec;
   std::vector<GlobalPoint> hitGP_vec;
   std::vector<LocalError> hitLE_vec;
+  std::vector<float> xpos_vec;
   uint nrows;
   uint ncols;
 };
@@ -117,6 +127,7 @@ MTDArrayBuffer::MTDArrayBuffer(uint rows, uint cols)
       hitTimeError_vec(rows * cols, 0),
       hitGP_vec(rows * cols),
       hitLE_vec(rows * cols),
+      xpos_vec(rows * cols),
       nrows(rows),
       ncols(cols) {}
 
@@ -127,7 +138,7 @@ void MTDArrayBuffer::setSize(uint rows, uint cols) {
   hitTimeError_vec.resize(rows * cols, 0);
   hitGP_vec.resize(rows * cols);
   hitLE_vec.resize(rows * cols);
-  nrows = rows;
+  xpos_vec.resize(rows * cols), nrows = rows;
   ncols = cols;
 }
 
@@ -153,6 +164,9 @@ LocalError MTDArrayBuffer::local_error(const FTLCluster::FTLHitPos& pix) const {
 GlobalPoint MTDArrayBuffer::global_point(uint row, uint col) const { return hitGP_vec[index(row, col)]; }
 GlobalPoint MTDArrayBuffer::global_point(const FTLCluster::FTLHitPos& pix) const { return hitGP_vec[index(pix)]; }
 
+float MTDArrayBuffer::xpos(uint row, uint col) const { return xpos_vec[index(row, col)]; }
+float MTDArrayBuffer::xpos(const FTLCluster::FTLHitPos& pix) const { return xpos_vec[index(pix)]; }
+
 void MTDArrayBuffer::set(uint row,
                          uint col,
                          GeomDetEnumerators::Location subDet,
@@ -160,13 +174,15 @@ void MTDArrayBuffer::set(uint row,
                          float time,
                          float time_error,
                          const LocalError& local_error,
-                         const GlobalPoint& global_point) {
+                         const GlobalPoint& global_point,
+                         float xpos) {
   hitSubDet_vec[index(row, col)] = subDet;
   hitEnergy_vec[index(row, col)] = energy;
   hitTime_vec[index(row, col)] = time;
   hitTimeError_vec[index(row, col)] = time_error;
   hitGP_vec[index(row, col)] = global_point;
   hitLE_vec[index(row, col)] = local_error;
+  xpos_vec[index(row, col)] = xpos;
 }
 void MTDArrayBuffer::set(const FTLCluster::FTLHitPos& pix,
                          GeomDetEnumerators::Location subDet,
@@ -174,8 +190,9 @@ void MTDArrayBuffer::set(const FTLCluster::FTLHitPos& pix,
                          float time,
                          float time_error,
                          const LocalError& local_error,
-                         const GlobalPoint& global_point) {
-  set(pix.row(), pix.col(), subDet, energy, time, time_error, local_error, global_point);
+                         const GlobalPoint& global_point,
+                         float xpos) {
+  set(pix.row(), pix.col(), subDet, energy, time, time_error, local_error, global_point, xpos);
 }
 
 void MTDArrayBuffer::set_subDet(uint row, uint col, GeomDetEnumerators::Location subDet) {
@@ -208,5 +225,8 @@ void MTDArrayBuffer::set_local_error(uint row, uint col, const LocalError& le) {
 void MTDArrayBuffer::set_local_error(const FTLCluster::FTLHitPos& pix, const LocalError& le) {
   hitLE_vec[index(pix)] = le;
 }
+
+void MTDArrayBuffer::set_xpos(uint row, uint col, float xpos) { xpos_vec[index(row, col)] = xpos; }
+void MTDArrayBuffer::set_xpos(const FTLCluster::FTLHitPos& pix, float xpos) { xpos_vec[index(pix)] = xpos; }
 
 #endif

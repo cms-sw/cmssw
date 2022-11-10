@@ -205,11 +205,11 @@ public:
     theHitRowSpan = std::min(xspan, uint16_t(MAXSPAN));
   }
 
+  void setClusterPosX(float posx) { pos_x = posx; }
   void setClusterErrorX(float errx) { err_x = errx; }
-  void setClusterErrorY(float erry) { err_y = erry; }
   void setClusterErrorTime(float errtime) { err_time = errtime; }
+  float getClusterPosX() const { return pos_x; }
   float getClusterErrorX() const { return err_x; }
-  float getClusterErrorY() const { return err_y; }
   float getClusterErrorTime() const { return err_time; }
 
 private:
@@ -225,8 +225,8 @@ private:
   uint8_t theHitRowSpan = 0;       // Span hit index in the x direction (low edge).
   uint8_t theHitColSpan = 0;       // Span hit index in the y direction (left edge).
 
-  float err_x = -99999.9f;
-  float err_y = -99999.9f;
+  float pos_x = -99999.9f;  // For pixels with internal position information in one coordinate (i.e. BTL crystals)
+  float err_x = -99999.9f;  // For pixels with internal position information in one coordinate (i.e. BTL crystals)
   float err_time = -99999.9f;
 
   uint8_t seed_;
