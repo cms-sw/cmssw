@@ -74,8 +74,8 @@ tkEgAlgoParameters = cms.PSet(
         tkz0Max=cms.double(14.94140625),
         tknstubsMin=cms.double(4.0),
         tknstubsMax=cms.double(6.0),
-        BDTcut_wp97p5=cms.double(0.5406244),
-        BDTcut_wp95p0=cms.double(0.9693441),
+        BDTcut_wp97p5=cms.double(0.7927004),
+        BDTcut_wp95p0=cms.double(0.9826955),
     ),
 )
 

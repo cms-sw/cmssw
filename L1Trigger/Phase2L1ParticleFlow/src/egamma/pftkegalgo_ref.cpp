@@ -89,7 +89,7 @@ debug_(cfg.debug) {
 #ifdef CMSSW_GIT_HASH
 	  auto resolvedFileName = edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json").fullPath();
 #else
-          auto resolvedFileName = "compositeID.json";      
+          auto resolvedFileName = "compositeID.json";
 #endif
     std::cout<<resolvedFileName<<std::endl;
 	  composite_bdt_ = new conifer::BDT<ap_fixed<22,3,AP_RND_CONV,AP_SAT>,ap_fixed<22,3,AP_RND_CONV,AP_SAT>,0> (resolvedFileName);
