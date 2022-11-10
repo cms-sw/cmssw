@@ -5,11 +5,12 @@ from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCand
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 
+from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
 from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
-from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger, hfJetShowerShapeforNanoAOD
+from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger
 from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
 from PhysicsTools.NanoAOD.jetMC_cff  import genJetTable, genJetFlavourAssociation, genJetFlavourTable
 
@@ -861,7 +862,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #Adding hf shower shape producer to the jet sequence. By default this producer is not automatically rerun at the NANOAOD step
   #The following lines make sure it is.
   hfJetShowerShapeforCustomNanoAOD = "hfJetShowerShapeforCustomNanoAOD"
-  setattr(proc, hfJetShowerShapeforCustomNanoAOD, hfJetShowerShapeforNanoAOD.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices") )
+  setattr(proc, hfJetShowerShapeforCustomNanoAOD, hfJetShowerShape.clone(jets="updatedJets", vertices="offlineSlimmedPrimaryVertices") )
   proc.jetUserDataTask.add(getattr(proc, hfJetShowerShapeforCustomNanoAOD))
   proc.updatedJetsWithUserData.userFloats.hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaEtaEta')
   proc.updatedJetsWithUserData.userFloats.hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaPhiPhi')
