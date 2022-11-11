@@ -25,7 +25,7 @@
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
 #include "cpu_features/cpuinfo_aarch64.h"
 #elif defined(CPU_FEATURES_ARCH_MIPS)
-#include "cpu_features/cpuinfo_mips.h"
+//#include "cpu_features/cpuinfo_mips.h"
 #elif defined(CPU_FEATURES_ARCH_PPC)
 #include "cpu_features/cpuinfo_ppc.h"
 #endif
@@ -38,6 +38,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <fmt/format.h>
 
 #ifdef __linux__
 #include <sched.h>
@@ -270,11 +271,11 @@ namespace edm {
       const X86Info info = GetX86Info();
       model = info.brand_string;
 #elif defined(CPU_FEATURES_ARCH_ARM)
-      //const ArmInfo info = GetArmInfo();
-      model = "ARM";
+      const ArmInfo info = GetArmInfo();
+      model = fmt::format("ARM {} {} {}", info.implementer, info.architecture, info.variant);
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
-      //const Aarch64Info info = GetAarch64Info();
-      model = "aarch64";
+      const Aarch64Info info = GetAarch64Info();
+      model = fmt::format("aarch64 {} {}", info.implementer, info.variant);
 #elif defined(CPU_FEATURES_ARCH_MIPS)
       model = "mips";
 #elif defined(CPU_FEATURES_ARCH_PPC)
