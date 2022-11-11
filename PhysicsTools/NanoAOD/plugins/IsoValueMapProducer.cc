@@ -62,27 +62,32 @@ public:
       ea_pfiso_ = std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso")).fullPath());
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     } else if ((typeid(T) == typeid(pat::Photon))) {
-      produces<edm::ValueMap<float>>("PFIsoChg");
-      produces<edm::ValueMap<float>>("PFIsoAll");
 
-      ea_pfiso_chg_ =
-          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Chg")).fullPath());
-      ea_pfiso_neu_ =
-          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Neu")).fullPath());
-      ea_pfiso_pho_ =
-          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath());
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
 
-      if (doQuadratic_) {
-        produces<edm::ValueMap<float>>("PFIsoChgQuadratic");
-        produces<edm::ValueMap<float>>("PFIsoAllQuadratic");
+      if( !doQuadratic_ ) {
+          produces<edm::ValueMap<float>>("PFIsoChg");
+          produces<edm::ValueMap<float>>("PFIsoAll");
 
-        quadratic_ea_pfiso_chg_ = std::make_unique<EffectiveAreas>(
-            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")).fullPath(), true);
-        quadratic_ea_pfiso_ecal_ = std::make_unique<EffectiveAreas>(
-            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_ECal")).fullPath(), true);
-        quadratic_ea_pfiso_hcal_ = std::make_unique<EffectiveAreas>(
-            (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_HCal")).fullPath(), true);
+          ea_pfiso_chg_ =
+                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Chg")).fullPath());
+          ea_pfiso_neu_ =
+                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Neu")).fullPath());
+          ea_pfiso_pho_ =
+                  std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath());
+
+      }
+
+      else {
+          produces<edm::ValueMap<float>>("PFIsoChgQuadratic");
+          produces<edm::ValueMap<float>>("PFIsoAllQuadratic");
+
+          quadratic_ea_pfiso_chg_ = std::make_unique<EffectiveAreas>(
+                      (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")).fullPath(), true);
+          quadratic_ea_pfiso_ecal_ = std::make_unique<EffectiveAreas>(
+                      (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_ECal")).fullPath(), true);
+          quadratic_ea_pfiso_hcal_ = std::make_unique<EffectiveAreas>(
+                      (iConfig.getParameter<edm::FileInPath>("QuadraticEAFile_PFIso_HCal")).fullPath(), true);
       }
     }
   }
@@ -148,8 +153,9 @@ void IsoValueMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent,
     doPFIsoEle(iEvent);
   }
   if ((typeid(T) == typeid(pat::Photon))) {
-    doPFIsoPho(iEvent);
-    if (doQuadratic_)
+    if( !doQuadratic_ )
+      doPFIsoPho(iEvent);
+    else
       doPFIsoPhoQuadratic(iEvent);
   }
 }
@@ -357,25 +363,23 @@ void IsoValueMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& de
         ->setComment("rho to be used for effective-area based PF-isolation pileup subtraction for electrons");
   }
   if ((typeid(T) == typeid(pat::Photon))) {
-    desc.add<edm::InputTag>("mapIsoChg")->setComment("input charged PF isolation calculated in VID for photons");
-    desc.add<edm::InputTag>("mapIsoNeu")->setComment("input neutral PF isolation calculated in VID for photons");
-    desc.add<edm::InputTag>("mapIsoPho")->setComment("input photon PF isolation calculated in VID for photons");
+    desc.addOptional<edm::InputTag>("mapIsoChg")->setComment("input charged PF isolation calculated in VID for photons");
+    desc.addOptional<edm::InputTag>("mapIsoNeu")->setComment("input neutral PF isolation calculated in VID for photons");
+    desc.addOptional<edm::InputTag>("mapIsoPho")->setComment("input photon PF isolation calculated in VID for photons");
 
-    desc.add<edm::FileInPath>("EAFile_PFIso_Chg")
+    desc.addOptional<edm::FileInPath>("EAFile_PFIso_Chg")
         ->setComment(
             "txt file containing effective areas to be used for charged PF-isolation pileup subtraction for photons");
-    desc.add<edm::FileInPath>("EAFile_PFIso_Neu")
+    desc.addOptional<edm::FileInPath>("EAFile_PFIso_Neu")
         ->setComment(
             "txt file containing effective areas to be used for neutral PF-isolation pileup subtraction for photons");
-    desc.add<edm::FileInPath>("EAFile_PFIso_Pho")
+    desc.addOptional<edm::FileInPath>("EAFile_PFIso_Pho")
         ->setComment(
             "txt file containing effective areas to be used for photon PF-isolation pileup subtraction for photons");
 
     desc.add<edm::InputTag>("rho_PFIso")
         ->setComment("rho to be used for effective-area based PF-isolation pileup subtraction for photons");
 
-    desc.addOptional<edm::InputTag>("mapIsoEcal")->setComment("input ecal PF isolation calculated in VID for photons");
-    desc.addOptional<edm::InputTag>("mapIsoHcal")->setComment("input hcal PF isolation calculated in VID for photons");
 
     desc.addOptional<edm::FileInPath>("QuadraticEAFile_PFIso_Chg")
         ->setComment(
