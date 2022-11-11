@@ -287,19 +287,19 @@ namespace cms::soa {
 
     SOA_HOST_DEVICE SOA_INLINE Ref operator()() {
       // Ptr type will add the restrict qualifyer if needed
-      Ptr col = alignedCol();
+      Ptr col = col_;
       return col[idx_];
     }
 
     SOA_HOST_DEVICE SOA_INLINE RefToConst operator()() const {
       // PtrToConst type will add the restrict qualifyer if needed
-      PtrToConst col = alignedCol();
+      PtrToConst col = col_();
       return col[idx_];
     }
 
-    SOA_HOST_DEVICE SOA_INLINE Ptr operator&() { return &alignedCol()[idx_]; }
+    SOA_HOST_DEVICE SOA_INLINE Ptr operator&() { return &col_[idx_]; }
 
-    SOA_HOST_DEVICE SOA_INLINE PtrToConst operator&() const { return &alignedCol()[idx_]; }
+    SOA_HOST_DEVICE SOA_INLINE PtrToConst operator&() const { return &col_[idx_]; }
 
     /* This was an attempt to implement the syntax
      *
@@ -318,7 +318,7 @@ namespace cms::soa {
 
     template <typename T2>
     SOA_HOST_DEVICE SOA_INLINE Ref operator=(const T2& v) {
-      return alignedCol()[idx_] = v;
+      return col_[idx_] = v;
     }
     */
 
@@ -327,13 +327,6 @@ namespace cms::soa {
     static constexpr auto valueSize = sizeof(T);
 
   private:
-    SOA_HOST_DEVICE SOA_INLINE Ptr alignedCol() const {
-      if constexpr (ALIGNMENT) {
-        return reinterpret_cast<Ptr>(__builtin_assume_aligned(col_, ALIGNMENT));
-      }
-      return reinterpret_cast<Ptr>(col_);
-    }
-
     size_type idx_;
     T* col_;
   };
@@ -437,11 +430,11 @@ namespace cms::soa {
 
     SOA_HOST_DEVICE SOA_INLINE RefToConst operator()() const {
       // Ptr type will add the restrict qualifyer if needed
-      PtrToConst col = alignedCol();
+      PtrToConst col = col_;
       return col[idx_];
     }
 
-    SOA_HOST_DEVICE SOA_INLINE const T* operator&() const { return &alignedCol()[idx_]; }
+    SOA_HOST_DEVICE SOA_INLINE const T* operator&() const { return &col_[idx_]; }
 
     /* This was an attempt to implement the syntax
      *
@@ -461,13 +454,6 @@ namespace cms::soa {
     static constexpr auto valueSize = sizeof(T);
 
   private:
-    SOA_HOST_DEVICE SOA_INLINE PtrToConst alignedCol() const {
-      if constexpr (ALIGNMENT) {
-        return reinterpret_cast<PtrToConst>(__builtin_assume_aligned(col_, ALIGNMENT));
-      }
-      return reinterpret_cast<PtrToConst>(col_);
-    }
-
     size_type idx_;
     const T* col_;
   };
