@@ -1,6 +1,6 @@
-# hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_12_5_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_4_0/PRef/V171 (CMSSW_12_4_0)
+# /dev/CMSSW_12_5_0/PRef/V16 (CMSSW_12_5_2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPRef" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V171')
+  tableName = cms.string('/dev/CMSSW_12_5_0/PRef/V16')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2607,7 +2607,7 @@ process.datasets = cms.PSet(
   AlCaPhiSym = cms.vstring( 'AlCa_EcalPhiSym_v11' ),
   DQMGPUvsCPU = cms.vstring( 'DQM_HIEcalReconstruction_v2',
     'DQM_HIHcalReconstruction_v1',
-    'DQM_HIPixelReconstruction_v2' ),
+    'DQM_HIPixelReconstruction_v3' ),
   DQMOnlineBeamspot = cms.vstring( 'HLT_HIHT80_Beamspot_ppRef5TeV_v5',
     'HLT_ZeroBias_Beamspot_v6' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v4' ),
@@ -5258,22 +5258,22 @@ process.hltEcalUncalibRecHitGPU = cms.EDProducer( "EcalUncalibRecHitProducerGPU"
     outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
     amplitudeThresholdEB = cms.double( 10.0 ),
     amplitudeThresholdEE = cms.double( 10.0 ),
-    maxNumberHitsEB = cms.uint32( 61200 ),
-    maxNumberHitsEE = cms.uint32( 14648 ),
     kernelMinimizeThreads = cms.untracked.vuint32( 32, 1, 1 ),
     shouldRunTimingComputation = cms.bool( True )
 )
 process.hltEcalUncalibRecHitSoA = cms.EDProducer( "EcalCPUUncalibRecHitProducer",
     recHitsInLabelEB = cms.InputTag( 'hltEcalUncalibRecHitGPU','EcalUncalibRecHitsEB' ),
-    recHitsInLabelEE = cms.InputTag( 'hltEcalUncalibRecHitGPU','EcalUncalibRecHitsEE' ),
     recHitsOutLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
-    recHitsOutLabelEE = cms.string( "EcalUncalibRecHitsEE" ),
-    containsTimingInformation = cms.bool( True )
+    containsTimingInformation = cms.bool( True ),
+    isPhase2 = cms.bool( False ),
+    recHitsInLabelEE = cms.InputTag( 'hltEcalUncalibRecHitGPU','EcalUncalibRecHitsEE' ),
+    recHitsOutLabelEE = cms.string( "EcalUncalibRecHitsEE" )
 )
 process.hltEcalUncalibRecHitFromSoA = cms.EDProducer( "EcalUncalibRecHitConvertGPU2CPUFormat",
     recHitsLabelGPUEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
-    recHitsLabelGPUEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
     recHitsLabelCPUEB = cms.string( "EcalUncalibRecHitsEB" ),
+    isPhase2 = cms.bool( False ),
+    recHitsLabelGPUEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
     recHitsLabelCPUEE = cms.string( "EcalUncalibRecHitsEE" )
 )
 process.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
@@ -5480,7 +5480,6 @@ process.hltHbherecoLegacy = cms.EDProducer( "HBHEPhase1Reconstructor",
     pulseShapeParametersQIE11 = cms.PSet(  )
 )
 process.hltHbherecoGPU = cms.EDProducer( "HBHERecHitProducerGPU",
-    maxChannels = cms.uint32( 10000 ),
     maxTimeSamples = cms.uint32( 10 ),
     kprep1dChannelsPerBlock = cms.uint32( 32 ),
     digisLabelF01HE = cms.InputTag( "hltHcalDigisGPU" ),
@@ -5900,7 +5899,9 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     FormatedEventDump = cms.untracked.bool( False ),
     SuppressZeroLCT = cms.untracked.bool( True ),
     DisableMappingCheck = cms.untracked.bool( False ),
-    B904Setup = cms.untracked.bool( False )
+    B904Setup = cms.untracked.bool( False ),
+    B904vmecrate = cms.untracked.int32( 1 ),
+    B904dmb = cms.untracked.int32( 3 )
 )
 process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCStripPeakThreshold = cms.double( 10.0 ),
@@ -6363,6 +6364,7 @@ process.hltSiPixelClustersLegacy = cms.EDProducer( "SiPixelClusterProducer",
     ClusterThreshold_L1 = cms.int32( 4000 ),
     ClusterThreshold = cms.int32( 4000 ),
     ElectronPerADCGain = cms.double( 135.0 ),
+    DropDuplicates = cms.bool( True ),
     Phase2Calibration = cms.bool( False ),
     Phase2ReadoutMode = cms.int32( -1 ),
     Phase2DigiBaseline = cms.double( 1200.0 ),
@@ -6372,7 +6374,6 @@ process.hltSiPixelClustersGPU = cms.EDProducer( "SiPixelRawToClusterCUDA",
     isRun2 = cms.bool( False ),
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    MaxFEDWords = cms.uint32( 400000 ),
     clusterThreshold_layer1 = cms.int32( 4000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
@@ -8909,6 +8910,11 @@ process.hltPixelConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  )
 )
+process.hltPixelConsumerTrimmedVertices = cms.EDAnalyzer( "GenericConsumer",
+    eventProducts = cms.untracked.vstring( 'hltTrimmedPixelVertices' ),
+    lumiProducts = cms.untracked.vstring(  ),
+    runProducts = cms.untracked.vstring(  )
+)
 process.hltSiPixelRecHitsSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoA",
     pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsSoA@cpu" ),
     TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCPU" )
@@ -9056,7 +9062,7 @@ process.hltDatasetDQMGPUvsCPU = cms.EDFilter( "TriggerResultsFilter",
     throw = cms.bool( True ),
     triggerConditions = cms.vstring( 'DQM_HIEcalReconstruction_v2',
       'DQM_HIHcalReconstruction_v1',
-      'DQM_HIPixelReconstruction_v2' )
+      'DQM_HIPixelReconstruction_v3' )
 )
 process.hltPreDatasetDQMGPUvsCPU = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -10023,7 +10029,7 @@ process.AlCa_LumiPixelsCounts_Random_v4 = cms.Path( process.HLTBeginSequenceRand
 process.AlCa_LumiPixelsCounts_ZeroBias_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreAlCaLumiPixelsCountsZeroBias + process.hltPixelTrackerHVOn + process.HLTDoLocalPixelSequence + process.hltAlcaPixelClusterCounts + process.HLTEndSequence )
 process.DQM_HIEcalReconstruction_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIEcalReconstruction + process.hltPreDQMHIEcalReconstruction + process.statusOnGPU + process.statusOnGPUFilter + process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.hltEcalConsumerCPU + process.hltEcalConsumerGPU + process.HLTEndSequence )
 process.DQM_HIHcalReconstruction_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIHcalReconstruction + process.hltPreDQMHIHcalReconstruction + process.statusOnGPU + process.statusOnGPUFilter + process.HLTDoLocalHcalSequence + process.hltHcalConsumerCPU + process.hltHcalConsumerGPU + process.HLTEndSequence )
-process.DQM_HIPixelReconstruction_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIPixelReconstruction + process.hltPreDQMHIPixelReconstruction + process.statusOnGPU + process.statusOnGPUFilter + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingSequence + process.hltPixelConsumerCPU + process.hltPixelConsumerGPU + process.HLTDQMPixelReconstruction + process.HLTEndSequence )
+process.DQM_HIPixelReconstruction_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIPixelReconstruction + process.hltPreDQMHIPixelReconstruction + process.statusOnGPU + process.statusOnGPUFilter + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingSequence + process.hltPixelConsumerCPU + process.hltPixelConsumerGPU + process.hltPixelConsumerTrimmedVertices + process.HLTDQMPixelReconstruction + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.ALCALumiPixelsCountsExpressOutput = cms.FinalPath( process.hltOutputALCALumiPixelsCountsExpress )
@@ -10085,7 +10091,7 @@ process.Dataset_TestEnablesEcalHcalDQM = cms.Path( process.HLTDatasetPathBeginSe
 process.Dataset_ZeroBias = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetZeroBias + process.hltPreDatasetZeroBias )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_ZeroBias_Beamspot_v6, process.HLT_Physics_v8, process.DST_Physics_v8, process.HLT_Random_v3, process.HLT_ZeroBias_v7, process.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v3, process.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v3, process.HLT_HIL1NotBptxORForPPRef_v3, process.HLT_HIHT80_Beamspot_ppRef5TeV_v5, process.HLT_HIZeroBias_part0_v7, process.HLT_HIZeroBias_part1_v7, process.HLT_HIZeroBias_part2_v7, process.HLT_HIZeroBias_part3_v7, process.HLT_HIZeroBias_part4_v7, process.HLT_HIZeroBias_part5_v7, process.HLT_HIZeroBias_part6_v7, process.HLT_HIZeroBias_part7_v7, process.HLT_HIZeroBias_part8_v7, process.HLT_HIZeroBias_part9_v7, process.HLT_HIZeroBias_part10_v7, process.HLT_HIZeroBias_part11_v7, process.AlCa_HIEcalPi0EBonly_v3, process.AlCa_HIEcalPi0EEonly_v3, process.AlCa_HIEcalEtaEBonly_v3, process.AlCa_HIEcalEtaEEonly_v3, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v5, process.AlCa_EcalPhiSym_v11, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v6, process.AlCa_HIRPCMuonNormalisation_v2, process.AlCa_LumiPixelsCounts_Random_v4, process.AlCa_LumiPixelsCounts_ZeroBias_v4, process.DQM_HIEcalReconstruction_v2, process.DQM_HIHcalReconstruction_v1, process.DQM_HIPixelReconstruction_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsCommissioningOutput, process.PhysicsHIZeroBias1Output, process.PhysicsHIZeroBias2Output, process.PhysicsHIZeroBias3Output, process.PhysicsHIZeroBias4Output, process.PhysicsHIZeroBias5Output, process.PhysicsHIZeroBias6Output, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_EcalLaser, process.Dataset_EmptyBX, process.Dataset_ExpressAlignment, process.Dataset_ExpressPhysics, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias10, process.Dataset_HIZeroBias11, process.Dataset_HIZeroBias12, process.Dataset_HIZeroBias2, process.Dataset_HIZeroBias3, process.Dataset_HIZeroBias4, process.Dataset_HIZeroBias5, process.Dataset_HIZeroBias6, process.Dataset_HIZeroBias7, process.Dataset_HIZeroBias8, process.Dataset_HIZeroBias9, process.Dataset_HLTPhysics, process.Dataset_L1Accept, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_ZeroBias, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_ZeroBias_Beamspot_v6, process.HLT_Physics_v8, process.DST_Physics_v8, process.HLT_Random_v3, process.HLT_ZeroBias_v7, process.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v3, process.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v3, process.HLT_HIL1NotBptxORForPPRef_v3, process.HLT_HIHT80_Beamspot_ppRef5TeV_v5, process.HLT_HIZeroBias_part0_v7, process.HLT_HIZeroBias_part1_v7, process.HLT_HIZeroBias_part2_v7, process.HLT_HIZeroBias_part3_v7, process.HLT_HIZeroBias_part4_v7, process.HLT_HIZeroBias_part5_v7, process.HLT_HIZeroBias_part6_v7, process.HLT_HIZeroBias_part7_v7, process.HLT_HIZeroBias_part8_v7, process.HLT_HIZeroBias_part9_v7, process.HLT_HIZeroBias_part10_v7, process.HLT_HIZeroBias_part11_v7, process.AlCa_HIEcalPi0EBonly_v3, process.AlCa_HIEcalPi0EEonly_v3, process.AlCa_HIEcalEtaEBonly_v3, process.AlCa_HIEcalEtaEEonly_v3, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v5, process.AlCa_EcalPhiSym_v11, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v6, process.AlCa_HIRPCMuonNormalisation_v2, process.AlCa_LumiPixelsCounts_Random_v4, process.AlCa_LumiPixelsCounts_ZeroBias_v4, process.DQM_HIEcalReconstruction_v2, process.DQM_HIHcalReconstruction_v1, process.DQM_HIPixelReconstruction_v3, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsCommissioningOutput, process.PhysicsHIZeroBias1Output, process.PhysicsHIZeroBias2Output, process.PhysicsHIZeroBias3Output, process.PhysicsHIZeroBias4Output, process.PhysicsHIZeroBias5Output, process.PhysicsHIZeroBias6Output, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_EcalLaser, process.Dataset_EmptyBX, process.Dataset_ExpressAlignment, process.Dataset_ExpressPhysics, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias10, process.Dataset_HIZeroBias11, process.Dataset_HIZeroBias12, process.Dataset_HIZeroBias2, process.Dataset_HIZeroBias3, process.Dataset_HIZeroBias4, process.Dataset_HIZeroBias5, process.Dataset_HIZeroBias6, process.Dataset_HIZeroBias7, process.Dataset_HIZeroBias8, process.Dataset_HIZeroBias9, process.Dataset_HLTPhysics, process.Dataset_L1Accept, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_ZeroBias, ))
 
 
 # source module (EDM inputs)
