@@ -17,6 +17,8 @@ class GlobalTrackingGeometry;
 class GlobalTrackingGeometryRecord;
 class TrackerGeometry;
 class IdealGeometryRecord;
+class MTDGeometry;
+class MTDDigiGeometryRecord;
 class FWRecoGeometry;
 class FWRecoGeometryRecord;
 class GeomDet;
@@ -45,7 +47,7 @@ private:
   void addTECGeometry(FWRecoGeometry&);
   void addCaloGeometry(FWRecoGeometry&);
 
-  void addFTLGeometry(FWRecoGeometry&);
+  void addMTDGeometry(FWRecoGeometry&);
 
   void ADD_PIXEL_TOPOLOGY(unsigned int rawid, const GeomDet* detUnit, FWRecoGeometry&);
 
@@ -58,8 +60,10 @@ private:
   void writeTrackerParametersXML(FWRecoGeometry&);
 
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_trackingGeomToken;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> m_mtdGeomToken;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_caloGeomToken;
   const GlobalTrackingGeometry* m_trackingGeom = nullptr;
+  const MTDGeometry* m_mtdGeom = nullptr;
   const CaloGeometry* m_caloGeom = nullptr;
   const TrackerGeometry* m_trackerGeom = nullptr;
 

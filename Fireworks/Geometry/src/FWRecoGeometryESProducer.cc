@@ -12,6 +12,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -116,6 +117,9 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset
   if (m_calo) {
     m_caloGeomToken = cc.consumes();
   }
+  if (m_timing) {
+    m_mtdGeomToken = cc.consumes();
+  }
 }
 
 FWRecoGeometryESProducer::~FWRecoGeometryESProducer(void) {}
@@ -152,6 +156,10 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
   if (m_calo) {
     m_caloGeom = &record.get(m_caloGeomToken);
     addCaloGeometry(*fwRecoGeometry);
+  }
+  if (m_timing) {
+    m_mtdGeom  = &record.get(m_mtdGeomToken);
+    addMTDGeometry(*fwRecoGeometry);
   }
 
   fwRecoGeometry->idToName.resize(m_current + 1);
@@ -626,7 +634,7 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
   }
 }
 
-void FWRecoGeometryESProducer::addFTLGeometry(FWRecoGeometry& fwRecoGeometry) {
+void FWRecoGeometryESProducer::addMTDGeometry(FWRecoGeometry& fwRecoGeometry) {
   // do the barrel (do for BTL)
   // do the endcap (do for ETL)
 }
