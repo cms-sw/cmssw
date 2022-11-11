@@ -41,8 +41,8 @@ set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/co
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2016B_JetHT_run272762/C666CDE2-E013-E611-B15A-02163E011DBE.root
 # DAS name: /store/data/Run2022B/HLTPhysics0/RAW/v1/000/355/558/00000/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
 set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/Run2022B_HLTPhysics0_run355558/cd851cf4-0fca-4d76-b80e-1d33e1371929.root
-# DAS name: /store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
-set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW-RECO/HIRun2015_HIHardProbes_run263689/HighPtJet-PromptReco-v1/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+# DAS name: /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
+set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/HIRun2015_HIHardProbes_run263718/08057733-02A5-E511-9C7D-02163E014606.root
 # DAS name: /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/853DBE29-53BA-9A44-9FDD-58E4E9064EB1.root
 set InputLHCRawHIon2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/RAW/HIRun2018A_HIHardProbes_run326479/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
 set InputLHCRawHIon3 = $InputLHCRawGRun3 #!! UPDATE once 2022 HIon RAW data is available
