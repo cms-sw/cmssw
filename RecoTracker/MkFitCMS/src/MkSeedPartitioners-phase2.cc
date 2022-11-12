@@ -17,8 +17,6 @@ namespace {
   constexpr int tecn2l_id = 52;
   constexpr int tecntu_id = 53;
 
-
-
   [[maybe_unused]] void partitionSeeds1(const TrackerInfo &trk_info,
                                         const TrackVec &in_seeds,
                                         const EventOfHits &eoh,
