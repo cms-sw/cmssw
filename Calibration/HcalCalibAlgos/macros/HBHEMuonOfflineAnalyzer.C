@@ -1,9 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  HBHEMuonOfflineAnalyzer h1(tree,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
-//                             cutMu,cutP,over,runLo,runHi,etaMin,etaMax,debug);
-//  HBHEMuonOfflineAnalyzer h1(infile,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
-//                             cutMu,cutP,over,runLo,runHi,etaMin,etaMax,debug);
+//  HBHEMuonOfflineAnalyzer h1(tree, outfile, rcorFile, flag, mode, maxDHB,
+//                             maxDHE, cutMu, cutP, nevMax, over, runLo,
+//                             runHi, etaMin, etaMax, debug);
+//  HBHEMuonOfflineAnalyzer h1(infile, outfile, rcorFile, flag, mode, maxDHB,
+//                             maxDHE, cutMu, cutP, nevMax, over, runLo,
+//                             runHi, etaMin, etaMax, debug);
 //   h1.Loop()
 //
 //   tree       TTree*       Pointer to the tree chain
@@ -26,6 +28,8 @@
 //   cutMu      int          Selection of muon type:
 //                           (tight:0; medium:1; loose:2) default (0)
 //   cutP       float        Minimum muon momentum; default (10)
+//   nevMax     int          Maximum # oe entries to be processed; -1 means
+//                           all entries (-1)
 //   over       int          Override some of the selection
 //                           (0: not to override; 1: override) default (0)
 //   runLO      int          Minimum run number (1)
@@ -341,6 +345,7 @@ public:
                           int maxDHE = 7,
                           int cutMu = 0,
                           float cutP = 10,
+                          int nevMax = -1,
                           int over = 0,
                           int runLo = 1,
                           int runHi = 99999999,
@@ -356,6 +361,7 @@ public:
                           int maxDHE = 7,
                           int cutMu = 0,
                           float cutP = 10,
+                          int nevMax = -1,
                           int over = 0,
                           int runLo = 1,
                           int runHi = 99999999,
@@ -414,6 +420,7 @@ private:
   static const unsigned int nmax_ = 10;
   int nCut_;
   const double cutP_;
+  const int nevMax_;
   const bool over_, debug_;
   int modeLHC_, maxDepthHB_, maxDepthHE_, maxDepth_;
   int runLo_, runHi_, etaMin_, etaMax_;
@@ -466,13 +473,14 @@ HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TChain *tree,
                                                  int maxDHE,
                                                  int cutMu,
                                                  float cutP,
+                                                 int nevMax,
                                                  int over,
                                                  int runLo,
                                                  int runHi,
                                                  int etaMin,
                                                  int etaMax,
                                                  bool deb)
-    : nCut_(cutMu), cutP_(cutP), over_(over == 1), debug_(deb), cFactor_(false) {
+    : nCut_(cutMu), cutP_(cutP), nevMax_(nevMax), over_(over == 1), debug_(deb), cFactor_(false) {
   if ((nCut_ < 0) || (nCut_ > 2))
     nCut_ = 0;
   Init(tree, rcorFileName, flag, mode, maxDHB, maxDHE, runLo, runHi, etaMin, etaMax);
@@ -490,13 +498,14 @@ HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(const char *infile,
                                                  int maxDHE,
                                                  int cutMu,
                                                  float cutP,
+                                                 int nevMax,
                                                  int over,
                                                  int runLo,
                                                  int runHi,
                                                  int etaMin,
                                                  int etaMax,
                                                  bool deb)
-    : nCut_(cutMu), cutP_(cutP), over_(over == 1), debug_(deb), cFactor_(false) {
+    : nCut_(cutMu), cutP_(cutP), nevMax_(nevMax), over_(over == 1), debug_(deb), cFactor_(false) {
   if ((nCut_ < 0) || (nCut_ > 2))
     nCut_ = 0;
   TChain *chain = new TChain("hcalHBHEMuon/TREE");
@@ -859,9 +868,10 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     return;
 
   Long64_t nentries = fChain->GetEntriesFast();
-
   if (debug_)
     std::cout << "nevent = " << nentries << std::endl;
+  if (nevMax_ > 0)
+    nentries = nevMax_;
 
   Long64_t nbytes = 0, nb = 0, nsel1 = 0, nsel2 = 0;
   Long64_t nstep1 = 0, nstep2 = 0, nstep3 = 0, nstep4 = 0;
