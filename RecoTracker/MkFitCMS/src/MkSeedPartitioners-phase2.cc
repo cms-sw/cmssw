@@ -7,6 +7,18 @@
 namespace {
   using namespace mkfit;
 
+  // named constants for useful layers (l/u for lower/upper)
+  constexpr int tecp1l_id = 28;
+  constexpr int tecp1u_id = 29;
+  constexpr int tecp2l_id = 30;
+  constexpr int tecp2u_id = 31;
+  constexpr int tecn1l_id = 50;
+  constexpr int tecn1u_id = 51;
+  constexpr int tecn2l_id = 52;
+  constexpr int tecntu_id = 53;
+
+
+
   [[maybe_unused]] void partitionSeeds1(const TrackerInfo &trk_info,
                                         const TrackVec &in_seeds,
                                         const EventOfHits &eoh,
@@ -16,19 +28,19 @@ namespace {
     // Merge mono and stereo limits for relevant layers / parameters.
     // TrackerInfo could hold joint limits for sub-detectors.
     const auto &L = trk_info;
-    const float tecp1_rin = std::min(L[28].rin(), L[29].rin());
-    const float tecp1_rout = std::max(L[28].rout(), L[29].rout());
-    const float tecp1_zmin = std::min(L[28].zmin(), L[29].zmin());
+    const float tecp1_rin = std::min(L[tecp1l_id].rin(), L[tecp1u_id].rin());
+    const float tecp1_rout = std::max(L[tecp1l_id].rout(), L[tecp1u_id].rout());
+    const float tecp1_zmin = std::min(L[tecp1l_id].zmin(), L[tecp1u_id].zmin());
 
-    const float tecp2_rin = std::min(L[30].rin(), L[31].rin());
-    const float tecp2_zmax = std::max(L[30].zmax(), L[31].zmax());
+    const float tecp2_rin = std::min(L[tecp2l_id].rin(), L[tecp2u_id].rin());
+    const float tecp2_zmax = std::max(L[tecp2l_id].zmax(), L[tecp2u_id].zmax());
 
-    const float tecn1_rin = std::min(L[50].rin(), L[51].rin());
-    const float tecn1_rout = std::max(L[50].rout(), L[51].rout());
-    const float tecn1_zmax = std::max(L[50].zmax(), L[51].zmax());
+    const float tecn1_rin = std::min(L[tecn1l_id].rin(), L[tecn1u_id].rin());
+    const float tecn1_rout = std::max(L[tecn1l_id].rout(), L[tecn1u_id].rout());
+    const float tecn1_zmax = std::max(L[tecn1l_id].zmax(), L[tecn1u_id].zmax());
 
-    const float tecn2_rin = std::min(L[52].rin(), L[53].rin());
-    const float tecn2_zmin = std::min(L[52].zmin(), L[53].zmin());
+    const float tecn2_rin = std::min(L[tecn2l_id].rin(), L[tecntu_id].rin());
+    const float tecn2_zmin = std::min(L[tecn2l_id].zmin(), L[tecntu_id].zmin());
 
     const float tec_z_extra = 0.0f;  // 10.0f;
 
@@ -111,19 +123,19 @@ namespace {
     // Merge mono and stereo limits for relevant layers / parameters.
     // TrackerInfo could hold joint limits for sub-detectors.
     const auto &L = trk_info;
-    const float tecp1_rin = std::min(L[28].rin(), L[29].rin());
-    const float tecp1_rout = std::max(L[28].rout(), L[29].rout());
-    const float tecp1_zmin = std::min(L[28].zmin(), L[29].zmin());
+    const float tecp1_rin = std::min(L[tecp1l_id].rin(), L[tecp1u_id].rin());
+    const float tecp1_rout = std::max(L[tecp1l_id].rout(), L[tecp1u_id].rout());
+    const float tecp1_zmin = std::min(L[tecp1l_id].zmin(), L[tecp1u_id].zmin());
 
-    const float tecp2_rin = std::min(L[30].rin(), L[31].rin());
-    const float tecp2_zmax = std::max(L[30].zmax(), L[31].zmax());
+    const float tecp2_rin = std::min(L[tecp2l_id].rin(), L[tecp2u_id].rin());
+    const float tecp2_zmax = std::max(L[tecp2l_id].zmax(), L[tecp2u_id].zmax());
 
-    const float tecn1_rin = std::min(L[50].rin(), L[51].rin());
-    const float tecn1_rout = std::max(L[50].rout(), L[51].rout());
-    const float tecn1_zmax = std::max(L[50].zmax(), L[51].zmax());
+    const float tecn1_rin = std::min(L[tecn1l_id].rin(), L[tecn1u_id].rin());
+    const float tecn1_rout = std::max(L[tecn1l_id].rout(), L[tecn1u_id].rout());
+    const float tecn1_zmax = std::max(L[tecn1l_id].zmax(), L[tecn1u_id].zmax());
 
-    const float tecn2_rin = std::min(L[52].rin(), L[53].rin());
-    const float tecn2_zmin = std::min(L[52].zmin(), L[53].zmin());
+    const float tecn2_rin = std::min(L[tecn2l_id].rin(), L[tecntu_id].rin());
+    const float tecn2_zmin = std::min(L[tecn2l_id].zmin(), L[tecntu_id].zmin());
 
     const float tec_z_extra = 0.0f;  // 10.0f;
 
