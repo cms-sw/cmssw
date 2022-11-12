@@ -54,7 +54,7 @@ private:
 };
 
 FastTimeTopologyBuilder::FastTimeTopologyBuilder(const edm::ParameterSet& iConfig) {
-  auto name = iConfig.getUntrackedParameter<std::string>("Name");
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
   type_ = iConfig.getUntrackedParameter<int>("Type");
   subdet_ = FastTime;
 #ifdef EDM_ML_DEBUG
