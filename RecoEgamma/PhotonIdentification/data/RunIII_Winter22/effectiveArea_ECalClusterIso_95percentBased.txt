@@ -7,7 +7,6 @@
 # The corrections are made by fitting degree 2 polynomials and
 # hence, each correction has two EA constants.
 #
-# ATTACH DOCS SHOWING PLOTS AND VALUES
 #
 # |eta| min   |eta| max       EA for IsoE (linear quadratic)
 0.0            1.0               0.0866519 -0.000229628

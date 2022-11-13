@@ -12,7 +12,6 @@
 # The corrections are made by fitting degree 2 polynomials and
 # hence, each correction has two EA constants.
 #
-# ATTACH RELEVANT DOC FOR THE ABOVE
 #
 # |eta| min   |eta| max       EA for H/E (linear quadratic)
 0.0            1.0               0.00198598 -1.15014e-05
