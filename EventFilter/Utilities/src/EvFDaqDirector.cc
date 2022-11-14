@@ -143,9 +143,7 @@ namespace evf {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
-  }
 
-  void EvFDaqDirector::initRun() {
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
     run_string_ = ss.str();
@@ -158,6 +156,10 @@ namespace evf {
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
+
+  }
+
+  void EvFDaqDirector::initRun() {
 
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
