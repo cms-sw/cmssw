@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHGCalTest_cfg.py type=V17
+#   cmsRun runHGCalTestDDD_cfg.py type=V17
 #
 #   Options for type V16, V17, V17n
 #
@@ -26,7 +26,7 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process("HGCalTest",Phase2C17I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
-outFile = "file:step1" + options.type + ".root"
+outFile = "file:step1" + options.type + "DDD.root"
 print("Geometry file: ", geomFile)
 print("Output file: ", outFile)
 

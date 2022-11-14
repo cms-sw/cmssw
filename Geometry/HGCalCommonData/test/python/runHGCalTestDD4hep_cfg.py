@@ -1,10 +1,40 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCalTestDD4hep_cfg.py type=V17
+#
+#   Options for type V16, V17, V17n
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17, V17n")
 
-process = cms.Process('SIM',Phase2C11_dd4hep)
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalTest",Phase2C17I13M9,dd4hep)
+
+geomFile = "Geometry/HGCalCommonData/data/dd4hep/testHGCal" + options.type + ".xml"
+outFile = "file:step1" + options.type + "DD4hep.root"
+print("Geometry file: ", geomFile)
+print("Output file: ", outFile)
 
 # import of standard configurations
+process.load('Configuration.Geometry.GeometryDD4hep_cff')
+process.DDDetectorESProducer.confGeomXMLFiles = geomFile
+
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -12,8 +42,13 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
-process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
+process.load('Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi')
+process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff')
+process.load('SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff')
+process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
+process.load('Geometry.MuonNumbering.muonOffsetESProducer_cff')
+process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -22,33 +57,16 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalwaferF-algorithm.xml'),
-                                            appendToDataLabel = cms.string('')
-                                            )
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('')
-)
-
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string(''))
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('')
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.CaloSim=dict()
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10),
+    input = cms.untracked.int32(100),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.HGCalGeom=dict()
-    process.MessageLogger.HGCSim=dict()
-    process.MessageLogger.G4cout=dict()
-    process.MessageLogger.G4cerr=dict()
-    process.MessageLogger.SimG4CoreApplication=dict()
+process.Timing = cms.Service("Timing")
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -83,7 +101,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('TTbar_14TeV_TuneCP5_cfi nevts:10'),
+    annotation = cms.untracked.string('single pi E 1000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -98,7 +116,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1.root'),
+    fileName = cms.untracked.string(outFile),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -110,59 +128,21 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-    PythiaParameters = cms.PSet(
-        parameterSets = cms.vstring(
-            'pythia8CommonSettings', 
-            'pythia8CP5Settings', 
-            'processParameters'
-        ),
-        processParameters = cms.vstring(
-            'Top:gg2ttbar = on ', 
-            'Top:qqbar2ttbar = on ', 
-            '6:m0 = 175 '
-        ),
-        pythia8CP5Settings = cms.vstring(
-            'Tune:pp 14', 
-            'Tune:ee 7', 
-            'MultipartonInteractions:ecmPow=0.03344', 
-            'MultipartonInteractions:bProfile=2', 
-            'MultipartonInteractions:pT0Ref=1.41', 
-            'MultipartonInteractions:coreRadius=0.7634', 
-            'MultipartonInteractions:coreFraction=0.63', 
-            'ColourReconnection:range=5.176', 
-            'SigmaTotal:zeroAXB=off', 
-            'SpaceShower:alphaSorder=2', 
-            'SpaceShower:alphaSvalue=0.118', 
-            'SigmaProcess:alphaSvalue=0.118', 
-            'SigmaProcess:alphaSorder=2', 
-            'MultipartonInteractions:alphaSvalue=0.118', 
-            'MultipartonInteractions:alphaSorder=2', 
-            'TimeShower:alphaSorder=2', 
-            'TimeShower:alphaSvalue=0.118', 
-            'SigmaTotal:mode = 0', 
-            'SigmaTotal:sigmaEl = 21.89', 
-            'SigmaTotal:sigmaTot = 100.309', 
-            'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118'
-        ),
-        pythia8CommonSettings = cms.vstring(
-            'Tune:preferLHAPDF = 2', 
-            'Main:timesAllowErrors = 10000', 
-            'Check:epTolErr = 0.01', 
-            'Beams:setProductionScalesFromLHEF = off', 
-            'SLHA:minMassSM = 1000.', 
-            'ParticleDecays:limitTau0 = on', 
-            'ParticleDecays:tau0Max = 10', 
-            'ParticleDecays:allowPhotonRadiation = on'
-        )
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(211),
+        MinEta = cms.double(1.48),
+        MaxEta = cms.double(3.01),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinE = cms.double(999.99),
+        MaxE = cms.double(1000.01)
     ),
-    comEnergy = cms.double(14000.0),
-    filterEfficiency = cms.untracked.double(1.0),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    pythiaPylistVerbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
+    psethack = cms.string('single pi E 1000'),
+    AddAntiParticle = cms.bool(True),
+    firstRun = cms.untracked.uint32(1)
 )
-
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
@@ -172,12 +152,6 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'HGCScintillatorSensitiveDetector',
-                             'CaloTrkProcessing',
-                             'HGCSensitiveDetector',
-                             'HcalSensitiveDetector']
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.FEVTDEBUGoutput_step)
