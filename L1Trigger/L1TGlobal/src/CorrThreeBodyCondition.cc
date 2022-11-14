@@ -369,7 +369,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
         etaIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwEtaAtVtx();
         etIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPt();
-	chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
+        chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
 
         etaBin1 = etaIndex1;
         if (etaBin1 < 0)
@@ -424,7 +424,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
           etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEtaAtVtx();
           etIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPt();
-	  chrg2 = (candMuVec->at(cond2bx, obj2Index))->hwCharge();
+          chrg2 = (candMuVec->at(cond2bx, obj2Index))->hwCharge();
 
           etaBin2 = etaIndex2;
           if (etaBin2 < 0)
@@ -454,52 +454,42 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         };
 
         if (m_verbosity) {
-	LogDebug("L1TGlobal") << "\n >>>>>> THREE-MUON EVENT!" << std::endl;
-	LogDebug("L1TGlobal") << ">>>>>> Object involved in the three-body correlation condition are ["
-		  << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
-		  << l1TGtObjectEnumToString(cndObjTypeVec[1]) << ", "
-		  << l1TGtObjectEnumToString(cndObjTypeVec[2]) << "] with collection indices ["
-		  << obj0Index << ", " << obj1Index << obj2Index << "] "
-		  << " having: \n"
-		  << "     Et  values  = [" << etIndex0 << ", " << etIndex1 << ", " << etIndex2 << "]\n"
-		  << "     phi indices = [" << phiIndex0 << ", " << phiIndex1 << ", " << phiIndex2
-		  << "]\n"
-		  << "     eta indices = [" << etaIndex0 << ", " << etaIndex1 << ", " << etaIndex2
-		  << "]\n"
-		  << "     charge values = [" << chrg0 << ", " << chrg1 << ", " << chrg2
-		  << "]\n"
-		  << std::endl; 
-	}
-	
+          LogDebug("L1TGlobal") << "\n >>>>>> THREE-MUON EVENT!" << std::endl;
+          LogDebug("L1TGlobal") << ">>>>>> Object involved in the three-body correlation condition are ["
+                                << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
+                                << l1TGtObjectEnumToString(cndObjTypeVec[1]) << ", "
+                                << l1TGtObjectEnumToString(cndObjTypeVec[2]) << "] with collection indices ["
+                                << obj0Index << ", " << obj1Index << obj2Index << "] "
+                                << " having: \n"
+                                << "     Et  values  = [" << etIndex0 << ", " << etIndex1 << ", " << etIndex2 << "]\n"
+                                << "     phi indices = [" << phiIndex0 << ", " << phiIndex1 << ", " << phiIndex2
+                                << "]\n"
+                                << "     eta indices = [" << etaIndex0 << ", " << etaIndex1 << ", " << etaIndex2
+                                << "]\n"
+                                << "     charge values = [" << chrg0 << ", " << chrg1 << ", " << chrg2 << "]\n"
+                                << std::endl;
+        }
+
         // Now perform the desired correlation on these three objects:
         // reqResult will be set true in case all checks were successful for a given combination of three muons
         bool reqResult = false;
 
-	// Check the three-muon charge correlation, if requested                                                                                                                                
-	/*
-	bool chrgCorrel = true;
-	//EF std::cout << "chrgCorrel 0" << chrgCorrel <<  std::endl; 
-	if (cond0Categ == CondMuon && cond1Categ == CondMuon && cond2Categ == CondMuon) {
-	  // Check for opp-sign                                       
-	  if (corrPar.chargeCorrelation == 4 && fabs(chrg0 + chrg1 + chrg2) == 3) 
-	    {
-	      //EF std::cout << "OS!\t chrg0 = " << chrg0 << "\t chrg1 = " << chrg1 << "\t chrg2 = " << chrg2 << std::endl; 
-	      chrgCorrel = false;
-	      //EF std::cout << "chrgCorrel 1" << chrgCorrel <<  std::endl; 
-	    }
-	  // Check for same-sign                                       
-	  else if (corrPar.chargeCorrelation == 2 && fabs(chrg0 + chrg1 + chrg2) != 3) 
-	    {
-	      //EF std::cout << "SS!\t chrg0 = " << chrg0 << "\t chrg1 = " << chrg1 << "\t chrg2 = " << chrg2 << std::endl; 
-	      chrgCorrel = false;
-	    }
-	  else if (corrPar.chargeCorrelation == 1) 
-	    {
-	      //EF std::cout << "IGNORE!!!!!!!!!!!!!!!" << std::endl; 
-	      chrgCorrel = true;
-	    }
-	}
-	*/
+        // Check the three-muon charge correlation, if requested
+        bool chrgCorrel = true;
+        if (cond0Categ == CondMuon && cond1Categ == CondMuon && cond2Categ == CondMuon) {
+          // Check for opp-sign
+          if (corrPar.chargeCorrelation == 4 && fabs(chrg0 + chrg1 + chrg2) == 3) {
+            chrgCorrel = false;
+          }
+          // Check for same-sign
+          else if (corrPar.chargeCorrelation == 2 && fabs(chrg0 + chrg1 + chrg2) != 3) {
+            chrgCorrel = false;
+          }
+          // Ignore the charge correlation requirement
+          else if (corrPar.chargeCorrelation == 1) {
+            chrgCorrel = true;
+          }
+        }
 
         // Clear the vector containing indices of the objects of the combination involved in the condition evaluation
         objectsInComb.clear();
@@ -764,18 +754,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           }
         }
 
-	if (cond0Categ == CondMuon && cond1Categ == CondMuon && cond2Categ == CondMuon) {
-	  if (fabs(chrg0 + chrg1 + chrg2) == 3)
-            {
-              //EF std::cout << "OS!\t chrg0 = " << chrg0 << "\t chrg1 = " << chrg1 << "\t chrg2 = " << chrg2 << std::endl;                                                                              
-              reqResult = false;
-              //EF std::cout << "chrgCorrel 1" << chrgCorrel <<  std::endl;                                                                                                        
-            }
-	}
-	//EF std::cout << "chrgCorrel 2" << chrgCorrel <<  std::endl; 
-        if (reqResult) {
-	  //if (reqResult && chrgCorrel) {
-	  //EF std::cout << "PASS" << std::endl; 
+        if (reqResult && chrgCorrel) {
           condResult = true;
           (combinationsInCond()).push_back(objectsInComb);
         }
