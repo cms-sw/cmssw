@@ -2988,14 +2988,14 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
 
   // Storage of the correlation selection
   CorrelationThreeBodyTemplate::CorrelationThreeBodyParameter corrThreeBodyParameter;
-  // Set charge correlation parameter                                                                                                                                                             
-  //corrThreeBodyParameter.chargeCorrelation = chargeCorrelation;  //tmpValues[0];  
+  // Set charge correlation parameter
+  //corrThreeBodyParameter.chargeCorrelation = chargeCorrelation;  //tmpValues[0];
   //corrThreeBodyParameter.chargeCorrelation = 1;  //ignore charge correlation for corr-legs
 
   // Get the correlation cuts on the legs
   int cutType = 0;
   const std::vector<esCut>& cuts = corrCond.getCuts();
-  for (size_t lll = 0; lll < cuts.size(); lll++) { // START esCut lll
+  for (size_t lll = 0; lll < cuts.size(); lll++) {  // START esCut lll
     const esCut cut = cuts.at(lll);
 
     if (cut.getCutType() == esCutType::ChargeCorrelation) {
@@ -3030,7 +3030,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
       corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
       cutType = cutType | 0x80;
     }
-  } // END esCut lll
+  }  // END esCut lll
   corrThreeBodyParameter.corrCutType = cutType;
 
   // Get the three objects that form the legs
@@ -3039,7 +3039,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
     edm::LogError("TriggerMenuParser") << "incorrect number of objects for the correlation condition " << name
                                        << " corrFlag " << corrFlag << std::endl;
     return false;
-  }  
+  }
 
   // Loop over legs
   for (size_t lll = 0; lll < objects.size(); lll++) {
