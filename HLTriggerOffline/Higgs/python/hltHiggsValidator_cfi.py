@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
@@ -446,3 +447,16 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         minCandidates = cms.uint32(2),
         ), 
 )
+
+hltHiggsValidator_run3 = hltHiggsValidator.clone()
+hltHiggsValidator_run3.VBFHbb_0btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.VBFHbb_1btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.VBFHbb_2btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.ZnnHbb.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.X4b.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.AHttH.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.MSSMHbb.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.MSSMHbbmu.jetTagLabel = "pfDeepCSVJetTags:probb"
+
+run3_common.toReplaceWith( hltHiggsValidator, hltHiggsValidator_run3)
+
