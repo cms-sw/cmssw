@@ -44,6 +44,7 @@ ThroughputService::ThroughputService(const edm::ParameterSet& config, edm::Activ
       m_time_range(m_enable_dqm ? config.getUntrackedParameter<double>("timeRange") : 0.),
       m_time_resolution(m_enable_dqm ? config.getUntrackedParameter<double>("timeResolution") : 0.) {
   m_events.clear();  // erases all elements, but does not free internal arrays
+  registry.watchPreallocate(this, &ThroughputService::preallocate);
   registry.watchPreGlobalBeginRun(this, &ThroughputService::preGlobalBeginRun);
   registry.watchPreSourceEvent(this, &ThroughputService::preSourceEvent);
   registry.watchPostEvent(this, &ThroughputService::postEvent);
