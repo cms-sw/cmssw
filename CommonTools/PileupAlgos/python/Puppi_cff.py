@@ -35,6 +35,7 @@ puppi = _mod.PuppiProducer.clone(
                        NumOfPUVtxsForCharged = primaryVertexAssociationJME.assignment.NumOfPUVtxsForCharged,
                        DeltaZCutForChargedFromPUVtxs = primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs,
                        PtMaxNeutralsStartSlope = 20.,
+                       PtMaxPhotons = 20.,
                        clonePackedCands   = False, # should only be set to True for MiniAOD
                        algos          = { 
                         0: dict( 
@@ -102,6 +103,5 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(puppi, algos = [])
 
 puppiNoLep = puppi.clone(
-    puppiNoLep = True,
-    PtMaxPhotons = 20.
+    puppiNoLep = True
     )
