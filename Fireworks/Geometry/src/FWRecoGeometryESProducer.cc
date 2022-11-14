@@ -635,8 +635,15 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addMTDGeometry(FWRecoGeometry& fwRecoGeometry) {
-  // do the barrel (do for BTL)
-  // do the endcap (do for ETL)
+  for (auto const& det : m_mtdGeom->detUnits()) {
+
+    if (det) {
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
+      unsigned int current = insert_id(rawid, fwRecoGeometry);
+      fillShapeAndPlacement(current, det, fwRecoGeometry);
+    }
+  }
 }
 
 unsigned int FWRecoGeometryESProducer::insert_id(unsigned int rawid, FWRecoGeometry& fwRecoGeometry) {
