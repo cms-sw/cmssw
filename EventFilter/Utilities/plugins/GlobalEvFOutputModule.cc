@@ -43,12 +43,15 @@ namespace evf {
 
   class GlobalEvFOutputEventWriter {
   public:
-    explicit GlobalEvFOutputEventWriter(std::string const& filePath)
-        : filePath_(filePath), accepted_(0), stream_writer_events_(new StreamerOutputFile(filePath)) {}
+    explicit GlobalEvFOutputEventWriter(std::string const& filePath, uint32_t ls)
+        : filePath_(filePath), ls_(ls), accepted_(0), stream_writer_events_(new StreamerOutputFile(filePath)) {}
 
     ~GlobalEvFOutputEventWriter() {}
 
-    void close() { stream_writer_events_->close(); }
+    bool close() {
+      stream_writer_events_->close();
+      return (discarded_ || edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_);
+    }
 
     void doOutputEvent(EventMsgBuilder const& msg) {
       EventMsgView eview(msg.startAddress());
@@ -72,13 +75,17 @@ namespace evf {
 
     inline void throttledCheck() {
       unsigned int counter = 0;
-      while (edm::Service<evf::EvFDaqDirector>()->inputThrottled()) {
+      while (edm::Service<evf::EvFDaqDirector>()->inputThrottled() && !discarded_) {
         if (edm::shutdown_flag.load(std::memory_order_relaxed))
           break;
         if (!(counter % 100))
           edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, writing is paused...";
         usleep(100000);
         counter++;
+        if (edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
+           edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+           discarded_ = true;
+        }
       }
     }
 
@@ -93,9 +100,11 @@ namespace evf {
 
   private:
     std::string filePath_;
+    const uint32_t ls_;
     std::atomic<unsigned long> accepted_;
     edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_events_;
     edm::SerialTaskQueue writeQueue_;
+    bool discarded_ = false;
   };
 
   class GlobalEvFOutputJSONDef {
@@ -382,7 +391,7 @@ namespace evf {
       edm::LuminosityBlockForOutput const& iLB) const {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(), streamLabel_);
 
-    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath);
+    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.index());
   }
 
   void GlobalEvFOutputModule::acquire(edm::StreamID id,
@@ -403,7 +412,7 @@ namespace evf {
   void GlobalEvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const {
     auto lumiWriter = luminosityBlockCache(iLB.index());
     //close dat file
-    const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)->close();
+    const bool discarded = const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)->close();
 
     //auto jsonWriter = const_cast<GlobalEvFOutputJSONWriter*>(runCache(iLB.getRun().index()));
     auto jsonDef = runCache(iLB.getRun().index());
@@ -417,7 +426,15 @@ namespace evf {
     jsonWriter.accepted_.value() = lumiWriter->getAccepted();
 
     bool abortFlag = false;
-    jsonWriter.processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+
+    if (!discarded) {
+      jsonWriter.processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+    } else {
+      jsonWriter.errorEvents_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+      jsonWriter.processed_.value() = 0;
+      edm::LogInfo("GlobalEvFOutputModule") << "Output suppressed, setting error events for LS -: "<<iLB.index();
+    }
+
     if (abortFlag) {
       edm::LogInfo("GlobalEvFOutputModule") << "Abort flag has been set. Output is suppressed";
       return;

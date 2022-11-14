@@ -286,6 +286,7 @@ namespace evf {
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
 
     std::string input_throttled_file_;
+    std::string discard_ls_filestem_;
   };
 }  // namespace evf
 
