@@ -148,7 +148,15 @@ private:
 // constructor
 HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config)
     : triggerResults_(config.getParameter<edm::InputTag>("triggerResults")),
-      triggerResultsToken_(consumes(triggerResults_)) {}
+      triggerResultsToken_(consumes(triggerResults_)) {
+  if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
+    //output initemp file. This lets hltd know number of streams early
+    const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath("streamHLTRates") + "temp";
+    std::ofstream file(iniFileName);
+    file.close();
+  }
+}
+
 
 // validate the configuration and optionally fill the default values
 void HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
