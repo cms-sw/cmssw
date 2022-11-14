@@ -185,6 +185,7 @@ namespace evf {
     std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
     bool inputThrottled();
+    bool lumisectionDiscarded(uint32_t ls);
 
   private:
     bool bumpFile(unsigned int& ls,

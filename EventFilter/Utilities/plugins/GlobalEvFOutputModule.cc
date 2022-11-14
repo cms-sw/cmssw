@@ -50,7 +50,7 @@ namespace evf {
 
     bool close() {
       stream_writer_events_->close();
-      return (discarded_ || edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_);
+      return (discarded_ || edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_));
     }
 
     void doOutputEvent(EventMsgBuilder const& msg) {
@@ -109,7 +109,8 @@ namespace evf {
 
   class GlobalEvFOutputJSONDef {
   public:
-    GlobalEvFOutputJSONDef(std::string const& streamLabel);
+    GlobalEvFOutputJSONDef(std::string const& streamLabel, bool writeJsd);
+    void updateDestination(std::string const& streamLabel);
 
     jsoncollector::DataPointDefinition outJsonDef_;
     std::string outJsonDefName_;
@@ -179,11 +180,10 @@ namespace evf {
 
   };  //end-of-class-def
 
-  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef(std::string const& streamLabel) {
+  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef(std::string const& streamLabel, bool writeJsd) {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("GlobalEvFOutputModule") << "writing .dat files to -: " << baseRunDir;
 
-    edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed", "integer", jsoncollector::DataPointDefinition::SUM);
@@ -198,25 +198,31 @@ namespace evf {
     outJsonDef_.addLegendItem("MergeType", "string", jsoncollector::DataPointDefinition::SAME);
     outJsonDef_.addLegendItem("HLTErrorEvents", "integer", jsoncollector::DataPointDefinition::SUM);
 
-    std::stringstream tmpss, ss;
-    tmpss << baseRunDir << "/open/"
-          << "output_" << getpid() << ".jsd";
+    std::stringstream ss;
     ss << baseRunDir << "/"
        << "output_" << getpid() << ".jsd";
-    std::string outTmpJsonDefName = tmpss.str();
     outJsonDefName_ = ss.str();
 
-    edm::Service<evf::EvFDaqDirector>()->lockInitLock();
-    struct stat fstat;
-    if (stat(outJsonDefName_.c_str(), &fstat) != 0) {  //file does not exist
-      LogDebug("GlobalEvFOutputModule") << "writing output definition file -: " << outJsonDefName_;
-      std::string content;
-      jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
-      jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      std::filesystem::rename(outTmpJsonDefName, outJsonDefName_);
+    if (writeJsd) {
+      std::stringstream tmpss;
+      tmpss << baseRunDir << "/open/"
+            << "output_" << getpid() << ".jsd";
+      std::string outTmpJsonDefName = tmpss.str();
+      edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
+      edm::Service<evf::EvFDaqDirector>()->lockInitLock();
+      struct stat fstat;
+      if (stat(outJsonDefName_.c_str(), &fstat) != 0) {  //file does not exist
+        LogDebug("GlobalEvFOutputModule") << "writing output definition file -: " << outJsonDefName_;
+        std::string content;
+        jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
+        jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
+        std::filesystem::rename(outTmpJsonDefName, outJsonDefName_);
+      }
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
+  }
 
+  void GlobalEvFOutputJSONDef::updateDestination(std::string const& streamLabel) {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel, evf::MergeTypeDAT);
   }
@@ -293,6 +299,18 @@ namespace evf {
           << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for "
              "names in FFF based HLT, but was detected in stream name";
 
+    //output initemp file. This lets hltd know number of streams early on
+    const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_) + "temp";
+    FILE* src = fopen(iniFileName.c_str(), "w");
+    if (src==NULL)
+      throw cms::Exception("GlobalEvFOutputModule")
+          << "can not create " << iniFileName << ":" << strerror(errno);
+    fclose(src);
+    edm::LogInfo("GlobalEvFOutputModule") << "Constructor initemp stream -: " << iniFileName;
+
+    //create JSD
+    GlobalEvFOutputJSONDef(streamLabel_, true);
+
     fms_ = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
   }
 
@@ -313,9 +331,10 @@ namespace evf {
   }
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
-    //create run Cache holding JSON file writer and variables
-    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_);
 
+    //create run Cache holding JSON file writer and variables
+    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_, false);
+    jsonDef->updateDestination(streamLabel_);
     edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
