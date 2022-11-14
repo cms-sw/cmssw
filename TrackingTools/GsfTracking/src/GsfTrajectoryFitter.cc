@@ -121,6 +121,9 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       //update
       assert((!(*ihit)->canImproveWithTrack()) | (nullptr != theHitCloner));
       assert((!(*ihit)->canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+      if (!predTsos.isValid()) {
+        return Trajectory();
+      }
       auto preciseHit = theHitCloner->makeShared(*ihit, predTsos);
       dump(*preciseHit, hitcounter, "GsfTrackFitters");
       currTsos = updator()->update(predTsos, *preciseHit);
