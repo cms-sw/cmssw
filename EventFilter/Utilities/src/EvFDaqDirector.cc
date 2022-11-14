@@ -154,6 +154,7 @@ namespace evf {
     run_nstring_ = ss.str();
     run_dir_ = base_dir_ + "/" + run_string_;
     input_throttled_file_ = run_dir_ + "/input_throttle";
+    discard_ls_filestem_ = run_dir_ + "/discard_ls";
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
@@ -2065,6 +2066,11 @@ namespace evf {
   bool EvFDaqDirector::inputThrottled() {
     struct stat buf;
     return (stat(input_throttled_file_.c_str(), &buf) == 0);
+  }
+
+  bool EvFDaqDirector::lumisectionDiscarded(uint32_t ls) {
+    struct stat buf;
+    return (stat((discard_ls_filestem_ + std::to_string(ls)).c_str(), &buf) == 0);
   }
 
 }  // namespace evf
