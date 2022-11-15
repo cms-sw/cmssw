@@ -240,7 +240,7 @@ upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
 
 # some commonalities among tracking WFs
 class UpgradeWorkflowTracking(UpgradeWorkflow):
-    # skip the PU argument since PU workflows never used here
+
     def __init__(self, steps, PU, suffix, offset):
         # always include some steps that will be skipped
         steps = steps + ["ALCA","Nano"]

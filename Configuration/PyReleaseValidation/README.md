@@ -81,3 +81,5 @@ The offsets currently in use are:
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
+* 0.278: Weighted Vertexing in Blocks
+* 0.279: Weighted Vertexing in Blocks and tracking only wf

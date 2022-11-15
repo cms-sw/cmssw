@@ -48,7 +48,7 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
   overlap_frac_ = conf.getParameter<double>("overlap_frac");
 
 #ifdef DEBUG
-  std::cout << "DAClusterizerinZ_vect: mintrkweight = " << mintrkweight_ << std::endl;
+  std::cout << "DAClusterizerinZ_vect: mintrkweight = " << mintrkweight << std::endl;
   std::cout << "DAClusterizerinZ_vect: uniquetrkweight = " << uniquetrkweight_ << std::endl;
   std::cout << "DAClusterizerInZ_vect: uniquetrkminp = " << uniquetrkminp_ << std::endl;
   std::cout << "DAClusterizerinZ_vect: zmerge = " << zmerge_ << std::endl;
@@ -950,7 +950,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
     for (auto k = kmin; k < kmax; k++) {
       double p = y.rho[k] * y.exp[k] * invZ;
       if (p > mintrkweight_) {
-        // assign  track i -> vertex k (hard, mintrkweight_ should be >= 0.5 here
+        // assign  track i -> vertex k (hard, mintrkweight should be >= 0.5 here
         vtx_track_indices[k].push_back(i);
         break;
       }
@@ -1212,7 +1212,6 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices_in_blocks(const vector<r
     }
   }
 
-  double mintrkweight_ = 0.5;
   rho0 = nv > 1 ? 1. / nv : 1.;
   const auto z_sum_init = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
 
@@ -1221,14 +1220,14 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices_in_blocks(const vector<r
     const auto kmin = tracks_tot.kmin[i];
     const auto kmax = tracks_tot.kmax[i];
     double p_max = -1;
-    unsigned int iMax = 10000;
+    unsigned int iMax = 10000;  //just a "big" number w.r.t. number of vertices
     float sum_Z = z_sum_init;
     for (auto k = kmin; k < kmax; k++) {
       float v_exp = local_exp(-beta * Eik(tracks_tot.zpca[i], vertices_tot[k].first, tracks_tot.dz2[i]));
       sum_Z += vertices_tot[k].second * v_exp;
     }
     double invZ = sum_Z > 1e-100 ? 1. / sum_Z : 0.0;
-    for (auto k = kmin; k < kmax; k++) {
+    for (auto k = kmin; k < kmax && invZ != 0.0; k++) {
       float v_exp = local_exp(-beta * Eik(tracks_tot.zpca[i], vertices_tot[k].first, tracks_tot.dz2[i]));
       double p = vertices_tot[k].second * v_exp * invZ;
       if (p > p_max && p > mintrkweight_) {
