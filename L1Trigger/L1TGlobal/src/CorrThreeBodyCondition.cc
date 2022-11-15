@@ -313,7 +313,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     if (cond0Categ == CondMuon) {
       lutObj0 = "MU";
       candMuVec = m_uGtB->getCandL1Mu();
-      phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx(); 
+      phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();
       etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEtaAtVtx();
       etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
       chrg0 = (candMuVec->at(cond0bx, obj0Index))->hwCharge();
@@ -365,7 +365,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       if (cond1Categ == CondMuon) {
         lutObj1 = "MU";
         candMuVec = m_uGtB->getCandL1Mu();
-        phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx(); 
+        phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();
         etaIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwEtaAtVtx();
         etIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPt();
         chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
@@ -419,7 +419,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (cond2Categ == CondMuon) {
           lutObj2 = "MU";
           candMuVec = m_uGtB->getCandL1Mu();
-          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx(); 
+          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx();
           etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEtaAtVtx();
           etIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPt();
           chrg2 = (candMuVec->at(cond2bx, obj2Index))->hwCharge();
@@ -578,7 +578,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           // Invariant mass calculation based for each pair on
           // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
           // NOTE: we calculate (1/2)M^2
-	  ///
+          ///
           double cosDeltaPhiPhy_01 = cos(deltaPhiPhy_01);
           double coshDeltaEtaPhy_01 = cosh(deltaEtaPhy_01);
           double massSqPhy_01 = et0Phy * et1Phy * (coshDeltaEtaPhy_01 - cosDeltaPhiPhy_01);
@@ -653,37 +653,34 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           unsigned int preShift_12 = precPtLUTObj1 + precPtLUTObj2 + precCosLUT_12 - corrPar.precMassCut;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the FIRST PAIR 0-1 (" << lutObj0 << "," << lutObj1
-              << ") \n"
-              << "    massSq/2     = " << massSq_01 << "\n"
-              << "    Precision Shift = " << preShift_01 << "\n"
-              << "    massSq   (shift)= " << (massSq_01 / pow(10, preShift_01 + corrPar.precMassCut))
-              << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_01 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_01))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the FIRST PAIR 0-1 (" << lutObj0
+                                << "," << lutObj1 << ") \n"
+                                << "    massSq/2     = " << massSq_01 << "\n"
+                                << "    Precision Shift = " << preShift_01 << "\n"
+                                << "    massSq   (shift)= " << (massSq_01 / pow(10, preShift_01 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_01
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_01)) << std::endl;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the SECOND PAIR 0-2 (" << lutObj0 << "," << lutObj2
-              << ") \n"
-              << "    massSq/2     = " << massSq_02 << "\n"
-              << "    Precision Shift = " << preShift_02 << "\n"
-              << "    massSq   (shift)= " << (massSq_02 / pow(10, preShift_02 + corrPar.precMassCut))
-              << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_02 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_02))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the SECOND PAIR 0-2 (" << lutObj0
+                                << "," << lutObj2 << ") \n"
+                                << "    massSq/2     = " << massSq_02 << "\n"
+                                << "    Precision Shift = " << preShift_02 << "\n"
+                                << "    massSq   (shift)= " << (massSq_02 / pow(10, preShift_02 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_02
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_02)) << std::endl;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the THIRD PAIR 1-2 (" << lutObj1 << "," << lutObj2
-              << ") \n"
-              << "    massSq/2     = " << massSq_12 << "\n"
-              << "    Precision Shift = " << preShift_12 << "\n"
-              << "    massSq   (shift)= " << (massSq_12 / pow(10, preShift_12 + corrPar.precMassCut))
-              << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_12 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_12))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the THIRD PAIR 1-2 (" << lutObj1
+                                << "," << lutObj2 << ") \n"
+                                << "    massSq/2     = " << massSq_12 << "\n"
+                                << "    Precision Shift = " << preShift_12 << "\n"
+                                << "    massSq   (shift)= " << (massSq_12 / pow(10, preShift_12 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_12
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_12)) << std::endl;
 
           LogDebug("L1TGlobal") << "\n ########### THREE-BODY INVARIANT MASS #########################\n";
           long long massSq = 0;
