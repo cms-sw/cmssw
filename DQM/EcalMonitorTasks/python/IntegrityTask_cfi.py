@@ -70,6 +70,21 @@ ecalIntegrityTask = cms.untracked.PSet(
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('')
+        ),
+        TTIDTotal = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityTask/%(prefix)sIT weighted TTID errors'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('DCC'),
+            description = cms.untracked.string('Total number of TTID errors for each FED. Histogram filled weighted by no.of crystals per tower to be compatible with the other integrity errors which are binned by crystals.')
+        ),
+        TTIDByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityTask/%(prefix)sIT weighted TTID errors by lumi'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('DCC'),
+	    perLumi = cms.untracked.bool(True),
+            description = cms.untracked.string('Total number of TTID errors for each FED in this lumi section. Histogram filled weighted by no.of crystals per tower to be compatible with the other integrity errors which are binned by crystals.')
         )
     )
 )
