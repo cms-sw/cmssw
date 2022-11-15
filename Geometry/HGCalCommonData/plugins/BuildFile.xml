@@ -22,17 +22,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="GeometryHGCalCommonDataFastTimeESModules" file="FastTime*.cc">
-  <use name="DetectorDescription/Core"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="Geometry/HGCalCommonData"/>
-  <use name="Geometry/Records"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
 <library name="DD4hep_GeometryHGCalCommonDataPlugins" file="dd4hep/*.cc">
   <use name="DetectorDescription/DDCMS"/>
   <use name="Geometry/HGCalCommonData"/>
