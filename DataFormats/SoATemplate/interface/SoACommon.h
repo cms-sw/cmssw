@@ -570,7 +570,7 @@ namespace cms::soa {
   /* Column accessors: templates implementing the global accesors (soa::x() and soa::x(index) */
   enum class SoAAccessType : bool { mutableAccess, constAccess };
 
-  template <typename, SoAColumnType, SoAAccessType>
+  template <typename, SoAColumnType, SoAAccessType, byte_size_type, bool>
   struct SoAColumnAccessorsImpl {};
 
   // TODO from Eric Cano:
@@ -578,13 +578,13 @@ namespace cms::soa {
   //   - SFINAE-based const/non const variants
 
   // Column
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::mutableAccess> {
-    //SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(T* baseAddress) : baseAddress_(baseAddress) {}
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::mutableAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T* operator()() { return params_.addr_; }
     using NoParamReturnType = T*;
+    using ParamReturnType = T&;
     SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
 
   private:
@@ -592,12 +592,13 @@ namespace cms::soa {
   };
 
   // Const column
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::constAccess> {
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::constAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE const T* operator()() const { return params_.addr_; }
     using NoParamReturnType = const T*;
+    using ParamReturnType = const T&;
     SOA_HOST_DEVICE SOA_INLINE T const& operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
@@ -605,12 +606,13 @@ namespace cms::soa {
   };
 
   // Scalar
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::mutableAccess> {
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::mutableAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T& operator()() { return *params_.addr_; }
     using NoParamReturnType = T&;
+    using ParamReturnType = void;
     SOA_HOST_DEVICE SOA_INLINE void operator()(size_type index) const {
       assert(false && "Indexed access impossible for SoA scalars.");
     }
@@ -620,12 +622,13 @@ namespace cms::soa {
   };
 
   // Const scalar
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess> {
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T const& operator()() const { return *params_.addr_; }
     using NoParamReturnType = T const&;
+    using ParamReturnType = void;
     SOA_HOST_DEVICE SOA_INLINE void operator()(size_type index) const {
       assert(false && "Indexed access impossible for SoA scalars.");
     }
@@ -635,27 +638,32 @@ namespace cms::soa {
   };
 
   // Eigen-type
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::mutableAccess> {
-    //SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(T* baseAddress) : baseAddress_(baseAddress) {}
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::mutableAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::eigen, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE typename T::Scalar* operator()() { return params_.addr_; }
     using NoParamReturnType = typename T::Scalar*;
-    //SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
+    using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::MapType;
+    SOA_HOST_DEVICE SOA_INLINE ParamReturnType operator()(size_type index) {
+      return SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>(index, params_)();
+    }
 
   private:
     SoAParametersImpl<SoAColumnType::eigen, T> params_;
   };
 
   // Const Eigen-type
-  template <typename T>
-  struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess> {
+  template <typename T, byte_size_type alignment, bool restrictQualify>
+  struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE typename T::Scalar const* operator()() const { return params_.addr_; }
     using NoParamReturnType = typename T::Scalar const*;
-    //SOA_HOST_DEVICE SOA_INLINE T operator()(size_type index) const { return params_.addr_[index]; }
+    using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::CMapType;
+    SOA_HOST_DEVICE SOA_INLINE ParamReturnType operator()(size_type index) const {
+      return SoAConstValue<SoAColumnType::eigen, T, alignment, restrictQualify>(index, params_)();
+    }
 
   private:
     SoAConstParametersImpl<SoAColumnType::eigen, T> params_;
@@ -667,8 +675,15 @@ namespace cms::soa {
     template <auto columnType>
     struct ColumnType {
       template <auto accessType>
-      struct AccessType : public SoAColumnAccessorsImpl<T, columnType, accessType> {
-        using SoAColumnAccessorsImpl<T, columnType, accessType>::SoAColumnAccessorsImpl;
+      struct AccessType {
+        template <auto alignment>
+        struct Alignment {
+          template <auto restrictQualify>
+          struct RestrictQualifier
+              : public SoAColumnAccessorsImpl<T, columnType, accessType, alignment, restrictQualify> {
+            using SoAColumnAccessorsImpl<T, columnType, accessType, alignment, restrictQualify>::SoAColumnAccessorsImpl;
+          };
+        };
       };
     };
   };

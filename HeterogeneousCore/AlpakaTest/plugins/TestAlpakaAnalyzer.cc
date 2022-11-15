@@ -101,7 +101,7 @@ public:
     assert(view.metadata().addressOf_id() == &view.id(0));
     assert(view.metadata().addressOf_id() == &view[0].id());
     assert(view.metadata().addressOf_m() == view.m());
-    //assert(view.metadata().addressOf_m() == &view.m(0).coeffRef(0,0));    // view.m(0) does not seem to be supported for Eigen columns ?
+    assert(view.metadata().addressOf_m() == &view.m(0).coeffRef(0, 0));
     assert(view.metadata().addressOf_m() == &view[0].m().coeffRef(0, 0));
     assert(view.metadata().addressOf_r() == &view.r());
     //assert(view.metadata().addressOf_r() == &view.r(0));                  // cannot access a scalar with an index
