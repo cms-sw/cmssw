@@ -140,9 +140,10 @@ void momentumBiasValidation(TString variable,
   std::cout << "Initializing the TTree ..." << std::endl;
   std::vector<TTree*> trees(files.size(), 0);
   EopElecVariables* track = new EopElecVariables();
-  if (!initializeTree(files, trees, track))
+  if (!initializeTree(files, trees, track)) {
     delete track;
-  return;
+    return;
+  } 
 
   // Configuring ROOT style
   std::cout << "Configuring the ROOT style ..." << std::endl;
@@ -158,6 +159,7 @@ void momentumBiasValidation(TString variable,
 
   // To save the table cut
   TFile* histo1;
+  delete histo1;
   std::string fileName;
 
   for (unsigned int ifile = 0; ifile < histos.size(); ifile++) {
@@ -280,9 +282,8 @@ void momentumBiasValidation(TString variable,
   time_t end = time(0);
   std::cout << "Done in " << static_cast<int>(difftime(end, start)) / 60 << " min and "
             << static_cast<int>(difftime(end, start)) % 60 << " sec." << std::endl;
-
-  delete track;
   delete histo1;
+  delete track;
 }
 
 // -----------------------------------------------------------------------------
