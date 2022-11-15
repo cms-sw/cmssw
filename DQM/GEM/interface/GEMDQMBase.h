@@ -334,7 +334,7 @@ public:
       return mapHist[key];
     };
 
-    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1) {
+    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1, Int_t nNumModules = 1) {
       if (!bOperating_)
         return 0;
       if (nNumBin <= 0) {
@@ -348,8 +348,14 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = nIdxStart; i <= nNumBin; i++) {
-        histCurr->setBinLabel(i, Form("%i", i), nAxis);
+      for (Int_t i = 1; i <= nNumBin; i++) {
+        Int_t nIdxCh = (nIdxStart + i - 2) / nNumModules + 1;
+        Int_t nIdxMod = (nIdxStart + i - 2) % nNumModules + 1;
+        if (nNumModules > 1) {
+          histCurr->setBinLabel(i, Form("#splitline{%i}{M%i}", nIdxCh, nIdxMod), nAxis);
+        } else {
+          histCurr->setBinLabel(i, Form("%i", nIdxStart + i - 1), nAxis);
+        }
       }
       return 0;
     };
@@ -370,9 +376,24 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = 0; i < nNumBin; i++) {
-        Int_t nIEta = pDQMBase_->getIEtaFromVFAT(std::get<1>(key), i);
-        histCurr->setBinLabel(i + 1, Form("%i (%i)", i, nIEta), nAxis);
+      if (std::get<1>(key) == 2) {
+        Int_t nNumVFATPerModule = 12;  // FIXME: A better way to get this?
+        if (nNumBin > nNumVFATPerModule) {
+          for (Int_t i = 0; i < nNumBin; i++) {
+            Int_t nIModule = i / nNumVFATPerModule + 1;
+            histCurr->setBinLabel(
+                i + 1, Form((nAxis == 1 ? "#splitline{%i}{M%i}" : "%i (M%i)"), i % nNumVFATPerModule, nIModule), nAxis);
+          }
+        } else {
+          for (Int_t i = 0; i < nNumBin; i++) {
+            histCurr->setBinLabel(i + 1, Form("%i", i), nAxis);
+          }
+        }
+      } else {
+        for (Int_t i = 0; i < nNumBin; i++) {
+          Int_t nIEta = pDQMBase_->getIEtaFromVFAT(std::get<1>(key), i);
+          histCurr->setBinLabel(i + 1, Form("%i (%i)", i, nIEta), nAxis);
+        }
       }
       return 0;
     };
@@ -466,8 +487,10 @@ public:
                   Int_t nStation,
                   Int_t nLayer,
                   Int_t nNumChambers,
+                  Int_t nNumModules,
                   Int_t nNumEtaPartitions,
                   Int_t nMaxVFAT,
+                  Int_t nFirstStrip,
                   Int_t nNumDigi,
                   Int_t nMinIdxChamber,
                   Int_t nMaxIdxChamber)
@@ -475,8 +498,10 @@ public:
           nStation_(nStation),
           nLayer_(nLayer),
           nNumChambers_(nNumChambers),
+          nNumModules_(nNumModules),
           nNumEtaPartitions_(nNumEtaPartitions),
           nMaxVFAT_(nMaxVFAT),
+          nFirstStrip_(nFirstStrip),
           nNumDigi_(nNumDigi),
           nMinIdxChamber_(nMinIdxChamber),
           nMaxIdxChamber_(nMaxIdxChamber),
@@ -484,17 +509,20 @@ public:
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
-              nNumChambers_ == other.nNumChambers_ && nNumEtaPartitions_ == other.nNumEtaPartitions_ &&
-              nMaxVFAT_ == other.nMaxVFAT_ && nNumDigi_ == other.nNumDigi_);
+              nNumChambers_ == other.nNumChambers_ && nNumModules_ == other.nNumModules_ &&
+              nNumEtaPartitions_ == other.nNumEtaPartitions_ && nMaxVFAT_ == other.nMaxVFAT_ &&
+              nFirstStrip_ == other.nFirstStrip_ && nNumDigi_ == other.nNumDigi_);
     };
 
     Int_t nRegion_;            // the region index
     Int_t nStation_;           // the station index
     Int_t nLayer_;             // the layer
     Int_t nNumChambers_;       // the number of chambers in the current station
+    Int_t nNumModules_;        // the number of modules in each chamber
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
-    Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
-    Int_t nNumDigi_;  // the number of digis of each VFAT
+    Int_t nMaxVFAT_;     // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
+    Int_t nFirstStrip_;  // the index of the first strip
+    Int_t nNumDigi_;     // the number of digis of each VFAT
 
     Int_t nMinIdxChamber_;
     Int_t nMaxIdxChamber_;
@@ -572,6 +600,8 @@ protected:
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getIEtaFromVFATGE21(const int vfat);
   inline int getMaxVFAT(const int);
+  inline int getNumModule(const int);
+  inline int getIdxModule(const int, const int);
   inline int getDetOccXBin(const int, const int, const int);
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
   inline std::string getNameDirLayer(ME3IdsKey key3);
@@ -611,7 +641,29 @@ inline int GEMDQMBase::getMaxVFAT(const int station) {
   if (station == 1)
     return GEMeMap::maxVFatGE11_;
   else if (station == 2)
-    return GEMeMap::maxVFatGE21_;
+    return GEMeMap::maxVFatGE21_ / 2;
+  else
+    return -1;
+}
+
+inline int GEMDQMBase::getNumModule(const int station) {
+  if (station == 0)
+    return 1;
+  if (station == 1)
+    return 1;
+  else if (station == 2)
+    return 4;
+  else
+    return -1;
+}
+
+inline int GEMDQMBase::getIdxModule(const int station, const int chamberType) {
+  if (station == 0)
+    return 1;
+  if (station == 1)
+    return 1;
+  else if (station == 2)
+    return chamberType - 20;
   else
     return -1;
 }
