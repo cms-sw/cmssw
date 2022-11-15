@@ -13,6 +13,8 @@
 #include "HLTrigger/Timer/interface/processor_model.h"
 #include "ThroughputService.h"
 
+using namespace std::literals;
+
 // describe the module's configuration
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -73,6 +75,13 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     std::string y_axis_title = fmt::sprintf("events / %g s", m_time_resolution);
     unsigned int bins = std::round(m_time_range / m_time_resolution);
     double range = bins * m_time_resolution;
+
+    // clean characters that are deemed unsafe for DQM
+    // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+    auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+    for (auto& c : m_dqm_path)
+      if (safe_for_dqm.find(c) == std::string::npos)
+        c = '_';
 
     // define a callback that can book the histograms
     auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker, DQMStore::IGetter&) {
