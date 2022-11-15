@@ -298,8 +298,7 @@ namespace WeightedMeanFitter {
       err_y = (s2_wy / std::pow(s_wy, 2));
       err_z = (s2_wz / std::pow(s_wz, 2));
 
-      if (std::abs(x - old_x) < (precision / 1.) && std::abs(y - old_y) < (precision / 1.) &&
-          std::abs(z - old_z) < (precision / 1.)) {
+      if (std::abs(x - old_x) < (precision) && std::abs(y - old_y) < (precision) && std::abs(z - old_z) < (precision)) {
         break;
       }
     }
@@ -331,9 +330,8 @@ namespace WeightedMeanFitter {
           chi2 = 0;
     float ndof_x = 0;
     AlgebraicSymMatrix33 err;
-    err(0, 0) = startError / 10 * startError / 10;
-    err(1, 1) = startError / 10 * startError / 10;
     err(2, 2) = startError * startError;  // error is 20 cm, so cov -> is 20 ^ 2
+    err(0, 0) = err(1, 1) = err(2, 2) / 100.;
 
     for (const auto& p : points) {
       wx = p.second.x();
@@ -367,7 +365,7 @@ namespace WeightedMeanFitter {
     err_x = 1. / std::sqrt(s_wx);
     err_y = 1. / std::sqrt(s_wx);
     err_z = 1. / std::sqrt(s_wz);
-    float s_err_x = 0, s_err_y = 0, s_err_z = 0;
+    float s_err_x = 0., s_err_y = 0., s_err_z = 0.;
     while ((niter++) < maxIterations) {
       old_x = x;
       old_y = y;
@@ -383,7 +381,7 @@ namespace WeightedMeanFitter {
       z = 0;
       s_err_x = 0.;
       s_err_y = 0.;
-      s_err_z = 0;
+      s_err_z = 0.;
 
       for (const auto& p : points) {
         wx = p.second.x();
@@ -448,7 +446,7 @@ namespace WeightedMeanFitter {
     err(1, 1) = err_y * err_y;
     err(2, 2) = err_z * err_z;
 
-    float dist = 0;
+    float dist = 0.f;
     for (const auto& p : points) {
       wx = p.second.x();
       wx = wx <= precision ? precision : wx;

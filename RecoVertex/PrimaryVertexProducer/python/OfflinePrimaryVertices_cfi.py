@@ -62,7 +62,7 @@ weightedVertexing.toModify(offlinePrimaryVertices,
                                      algorithm = cms.string('WeightedMeanFitter'),
                                      minNdof=cms.double(0.0),
                                      chi2cutoff = cms.double(2.5),
-                                     useBeamConstraint = cms.bool(False),
+                                     useBeamConstraint = cms.bool(True),
                                      maxDistanceToBeam = cms.double(1.0)
                                      )
                            ]
