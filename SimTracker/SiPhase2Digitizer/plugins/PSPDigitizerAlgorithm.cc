@@ -68,7 +68,7 @@ bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
   constexpr float block_unit = implant + bRail;
   float yin = hit.entryPoint().y() + block_len;
   float yout = hit.exitPoint().y() + block_len;
-  if (std::fmod(yin, block_unit) > implant || std::fmod(yout, block_unit) > implant)
+  if (std::fmod(yin, block_unit) > implant && std::fmod(yout, block_unit) > implant)
     return true;
   else
     return false;
