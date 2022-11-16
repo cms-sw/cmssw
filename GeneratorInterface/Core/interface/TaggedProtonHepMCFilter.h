@@ -9,7 +9,7 @@ class TaggedProtonHepMCFilter : public BaseHepMCFilter {
 private:
   const int proton_PDGID_ = 2212;
   const int neutron_PDGID_ = 2112;
-  const float OneOverbeamEnergy_ = 1./6500;
+  const float OneOverbeamEnergy_ = 1.0 / 6500.0;
   double xiMin_ = 0.02;
   double xiMax_ = 0.2;
   int nProtons_ = 2;
