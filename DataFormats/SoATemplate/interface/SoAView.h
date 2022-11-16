@@ -389,7 +389,11 @@ namespace cms::soa {
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                          \
   LOCAL_NAME(size_type index) {                                                                                        \
-    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                   \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
+      if (index >= base_type::elements_)                                                                               \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)")                       \
+    }                                                                                                                  \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                        \
                 template RestrictQualifier<restrictQualify>(const_cast_SoAParametersImpl(                              \
@@ -423,7 +427,11 @@ namespace cms::soa {
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                          \
                 template RestrictQualifier<restrictQualify>::ParamReturnType                                           \
   LOCAL_NAME(size_type index) const {                                                                                  \
-    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                   \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
+      if (index >= elements_)                                                                                          \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)")                         \
+    }                                                                                                                  \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                          \
                 template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(index);             \
