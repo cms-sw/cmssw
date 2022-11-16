@@ -27,8 +27,8 @@ HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset)
     filter_ = new PartonShowerBsHepMCFilter(filterParameters);
   } else if (filterName == "PartonShowerCsHepMCFilter") {
     filter_ = new PartonShowerCsHepMCFilter(filterParameters);
-  } else if (filterName=="TaggedProtonHepMCFilter") {
-	  filter_ = new TaggedProtonHepMCFilter(filterParameters);
+  } else if (filterName == "TaggedProtonHepMCFilter") {
+    filter_ = new TaggedProtonHepMCFilter(filterParameters);
   } else if (filterName == "EmbeddingHepMCFilter") {
     filter_ = new EmbeddingHepMCFilter(filterParameters);
   } else if (filterName == "PythiaHepMCFilterGammaGamma") {
