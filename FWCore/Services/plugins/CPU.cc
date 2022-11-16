@@ -266,16 +266,16 @@ namespace edm {
 
       std::string model;
 #if defined(CPU_FEATURES_ARCH_X86)
-      const auto info { GetX86Info() };
+      const auto info{GetX86Info()};
       model = info.brand_string;
 #elif defined(CPU_FEATURES_ARCH_ARM)
-      const auto info { GetArmInfo() };
+      const auto info{GetArmInfo()};
       model = fmt::format("ARM {} {} {}", info.implementer, info.architecture, info.variant);
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
-      const auto info { GetAarch64Info() };
+      const auto info{GetAarch64Info()};
       model = fmt::format("aarch64 {} {}", info.implementer, info.variant);
 #elif defined(CPU_FEATURES_ARCH_PPC)
-      const auto strings { GetPPCPlatformStrings() };
+      const auto strings{GetPPCPlatformStrings()};
       model = strings.machine;
 #endif
       return model;
