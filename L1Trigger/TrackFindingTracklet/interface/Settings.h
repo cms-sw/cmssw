@@ -289,6 +289,14 @@ namespace trklet {
     void setStripLength_PS(double stripLength_PS) { stripLength_PS_ = stripLength_PS; }
     void setStripLength_2S(double stripLength_2S) { stripLength_2S_ = stripLength_2S; }
 
+    //Following functions are used for duplicate removal
+    //Function which gets the value corresponding to the overlap size for the overlap rinv bins in DR
+    double overlapSize() const { return overlapSize_; }
+    //Function which gets the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
+    unsigned int numTracksComparedPerBin() const { return numTracksComparedPerBin_; }
+    //Grabs the bin edges you need for duplicate removal bins
+    const std::vector<double> varRInvBins() const { return varRInvBins_; }
+
     std::string skimfile() const { return skimfile_; }
     void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
 
@@ -859,23 +867,25 @@ namespace trklet {
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
 
     //IR should be set to 108 to match the FW for the summer chain, but ultimately should be at 156
-    std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
-                                                                         //input links running at 25 Gbits/s
-                                                           //Set to 108 to match firmware project 240 MHz clock
+    std::unordered_map<std::string, unsigned int> maxstep_{
+        {"IR", 156},  //IR will run at a higher clock speed to handle
+                      //input links running at 25 Gbits/s
+        //Set to 108 to match firmware project 240 MHz clock
 
-                                                           {"VMR", 107},
-                                                           {"TE", 107},
-                                                           {"TC", 108},
-                                                           {"PR", 108},
-                                                           {"ME", 108},
-                                                           //NOTE: The MC is set to 108, but `mergedepth`
-                                                           //removes 3 iterations to emulate the delay
-                                                           //due to the HLS priority encoder
-                                                           {"MC", 108},
-                                                           {"TB", 108},
-                                                           {"MP", 108},
-                                                           {"TP", 108},
-                                                           {"TRE", 108}};
+        {"VMR", 107},
+        {"TE", 107},
+        {"TC", 108},
+        {"PR", 108},
+        {"ME", 108},
+        //NOTE: The MC is set to 108, but `mergedepth`
+        //removes 3 iterations to emulate the delay
+        //due to the HLS priority encoder
+        {"MC", 108},
+        {"TB", 108},
+        {"MP", 108},
+        {"TP", 108},
+        {"TRE", 108},
+        {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
     // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
@@ -1029,6 +1039,14 @@ namespace trklet {
 
     double stripLength_PS_{0.1467};
     double stripLength_2S_{5.0250};
+
+    //Following values are used for duplicate removal
+    //Variable bin edges for 6 bins.
+    std::vector<double> varRInvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Overlap size for the overlap rinv bins in DR
+    double overlapSize_{0.0004};
+    //The maximum number of tracks that are compared to all the other tracks per rinv bin
+    int numTracksComparedPerBin_{64};
 
     double sensorSpacing_2S_{0.18};
   };
