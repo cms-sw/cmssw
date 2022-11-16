@@ -662,7 +662,7 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
         for (size_t i = 0; i < daughter->numberOfDaughters(); ++i) {
           const reco::CandidatePtr& constit = subjet->daughterPtr(i);
 
-          if (constit.isNonnull()) {
+          if (constit.isNonnull() && constit->pt() > std::numeric_limits<double>::epsilon()) {
             // Check if any values were nan or inf
             float valcheck = constit->px() + constit->py() + constit->pz() + constit->energy();
             if (edm::isNotFinite(valcheck)) {
@@ -679,10 +679,13 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
                     << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                     << std::endl;
               }
-              fjParticles.push_back(
-                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
-            } else
+              if (w > 0) {
+                fjParticles.push_back(
+                    fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+              }
+            } else {
               fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+            }
           } else
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
@@ -703,10 +706,13 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
             throw cms::Exception("MissingConstituentWeight")
                 << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           }
-          fjParticles.push_back(
-              fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
-        } else
+          if (w > 0 && daughter->pt() > std::numeric_limits<double>::epsilon()) {
+            fjParticles.push_back(
+                fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
+          }
+        } else {
           fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
+        }
       }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
