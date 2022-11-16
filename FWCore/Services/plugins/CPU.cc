@@ -24,8 +24,6 @@
 #include "cpu_features/cpuinfo_arm.h"
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
 #include "cpu_features/cpuinfo_aarch64.h"
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-//#include "cpu_features/cpuinfo_mips.h"
 #elif defined(CPU_FEATURES_ARCH_PPC)
 #include "cpu_features/cpuinfo_ppc.h"
 #endif
@@ -268,18 +266,16 @@ namespace edm {
 
       std::string model;
 #if defined(CPU_FEATURES_ARCH_X86)
-      const X86Info info = GetX86Info();
+      const auto info { GetX86Info() };
       model = info.brand_string;
 #elif defined(CPU_FEATURES_ARCH_ARM)
-      const ArmInfo info = GetArmInfo();
+      const auto info { GetArmInfo() };
       model = fmt::format("ARM {} {} {}", info.implementer, info.architecture, info.variant);
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
-      const Aarch64Info info = GetAarch64Info();
+      const auto info { GetAarch64Info() };
       model = fmt::format("aarch64 {} {}", info.implementer, info.variant);
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-      model = "mips";
 #elif defined(CPU_FEATURES_ARCH_PPC)
-      const PPCPlatformStrings strings = GetPPCPlatformStrings();
+      const auto strings { GetPPCPlatformStrings() };
       model = strings.machine;
 #endif
       return model;

@@ -10,8 +10,6 @@
 #include "cpu_features/cpuinfo_arm.h"
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
 #include "cpu_features/cpuinfo_aarch64.h"
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-#include "cpu_features/cpuinfo_mips.h"
 #elif defined(CPU_FEATURES_ARCH_PPC)
 #include "cpu_features/cpuinfo_ppc.h"
 #endif
@@ -21,7 +19,6 @@ TEST_CASE("Test cpu_features library", "[cpu_features]") {
 
 #if defined(CPU_FEATURES_ARCH_X86)
   const X86Info info = GetX86Info();
-  //const CacheInfo cache_info = GetX86CacheInfo();
   std::cout << "arch:     "
             << "x86"
             << "\nbrand:    " << info.brand_string << "\nfamily:   " << info.family << "\nmodel:    " << info.model
@@ -40,9 +37,6 @@ TEST_CASE("Test cpu_features library", "[cpu_features]") {
             << "aarch64"
             << "\nimplementer: " << info.implementer << "\nvariant:     " << info.variant
             << "\npart:        " << info.part << "\nrevision:    " << info.revision << std::endl;
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-  std::cout << "arch: "
-            << "mips" << std::endl;
 #elif defined(CPU_FEATURES_ARCH_PPC)
   const PPCPlatformStrings strings = GetPPCPlatformStrings();
   std::cout << "arch:              "
