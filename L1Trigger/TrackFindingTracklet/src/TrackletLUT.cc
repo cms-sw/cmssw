@@ -521,7 +521,7 @@ void TrackletLUT::initTPregionlut(unsigned int iSeed,
             int idphi1 = idphi;
             if (iSeed >= 4)
               idphi1 = (idphi << 3) + ir;
-            int ptinnerindexnew = l1t::bitShift(idphi1, nbendbitsinner) + innerbend;
+            int ptinnerindexnew = (idphi1 << nbendbitsinner) + innerbend;
             match = match || (inrange && tplutinner.lookup(ptinnerindexnew));
           }
           if (match) {
@@ -797,12 +797,12 @@ void TrackletLUT::initProjectionBend(double k_phider,
       int ir = irbin;
       if (ir > (1 << (nrbits - 1)))
         ir -= (1 << nrbits);
-      ir = l1t::bitShift(ir, (settings_.nrbitsstub(N_LAYER) - nrbits));
+      ir = ir << (settings_.nrbitsstub(N_LAYER) - nrbits);
       for (unsigned int iphiderbin = 0; iphiderbin < nphiderbins; iphiderbin++) {
         int iphider = iphiderbin;
         if (iphider > (1 << (nphiderbits - 1)))
           iphider -= (1 << nphiderbits);
-        iphider = l1t::bitShift(iphider, (settings_.nbitsphiprojderL123() - nphiderbits));
+        iphider = iphider << (settings_.nbitsphiprojderL123() - nphiderbits);
 
         double rproj = ir * settings_.krprojshiftdisk();
         double phider = iphider * k_phider;

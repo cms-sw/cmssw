@@ -15,8 +15,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff') 
-process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff') 
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -32,7 +32,7 @@ process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 Source_Files = cms.untracked.vstring(
-    "/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"
+"/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"
 )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 

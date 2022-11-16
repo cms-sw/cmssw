@@ -5,9 +5,9 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "L1Trigger/TrackFindingTMTT/interface/KFbase.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <vector>
 #include <algorithm>
 #include <cmath>
 
@@ -36,7 +36,7 @@ namespace hph {
       etaRegions_ = etaRegionsNewKF_;
     } else {
       chosenRofZ_ = oldKFPSet_.getParameter<double>("ChosenRofZ");
-      etaRegions_ = oldKFPSet_.getParameter<vector<double>>("EtaRegions");
+      etaRegions_ = oldKFPSet_.getParameter<std::vector<double>>("EtaRegions");
     }
     static constexpr auto layerIds = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15};  //layer ID 11~15 correspond to D1~D5
     // Converting tmtt::KFbase::layerMap_ to a format that is acceptatble by HitPatternHelper
