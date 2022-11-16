@@ -61,6 +61,12 @@ namespace evf {
 
     void doOutputEventAsync(std::unique_ptr<EventMsgBuilder> msg, edm::WaitingTaskHolder iHolder) {
       throttledCheck();
+      discardedCheck();
+      if (discarded_) {
+          incAccepted();
+          msg.reset();
+          return;
+      }
       auto group = iHolder.group();
       writeQueue_.push(*group, [holder = std::move(iHolder), msg = msg.release(), this]() {
         try {
@@ -86,6 +92,13 @@ namespace evf {
            edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
            discarded_ = true;
         }
+      }
+    }
+
+    inline void discardedCheck() {
+      if (!discarded_ && edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
+         edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+         discarded_ = true;
       }
     }
 
@@ -410,7 +423,7 @@ namespace evf {
       edm::LuminosityBlockForOutput const& iLB) const {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(), streamLabel_);
 
-    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.index());
+    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.luminosityBlock());
   }
 
   void GlobalEvFOutputModule::acquire(edm::StreamID id,
@@ -451,7 +464,8 @@ namespace evf {
     } else {
       jsonWriter.errorEvents_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
       jsonWriter.processed_.value() = 0;
-      edm::LogInfo("GlobalEvFOutputModule") << "Output suppressed, setting error events for LS -: "<<iLB.index();
+      jsonWriter.accepted_.value() = 0;
+      edm::LogInfo("GlobalEvFOutputModule") << "Output suppressed, setting error events for LS -: "<<iLB.luminosityBlock();
     }
 
     if (abortFlag) {

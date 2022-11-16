@@ -325,6 +325,7 @@ namespace evf {
 
     nThreads_ = bounds.maxNumberOfStreams();
     nStreams_ = bounds.maxNumberOfThreads();
+    nConcurrentLumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   }
 
   void EvFDaqDirector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

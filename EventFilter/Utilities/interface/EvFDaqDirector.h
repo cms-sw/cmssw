@@ -120,6 +120,7 @@ namespace evf {
     void unlockInitLock();
     void setFMS(evf::FastMonitoringService* fms) { fms_ = fms; }
     bool isSingleStreamThread() { return nStreams_ == 1 && nThreads_ == 1; }
+    unsigned int numConcurrentLumis() const { return nConcurrentLumis_; }
     void lockFULocal();
     void unlockFULocal();
     void lockFULocal2();
@@ -264,6 +265,7 @@ namespace evf {
 
     unsigned int nStreams_ = 0;
     unsigned int nThreads_ = 0;
+    unsigned int nConcurrentLumis_ = 0;
 
     bool readEolsDefinition_ = true;
     unsigned int eolsNFilesIndex_ = 1;
