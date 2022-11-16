@@ -46,6 +46,7 @@ public:
 
   std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityRcd& iRecord);
   std::unique_ptr<SiPixelQuality> produceWithLabel(const SiPixelQualityRcd& iRecord);
+  std::unique_ptr<SiPixelQuality> produceWithLabelRawToDigi(const SiPixelQualityRcd& iRecord);
 
 private:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -66,6 +67,7 @@ private:
 
   const Tokens defaultTokens_;
   Tokens labelTokens_;
+  Tokens labelTokens_RawToDigi_;
 };
 
 //
@@ -79,9 +81,18 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
   auto label =
       conf_.exists("siPixelQualityLabel") ? conf_.getParameter<std::string>("siPixelQualityLabel") : std::string{};
 
-  if (label == "forDigitizer" || label == "forRawToDigi") {
+  if (label == "forDigitizer") {
     labelTokens_ =
         Tokens(setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label)), label);
+  }
+
+  label = conf_.exists("siPixelQualityLabel_RawToDigi")
+              ? conf_.getParameter<std::string>("siPixelQualityLabel_RawToDigi")
+              : std::string{};
+
+  if (label == "forRawToDigi") {
+    labelTokens_RawToDigi_ = Tokens(
+        setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabelRawToDigi, edm::es::Label(label)), label);
   }
   findingRecord<SiPixelQualityRcd>();
 }
@@ -118,6 +129,9 @@ std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQ
 }
 std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produceWithLabel(const SiPixelQualityRcd& iRecord) {
   return get_pointer(iRecord, labelTokens_);
+}
+std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produceWithLabelRawToDigi(const SiPixelQualityRcd& iRecord) {
+  return get_pointer(iRecord, labelTokens_RawToDigi_);
 }
 
 void SiPixelQualityESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
