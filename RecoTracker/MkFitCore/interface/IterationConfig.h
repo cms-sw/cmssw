@@ -155,7 +155,7 @@ namespace mkfit {
 
     int m_backward_fit_min_hits = -1;  // Min number of hits to keep when m_backward_drop_seed_hits is true
 
-    // seed cleaning params
+    // seed cleaning params with good defaults (all configurable)
     float sc_ptthr_hpt = 2.0;
     float sc_drmax_bh = 0.010;
     float sc_dzmax_bh = 0.005;
@@ -166,7 +166,7 @@ namespace mkfit {
     float sc_drmax_el = 0.030;
     float sc_dzmax_el = 0.030;
 
-    // duplicate cleaning params
+    // duplicate cleaning params with good defaults (all configurable)
     float dc_fracSharedHits = 0.19;
     float dc_drth_central = 0.001;
     float dc_drth_obarrel = 0.001;

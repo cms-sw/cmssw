@@ -629,6 +629,7 @@ namespace mkfit {
     }
 
     // layer-dependent quality filter
+    // includes ad hoc tuning for phase-1
     template <class TRACK>
     bool qfilter_n_layers(const TRACK &t, const MkJob &j) {
       const BeamSpot &bspot = j.m_beam_spot;
@@ -641,24 +642,30 @@ namespace mkfit {
       int llyr = t.getLastFoundHitLyr();
       int lplyr = t.getLastFoundPixelHitLyr();
       float invpt = t.invpT();
+
+      // based on fr and eff vs pt (convert to native invpt)
       float invptmin = 1.43;  // min 1/pT (=1/0.7) for full filter on (npixhits<=3 .or. npixlyrs<=3)
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
-      float d0_max = 0.1;  // 1 mm
+      float d0_max = 0.1;  // 1 mm, max for somewhat prompt 
 
+      // next-to-outermost pixel layers (almost): BPIX3 or FPIX1
       bool endsInsidePix = (llyr == 2 || llyr == 18 || llyr == 45);
+      // not last pixel layers: BPIX[123] or FPIX[12]
       bool lastInsidePix = ((0 <= lplyr && lplyr < 3) || (18 <= lplyr && lplyr < 20) || (45 <= lplyr && lplyr < 47));
+      // reject short tracks missing last pixel layer except for prompt-looking
       return !(((npixhits <= 3 || npixlyrs <= 3) && endsInsidePix &&
                 (invpt < invptmin || (invpt >= invptmin && std::abs(d0BS) > d0_max))) ||
                ((npixlyrs <= 3 && nmatlyrs <= 6) && lastInsidePix && llyr != lplyr && std::abs(d0BS) > d0_max));
     }
 
     /// quality filter tuned for pixelLess iteration during forward search
+    // includes ad hoc tuning for phase-1
     template <class TRACK>
     bool qfilter_pixelLessFwd(const TRACK &t, const MkJob &j) {
       const BeamSpot &bspot = j.m_beam_spot;
       const TrackerInfo &tk_info = j.m_trk_info;
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
-      float d0_max = 0.05;  // 0.5 mm
+      float d0_max = 0.05;  // 0.5 mm, max for somewhat prompt
 
       int encoded;
       encoded = t.nLayersByTypeEncoded(tk_info);
@@ -666,14 +673,17 @@ namespace mkfit {
       encoded = t.nHitsByTypeEncoded(tk_info);
       int nHits = t.nTotMatchDecoded(encoded);
 
+      // to subtract stereo seed layers to count just r-phi seed layers (better pt err)
       int seedReduction = (t.getNSeedHits() <= 5) ? 2 : 3;
 
+      // based on fr and eff vs pt and eta (convert to native invpt and theta)
       float invpt = t.invpT();
       float invptmin = 1.11;  // =1/0.9
 
       float thetasym = std::abs(t.theta() - Const::PIOver2);
       float thetasymmin = 1.11;  // -> |eta|=1.45
 
+      // accept longer tracks, reject too short and displaced
       return (((t.nFoundHits() - seedReduction >= 4 && invpt < invptmin) ||
                (t.nFoundHits() - seedReduction >= 3 && invpt > invptmin && thetasym <= thetasymmin) ||
                (t.nFoundHits() - seedReduction >= 4 && invpt > invptmin && thetasym > thetasymmin)) &&
@@ -681,6 +691,7 @@ namespace mkfit {
     }
 
     /// quality filter tuned for pixelLess iteration during backward search
+    // includes ad hoc tuning for phase-1
     template <class TRACK>
     bool qfilter_pixelLessBkwd(const TRACK &t, const MkJob &j) {
       const BeamSpot &bspot = j.m_beam_spot;
@@ -694,6 +705,7 @@ namespace mkfit {
       encoded = t.nHitsByTypeEncoded(tk_info);
       int nHits = t.nTotMatchDecoded(encoded);
 
+      // based on fr and eff vs pt and eta (convert to native invpt and theta)
       float invpt = t.invpT();
       float invptmin = 1.11;  // =1/0.9
 
@@ -701,6 +713,7 @@ namespace mkfit {
       float thetasymmin_l = 0.80;  // -> |eta|=0.9
       float thetasymmin_h = 1.11;  // -> |eta|=1.45
 
+      // reject too short or too displaced tracks
       return !(
           ((nLyrs <= 3 || nHits <= 3)) ||
           ((nLyrs <= 4 || nHits <= 4) && (invpt < invptmin || (thetasym > thetasymmin_l && std::abs(d0BS) > d0_max))) ||
