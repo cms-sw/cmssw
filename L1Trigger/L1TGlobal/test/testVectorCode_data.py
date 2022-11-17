@@ -43,7 +43,6 @@ if skip>4:
     skip = skip-4
     neventsPerJob = neventsPerJob+4
 
-
 # ------------------------------------------------------------
 # Set up Run 3 conditions to get the proper emulation sequence
 # ------------------------------------------------------------
@@ -55,8 +54,9 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-
-# Select the Message Logger output you would like to see:
+# ---------------------
+# Message Logger output
+# ---------------------
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
@@ -65,18 +65,20 @@ process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.MessageLogger.categories.append('l1t|Global')
+
 # DEBUG
 #process.MessageLogger.debugModules = cms.untracked.vstring('simGtStage2Digis') 
 #process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG') 
 
+# ------------
+# Input source
+# ------------
 # Set the number of events
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(neventsPerJob)
     )
 
-# ------------
-# Input source
-# ------------
+# Set file: it needs to be a RAW format
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
@@ -111,8 +113,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '124X_dataRun3_Prompt_v4', '')
 # ----------------
 process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-xmlMenu="L1Menu_Collisions2022_v1_3_0_TripleMuOS.xml"
-#xmlMenu="L1Menu_TripleMu_test_TripleMuOS_v2.xml"
+xmlMenu="L1Menu_Collisions2022_v1_3_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
@@ -196,7 +197,9 @@ process.report = cms.Path(process.l1GtTrigReport)
 
 process.MessageLogger.categories.append("MuConditon")
 
+# -------------------------
 # Setup Digi to Raw to Digi
+# -------------------------
 process.load('EventFilter.L1TRawToDigi.gtStage2Raw_cfi')
 process.gtStage2Raw.GtInputTag = cms.InputTag("simGtStage2Digis")
 process.gtStage2Raw.ExtInputTag = cms.InputTag("simGtExtFakeProd")
@@ -243,7 +246,9 @@ process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 psColumn       = cms.int32(1)
 		 )
 
-# gt analyzer
+# -----------
+# GT analyzer
+# -----------
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
                                            doText = cms.untracked.bool(False),
                                            gmuToken = cms.InputTag("None"),
@@ -261,39 +266,46 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
                                            emulGtAlgToken = cms.InputTag("simGtStage2Digis")
 )
 
+# ------------------
+# Process definition
+# ------------------
 process.p1 = cms.Path(
-## Generate input, emulate, dump results
+    ## Input, emulation, dump of the results
     process.dumpMenu
     *process.RawToDigi
-#    *process.gtInput
-#    *process.dumpGT
+    #*process.gtInput
+    #*process.dumpGT
     *process.simGtExtFakeProd
     *process.simGtStage2Digis
     *process.dumpGTRecord
 
-## Sequence for packing and unpacking uGT data
-#    +process.gtStage2Raw
-#    +process.dumpRaw
-#    +process.newGtStage2Digis
-#    +process.newDumpGTRecord
+    ## Sequence for packing and unpacking uGT data
+    #+process.gtStage2Raw
+    #+process.dumpRaw
+    #+process.newGtStage2Digis
+    #+process.newDumpGTRecord
 
-## Analysis/Dumping
+    ## Analysis/Dumping
     *process.l1tGlobalAnalyzer
-#    *process.menuDumper # DEBUG -> to activate the menuDumper
-#    *process.debug
-#    *process.dumpED
-#    *process.dumpES
+    #*process.menuDumper # DEBUG -> to activate the menuDumper
+    #*process.debug
+    #*process.dumpED
+    #*process.dumpES
     )
 
+# -------------------
+# Schedule definition
+# -------------------
 process.schedule = cms.Schedule(
     process.p1
-    )
+)
 #process.schedule.append(process.report)
+
 if rootout:
     process.outpath = cms.EndPath(process.output)
     process.schedule.append(process.outpath)
 
-# Spit out filter efficiency at the end.
+# Spit out filter efficiency at the end
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 # Options for multithreading
