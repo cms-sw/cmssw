@@ -646,7 +646,7 @@ namespace mkfit {
       // based on fr and eff vs pt (convert to native invpt)
       float invptmin = 1.43;  // min 1/pT (=1/0.7) for full filter on (npixhits<=3 .or. npixlyrs<=3)
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
-      float d0_max = 0.1;  // 1 mm, max for somewhat prompt 
+      float d0_max = 0.1;  // 1 mm, max for somewhat prompt
 
       // next-to-outermost pixel layers (almost): BPIX3 or FPIX1
       bool endsInsidePix = (llyr == 2 || llyr == 18 || llyr == 45);
