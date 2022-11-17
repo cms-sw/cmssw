@@ -11,7 +11,7 @@
 
 <ifrelease name="!_ASAN_">
   <bin file="TestFWCoreServicesDriver.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh test_cpu.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
 </ifrelease>
@@ -19,5 +19,6 @@
 <bin file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
   <use name="catch2"/>
   <use name="clhep"/>
+  <use name="cpu_features"/>
   <use name="FWCore/Services"/>
 </bin>
