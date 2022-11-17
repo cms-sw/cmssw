@@ -37,7 +37,8 @@ namespace PFRecHit {
     //   convert_rechits_to_PFRechits
 
     void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream) {
-        cudaCheck(cudaMemcpyToSymbol(constantsGPU_d, &cudaConstants, sizeof(cudaConstants)));
+      cudaCheck(cudaMemcpyToSymbolAsync(constantsGPU_d, &cudaConstants, sizeof(cudaConstants),
+					0, cudaMemcpyHostToDevice, cudaStream));
     }
 
     // Initialize arrays used to store temporary values for each event

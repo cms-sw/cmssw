@@ -46,7 +46,7 @@ public:
 private:
   void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
   const bool produceSoA_;            // PFRecHits in SoA format
   const bool produceLegacy_;         // PFRecHits in legacy format
@@ -112,8 +112,8 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
       InputRecHitSoA_Token_{consumes<IProductType>(
           ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
-      hcalToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
-      geomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+      hcalToken_(esConsumes<edm::Transition::BeginRun>()),
+      geomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::ConsumesCollector cc = consumesCollector();
 
   produces<reco::PFRecHitCollection>();
@@ -128,7 +128,7 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
   const std::string& qualityTestName = qualityConf.getParameter<std::string>("name");
   cudaConstants.qTestThresh = 0.8;
   if (qualityConf.exists("threshold")) cudaConstants.qTestThresh = (float)qualityConf.getParameter<double>("threshold");
-//  std::cout << cudaConstants.qTestThresh << std::endl;
+  //std::cout << cudaConstants.qTestThresh << std::endl;
 
   // Thresholds vs depth
   const auto& qualityCutConfs = qualityConf.getParameterSetVector("cuts");
@@ -149,15 +149,6 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
       std::copy(fthresholds.begin(), fthresholds.end(), cudaConstants.qTestThreshVsDepthHE);
     }
   }
-
-//  for (unsigned int i = 0; i < 4; i++) std::cout << cudaConstants.qTestDepthHB[i] << " ";
-//  std::cout << std::endl;
-//  for (unsigned int i = 0; i < 4; i++) std::cout << cudaConstants.qTestThreshVsDepthHB[i] << " ";
-//  std::cout << std::endl;
-//  for (unsigned int i = 0; i < 7; i++) std::cout << cudaConstants.qTestDepthHE[i] << " ";
-//  std::cout << std::endl;
-//  for (unsigned int i = 0; i < 7; i++) std::cout << cudaConstants.qTestThreshVsDepthHE[i] << " ";
-//  std::cout << std::endl;
 
   //
   // navigator-related parameters
@@ -184,7 +175,7 @@ void PFHBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& c
   cdesc.addWithDefaultLabel(desc);
 }
 
-void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const& setup) {
   navigator_->init(setup);
   if (!theRecNumberWatcher_.check(setup))
     return;
@@ -230,6 +221,9 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
     DetId detid_c = topology_.get()->denseId2detId(denseid);
     HcalDetId hid_c = HcalDetId(detid_c);
 
+    //DetId detId = topology_.get()->denseId2detId(denseId);
+    //HcalDetId hid(detId.rawId());
+
     if (hid_c.subdet() == HcalBarrel)
       validDetIdPositions.emplace_back(hcalBarrelGeo->getGeometry(detid_c)->getPosition());
     else if (hid_c.subdet() == HcalEndcap)
@@ -265,6 +259,7 @@ void PFHBHERecHitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
+
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
   auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
