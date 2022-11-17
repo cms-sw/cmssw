@@ -216,11 +216,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       G4int subType = (nullptr != proc) ? proc->GetProcessSubType() : 0;
       if (subType == 16) {
         auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(proc);
-	if(nullptr != proc) {
-	  proc = ptr->GetSelectedProcess();
-	  subType = proc->GetProcessSubType();
-	  track->SetCreatorProcess(proc);
-	}
+        if (nullptr != proc) {
+          proc = ptr->GetSelectedProcess();
+          subType = proc->GetProcessSubType();
+          track->SetCreatorProcess(proc);
+        }
       }
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
