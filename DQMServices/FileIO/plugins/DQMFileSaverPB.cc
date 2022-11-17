@@ -50,7 +50,6 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(p
     std::ofstream file(initFileName);
     file.close();
   }
-
 }
 
 DQMFileSaverPB::~DQMFileSaverPB() = default;

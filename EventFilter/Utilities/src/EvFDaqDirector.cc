@@ -156,11 +156,9 @@ namespace evf {
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
-
   }
 
   void EvFDaqDirector::initRun() {
-
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {

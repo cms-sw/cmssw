@@ -63,9 +63,9 @@ namespace evf {
       throttledCheck();
       discardedCheck();
       if (discarded_) {
-          incAccepted();
-          msg.reset();
-          return;
+        incAccepted();
+        msg.reset();
+        return;
       }
       auto group = iHolder.group();
       writeQueue_.push(*group, [holder = std::move(iHolder), msg = msg.release(), this]() {
@@ -89,16 +89,16 @@ namespace evf {
         usleep(100000);
         counter++;
         if (edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
-           edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
-           discarded_ = true;
+          edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+          discarded_ = true;
         }
       }
     }
 
     inline void discardedCheck() {
       if (!discarded_ && edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
-         edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
-         discarded_ = true;
+        edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+        discarded_ = true;
       }
     }
 
@@ -196,7 +196,6 @@ namespace evf {
   GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef(std::string const& streamLabel, bool writeJsd) {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("GlobalEvFOutputModule") << "writing .dat files to -: " << baseRunDir;
-
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed", "integer", jsoncollector::DataPointDefinition::SUM);
@@ -315,9 +314,8 @@ namespace evf {
     //output initemp file. This lets hltd know number of streams early on
     const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_) + "temp";
     FILE* src = fopen(iniFileName.c_str(), "w");
-    if (src==nullptr)
-      throw cms::Exception("GlobalEvFOutputModule")
-          << "can not create " << iniFileName << ":" << strerror(errno);
+    if (src == nullptr)
+      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << ":" << strerror(errno);
     fclose(src);
     edm::LogInfo("GlobalEvFOutputModule") << "Constructor initemp stream -: " << iniFileName;
 
@@ -344,7 +342,6 @@ namespace evf {
   }
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
-
     //create run Cache holding JSON file writer and variables
     auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_, false);
     jsonDef->updateDestination(streamLabel_);
@@ -465,7 +462,8 @@ namespace evf {
       jsonWriter.errorEvents_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
       jsonWriter.processed_.value() = 0;
       jsonWriter.accepted_.value() = 0;
-      edm::LogInfo("GlobalEvFOutputModule") << "Output suppressed, setting error events for LS -: "<<iLB.luminosityBlock();
+      edm::LogInfo("GlobalEvFOutputModule")
+          << "Output suppressed, setting error events for LS -: " << iLB.luminosityBlock();
     }
 
     if (abortFlag) {

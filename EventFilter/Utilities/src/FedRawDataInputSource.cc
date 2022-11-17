@@ -849,7 +849,7 @@ void FedRawDataInputSource::readSupervisor() {
           break;
 
         unsigned int nConcurrentLumis = daqDirector_->numConcurrentLumis();
-        unsigned int nOtherLumis = nConcurrentLumis > 0 ? nConcurrentLumis  - 1 : 0;
+        unsigned int nOtherLumis = nConcurrentLumis > 0 ? nConcurrentLumis - 1 : 0;
         unsigned int checkLumiStart = currentLumiSection > nOtherLumis ? currentLumiSection - nOtherLumis : 1;
         bool hasDiscardedLumi = false;
         for (unsigned int i = checkLumiStart; i <= currentLumiSection; i++) {
@@ -859,7 +859,8 @@ void FedRawDataInputSource::readSupervisor() {
             break;
           }
         }
-        if (hasDiscardedLumi) break;
+        if (hasDiscardedLumi)
+          break;
 
         setMonStateSup(inThrottled);
 

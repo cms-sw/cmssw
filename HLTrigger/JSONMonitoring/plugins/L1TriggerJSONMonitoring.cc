@@ -162,14 +162,12 @@ L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(edm::ParameterSet const& config
     : level1Results_(config.getParameter<edm::InputTag>("L1Results")),
       level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)),
       l1tUtmTriggerMenuRcdToken_(esConsumes<edm::Transition::BeginRun>()) {
-
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
     //output initemp file. This lets hltd know number of streams early
     const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath("streamL1Rates") + "temp";
     std::ofstream file(iniFileName);
     file.close();
   }
-
 }
 
 // validate the configuration and optionally fill the default values
