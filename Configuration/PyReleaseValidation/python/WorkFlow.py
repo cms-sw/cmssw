@@ -5,7 +5,7 @@ import re
 
 class WorkFlow(object):
 
-    def __init__(self, num, nameID, inputInfo=None, commands=None):
+    def __init__(self, num, nameID, inputInfo=None, commands=None, stepList=None):
 
         self.numId  = num
         self.nameId = nameID
@@ -15,7 +15,9 @@ class WorkFlow(object):
             for (i,c) in enumerate(commands):
                 nToRun=10 + (i!=0)*90
                 self.check(c,nToRun)
-        
+        self.stepList = stepList
+        if commands and stepList:
+            assert(len(commands)==len(stepList))
 
         # run on real data requested:
         self.input = inputInfo
