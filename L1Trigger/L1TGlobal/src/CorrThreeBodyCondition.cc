@@ -346,7 +346,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     // SECOND OBJECT: Now loop over the second leg to get its information
     for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
          it1Comb++) {
-      LogDebug("L1TGlobal") << "Looking at second subdondition" << std::endl;
+      LogDebug("L1TGlobal") << "Looking at second subcondition" << std::endl;
       int obj1Index = -1;
 
       if (!(*it1Comb).empty()) {
@@ -471,20 +471,21 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         // Now perform the desired correlation on these three objects:
         // reqResult will be set true in case all checks were successful for a given combination of three muons
         bool reqResult = false;
-
-        // Check the three-muon charge correlation, if requested
         bool chrgCorrel = true;
+
+        // Check the three-muon charge correlation, if requested.
+        // NOTE that the charge can be 1 (positive) or 0 (negative), so [SS] SUM(chrg) == 3 OR 0, [OS] SUM(chrg) == 1 OR 2
         if (cond0Categ == CondMuon && cond1Categ == CondMuon && cond2Categ == CondMuon) {
-          // Check for opp-sign
-          if (corrPar.chargeCorrelation == 4 && fabs(chrg0 + chrg1 + chrg2) == 3) {
+          // Check for opp-sign requirement:
+          if (corrPar.chargeCorrelation == 4 && ((chrg0 + chrg1 + chrg2) == 3 || (chrg0 + chrg1 + chrg2) == 0)) {
             chrgCorrel = false;
           }
           // Check for same-sign
-          else if (corrPar.chargeCorrelation == 2 && fabs(chrg0 + chrg1 + chrg2) != 3) {
+          if (corrPar.chargeCorrelation == 2 && ((chrg0 + chrg1 + chrg2) == 1 || (chrg0 + chrg1 + chrg2) == 2)) {
             chrgCorrel = false;
           }
           // Ignore the charge correlation requirement
-          else if (corrPar.chargeCorrelation == 1) {
+          if (corrPar.chargeCorrelation == 1) {
             chrgCorrel = true;
           }
         }
