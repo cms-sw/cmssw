@@ -9,6 +9,7 @@
 <use name="Utilities/XrdAdaptor"/>
 <use name="boost"/>
 <use name="gcc-atomic"/>
+<use name="cpu_features"/>
 <library file="*.cc" name="FWCoreServicesPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
