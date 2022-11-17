@@ -42,6 +42,9 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
+#include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
+
 #include "MTDHit.h"
 
 class BtlLocalRecoValidation : public DQMEDAnalyzer {
@@ -72,8 +75,9 @@ private:
   edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> mtdTrackingHitToken_;
 
-  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
-  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  const edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  const edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 
   // --- histograms declaration
 
@@ -183,7 +187,10 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
       hitMinEnergy_(iConfig.getParameter<double>("HitMinimumEnergy")),
       optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
-      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
+      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")),
+      mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
+      mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()),
+      cpeToken_(esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"))) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
   if (uncalibRecHitsPlots_)
     btlUncalibRecHitsToken_ =
@@ -191,9 +198,6 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
   mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
-
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
-  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlLocalRecoValidation::~BtlLocalRecoValidation() {}
@@ -209,6 +213,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
+
+  auto const& cpe = iSetup.getData(cpeToken_);
 
   auto btlRecHitsHandle = makeValid(iEvent.getHandle(btlRecHitsToken_));
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
@@ -350,8 +356,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
+      MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(cluster, *genericDet);
+
       // --- Cluster position in the module reference frame
-      Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);
+      LocalPoint local_point(std::get<0>(tuple));
       const auto& global_point = genericDet->toGlobal(local_point);
 
       meCluEnergy_->Fill(cluster.energy());
