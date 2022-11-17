@@ -157,7 +157,6 @@ HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config
   }
 }
 
-
 // validate the configuration and optionally fill the default values
 void HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
