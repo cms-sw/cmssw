@@ -315,7 +315,7 @@ namespace evf {
     //output initemp file. This lets hltd know number of streams early on
     const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_) + "temp";
     FILE* src = fopen(iniFileName.c_str(), "w");
-    if (src==NULL)
+    if (src==nullptr)
       throw cms::Exception("GlobalEvFOutputModule")
           << "can not create " << iniFileName << ":" << strerror(errno);
     fclose(src);
