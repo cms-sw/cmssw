@@ -2067,7 +2067,7 @@ steps['RAWPRIMEHI18']={ '--scenario':'pp',
                         '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
                         '-n':'10',
                         '--procModifiers':'approxSiStripClusters',
-                        '--customise_commands':'\"process.rawPrimeDataRepacker.inputTag=\'rawDataRepacker\'\"',
+                        '--customise_commands':'\"process.rawPrimeDataRepacker.src=\'rawDataRepacker\'\"',
                         '--repacked':'',
                         '--process':'REHLT'
 }
