@@ -247,6 +247,24 @@ TEST_CASE("Configuration with different branches", s_tag) {
   }
 }
 
+TEST_CASE("Configuration with different transient branches", s_tag) {
+  const std::string test1{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet())"};
+  const std::string test2{
+      "cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), transientValues = "
+      "cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3))))"};
+
+  const std::string baseConfig1 = makeConfig(true, test1, test2);
+  const std::string baseConfig2 = makeConfig(false, test1, test2);
+
+  SECTION("Different transient branches are allowed") {
+    edm::test::TestProcessor::Config config1{baseConfig1};
+    edm::test::TestProcessor testProcessor1{config1};
+
+    edm::test::TestProcessor::Config config2{baseConfig2};
+    edm::test::TestProcessor testProcessor2{config2};
+  }
+}
+
 TEST_CASE("Configuration with different branches with EDAlias", s_tag) {
   const std::string otherprod{
       "cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = "
