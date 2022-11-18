@@ -212,13 +212,15 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
-      auto proc = aTrack->GetCreatorProcess();
-      G4int subType = proc->GetProcessSubType();
+      const G4VProcess* proc = aTrack->GetCreatorProcess();
+      G4int subType = (nullptr != proc) ? proc->GetProcessSubType() : 0;
       if (subType == 16) {
-        auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
-        proc = ptr->GetSelectedProcess();
-        subType = proc->GetProcessSubType();
-        track->SetCreatorProcess(proc);
+        auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(proc);
+        if (nullptr != proc) {
+          proc = ptr->GetSelectedProcess();
+          subType = proc->GetProcessSubType();
+          track->SetCreatorProcess(proc);
+        }
       }
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()

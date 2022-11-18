@@ -7,8 +7,8 @@ from math import ceil,log
 ############################FOR bitmapVIDForEle main defn#############################
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
-        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
+        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
@@ -18,6 +18,16 @@ electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff',
     ),
+    WorkingPoints = cms.vstring(
+        "egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-veto",
+        "egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-loose",
+        "egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-medium",
+        "egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-tight"
+    )
+)
+
+# Use Fall17-94X-V2 as default for Run 2
+run2_nanoAOD_ANY.toModify(electron_id_modules_WorkingPoints_nanoAOD,
     WorkingPoints = cms.vstring(
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto",
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose",
@@ -44,6 +54,16 @@ bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
 )
 _bitmapVIDForEle_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEle.WorkingPoints)
 
+bitmapVIDForEleFall17V2 = bitmapVIDForEle.clone(
+    WorkingPoints = cms.vstring(
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight",
+    )
+)
+_bitmapVIDForEleFall17V2_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules, bitmapVIDForEleFall17V2.WorkingPoints)
+
 bitmapVIDForEleHEEP = bitmapVIDForEle.clone(
     WorkingPoints = cms.vstring("egmGsfElectronIDs:heepElectronID-HEEPV70"
     )
@@ -53,6 +73,19 @@ _bitmapVIDForEleHEEP_docstring = _get_bitmapVIDForEle_docstring(electron_id_modu
 #######################ISO ELE defn(in principle should be an import####################
 ##PhysicsTools/NanoAOD/python/EleIsoValueMapProducer_cfi.py
 isoForEle = cms.EDProducer("EleIsoValueMapProducer",
+    src = cms.InputTag("slimmedElectrons"),
+    relative = cms.bool(False),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Run3_Winter22/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_122X.txt"),
+    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Run3_Winter22/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_122X.txt"),
+)
+
+run2_nanoAOD_ANY.toModify(isoForEle,
+    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
+    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),)
+
+isoForEleFall17V2 = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
     relative = cms.bool(False),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
@@ -113,11 +146,13 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         mvaIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
         mvaNoIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values"),
         mvaHZZIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
-        miniIsoChg = cms.InputTag("isoForEle:miniIsoChg"),
-        miniIsoAll = cms.InputTag("isoForEle:miniIsoAll"),
+        miniIsoChg = cms.InputTag("isoForEleFall17V2:miniIsoChg"),
+        miniIsoAll = cms.InputTag("isoForEleFall17V2:miniIsoAll"),
         PFIsoChg = cms.InputTag("isoForEle:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForEle:PFIsoAll"),
-        PFIsoAll04 = cms.InputTag("isoForEle:PFIsoAll04"),
+        PFIsoAll04 = cms.InputTag("isoForEleFall17V2:PFIsoAll04"),
+        PFIsoChgFall17V2 = cms.InputTag("isoForEleFall17V2:PFIsoChg"),
+        PFIsoAllFall17V2 = cms.InputTag("isoForEleFall17V2:PFIsoAll"),
         ptRatio = cms.InputTag("ptRatioRelForEle:ptRatio"),
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
@@ -146,18 +181,19 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         mvaNoIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80"),
         mvaNoIso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose"),
 
-        cutbasedID_Fall17_V1_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-veto"),
-        cutbasedID_Fall17_V1_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-loose"),
-        cutbasedID_Fall17_V1_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-medium"),
-        cutbasedID_Fall17_V1_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-tight"),
         cutbasedID_Fall17_V2_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto"),
         cutbasedID_Fall17_V2_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose"),
         cutbasedID_Fall17_V2_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium"),
         cutbasedID_Fall17_V2_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight"),
+        cutbasedID_RunIIIWinter22_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-veto"),
+        cutbasedID_RunIIIWinter22_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-loose"),
+        cutbasedID_RunIIIWinter22_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-medium"),
+        cutbasedID_RunIIIWinter22_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-tight"),
         cutbasedID_HEEP = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV70"),
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForEle"),
+        VIDNestedWPBitmapFall17V2 = cms.InputTag("bitmapVIDForEleFall17V2"),
         VIDNestedWPBitmapHEEP = cms.InputTag("bitmapVIDForEleHEEP"),
         seedGain = cms.InputTag("seedGainEle"),
     ),
@@ -243,14 +279,18 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         mvaNoIso_WPL = Var("userInt('mvaNoIso_WPL')",bool,doc="MVA noIso ID V2 loose WP"),
         mvaHZZIso = Var("userFloat('mvaHZZIso')", float,doc="HZZ MVA Iso ID score"),
 
-        cutBased = Var("userInt('cutbasedID_Fall17_V2_veto')+userInt('cutbasedID_Fall17_V2_loose')+userInt('cutbasedID_Fall17_V2_medium')+userInt('cutbasedID_Fall17_V2_tight')",int,doc="cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBased = Var("userInt('cutbasedID_RunIIIWinter22_veto')+userInt('cutbasedID_RunIIIWinter22_loose')+userInt('cutbasedID_RunIIIWinter22_medium')+userInt('cutbasedID_RunIIIWinter22_tight')",int,doc="cut-based ID RunIII Winter22 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBasedFall17V2 = Var("userInt('cutbasedID_Fall17_V2_veto')+userInt('cutbasedID_Fall17_V2_loose')+userInt('cutbasedID_Fall17_V2_medium')+userInt('cutbasedID_Fall17_V2_tight')",int,doc="cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap')",int,doc=_bitmapVIDForEle_docstring),
+        vidNestedWPBitmapFall17V2 = Var("userInt('VIDNestedWPBitmapFall17V2')",int,doc=_bitmapVIDForEleFall17V2_docstring),
         vidNestedWPBitmapHEEP = Var("userInt('VIDNestedWPBitmapHEEP')",int,doc=_bitmapVIDForEleHEEP_docstring),
         cutBased_HEEP = Var("userInt('cutbasedID_HEEP')",bool,doc="cut-based HEEP ID"),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,doc="mini PF relative isolation, charged component"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component"),
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU corrections)"),
+        pfRelIso03_chgFall17V2 = Var("userFloat('PFIsoChgFall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, charged component"),
+        pfRelIso03_allFall17V2 = Var("userFloat('PFIsoAllFall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, total (with rho*EA PU corrections)"),
         jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),
         jetPtRelv2 = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0",float,doc="Relative momentum of the lepton with respect to the closest jet after subtracting the lepton",precision=8),
         dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
@@ -282,9 +322,12 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleDownNew')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
         dEsigmaUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
         dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaDownNew')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
-
+        cutBased = Var("userInt('cutbasedID_Fall17_V2_veto')+userInt('cutbasedID_Fall17_V2_loose')+userInt('cutbasedID_Fall17_V2_medium')+userInt('cutbasedID_Fall17_V2_tight')",int,doc="cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBasedFall17V2 = None,
+        vidNestedWPBitmapFall17V2 = None,
+        pfRelIso03_chgFall17V2 = None,
+        pfRelIso03_allFall17V2 = None
 )
-
 
 #############electron Table END#####################
 # Depends on particlelevel producer run in particlelevel_cff
@@ -333,7 +376,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"),
 )
 
-electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleHEEP,isoForEle,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
 electronTablesTask = cms.Task(electronMVATTH, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
