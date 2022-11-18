@@ -117,10 +117,9 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
 public:
   SimpleFlatTableProducerBase(edm::ParameterSet const &params)
       : name_(params.getParameter<std::string>("name")),
-        doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
-        extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
-        skipNonExistingSrc_(
-            params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
+        doc_(params.getParameter<std::string>("doc")),
+        extension_(params.getParameter<bool>("extension")),
+        skipNonExistingSrc_(params.getParameter<bool>("skipNonExistingSrc")),
         src_(consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
@@ -151,9 +150,9 @@ public:
     edm::ParameterSetDescription desc;
     std::string classname = ClassName<T>::name();
     desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
-    desc.addOptional<std::string>("doc")->setComment("few words of self documentation");
-    desc.addOptional<bool>("extension", false)->setComment("whether or not to extend an existing same table");
-    desc.addOptional<bool>("skipNonExistingSrc", false)
+    desc.add<std::string>("doc", "")->setComment("few words of self documentation");
+    desc.add<bool>("extension", false)->setComment("whether or not to extend an existing same table");
+    desc.add<bool>("skipNonExistingSrc", false)
         ->setComment("whether or not to skip producing the table on absent input product");
     desc.add<edm::InputTag>("src")->setComment("input collection to fill the flat table");
 
