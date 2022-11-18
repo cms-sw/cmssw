@@ -218,7 +218,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     throw cms::Exception("LogicError") << "G4RunManagerKernel initialization failed!";
   }
 
-  if (m_check) { checkVoxels(); }
+  if (m_check) {
+    checkVoxels();
+  }
 
   if (m_StorePhysicsTables) {
     std::ostringstream dir;
@@ -312,52 +314,48 @@ void RunManagerMT::checkVoxels() {
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: nLV=" << numLV;
   int nvox = 0;
   int nslice = 0;
-  for(int i=0; i<numLV; ++i) {
+  for (int i = 0; i < numLV; ++i) {
     auto lv = (*lvs)[i];
     auto nd = lv->GetNoDaughters();
     auto vox = lv->GetVoxelHeader();
     auto sma = lv->GetSmartless();
     auto reg = lv->GetRegion();
     size_t nsl = (nullptr == vox) ? 0 : vox->GetNoSlices();
-    if(0 < nsl) {
+    if (0 < nsl) {
       nslice += nsl;
       std::string rname = (nullptr != reg) ? reg->GetName() : "";
-      edm::LogVerbatim("Voxels") 
-	<< " " << i << ". Nd=" << nd << " Nsl=" << nsl
-	<< " Smartless=" << sma << " " << lv->GetName()
-	<< " Region: " << rname;
+      edm::LogVerbatim("Voxels") << " " << i << ". Nd=" << nd << " Nsl=" << nsl << " Smartless=" << sma << " "
+                                 << lv->GetName() << " Region: " << rname;
       ++nvox;
     }
   }
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "RunManagerMT: nLV=" << numLV << " NlvVox=" << nvox
-    << " Nslices=" << nslice;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: nLV=" << numLV << " NlvVox=" << nvox << " Nslices=" << nslice;
 }
 
 void RunManagerMT::setupVoxels() {
   double density = m_p.getParameter<bool>("DefaultVoxelDensity");
-  std::vector<std::string> rnames =
-    m_p.getParameter<std::vector<std::string> >("VoxelRegions");
-  std::vector<double> rdensities =
-    m_p.getParameter<std::vector<double> >("VoxelDensityPerRegions");
+  std::vector<std::string> rnames = m_p.getParameter<std::vector<std::string> >("VoxelRegions");
+  std::vector<double> rdensities = m_p.getParameter<std::vector<double> >("VoxelDensityPerRegions");
   int nr = 0;
   std::size_t n = rnames.size();
-  if(n == rdensities.size()) { nr = (int)n; }
+  if (n == rdensities.size()) {
+    nr = (int)n;
+  }
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  for(auto & lv : *lvs) {
+  for (auto& lv : *lvs) {
     double den = density;
-    if(0 < nr) {
+    if (0 < nr) {
       std::string nam = lv->GetRegion()->GetName();
-      for(int i=0; i<nr; ++i) {
-        if(nam == rnames[i]) {
-	  den = rdensities[i];
-	  break;
-	}
+      for (int i = 0; i < nr; ++i) {
+        if (nam == rnames[i]) {
+          den = rdensities[i];
+          break;
+        }
       }
     }
     lv->SetSmartless(den);
   }
   edm::LogVerbatim("SimG4CoreApplication")
-    << "RunManagerMT: density=" << density << "; number of special regions " << nr;
+      << "RunManagerMT: density=" << density << "; number of special regions " << nr;
 }
-
