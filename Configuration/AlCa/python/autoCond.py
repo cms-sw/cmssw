@@ -71,6 +71,8 @@ autoCond = {
     'phase1_2022_design'           : '124X_mcRun3_2022_design_v7',
     # GlobalTag for MC production with realistic conditions for Phase1 2022
     'phase1_2022_realistic'        : '124X_mcRun3_2022_realistic_v12',
+    # GlobalTag for MC production with realistic conditions for Phase1 2022 post-EE+ leak
+    'phase1_2022_realistic_postEE' : '124X_mcRun3_2022_realistic_postEE_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2022,  Strip tracker in DECO mode
     'phase1_2022_cosmics'          : '124X_mcRun3_2022cosmics_realistic_deco_v13',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2022, Strip tracker in DECO mode
