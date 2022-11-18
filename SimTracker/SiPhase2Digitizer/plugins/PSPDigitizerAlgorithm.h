@@ -22,6 +22,6 @@ public:
 private:
   edm::ESGetToken<SiPhase2OuterTrackerLorentzAngle, SiPhase2OuterTrackerLorentzAngleSimRcd> siPhase2OTLorentzAngleToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  bool addBiasRailInefficiency_{false};
+  const int biasRailInefficiencyFlag_{0};
 };
 #endif
