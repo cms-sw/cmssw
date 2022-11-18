@@ -18,6 +18,16 @@ _boostedTauPlotsV10.extend([
     plots = _boostedTauPlotsV10
 )
 
+_Electron_Run2_plots = cms.VPSet()
+for plot in nanoDQM.vplots.Electron.plots:
+    if 'Fall17V2' not in plot.name.value():
+        _Electron_Run2_plots.append(plot)
+run2_nanoAOD_ANY.toModify(
+     nanoDQM.vplots.Electron, 
+     plots = _Electron_Run2_plots
+)
+
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
