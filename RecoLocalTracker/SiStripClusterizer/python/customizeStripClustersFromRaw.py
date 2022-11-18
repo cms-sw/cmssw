@@ -18,7 +18,5 @@ def customizeHLTStripClustersFromRaw(process):
         process.hltSiStripRawToClustersFacility = SiStripClusterizerOnDemand_cfi.siStripClusters.clone()
         process.HLTDoLocalStripSequence.replace(process.hltSiStripRawToClustersFacility,
                                    cms.Sequence(process.hltSiStripRawToClustersFacility, process.siStripClustersTaskCUDA))
-        process.HLTDoLocalStripSequenceRegForBTag.replace(process.hltSiStripRawToClustersFacility,
-                                             cms.Sequence(process.hltSiStripRawToClustersFacility, process.siStripClustersTaskCUDA))
 
     return process

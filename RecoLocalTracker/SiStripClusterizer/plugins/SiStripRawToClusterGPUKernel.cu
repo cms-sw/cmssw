@@ -144,7 +144,7 @@ namespace stripgpu {
     }
   }
 
-  __global__ static void findLeftRightBoundaryGPU(StripDataView *sst_data_d,
+  __global__ static void findLeftRightBoundaryGPU(const StripDataView *sst_data_d,
                                                   const ConditionsDeviceView *conditions,
                                                   SiStripClustersCUDADevice::DeviceView *clust_data_d) {
     const int nStrips = sst_data_d->nStrips;
