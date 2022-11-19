@@ -357,5 +357,5 @@ void RunManagerMT::setupVoxels() {
     lv->SetSmartless(den);
   }
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMT: density=" << density << "; number of special regions " << nr;
+      << "RunManagerMT: default voxel density=" << density << "; number of regions with special density " << nr;
 }
