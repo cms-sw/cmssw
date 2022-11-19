@@ -12,6 +12,7 @@
 #include "TDirectoryFile.h"
 #include "TF1.h"
 #include "TFile.h"
+#include "TFrame.h"
 #include "TGaxis.h"
 #include "TH2F.h"
 #include "THStack.h"
