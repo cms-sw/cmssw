@@ -14,8 +14,7 @@
 class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
 public:
   GlobalVariablesTableProducer(edm::ParameterSet const& params)
-      : name_(params.existsAs<std::string>("name") ? params.getParameter<std::string>("name") : ""),
-        extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false) {
+      : name_(params.getParameter<std::string>("name")), extension_(params.getParameter<bool>("extension")) {
     edm::ParameterSet const& varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string& vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto& varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -45,8 +44,8 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.addOptional<std::string>("name")->setComment("name of the branch in the flat table output");
-    desc.addOptional<bool>("extension", false)->setComment("whether or not to extend an existing same table");
+    desc.add<std::string>("name", "")->setComment("name of the branch in the flat table output");
+    desc.add<bool>("extension", false)->setComment("whether or not to extend an existing same table");
     edm::ParameterSetDescription variable;
     variable.ifValue(edm::ParameterDescription<std::string>(
                          "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
@@ -54,7 +53,7 @@ public:
                          "int", "float", "double", "bool", "candidatescalarsum", "candidatesize", "candidatesummass"));
     variable.add<edm::InputTag>("src")->setComment("input collection for the branch");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
-    variable.addOptional<int>("precision")->setComment("precision to store the information [NOT USED IN THE CODE]");
+    variable.add<int>("precision", -1)->setComment("precision to store the information");
     edm::ParameterSetDescription variables;
     variables.setComment("a parameters set to define variable to fill the flat table");
     variables.addNode(
@@ -76,13 +75,14 @@ protected:
   class Variable {
   public:
     Variable(const std::string& aname, const edm::ParameterSet& cfg)
-        : name_(aname), doc_(cfg.getParameter<std::string>("doc")) {}
+        : name_(aname), doc_(cfg.getParameter<std::string>("doc")), precision_(cfg.getParameter<int>("precision")) {}
     virtual void fill(const edm::Event& iEvent, nanoaod::FlatTable& out) const = 0;
     virtual ~Variable() {}
     const std::string& name() const { return name_; }
 
   protected:
     std::string name_, doc_;
+    int precision_;
   };
   template <typename ValType>
   class Identity {
@@ -160,7 +160,8 @@ protected:
         : Variable(aname, cfg), src_(cc.consumes<ValType>(cfg.getParameter<edm::InputTag>("src"))) {}
     ~VariableT() override {}
     void fill(const edm::Event& iEvent, nanoaod::FlatTable& out) const override {
-      out.template addColumnValue<ColType>(this->name_, Converter::convert(iEvent.get(src_)), this->doc_);
+      out.template addColumnValue<ColType>(
+          this->name_, Converter::convert(iEvent.get(src_)), this->doc_, this->precision_);
     }
 
   protected:
