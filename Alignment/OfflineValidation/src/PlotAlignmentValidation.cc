@@ -1238,8 +1238,20 @@ void PlotAlignmentValidation::plotChi2(const char* inputFile) {
   } else {
     errorflag = kTRUE;
   }
-  TCanvas* normchi = new TCanvas((TCanvas*)fi1->Get("TrackerOfflineValidation/GlobalTrackVariables/h_normchi2"));
-  TCanvas* chiprob = new TCanvas((TCanvas*)fi1->Get("TrackerOfflineValidation/GlobalTrackVariables/h_chi2Prob"));
+  if (errorflag) {
+    std::cout << "PlotAlignmentValidation::plotChi2: Can't find GlobalTrackVariables given file,"
+              << " no chi^2-plots produced" << std::endl;
+    return;
+  }
+
+  auto normchi = fi1->Get<TCanvas>("TrackerOfflineValidation/GlobalTrackVariables/h_normchi2");
+  // please remove following line once bug is fixed with ROOT Version: >6.27/01
+  normchi->GetFrame()->ResetBit(kCanDelete);
+
+  auto chiprob = fi1->Get<TCanvas>("TrackerOfflineValidation/GlobalTrackVariables/h_chi2Prob");
+  // please remove following line once bug is fixed with ROOT Version: >6.27/01
+  chiprob->GetFrame()->ResetBit(kCanDelete);
+
   if (normchi == nullptr || chiprob == nullptr) {
     errorflag = kTRUE;
   }
