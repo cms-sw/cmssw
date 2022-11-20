@@ -91,7 +91,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
     TraceExceptions = cms.bool(False),
     DefaultVoxelDensity = cms.double(2.0),
-    NumberOfVoxelRegions = cms.int32(0),
     VoxelRegions = cms.vstring(),
     VoxelDensityPerRegion = cms.vdouble(),
     CheckGeometry = cms.untracked.bool(False),

@@ -336,7 +336,7 @@ void RunManagerMT::checkVoxels() {
 void RunManagerMT::setupVoxels() {
   double density = m_p.getParameter<double>("DefaultVoxelDensity");
   std::vector<std::string> rnames = m_p.getParameter<std::vector<std::string> >("VoxelRegions");
-  std::vector<double> rdensities = m_p.getParameter<std::vector<double> >("VoxelDensityPerRegions");
+  std::vector<double> rdensities = m_p.getParameter<std::vector<double> >("VoxelDensityPerRegion");
   int nr = 0;
   std::size_t n = rnames.size();
   if (n == rdensities.size()) {
