@@ -93,41 +93,27 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
 /* virtual */ void HcalGPUComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf) { DQTask::_resetMonitors(uf); }
 
 /* virtual */ void HcalGPUComparisonTask::_process(edm::Event const& e, edm::EventSetup const&) {
-  edm::Handle<HBHERecHitCollection> chbhe_ref;
-  edm::Handle<HBHERecHitCollection> chbhe_target;
+  auto const chbhe_ref = e.getHandle(tokHBHE_ref_);
+  auto const chbhe_target = e.getHandle(tokHBHE_target_);
 
-  bool gotRefCollection = true, gotTargetCollection = true;
+  if (not(chbhe_ref.isValid() and chbhe_target.isValid())) {
+    if (chbhe_target.isValid()) {
+      edm::LogWarning("HcalGPUComparisonTask")
+          << "The CPU HBHERecHitCollection " << tagHBHE_ref_.encode() << " is not available";
 
-  if (!(e.getByToken(tokHBHE_ref_, chbhe_ref))) {
-    edm::LogWarning("HcalGPUComparisonTask")
-        << "The CPU HBHERecHitCollection " << tagHBHE_ref_.encode() << " is not available" << std::endl;
-    gotRefCollection = false;
-  }
-  if (!(e.getByToken(tokHBHE_target_, chbhe_target))) {
-    edm::LogWarning("HcalGPUComparisonTask")
-        << "The GPU HBHERecHitCollection " << tagHBHE_target_.encode() << " is not available" << std::endl;
-    gotTargetCollection = false;
-  }
+      for (auto const& rh : *chbhe_target)
+        energyGPUvsCPU_subdet_.fill(rh.id(), -0.5, rh.energy());
+    } else if (chbhe_ref.isValid()) {
+      edm::LogWarning("HcalGPUComparisonTask")
+          << "The GPU HBHERecHitCollection " << tagHBHE_target_.encode() << " is not available";
 
-  if (gotRefCollection && !gotTargetCollection) {
-    for (HBHERecHitCollection::const_iterator it = chbhe_ref->begin(); it != chbhe_ref->end(); ++it) {
-      double energy = it->energy();
-      HcalDetId did = it->id();
-      energyGPUvsCPU_subdet_.fill(did, energy, -0.5);
+      for (auto const& rh : *chbhe_ref)
+        energyGPUvsCPU_subdet_.fill(rh.id(), rh.energy(), -0.5);
+    } else {
+      edm::LogWarning("HcalGPUComparisonTask")
+          << "Neither CPU nor GPU RecHit Collection available, will not fill this event.";
     }
-    return;
-  }
-  if (!gotRefCollection && gotTargetCollection) {
-    for (HBHERecHitCollection::const_iterator it = chbhe_target->begin(); it != chbhe_target->end(); ++it) {
-      double energy = it->energy();
-      HcalDetId did = it->id();
-      energyGPUvsCPU_subdet_.fill(did, -0.5, energy);
-    }
-    return;
-  }
-  if (!gotRefCollection && !gotTargetCollection) {
-    edm::LogWarning("HcalGPUComparisonTask")
-        << "Neither CPU nor GPU RecHit Collection available, will not fill this event." << std::endl;
+
     return;
   }
 
