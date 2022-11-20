@@ -3,6 +3,7 @@
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="RecoLocalTracker/SiStripRecHitConverter"/>
 <use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<use name="Utilities/General"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

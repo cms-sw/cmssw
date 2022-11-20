@@ -1,5 +1,6 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/NanoAOD"/>
+<use name="Utilities/General"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

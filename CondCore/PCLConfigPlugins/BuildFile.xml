@@ -1,4 +1,6 @@
+<use name="CondCore/CondDB"/>
 <use name="CondCore/ESSources"/>
+<use name="CondCore/Utilities"/>
 <use name="CondFormats/PCLConfig"/>
 <use name="CondFormats/DataRecord"/>
 <flags EDM_PLUGIN="1"/>

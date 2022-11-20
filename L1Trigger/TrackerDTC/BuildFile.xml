@@ -1,5 +1,3 @@
-<use name="CommonTools/UtilAlgos"/>
-<use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="L1Trigger/TrackTrigger"/>
 <export>
   <lib name="1"/>

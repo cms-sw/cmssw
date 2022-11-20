@@ -11,8 +11,8 @@
   <use name="DataFormats/CTPPSDigi"/>
   <use name="DataFormats/CTPPSReco"/>
   <use name="DataFormats/ProtonReco"/>
+  <use name="DataFormats/TotemReco"/>
   <use name="Geometry/Records"/>
-  <use name="Geometry/ForwardGeometry"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
   <use name="Geometry/VeryForwardRPTopology"/>
   <use name="CondFormats/DataRecord"/>

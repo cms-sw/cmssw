@@ -1,15 +1,10 @@
-<use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="PhysicsTools/UtilAlgos"/>
 <use name="DQMServices/Core"/>
-<use name="CommonTools/TriggerUtils"/>
 <use name="DQMOffline/Trigger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/HLTReco"/>
 <use name="HLTrigger/HLTcore"/>
-<use name="CommonTools/Utils"/>
 <use name="Validation/HLTrigger"/>
 <flags EDM_PLUGIN="1"/>

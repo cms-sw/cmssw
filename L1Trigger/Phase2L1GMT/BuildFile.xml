@@ -1,7 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/L1TMuonPhase2"/>
 <use name="DataFormats/L1TMuon"/>
-<use name="DataFormats/L1Trigger"/>
 <use name="L1Trigger/L1TMuon"/>
 <use name="L1Trigger/L1TTwinMux"/>
 <use name="hls"/>

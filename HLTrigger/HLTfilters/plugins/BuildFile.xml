@@ -20,5 +20,4 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
-<use name="L1Trigger/L1TMuon"/>
 <flags EDM_PLUGIN="1"/>
