@@ -131,7 +131,7 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
     if (mRecHitEnergy.find(did) == mRecHitEnergy.end())
       mRecHitEnergy.insert(std::make_pair(did, energy));
     else
-      edm::LogError("HcalGPUComparisonTask") << "Duplicate Rechit from the same HcalDetId" << std::endl;
+      edm::LogError("HcalGPUComparisonTask") << "Duplicate Rechit from the same HcalDetId";
     ;
   }
 
@@ -160,14 +160,14 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
     } else {
       if (energy > 2.)
         edm::LogError("HcalGPUComparisonTask")
-            << "Energetic GPU Rechit exist, but not reconstructed by CPU. DetId = " << did << std::endl;
+            << "Energetic GPU Rechit exist, but not reconstructed by CPU. DetId = " << did;
     }
   }
   if (!mRecHitEnergy.empty()) {
     for (auto const& rhpair : mRecHitEnergy) {
       if (rhpair.second > 2.)
         edm::LogError("HcalGPUComparisonTask")
-            << "Energetic CPU Rechit exist, but not reconstructed by GPU. DetId = " << rhpair.first << std::endl;
+            << "Energetic CPU Rechit exist, but not reconstructed by GPU. DetId = " << rhpair.first;
     }
   }
 }
