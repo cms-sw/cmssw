@@ -9,16 +9,21 @@ import HLTrigger.Configuration.Tools.options as options
 from HLTrigger.Configuration.extend_argparse import *
 
 def getPathList(config):
-  # cmd-line args to select HLT configuration
-  if config.menu.run:
-    configline = f'--runNumber {config.menu.run}'
-  else:
-    configline = f'--{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
 
-  # cmd to download HLT configuration
-  cmdline = f'hltConfigFromDB {configline} --noedsources --noes --noservices'
-  if config.proxy:
-    cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
+  if isinstance(config.menu, options.ConnectionHLTMenu):
+    # cmd to download HLT configuration
+    cmdline = 'hltConfigFromDB'
+    if config.menu.run:
+      cmdline += f' --runNumber {config.menu.run}'
+    else:
+      cmdline += f' --{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
+    cmdline += ' --noedsources --noes --noservices'
+    if config.proxy:
+      cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
+
+  else:
+    # use edmConfigDump to ensure the config can be executed
+    cmdline = f'edmConfigDump {config.menu}'
 
   # load HLT configuration
   try:
@@ -31,74 +36,88 @@ def getPathList(config):
   if not isinstance(process, cms.Process):
     raise Exception(f'query did not return a valid HLT menu:\n query="{cmdline}"')
 
+  usePaths, useEndPaths, useFinalPaths = False, False, False
+
   # Paths only
   if config.selection == 'paths':
-    pathDict = process.paths_()
+    usePaths = True
 
   # EndPaths only
   elif config.selection == 'endpaths':
-    pathDict = process.endpaths_()
+    useEndPaths = True
 
   # FinalPaths only
   elif config.selection == 'finalpaths':
-    pathDict = process.finalpaths_()
+    useFinalPaths = True
 
   # Paths, EndPaths, and FinalPaths ('all')
+  elif config.selection == 'all':
+    usePaths, useEndPaths, useFinalPaths = True, True, True
+
+  # invalid value
   else:
-    pathDict = zip(process.paths_(), process.endpaths_(), process.finalpaths_())
+    raise RuntimeError(f'ERROR: invalid value for option "--selection" (must be "paths", "endpaths", "finalpaths", or "all"): {config.selection}')
 
   ret = []
-  for pathName in pathDict:
-
-    # skip if name of the path matches any of
-    # the regular expressions listed in "--exclude"
-    skipPath = False
-    for excludeRegExpr in config.excludeRegExprs:
-      if bool(re.search(excludeRegExpr, pathName)):
-        skipPath = True
-        break
-    if skipPath:
+  for pathDict in [
+    process.paths_() if usePaths else None,
+    process.endpaths_() if useEndPaths else None,
+    process.finalpaths_() if useFinalPaths else None,
+  ]:
+    if pathDict == None:
       continue
 
-    if config.no_dependent_paths:
-      # do not include "dependent paths", i.e. paths that depend on the result of other paths in the same job
-      # the current criterion to identify a path as "dependent" is that
-      # (1) the path contains a "TriggerResultsFilter" module and
-      # (2) the latter module uses the TriggerResults of the current process, and has a non-empty list of "triggerConditions"
-      path = pathDict[pathName]
-      pathIsDependent = False
-      isPath = isinstance(path, cms.Path)
+    for pathName in pathDict:
 
-      for moduleName in path.moduleNames():
-        module = getattr(process, moduleName)
-        if module.type_() != 'TriggerResultsFilter' or (hasattr(module, 'triggerConditions') and len(module.triggerConditions) == 0):
-          continue
-
-        usesPathStatus = hasattr(module, 'usePathStatus') and module.usePathStatus
-        usesTrigResOfCurrentProcess = hasattr(module, 'hltResults') and module.hltResults.getProcessName() in [process.name_(), '@currentProcess']+['']*(not isPath)
-
-        if isPath:
-          if usesPathStatus:
-            pathIsDependent = True
-          elif usesTrigResOfCurrentProcess:
-            # The Path contains a TriggerResultsFilter with usePathStatus=False and forcing access to the TriggerResults of the current Process.
-            #  - This is not supported, and should result in a runtime error when using cmsRun.
-            #  - Here, a warning is returned to stderr, and the Path is omitted from the output list.
-            warning_msg = 'WARNING -- the cms.Path named "'+pathName+'" will be ignored.'
-            warning_msg += '\n'+' '*12+'- It contains a "TriggerResultsFilter" attempting to access the "TriggerResults" of the current Process (module: "'+moduleName+'").'
-            warning_msg += '\n'+' '*12+'- This is not supported, and should result in a runtime error when using cmsRun. Please check again the HLT configuration.'
-            print(warning_msg, file=sys.stderr)
-            pathIsDependent = True
-        else:
-          pathIsDependent = usesPathStatus or usesTrigResOfCurrentProcess
-
-        if pathIsDependent:
+      # skip if name of the path matches any of
+      # the regular expressions listed in "--exclude"
+      skipPath = False
+      for excludeRegExpr in config.excludeRegExprs:
+        if bool(re.search(excludeRegExpr, pathName)):
+          skipPath = True
           break
-
-      if pathIsDependent:
+      if skipPath:
         continue
 
-    ret.append(pathName)
+      if config.no_dependent_paths:
+        # do not include "dependent paths", i.e. paths that depend on the result of other paths in the same job
+        # the current criterion to identify a path as "dependent" is that
+        # (1) the path contains a "TriggerResultsFilter" module and
+        # (2) the latter module uses the TriggerResults of the current process, and has a non-empty list of "triggerConditions"
+        path = pathDict[pathName]
+        pathIsDependent = False
+        isPath = isinstance(path, cms.Path)
+
+        for moduleName in path.moduleNames():
+          module = getattr(process, moduleName)
+          if module.type_() != 'TriggerResultsFilter' or (hasattr(module, 'triggerConditions') and len(module.triggerConditions) == 0):
+            continue
+
+          usesPathStatus = hasattr(module, 'usePathStatus') and module.usePathStatus
+          usesTrigResOfCurrentProcess = hasattr(module, 'hltResults') and module.hltResults.getProcessName() in [process.name_(), '@currentProcess']+['']*(not isPath)
+
+          if isPath:
+            if usesPathStatus:
+              pathIsDependent = True
+            elif usesTrigResOfCurrentProcess:
+              # The Path contains a TriggerResultsFilter with usePathStatus=False and forcing access to the TriggerResults of the current Process.
+              #  - This is not supported, and should result in a runtime error when using cmsRun.
+              #  - Here, a warning is returned to stderr, and the Path is omitted from the output list.
+              warning_msg = 'WARNING -- the cms.Path named "'+pathName+'" will be ignored.'
+              warning_msg += '\n'+' '*12+'- It contains a "TriggerResultsFilter" attempting to access the "TriggerResults" of the current Process (module: "'+moduleName+'").'
+              warning_msg += '\n'+' '*12+'- This is not supported, and should result in a runtime error when using cmsRun. Please check again the HLT configuration.'
+              print(warning_msg, file=sys.stderr)
+              pathIsDependent = True
+          else:
+            pathIsDependent = usesPathStatus or usesTrigResOfCurrentProcess
+
+          if pathIsDependent:
+            break
+
+        if pathIsDependent:
+          continue
+
+      ret.append(pathName)
 
   return ret
 
@@ -113,8 +132,11 @@ formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth
 # read defaults
 defaults = options.HLTProcessOptions()
 
+def hltMenu(name):
+  return name if os.path.isfile(name) else options.ConnectionHLTMenu(name)
+
 parser = argparse.ArgumentParser(
-  description       = 'List all the Paths, EndPaths and FinalPaths of an HLT configuration in the ConfDB database.',
+  description       = 'List all the Paths, EndPaths and FinalPaths of an HLT configuration.',
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
@@ -122,9 +144,9 @@ parser = argparse.ArgumentParser(
 # required argument
 parser.add_argument('menu',
                     action  = 'store',
-                    type    = options.ConnectionHLTMenu,
+                    type    = hltMenu,
                     metavar = 'MENU',
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
+                    help    = 'HLT menu (can be a local cmsRun configuration file, or the name of a configuration in the ConfDB database). For ConfDB configurations, supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
 
 # options
 parser.add_argument('--dbproxy',
@@ -187,6 +209,7 @@ parser.add_argument('-h', '--help',
 
 # parse command line arguments and options
 config = parser.parse_args()
+
 paths = getPathList(config)
 for path in paths:
   print(path)
