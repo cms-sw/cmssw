@@ -104,6 +104,8 @@ void initGeom() {
         Config::ItrInfo, Config::json_save_iters_fname_fmt, Config::json_save_iters_include_iter_info_preamble);
   }
 
+  Config::ItrInfo.setupStandardFunctionsFromNames();
+
   // Test functions for ConfigJsonPatcher
   // cj.test_Direct (Config::ItrInfo[0]);
   // cj.test_Patcher(Config::ItrInfo[0]);
@@ -152,6 +154,14 @@ namespace {
   }
 
   const char* b2a(bool b) { return b ? "true" : "false"; }
+
+  std::vector<DeadVec> deadvectors;
+
+  void init_deadvectors() {
+    deadvectors.resize(Config::TrkInfo.n_layers());
+#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
+  }
+
 }  // namespace
 
 //==============================================================================
@@ -207,6 +217,13 @@ void test_standard() {
     printf("- reading seeds from file\n");
 
   initGeom();
+  if (Config::useDeadModules) {
+    init_deadvectors();
+  }
+
+  if (Config::nEvents <= 0) {
+    return;
+  }
 
   DataFile data_file;
   if (g_operation == "read") {
@@ -310,8 +327,6 @@ void test_standard() {
 
             StdSeq::loadHitsAndBeamSpot(ev, eoh);
 
-            std::vector<DeadVec> deadvectors(ev.layerHits_.size());
-#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
             if (Config::useDeadModules) {
               StdSeq::loadDeads(eoh, deadvectors);
             }
@@ -584,13 +599,13 @@ int main(int argc, const char* argv[]) {
           "as reference [eff, FR, DR] (def: %s)\n"
           "  --cmssw-val              enable ROOT based validation for building and fitting with CMSSW tracks as "
           "reference [eff, FR, DR] (def: %s)\n"
-          "                             must enable: --geom CMS-2017 --read-cmssw-tracks\n"
+          "                             must enable: --geom CMS-phase1 --read-cmssw-tracks\n"
           "  --cmssw-match-fw  <str>  which cmssw track matching routine to use if validating against CMSSW tracks, "
           "forward built tracks only (def: %s)\n"
-          "                             must enable: --geom CMS-2017 --cmssw-val --read-cmssw-tracks\n"
+          "                             must enable: --geom CMS-phase1 --cmssw-val --read-cmssw-tracks\n"
           "  --cmssw-match-bk  <str>  which cmssw track matching routine to use if validating against CMSSW tracks, "
           "backward fit tracks only (def: %s)\n"
-          "                             must enable: --geom CMS-2017 --cmssw-val --read-cmssw-tracks --backward-fit "
+          "                             must enable: --geom CMS-phase1 --cmssw-val --read-cmssw-tracks --backward-fit "
           "--backward-fit-pca\n"
           "  --inc-shorts             include short reco tracks into FR (def: %s)\n"
           "  --keep-hit-info          keep vectors of hit idxs and branches in trees (def: %s)\n"
@@ -611,16 +626,16 @@ int main(int argc, const char* argv[]) {
           "                             == --backward-fit --include-pca\n"
           " **Seed combo options\n"
           "  --cmssw-simseeds         use CMS geom with simtracks for seeds\n"
-          "                             == --geom CMS-2017 --seed-input %s\n"
+          "                             == --geom CMS-phase1 --seed-input %s\n"
           "  --cmssw-stdseeds         use CMS geom with CMSSW seeds uncleaned\n"
-          "                             == --geom CMS-2017 --seed-input %s --seed-cleaning %s\n"
+          "                             == --geom CMS-phase1 --seed-input %s --seed-cleaning %s\n"
           "  --cmssw-n2seeds          use CMS geom with CMSSW seeds cleaned with N^2 routine\n"
-          "                             == --geom CMS-2017 --seed-input %s --seed-cleaning %s\n"
+          "                             == --geom CMS-phase1 --seed-input %s --seed-cleaning %s\n"
           "  --cmssw-pureseeds        use CMS geom with pure CMSSW seeds (seeds which produced CMSSW reco tracks), "
           "enable read of CMSSW tracks\n"
-          "                             == --geom CMS-2017 --seed-input %s --seed-cleaning %s --read-cmssw-tracks\n"
+          "                             == --geom CMS-phase1 --seed-input %s --seed-cleaning %s --read-cmssw-tracks\n"
           "  --cmssw-goodlabelseeds   use CMS geom with CMSSW seeds with label() >= 0\n"
-          "                             == --geom CMS-2017 --seed-input %s --seed-cleaning %s\n"
+          "                             == --geom CMS-phase1 --seed-input %s --seed-cleaning %s\n"
           "\n"
           " **CMSSW validation combo options\n"
           "  --cmssw-val-fhit-bhit    use CMSSW validation with hit based matching (50 percent after seed) for forward "
@@ -756,7 +771,8 @@ int main(int argc, const char* argv[]) {
       printf("List of options for string based inputs \n");
       printf(
           "--geom \n"
-          "  CMS-2017 \n"
+          "  CMS-phase1 \n"
+          "  CMS-phase2 \n"
           "  CylCowWLids \n"
           "\n");
 
@@ -935,23 +951,23 @@ int main(int argc, const char* argv[]) {
       Config::backwardFit = true;
       Config::includePCA = true;
     } else if (*i == "--cmssw-simseeds") {
-      Config::geomPlugin = "CMS-2017";
+      Config::geomPlugin = "CMS-phase1";
       Config::seedInput = simSeeds;
     } else if (*i == "--cmssw-stdseeds") {
-      Config::geomPlugin = "CMS-2017";
+      Config::geomPlugin = "CMS-phase1";
       Config::seedInput = cmsswSeeds;
       Config::seedCleaning = noCleaning;
     } else if (*i == "--cmssw-n2seeds") {
-      Config::geomPlugin = "CMS-2017";
+      Config::geomPlugin = "CMS-phase1";
       Config::seedInput = cmsswSeeds;
       Config::seedCleaning = cleanSeedsN2;
     } else if (*i == "--cmssw-pureseeds") {
-      Config::geomPlugin = "CMS-2017";
+      Config::geomPlugin = "CMS-phase1";
       Config::seedInput = cmsswSeeds;
       Config::seedCleaning = cleanSeedsPure;
       Config::readCmsswTracks = true;
     } else if (*i == "--cmssw-goodlabelseeds") {
-      Config::geomPlugin = "CMS-2017";
+      Config::geomPlugin = "CMS-phase1";
       Config::seedInput = cmsswSeeds;
       Config::seedCleaning = cleanSeedsBadLabel;
     } else if (*i == "--cmssw-val-fhit-bhit") {

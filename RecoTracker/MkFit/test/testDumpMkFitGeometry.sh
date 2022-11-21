@@ -8,3 +8,4 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
 fi
 
 (cmsRun ${LOCAL_TEST_DIR}/dumpMkFitGeometry.py) || die "failed to run dumpMkFitGeometry.py" $?
+(cmsRun ${LOCAL_TEST_DIR}/dumpMkFitGeometryPhase2.py) || die "failed to run dumpMkFitGeometryPhase2.py" $?
