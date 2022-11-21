@@ -448,6 +448,10 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_, 0, stream);
   }
 
+  std::string EvFDaqDirector::getInitTempFilePath(std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::initTempFileNameWithPid(run_, 0, stream);
+  }
+
   std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls,
                                                                      std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_, ls, stream);
@@ -2069,7 +2073,7 @@ namespace evf {
     return (stat(input_throttled_file_.c_str(), &buf) == 0);
   }
 
-  bool EvFDaqDirector::lumisectionDiscarded(uint32_t ls) {
+  bool EvFDaqDirector::lumisectionDiscarded(unsigned int ls) {
     struct stat buf;
     return (stat((discard_ls_filestem_ + std::to_string(ls)).c_str(), &buf) == 0);
   }

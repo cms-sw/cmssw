@@ -45,9 +45,12 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(p
   }
 
   if (!fakeFilterUnitMode_) {
-    evf::EvFDaqDirector* daqDirector = (evf::EvFDaqDirector*)(edm::Service<evf::EvFDaqDirector>().operator->());
-    const std::string initFileName = daqDirector->getInitFilePath(streamLabel_);
+    if (!edm::Service<evf::EvFDaqDirector>().isAvailable())
+      throw cms::Exception("DQMFileSaverPB") << "EvFDaqDirector is not available";
+    std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_);
     std::ofstream file(initFileName);
+    if (!file)
+      throw cms::Exception("DQMFileSaverPB") << "Cannot create INI file: " << initFileName << " error:" << strerror(errno);
     file.close();
   }
 }

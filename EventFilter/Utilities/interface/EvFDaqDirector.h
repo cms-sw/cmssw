@@ -91,6 +91,7 @@ namespace evf {
     std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getOpenInitFilePath(std::string const& stream) const;
     std::string getInitFilePath(std::string const& stream) const;
+    std::string getInitTempFilePath(std::string const& stream) const;
     std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -186,7 +187,7 @@ namespace evf {
     std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
     bool inputThrottled();
-    bool lumisectionDiscarded(uint32_t ls);
+    bool lumisectionDiscarded(unsigned int ls);
 
   private:
     bool bumpFile(unsigned int& ls,
