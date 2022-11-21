@@ -7,10 +7,11 @@ CMS_DIR := ${SRCDIR}/RecoTracker/MkFitCMS
 LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
+DICTPCM := ../DictsDict_rdict.pcm
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF}
+TGTS += ${WRMEMF} ${DICTPCM}
 endif
 
 .PHONY: all clean distclean
@@ -20,6 +21,9 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
+DictsDict.cc ${DICTPCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
+	rootcint -v3 -f $@ $<
+	mv DictsDict_rdict.pcm ${DICTPCM}
 endif
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
@@ -34,7 +38,7 @@ include ${DEPS}
 endif
 
 clean-local:
-	-rm -f ${TGTS} *.d *.o *.om *.so
+	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm
 	-rm -rf main.dSYM
 	-rm -rf plotting/*.so plotting/*.d plotting/*.pcm
 
@@ -51,7 +55,7 @@ ${LIB_CMS}: ${CMS_OBJS}
 ${MAIN}: ${LIB_CMS} mkFit.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${LDFLAGS} mkFit.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -lMicCMS -Wl,-rpath=.
 
-${WRMEMF}: WriteMemoryFile.o
+${WRMEMF}: WriteMemoryFile.o DictsDict.o
 	${CXX} ${CXXFLAGS} ${LDFLAGS} $^ -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -Wl,-rpath=.
 
 ${OBJS}: %.o: %.cc %.d

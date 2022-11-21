@@ -96,3 +96,8 @@ seqALCARECOSiPixelCalSingleMuonTight = cms.Sequence(offlineBeamSpot+
                                                     ALCARECOSiPixelCalSingleMuonTight+
                                                     trackDistances +
                                                     ALCARECOSiPixelCalSingleMuonTightOffTrackClusters)
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ALCARECOSiPixelCalSingleMuonTightHLTFilter,
+                  eventSetupPathsKey='SiPixelCalSingleMuonHI'
+)
