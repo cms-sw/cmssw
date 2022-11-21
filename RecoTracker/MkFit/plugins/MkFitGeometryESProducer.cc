@@ -21,6 +21,8 @@
 
 #include <sstream>
 
+// #define DUMP_MKF_GEO
+
 //------------------------------------------------------------------------------
 
 class MkFitGeometryESProducer : public edm::ESProducer {
@@ -192,7 +194,9 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[3][1] = -par[3];
     dz = par[2];
 
-    // printf("TRAP 0x%x %f %f %f %f\n", detid.rawId(), par[0], par[1], par[2], par[3]);
+#ifdef DUMP_MKF_GEO
+    printf("TRAP 0x%x %f %f %f %f  ", detid.rawId(), par[0], par[1], par[2], par[3]);
+#endif
   } else if (const RectangularPlaneBounds *b2 = dynamic_cast<const RectangularPlaneBounds *>(b)) {
     // Rectangular
     float dx = b2->width() * 0.5;   // half width
@@ -207,7 +211,9 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[3][1] = -dy;
     dz = b2->thickness() * 0.5;  // half thickness
 
-    // printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
+#ifdef DUMP_MKF_GEO
+    printf("RECT 0x%x %f %f %f  ", detid.rawId(), dx, dy, dz);
+#endif
   } else {
     throw cms::Exception("UnimplementedFeature") << "unsupported Bounds class";
   }
@@ -219,6 +225,14 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                       useMatched,
                                       trackerTopo_->isStereo(detid),
                                       trackerTopo_->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
+#ifdef DUMP_MKF_GEO
+  printf("  subdet=%d layer=%d side=%d is_stereo=%d --> mkflayer=%d\n",
+         detid.subdetId(),
+         trackerTopo_->layer(detid),
+         trackerTopo_->side(detid),
+         trackerTopo_->isStereo(detid),
+         lay);
+#endif
 
   mkfit::LayerInfo &layer_info = trk_info.layer_nc(lay);
   if (lgc_map) {
@@ -252,51 +266,64 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 
 //==============================================================================
 
-// Ideally these functions would also:
-// 0. Setup LayerInfo data (which is now done in auto-generated code).
-//    Some data-members are a bit over specific, esp/ bools for CMS sub-detectors.
-// 1. Establish short module ids (now done in MkFitGeometry constructor).
-// 2. Store module normal and strip direction vectors
-// 3. ? Any other information ?
+// These functions do the following:
+// 0. Detect bounding cylinder of each layer.
+// 1. Setup LayerInfo data.
+// 2. Establish short module ids.
+// 3. Store module normal and strip direction vectors.
 // 4. Extract stereo coverage holes where they exist (TEC, all but last 3 double-layers).
 //
-// Plugin DumpMkFitGeometry.cc can then be used to export this for stand-alone.
-// Would also need to be picked up with tk-ntuple converter (to get module ids as
-// they will now be used as indices into module info vectors).
-//
-// An attempt at export cmsRun config is in python/dumpMkFitGeometry.py
+// See python/dumpMkFitGeometry.py and dumpMkFitGeometryPhase2.py
 
 void MkFitGeometryESProducer::addPixBGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addPixBGeometry\n\n");
+#endif
   for (auto &det : trackerGeom_->detsPXB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addPixEGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addPixEGeometry\n\n");
+#endif
   for (auto &det : trackerGeom_->detsPXF()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIBGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addTIBGeometry\n\n");
+#endif
   for (auto &det : trackerGeom_->detsTIB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTOBGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addTOBGeometry\n\n");
+#endif
   for (auto &det : trackerGeom_->detsTOB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIDGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addTIDGeometry\n\n");
+#endif
   for (auto &det : trackerGeom_->detsTID()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
+#ifdef DUMP_MKF_GEO
+  printf("\n*** addTECGeometry\n\n");
+#endif
   // For TEC we also need to discover hole in radial extents.
   layer_gap_map_t lgc_map;
   for (auto &det : trackerGeom_->detsTEC()) {
@@ -330,6 +357,15 @@ namespace {
     // PIXE-, TID-, TEC-
     1.0, 1.0, 1.0, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5
   };
+  const float phase2QBins[] = {
+    // TODO: Review these numbers.
+    // PIXB, TOB
+    2.0, 2.0, 2.0, 2.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    // PIXE+, TEC+
+    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6,
+    // PIXE-, TEC-
+    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6
+  };
 }
 // clang-format on
 //------------------------------------------------------------------------------
@@ -340,13 +376,19 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   trackerGeom_ = &iRecord.get(geomToken_);
   trackerTopo_ = &iRecord.get(ttopoToken_);
 
+  const float *qBinDefaults = nullptr;
+
   // std::string path = "Geometry/TrackerCommonData/data/";
   if (trackerGeom_->isThere(GeomDetEnumerators::P1PXB) || trackerGeom_->isThere(GeomDetEnumerators::P1PXEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
     trackerInfo->create_layers(18, 27, 27);
+    qBinDefaults = phase1QBins;
   } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
              trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {
-    throw cms::Exception("UnimplementedFeature") << "PhaseII geometry extraction";
+    edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseII geometry";
+    layerNrConv_.reset(mkfit::TkLayout::phase2);
+    trackerInfo->create_layers(16, 22, 22);
+    qBinDefaults = phase2QBins;
   } else {
     throw cms::Exception("UnimplementedFeature") << "unsupported / unknowen geometry version";
   }
@@ -358,7 +400,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
         std::numeric_limits<float>::max(), 0, std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     li.reserve_modules(256);
   }
-  // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well.
+  // This is sort of CMS-phase1 specific ... but fireworks code uses it for PhaseII as well.
   addPixBGeometry(*trackerInfo);
   addPixEGeometry(*trackerInfo);
   addTIBGeometry(*trackerInfo);
@@ -366,19 +408,30 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   addTOBGeometry(*trackerInfo);
   addTECGeometry(*trackerInfo);
 
-  // r_in/out kept as squres until here, root them
+  // r_in/out kept as squares until here, root them
+  unsigned int n_mod = 0;
   for (int i = 0; i < trackerInfo->n_layers(); ++i) {
     auto &li = trackerInfo->layer_nc(i);
     li.set_r_in_out(std::sqrt(li.rin()), std::sqrt(li.rout()));
     li.set_propagate_to(li.is_barrel() ? li.r_mean() : li.z_mean());
-    li.set_q_bin(phase1QBins[i]);
+    li.set_q_bin(qBinDefaults[i]);
     unsigned int maxsid = li.shrink_modules();
-    // Make sure the short id fits in the 12 bits...
-    assert(maxsid < 1u << 11);
-  }
 
-  return std::make_unique<MkFitGeometry>(
-      iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo));
+    n_mod += maxsid;
+
+    // Make sure the short id fits in the 14 bits...
+    assert(maxsid < 1u << 13);
+    assert(n_mod > 0);
+  }
+#ifdef DUMP_MKF_GEO
+  printf("Total number of modules %u, 14-bits fit up to %u modules\n", n_mod, 1u << 13);
+#endif
+
+  return std::make_unique<MkFitGeometry>(iRecord.get(geomToken_),
+                                         iRecord.get(trackerToken_),
+                                         iRecord.get(ttopoToken_),
+                                         std::move(trackerInfo),
+                                         layerNrConv_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MkFitGeometryESProducer);

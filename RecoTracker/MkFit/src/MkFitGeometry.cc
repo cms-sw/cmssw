@@ -17,14 +17,13 @@ namespace {
 MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
                              const GeometricSearchTracker& tracker,
                              const TrackerTopology& ttopo,
-                             std::unique_ptr<mkfit::TrackerInfo> trackerInfo)
+                             std::unique_ptr<mkfit::TrackerInfo> trackerInfo,
+                             const mkfit::LayerNumberConverter& layNConv)
     : ttopo_(&ttopo),
-      lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)},
+      lnc_{std::make_unique<mkfit::LayerNumberConverter>(layNConv)},
       trackerInfo_(std::move(trackerInfo)) {
-  if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
-      geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
-    throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";
-  }
+  if (lnc_->getEra() != mkfit::TkLayout::phase1 && lnc_->getEra() != mkfit::TkLayout::phase2)
+    throw cms::Exception("Assert") << "This code works only with phase1 and phase2 tracker, you have something else";
 
   // Create DetLayer structure
   dets_.resize(lnc_->nLayers(), nullptr);
@@ -49,12 +48,9 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
     const auto subdet = detId.subdetId();
     const auto layer = ttopo.layer(detId);
 
-    // TODO: mono/stereo structure is still hardcoded for phase0/1 strip tracker
     setDet(subdet, layer, monoLayer, detId, lay);
-    if (((subdet == StripSubdetector::TIB or subdet == StripSubdetector::TOB) and (layer == 1 or layer == 2)) or
-        subdet == StripSubdetector::TID or subdet == StripSubdetector::TEC) {
+    if (lnc_->doesHaveStereo(subdet, layer))
       setDet(subdet, layer, stereoLayer, detId, lay);
-    }
   }
 }
 
