@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalEE.xml" eval="true">
+  <Constant name="rMinFine"   value="0.0*fm"/>
+  <Constant name="rMaxFine"   value="0.0*cm"/>
+  <Constant name="rMaxMiddle" value="120.0*cm"/>
+  <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="0.0*fm"/>
+  <Constant name="rMax"       value="10.0*cm"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalEE.xml">
+  <Algorithm name="hgcal:DDHGCalModuleAlgo">
+    <rParent name="hgcal:HGCalEE"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="8">
+      materials:Lead, materials:Tungsten, hgcal:WCu, materials:Copper,
+      materials:G10, materials:Silicon, materials:Air, materials:Plexiglas</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="8">
+      EEAbsorber1, EEAbsorber2, EEAbsorber3, EEHeatShield, EEPCB,
+      EESensitive, EEAirGap, EEPlasticSupport</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="8">
+      51.0*mm, 28.0*mm,  2.2*mm,  6.0*mm,  2.0*mm,  0.10*mm, 1.0*mm, 10.0*mm
+    </Vector>
+    <Vector name="Layers" type="numeric" nEntries="1"> 
+       8</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="1"> 
+      71.5*mm
+    </Vector>
+    <Vector name="LayerType" type="numeric" nEntries="8"> 
+      0, 7, 3, 2, 5, 5, 5, 4
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="8">
+      0, 0, 0, 0, 1, 1, 1, 0
+    </Vector>
+    <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
+    <Numeric name="Sectors"     value="12"/>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      0.0, 0.0</Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      0, 0</Vector>
+    <Vector name="ZFront" type="numeric" nEntries="2">
+      [hgcal:zminEE], [hgcal:zmaxEE]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [hgcal:rmaxEE], [hgcal:rmaxEE]</Vector>
+    <String name="RotNameSpace" value="hgcalmodule"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

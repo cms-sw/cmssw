@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="hgcalsense.xml" eval="true">
+  <SpecPar name="hgcee">
+    <PartSelector path="//HGCalEECell.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>
