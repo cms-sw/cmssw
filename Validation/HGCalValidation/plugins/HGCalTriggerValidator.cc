@@ -17,7 +17,7 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
@@ -212,7 +212,7 @@ void HGCalTriggerValidator::dqmAnalyze(edm::Event const &iEvent,
   if (trigger_cells_h.isValid()) {
     for (auto tc_itr = trigger_cells.begin(0); tc_itr != trigger_cells.end(0); tc_itr++) {
       tc_n++;
-      HGCalDetId id(tc_itr->detId());
+      DetId id(tc_itr->detId());
       histograms.h_tc_pt_->Fill(tc_itr->pt());
       histograms.h_tc_mipPt_->Fill(tc_itr->mipPt());
       histograms.h_tc_energy_->Fill(tc_itr->energy());

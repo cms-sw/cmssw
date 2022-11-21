@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun dumpHGCalDDD_cfg.py geometry=D88
+#   cmsRun dumpHGCalDDD_cfg.py type=V17
 #
-#   Options for geometry D77, D83, D88, D92, D93
+#   Options for type V16, V17, V17n
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -12,11 +12,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
-options.register('geometry',
-                 "D88",
+options.register('type',
+                 "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D88, D92, D93")
+                  "type of operations: V16, V17, V17n")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -25,35 +25,16 @@ print(options)
 
 ####################################################################
 # Use the options
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('GeomDump',Phase2C17I13M9)
 
-if (options.geometry == "D83"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('DUMP',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
-    fileName = 'hgcalV15DDD.root'
-elif (options.geometry == "D77"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('DUMP',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-    fileName = 'hgcalV14DDD.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('DUMP',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'hgcalV17DDD.root'
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('DUMP',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileName = 'hgcalV17NDDD.root'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('DUMP',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'hgcalV16DDD.root'
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+fileName = "hgcal" + options.type + "DDD.root"
 
-print("Output file Name: ", fileName)
+print("Geometry file: ", geomFile)
+print("Output file:   ", fileName)
 
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:

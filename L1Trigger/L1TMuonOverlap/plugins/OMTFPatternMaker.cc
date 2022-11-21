@@ -2,9 +2,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include "L1Trigger/L1TMuonOverlap/plugins/OMTFPatternMaker.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
@@ -21,7 +19,9 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
 OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg)
-    : theConfig(cfg), g4SimTrackSrc(cfg.getParameter<edm::InputTag>("g4SimTrackSrc")) {
+    : theConfig(cfg),
+      g4SimTrackSrc(cfg.getParameter<edm::InputTag>("g4SimTrackSrc")),
+      esTokenParams_(esConsumes<edm::Transition::BeginRun>()) {
   inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
   inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
   inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
@@ -47,12 +47,7 @@ OMTFPatternMaker::~OMTFPatternMaker() {
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-  omtfParamsRcd.get(omtfParamsHandle);
-
-  const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
+  const L1TMuonOverlapParams* omtfParams = &iSetup.getData(esTokenParams_);
 
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
@@ -82,6 +77,9 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
       itGP.second->reset();
   }
 }
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+void OMTFPatternMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginJob() {
@@ -247,7 +245,7 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     return;
 
   ///Get the simulated muon parameters
-  const SimTrack* aSimMuon = findSimMuon(iEvent, evSetup);
+  const SimTrack* aSimMuon = findSimMuon(iEvent);
   if (!aSimMuon) {
     edm::LogError("OMTFPatternMaker") << "No SimMuon found in the event!";
     return;
@@ -291,9 +289,7 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-const SimTrack* OMTFPatternMaker::findSimMuon(const edm::Event& ev,
-                                              const edm::EventSetup& es,
-                                              const SimTrack* previous) {
+const SimTrack* OMTFPatternMaker::findSimMuon(const edm::Event& ev, const SimTrack* previous) {
   const SimTrack* result = nullptr;
   edm::Handle<edm::SimTrackContainer> simTks;
   ev.getByToken(inputTokenSimHit, simTks);

@@ -2,7 +2,6 @@
 #ifndef ElectronDqmHarvesterBase_h
 #define ElectronDqmHarvesterBase_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <Rtypes.h>
 #include <string>

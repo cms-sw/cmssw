@@ -173,7 +173,7 @@ AlCaHcalHBHEMuonProducer::AlCaHcalHBHEMuonProducer(const edm::ParameterSet& iCon
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
       fileInCorr_(iConfig.getUntrackedParameter<std::string>("fileInCorr", "")),
-      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 7)),
       mergedDepth_((!isItPreRecHit_) || (collapseDepth_)),
       nRun_(0),
       nAll_(0),
@@ -964,7 +964,7 @@ void AlCaHcalHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.addUntracked<bool>("isItPreRecHit", false);
   desc.addUntracked<bool>("writeRespCorr", false);
   desc.addUntracked<std::string>("fileInCorr", "");
-  desc.addUntracked<int>("maxDepth", 4);
+  desc.addUntracked<int>("maxDepth", 7);
   descriptions.add("alcaHcalHBHEMuonProducer", desc);
 }
 

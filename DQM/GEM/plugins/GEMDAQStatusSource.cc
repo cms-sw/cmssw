@@ -506,7 +506,7 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const GEMVFATStatusCollection::Range &range = (*vfatIt).second;
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
-      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->vfatPosition());
+      Int_t nIdxVFAT = vfatStat->vfatPosition();
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
       if (warnings.basicOFW)
@@ -515,7 +515,8 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
 
       GEMVFATStatus::Errors errors{(uint8_t)vfatStat->errors()};
-      mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
+      if (errors.vc)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
       if (errors.InValidHeader)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
       if (errors.EC)

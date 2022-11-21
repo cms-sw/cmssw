@@ -269,7 +269,11 @@ namespace edm {
                                ModuleCallingContext const*,
                                WaitingTaskWithArenaHolder&) = 0;
 
-    virtual void implDoTransform(size_t iTransformIndex, EventPrincipal const&, ParentContext const&) = 0;
+    virtual void implDoTransformAsync(WaitingTaskHolder,
+                                      size_t iTransformIndex,
+                                      EventPrincipal const&,
+                                      ParentContext const&,
+                                      ServiceWeakToken const&) = 0;
     virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;

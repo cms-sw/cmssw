@@ -3,11 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "JetMETCorrections/MinBias/interface/MinBias.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 namespace cms {
-  MinBias::MinBias(const edm::ParameterSet& iConfig) : geo_(nullptr) {
+  MinBias::MinBias(const edm::ParameterSet& iConfig)
+      : caloGeometryESToken_(esConsumes<edm::Transition::BeginRun>()), geo_(nullptr) {
     // get names of modules, producing object collections
     hbheLabel_ = iConfig.getParameter<std::string>("hbheInput");
     hoLabel_ = iConfig.getParameter<std::string>("hoInput");
@@ -34,10 +34,8 @@ namespace cms {
     myTree_->Branch("mom4", &mom4, "mom4/F");
   }
 
-  void MinBias::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = pG.product();
+  void MinBias::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
+    geo_ = &iSetup.getData(caloGeometryESToken_);
     std::vector<DetId> did = geo_->getValidDetIds();
 
     for (auto const& id : did) {
@@ -50,6 +48,8 @@ namespace cms {
       }
     }
   }
+
+  void MinBias::endRun(edm::Run const&, edm::EventSetup const& iSetup) {}
 
   void MinBias::endJob() {
     const HcalGeometry* hgeo = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
@@ -105,7 +105,7 @@ namespace cms {
   //
 
   // ------------ method called to produce the data  ------------
-  void MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     if (!hbheLabel_.empty()) {
       edm::Handle<HBHERecHitCollection> hbhe;
       iEvent.getByToken(hbheToken_, hbhe);

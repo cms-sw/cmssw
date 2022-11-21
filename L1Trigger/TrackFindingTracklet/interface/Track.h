@@ -17,8 +17,9 @@ namespace trklet {
 
   class Track {
   public:
-    Track(TrackPars<int> ipars,
-          int ichisqrphi,
+    // Create track from digitized helix params & stubs
+    Track(TrackPars<int> ipars,  // digi helix
+          int ichisqrphi,        // digi chi2
           int ichisqrz,
           double chisqrphi,
           double chisqrz,
@@ -54,13 +55,15 @@ namespace trklet {
       return (settings.c() * settings.bfield() * 0.01) / (ipars_.rinv() * settings.krinvpars());
     }
 
+    // Get floating point helix params by undigitized digi helix params
     double phi0(Settings const& settings) const;
 
-    double eta(Settings const& settings) const { return asinh(ipars_.t() * settings.ktpars()); }
-    double tanL(Settings const& settings) const { return ipars_.t() * settings.ktpars(); }
-    double z0(Settings const& settings) const { return ipars_.z0() * settings.kz0pars(); }
-    double rinv(Settings const& settings) const { return ipars_.rinv() * settings.krinvpars(); }
-    double d0(Settings const& settings) const { return ipars_.d0() * settings.kd0pars(); }
+    //The following return the floating point track parameters by undigitizing the digitized parameters
+    double eta(Settings const& settings) const { return (asinh(ipars_.t() + 0.5) * settings.ktpars()); }
+    double tanL(Settings const& settings) const { return (ipars_.t() + 0.5) * settings.ktpars(); }
+    double z0(Settings const& settings) const { return (ipars_.z0() + 0.5) * settings.kz0pars(); }
+    double rinv(Settings const& settings) const { return (ipars_.rinv() + 0.5) * settings.krinvpars(); }
+    double d0(Settings const& settings) const { return (ipars_.d0() + 0.5) * settings.kd0pars(); }
     double chisq() const { return chisqrphi_ + chisqrz_; }
 
     double chisqrphi() const { return chisqrphi_; }
@@ -76,7 +79,7 @@ namespace trklet {
     }
 
   private:
-    TrackPars<int> ipars_;
+    TrackPars<int> ipars_;  //digitized track parameters
     int ichisqrphi_;
     int ichisqrz_;
 

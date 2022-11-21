@@ -23,6 +23,8 @@ public:
   /// Get the tower id for this det id (or null if not known)
   EcalTrigTowerDetId towerOf(const DetId& id) const;
 
+  static EcalTrigTowerDetId barrelTowerOf(const DetId& id);
+
   /// Get the constituent detids for this tower id
   std::vector<DetId> constituentsOf(const EcalTrigTowerDetId& id) const;
 

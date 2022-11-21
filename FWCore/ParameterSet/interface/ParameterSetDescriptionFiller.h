@@ -74,20 +74,6 @@ namespace edm {
       static constexpr bool value = std::is_same<decltype(has_fillDescriptions_helper<T>(nullptr)), yes_tag>::value;
     };
 
-    template <typename T>
-    struct DoFillDescriptions {
-      void operator()(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
-    };
-
-    template <typename T>
-    struct DoFillAsUnknown {
-      void operator()(ConfigurationDescriptions& descriptions) {
-        ParameterSetDescription desc;
-        desc.setUnknown();
-        descriptions.addDefault(desc);
-      }
-    };
-
     template <typename T, void (*)(ConfigurationDescriptions&)>
     struct prevalidate_function;
     template <typename T>
@@ -101,14 +87,22 @@ namespace edm {
     };
 
     template <typename T>
-    struct DoPrevalidate {
-      void operator()(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
-    };
+    void fillIfExists(ConfigurationDescriptions& descriptions) {
+      if constexpr (has_fillDescriptions_function<T>::value) {
+        T::fillDescriptions(descriptions);
+      } else {
+        ParameterSetDescription desc;
+        desc.setUnknown();
+        descriptions.addDefault(desc);
+      }
+    }
 
     template <typename T>
-    struct DoNothing {
-      void operator()(ConfigurationDescriptions& descriptions) {}
-    };
+    void prevalidateIfExists(ConfigurationDescriptions& descriptions) {
+      if constexpr (has_prevalidate_function<T>::value) {
+        T::prevalidate(descriptions);
+      }
+    }
 
   }  // namespace fillDetails
 
@@ -123,11 +117,7 @@ namespace edm {
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
     void fill(ConfigurationDescriptions& descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>>
-          fill_descriptions;
-      fill_descriptions(descriptions);
+      fillDetails::fillIfExists<T>(descriptions);
       //we don't have a need for prevalidation of services at the moment, so this is a placeholder
       // Probably the best package to declare this in would be FWCore/ServiceRegistry
       //prevalidateService(descriptions);
@@ -153,17 +143,8 @@ namespace edm {
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
     void fill(ConfigurationDescriptions& descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>>
-          fill_descriptions;
-      fill_descriptions(descriptions);
-
-      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
-                         edm::fillDetails::DoPrevalidate<T>,
-                         edm::fillDetails::DoNothing<T>>
-          prevalidate;
-      prevalidate(descriptions);
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
     }
 
     const std::string& baseType() const override { return kBaseForESSource; }
@@ -181,17 +162,8 @@ namespace edm {
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
     void fill(ConfigurationDescriptions& descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>>
-          fill_descriptions;
-      fill_descriptions(descriptions);
-
-      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
-                         edm::fillDetails::DoPrevalidate<T>,
-                         edm::fillDetails::DoNothing<T>>
-          prevalidate;
-      prevalidate(descriptions);
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
     }
 
     const std::string& baseType() const override { return kBaseForESProducer; }
@@ -209,17 +181,8 @@ namespace edm {
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
     void fill(ConfigurationDescriptions& descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>>
-          fill_descriptions;
-      fill_descriptions(descriptions);
-
-      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
-                         edm::fillDetails::DoPrevalidate<T>,
-                         edm::fillDetails::DoNothing<T>>
-          prevalidate;
-      prevalidate(descriptions);
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
     }
 
     const std::string& baseType() const override { return kBaseForEDLooper; }

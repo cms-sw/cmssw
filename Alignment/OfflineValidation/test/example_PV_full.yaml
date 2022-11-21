@@ -1,0 +1,171 @@
+LFS: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/tkello
+name: PV_test_full
+alignments:
+    UL:
+        color: 432
+        globaltag: 110X_dataRun2_v10
+        style: 2001
+        title: UL
+    MC:
+        color: 2
+        globaltag: 125X_mcRun3_2022_realistic_v3
+        style: 2101
+        title: MC
+    StartGeom:
+        color: 1
+        globaltag: 106X_dataRun3_Express_v2
+        style: 2001
+        title: Starting geometry
+        conditions:
+            BeamSpotObjectsRcd:
+                connect: frontier://FrontierProd/CMS_CONDITIONS
+                tag: BeamSpotObjects_PCL_byLumi_v0_prompt
+            TrackerAlignmentRcd:
+                connect: frontier://FrontierProd/CMS_CONDITIONS
+                tag: TrackerAlignment_lastIOV_v2ReReco2017
+validations:
+    PV:
+        single:
+            Run2018B:
+                IOV: "$CMSSW_BASE/src/Alignment/OfflineValidation/data/listOfRunsOrIOVs.txt" 
+                alignments:
+                    - UL
+                    - StartGeom 
+                dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN3/data/HG_PCL_studies/validations/badStartingGeomPCL/MinBias2018/unskimmed_list.txt
+                goodlumi: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN3/data/HG_PCL_studies/validations/badStartingGeomPCL/MinBias2018/IOV_Vali_{}.json  
+                maxevents: 10000
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: false
+            
+            Run2018Bext:
+                IOV:
+                    - 317213
+                    - 317279
+                alignments:
+                    - UL
+                dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN3/data/HG_PCL_studies/validations/badStartingGeomPCL/MinBias2018/unskimmed_list.txt
+                goodlumi: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN3/data/HG_PCL_studies/validations/badStartingGeomPCL/MinBias2018/IOV_Vali_{}.json
+                maxevents: 1000
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: false 
+
+            TestSingleMC:
+                IOV:
+                    - 1
+                alignments:
+                    - MC
+                dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN3/data/test/GEN-SIM-RECO_2022/unskimmed_list.txt 
+                trackcollection: generalTracks
+                vertexcollection: offlinePrimaryVertices
+                maxevents: 10000
+                isda: true
+                ismc: true
+
+        merge:
+            Run2:
+                singles:
+                    - Run2018B
+                customrighttitle: IOV
+                doMaps: false
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50
+ 
+            Run2ext:
+                singles:
+                    - Run2018B
+                    - Run2018Bext
+                customrighttitle: Test
+                doMaps: false
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50 
+
+            MConly:
+                singles:
+                    - TestSingleMC
+                customrighttitle: MC
+                doMaps: true
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50 
+
+            Comparison:
+                singles:
+                    - Run2018B
+                    - Run2018Bext
+                    - TestSingleMC
+                customrighttitle: IOV
+                doMaps: true
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50
+
+        trends:
+            Run2trend:
+                singles:
+                    - Run2018B
+                firstRun: 317087
+                lastRun: 317212
+
+style:
+    PV:
+        merge:
+            CMSlabel: "Preliminary"
+    trends:
+        CMSlabel: "Internal"
+        Rlabel: "2018B"
+        lumiInputFile: "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiperIOV2018.txt"
+        lines:
+            pixel:
+                line:
+                    title: Pixel calibration update
+                    style: kDotted
+                    color: kGray
+                runs:
+                    - 317475
+                    - 317485
+                    - 317527
+                    - 317661
+                    - 317664
+                    - 318227
+            years:
+                line:
+                    style: kSolid
+                    color: kBlack
+                    width: 1
+                runs:
+                    - 272008
+                    - 290543
+                    - 313041
+                labels:
+                    - 2016
+                    - 2017
+                    - 2018
+            phases:
+                line:
+                    style: kSolid
+                    color: kBlack
+                    width: 2
+                runs:
+                    - 272008
+                    - 290543
+                labels:
+                    - Phase-0
+                    - Phase-1

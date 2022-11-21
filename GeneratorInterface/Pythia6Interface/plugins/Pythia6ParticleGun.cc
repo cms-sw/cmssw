@@ -5,14 +5,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-//#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
 using namespace gen;

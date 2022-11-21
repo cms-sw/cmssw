@@ -1,14 +1,14 @@
 #ifndef ESDaqInfoTask_h
 #define ESDaqInfoTask_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"  // definition in line 75
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class ESDaqInfoTask : public edm::EDAnalyzer {
+class ESDaqInfoTask : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -31,6 +31,9 @@ protected:
 
   /// BeginLuminosityBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
+
+  /// EndLuminosityBlock
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
   /// Reset
   void reset(void);

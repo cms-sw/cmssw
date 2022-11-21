@@ -10,13 +10,11 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/ScopedContext.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -24,13 +22,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TestAlpakaTranscriber(edm::ParameterSet const& config)
         : deviceToken_{consumes(config.getParameter<edm::InputTag>("source"))}, hostToken_{produces()} {}
-
-    void beginStream(edm::StreamID) override {
-      edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
-      if (not service->enabled()) {
-        throw cms::Exception("Configuration") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " is disabled.";
-      }
-    }
 
     void acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder task) override {
       // create a context reusing the same device and queue as the producer of the input collection

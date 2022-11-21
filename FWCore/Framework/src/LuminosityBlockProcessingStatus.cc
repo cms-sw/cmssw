@@ -10,9 +10,6 @@
 //         Created:  Thu, 11 Jan 2018 16:41:46 GMT
 //
 
-// system include files
-
-// user include files
 #include "LuminosityBlockProcessingStatus.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 
@@ -23,19 +20,26 @@ namespace edm {
       iter.reset();
     }
     resumeGlobalLumiQueue();
-    run_.reset();
+  }
+
+  void LuminosityBlockProcessingStatus::setGlobalEndRunHolder(WaitingTaskHolder holder) {
+    globalEndRunHolder_ = std::move(holder);
   }
 
   void LuminosityBlockProcessingStatus::setEndTime() {
-    if (2 != endTimeSetStatus_) {
+    constexpr char kUnset = 0;
+    constexpr char kSetting = 1;
+    constexpr char kSet = 2;
+
+    if (endTimeSetStatus_ != kSet) {
       //not already set
-      char expected = 0;
-      if (endTimeSetStatus_.compare_exchange_strong(expected, 1)) {
+      char expected = kUnset;
+      if (endTimeSetStatus_.compare_exchange_strong(expected, kSetting)) {
         lumiPrincipal_->setEndTime(endTime_);
-        endTimeSetStatus_.store(2);
+        endTimeSetStatus_.store(kSet);
       } else {
         //wait until time is set
-        while (2 != endTimeSetStatus_.load()) {
+        while (endTimeSetStatus_.load() != kSet) {
         }
       }
     }

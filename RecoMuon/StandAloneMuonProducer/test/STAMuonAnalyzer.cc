@@ -46,6 +46,9 @@ STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset) {
 
   numberOfSimTracks = 0;
   numberOfRecTracks = 0;
+
+  theFieldToken = esConsumes();
+  theGeomToken = esConsumes();
 }
 
 /// Destructor
@@ -97,11 +100,8 @@ void STAMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) 
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
-
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<MagneticField> theMGField = eventSetup.getHandle(theFieldToken);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(theGeomToken);
 
   double recPt = 0.;
   double simPt = 0.;

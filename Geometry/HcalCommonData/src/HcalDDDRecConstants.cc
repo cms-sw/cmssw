@@ -160,8 +160,13 @@ std::pair<double, double> HcalDDDRecConstants::getEtaPhi(const int& subdet, cons
 }
 
 HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay, int idepth) const {
-  int ieta = (keta > 0) ? keta : -keta;
+  uint32_t ieta = (keta > 0) ? keta : -keta;
   int zside = (keta > 0) ? 1 : -1;
+  if ((ieta > hpar->etaMaxHBHE()) &&
+      ((subdet == static_cast<int>(HcalOuter)) || (subdet == static_cast<int>(HcalBarrel)) ||
+       (subdet == static_cast<int>(HcalEndcap))))
+    throw cms::Exception("HcalDDDRecConstants")
+        << "getHCID: receives an eta value " << ieta << " outside the limit (1:" << hpar->etaMaxHBHE() << ")";
   int eta(ieta), phi(iphi), depth(idepth);
   if ((subdet == static_cast<int>(HcalOuter)) ||
       ((subdet == static_cast<int>(HcalBarrel)) && (lay > maxLayerHB_ + 1))) {

@@ -7,6 +7,13 @@
 
 #include <vector>
 
+// Run algorithm to remove duplicate tracks.
+// Returns Track object that represent output at end of L1 track chain,
+// (and are later converted to TTTrack). Duplicate Track objects are flagged,
+// but only deleted if using the Hybrid algo.
+// Also writes to memory the same tracks in more detailed Tracklet format,
+// where duplicates are all deleted.
+
 namespace trklet {
 
   class Settings;

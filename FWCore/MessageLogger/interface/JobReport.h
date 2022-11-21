@@ -427,6 +427,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() { return impl_; }
 
   private:
+    void temporarilyCloseXML();
     edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
     std::mutex write_mutex;
   };

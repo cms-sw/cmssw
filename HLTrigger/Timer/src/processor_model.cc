@@ -16,8 +16,11 @@
 #include "HLTrigger/Timer/interface/processor_model.h"
 
 std::string read_processor_model() {
+  std::string result = "unknown";
+
 #if BOOST_OS_LINUX
-  // on Linux, read the processor  model from /proc/cpuinfo
+  // on Linux, read the processor model from /proc/cpuinfo,
+  // and check the status of SMT from /sys/devices/system/cpu/smt/active
   static const std::regex pattern("^model name\\s*:\\s*(.*)", std::regex::optimize);
   std::smatch match;
 
@@ -26,8 +29,16 @@ std::string read_processor_model() {
   while (cpuinfo.good()) {
     std::getline(cpuinfo, line);
     if (std::regex_match(line, match, pattern)) {
-      return match[1];
+      result = match[1];
+      break;
     }
+  }
+
+  std::ifstream smtinfo("/sys/devices/system/cpu/smt/active", std::ios::in);
+  if (smtinfo) {
+    int status;
+    smtinfo >> status;
+    result += status ? " with SMT enabled" : " with SMT disabled";
   }
 #endif  // BOOST_OS_LINUX
 
@@ -38,10 +49,9 @@ std::string read_processor_model() {
   sysctlbyname("machdep.cpu.brand_string", nullptr, &len, NULL, 0);
   result.resize(len);
   sysctlbyname("machdep.cpu.brand_string", result.data(), &len, NULL, 0);
-  return result;
 #endif  // BOOST_OS_BSD || BOOST_OS_MACOS
 
-  return "unknown";
+  return result;
 }
 
 const std::string processor_model = read_processor_model();

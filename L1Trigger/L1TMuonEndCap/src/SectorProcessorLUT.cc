@@ -25,6 +25,8 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
     coord_lut_dir = "ph_lut_v2";  // Beginning of 2017, improved alignment from ideal CMS geometry (MC)
   else if (pc_lut_version == 2 && pc_lut_data)
     coord_lut_dir = "ph_lut_v3_data";  // Update in September 2017 from ReReco alignment, data only
+  else if (pc_lut_version == 3 && pc_lut_data)
+    coord_lut_dir = "ph_lut_Run3_2022_data";  // Update in October 2022 from Run 3 2022 alignment, data only
   else if (pc_lut_version == 2)
     coord_lut_dir = "ph_lut_v2";  // MC still uses ideal CMS aligment
   else if (pc_lut_version == -1 && pc_lut_data)

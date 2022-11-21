@@ -70,10 +70,10 @@ struct TrackJetEmulationEtaPhiBin {
 
 //store important information for plots
 struct TrackJetEmulationMaxZBin {
-  int znum;    //Numbered from 0 to nzbins (16, 32, or 64) in order
-  int nclust;  //number of clusters in this bin
-  z0_intern zbincenter;
-  TrackJetEmulationEtaPhiBin *clusters;  //list of all the clusters in this bin
-  pt_intern ht;                          //sum of all cluster pTs--only the zbin with the maximum ht is stored
+  int znum = 0;    //Numbered from 0 to nzbins (16, 32, or 64) in order
+  int nclust = 0;  //number of clusters in this bin
+  z0_intern zbincenter = 0;
+  TrackJetEmulationEtaPhiBin *clusters = nullptr;  //list of all the clusters in this bin
+  pt_intern ht = 0;                                //sum of all cluster pTs--only the zbin with the maximum ht is stored
 };
 #endif

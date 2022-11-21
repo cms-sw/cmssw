@@ -74,17 +74,12 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig) {
   }
 }
 
-PFCand_NoPU_WithAM::~PFCand_NoPU_WithAM() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PFCand_NoPU_WithAM::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   unique_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection());
   unique_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection());
 
@@ -173,7 +168,12 @@ void PFCand_NoPU_WithAM::fillDescriptions(edm::ConfigurationDescriptions& descri
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  desc.add<InputTag>("AssociationType");
+  desc.add<InputTag>("VertexPFCandAssociationMap");
+  desc.add<InputTag>("VertexCollection");
+  desc.add<int>("MinQuality");
+
   descriptions.addDefault(desc);
 }
 

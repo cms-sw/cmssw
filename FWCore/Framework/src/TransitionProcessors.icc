@@ -17,7 +17,6 @@ struct FileResources {
   FileResources(EventProcessor& iEP) : ep_(iEP) {}
 
   ~FileResources() {
-    // See the message in catch clause
     CMS_SA_ALLOW try {
       // Don't try to execute the following sequence of functions twice.
       // If the sequence was already attempted and failed, then do nothing.
@@ -48,134 +47,52 @@ struct FileResources {
 };
 
 struct RunResources {
-  RunResources(EventProcessor& iEP, edm::ProcessHistoryID iHist, edm::RunNumber_t iRun) noexcept
-      : ep_(iEP), history_(iHist), run_(iRun) {}
+  RunResources(EventProcessor& iEP) noexcept : ep_(iEP) {}
 
   ~RunResources() noexcept {
+    // Usually runs and lumis are closed inside processRuns and then endUnfinishedRun
+    // and endUnfinishedLumi do nothing. We try to close runs and lumis even when an
+    // exception is thrown in processRuns.  These calls are necessary when we are between
+    // calls to processRuns because of a file transition and an exception is thrown or
+    // there is an empty last file. In addition, this protects against rare cases where
+    // processRuns returns with open runs or lumis.
     // Caught exception is propagated via EventProcessor::setDeferredException()
-    CMS_SA_ALLOW try {
-      //If we skip empty runs, this would be called conditionally
-      ep_.endUnfinishedRun(processHistoryID(),
-                           run(),
-                           globalTransitionSucceeded_,
-                           cleaningUpAfterException_,
-                           eventSetupForInstanceSucceeded_);
-    } catch (...) {
+    CMS_SA_ALLOW try { ep_.endUnfinishedLumi(cleaningUpAfterException_); } catch (...) {
+      if (cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
+        ep_.setExceptionMessageLumis();
+      }
+    }
+    CMS_SA_ALLOW try { ep_.endUnfinishedRun(cleaningUpAfterException_); } catch (...) {
       if (cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
         ep_.setExceptionMessageRuns();
       }
     }
   }
 
-  edm::ProcessHistoryID processHistoryID() const { return history_; }
-
-  edm::RunNumber_t run() const { return run_; }
-
   void normalEnd() { cleaningUpAfterException_ = false; }
 
-  void succeeded() { success_ = true; }
-
   EventProcessor& ep_;
-  edm::ProcessHistoryID history_;
-  edm::RunNumber_t run_;
   bool cleaningUpAfterException_ = true;
-  bool success_ = false;
-  bool globalTransitionSucceeded_ = false;
-  bool eventSetupForInstanceSucceeded_ = false;
-};
-
-class LumisInRunProcessor {
-public:
-  ~LumisInRunProcessor() noexcept { normalEnd(); }
-
-  edm::InputSource::ItemType processLumis(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
-    currentRun_ = std::move(iRun);
-    makeSureLumiEnds_ = true;
-    return iEP.processLumis(std::shared_ptr<void>{currentRun_});
-  }
-
-  void normalEnd() noexcept {
-    // Caught exception is propagated via EventProcessor::setDeferredException()
-    CMS_SA_ALLOW try {
-      if (makeSureLumiEnds_) {
-        makeSureLumiEnds_ = false;
-        currentRun_->ep_.endUnfinishedLumi();
-      }
-    } catch (...) {
-      if (not currentRun_->ep_.setDeferredException(std::current_exception())) {
-        currentRun_->ep_.setExceptionMessageLumis();
-      }
-    }
-
-    currentRun_.reset();
-  }
-
-private:
-  std::shared_ptr<RunResources> currentRun_;
-  bool makeSureLumiEnds_ = false;
 };
 
 class RunsInFileProcessor {
 public:
   edm::InputSource::ItemType processRuns(EventProcessor& iEP) {
-    bool finished = false;
-    auto nextTransition = edm::InputSource::IsRun;
-    do {
-      switch (nextTransition) {
-        case edm::InputSource::IsRun: {
-          processRun(iEP);
-          nextTransition = iEP.nextTransitionType();
-          break;
-        }
-        case edm::InputSource::IsLumi: {
-          nextTransition = lumis_.processLumis(iEP, currentRun_);
-          break;
-        }
-        default:
-          finished = true;
-      }
-    } while (not finished);
-    return nextTransition;
+    if (!runResources_) {
+      runResources_ = std::make_unique<RunResources>(iEP);
+    }
+    return iEP.processRuns();
   }
 
   void normalEnd() {
-    lumis_.normalEnd();
-    if (currentRun_) {
-      currentRun_->normalEnd();
-      assert(currentRun_.use_count() == 1);
+    if (runResources_) {
+      runResources_->normalEnd();
+      runResources_.reset();
     }
-    currentRun_.reset();
   }
 
 private:
-  void processRun(EventProcessor& iEP) {
-    auto runID = iEP.nextRunID();
-    if ((not currentRun_) or (currentRun_->processHistoryID() != runID.first) or (currentRun_->run() != runID.second)) {
-      if (currentRun_) {
-        //Both the current run and lumi end here
-        lumis_.normalEnd();
-        if (edm::InputSource::IsStop == iEP.lastTransitionType()) {
-          //an exception happened while processing the end lumi
-          return;
-        }
-        currentRun_->normalEnd();
-      }
-      currentRun_ = std::make_shared<RunResources>(iEP, runID.first, runID.second);
-      iEP.readRun();
-      iEP.beginRun(runID.first,
-                   runID.second,
-                   currentRun_->globalTransitionSucceeded_,
-                   currentRun_->eventSetupForInstanceSucceeded_);
-      //only if we succeed at beginRun should we run writeRun
-      currentRun_->succeeded();
-    } else {
-      //merge
-      iEP.readAndMergeRun();
-    }
-  }
-
-  std::shared_ptr<RunResources> currentRun_;
-  LumisInRunProcessor lumis_;
+  std::unique_ptr<RunResources> runResources_;
 };
 
 class FilesProcessor {
@@ -202,7 +119,6 @@ public:
           finished = true;
       }
     } while (not finished);
-    runs_.normalEnd();
 
     return nextTransition;
   }

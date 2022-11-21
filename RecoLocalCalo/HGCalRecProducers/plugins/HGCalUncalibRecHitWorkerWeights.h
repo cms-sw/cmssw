@@ -27,23 +27,29 @@ public:
   HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector iC);
   ~HGCalUncalibRecHitWorkerWeights() override{};
 
-  void set(const edm::EventSetup& es) override;
-  bool runHGCEE(const HGCalDigiCollection::const_iterator& digi, HGCeeUncalibratedRecHitCollection& result) override;
-  bool runHGCHEsil(const HGCalDigiCollection::const_iterator& digi,
+  bool runHGCEE(const edm::ESHandle<HGCalGeometry>& geom,
+                const HGCalDigiCollection& digis,
+                HGCeeUncalibratedRecHitCollection& result) override;
+  bool runHGCHEsil(const edm::ESHandle<HGCalGeometry>& geom,
+                   const HGCalDigiCollection& digis,
                    HGChefUncalibratedRecHitCollection& result) override;
-  bool runHGCHEscint(const HGCalDigiCollection::const_iterator& digi,
+  bool runHGCHEscint(const edm::ESHandle<HGCalGeometry>& geom,
+                     const HGCalDigiCollection& digis,
                      HGChebUncalibratedRecHitCollection& result) override;
-  bool runHGCHFNose(const HGCalDigiCollection::const_iterator& digi,
+  bool runHGCHFNose(const edm::ESHandle<HGCalGeometry>& geom,
+                    const HGCalDigiCollection& digis,
                     HGChfnoseUncalibratedRecHitCollection& result) override;
 
 protected:
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hef_geometry_token_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hfnose_geometry_token_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_ee_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_hef_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_heb_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_hfnose_;
+
+  bool run(const edm::ESHandle<HGCalGeometry>& geom,
+           const HGCalDigiCollection& digis,
+           HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame>& uncalibMaker,
+           edm::SortedCollection<HGCUncalibratedRecHit>& result);
 };
 
 #endif

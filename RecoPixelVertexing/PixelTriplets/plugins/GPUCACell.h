@@ -290,7 +290,7 @@ public:
 
     auto doubletId = this - cells;
     tmpNtuplet.push_back_unsafe(doubletId);
-    assert(tmpNtuplet.size() <= 4);
+    assert(tmpNtuplet.size() <= 5);
 
     bool last = true;
     for (unsigned int otherCell : outerNeighbors()) {
@@ -331,7 +331,7 @@ public:
       }
     }
     tmpNtuplet.pop_back();
-    assert(tmpNtuplet.size() < 4);
+    assert(tmpNtuplet.size() < 5);
   }
 
   // Cell status management

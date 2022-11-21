@@ -478,8 +478,6 @@ void PixelCPEFast::errorFromTemplates(DetParam const& theDetParam,
 LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  assert(!theClusterParam.with_track_angle);
-
   if (useErrorsFromTemplates_) {
     errorFromTemplates(theDetParam, theClusterParam, theClusterParam.theCluster->charge());
   } else {

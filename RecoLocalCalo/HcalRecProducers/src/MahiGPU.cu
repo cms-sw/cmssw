@@ -142,6 +142,7 @@ namespace hcal {
         method0Time[gch] = 0;
         outputEnergy[gch] = 0;
         outputChi2[gch] = 0;
+        soiSamples[gch] = -1;
       }
 
 #ifdef HCAL_MAHI_GPUDEBUG
@@ -265,6 +266,16 @@ namespace hcal {
       int32_t const soi = gch < nchannelsf01HE
                               ? soiSamples[gch]
                               : (gch < nchannelsf015 ? npresamplesf5HB[gch - nchannelsf01HE] : soiSamples[gch]);
+
+      bool badSOI = (soi < 0 or soi >= nsamplesForCompute);
+      if (badSOI and sampleWithinWindow == 0) {
+#ifdef GPU_DEBUG
+        printf("Found HBHE channel %d with invalid SOI %d\n", gch, soi);
+#endif
+        // mark the channel as bad
+        outputChi2[gch] = -9999.f;
+      }
+
       //int32_t const soi = gch >= nchannelsf01HE
       //    ? npresamplesf5HB[gch - nchannelsf01HE]
       //    : soiSamples[gch];
@@ -365,6 +376,7 @@ namespace hcal {
       __syncthreads();
 
       // NOTE: must take soi, as values for that thread are used...
+      // NOTE: does not run if soi is bad, because it does not match any sampleWithinWindow
       if (sampleWithinWindow == soi) {
         auto const method0_energy = shrMethod0EnergyAccum[lch];
         auto const val = shrMethod0EnergySamplePair[lch];

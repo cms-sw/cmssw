@@ -60,8 +60,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     // calculate the simhit row and column
-    const auto& pentry = hit.entryPoint();
-    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
+    const auto& position = hit.localPosition();
+    Local3DPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     // translate from crystal-local coordinates to module-local coordinates to get the row and column
     simscaled = topo.pixelToModuleLocalPoint(simscaled, btlid.row(topo.nrows()), btlid.column(topo.nrows()));
     const auto& thepixel = topo.pixel(simscaled);

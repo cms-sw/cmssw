@@ -212,11 +212,11 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
     double phi0fit = reco::reduceRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
     double rinvfit = 0.01 * settings_.c() * settings_.bfield() * qoverpt;
 
-    int irinvfit = rinvfit / settings_.krinvpars();
-    int iphi0fit = phi0fit / settings_.kphi0pars();
-    int itanlfit = trk.tanLambda() / settings_.ktpars();
-    int iz0fit = trk.z0() / settings_.kz0pars();
-    int id0fit = d0 / settings_.kd0pars();
+    int irinvfit = floor(rinvfit / settings_.krinvpars());
+    int iphi0fit = floor(phi0fit / settings_.kphi0pars());
+    int itanlfit = floor(trk.tanLambda() / settings_.ktpars());
+    int iz0fit = floor(trk.z0() / settings_.kz0pars());
+    int id0fit = floor(d0 / settings_.kd0pars());
     int ichi2rphifit = chi2rphi / 16;
     int ichi2rzfit = trk.chi2rz() / 16;
 

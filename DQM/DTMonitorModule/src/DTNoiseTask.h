@@ -9,7 +9,6 @@
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"

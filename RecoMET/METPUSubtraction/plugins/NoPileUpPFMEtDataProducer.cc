@@ -167,12 +167,15 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   auto jetInfos = std::make_unique<reco::PUSubMETCandInfoCollection>();
   auto pfCandInfos = std::make_unique<reco::PUSubMETCandInfoCollection>();
 
-  const JetCorrector* jetEnOffsetCorrector = nullptr;
+  // const JetCorrector* jetEnOffsetCorrector = nullptr;
   if (!jetEnOffsetCorrLabel_.empty()) {
-    jetEnOffsetCorrector = JetCorrector::getJetCorrector(jetEnOffsetCorrLabel_, es);
-    if (!jetEnOffsetCorrector)
-      throw cms::Exception("NoPileUpPFMEtDataProducer::produce")
-          << "Failed to access Jet corrections for = " << jetEnOffsetCorrLabel_ << " !!\n";
+    throw cms::Exception("NoPileUpPFMEtDataProducer::produce")
+        << "Failed to access Jet corrections for = " << jetEnOffsetCorrLabel_ << " !!\n"
+        << "During the migration from the deprecated ::JetCorrector to the\n"
+        << "new reco::JetCorrector class, this module was never completely migrated.\n"
+        << "The usage of the deprecated class was removed and replaced by this exception.\n"
+        << "To use the new reco::JetCorrector class, someone must do the work\n"
+        << "to implement and test usage of reco::JetCollector in this class.\n";
   }
 
   size_t numJets = jets->size();
@@ -207,8 +210,10 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
                                   ? (jet->neutralEmEnergy() + jet->neutralHadronEnergy()) / jetEnergy_uncorrected
                                   : -1.;
     jetInfo.setChargedEnFrac((1 - jetNeutralEnFrac));
-    jetInfo.setOffsetEnCorr(
-        (jetEnOffsetCorrector) ? rawJet.energy() * (1. - jetEnOffsetCorrector->correction(rawJet, evt, es)) : 0.);
+    // jetInfo.setOffsetEnCorr(
+    //     (jetEnOffsetCorrector) ? rawJet.energy() * (1. - jetEnOffsetCorrector->correction(rawJet, evt, es)) : 0.);
+    jetInfo.setOffsetEnCorr(0.);
+
     jetInfo.setMEtSignObj(pfMEtSignInterface_->compResolution(&(*jet)));
 
     jetInfos->push_back(jetInfo);

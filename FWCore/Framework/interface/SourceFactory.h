@@ -53,6 +53,7 @@ namespace edm {
     struct SourceMakerTraits {
       typedef EventSetupRecordIntervalFinder base_type;
       static std::string name();
+      static std::string const& baseType();
       template <class T>
       static void addTo(EventSetupProvider& iProvider,
                         std::shared_ptr<T> iComponent,

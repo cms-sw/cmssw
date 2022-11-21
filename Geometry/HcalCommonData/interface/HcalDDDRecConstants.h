@@ -107,6 +107,7 @@ public:
   int getTriggerMode() const { return (((hpar->topologyMode) >> 8) & 0xFF); }
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   bool isBH() const { return hcons.isBH(); }
+  bool isHE() const { return hcons.isHE(); }
   bool isPlan1(const HcalDetId& id) const { return detIdSp_.find(id) != detIdSp_.end(); };
   int maxHFDepth(int ieta, int iphi) const { return hcons.maxHFDepth(ieta, iphi); }
   bool mergedDepthList29(int ieta, int iphi, int depth) const;

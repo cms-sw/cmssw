@@ -20,7 +20,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -50,15 +50,14 @@ typedef std::vector<PFCandQualityPair> PFCandQualityPairVector;
 // class declaration
 //
 
-class PFCand_NoPU_WithAM : public edm::EDProducer {
+class PFCand_NoPU_WithAM : public edm::global::EDProducer<> {
 public:
   explicit PFCand_NoPU_WithAM(const edm::ParameterSet&);
-  ~PFCand_NoPU_WithAM() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 

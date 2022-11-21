@@ -1,0 +1,118 @@
+{
+    "jethtplot": {
+        "alignments": {
+          "prompt": {
+            "inputFile": "root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_Run2016-2018_Prompt_2020-01-07.root",
+            "legendText": "Prompt",
+            "color": 600,
+            "style": 20
+          },
+          "rereco": {
+            "inputFile": "root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_Run2016-2018_ReReco_2020-01-07.root",
+            "legendText": "ReReco",
+            "color": 632,
+            "style": 20
+          },
+          "ultralegacy": {
+            "inputFile": "root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_Run2016-2018_UltraLegacy_2020-01-07.root",
+            "legendText": "UltraLegacy",
+            "color": 418,
+            "style": 20
+          }
+        },
+        "drawTrackQA": false,
+        "drawHistograms": {
+            "drawDz": false,
+            "drawDzError": false,
+            "drawDxy": false,
+            "drawDxyError": false
+        },
+        "drawProfiles": {
+            "drawDzErrorVsPt": false,
+            "drawDzErrorVsPhi": false,
+            "drawDzErrorVsEta": false,
+            "drawDzErrorVsPtWide": false,
+            "drawDxyErrorVsPt": false,
+            "drawDxyErrorVsPhi": false,
+            "drawDxyErrorVsEta": false,
+            "drawDxyErrorVsPtWide": false,
+            "drawReferenceProfile": true,
+            "drawCentralEtaSummaryProfile": true,
+            "legendShiftTotalX": 0,
+            "legendShiftTotalY": 0,
+            "legendShiftX0": 0,
+            "legendShiftY0": 0,
+            "legendShiftX1": 0,
+            "legendShiftY1": 0,
+            "legendShiftX2": 0,
+            "legendShiftY2": 0,
+            "legendTextSize": 0.05,
+            "legendTextFont": 62,
+            "nIovInOnePlot": 1
+        },
+        "profileZoom": {
+            "minZoomPtProfileDz": 30,
+            "maxZoomPtProfileDz": 75,
+            "minZoomPhiProfileDz": 45,
+            "maxZoomPhiProfileDz": 80,
+            "minZoomEtaProfileDz": 30,
+            "maxZoomEtaProfileDz": 95,
+            "minZoomPtProfileDxy": 7,
+            "maxZoomPtProfileDxy": 40,
+            "minZoomPhiProfileDxy": 40,
+            "maxZoomPhiProfileDxy": 70,
+            "minZoomEtaProfileDxy": 20,
+            "maxZoomEtaProfileDxy": 90,
+            "minZoomPtWideProfileDz": 25,
+            "maxZoomPtWideProfileDz": 90,
+            "minZoomPtWideProfileDxy": 20,
+            "maxZoomPtWideProfileDxy": 80
+        },
+        "drawTrends": {
+            "drawDzError": true,
+            "drawDxyError": true,
+            "legendShiftTotalX": 0,
+            "legendShiftTotalY": 0,
+            "legendTextSize": 0.05,
+            "legendTextFont": 62,
+            "drawYearLines": true,
+            "runsForLines": [290543,314881],
+            "yearLineColor": 1,
+            "yearLineWidth": 1,
+            "yearLineStyle": 1,
+            "useLuminosityAxis": true,
+            "skipRunsWithNoData": false,
+            "drawTags": true,
+            "tagLabels": [["2016",0.105,0.855],["2017",0.305,0.855],["2018",0.563,0.855]],
+            "tagTextSize": 0.05,
+            "tagTextFont": 42,
+            "canvasHeight": 400,
+            "canvasWidth": 1000,
+            "marginLeft": 0.08,
+            "marginRight": 0.03,
+            "marginTop": 0.06,
+            "marginBottom": 0.15,
+            "titleOffsetX": 1.1,
+            "titleOffsetY": 0.55,
+            "titleSizeX": 0.06,
+            "titleSizeY": 0.06,
+            "labelOffsetX": 0.01,
+            "labelOffsetY": 0.007,
+            "labelSizeX": 0.05,
+            "labelSizeY": 0.05
+        },
+        "trendZoom": {
+            "minZoomDzTrend": 20,
+            "maxZoomDzTrend": 95,
+            "minZoomDxyTrend": 10,
+            "maxZoomDxyTrend": 90
+        },
+        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+        "legendTextForAllRuns": "Run2",
+        "drawPlotsForEachIOV": false,
+        "normalizeQAplots": true,
+        "makeIovlistForSlides": false,
+        "iovListForSlides": "iovListForSlides.txt",
+        "saveComment": ""
+    }
+}

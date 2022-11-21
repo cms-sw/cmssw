@@ -3,7 +3,6 @@
 #ifndef DQMOffline_Trigger_HLTTauDQMOfflineSource_h
 #define DQMOffline_Trigger_HLTTauDQMOfflineSource_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -17,7 +17,10 @@ trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate,
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEClusterRepair')
 
+TTRHBuilderAngleAndTemplateWithoutProbQ = TTRHBuilderAngleAndTemplate.clone(ComponentName = 'WithAngleAndTemplateWithoutProbQ')
+phase1Pixel.toModify(TTRHBuilderAngleAndTemplateWithoutProbQ, PixelCPE = 'PixelCPEClusterRepairWithoutProbQ')
+
 # Turn off template reco for phase 2 (when not supported)
 from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGeneric')
-
+PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplateWithoutProbQ, PixelCPE = 'PixelCPEGeneric')

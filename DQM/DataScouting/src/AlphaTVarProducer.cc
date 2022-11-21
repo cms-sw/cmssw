@@ -33,10 +33,8 @@ AlphaTVarProducer::AlphaTVarProducer(const edm::ParameterSet &iConfig)
   LogDebug("") << "Inputs: " << inputJetTag_.encode() << " ";
 }
 
-AlphaTVarProducer::~AlphaTVarProducer() {}
-
 // ------------ method called to produce the data  ------------
-void AlphaTVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void AlphaTVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -65,7 +63,7 @@ void AlphaTVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   iEvent.put(std::move(result));
 }
 
-double AlphaTVarProducer::CalcAlphaT(const std::vector<TLorentzVector> &jets) {
+double AlphaTVarProducer::CalcAlphaT(const std::vector<TLorentzVector> &jets) const {
   std::vector<double> ETs;
   TVector3 MHT{CalcMHT(jets), 0.0, 0.0};
   float HT = CalcHT(jets);

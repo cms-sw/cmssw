@@ -14,6 +14,7 @@
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="L1Trigger/TrackTrigger"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>

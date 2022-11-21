@@ -28,7 +28,7 @@ PPSPixelOrganization ::PPSPixelOrganization()
 
 uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  G4VPhysicalVolume* physVol = touch->GetVolume(0);
+  G4VPhysicalVolume* physVol = touch->GetVolume(1);
   int coNum = physVol->GetCopyNo();
   edm::LogVerbatim("PPSPixelSim") << "PPSPixelSim: PhysVol= " << physVol->GetName() << " coNum=" << coNum;
   currentPlane_ = coNum - 1;

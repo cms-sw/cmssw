@@ -153,7 +153,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
   setPVResolStyle();
 
   // check if the loader is empty
-  if (PVResolution::sourceList.size() != 0) {
+  if (!PVResolution::sourceList.empty()) {
     fromLoader = true;
   }
 

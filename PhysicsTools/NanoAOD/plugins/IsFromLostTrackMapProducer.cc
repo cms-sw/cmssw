@@ -42,8 +42,6 @@ public:
   explicit IsFromLostTrackMapProducer(const edm::ParameterSet& iConfig)
       : srcIsoTracks_(consumes<edm::View<pat::IsolatedTrack>>(
             iConfig.getParameter<edm::InputTag>("srcIsoTracks"))),  // final isolated tracks
-        pc_(consumes<pat::PackedCandidateCollection>(
-            iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),  // pf candidates
         lt_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("lostTracks")))  // lost tracks
   {
     produces<edm::ValueMap<bool>>("isFromLostTrack");  // name of the value map that I want to actually produce
@@ -57,7 +55,6 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::IsolatedTrack>> srcIsoTracks_;
-  edm::EDGetTokenT<pat::PackedCandidateCollection> pc_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> lt_;
 };
 
@@ -78,16 +75,10 @@ void IsFromLostTrackMapProducer::produce(edm::StreamID streamID,
                                          edm::Event& iEvent,
                                          const edm::EventSetup& iSetup) const {
   // isolated tracks
-  edm::Handle<edm::View<pat::IsolatedTrack>> srcIsoTracks;
-  iEvent.getByToken(srcIsoTracks_, srcIsoTracks);
-
-  // packedPFCandidate collection
-  edm::Handle<pat::PackedCandidateCollection> pc_handle;
-  iEvent.getByToken(pc_, pc_handle);
+  auto srcIsoTracks = iEvent.getHandle(srcIsoTracks_);
 
   // lostTracks collection
-  edm::Handle<pat::PackedCandidateCollection> lt_handle;
-  iEvent.getByToken(lt_, lt_handle);
+  auto ltHandle = iEvent.getHandle(lt_);
 
   // the map cannot be filled straight away, so create an intermediate vector
   unsigned int Nit = srcIsoTracks->size();
@@ -97,11 +88,11 @@ void IsFromLostTrackMapProducer::produce(edm::StreamID streamID,
     auto isotrack = srcIsoTracks->ptrAt(iit);
     pat::PackedCandidateRef pcref =
         isotrack->packedCandRef();  // this is either the reference to the pf candidate or to the lost track
-    bool isFromLostTrack = (pcref.isNonnull() && pcref.id() == lt_handle.id());
+    bool isFromLostTrack = (pcref.isNonnull() && pcref.id() == ltHandle.id());
     v_isFromLostTrack[iit] = isFromLostTrack;
   }
 
-  std::unique_ptr<edm::ValueMap<bool>> vm_isFromLostTrack(new edm::ValueMap<bool>());
+  auto vm_isFromLostTrack = std::make_unique<edm::ValueMap<bool>>();
   edm::ValueMap<bool>::Filler filler(*vm_isFromLostTrack);
   filler.insert(srcIsoTracks, v_isFromLostTrack.begin(), v_isFromLostTrack.end());
   filler.fill();
@@ -112,7 +103,6 @@ void IsFromLostTrackMapProducer::produce(edm::StreamID streamID,
 void IsFromLostTrackMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcIsoTracks")->setComment("isolated track input collection");
-  desc.add<edm::InputTag>("packedPFCandidates")->setComment("packed PF Candidates collection ");
   desc.add<edm::InputTag>("lostTracks")->setComment("lost tracks collection");
 
   descriptions.addWithDefaultLabel(desc);

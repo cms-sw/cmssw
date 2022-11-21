@@ -34,10 +34,21 @@ public:
   }
 
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
+    // The tile only handles one endcap at a time and does not hold mixed eta
+    // values.
+    if (etaMin * etaMax < 0) {
+      return std::array<int, 4>({{0, 0, 0, 0}});
+    }
+    if (etaMax - etaMin < 0) {
+      return std::array<int, 4>({{0, 0, 0, 0}});
+    }
     int etaBinMin = etaBin(etaMin);
     int etaBinMax = etaBin(etaMax);
     int phiBinMin = phiBin(phiMin);
     int phiBinMax = phiBin(phiMax);
+    if (etaMin < 0) {
+      std::swap(etaBinMin, etaBinMax);
+    }
     // If the search window cross the phi-bin boundary, add T::nPhiBins to the
     // MAx value. This guarantees that the caller can perform a valid doule
     // loop on eta and phi. It is the caller responsibility to perform a module

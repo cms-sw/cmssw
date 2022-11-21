@@ -60,6 +60,7 @@ public:
       float cutOverE;
       float cutOverE2;
       bool useEt;
+      bool doAnd;
       std::function<bool(float, float)> compFunc;
 
       CutValues(const edm::ParameterSet& pset)
@@ -67,14 +68,20 @@ public:
             cutOverE(pset.getParameter<double>("cutOverE")),
             cutOverE2(pset.getParameter<double>("cutOverE2")),
             useEt(pset.getParameter<bool>("useEt")),
+            doAnd(pset.getParameter<bool>("doAnd")),
             compFunc(std::less<float>()) {}
 
       bool operator()(const reco::RecoEcalCandidate& cand, float value) const {
-        if (compFunc(value, cut))
-          return true;
-        else {
-          float energyInv = useEt ? 1. / cand.et() : 1. / cand.energy();
-          return compFunc(value * energyInv, cutOverE) || compFunc(value * energyInv * energyInv, cutOverE2);
+        if (!doAnd) {
+          if (compFunc(value, cut))
+            return true;
+          else {
+            float energyInv = useEt ? 1. / cand.et() : 1. / cand.energy();
+            return compFunc(value * energyInv, cutOverE) || compFunc(value * energyInv * energyInv, cutOverE2);
+          }
+        } else {
+          float energy = useEt ? cand.et() : cand.energy();
+          return compFunc(value, cut + cutOverE * energy + cutOverE2 * energy * energy);
         }
       }
     };
@@ -129,9 +136,11 @@ void EgammaHLTFilteredObjProducer<OutCollType>::fillDescriptions(edm::Configurat
   regionCutsDesc.add<double>("cutOverE", -1);
   regionCutsDesc.add<double>("cutOverE2", -1);
   regionCutsDesc.add<bool>("useEt", false);
+  regionCutsDesc.add<bool>("doAnd", false);
   edm::ParameterSet cutDefaults;
   cutDefaults.addParameter<double>("cutOverE", 0.2);
   cutDefaults.addParameter<double>("useEt", false);
+  cutDefaults.addParameter<double>("doAnd", false);
 
   cutsDesc.add<edm::ParameterSetDescription>("barrelCut", regionCutsDesc);
   cutsDesc.add<edm::ParameterSetDescription>("endcapCut", regionCutsDesc);

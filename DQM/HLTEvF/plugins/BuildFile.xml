@@ -10,6 +10,7 @@
   <use name="DataFormats/HLTReco"/>
   <use name="DataFormats/JetReco"/>
   <use name="DataFormats/L1TGlobal"/>
+  <use name="DataFormats/OnlineMetaData"/>
   <use name="DataFormats/RecoCandidate"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

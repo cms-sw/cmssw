@@ -81,10 +81,10 @@ private:
 
   class OpPuppiObjMax {
   public:
-    Particle operator()(Particle a, Particle b) { return a.hwPt >= b.hwPt ? a : b; }
+    Particle const& operator()(Particle const& a, Particle const& b) const { return a.hwPt >= b.hwPt ? a : b; }
   };
 
-  static OpPuppiObjMax op_max;
+  static constexpr OpPuppiObjMax op_max{};
 
   template <class data_T, int N>
   static inline float real_val_from_idx(unsigned i) {

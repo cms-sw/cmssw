@@ -1,21 +1,39 @@
 #ifndef RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 #define RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 
+#include <stdexcept>
+
 namespace mkfit {
 
-  enum struct TkLayout { phase0 = 0, phase1 = 1 };
+  enum struct TkLayout { phase0 = 0, phase1 = 1, phase2 = 2 };
 
   class LayerNumberConverter {
   public:
     LayerNumberConverter(TkLayout layout) : lo_(layout) {}
+    void reset(TkLayout layout) { lo_ = layout; }
     unsigned int nLayers() const {
       if (lo_ == TkLayout::phase0)
         return 69;
       if (lo_ == TkLayout::phase1)
         return 72;
+      if (lo_ == TkLayout::phase2)
+        return 60;  // 4 + 12 + 2*(12 + 10) = 16 + 22 + 22 = 60
       return 10;
     }
+    TkLayout getEra() const { return lo_; }
     int convertLayerNumber(int det, int lay, bool useMatched, int isStereo, bool posZ) const {
+      if (lo_ == TkLayout::phase2) {
+        if (det == 1)
+          return lay - 1;
+        if (det == 2)
+          return 16 + lay - 1 + (posZ ? 0 : 22);
+        if (det == 5)
+          return 4 + (2 * (lay - 1)) + isStereo;
+        if (det == 4)
+          return 16 + 12 + (2 * (lay - 1)) + isStereo + (posZ ? 0 : 22);
+        throw std::runtime_error("bad subDet");
+      }
+
       if (det == 1 || det == 3 || det == 5) {
         return convertBarrelLayerNumber(det, lay, useMatched, isStereo);
       } else {
@@ -32,6 +50,22 @@ namespace mkfit {
         return disk;
       }
       return -1;
+    }
+    bool doesHaveStereo(int det, int lay) const {
+      if (lo_ == TkLayout::phase2) {
+        if (det == 1 || det == 2)
+          return false;
+        if (det == 4 || det == 5)
+          return true;
+        throw std::runtime_error("bad subDet");
+      }
+      if (det == 3 || det == 5) {
+        return lay == 1 || lay == 2;
+      }
+      if (det == 4 || det == 6) {
+        return true;
+      }
+      return false;
     }
 
     int convertBarrelLayerNumber(int cmsswdet, int cmsswlay, bool useMatched, int isStereo) const {

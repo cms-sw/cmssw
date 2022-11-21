@@ -59,7 +59,6 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(const edm::ParameterSet &iConfig)
     singleThresholds_[i] = 0.;
     doubleThresholds_[i].first = 0.;
     doubleThresholds_[i].second = 0.;
-    prescaleCounters_[i] = 1;
     prescales_[i] = 1;
   }
 
@@ -493,7 +492,7 @@ L1ExtraParticleMapProd::~L1ExtraParticleMapProd() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1ExtraParticleMapProd::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void L1ExtraParticleMapProd::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -1200,8 +1199,6 @@ void L1ExtraParticleMapProd::produce(edm::Event &iEvent, const edm::EventSetup &
     L1ParticleMap::L1IndexComboVector combos;  // unfilled for single objs
 
     if (decision) {
-      //	 if( prescaleCounters_[ itrig ] % prescales_[ itrig ] )
-
       double rand = CLHEP::RandFlat::shoot() * (double)prescales_[itrig];
       if (rand > 1.) {
         decision = false;
@@ -1212,8 +1209,6 @@ void L1ExtraParticleMapProd::produce(edm::Event &iEvent, const edm::EventSetup &
         metRef = metRefTmp;
         combos = combosTmp;
       }
-
-      ++prescaleCounters_[itrig];
     }
 
     // Construct a L1ParticleMap and add it to the collection.
@@ -1243,8 +1238,8 @@ void L1ExtraParticleMapProd::produce(edm::Event &iEvent, const edm::EventSetup &
 }
 
 template <class TCollection>
-void L1ExtraParticleMapProd::addToVectorRefs(const edm::Handle<TCollection> &handle,          // input
-                                             std::vector<edm::Ref<TCollection>> &vectorRefs)  // output
+void L1ExtraParticleMapProd::addToVectorRefs(const edm::Handle<TCollection> &handle,                // input
+                                             std::vector<edm::Ref<TCollection>> &vectorRefs) const  // output
 {
   for (size_t i = 0; i < handle->size(); ++i) {
     vectorRefs.push_back(edm::Ref<TCollection>(handle, i));
@@ -1255,7 +1250,7 @@ template <class TCollection>
 void L1ExtraParticleMapProd::evaluateSingleObjectTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
                                                          const double &etThreshold,                            // input
                                                          bool &decision,                                       // output
-                                                         std::vector<edm::Ref<TCollection>> &outputRefs)       // output
+                                                         std::vector<edm::Ref<TCollection>> &outputRefs) const  // output
 {
   for (size_t i = 0; i < inputRefs.size(); ++i) {
     if (inputRefs[i].get()->et() >= etThreshold) {
@@ -1272,7 +1267,7 @@ void L1ExtraParticleMapProd::evaluateDoubleSameObjectTrigger(
     bool &decision,                                       // output
     std::vector<edm::Ref<TCollection>> &outputRefs,       // output
     l1extra::L1ParticleMap::L1IndexComboVector &combos,   // output
-    bool combinedWithGlobalObject)                        // input
+    bool combinedWithGlobalObject) const                  // input
 {
   // Use i+1 < inputRefs.size() instead of i < inputRefs.size()-1
   // because i is unsigned, and if size() is 0, then RHS undefined.
@@ -1325,11 +1320,11 @@ void L1ExtraParticleMapProd::evaluateDoubleSameObjectTrigger(
 
 template <class TCollection>
 void L1ExtraParticleMapProd::evaluateTripleSameObjectTrigger(
-    const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
-    const double &etThreshold,                            // input
-    bool &decision,                                       // output
-    std::vector<edm::Ref<TCollection>> &outputRefs,       // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)   // output
+    const std::vector<edm::Ref<TCollection>> &inputRefs,       // input
+    const double &etThreshold,                                 // input
+    bool &decision,                                            // output
+    std::vector<edm::Ref<TCollection>> &outputRefs,            // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   // Use i+2 < inputRefs.size() instead of i < inputRefs.size()-2
   // because i is unsigned, and if size() is 0, then RHS undefined.
@@ -1396,14 +1391,14 @@ void L1ExtraParticleMapProd::evaluateTripleSameObjectTrigger(
 
 template <class TCollection1, class TCollection2>
 void L1ExtraParticleMapProd::evaluateDoublePlusSingleObjectTrigger(
-    const std::vector<edm::Ref<TCollection1>> &inputRefs1,  // input
-    const std::vector<edm::Ref<TCollection2>> &inputRefs2,  // input
-    const double &etThreshold1,                             // input
-    const double &etThreshold2,                             // input
-    bool &decision,                                         // output
-    std::vector<edm::Ref<TCollection1>> &outputRefs1,       // output
-    std::vector<edm::Ref<TCollection2>> &outputRefs2,       // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)     // output
+    const std::vector<edm::Ref<TCollection1>> &inputRefs1,     // input
+    const std::vector<edm::Ref<TCollection2>> &inputRefs2,     // input
+    const double &etThreshold1,                                // input
+    const double &etThreshold2,                                // input
+    bool &decision,                                            // output
+    std::vector<edm::Ref<TCollection1>> &outputRefs1,          // output
+    std::vector<edm::Ref<TCollection2>> &outputRefs2,          // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   // Use i+1 < inputRefs.size() instead of i < inputRefs.size()-1
   // because i is unsigned, and if size() is 0, then RHS undefined.
@@ -1473,11 +1468,11 @@ void L1ExtraParticleMapProd::evaluateDoublePlusSingleObjectTrigger(
 
 template <class TCollection>
 void L1ExtraParticleMapProd::evaluateQuadSameObjectTrigger(
-    const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
-    const double &etThreshold,                            // input
-    bool &decision,                                       // output
-    std::vector<edm::Ref<TCollection>> &outputRefs,       // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)   // output
+    const std::vector<edm::Ref<TCollection>> &inputRefs,       // input
+    const double &etThreshold,                                 // input
+    bool &decision,                                            // output
+    std::vector<edm::Ref<TCollection>> &outputRefs,            // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   // Use i+3 < inputRefs.size() instead of i < inputRefs.size()-3
   // because i is unsigned, and if size() is 0, then RHS undefined.
@@ -1560,14 +1555,14 @@ void L1ExtraParticleMapProd::evaluateQuadSameObjectTrigger(
 
 template <class TCollection1, class TCollection2>
 void L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
-    const std::vector<edm::Ref<TCollection1>> &inputRefs1,  // input
-    const std::vector<edm::Ref<TCollection2>> &inputRefs2,  // input
-    const double &etThreshold1,                             // input
-    const double &etThreshold2,                             // input
-    bool &decision,                                         // output
-    std::vector<edm::Ref<TCollection1>> &outputRefs1,       // output
-    std::vector<edm::Ref<TCollection2>> &outputRefs2,       // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)     // output
+    const std::vector<edm::Ref<TCollection1>> &inputRefs1,     // input
+    const std::vector<edm::Ref<TCollection2>> &inputRefs2,     // input
+    const double &etThreshold1,                                // input
+    const double &etThreshold2,                                // input
+    bool &decision,                                            // output
+    std::vector<edm::Ref<TCollection1>> &outputRefs1,          // output
+    std::vector<edm::Ref<TCollection2>> &outputRefs2,          // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   for (size_t i = 0; i < inputRefs1.size(); ++i) {
     const edm::Ref<TCollection1> &refi = inputRefs1[i];
@@ -1619,13 +1614,13 @@ void L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
 
 template <class TCollection>
 void L1ExtraParticleMapProd::evaluateDoubleDifferentObjectSameTypeTrigger(
-    const std::vector<edm::Ref<TCollection>> &inputRefs1,  // input
-    const std::vector<edm::Ref<TCollection>> &inputRefs2,  // input
-    const double &etThreshold1,                            // input
-    const double &etThreshold2,                            // input
-    bool &decision,                                        // output
-    std::vector<edm::Ref<TCollection>> &outputRefs,        // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)    // output
+    const std::vector<edm::Ref<TCollection>> &inputRefs1,      // input
+    const std::vector<edm::Ref<TCollection>> &inputRefs2,      // input
+    const double &etThreshold1,                                // input
+    const double &etThreshold2,                                // input
+    bool &decision,                                            // output
+    std::vector<edm::Ref<TCollection>> &outputRefs,            // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   for (size_t i = 0; i < inputRefs1.size(); ++i) {
     const edm::Ref<TCollection> &refi = inputRefs1[i];
@@ -1676,14 +1671,14 @@ void L1ExtraParticleMapProd::evaluateDoubleDifferentObjectSameTypeTrigger(
 }
 
 void L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
-    const l1extra::L1EmParticleVectorRef &inputRefs1,    // input
-    const l1extra::L1JetParticleVectorRef &inputRefs2,   // input
-    const double &etThreshold1,                          // input
-    const double &etThreshold2,                          // input
-    bool &decision,                                      // output
-    l1extra::L1EmParticleVectorRef &outputRefs1,         // output
-    l1extra::L1JetParticleVectorRef &outputRefs2,        // output
-    l1extra::L1ParticleMap::L1IndexComboVector &combos)  // output
+    const l1extra::L1EmParticleVectorRef &inputRefs1,          // input
+    const l1extra::L1JetParticleVectorRef &inputRefs2,         // input
+    const double &etThreshold1,                                // input
+    const double &etThreshold2,                                // input
+    bool &decision,                                            // output
+    l1extra::L1EmParticleVectorRef &outputRefs1,               // output
+    l1extra::L1JetParticleVectorRef &outputRefs2,              // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   for (size_t i = 0; i < inputRefs1.size(); ++i) {
     const l1extra::L1EmParticleRef &refi = inputRefs1[i];
@@ -1737,11 +1732,12 @@ void L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
 }
 
 // ok if both objects are above the threshold and are in opposite hemispheres
-void L1ExtraParticleMapProd::evaluateJetGapJetTrigger(const l1extra::L1JetParticleVectorRef &inputRefs,    // input
-                                                      const double &etThreshold,                           // input
-                                                      bool &decision,                                      // output
-                                                      l1extra::L1JetParticleVectorRef &outputRefs,         // output
-                                                      l1extra::L1ParticleMap::L1IndexComboVector &combos)  // output
+void L1ExtraParticleMapProd::evaluateJetGapJetTrigger(
+    const l1extra::L1JetParticleVectorRef &inputRefs,          // input
+    const double &etThreshold,                                 // input
+    bool &decision,                                            // output
+    l1extra::L1JetParticleVectorRef &outputRefs,               // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   // Use i+1 < inputRefs.size() instead of i < inputRefs.size()-1
   // because i is unsigned, and if size() is 0, then RHS undefined.
@@ -1795,7 +1791,7 @@ void L1ExtraParticleMapProd::evaluateJetGapJetTrigger(const l1extra::L1JetPartic
 void L1ExtraParticleMapProd::evaluateForwardRapidityGap(const l1extra::L1JetParticleVectorRef &inputRefs,  // input
                                                         const double &etThreshold,                         // input
                                                         bool &decision                                     // output
-) {
+) const {
   decision = true;
 
   // search for forward pair
@@ -1816,13 +1812,14 @@ void L1ExtraParticleMapProd::evaluateForwardRapidityGap(const l1extra::L1JetPart
   }
 }
 
-void L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(const l1extra::L1EmParticleVectorRef &inputRefs1,    // input
-                                                          const l1extra::L1JetParticleVectorRef &inputRefs2,   // input
-                                                          const double &etThreshold1,                          // input
-                                                          const double &etThreshold2,                          // input
-                                                          bool &decision,                                      // output
-                                                          l1extra::L1EmParticleVectorRef &outputRefs1,         // output
-                                                          l1extra::L1ParticleMap::L1IndexComboVector &combos)  // output
+void L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(
+    const l1extra::L1EmParticleVectorRef &inputRefs1,          // input
+    const l1extra::L1JetParticleVectorRef &inputRefs2,         // input
+    const double &etThreshold1,                                // input
+    const double &etThreshold2,                                // input
+    bool &decision,                                            // output
+    l1extra::L1EmParticleVectorRef &outputRefs1,               // output
+    l1extra::L1ParticleMap::L1IndexComboVector &combos) const  // output
 {
   if (inputRefs1.size() == 2) {  // 2 iso EG
     decision = true;

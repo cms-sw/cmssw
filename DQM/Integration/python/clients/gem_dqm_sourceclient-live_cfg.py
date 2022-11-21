@@ -41,6 +41,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.keepDAQStatus = True
 
+process.gemRecHits.ge21Off = cms.bool(False)
+
 process.GEMDigiSource.runType = "online"
 process.GEMRecHitSource.runType = "online"
 process.GEMDAQStatusSource.runType = "online"

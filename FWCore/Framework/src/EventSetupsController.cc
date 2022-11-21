@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/EventSetupsController.h"
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
@@ -20,12 +21,17 @@
 #include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
+#include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
+#include <exception>
 #include <iostream>
 #include <set>
 
@@ -86,6 +92,48 @@ namespace edm {
         initializeEventSetupRecordIOVQueues();
         numberOfConcurrentIOVs_.clear();
         mustFinishConfiguration_ = false;
+      }
+    }
+
+    void EventSetupsController::runOrQueueEventSetupForInstanceAsync(
+        IOVSyncValue const& iSync,
+        WaitingTaskHolder& taskToStartAfterIOVInit,
+        WaitingTaskList& endIOVWaitingTasks,
+        std::vector<std::shared_ptr<const EventSetupImpl>>& eventSetupImpls,
+        edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
+        ActivityRegistry* actReg,
+        ServiceToken const& iToken,
+        bool iForceCacheClear) {
+      auto asyncEventSetup =
+          [this, &endIOVWaitingTasks, &eventSetupImpls, &queueWhichWaitsForIOVsToFinish, actReg, iForceCacheClear](
+              IOVSyncValue const& iSync, WaitingTaskHolder& task) {
+            queueWhichWaitsForIOVsToFinish.pause();
+            CMS_SA_ALLOW try {
+              if (iForceCacheClear) {
+                forceCacheClear();
+              }
+              SendSourceTerminationSignalIfException sentry(actReg);
+              actReg->preESSyncIOVSignal_.emit(iSync);
+              eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpls);
+              sentry.completedSuccessfully();
+            } catch (...) {
+              task.doneWaiting(std::current_exception());
+            }
+          };
+      if (doWeNeedToWaitForIOVsToFinish(iSync) || iForceCacheClear) {
+        // We get inside this block if there is an EventSetup
+        // module not able to handle concurrent IOVs (usually an ESSource)
+        // and the new sync value is outside the current IOV of that module.
+        // Also at beginRun when forcing caches to clear.
+        auto group = taskToStartAfterIOVInit.group();
+        ServiceWeakToken weakToken = iToken;
+        queueWhichWaitsForIOVsToFinish.push(*group,
+                                            [iSync, taskToStartAfterIOVInit, asyncEventSetup, weakToken]() mutable {
+                                              ServiceRegistry::Operate operate(weakToken.lock());
+                                              asyncEventSetup(iSync, taskToStartAfterIOVInit);
+                                            });
+      } else {
+        asyncEventSetup(iSync, taskToStartAfterIOVInit);
       }
     }
 
@@ -162,7 +210,7 @@ namespace edm {
       return std::shared_ptr<DataProxyProvider>();
     }
 
-    void EventSetupsController::putESProducer(ParameterSet const& pset,
+    void EventSetupsController::putESProducer(ParameterSet& pset,
                                               std::shared_ptr<DataProxyProvider> const& component,
                                               unsigned subProcessIndex) {
       auto newElement =
@@ -336,8 +384,7 @@ namespace edm {
       return false;
     }
 
-    ParameterSet const* EventSetupsController::getESProducerPSet(ParameterSetID const& psetID,
-                                                                 unsigned subProcessIndex) const {
+    ParameterSet& EventSetupsController::getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) {
       auto elements = esproducers_.equal_range(psetID);
       for (auto it = elements.first; it != elements.second; ++it) {
         std::vector<unsigned> const& subProcessIndexes = it->second.subProcessIndexes();
@@ -346,12 +393,11 @@ namespace edm {
         if (iFound == subProcessIndexes.end()) {
           continue;
         }
-        return it->second.pset();
+        return *it->second.pset();
       }
       throw edm::Exception(edm::errors::LogicError) << "EventSetupsController::getESProducerPSet\n"
                                                     << "Subprocess index not found. This should never happen\n"
                                                     << "Please report this to a Framework Developer\n";
-      return nullptr;
     }
 
     void EventSetupsController::checkESProducerSharing() {

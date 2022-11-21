@@ -262,10 +262,8 @@ void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtr
   };
 
   const int nz = zBins_ + 1;
+  //values are initialized by 0 as struct assigns default values for members
   TrackJetEmulationMaxZBin all_zBins[nz];
-  static TrackJetEmulationMaxZBin mzbtemp;
-  for (int z = 0; z < nz; ++z)
-    all_zBins[z] = mzbtemp;
 
   z0_intern zmin = convert::makeZ0(-1.0 * trkZMax_);
   z0_intern zmax = zmin + 2 * zStep_;

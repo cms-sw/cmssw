@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,23 +34,25 @@
 //
 #include <iostream>
 using namespace std;
-class Profiler : public edm::EDAnalyzer {
-public:
-  explicit Profiler(const edm::ParameterSet&);
-  ~Profiler() override;
+namespace callgrind {
+  class Profiler : public edm::one::EDAnalyzer<> {
+  public:
+    explicit Profiler(const edm::ParameterSet&);
+    ~Profiler() override;
 
-private:
-  void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  private:
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
-  // ----------member data ---------------------------
-  int m_firstEvent;
-  int m_lastEvent;
-  int m_action;
-  int m_evtCount;
-};
-
+    // ----------member data ---------------------------
+    int m_firstEvent;
+    int m_lastEvent;
+    int m_action;
+    int m_evtCount;
+  };
+}  // namespace callgrind
+using namespace callgrind;
 //
 // constants, enums and typedefs
 //

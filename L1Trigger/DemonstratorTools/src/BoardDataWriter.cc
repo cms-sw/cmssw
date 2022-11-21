@@ -61,7 +61,7 @@ namespace l1t::demo {
     // Check that data is supplied for each channel
     for (const auto& [id, info] : channelMap_) {
       if (not eventData.has(id))
-        throw std::runtime_error("Event data for link " + id.interface + ", " + std::to_string(id.channel) +
+        throw std::runtime_error("Event data for link [" + id.interface + ", " + std::to_string(id.channel) +
                                  "] is missing.");
     }
 

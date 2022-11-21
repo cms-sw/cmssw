@@ -112,6 +112,9 @@ steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',
 steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/HIRun2018A-v1/RAW',label='hi2018reduced',events=10000,location='STD',ls=Run2018HI)}
 steps['RunHI2018AOD']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-04Apr2019-v1/AOD',label='hi2018aod',events=10000,location='STD',ls=Run2018HI)}
 
+Run2022HI={360761: [[112,112]]}
+steps['RunHI2022']={'INPUT':InputInfo(dataSet='/EphemeralHLTPhysics0/Run2022F-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
+
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='2012A',run=Run2012A, events=100000,location='STD')}
@@ -293,7 +296,6 @@ steps['RunZeroBias2016H']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016H-v1/RAW'
 steps['RunMuOnia2016H']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016H-v1/RAW',label='2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunJetHT2016H_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-18Apr2017-v1/AOD',label='2016Hrmaod',events=100000,location='STD', ls=Run2016H)}
 steps['RunJetHT2016H_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-21Feb2020_UL2016-v1/AOD',label='2016HrmaodUL',events=100000,location='STD', ls=Run2016H)}
-steps['RunJetHT2016H_nano']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-18Apr2017-v1/MINIAOD',label='2016Hnano',events=100000,location='STD', ls=Run2016H)}
 
 #### run2 2017B ####
 Run2017BlowPU={297227: [[1, 45]]}
@@ -390,7 +392,6 @@ steps['RunExpressPhy2017F']={'INPUT':InputInfo(dataSet='/ExpressPhysics/Run2017F
 steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='2017Frmaod',events=100000,location='STD', ls=Run2017F)}
 steps['RunJetHT2017F_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-09Aug2019_UL2017-v1/AOD',label='2017FrmaodUL',events=100000,location='STD', ls=Run2017F)}
 
-steps['RunJetHT2017C_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/JetHT/CMSSW_9_4_5_cand1-94X_dataRun2_relval_v11_RelVal_rmaod_jetHT2017C-v1/MINIAOD',label='2017Cnano',events=100000,location='STD', ls=Run2017C)}
 
 #### run2 2018A ####
 Run2018A={315489: [[1, 100]]} #AVGPU 35
@@ -412,11 +413,6 @@ steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissionin
 RunhBStarRP={314276: [[1, 200]]} #for Roman Pot system
 steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commissioning2018-v1/RAW',label='zbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
 
-#### 2018 NANOAOD from prompt reco  2018 MINIAOD ####
-steps['RunJetHT2018A_nano']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-PromptReco-v1/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
-
-#### 2018 NANOAOD from prompt reco  2018 MINIAOD - UL ####
-steps['RunJetHT2018A_nanoUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-12Nov2019_UL2018-v2/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
 
 #### run2 2018B ####
 Run2018B={317435: [[1, 100]]}
@@ -451,7 +447,6 @@ steps['RunNoBPTX2018C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018C-v1/RAW',lab
 steps['RunDisplacedJet2018C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 steps['RunCharmonium2018C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 
-steps['RunJetHT2018C_nanoULremini']={'INPUT':InputInfo(dataSet='/JetHT/Run2018C-UL2018_MiniAODv2-v1/MINIAOD',label='2018C',events=100000,location='STD', ls=Run2018C)}
 
 #### run2 2018D ####
 Run2018D={320822: [[1, 100]]}
@@ -476,22 +471,35 @@ steps['RunRawPPS2022A']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022A-v1/RAW',la
 steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
 
 #### run3 ####
-Run2022B={355351: [[712, 768]]}
+Run2022A={353015: [[1, 100]]}
+steps['RunMinimumBias2022A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunSingleMuon2022A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunZeroBias2022A']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunBTagMu2022A']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunNoBPTX2022A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunHcalNZS2022A']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunHLTPhysics2022A']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunCommissioning2022A']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunJetHT2022A']={'INPUT':InputInfo(dataSet='/JetHT/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunCosmics2022A']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDisplacedJet2022A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunMET2022A']={'INPUT':InputInfo(dataSet='/MET/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunEGamma2022A']={'INPUT':InputInfo(dataSet='/EGamma/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunTau2022A']={'INPUT':InputInfo(dataSet='/Tau/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunDoubleMuon2022A']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+steps['RunMuonEG2022A']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls=Run2022A)}
+
+Run2022B={355769: [[1, 106]]}
 steps['RunMinimumBias2022B']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355680: [[21, 24]]}
 steps['RunSingleMuon2022B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunZeroBias2022B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355456: [[446, 467]]}
 steps['RunBTagMu2022B']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunNoBPTX2022B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunHcalNZS2022B']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunHLTPhysics2022B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunCommissioning2022B']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355383: [[267, 269]]}
 steps['RunJetHT2022B']={'INPUT':InputInfo(dataSet='/JetHT/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355727: [[55, 108]]}
 steps['RunCosmics2022B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
-Run2022B={355680: [[21, 24]]}
 steps['RunDisplacedJet2022B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunMET2022B']={'INPUT':InputInfo(dataSet='/MET/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 steps['RunEGamma2022B']={'INPUT':InputInfo(dataSet='/EGamma/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
@@ -500,24 +508,39 @@ steps['RunDoubleMuon2022B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022B-v1/
 steps['RunMuonEG2022B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 #steps['RunParkingBPH2022B']={'INPUT':InputInfo(dataSet='/ParkingBPH/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls=Run2022B)}
 
-Run2022C={356531: [[1, 56]]}
+Run2022C={356381: [[1, 1193]]}
 steps['RunMinimumBias2022C']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunSingleMuon2022C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 steps['RunZeroBias2022C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunJetMET2022C']={'INPUT':InputInfo(dataSet='/JetMET/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunEGamma2022C']={'INPUT':InputInfo(dataSet='/EGamma/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunMuon2022C']={'INPUT':InputInfo(dataSet='/Muon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
-steps['RunTau2022C']={'INPUT':InputInfo(dataSet='/Tau/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 steps['RunBTagMu2022C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunNoBPTX2022C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunHcalNZS2022C']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunHLTPhysics2022C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunCommissioning2022C']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunJetHT2022C']={'INPUT':InputInfo(dataSet='/JetHT/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunCosmics2022C']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunDisplacedJet2022C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunMET2022C']={'INPUT':InputInfo(dataSet='/MET/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunEGamma2022C']={'INPUT':InputInfo(dataSet='/EGamma/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunTau2022C']={'INPUT':InputInfo(dataSet='/Tau/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunDoubleMuon2022C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
+steps['RunMuonEG2022C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022C-v1/RAW',label='2022C',events=100000,location='STD', ls=Run2022C)}
 
-
-Run2022D={357538: [[39, 63]]}
+Run2022D={357735: [[1, 366]]}
 steps['RunMinimumBias2022D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunZeroBias2022D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunJetMET2022D']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 steps['RunMuon2022D']={'INPUT':InputInfo(dataSet='/Muon/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
-steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunZeroBias2022D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 steps['RunBTagMu2022D']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunNoBPTX2022D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunHcalNZS2022D']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunHLTPhysics2022D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunCommissioning2022D']={'INPUT':InputInfo(dataSet='/Commissioning/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunJetMET2022D']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunCosmics2022D']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunDisplacedJet2022D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -737,7 +760,7 @@ baseDataSetRelease=[
     'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4_FastSim-v1',# 20 - fastSim premix library UP18
     'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',         # 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
     'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',            # 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
-    'CMSSW_12_1_0_pre4-121X_mcRun3_2021_realistic_HI_v10-v1',    #23 - Run3 HI GEN-SIM for mixing
+    'CMSSW_12_5_1-125X_mcRun3_2022_realistic_HI_v5-v1',    #23 - Run3 HI GEN-SIM for mixing
     'CMSSW_11_2_0_pre8-PU_112X_upgrade2018_realistic_v4-v1', # 24 - 2018 Run-Dependent premix library
     ]
 
@@ -784,12 +807,6 @@ steps['TTbar_13_reminiaod2018UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValProdT
 steps['HydjetQ_reminiaodPbPb2018_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2018_ppReco/CMSSW_10_3_3-PU_103X_upgrade2018_realistic_HI_v11-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 steps['HydjetQ_reminiaodPbPb2021_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2021_ppReco/CMSSW_12_5_0_pre3-124X_mcRun3_2022_realistic_HI_v8-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 
-#input for a NANOAOD from MINIAOD workflow
-steps['ZEE_13_80XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/CMSSW_8_0_21-PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/MINIAODSIM',label='nanoaod80X',location='STD')}
-steps['TTbar_13_94Xv1NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_0_pre3-PU25ns_94X_mc2017_realistic_v4-v1/MINIAODSIM',label='nanoaod94X',location='STD')}
-steps['TTbar_13_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_5_cand1-94X_mc2017_realistic_v14_PU_RelVal_rmaod-v1/MINIAODSIM',label='nanoaod94Xv2',location='STD')}
-
-steps['TTbar_13_106Xv1NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_10_6_14-PU25ns_106X_mc2017_realistic_v7-v1/MINIAODSIM',label='nanoaod106X',location='STD')}
 
 # 13 TeV recycle GEN-SIM input
 steps['MinBias_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -1034,7 +1051,7 @@ hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp
 hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018'}
 hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 hiAlca2021_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'}
-hiAlca2021_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb', '--procModifiers':'approxSiStripClusters'}
+hiAlca2021_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -1051,8 +1068,8 @@ steps['HydjetQ_B12_5020GeV_2015']=merge([{'-n':1,'--beamspot':'RealisticHICollis
 steps['HydjetQ_MinBias_XeXe_5442GeV_2017']=merge([{'-n':1},hiDefaults2017,gen2017('Hydjet_Quenched_MinBias_XeXe_5442GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018']=merge([{'-n':1},hiDefaults2018,gen2018prod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
-steps['HydjetQ_B12_5020GeV_2021_ppReco']=merge([{'-n':1},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
-steps['HydjetQ_MinBias_5020GeV_2021_ppReco']=merge([{'-n':1},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_MinBias_5020GeV_cfi',U2000by1)])
+steps['HydjetQ_B12_5020GeV_2021_ppReco']=merge([{'-n':1,'--beamspot':'Nominal2022PbPbCollision'},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
+steps['HydjetQ_MinBias_5020GeV_2021_ppReco']=merge([{'-n':1,'--beamspot':'Nominal2022PbPbCollision'},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 
 steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
 steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
@@ -1792,7 +1809,7 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 
 steps['DIGIHI2021PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2021_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2021PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2021_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
-steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
 steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
@@ -1955,18 +1972,13 @@ steps['RECODR1']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+
 steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 
 hltKey50ns='relval50ns'
-menuR2_50ns = autoHLT[hltKey50ns]
 steps['HLTDR2_50ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_50ns'},steps['HLTD'] ] )
 
 hltKey25ns='relval25ns'
-menuR2_25ns = autoHLT[hltKey25ns]
 steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
 
-
 hltKey2016='relval2016'
-menuR2_2016 = autoHLT[hltKey2016]
 steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
-
 
 hltKey2017='relval2017'
 steps['HLTDR2_2017']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2017,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2017'},steps['HLTD'] ] )
@@ -1975,13 +1987,10 @@ hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
 hltKey2022='relval2022'
-steps['HLTDR3_2021']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
-
-steps['HLTRUN3']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
+steps['HLTDR3_2022']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
 # special setting for lumi section boundary crossing in RunEGamma2018Dml
 steps['HLTDR2_2018ml']=merge( [ {'--customise_commands':'"process.source.skipEvents=cms.untracked.uint32(7000)"'},steps['HLTDR2_2018'] ] )
-
 
 steps['HLTDR2_2018_hBStar']=merge( [ {'--era' : 'Run2_2018_highBetaStar'},steps['HLTDR2_2018'] ] )
 
@@ -2058,6 +2067,7 @@ steps['RAWPRIMEHI18']={ '--scenario':'pp',
                         '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
                         '-n':'10',
                         '--procModifiers':'approxSiStripClusters',
+                        '--customise_commands':'\"process.rawPrimeDataRepacker.src=\'rawDataRepacker\'\"',
                         '--repacked':'',
                         '--process':'REHLT'
 }
@@ -2096,6 +2106,28 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '--processName':'PAT',
                           '-n':'100'
 }
+
+steps['RAWPRIMEHI22']={ '--scenario':'pp',
+                        '--conditions':'auto:run3_data_prompt',
+                        '-s':'REPACK:DigiToApproxClusterRaw',
+                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
+                        '--eventcontent':'REPACKRAW',
+                        '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
+                        '-n':'10',
+                        '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\'\"',
+                        '--process':'REHLT'
+}
+
+steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
+                                          '--conditions':'auto:run3_data_prompt',
+                                          '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT',
+                                          '--datatier':'AOD,DQMIO',
+                                          '--eventcontent':'AOD,DQM',
+                                          '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
+                                          '--repacked':'',
+                                          '-n':'10'
+                                      },steps['RECOHID15']])
+
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
@@ -2426,13 +2458,15 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
 
 steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['RECOCOSD']])
 
-#Run 3
+# Run 3
 steps['RECODR3']=merge([{'--scenario':'pp',
                          '-s':'RAW2DIGI,L1Reco,RECO,DQM',
                          '--conditions':'auto:run3_data_relval',
                          '--era':'Run3',
                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
-                         
+
+steps['RECODR3_reHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR3']])
+
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
                               },steps['RECODR3']])
@@ -2457,8 +2491,8 @@ steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
                                        '-n':'-1',
                                        '-s':'RECO:bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask',
                                        '--customise':'Calibration/EcalCalibAlgos/EcalPhiSymRecoSequence_cff'},dataReco])
-                                       
-# Run3 skims
+
+# Run-3 skims
 for s in autoSkim.keys():
     steps['SKIM'+s.upper()+'RUN3']={'-s':'SKIM:%s'%(autoSkim[s]),
                                     '--data':'',
@@ -2741,15 +2775,14 @@ steps['RECOUP15_PU50_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATIO
 # for PU25 High stats workflows
 steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 
-#Run3 reco
-steps['RECODR3_2021']=merge([{'--scenario':'pp','--conditions':'auto:run3_data_relval','--era':'Run3','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
-steps['RECODR3_MinBiasOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
-steps['RECODR3_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign+HcalCalIsoTrkProducerFilter,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
-steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
-steps['RECODR3_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_2021']])
+# Run-3 reco
+steps['RECODR3_reHLT_MinBiasOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_reHLT']])
+steps['RECODR3_reHLT_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign+HcalCalIsoTrkProducerFilter,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_reHLT']])
+steps['RECODR3_reHLT_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_reHLT']])
+steps['RECODR3_reHLT_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_reHLT']])
 
-steps['RECONANORUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@miniAODDQM+@nanoAODDQM'},steps['RECODR3']])
-steps['RECOCOSMRUN3']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3']])
+steps['RECONANORUN3_reHLT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['RECODR3_reHLT']])
+steps['RECOCOSMRUN3_reHLT']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3_reHLT']])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #steps['RECOmAOD']=merge([step3DefaultsUnsch])
@@ -3271,8 +3304,8 @@ steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2
 steps['HARVESTDR2_REMINIAOD_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMINIAOD_data2016']])
 steps['HARVESTDR2_REMININANO_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMININANO_data2016']])
 steps['HARVESTDR2_REMINIAOD_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
-steps['HARVESTDR2_REMININANO_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_nanoAOD_106Xv2,run3_nanoAOD_devel'},steps['HARVESTDR2_REMININANO_data2016UL']])
-steps['HARVESTDR2_REMININANO_data2016UL_HIPM_met']=merge([{'--era':'Run2_2016_HIPM,run2_nanoAOD_106Xv1,run3_nanoAOD_devel'},steps['HARVESTDR2_REMININANO_data2016UL']])
+steps['HARVESTDR2_REMININANO_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMININANO_data2016UL']])
+steps['HARVESTDR2_REMININANO_data2016UL_HIPM_met']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMININANO_data2016UL']])
 
 steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
 steps['HARVEST2017_REMINIAOD_data2017UL']=merge([{'--era':'Run2_2017'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
@@ -3297,6 +3330,10 @@ steps['HARVESTHI18MINIAOD']=merge([{'-s':'HARVESTING:@miniAODDQM',
                                     '--era' : 'Run2_2018_pp_on_AA',
                                     '--filetype':'DQM',
                                     '-n':100},hiDefaults2018_ppReco])
+
+steps['HARVESTDHI22']=merge([{ '--era':'Run3_pp_on_PbPb',
+                               '--scenario':'pp',
+                               '--conditions':'auto:run3_data'},steps['HARVESTDHI15']])
                                     
 steps['HARVESTDRUN3']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM',
                    '--conditions':'auto:run3_data',
@@ -3592,8 +3629,8 @@ steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAO
 steps['REMINIAOD_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_data2016']])
 steps['REMININANO_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMININANO_data2016']])
 steps['REMINIAOD_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMINIAOD_data2016UL']])
-steps['REMININANO_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_nanoAOD_106Xv2,run3_nanoAOD_devel'},steps['REMININANO_data2016UL']])
-steps['REMININANO_data2016UL_HIPM_met'] = merge([{'--era' : 'Run2_2016_HIPM,run2_nanoAOD_106Xv1,run3_nanoAOD_devel'},steps['REMININANO_data2016UL']])
+steps['REMININANO_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMININANO_data2016UL']])
+steps['REMININANO_data2016UL_HIPM_met'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMININANO_data2016UL']])
 
 stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
 steps['REMINIAOD_data2017'] = stepReMiniAODData17
@@ -3665,64 +3702,16 @@ stepNanoGen     = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODGEN,DQM','--d
 steps['NANOGENFromGen']   = merge([{'--conditions': 'auto:run2_mc', '--customise' : 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGEN'}, stepNanoGen ])
 steps['NANOGENFromMini']  = merge([{'--conditions': 'auto:run2_mc'}, stepNanoGen ])
 
-steps['NANOAOD2016']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2016'}, stepNanoAODData ])
-steps['NANOAOD2017']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoAODData ])
-
-steps['NANOAOD2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOAOD2016'] ])
-steps['NANOAOD2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},       steps['NANOAOD2017'] ])
-steps['NANOAOD2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},       steps['NANOAOD2017'] ])
-
-steps['NANOAODMC2016'] = merge([{'--conditions': 'auto:run2_mc',               '--era': 'Run2_2016'}, stepNanoAODMC ])
-steps['NANOAODMC2017'] = merge([{'--conditions': 'auto:phase1_2017_realistic', '--era': 'Run2_2017'}, stepNanoAODMC ])
-
-steps['NANOAODMC2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOAODMC2016'] ])
-steps['NANOAODMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},       steps['NANOAODMC2017'] ])
-steps['NANOAODMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},       steps['NANOAODMC2017'] ])
-
-steps['NANOAODMC2017_106XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'},       steps['NANOAODMC2017'] ])
-
-steps['NANOEDMMC2017'] = merge([{'--conditions': 'auto:phase1_2017_realistic', '--era': 'Run2_2017'}, stepNanoEDMMC ])
-steps['NANOEDMMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDMMC2017'] ])
-steps['NANOEDMMC2017_106XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'}, steps['NANOEDMMC2017'] ])
-steps['NANOEDMMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDMMC2017'] ])
-steps['NANOEDMMC2016_80X'] = merge([{'--conditions': 'auto:run2_mc', '--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2018_PROD'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018', '--filein':'file:step3_inMINIAODSIM.root'}, stepNanoEDMMCProd ])
 steps['NANOUP15'] = merge([{ '--conditions':'auto:run2_mc', '--era':'Run2_2016','-n':'10', '--filein':'file:step3_inMINIAODSIM.root','--nThreads':'2'}, stepNanoEDMMCProd ])
-steps['NANOUP15_PU25']=steps['NANOUP15']
 steps['NANOUP17'] = merge([{'--conditions':'auto:phase1_2017_realistic','--era': 'Run2_2017','-n':'10' ,'--filein':'file:step3_inMINIAODSIM.root', '--geometry':'DB:Extended', '--nThreads':'2'}, stepNanoEDMMCProd])
 steps['NANOUP15Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP15']])
 steps['NANOUP15MC_PU25_JME']=merge([{'--customise':'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_MC'},steps['NANOUP15']])
-steps['NANOUP15Data_PU25_JME']=merge([{'--customise':'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_Data','--data':''},steps['NANOUP15']])
 steps['NANOUP17Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP17']])
 steps['NANOUP18'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018','-n':'10', '--filein':'file:step3_inMINIAODSIM.root', '--nThreads':'2'}, stepNanoEDMMCProd ])
 steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP18']])
 steps['NANOPRODUP18']=merge([{'--filein':'file:step4.root'},steps['NANOUP18']])
-steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
-steps['NANOEDM2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDM2017'] ])
-steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDM2017'] ])
-steps['NANOEDM2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDM2017'] ])
-steps['NANOEDM2018'] = merge([ {'--conditions': 'auto:run2_data', '--era': 'Run2_2018'}, stepNanoEDMData ])
-steps['NANOEDM2018_102Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_102Xv1'}, steps['NANOEDM2018'] ])
-steps['NANOEDM2018_106Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_106Xv1'}, steps['NANOEDM2018'] ])
-steps['NANOEDM2018_106Xv2'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_106Xv2'}, steps['NANOEDM2018'] ])
 
-steps['HARVESTNANOAODMC2017']=merge([{'-s':'HARVESTING:@nanoAODDQM','--conditions': 'auto:phase1_2017_realistic','--era': 'Run2_2017'},steps['HARVESTUP15']])
-steps['HARVESTNANOAODMC2017_94XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},steps['HARVESTNANOAODMC2017']])
-steps['HARVESTNANOAODMC2017_94XMiniAODv2']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},steps['HARVESTNANOAODMC2017']])
-steps['HARVESTNANOAODMC2016_80X']=merge([{'--conditions': 'auto:run2_mc','--era': 'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTNANOAODMC2017']])
-
-steps['HARVESTNANOAODMC2017_106XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'},steps['HARVESTNANOAODMC2017']])
-
-steps['HARVESTNANOAOD2017']=merge([{'--data':'','-s':'HARVESTING:@nanoAODDQM','--conditions':'auto:run2_data_relval','--era':'Run2_2017'},steps['HARVESTDR2']])
-steps['HARVESTNANOAOD2017_94XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},steps['HARVESTNANOAOD2017']])
-steps['HARVESTNANOAOD2017_94XMiniAODv2']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},steps['HARVESTNANOAOD2017']])
-steps['HARVESTNANOAOD2016_80X']=merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTNANOAOD2017']])
-steps['HARVESTNANOAOD2018']=merge([{'--conditions': 'auto:run2_data', '--era':'Run2_2018'}, steps['HARVESTNANOAOD2017']])
-steps['HARVESTNANOAOD2018_102Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1'}, steps['HARVESTNANOAOD2018']])
-steps['HARVESTNANOAOD2018_106Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv1'}, steps['HARVESTNANOAOD2018']])
-steps['HARVESTNANOAOD2018_106Xv2']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv2'}, steps['HARVESTNANOAOD2018']])
-
-steps['NANOMERGE'] = { '-s': 'ENDJOB', '-n': 1000 , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM', '--conditions': 'auto:run2_mc' }
 
 steps['HEfail'] = {'--conditions':'auto:phase1_2018_realistic_HEfail',
                    '-n':'10',
@@ -3985,6 +3974,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom,
                                       '--filein':'file:step3.root'
                                       }
+
+    upgradeStepDict['ALCAPhase2'][k] = merge([{'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu'},upgradeStepDict['ALCA'][k]])
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',

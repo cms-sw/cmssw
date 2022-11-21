@@ -1,36 +1,92 @@
-/*
- * \file SiStripAnalyser.cc
- *
- * \author  S. Dutta INFN-Pisa
- *
- */
 
-#include "SiStripAnalyser.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripMonitorSummary/interface/SiStripClassToMonitorCondData.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <cmath>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
+#include <map>
+#include <vector>
 #include <sstream>
 #include <string>
+
+class SiStripWebInterface;
+class SiStripFedCabling;
+class SiStripDetCabling;
+class SiStripClassToMonitorCondData;
+class FEDRawDataCollection;
+
+class SiStripAnalyser
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
+  SiStripAnalyser(const edm::ParameterSet& ps);
+  ~SiStripAnalyser() override;
+
+private:
+  void beginJob() override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
+
+  void checkTrackerFEDs(edm::Event const& e);
+
+  SiStripClassToMonitorCondData condDataMon_;
+  SiStripActionExecutor actionExecutor_;
+  edm::ParameterSet tkMapPSet_;
+
+  int summaryFrequency_{-1};
+  int staticUpdateFrequency_;
+  int globalStatusFilling_;
+  int shiftReportFrequency_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
+
+  std::string outputFilePath_;
+  std::string outputFileName_;
+
+  const SiStripDetCabling* detCabling_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_, tTopoTokenELB_, tTopoTokenBR_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_, tkDetMapTokenELB_, tkDetMapTokenBR_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+
+  int nLumiSecs_{};
+  int nEvents_{};
+  bool trackerFEDsFound_{false};
+  bool printFaultyModuleList_;
+  bool endLumiAnalysisOn_{false};
+};
 
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
     : condDataMon_{ps, consumesCollector()},
@@ -49,6 +105,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
       tkDetMapTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
       tkDetMapTokenBR_(esConsumes<edm::Transition::BeginRun>()),
       printFaultyModuleList_{ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)} {
+  usesResource("DQMStore");
   std::string const localPath{"DQM/SiStripMonitorClient/test/loader.html"};
   std::ifstream fin{edm::FileInPath(localPath).fullPath(), std::ios::in};
   if (!fin) {

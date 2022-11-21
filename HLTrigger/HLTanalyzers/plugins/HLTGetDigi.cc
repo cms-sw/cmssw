@@ -206,7 +206,7 @@ void HLTGetDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 //
 
 // ------------ method called to produce the data  ------------
-void HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HLTGetDigi::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   //--- L1 GCT and GT Digis ---//

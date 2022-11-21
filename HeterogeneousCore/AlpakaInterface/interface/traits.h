@@ -32,37 +32,34 @@ namespace cms::alpakatools {
   // is_platform
 
   template <typename T>
-  struct is_platform
-      : std::integral_constant<bool, alpaka::concepts::ImplementsConcept<alpaka::ConceptPltf, T>::value> {};
+  using is_platform = alpaka::concepts::ImplementsConcept<alpaka::ConceptPltf, T>;
 
   template <typename T>
-  constexpr bool is_platform_v = is_platform<T>::value;
+  inline constexpr bool is_platform_v = is_platform<T>::value;
 
   // is_device
 
   template <typename T>
-  struct is_device : std::integral_constant<bool, alpaka::concepts::ImplementsConcept<alpaka::ConceptDev, T>::value> {};
+  using is_device = alpaka::concepts::ImplementsConcept<alpaka::ConceptDev, T>;
 
   template <typename T>
-  constexpr bool is_device_v = is_device<T>::value;
+  inline constexpr bool is_device_v = is_device<T>::value;
 
   // is_accelerator
 
   template <typename T>
-  struct is_accelerator
-      : std::integral_constant<bool, alpaka::concepts::ImplementsConcept<alpaka::ConceptAcc, T>::value> {};
+  using is_accelerator = alpaka::concepts::ImplementsConcept<alpaka::ConceptAcc, T>;
 
   template <typename T>
-  constexpr bool is_accelerator_v = is_accelerator<T>::value;
+  inline constexpr bool is_accelerator_v = is_accelerator<T>::value;
 
   // is_queue
 
   template <typename T>
-  struct is_queue : std::integral_constant<bool, alpaka::concepts::ImplementsConcept<alpaka::ConceptQueue, T>::value> {
-  };
+  using is_queue = alpaka::concepts::ImplementsConcept<alpaka::ConceptQueue, T>;
 
   template <typename T>
-  constexpr bool is_queue_v = is_queue<T>::value;
+  inline constexpr bool is_queue_v = is_queue<T>::value;
 
 }  // namespace cms::alpakatools
 

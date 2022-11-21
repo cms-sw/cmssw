@@ -7,7 +7,11 @@ eval `scram run -sh`;
 cd $W_DIR;
 # Run get payload data script
 
-mkdir $W_DIR/results/
+mkdir -p $W_DIR/results
+
+if [ -f *.png ]; then
+    rm *.png
+fi
 
 ####################
 # Test Display
@@ -52,6 +56,17 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/results/HG_display.png
+
+getPayloadData.py \
+    --plugin pluginAlignPCLThresholdsHG_PayloadInspector \
+    --plot plot_AlignPCLThresholdsHG_Display \
+    --tag SiPixelAliThresholdsHG_express_v0 \
+    --time_type Run \
+    --iovs '{"start_iov": "359659", "end_iov": "359659"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/HG_display_IOV2.png
 
 ####################
 # Test Compare HG

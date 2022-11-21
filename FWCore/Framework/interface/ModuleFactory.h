@@ -38,6 +38,7 @@ namespace edm {
       typedef DataProxyProvider base_type;
 
       static std::string name();
+      static std::string const& baseType();
       static void addTo(EventSetupProvider& iProvider,
                         std::shared_ptr<DataProxyProvider> iComponent,
                         ParameterSet const&,
@@ -46,7 +47,7 @@ namespace edm {
       static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                        ParameterSet const& iConfiguration);
       static void putComponent(EventSetupsController& esController,
-                               ParameterSet const& iConfiguration,
+                               ParameterSet& iConfiguration,
                                std::shared_ptr<base_type> const& component);
     };
     template <class TType>

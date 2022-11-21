@@ -13,7 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -59,11 +59,11 @@
 // class declaration
 //
 
-class HLTGetDigi : public edm::EDAnalyzer {
+class HLTGetDigi : public edm::global::EDAnalyzer<> {
 public:
   explicit HLTGetDigi(const edm::ParameterSet&);
   ~HLTGetDigi() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

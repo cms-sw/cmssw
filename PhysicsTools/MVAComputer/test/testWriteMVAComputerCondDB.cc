@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,13 +30,13 @@
 
 using namespace PhysicsTools::Calibration;
 
-class testWriteMVAComputerCondDB : public edm::EDAnalyzer {
+class testWriteMVAComputerCondDB : public edm::one::EDAnalyzer<> {
 public:
   explicit testWriteMVAComputerCondDB(const edm::ParameterSet& params);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual void endJob();
+  void endJob() override;
 
 private:
   std::string record;

@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -30,10 +30,10 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class HcalTBObjectUnpacker : public edm::EDProducer {
+class HcalTBObjectUnpacker : public edm::stream::EDProducer<> {
 public:
   explicit HcalTBObjectUnpacker(const edm::ParameterSet& ps);
-  ~HcalTBObjectUnpacker() override;
+
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:

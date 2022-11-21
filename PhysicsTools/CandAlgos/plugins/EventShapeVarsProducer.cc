@@ -25,7 +25,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,19 +37,16 @@
 #include <memory>
 #include <vector>
 
-class EventShapeVarsProducer : public edm::EDProducer {
+class EventShapeVarsProducer : public edm::global::EDProducer<> {
 public:
   explicit EventShapeVarsProducer(const edm::ParameterSet&);
-  ~EventShapeVarsProducer() override {}
 
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> srcToken_;
   double r_;
   unsigned fwmax_;
 
-  void beginJob() override {}
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {}
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 };
 
 EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg) {
@@ -73,7 +70,7 @@ void put(edm::Event& evt, double value, const char* instanceName) {
   evt.put(std::make_unique<double>(value), instanceName);
 }
 
-void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&) {
+void EventShapeVarsProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
   edm::Handle<edm::View<reco::Candidate>> objects;
   evt.getByToken(srcToken_, objects);
 

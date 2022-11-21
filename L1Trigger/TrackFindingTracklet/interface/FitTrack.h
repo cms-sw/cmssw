@@ -5,15 +5,16 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletParametersMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FullMatchMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFitMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 #include <vector>
+#include <deque>
 
 namespace trklet {
 
   class Settings;
   class Globals;
   class Stub;
-  class L1TStub;
 
   class FitTrack : public ProcessBase {
   public:
@@ -38,7 +39,9 @@ namespace trklet {
 
     std::vector<Tracklet*> orderedMatches(std::vector<FullMatchMemory*>& fullmatch);
 
-    void execute(unsigned int iSector);
+    void execute(std::deque<std::string>& streamTrackRaw,
+                 std::vector<std::deque<StubStreamData>>& stubStream,
+                 unsigned int iSector);
 
   private:
     std::vector<TrackletParametersMemory*> seedtracklet_;

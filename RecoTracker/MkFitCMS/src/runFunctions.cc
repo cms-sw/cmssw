@@ -38,15 +38,15 @@ namespace mkfit {
                         bool do_remove_duplicates) {
     IterationMaskIfcCmssw it_mask_ifc(trackerInfo, hit_masks);
 
-    MkJob job({trackerInfo, itconf, eoh, &it_mask_ifc});
+    MkJob job({trackerInfo, itconf, eoh, eoh.refBeamSpot(), &it_mask_ifc});
 
     builder.begin_event(&job, nullptr, __func__);
 
-    // Seed cleaning not done on pixelLess / tobTec iters
-    do_seed_clean = do_seed_clean && itconf.m_requires_dupclean_tight;
+    // Seed cleaning not done on all iterations.
+    do_seed_clean = do_seed_clean && itconf.m_seed_cleaner;
 
     if (do_seed_clean)
-      StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
+      itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
 
     // Check nans in seeds -- this should not be needed when Slava fixes
     // the track parameter coordinate transformation.
@@ -61,18 +61,11 @@ namespace mkfit {
 
     builder.findTracksCloneEngine();
 
-    using Algo = TrackBase::TrackAlgorithm;
-    if (itconf.m_requires_quality_filter && Algo(itconf.m_track_algorithm) != Algo::detachedTripletStep) {
-      if (Algo(itconf.m_track_algorithm) == Algo::pixelPairStep) {
-        builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_n_hits_pixseed(t, 3); });
-      } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-        builder.filter_comb_cands(
-            [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), trackerInfo); });
-      } else {
-        builder.filter_comb_cands(
-            [&](const TrackCand &t) { return StdSeq::qfilter_n_hits(t, itconf.m_params.minHitsQF); });
-      }
+    if (itconf.m_pre_bkfit_filter) {
+      builder.filter_comb_cands(itconf.m_pre_bkfit_filter);
     }
+
+    job.switch_to_backward();
 
     if (do_backward_fit) {
       if (itconf.m_backward_search) {
@@ -87,24 +80,17 @@ namespace mkfit {
         builder.endBkwSearch();
       }
 
-      if (itconf.m_requires_quality_filter && (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep ||
-                                               Algo(itconf.m_track_algorithm) == Algo::pixelLessStep)) {
-        if (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), trackerInfo); });
-        } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), trackerInfo); });
-        }
+      if (itconf.m_post_bkfit_filter) {
+        builder.filter_comb_cands(itconf.m_post_bkfit_filter);
       }
     }
 
-    builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_nan_n_silly(t); });
+    builder.filter_comb_cands(StdSeq::qfilter_nan_n_silly<TrackCand>);
 
     builder.export_best_comb_cands(out_tracks, true);
 
-    if (do_remove_duplicates) {
-      StdSeq::find_and_remove_duplicates(out_tracks, itconf);
+    if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
+      itconf.m_duplicate_cleaner(out_tracks, itconf);
     }
 
     builder.end_event();

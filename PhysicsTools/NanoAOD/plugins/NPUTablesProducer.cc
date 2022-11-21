@@ -27,9 +27,8 @@ public:
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     auto npuTab = std::make_unique<nanoaod::FlatTable>(1, "Pileup", true);
 
-    edm::Handle<std::vector<reco::Vertex>> pvsIn;
-    iEvent.getByToken(pvTag_, pvsIn);
-    const double refpvz = (*pvsIn)[0].position().z();
+    const auto& pvProd = iEvent.get(pvTag_);
+    const double refpvz = pvProd.at(0).position().z();
 
     edm::Handle<std::vector<PileupSummaryInfo>> npuInfo;
     if (iEvent.getByToken(npuTag_, npuInfo)) {

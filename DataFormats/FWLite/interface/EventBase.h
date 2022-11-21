@@ -56,8 +56,17 @@ namespace fwlite {
     virtual Long64_t fileIndex() const { return -1; }
     virtual Long64_t secondaryFileIndex() const { return -1; }
 
+  protected:
+    template <typename T>
+    static edm::EDGetTokenT<T> makeTokenUsing(unsigned int iIndex) {
+      return edm::EDGetTokenT<T>(iIndex);
+    }
+
   private:
+    virtual bool getByTokenImp(edm::EDGetToken, edm::WrapperBase const*&) const = 0;
     edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+    edm::BasicHandle getByTokenImpl(std::type_info const&, edm::EDGetToken) const override;
+
     edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const override;
   };
 }  // namespace fwlite

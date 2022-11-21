@@ -17,12 +17,14 @@ process.b = cms.EDAnalyzer("ConsumingOneSharedResourceAnalyzer",
                             resourceName = cms.untracked.string("B")
                             )
 
-process.one = cms.EDProducer("IntLegacyProducer",
-                             ivalue = cms.int32(1)
+process.one = cms.EDProducer("IntOneSharedProducer",
+                             ivalue = cms.int32(1),
+                             resourceNames = cms.untracked.vstring("A", "B")
 )
 
-process.two = cms.EDProducer("IntLegacyProducer",
-                             ivalue = cms.int32(2)
+process.two = cms.EDProducer("IntOneSharedProducer",
+                             ivalue = cms.int32(2),
+                             resourceNames = cms.untracked.vstring("A", "B")
 )
            
 process.options = dict(

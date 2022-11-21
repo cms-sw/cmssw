@@ -397,13 +397,14 @@ from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
 trackdnn.toReplaceWith(pixelLessStep, trackTfClassifier.clone(
+    mva         = dict(tfDnnLabel  = 'trackSelectionTfPLess'),
     src         = 'pixelLessStepTracks',
     qualityCuts = qualityCutDictionary.PixelLessStep.value()
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 ((~trackingMkFitPixelLessStep) & trackdnn).toModify(pixelLessStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
-                                                    qualityCuts = [-0.81, -0.61, -0.17])
+                                                    qualityCuts = [-0.82, -0.61, -0.16])
 
 pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 

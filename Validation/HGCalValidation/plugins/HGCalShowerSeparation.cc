@@ -11,12 +11,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -26,10 +23,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -42,7 +36,7 @@
 class HGCalShowerSeparation : public DQMEDAnalyzer {
 public:
   explicit HGCalShowerSeparation(const edm::ParameterSet&);
-  ~HGCalShowerSeparation() override;
+  ~HGCalShowerSeparation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -91,14 +85,7 @@ HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
   caloParticles_ = consumes<std::vector<CaloParticle>>(caloParticles);
 }
 
-HGCalShowerSeparation::~HGCalShowerSeparation() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
-                                           edm::Run const& iRun,
-                                           edm::EventSetup const& /* iSetup */) {
+void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   ibooker.cd();
   ibooker.setCurrentFolder("HGCalShowerSeparation");
   scEnergy_ = ibooker.book1D("SCEnergy", "SCEnergy", 240, 0., 120.);
@@ -159,15 +146,12 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
   recHitTools_.setGeometry(iSetup.getData(tok_geom_));
 
-  Handle<std::vector<CaloParticle>> caloParticleHandle;
-  iEvent.getByToken(caloParticles_, caloParticleHandle);
-  const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
+  const edm::Handle<std::vector<CaloParticle>>& caloParticleHandle = iEvent.getHandle(caloParticles_);
+  const std::vector<CaloParticle>& caloParticles = *(caloParticleHandle.product());
 
-  Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+  edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
   const auto hitmap = *hitMapHandle;
 
@@ -176,10 +160,10 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
   if (caloParticles.size() == 2) {
     auto eta1 = caloParticles[0].eta();
     auto phi1 = caloParticles[0].phi();
-    auto theta1 = 2. * atan(exp(-eta1));
+    auto theta1 = 2. * std::atan(exp(-eta1));
     auto eta2 = caloParticles[1].eta();
     auto phi2 = caloParticles[1].phi();
-    auto theta2 = 2. * atan(exp(-eta2));
+    auto theta2 = 2. * std::atan(exp(-eta2));
     eta1_->Fill(eta1);
     eta2_->Fill(eta2);
 

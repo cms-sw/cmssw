@@ -64,6 +64,26 @@ namespace fwlite {
     return value;
   }
 
+  edm::BasicHandle EventBase::getByTokenImpl(std::type_info const& iProdInfo, edm::EDGetToken iToken) const {
+    edm::WrapperBase const* prod = nullptr;
+    getByTokenImp(iToken, prod);
+    if (prod == nullptr || !prod->isPresent()) {
+      edm::TypeID productType(iProdInfo);
+
+      edm::BasicHandle failed(edm::makeHandleExceptionFactory([=]() -> std::shared_ptr<cms::Exception> {
+        std::shared_ptr<cms::Exception> whyFailed(std::make_shared<edm::Exception>(edm::errors::ProductNotFound));
+        *whyFailed << "getByToken: Found zero products matching all criteria\n"
+                   << "Looking for type: " << productType << "\n"
+                   << "The data is registered in the file but is not available for this event\n";
+        return whyFailed;
+      }));
+      return failed;
+    }
+
+    edm::BasicHandle value(prod, &s_prov);
+    return value;
+  }
+
   edm::BasicHandle EventBase::getImpl(std::type_info const& iProductInfo, const edm::ProductID& pid) const {
     edm::WrapperBase const* prod = getByProductID(pid);
     if (prod == nullptr || !prod->isPresent()) {

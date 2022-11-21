@@ -115,6 +115,7 @@ private:
   const std::string theTrackQuality_;
   const double minTrackP_, maxTrackEta_;
   const double tMinE_, tMaxE_, tMinH_, tMaxH_;
+  const double eThrEB_, eThrEE_, eThrHB_, eThrHE_;
   const bool isItAOD_, vetoTrigger_, doTree_, vetoMuon_, vetoEcal_;
   const double cutMuon_, cutEcal_, cutRatio_;
   const std::vector<double> puWeights_;
@@ -166,26 +167,30 @@ private:
 };
 
 StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
-    : verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
+    : verbosity_(iConfig.getUntrackedParameter<int>("verbosity")),
       trigNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("triggers")),
       newNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("newNames")),
       labelMuon_(iConfig.getUntrackedParameter<edm::InputTag>("labelMuon")),
       labelGenTrack_(iConfig.getUntrackedParameter<edm::InputTag>("labelTrack")),
-      theTrackQuality_(iConfig.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
-      minTrackP_(iConfig.getUntrackedParameter<double>("minTrackP", 1.0)),
-      maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta", 2.5)),
-      tMinE_(iConfig.getUntrackedParameter<double>("timeMinCutECAL", -500.)),
-      tMaxE_(iConfig.getUntrackedParameter<double>("timeMaxCutECAL", 500.)),
-      tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL", -500.)),
-      tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL", 500.)),
-      isItAOD_(iConfig.getUntrackedParameter<bool>("isItAOD", false)),
-      vetoTrigger_(iConfig.getUntrackedParameter<bool>("vetoTrigger", false)),
-      doTree_(iConfig.getUntrackedParameter<bool>("doTree", false)),
-      vetoMuon_(iConfig.getUntrackedParameter<bool>("vetoMuon", true)),
-      vetoEcal_(iConfig.getUntrackedParameter<bool>("vetoEcal", false)),
-      cutMuon_(iConfig.getUntrackedParameter<double>("cutMuon", 0.1)),
-      cutEcal_(iConfig.getUntrackedParameter<double>("cutEcal", 2.0)),
-      cutRatio_(iConfig.getUntrackedParameter<double>("cutRatio", 0.90)),
+      theTrackQuality_(iConfig.getUntrackedParameter<std::string>("trackQuality")),
+      minTrackP_(iConfig.getUntrackedParameter<double>("minTrackP")),
+      maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta")),
+      tMinE_(iConfig.getUntrackedParameter<double>("timeMinCutECAL")),
+      tMaxE_(iConfig.getUntrackedParameter<double>("timeMaxCutECAL")),
+      tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL")),
+      tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL")),
+      eThrEB_(iConfig.getUntrackedParameter<double>("thresholdEB")),
+      eThrEE_(iConfig.getUntrackedParameter<double>("thresholdEE")),
+      eThrHB_(iConfig.getUntrackedParameter<double>("thresholdHB")),
+      eThrHE_(iConfig.getUntrackedParameter<double>("thresholdHE")),
+      isItAOD_(iConfig.getUntrackedParameter<bool>("isItAOD")),
+      vetoTrigger_(iConfig.getUntrackedParameter<bool>("vetoTrigger")),
+      doTree_(iConfig.getUntrackedParameter<bool>("doTree")),
+      vetoMuon_(iConfig.getUntrackedParameter<bool>("vetoMuon")),
+      vetoEcal_(iConfig.getUntrackedParameter<bool>("vetoEcal")),
+      cutMuon_(iConfig.getUntrackedParameter<double>("cutMuon")),
+      cutEcal_(iConfig.getUntrackedParameter<double>("cutEcal")),
+      cutRatio_(iConfig.getUntrackedParameter<double>("cutRatio")),
       puWeights_(iConfig.getUntrackedParameter<std::vector<double> >("puWeights")),
       triggerEvent_(edm::InputTag("hltTriggerSummaryAOD", "", "HLT")),
       theTriggerResultsLabel_(edm::InputTag("TriggerResults", "", "HLT")),
@@ -193,16 +198,16 @@ StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
   usesResource(TFileService::kSharedResource);
 
   reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName(theTrackQuality_);
-  selectionParameters_.minPt = iConfig.getUntrackedParameter<double>("minTrackPt", 10.0);
+  selectionParameters_.minPt = iConfig.getUntrackedParameter<double>("minTrackPt");
   selectionParameters_.minQuality = trackQuality;
-  selectionParameters_.maxDxyPV = iConfig.getUntrackedParameter<double>("maxDxyPV", 0.2);
-  selectionParameters_.maxDzPV = iConfig.getUntrackedParameter<double>("maxDzPV", 5.0);
-  selectionParameters_.maxChi2 = iConfig.getUntrackedParameter<double>("maxChi2", 5.0);
-  selectionParameters_.maxDpOverP = iConfig.getUntrackedParameter<double>("maxDpOverP", 0.1);
-  selectionParameters_.minOuterHit = iConfig.getUntrackedParameter<int>("minOuterHit", 4);
-  selectionParameters_.minLayerCrossed = iConfig.getUntrackedParameter<int>("minLayerCrossed", 8);
-  selectionParameters_.maxInMiss = iConfig.getUntrackedParameter<int>("maxInMiss", 0);
-  selectionParameters_.maxOutMiss = iConfig.getUntrackedParameter<int>("maxOutMiss", 0);
+  selectionParameters_.maxDxyPV = iConfig.getUntrackedParameter<double>("maxDxyPV");
+  selectionParameters_.maxDzPV = iConfig.getUntrackedParameter<double>("maxDzPV");
+  selectionParameters_.maxChi2 = iConfig.getUntrackedParameter<double>("maxChi2");
+  selectionParameters_.maxDpOverP = iConfig.getUntrackedParameter<double>("maxDpOverP");
+  selectionParameters_.minOuterHit = iConfig.getUntrackedParameter<int>("minOuterHit");
+  selectionParameters_.minLayerCrossed = iConfig.getUntrackedParameter<int>("minLayerCrossed");
+  selectionParameters_.maxInMiss = iConfig.getUntrackedParameter<int>("maxInMiss");
+  selectionParameters_.maxOutMiss = iConfig.getUntrackedParameter<int>("maxOutMiss");
 
   // define tokens for access
   tok_lumi = consumes<LumiDetails, edm::InLumi>(edm::InputTag("lumiProducer"));
@@ -288,6 +293,10 @@ void StudyCaloResponse::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<double>("timeMaxCutECAL", 500.0);
   desc.addUntracked<double>("timeMinCutHCAL", -500.0);
   desc.addUntracked<double>("timeMaxCutHCAL", 500.0);
+  desc.addUntracked<double>("thresholdEB", 0.030);
+  desc.addUntracked<double>("thresholdEE", 0.150);
+  desc.addUntracked<double>("thresholdHB", 0.7);
+  desc.addUntracked<double>("thresholdHE", 0.8);
   desc.addUntracked<bool>("isItAOD", false);
   desc.addUntracked<bool>("vetoTrigger", false);
   desc.addUntracked<bool>("doTree", false);
@@ -591,8 +600,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                  sevlv,
                                  3,
                                  3,
-                                 0.030,
-                                 0.150,
+                                 eThrEB_,
+                                 eThrEE_,
                                  tMinE_,
                                  tMaxE_,
                                  ((verbosity_ / 10000) % 10 > 0));
@@ -605,8 +614,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    sevlv,
                                    5,
                                    5,
-                                   0.030,
-                                   0.150,
+                                   eThrEB_,
+                                   eThrEE_,
                                    tMinE_,
                                    tMaxE_,
                                    ((verbosity_ / 10000) % 10 > 0));
@@ -619,8 +628,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    sevlv,
                                    7,
                                    7,
-                                   0.030,
-                                   0.150,
+                                   eThrEB_,
+                                   eThrEE_,
                                    tMinE_,
                                    tMaxE_,
                                    ((verbosity_ / 10000) % 10 > 0));
@@ -648,8 +657,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                   1,
                                   false,
                                   true,
-                                  0.7,
-                                  0.8,
+                                  eThrHB_,
+                                  eThrHE_,
                                   -100.0,
                                   -100.0,
                                   tMinH_,
@@ -662,8 +671,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                   2,
                                   false,
                                   true,
-                                  0.7,
-                                  0.8,
+                                  eThrHB_,
+                                  eThrHE_,
                                   -100.0,
                                   -100.0,
                                   tMinH_,
@@ -676,8 +685,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                   3,
                                   false,
                                   true,
-                                  0.7,
-                                  0.8,
+                                  eThrHB_,
+                                  eThrHE_,
                                   -100.0,
                                   -100.0,
                                   tMinH_,

@@ -79,8 +79,8 @@ namespace DiLepPlotHelp {
             titlePostfix = fmt::sprintf("%s^{-} #eta;%s^{+} #eta", sed, sed);
             break;
           case xAxis::DELTA_ETA:
-            xmin = -4.;
-            xmax = 4.;
+            xmin = -hpar.getParameter<double>("maxDeltaEta");
+            xmax = hpar.getParameter<double>("maxDeltaEta");
             namePostfix = m_flav ? "EEDeltEta" : "MuMuDeltaEta";
             titlePostfix = fmt::sprintf("%s^{-}%s^{+} #Delta#eta;%s^{+}%s^{-} #Delta#eta", sed, sed, sed, sed);
             break;
