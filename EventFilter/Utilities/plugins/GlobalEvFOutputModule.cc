@@ -318,7 +318,8 @@ namespace evf {
     const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath(streamLabel_);
     std::ofstream file(iniFileName);
     if (!file)
-      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << ": " << strerror(errno);
+      throw cms::Exception("GlobalEvFOutputModule")
+          << "can not create " << iniFileName << "error: " << strerror(errno);
     file.close();
 
     edm::LogInfo("GlobalEvFOutputModule") << "Constructor created initemp file -: " << iniFileName;
@@ -385,7 +386,8 @@ namespace evf {
     uint32_t adlera = 1, adlerb = 0;
     std::ifstream src(openIniFileName, std::ifstream::binary);
     if (!src)
-      throw cms::Exception("GlobalEvFOutputModule") << "can not read back " << openIniFileName << ": " << strerror(errno);
+      throw cms::Exception("GlobalEvFOutputModule")
+          << "can not read back " << openIniFileName << " error: " << strerror(errno);
 
     //allocate buffer to write INI file
     std::unique_ptr<char[]> outBuf = std::make_unique<char[]>(1024 * 1024);

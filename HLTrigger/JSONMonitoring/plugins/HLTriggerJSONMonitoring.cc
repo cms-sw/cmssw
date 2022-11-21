@@ -153,8 +153,9 @@ HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config
     //output initemp file. This lets hltd know number of streams early
     std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath("streamHLTRates");
     std::ofstream file(initFileName);
-    if (!file) 
-      throw cms::Exception("HLTriggerJsonMonitoring") << "Cannot create INITEMP file: " << initFileName << " error:" << strerror(errno);
+    if (!file)
+      throw cms::Exception("HLTriggerJsonMonitoring")
+          << "Cannot create INITEMP file: " << initFileName << " error: " << strerror(errno);
     file.close();
   }
 }

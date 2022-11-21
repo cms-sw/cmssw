@@ -50,7 +50,8 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(p
     std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_);
     std::ofstream file(initFileName);
     if (!file)
-      throw cms::Exception("DQMFileSaverPB") << "Cannot create INI file: " << initFileName << " error:" << strerror(errno);
+      throw cms::Exception("DQMFileSaverPB")
+          << "Cannot create INI file: " << initFileName << " error: " << strerror(errno);
     file.close();
   }
 }

@@ -166,8 +166,9 @@ L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(edm::ParameterSet const& config
     //output initemp file. This lets hltd know number of streams early
     std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath("streamL1Rates");
     std::ofstream file(initFileName);
-    if (!file) 
-      throw cms::Exception("L1TriggerJsonMonitoring") << "Cannot create INITEMP file: " << initFileName << " error:" << strerror(errno);
+    if (!file)
+      throw cms::Exception("L1TriggerJsonMonitoring")
+          << "Cannot create INITEMP file: " << initFileName << " error: " << strerror(errno);
     file.close();
   }
 }
