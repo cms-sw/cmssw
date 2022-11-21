@@ -2988,19 +2988,30 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
 
   // Storage of the correlation selection
   CorrelationThreeBodyTemplate::CorrelationThreeBodyParameter corrThreeBodyParameter;
+  // Set charge correlation parameter
+  //corrThreeBodyParameter.chargeCorrelation = chargeCorrelation;  //tmpValues[0];
+  //corrThreeBodyParameter.chargeCorrelation = 1;  //ignore charge correlation for corr-legs
 
   // Get the correlation cuts on the legs
   int cutType = 0;
   const std::vector<esCut>& cuts = corrCond.getCuts();
-  for (size_t lll = 0; lll < cuts.size(); lll++) {
+  for (size_t lll = 0; lll < cuts.size(); lll++) {  // START esCut lll
     const esCut cut = cuts.at(lll);
+
+    if (cut.getCutType() == esCutType::ChargeCorrelation) {
+      if (cut.getData() == "ls")
+        corrThreeBodyParameter.chargeCorrelation = 2;
+      else if (cut.getData() == "os")
+        corrThreeBodyParameter.chargeCorrelation = 4;
+      else
+        corrThreeBodyParameter.chargeCorrelation = 1;  //ignore charge correlation
+    }
 
     //
     //  Until utm has method to calculate these, do the integer value calculation with precision.
     //
     double minV = cut.getMinimum().value;
     double maxV = cut.getMaximum().value;
-
     //Scale down very large numbers out of xml
     if (maxV > 1.0e8)
       maxV = 1.0e8;
@@ -3019,7 +3030,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
       corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
       cutType = cutType | 0x80;
     }
-  }
+  }  // END esCut lll
   corrThreeBodyParameter.corrCutType = cutType;
 
   // Get the three objects that form the legs

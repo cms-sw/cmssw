@@ -94,7 +94,6 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   }
 
   bool condResult = false;
-  bool reqObjResult = false;
 
   // number of objects in the condition (three) and their type
   int nObjInCond = 3;
@@ -116,6 +115,8 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   int cond2bx(0);
 
   // FIRST OBJECT
+  bool reqObjResult = false;
+
   if (cond0Categ == CondMuon) {
     LogDebug("L1TGlobal") << "\n --------------------- First muon checks ---------------------" << std::endl;
     corrMuon = static_cast<const MuonTemplate*>(m_gtCond0);
@@ -209,7 +210,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     return false;
   }
 
-  // return if third subcondition is false
+  // Return if third subcondition is false
   if (!reqObjResult) {
     return false;
   } else {
@@ -219,22 +220,22 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         << std::endl;
   }
 
-  // since we have three good legs get the correlation parameters
+  // Since we have three good legs get the correlation parameters
   CorrelationThreeBodyTemplate::CorrelationThreeBodyParameter corrPar =
       *(m_gtCorrelationThreeBodyTemplate->correlationThreeBodyParameter());
 
-  // vector to store the indices of the objects involved in the condition evaluation
+  // Vector to store the indices of the objects involved in the condition evaluation
   SingleCombInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
-  // clear the m_combinationsInCond vector:
+  // Clear the m_combinationsInCond vector:
   // it will store the set of objects satisfying the condition evaluated as true
   (combinationsInCond()).clear();
 
-  // pointers to objects
+  // Pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = nullptr;
 
-  // make the conversions of the indices, depending on the combination of objects involved
+  // Make the conversions of the indices, depending on the combination of objects involved
   int phiIndex0 = 0;
   double phi0Phy = 0.;
   int phiIndex1 = 0;
@@ -261,6 +262,11 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   int etIndex2 = 0;
   int etBin2 = 0;
   double et2Phy = 0.;
+
+  // Charges to take into account the charge correlation
+  int chrg0 = -1;
+  int chrg1 = -1;
+  int chrg2 = -1;
 
   // Determine the number of phi bins to get cutoff at pi
   int phiBound = 0;
@@ -307,13 +313,14 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     if (cond0Categ == CondMuon) {
       lutObj0 = "MU";
       candMuVec = m_uGtB->getCandL1Mu();
-      phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
+      phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();
       etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEtaAtVtx();
       etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
+      chrg0 = (candMuVec->at(cond0bx, obj0Index))->hwCharge();
+
       etaBin0 = etaIndex0;
       if (etaBin0 < 0)
-        etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0;  //twos complement
-      // LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
+        etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0;
 
       etBin0 = etIndex0;
       int ssize = m_gtScales->getMUScales().etBins.size();
@@ -322,7 +329,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         LogTrace("L1TGlobal") << "MU0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
       }
 
-      // Determine Floating Pt numbers for floating point caluclation
+      // Determine Floating Pt numbers for floating point calculation
       std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex0);
       phi0Phy = 0.5 * (binEdges.second + binEdges.first);
       binEdges = m_gtScales->getMUScales().etaBins.at(etaBin0);
@@ -339,7 +346,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     // SECOND OBJECT: Now loop over the second leg to get its information
     for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
          it1Comb++) {
-      LogDebug("L1TGlobal") << "Looking at second subdondition" << std::endl;
+      LogDebug("L1TGlobal") << "Looking at second subcondition" << std::endl;
       int obj1Index = -1;
 
       if (!(*it1Comb).empty()) {
@@ -349,8 +356,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         return false;
       }
 
-      //If we are dealing with the same object type avoid the two legs
-      // either being the same object
+      // If we are dealing with the same object type avoid the two legs either being the same object
       if (cndObjTypeVec[0] == cndObjTypeVec[1] && obj0Index == obj1Index && cond0bx == cond1bx) {
         LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
         continue;
@@ -359,13 +365,14 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       if (cond1Categ == CondMuon) {
         lutObj1 = "MU";
         candMuVec = m_uGtB->getCandL1Mu();
-        phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
+        phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();
         etaIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwEtaAtVtx();
         etIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPt();
+        chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
+
         etaBin1 = etaIndex1;
         if (etaBin1 < 0)
           etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;
-        // LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
 
         etBin1 = etIndex1;
         int ssize = m_gtScales->getMUScales().etBins.size();
@@ -401,7 +408,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           return false;
         }
 
-        //If we are dealing with the same object type avoid the two legs
+        // If we are dealing with the same object type avoid the two legs
         // either being the same object
         if ((cndObjTypeVec[0] == cndObjTypeVec[2] && obj0Index == obj2Index && cond0bx == cond2bx) ||
             (cndObjTypeVec[1] == cndObjTypeVec[2] && obj1Index == obj2Index && cond1bx == cond2bx)) {
@@ -412,9 +419,11 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (cond2Categ == CondMuon) {
           lutObj2 = "MU";
           candMuVec = m_uGtB->getCandL1Mu();
-          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
+          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx();
           etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEtaAtVtx();
           etIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPt();
+          chrg2 = (candMuVec->at(cond2bx, obj2Index))->hwCharge();
+
           etaBin2 = etaIndex2;
           if (etaBin2 < 0)
             etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2;
@@ -455,12 +464,31 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
                                 << "]\n"
                                 << "     eta indices = [" << etaIndex0 << ", " << etaIndex1 << ", " << etaIndex2
                                 << "]\n"
+                                << "     charge values = [" << chrg0 << ", " << chrg1 << ", " << chrg2 << "]\n"
                                 << std::endl;
         }
 
         // Now perform the desired correlation on these three objects:
-        //reqResult will be set true in case all checks were successful for a given combination of three muons
+        // reqResult will be set true in case all checks were successful for a given combination of three muons
         bool reqResult = false;
+        bool chrgCorrel = true;
+
+        // Check the three-muon charge correlation, if requested.
+        // NOTE that the charge can be 1 (positive) or 0 (negative), so [SS] SUM(chrg) == 3 OR 0, [OS] SUM(chrg) == 1 OR 2
+        if (cond0Categ == CondMuon && cond1Categ == CondMuon && cond2Categ == CondMuon) {
+          // Check for opp-sign requirement:
+          if (corrPar.chargeCorrelation == 4 && ((chrg0 + chrg1 + chrg2) == 3 || (chrg0 + chrg1 + chrg2) == 0)) {
+            chrgCorrel = false;
+          }
+          // Check for same-sign
+          if (corrPar.chargeCorrelation == 2 && ((chrg0 + chrg1 + chrg2) == 1 || (chrg0 + chrg1 + chrg2) == 2)) {
+            chrgCorrel = false;
+          }
+          // Ignore the charge correlation requirement
+          if (corrPar.chargeCorrelation == 1) {
+            chrgCorrel = true;
+          }
+        }
 
         // Clear the vector containing indices of the objects of the combination involved in the condition evaluation
         objectsInComb.clear();
@@ -548,10 +576,10 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
                               << "    DeltaEtaLUT_12 = " << deltaEtaLUT_12 << std::endl;
 
         if (corrPar.corrCutType & 0x9) {
-          //invariant mass calculation based for each pair on
+          // Invariant mass calculation based for each pair on
           // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
-          // but we calculate (1/2)M^2
-          //
+          // NOTE: we calculate (1/2)M^2
+          ///
           double cosDeltaPhiPhy_01 = cos(deltaPhiPhy_01);
           double coshDeltaEtaPhy_01 = cosh(deltaEtaPhy_01);
           double massSqPhy_01 = et0Phy * et1Phy * (coshDeltaEtaPhy_01 - cosDeltaPhiPhy_01);
@@ -563,7 +591,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           coshDeltaEtaLUT_01 = m_gtScales->getLUT_DeltaEta_Cosh(lutName_01, deltaEtaFW_01);
           unsigned int precCoshLUT_01 = m_gtScales->getPrec_DeltaEta_Cosh(lutName_01);
           if (precCoshLUT_01 - precCosLUT_01 != 0)
-            LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+            LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different precision" << std::endl;
 
           double cosDeltaPhiPhy_02 = cos(deltaPhiPhy_02);
           double coshDeltaEtaPhy_02 = cosh(deltaEtaPhy_02);
@@ -579,7 +607,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
             coshDeltaEtaLUT_02 = m_gtScales->getLUT_DeltaEta_Cosh(lutName_02, deltaEtaFW_02);
             unsigned int precCoshLUT_02 = m_gtScales->getPrec_DeltaEta_Cosh(lutName_02);
             if (precCoshLUT_02 - precCosLUT_02 != 0)
-              LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+              LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different precision" << std::endl;
           }
 
           double cosDeltaPhiPhy_12 = cos(deltaPhiPhy_12);
@@ -596,7 +624,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
             coshDeltaEtaLUT_12 = m_gtScales->getLUT_DeltaEta_Cosh(lutName_12, deltaEtaFW_12);
             unsigned int precCoshLUT_12 = m_gtScales->getPrec_DeltaEta_Cosh(lutName_12);
             if (precCoshLUT_12 - precCosLUT_12 != 0)
-              LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+              LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different precision" << std::endl;
           }
 
           std::string lutName = lutObj0;
@@ -614,82 +642,46 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           long long ptObj2 = m_gtScales->getLUT_Pt("Mass_" + lutName, etIndex2);
           unsigned int precPtLUTObj2 = m_gtScales->getPrec_Pt("Mass_" + lutName);
 
-          // Pt and Angles are at different precission.
+          // Pt and Angles are at different precision
           long long massSq_01 = ptObj0 * ptObj1 * (coshDeltaEtaLUT_01 - cosDeltaPhiLUT_01);
           long long massSq_02 = ptObj0 * ptObj2 * (coshDeltaEtaLUT_02 - cosDeltaPhiLUT_02);
           long long massSq_12 = ptObj1 * ptObj2 * (coshDeltaEtaLUT_12 - cosDeltaPhiLUT_12);
 
-          //Note: There is an assumption here that Cos and Cosh have the same precission
-          //unsigned int preShift_01 = precPtLUTObj0 + precPtLUTObj1 + precCosLUT - corrPar.precMassCut;
+          // Note: There is an assumption here that Cos and Cosh have the same precision
+          //       unsigned int preShift_01 = precPtLUTObj0 + precPtLUTObj1 + precCosLUT - corrPar.precMassCut;
           unsigned int preShift_01 = precPtLUTObj0 + precPtLUTObj1 + precCosLUT_01 - corrPar.precMassCut;
           unsigned int preShift_02 = precPtLUTObj0 + precPtLUTObj2 + precCosLUT_02 - corrPar.precMassCut;
           unsigned int preShift_12 = precPtLUTObj1 + precPtLUTObj2 + precCosLUT_12 - corrPar.precMassCut;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the FIRST PAIR 0-1 (" << lutObj0 << "," << lutObj1
-              << ") \n"
-              //<< (long long)(corrPar.minMassCutValue * pow(10, preShift_01)) << ","
-              //<< (long long)(corrPar.maxMassCutValue * pow(10, preShift_01))
-              //<< "] with precision = " << corrPar.precMassCut << "\n"
-              //<< "    deltaPhiLUT  = " << deltaPhiLUT_01 << "  cosLUT  = " << cosDeltaPhiLUT_01 << "\n"
-              //<< "    deltaEtaLUT  = " << deltaEtaLUT_01 << "  coshLUT = " << coshDeltaEtaLUT_01 << "\n"
-              //<< "    etIndex0     = " << etIndex0 << "    pt0LUT      = " << ptObj0
-              //<< " PhyEt0 = " << et0Phy << "\n"
-              //<< "    etIndex1     = " << etIndex1 << "    pt1LUT      = " << ptObj1
-              //<< " PhyEt1 = " << et1Phy << "\n"
-              << "    massSq/2     = " << massSq_01 << "\n"
-              << "    Precision Shift = " << preShift_01 << "\n"
-              << "    massSq   (shift)= " << (massSq_01 / pow(10, preShift_01 + corrPar.precMassCut))
-              << "\n"
-              //<< "    deltaPhiPhy  = " << deltaPhiPhy_01 << "  cos() = " << cosDeltaPhiPhy_01 << "\n"
-              //<< "    deltaEtaPhy  = " << deltaEtaPhy_01 << "  cosh()= " << coshDeltaEtaPhy_01 << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_01 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_01))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the FIRST PAIR 0-1 (" << lutObj0
+                                << "," << lutObj1 << ") \n"
+                                << "    massSq/2     = " << massSq_01 << "\n"
+                                << "    Precision Shift = " << preShift_01 << "\n"
+                                << "    massSq   (shift)= " << (massSq_01 / pow(10, preShift_01 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_01
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_01)) << std::endl;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the SECOND PAIR 0-2 (" << lutObj0 << "," << lutObj2
-              << ") \n"
-              //<< (long long)(corrPar.minMassCutValue * pow(10, preShift_02)) << ","
-              //<< (long long)(corrPar.maxMassCutValue * pow(10, preShift_02))
-              //<< "] with precision = " << corrPar.precMassCut << "\n"
-              //<< "    deltaPhiLUT  = " << deltaPhiLUT_02 << "  cosLUT  = " << cosDeltaPhiLUT_02 << "\n"
-              //<< "    deltaEtaLUT  = " << deltaEtaLUT_02 << "  coshLUT = " << coshDeltaEtaLUT_02 << "\n"
-              //<< "    etIndex0     = " << etIndex0 << "    pt0LUT      = " << ptObj0
-              //<< " PhyEt0 = " << et0Phy << "\n"
-              //<< "    etIndex2     = " << etIndex2 << "    pt2LUT      = " << ptObj2
-              //<< " PhyEt2 = " << et2Phy << "\n"
-              << "    massSq/2     = " << massSq_02 << "\n"
-              << "    Precision Shift = " << preShift_02 << "\n"
-              << "    massSq   (shift)= " << (massSq_02 / pow(10, preShift_02 + corrPar.precMassCut))
-              << "\n"
-              //<< "    deltaPhiPhy  = " << deltaPhiPhy_02 << "  cos() = " << cosDeltaPhiPhy_02 << "\n"
-              //<< "    deltaEtaPhy  = " << deltaEtaPhy_02 << "  cosh()= " << coshDeltaEtaPhy_02 << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_02 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_02))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the SECOND PAIR 0-2 (" << lutObj0
+                                << "," << lutObj2 << ") \n"
+                                << "    massSq/2     = " << massSq_02 << "\n"
+                                << "    Precision Shift = " << preShift_02 << "\n"
+                                << "    massSq   (shift)= " << (massSq_02 / pow(10, preShift_02 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_02
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_02)) << std::endl;
 
           LogDebug("L1TGlobal") << "####################################\n";
-          LogDebug("L1TGlobal")
-              << "    Testing the dimuon invariant mass between the THIRD PAIR 1-2 (" << lutObj1 << "," << lutObj2
-              << ") \n"
-              //<< (long long)(corrPar.minMassCutValue * pow(10, preShift_12)) << ","
-              //<< (long long)(corrPar.maxMassCutValue * pow(10, preShift_12))
-              //<< "] with precision = " << corrPar.precMassCut << "\n"
-              //<< "    deltaPhiLUT  = " << deltaPhiLUT_12 << "  cosLUT  = " << cosDeltaPhiLUT_12 << "\n"
-              //<< "    deltaEtaLUT  = " << deltaEtaLUT_12 << "  coshLUT = " << coshDeltaEtaLUT_12 << "\n"
-              //<< "    etIndex1     = " << etIndex1 << "    pt1LUT      = " << ptObj1
-              //<< " PhyEt1 = " << et0Phy << "\n"
-              //<< "    etIndex2     = " << etIndex2 << "    pt2LUT      = " << ptObj2
-              //<< " PhyEt2 = " << et2Phy << "\n"
-              << "    massSq/2     = " << massSq_12 << "\n"
-              << "    Precision Shift = " << preShift_12 << "\n"
-              << "    massSq   (shift)= " << (massSq_12 / pow(10, preShift_12 + corrPar.precMassCut))
-              << "\n"
-              //<< "    deltaPhiPhy  = " << deltaPhiPhy_12 << "  cos() = " << cosDeltaPhiPhy_12 << "\n"
-              //<< "    deltaEtaPhy  = " << deltaEtaPhy_12 << "  cosh()= " << coshDeltaEtaPhy_12 << "\n"
-              << "    massSqPhy/2  = " << massSqPhy_12 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_12))
-              << std::endl;
+          LogDebug("L1TGlobal") << "    Testing the dimuon invariant mass between the THIRD PAIR 1-2 (" << lutObj1
+                                << "," << lutObj2 << ") \n"
+                                << "    massSq/2     = " << massSq_12 << "\n"
+                                << "    Precision Shift = " << preShift_12 << "\n"
+                                << "    massSq   (shift)= " << (massSq_12 / pow(10, preShift_12 + corrPar.precMassCut))
+                                << "\n"
+                                << "    massSqPhy/2  = " << massSqPhy_12
+                                << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_12)) << std::endl;
 
           LogDebug("L1TGlobal") << "\n ########### THREE-BODY INVARIANT MASS #########################\n";
           long long massSq = 0;
@@ -725,7 +717,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
           }
         }
 
-        if (reqResult) {
+        if (reqResult && chrgCorrel) {
           condResult = true;
           (combinationsInCond()).push_back(objectsInComb);
         }
@@ -741,12 +733,12 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
 }
 
 /**
- * checkObjectParameter - Compare a single particle with a numbered condition.
+ * checkObjectParameter - Compare a single particle with a numbered condition
  *
- * @param iCondition The number of the condition.
- * @param cand The candidate to compare.
+ * @param iCondition: The number of the condition.
+ * @param cand: The candidate to compare.
  *
- * @return The result of the comparison (false if a condition does not exist).
+ * @return: The result of the comparison (false if a condition does not exist)
  */
 
 const bool l1t::CorrThreeBodyCondition::checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const {
