@@ -6,22 +6,22 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "RecoParticleFlow/PFProducer/test/PFIsoReader.h"
 
-PFIsoReader::PFIsoReader(const edm::ParameterSet& iConfig) 
-  : inputTagGsfElectrons_(iConfig.getParameter<edm::InputTag>("Electrons")),
-    inputTagPhotons_(iConfig.getParameter<edm::InputTag>("Photons")),
-    inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidates")),
-    inputTagValueMapPhotons_(iConfig.getParameter<edm::InputTag>("PhotonValueMap")),
-    inputTagValueMapElectrons_(iConfig.getParameter<edm::InputTag>("ElectronValueMap")),
-    inputTagValueMapMerged_(iConfig.getParameter<edm::InputTag>("MergedValueMap")),
-    inputTagElectronIsoDeposits_(iConfig.getParameter<std::vector<edm::InputTag> >("ElectronIsoDeposits")),
-    inputTagPhotonIsoDeposits_(iConfig.getParameter<std::vector<edm::InputTag> >("PhotonIsoDeposits")), 
-    useValueMaps_(iConfig.getParameter<bool>("useEGPFValueMaps")),
-    pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
-    elecToken_(consumes<reco::GsfElectronCollection>(inputTagGsfElectrons_)),
-    photonToken_(consumes<reco::PhotonCollection>(inputTagPhotons_)),
-    elecMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapElectrons_)),
-    photonMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapPhotons_)),
-    mergeMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapMerged_)) {
+PFIsoReader::PFIsoReader(const edm::ParameterSet& iConfig)
+    : inputTagGsfElectrons_(iConfig.getParameter<edm::InputTag>("Electrons")),
+      inputTagPhotons_(iConfig.getParameter<edm::InputTag>("Photons")),
+      inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidates")),
+      inputTagValueMapPhotons_(iConfig.getParameter<edm::InputTag>("PhotonValueMap")),
+      inputTagValueMapElectrons_(iConfig.getParameter<edm::InputTag>("ElectronValueMap")),
+      inputTagValueMapMerged_(iConfig.getParameter<edm::InputTag>("MergedValueMap")),
+      inputTagElectronIsoDeposits_(iConfig.getParameter<std::vector<edm::InputTag> >("ElectronIsoDeposits")),
+      inputTagPhotonIsoDeposits_(iConfig.getParameter<std::vector<edm::InputTag> >("PhotonIsoDeposits")),
+      useValueMaps_(iConfig.getParameter<bool>("useEGPFValueMaps")),
+      pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+      elecToken_(consumes<reco::GsfElectronCollection>(inputTagGsfElectrons_)),
+      photonToken_(consumes<reco::PhotonCollection>(inputTagPhotons_)),
+      elecMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapElectrons_)),
+      photonMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapPhotons_)),
+      mergeMapToken_(consumes<edm::ValueMap<reco::PFCandidatePtr> >(inputTagValueMapMerged_)) {
   for (auto const& tag : inputTagElectronIsoDeposits_)
     isoElecToken_.emplace_back(consumes<edm::Handle<edm::ValueMap<reco::IsoDeposit> > >(tag));
   for (auto const& tag : inputTagPhotonIsoDeposits_)
