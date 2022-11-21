@@ -127,7 +127,7 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
       CellsToKill = cms.VPSet(),
-      AddBiasRailInefficiency= cms.bool(False)
+      BiasRailInefficiencyFlag = cms.int32(1) # Flag to decide BiasRail inefficiency : no inefficency(0) : inefficiency with optimistic(AND) scenario(1) : inefficiency with pessimistic(OR) scenario(2)
     ),
 #Strip in PS module
     PSSDigitizerAlgorithm = cms.PSet(
