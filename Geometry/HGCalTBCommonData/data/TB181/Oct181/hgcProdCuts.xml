@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<SpecParSection label="hgcProdCuts.xml" eval="true">
+  <SpecPar name="hgcProdCuts">
+    <PartSelector path="//HGCalEE"/>
+    <PartSelector path="//HGCalHE"/>
+    <Parameter name="CMSCutsRegion" value="HGCalRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForProtons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma" value="1.0*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>
