@@ -25,11 +25,11 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > electronToken_;
 };
 
-GEDValueMapAnalyzer::GEDValueMapAnalyzer(const edm::ParameterSet& iConfig) 
-  : inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidates")),
-    inputTagValueMapElectrons_(iConfig.getParameter<edm::InputTag>("ElectronValueMap")),
-    pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
-    electronToken_(consumes<edm::ValueMap<reco::GsfElectronRef> >(inputTagValueMapElectrons_)) {}
+GEDValueMapAnalyzer::GEDValueMapAnalyzer(const edm::ParameterSet& iConfig)
+    : inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidates")),
+      inputTagValueMapElectrons_(iConfig.getParameter<edm::InputTag>("ElectronValueMap")),
+      pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+      electronToken_(consumes<edm::ValueMap<reco::GsfElectronRef> >(inputTagValueMapElectrons_)) {}
 
 void GEDValueMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   const edm::Handle<reco::PFCandidateCollection>& pfCandidatesH = iEvent.getHandle(pfCandToken_);
