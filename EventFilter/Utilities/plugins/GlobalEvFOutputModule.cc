@@ -43,7 +43,7 @@ namespace evf {
 
   class GlobalEvFOutputEventWriter {
   public:
-    explicit GlobalEvFOutputEventWriter(std::string const& filePath, uint32_t ls)
+    explicit GlobalEvFOutputEventWriter(std::string const& filePath, unsigned int ls)
         : filePath_(filePath), ls_(ls), accepted_(0), stream_writer_events_(new StreamerOutputFile(filePath)) {}
 
     ~GlobalEvFOutputEventWriter() {}
@@ -113,7 +113,7 @@ namespace evf {
 
   private:
     std::string filePath_;
-    const uint32_t ls_;
+    const unsigned ls_;
     std::atomic<unsigned long> accepted_;
     edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_events_;
     edm::SerialTaskQueue writeQueue_;
@@ -312,12 +312,16 @@ namespace evf {
              "names in FFF based HLT, but was detected in stream name";
 
     //output initemp file. This lets hltd know number of streams early on
-    const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_) + "temp";
-    FILE* src = fopen(iniFileName.c_str(), "w");
-    if (src == nullptr)
-      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << ":" << strerror(errno);
-    fclose(src);
-    edm::LogInfo("GlobalEvFOutputModule") << "Constructor initemp stream -: " << iniFileName;
+    if (!edm::Service<evf::EvFDaqDirector>().isAvailable())
+      throw cms::Exception("GlobalEvFOutputModule") << "EvFDaqDirector is not available";
+
+    const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath(streamLabel_);
+    std::ofstream file(iniFileName);
+    if (!file)
+      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << ": " << strerror(errno);
+    file.close();
+
+    edm::LogInfo("GlobalEvFOutputModule") << "Constructor created initemp file -: " << iniFileName;
 
     //create JSD
     GlobalEvFOutputJSONDef(streamLabel_, true);
