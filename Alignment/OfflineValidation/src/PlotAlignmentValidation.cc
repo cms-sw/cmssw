@@ -1229,24 +1229,31 @@ void PlotAlignmentValidation::plotChi2(const char* inputFile) {
   // Opens the file (it should be OfflineValidation(Parallel)_result.root)
   // and reads and plots the norm_chi^2 and h_chi2Prob -distributions.
 
-  Bool_t errorflag = kTRUE;
+  Bool_t errorflag = kFALSE;
   TFile* fi1 = TFile::Open(inputFile, "read");
-  TDirectoryFile* mta1 = nullptr;
-  TDirectoryFile* mtb1 = nullptr;
-  TCanvas* normchi = nullptr;
-  TCanvas* chiprob = nullptr;
   if (fi1 != nullptr) {
-    mta1 = (TDirectoryFile*)fi1->Get("TrackerOfflineValidation");
-    if (mta1 != nullptr) {
-      mtb1 = (TDirectoryFile*)mta1->Get("GlobalTrackVariables");
-      if (mtb1 != nullptr) {
-        normchi = dynamic_cast<TCanvas*>(mtb1->Get("h_normchi2"));
-        chiprob = dynamic_cast<TCanvas*>(mtb1->Get("h_chi2Prob"));
-        if (normchi != nullptr && chiprob != nullptr) {
-          errorflag = kFALSE;
-        }
-      }
+    if (fi1->GetDirectory("TrackerOfflineValidation/GlobalTrackVariables") == nullptr) {
+      errorflag = kTRUE;
     }
+  } else {
+    errorflag = kTRUE;
+  }
+  if (errorflag) {
+    std::cout << "PlotAlignmentValidation::plotChi2: Can't find GlobalTrackVariables given file,"
+              << " no chi^2-plots produced" << std::endl;
+    return;
+  }
+
+  auto normchi = fi1->Get<TCanvas>("TrackerOfflineValidation/GlobalTrackVariables/h_normchi2");
+  // please remove following line once bug is fixed with ROOT Version: >6.27/01
+  normchi->GetFrame()->ResetBit(kCanDelete);
+
+  auto chiprob = fi1->Get<TCanvas>("TrackerOfflineValidation/GlobalTrackVariables/h_chi2Prob");
+  // please remove following line once bug is fixed with ROOT Version: >6.27/01
+  chiprob->GetFrame()->ResetBit(kCanDelete);
+
+  if (normchi == nullptr || chiprob == nullptr) {
+    errorflag = kTRUE;
   }
   if (errorflag) {
     std::cout << "PlotAlignmentValidation::plotChi2: Can't find data from given file,"
@@ -1308,6 +1315,7 @@ void PlotAlignmentValidation::plotChi2(const char* inputFile) {
   chiprob->Write();
   fi3.Close();
 
+  fi1->Close();
   delete fi1;
 }
 
